@@ -1,8 +1,18 @@
-import { Avatar, Fade, styled, Tab, Tabs, Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import {
+  Avatar,
+  Button,
+  ButtonProps,
+  Fade,
+  styled,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
+import { Box, width } from "@mui/system";
 import Link from "next/link";
 import React from "react";
 import { useTribe } from "../../../../pages/tribe/[id]";
+import EpochModal from "../epochModal";
 
 const HeadingAvatar = styled(Avatar)(({ theme }) => ({
   width: "6rem",
@@ -41,8 +51,18 @@ const TribeHeading = (props: Props) => {
               <HeadingAvatar alt="Username" />
             </Link>
           </div>
-          <Box sx={{ display: "flex", flexDirection: "column", marginLeft: 4 }}>
-            <Typography variant="h4">Spect Network DAO</Typography>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              marginLeft: 4,
+              width: "100%",
+            }}
+          >
+            <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+              <Typography variant="h4">Spect Network DAO</Typography>
+              <EpochModal />
+            </Box>
             <Box sx={{ display: "flex", flexDirection: "row" }}>
               <StyledAnchor>
                 <i className="fab fa-github" />
