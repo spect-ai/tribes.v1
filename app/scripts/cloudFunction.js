@@ -25,7 +25,6 @@ Moralis.Cloud.define("createTeam", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const teamQuery = new Moralis.Query("Team");
-    teamQuery.notEqualTo("objectId", "");
     const teamCount = await teamQuery.count();
 
     const team = new Moralis.Object("Team");
@@ -93,26 +92,36 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     var team = await teamQuery.first();
     //const canStart = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
     const canStart = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
+
     if (canStart) {
       const epoch = new Moralis.Object("Epoch");
       var epochMembers = [];
       for (var memberAddress of request.params.members) {
         epochMembers.push({ ethAddress: memberAddress, votesGiven: 0, votesReceived: 0, votesRemaining: 100 });
       }
-
+      const epochQuery = new Moralis.Query("Epoch");
+      epochQuery.equalTo("teamId", request.params.teamId);
+      const epochCount = await epochQuery.count();
+      const endTime = request.params.startTime + request.params.duration;
       epoch.set("teamId", request.params.teamId);
-      epoch.set("startTime", request.params.startTime);
-      epoch.set("length", request.params.length); // in minutes
-      epoch.set("endTime", request.params.length);
+      epoch.set("startTime", new Date(request.params.startTime));
+      epoch.set("duration", request.params.duration); // in milliseconds
+      epoch.set("endTime", new Date(endTime));
       epoch.set("memberStats", epochMembers); // list
       epoch.set("type", request.params.type);
       epoch.set("strategy", request.params.strategy);
       epoch.set("budget", request.params.budget);
+      epoch.set("epochNumber", epochCount + 1);
+      logger.info(`epoch ${JSON.stringify(epoch)}`);
 
       await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+      return epoch;
+    } else {
+      logger.info(`User doesnt have access to start epoch`);
+      return false;
     }
   } catch (err) {
-    logger.error(`Error whilte creating team ${err}`);
+    logger.error(`Error whilte creating epoch ${err}`);
     return false;
   }
 });
