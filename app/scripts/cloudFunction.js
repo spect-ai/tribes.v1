@@ -85,6 +85,94 @@ Moralis.Cloud.define("updateTeam", async (request) => {
   }
 });
 
+Moralis.Cloud.define("startEpoch", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const teamQuery = new Moralis.Query("Team");
+    teamQuery.equalTo("teamId", request.params.teamId);
+    var team = await teamQuery.first();
+    //const canStart = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
+    const canStart = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
+    if (canStart) {
+      const epoch = new Moralis.Object("Epoch");
+      var epochMembers = [];
+      for (var memberAddress of request.params.members) {
+        epochMembers.push({ ethAddress: memberAddress, votesGiven: 0, votesReceived: 0, votesRemaining: 100 });
+      }
+
+      epoch.set("teamId", request.params.teamId);
+      epoch.set("startTime", request.params.startTime);
+      epoch.set("length", request.params.length); // in minutes
+      epoch.set("endTime", request.params.length);
+      epoch.set("memberStats", epochMembers); // list
+      epoch.set("type", request.params.type);
+      epoch.set("strategy", request.params.strategy);
+      epoch.set("budget", request.params.budget);
+
+      await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+    }
+  } catch (err) {
+    logger.error(`Error whilte creating team ${err}`);
+    return false;
+  }
+});
+
+Moralis.Cloud.define("giftContributors", async (request) => {
+  try {
+    const logger = Moralis.Cloud.getLogger();
+    const epochQuery = new Moralis.Query("Epoch");
+    epochQuery.equalTo("epochId", request.params.epochId);
+    var epoch = await epochQuery.first();
+
+    const updatedMemberStats = await calcEffectiveVotes(
+      request.params.votes,
+      epoch.get("memberStats"),
+      request.params.ethAddress
+    );
+    epoch.set("memberStats", updatedMemberStats);
+    await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+  } catch (err) {
+    logger.error(`Error whilte creating team ${err}`);
+    return false;
+  }
+});
+
+Moralis.Cloud.define("calcTest", async (request) => {
+  try {
+    return await calcEffectiveVotes(request.params.votes, request.params.members, request.params.ethAddress);
+  } catch (err) {
+    logger.error(`Error whilte creating team ${err}`);
+    return false;
+  }
+});
+
+async function calcEffectiveVotes(votes, members, voterAddress) {
+  /* votes: {"0x232324": 10,
+            '0x232324': 19)
+    members: [{"ethAddress":"0x232324", "votesGiven": 10, "votesReceived":9, "votesRemaining":90},
+            {"ethAddress':'0x232324', 'votes': 19, "votesReceived":9, "votesRemaining":90}]
+  */
+  var totalEffectiveVote = 0;
+  var voterStats = members.filter((a) => a.ethAddress === voterAddress);
+  var idx = 0;
+  var voterIdx;
+  for (var member of members) {
+    if (member["ethAddress"] !== voterAddress) {
+      var numVotes = votes[member["ethAddress"]];
+      member["votesReceived"] += numVotes;
+      totalEffectiveVote += Math.pow(numVotes, 2);
+      if (voterStats["votesRemaining"] < totalEffectiveVote) {
+        throw "Not enough votes remaining";
+      }
+      idx++;
+    } else {
+      voterIdx = idx;
+    }
+  }
+  members[voterIdx]["votesRemaining"] -= totalEffectiveVote;
+  return members;
+}
+
 async function hasAccess(ethAddress, team, requiredAccess) {
   const members = team.get("members");
   for (var member of members) {
