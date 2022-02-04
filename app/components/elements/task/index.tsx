@@ -69,37 +69,45 @@ const Task = ({ title, type, idx }: Props) => {
             width: "100%",
           }}
         >
-          <IconButton
-            onClick={() => {
-              if (type == 1) {
-                setInProgressTasks(
-                  inProgressTasks.filter((task, index) => index !== idx)
-                );
-                setToDoTasks([...toDoTasks, inProgressTasks[idx]]);
-              } else if (type == 2) {
-                setDoneTasks(doneTasks.filter((task, index) => index !== idx));
-                setInProgressTasks([...inProgressTasks, doneTasks[idx]]);
-              }
-            }}
-          >
-            {type !== 0 && <ChevronLeftIcon />}
-          </IconButton>
+          {type !== 0 && (
+            <IconButton
+              onClick={() => {
+                if (type == 1) {
+                  setInProgressTasks(
+                    inProgressTasks.filter((task, index) => index !== idx)
+                  );
+                  setToDoTasks([...toDoTasks, inProgressTasks[idx]]);
+                } else if (type == 2) {
+                  setDoneTasks(
+                    doneTasks.filter((task, index) => index !== idx)
+                  );
+                  setInProgressTasks([...inProgressTasks, doneTasks[idx]]);
+                }
+              }}
+            >
+              <ChevronLeftIcon />
+            </IconButton>
+          )}
           <Box sx={{ flex: "1 1 auto" }} />
-          <IconButton
-            onClick={() => {
-              if (type == 0) {
-                setToDoTasks(toDoTasks.filter((task, index) => index !== idx));
-                setInProgressTasks([...inProgressTasks, toDoTasks[idx]]);
-              } else if (type == 1) {
-                setInProgressTasks(
-                  inProgressTasks.filter((task, index) => index !== idx)
-                );
-                setDoneTasks([...doneTasks, inProgressTasks[idx]]);
-              }
-            }}
-          >
-            {type !== 2 && <ChevronRightIcon />}
-          </IconButton>
+          {type !== 2 && (
+            <IconButton
+              onClick={() => {
+                if (type == 0) {
+                  setToDoTasks(
+                    toDoTasks.filter((task, index) => index !== idx)
+                  );
+                  setInProgressTasks([...inProgressTasks, toDoTasks[idx]]);
+                } else if (type == 1) {
+                  setInProgressTasks(
+                    inProgressTasks.filter((task, index) => index !== idx)
+                  );
+                  setDoneTasks([...doneTasks, inProgressTasks[idx]]);
+                }
+              }}
+            >
+              <ChevronRightIcon />
+            </IconButton>
+          )}
         </Box>
       </CardActions>
     </StyledCard>

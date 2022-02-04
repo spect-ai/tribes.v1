@@ -33,7 +33,7 @@ const Sidebar = (props: Props) => {
   return (
     <SidebarDiv>
       <SidebarAvatar alt="Username" />
-      <Tooltip title="Create team">
+      <Tooltip title="Create tribe">
         <CreateTeamButton>
           <AddIcon />
         </CreateTeamButton>
