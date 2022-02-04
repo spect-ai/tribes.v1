@@ -66,6 +66,7 @@ const Wrapper = styled.div`
 
 const MainContainer = styled.div`
     flex: 4;
+    height: 400px;
 `
 
 const SideContainer = styled.div`
@@ -76,10 +77,12 @@ const SideContainer = styled.div`
     border-left: 1px solid #282b2f;
     align-content: flex-start;
     justify-content: flex-start;
+    align-items: flex-start;
 `
 
 const DescriptionContainer = styled.div`
     display: flex;
+    align-self: flex-start;
     flex-direction: column;
     padding-bottom: 16px;
 
