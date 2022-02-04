@@ -13,6 +13,7 @@
     "@mui/icons-material": "^5.3.1",
     "@mui/lab": "^5.0.0-alpha.67",
     "@mui/material": "^5.4.0",
+    "@types/styled-components": "^5.1.21",
     "@walletconnect/web3-provider": "^1.7.1",
     "dayjs": "^1.10.7",
     "magic-sdk": "^8.0.1",
@@ -21,7 +22,8 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-hook-form": "^7.26.0",
-    "react-moralis": "^1.2.1"
+    "react-moralis": "^1.2.1",
+    "styled-components": "^5.3.3"
   },
   "devDependencies": {
     "@types/node": "17.0.14",
