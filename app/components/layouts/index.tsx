@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import React from "react";
+import Sidebar from "../modules/sidebar";
 
 interface Props {
   children: React.ReactNode;
@@ -15,7 +16,7 @@ const OuterDiv = styled.div`
   color: #eaeaea;
   font-size: 1.5rem;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 `;
 
 const Main = styled.main`
@@ -25,6 +26,7 @@ const Main = styled.main`
 const Layout = ({ children }: Props) => {
   return (
     <OuterDiv>
+      <Sidebar />
       <Main>{children}</Main>
     </OuterDiv>
   );

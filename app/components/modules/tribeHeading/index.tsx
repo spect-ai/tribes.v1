@@ -15,6 +15,12 @@ const StyledTab = styled(Tab)(({ theme }) => ({
   fontSize: "1.2rem",
   marginRight: 25,
 }));
+
+const StyledAnchor = styled("a")(({ theme }) => ({
+  color: "#5a6972",
+  marginRight: "1.5rem",
+}));
+
 type Props = {};
 
 const TribeHeading = (props: Props) => {
@@ -35,7 +41,20 @@ const TribeHeading = (props: Props) => {
               <HeadingAvatar alt="Username" />
             </Link>
           </div>
-          <Typography variant="h4">Dao Name</Typography>
+          <Box sx={{ display: "flex", flexDirection: "column", marginLeft: 4 }}>
+            <Typography variant="h4">Spect Network DAO</Typography>
+            <Box sx={{ display: "flex", flexDirection: "row" }}>
+              <StyledAnchor>
+                <i className="fab fa-github" />
+              </StyledAnchor>
+              <StyledAnchor>
+                <i className="fab fa-discord"></i>
+              </StyledAnchor>
+              <StyledAnchor>
+                <i className="fab fa-twitter" />
+              </StyledAnchor>
+            </Box>
+          </Box>
         </Box>
       </Box>
       <Box
