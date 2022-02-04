@@ -11,6 +11,7 @@
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
     "@mui/material": "^5.4.0",
+    "@rari-capital/solmate": "^6.2.0",
     "@walletconnect/web3-provider": "^1.7.1",
     "magic-sdk": "^8.0.1",
     "moralis": "^1.2.4",
