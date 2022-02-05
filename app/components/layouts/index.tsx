@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import React from "react";
+import Navbar from "../modules/navbar";
 import Sidebar from "../modules/sidebar";
 
 interface Props {
@@ -19,6 +20,12 @@ const OuterDiv = styled.div`
   flex-direction: row;
 `;
 
+const InnerDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
 const Main = styled.main`
   flex-grow: 1;
 `;
@@ -27,7 +34,10 @@ const Layout = ({ children }: Props) => {
   return (
     <OuterDiv>
       <Sidebar />
-      <Main>{children}</Main>
+      <InnerDiv>
+        <Navbar />
+        <Main>{children}</Main>
+      </InnerDiv>
     </OuterDiv>
   );
 };
