@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import React from "react";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import Board from "../../modules/board";
+import Contributor from "../../modules/contributors/index"
 import TribeHeading from "../../modules/tribeHeading";
 
 type Props = {};
@@ -17,7 +18,7 @@ const TribeTemplate = (props: Props) => {
     <OuterDiv>
       <TribeHeading />
       {tab == 0 && <div>Overview</div>}
-      {tab == 1 && <div>Contributors</div>}
+      {tab == 1 && <Contributor/>}
       {tab == 2 && <Board />}
       {tab == 3 && <div>Settings</div>}
     </OuterDiv>
