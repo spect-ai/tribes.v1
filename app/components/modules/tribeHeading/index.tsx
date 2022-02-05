@@ -10,10 +10,14 @@ import {
 } from "@mui/material";
 import { Box, width } from "@mui/system";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import EpochModal, { PrimaryButton } from "../epochModal";
+import GitHubLogin from "react-github-login";
+import { Octokit } from "@octokit/rest";
+import { getGithubToken } from "../../../adapters/moralis";
+import { useMoralis } from "react-moralis";
 
 const HeadingAvatar = styled(Avatar)(({ theme }) => ({
   width: "6rem",
@@ -35,7 +39,9 @@ const StyledAnchor = styled("a")(({ theme }) => ({
 type Props = {};
 
 const TribeHeading = (props: Props) => {
-  const { setTab, tab } = useTribe();
+  const { setTab, tab, setGithubToken } = useTribe();
+  const [githubLoading, setGithubLoading] = useState(false);
+  const { Moralis } = useMoralis();
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
@@ -71,8 +77,33 @@ const TribeHeading = (props: Props) => {
                 endIcon={<GitHubIcon />}
                 onClick={() => {}}
                 sx={{ ml: 3 }}
+                loading={githubLoading}
               >
                 Integrate Github
+                <GitHubLogin
+                  clientId="4403e769e4d52b24eeab"
+                  scope="repo"
+                  onSuccess={(res: any) => {
+                    console.log(res);
+                    getGithubToken(Moralis, res.code)
+                      .then((token: string) => {
+                        console.log(token);
+                        const accessToken = token.substring(
+                          token.indexOf("=") + 1,
+                          token.lastIndexOf("&scope")
+                        );
+                        setGithubToken(accessToken);
+                        setGithubLoading(false);
+                      })
+                      .catch((err: any) => {
+                        console.log(err);
+                        setGithubLoading(false);
+                      });
+                  }}
+                  onFailure={(err: any) => console.log(err)}
+                  onclick={() => setGithubLoading(true)}
+                  redirectUri="http://localhost:3000/"
+                />
               </PrimaryButton>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "row" }}>

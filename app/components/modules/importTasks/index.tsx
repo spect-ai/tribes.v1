@@ -18,8 +18,11 @@ import { PrimaryButton } from "../epochModal";
 import { Octokit } from "@octokit/rest";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import { useTribe } from "../../../../pages/tribe/[id]";
 
-type Props = {};
+type Props = {
+  setIsOpen: (isOpen: boolean) => void;
+};
 
 export interface IImportTasksInput {
   repo: string;
@@ -33,10 +36,12 @@ const LinkContainer = styled("div")(({ theme }) => ({
   paddingBottom: "1rem",
 }));
 
-const ImportTasks = (props: Props) => {
+const ImportTasks = ({ setIsOpen }: Props) => {
   const octokit = new Octokit({
     auth: process.env.GITHUB_BOT_AUTH,
   });
+  const { setToDoTasks, setRepo } = useTribe();
+
   const {
     handleSubmit,
     control,
@@ -50,16 +55,25 @@ const ImportTasks = (props: Props) => {
 
   const onSubmit: SubmitHandler<IImportTasksInput> = async (values) => {
     console.log(values);
-
-    // octokit.rest.issues
-    //   .listForRepo({
-    //     owner: values.name,
-    //     repo: values.repo,
-    //     labels: values.labels.toString(),
-    //   })
-    //   .then(({ data }) => {
-    //     console.log(data);
-    //   });
+    const splitValues = values.repo.split("/");
+    setRepo(values.repo);
+    octokit.rest.issues
+      .listForRepo({
+        owner: splitValues[3],
+        repo: splitValues[4],
+        labels: values.labels.toString(),
+      })
+      .then(({ data }) => {
+        console.log(data);
+        const issues = data.map((issue) => {
+          return {
+            title: issue.title,
+            id: issue.number,
+          };
+        });
+        setToDoTasks(issues);
+        setIsOpen(false);
+      });
 
     // octokit.rest.issues
     //   .addAssignees({

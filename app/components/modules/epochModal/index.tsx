@@ -18,16 +18,19 @@ import { useForm } from "react-hook-form";
 import EpochForm from "../epochForm";
 import ImportTasks from "../importTasks";
 import ImportExportIcon from "@mui/icons-material/ImportExport";
+import { LoadingButton } from "@mui/lab";
 
 type Props = {
   step: number;
 };
 
-export const PrimaryButton = styled(Button)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText("#000f29"),
-  borderRadius: "20px",
-  textTransform: "none",
-}));
+export const PrimaryButton = styled(LoadingButton)<ButtonProps>(
+  ({ theme }) => ({
+    color: theme.palette.getContrastText("#000f29"),
+    borderRadius: "20px",
+    textTransform: "none",
+  })
+);
 
 const modalStyle = {
   position: "absolute" as "absolute",
@@ -127,7 +130,7 @@ const EpochModal = ({ step }: Props) => {
               </Box>
             </Backdrop>
             {activeStep === 0 && <EpochForm handleNext={handleNext} />}
-            {activeStep === 1 && <ImportTasks />}
+            {activeStep === 1 && <ImportTasks setIsOpen={setIsOpen} />}
           </Box>
         </Fade>
       </Modal>

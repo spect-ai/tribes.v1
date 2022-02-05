@@ -55,3 +55,10 @@ export function getTeam(Moralis: any, teamId: number) {
 //   };
 //   return Moralis.Cloud.run("getEpoch", params);
 // }
+
+export function getGithubToken(Moralis: any, code: string) {
+  const params = {
+    code: code,
+  };
+  return Moralis.Cloud.run("getGithubToken", params);
+}

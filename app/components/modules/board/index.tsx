@@ -81,17 +81,35 @@ const Board = (props: Props) => {
         <Grid container spacing={2}>
           <Grid item xs={3}>
             {toDoTasks.map((task, index) => (
-              <Task type={0} title={task.title} key={index} idx={index} />
+              <Task
+                type={0}
+                title={task.title}
+                key={index}
+                idx={index}
+                id={task.id}
+              />
             ))}
           </Grid>
           <Grid item xs={3}>
             {inProgressTasks.map((task, index) => (
-              <Task type={1} title={task.title} key={index} idx={index} />
+              <Task
+                type={1}
+                title={task.title}
+                key={index}
+                idx={index}
+                id={task.id}
+              />
             ))}
           </Grid>
           <Grid item xs={3}>
             {doneTasks.map((task, index) => (
-              <Task type={2} title={task.title} key={index} idx={index} />
+              <Task
+                type={2}
+                title={task.title}
+                key={index}
+                idx={index}
+                id={task.id}
+              />
             ))}
           </Grid>
           <Grid item xs={3} sx={{ borderLeft: "1px solid #5a6972" }}>
