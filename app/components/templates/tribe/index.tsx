@@ -5,6 +5,8 @@ import Board from "../../modules/board";
 import Contributor from "../../modules/contributors/index"
 import TribeHeading from "../../modules/tribeHeading";
 import Settings from '../../modules/settings';
+import Overview from "./overview";
+
 type Props = {};
 
 const OuterDiv = styled.div`
@@ -17,7 +19,7 @@ const TribeTemplate = (props: Props) => {
   return (
     <OuterDiv>
       <TribeHeading />
-      {tab == 0 && <div>Overview</div>}
+      {tab == 0 && <Overview />}
       {tab == 1 && <Contributor/>}
       {tab == 2 && <Board />}
       {tab == 3 && <Settings/>}

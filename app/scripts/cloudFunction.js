@@ -25,7 +25,6 @@ Moralis.Cloud.define("createTeam", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const teamQuery = new Moralis.Query("Team");
-    teamQuery.notEqualTo("objectId", "");
     const teamCount = await teamQuery.count();
 
     const team = new Moralis.Object("Team");
@@ -33,7 +32,6 @@ Moralis.Cloud.define("createTeam", async (request) => {
     team.set("teamId", teamId);
     team.set("name", request.params.name);
     team.set("mission", request.params.mission);
-    team.set("address", request.params.teamAddress);
     team.set("treasuryAddress", request.params.treasuryAddress);
     team.set("onchain", false);
     //team.set("members", [{ ethAddress: request.user.get("ethAddress"), role: "admin" }]);
@@ -93,28 +91,45 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     var team = await teamQuery.first();
     //const canStart = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
     const canStart = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
+
     if (canStart) {
       const epoch = new Moralis.Object("Epoch");
       var epochMembers = [];
       for (var memberAddress of request.params.members) {
         epochMembers.push({ ethAddress: memberAddress, votesGiven: 0, votesReceived: 0, votesRemaining: 100 });
       }
-
+      const epochQuery = new Moralis.Query("Epoch");
+      epochQuery.equalTo("teamId", request.params.teamId);
+      const epochCount = await epochQuery.count();
+      const endTime = request.params.startTime + request.params.duration;
       epoch.set("teamId", request.params.teamId);
-      epoch.set("startTime", request.params.startTime);
-      epoch.set("length", request.params.length); // in minutes
-      epoch.set("endTime", request.params.length);
+      epoch.set("startTime", new Date(request.params.startTime));
+      epoch.set("duration", request.params.duration); // in milliseconds
+      epoch.set("endTime", new Date(endTime));
       epoch.set("memberStats", epochMembers); // list
       epoch.set("type", request.params.type);
       epoch.set("strategy", request.params.strategy);
       epoch.set("budget", request.params.budget);
+      epoch.set("epochNumber", epochCount + 1);
+      logger.info(`epoch ${JSON.stringify(epoch)}`);
 
       await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+      return epoch;
+    } else {
+      logger.info(`User doesnt have access to start epoch`);
+      return false;
     }
   } catch (err) {
-    logger.error(`Error whilte creating team ${err}`);
+    logger.error(`Error whilte creating epoch ${err}`);
     return false;
   }
+});
+
+Moralis.Cloud.define("getEpoch", async (request) => {
+  const epochQuery = new Moralis.Query("Epoch");
+  const pipeline = [{ match: { objectId: request.params.epochId } }];
+  const epoch = await epochQuery.aggregate(pipeline);
+  return epoch[0];
 });
 
 Moralis.Cloud.define("giftContributors", async (request) => {
@@ -335,3 +350,137 @@ Moralis.Cloud.define("getTeam", async (request) => {
 
   return await getTeam(request.params.teamId);
 });
+
+Moralis.Cloud.define("createBoard", async (request) => {
+  try {
+    const logger = Moralis.Cloud.getLogger();
+    const board = await getBoard(
+      request.params.name,
+      request.params.description,
+      request.params.teamId,
+      request.params.strategy,
+      request.params.settlementTokenName,
+      request.params.settlementTokenAddress,
+      request.params.settlementTokenType,
+      request.params.bumpUpValue,
+      request.params.dumpDownValue,
+      request.params.bumpUpTillPause,
+      request.params.dumpDownTillPause,
+      (update = false)
+    );
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+    return board;
+  } catch (err) {
+    logger.error(`Error while creating team ${err}`);
+    return false;
+  }
+});
+
+Moralis.Cloud.define("updateBoard", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    var team = await getTeam(request.params.teamId);
+    const canUpdate = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
+    if (canUpdate) {
+      const board = await getBoard(
+        request.params.name,
+        request.params.description,
+        request.params.teamId,
+        request.params.strategy,
+        request.params.settlementTokenName,
+        request.params.settlementTokenAddress,
+        request.params.settlementTokenType,
+        request.params.bumpUpValue,
+        request.params.dumpDownValue,
+        request.params.bumpUpTillPause,
+        request.params.dumpDownTillPause,
+        (update = true)
+      );
+      await Moralis.Object.saveAll([board], { useMasterKey: true });
+      return board;
+    }
+  } catch (err) {
+    logger.error(`Error while creating team ${err}`);
+    return false;
+  }
+});
+
+async function getBoard(
+  name,
+  description,
+  teamId,
+  strategy,
+  settlementTokenName,
+  settlementTokenAddress,
+  settlementTokenType,
+  bumpUpValue,
+  dumpDownValue,
+  bumpUpTillPause,
+  dumpDownTillPause,
+  update = false
+) {
+  var board = new Moralis.Object("Board");
+  board.set("name", name);
+  board.set("description", description);
+  if (!update) {
+    board.set("teamId", teamId);
+  }
+  board.set("strategy", strategy);
+  board.set("settlementTokenName", settlementTokenName);
+  board.set("settlementTokenAddress", settlementTokenAddress);
+  board.set("settlementTokenType", settlementTokenType);
+  board.set("bumpUpValue", bumpUpValue);
+  board.set("dumpDownValue", dumpDownValue);
+  board.set("bumpUpTillPause", bumpUpTillPause);
+  board.set("dumpDownTillPause", dumpDownTillPause);
+
+  return board;
+}
+
+Moralis.Cloud.define("createTasks", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  var task;
+  var tasks = [];
+  for (var newTask of request.params.newTasks) {
+    if (request.params.taskSource === "github") {
+      task = await getGithubTask(newTask.name, newTask.issueLink, newTask.value);
+    } else {
+      task = await getSpectTask(newTask.name, newTask.description, newTask.deadline, newTask.value);
+    }
+    tasks.push(task);
+  }
+  await Moralis.Object.saveAll([tasks], { useMasterKey: true });
+
+  return task;
+});
+
+async function getGithubTask(name, issueLink, value, boardId) {
+  var task = new Moralis.Object("Task");
+  task.set("name", name);
+  task.set("issueLink", issueLink);
+  task.set("boardId", boardId);
+  task.set("source", taskSource);
+  task.set("value", value);
+  task.set("votes", 0);
+  task.set("bumpUpCount", 0);
+  task.set("dumpDownCount", 0);
+  task.set("status", 100);
+
+  return task;
+}
+
+async function getSpectTask(name, description, deadline, value, boardId) {
+  var task = new Moralis.Object("Task");
+  task.set("name", name);
+  task.set("boardId", boardId);
+  task.set("description", description);
+  task.set("deadline", deadline);
+  task.set("source", "spect");
+  task.set("value", value);
+  task.set("votes", 0);
+  task.set("bumpUpCount", 0);
+  task.set("dumpDownCount", 0);
+  task.set("status", 100);
+
+  return task;
+}

@@ -14,6 +14,8 @@
     "@mui/lab": "^5.0.0-alpha.67",
     "@mui/material": "^5.4.0",
     "@types/styled-components": "^5.1.21",
+    "@rari-capital/solmate": "^6.2.0",
+    "@octokit/rest": "^18.12.0",
     "@walletconnect/web3-provider": "^1.7.1",
     "dayjs": "^1.10.7",
     "magic-sdk": "^8.0.1",

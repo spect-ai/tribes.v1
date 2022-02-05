@@ -13,7 +13,9 @@ import DateAdapter from "@mui/lab/AdapterDayjs";
 import dayjs from "dayjs";
 import { PrimaryButton } from "../epochModal";
 
-type Props = {};
+type Props = {
+  handleNext: () => void;
+};
 
 export interface IEpochFormInput {
   startTime: any;
@@ -28,7 +30,7 @@ export const FieldContainer = styled("div")(({ theme }) => ({
   paddingBottom: "1rem",
 }));
 
-const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
+export const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
@@ -43,7 +45,7 @@ const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-const EpochForm = (props: Props) => {
+const EpochForm = ({ handleNext }: Props) => {
   const {
     handleSubmit,
     control,
@@ -166,7 +168,12 @@ const EpochForm = (props: Props) => {
           )}
         />
       </FieldContainer>
-      <PrimaryButton type="submit" variant="outlined" fullWidth>
+      <PrimaryButton
+        type="submit"
+        variant="outlined"
+        fullWidth
+        onClick={handleNext}
+      >
         Next
       </PrimaryButton>
     </form>
