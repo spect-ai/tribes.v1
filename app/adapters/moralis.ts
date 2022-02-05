@@ -49,12 +49,13 @@ export function getTeam(Moralis: any, teamId: number) {
   return Moralis.Cloud.run("getTeam", params);
 }
 
-// export function getEpoch(Moralis: any, epochId: string) {
-//   const params = {
-//     epochId: epochId,
-//   };
-//   return Moralis.Cloud.run("getEpoch", params);
-// }
+export function getEpoch(Moralis: any, epochId: string) {
+  console.log(epochId);
+  const params = {
+    epochId: epochId,
+  };
+  return Moralis.Cloud.run("getEpoch", params);
+}
 
 export function getGithubToken(Moralis: any, code: string) {
   const params = {

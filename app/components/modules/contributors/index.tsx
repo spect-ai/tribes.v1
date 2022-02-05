@@ -1,12 +1,29 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "@emotion/styled";
 import ContributorsTableComponent from "./ContributorsTableComponent";
 import { muiTheme } from "../../../constants/muiTheme";
-const Contributor = () => {
+import { Epoch, Team } from "../../../types/index";
+import { useMoralis } from "react-moralis";
+import { getEpoch } from "../../../adapters/moralis";
+
+interface Props {}
+
+const Contributor = (props: Props) => {
+  const { isAuthenticated, Moralis } = useMoralis();
+  const [epoch, setEpoch] = useState<Epoch>({} as Epoch);
+
+  useEffect(() => {
+    if (Object.keys(epoch).length === 0) {
+      getEpoch(Moralis, "MkKNkxfyi1EHnFAmtnws3rw6").then((res: Epoch) => {
+        console.log(res);
+        setEpoch(res);
+      }, []);
+    }
+  });
   return (
     <Wrapper>
       <MainContainer>
-        <ContributorsTableComponent />
+        <ContributorsTableComponent epoch={epoch} />
       </MainContainer>
       <SideContainer>
         <DescriptionContainer>
