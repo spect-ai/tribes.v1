@@ -344,3 +344,136 @@ Moralis.Cloud.define("getTeam", async (request) => {
 
   return await getTeam(request.params.teamId);
 });
+
+Moralis.Cloud.define("createBoard", async (request) => {
+  try {
+    const logger = Moralis.Cloud.getLogger();
+    const board = await getBoard(
+      request.params.name,
+      request.params.description,
+      request.params.teamId,
+      request.params.strategy,
+      request.params.settlementTokenName,
+      request.params.settlementTokenAddress,
+      request.params.settlementTokenType,
+      request.params.bumpUpValue,
+      request.params.dumpDownValue,
+      request.params.bumpUpTillPause,
+      request.params.dumpDownTillPause,
+      (update = false)
+    );
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+    return board;
+  } catch (err) {
+    logger.error(`Error while creating team ${err}`);
+    return false;
+  }
+});
+
+Moralis.Cloud.define("updateBoard", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    var team = await getTeam(request.params.teamId);
+    const canUpdate = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
+    if (canUpdate) {
+      const board = await getBoard(
+        request.params.name,
+        request.params.description,
+        request.params.teamId,
+        request.params.strategy,
+        request.params.settlementTokenName,
+        request.params.settlementTokenAddress,
+        request.params.settlementTokenType,
+        request.params.bumpUpValue,
+        request.params.dumpDownValue,
+        request.params.bumpUpTillPause,
+        request.params.dumpDownTillPause,
+        (update = true)
+      );
+      await Moralis.Object.saveAll([board], { useMasterKey: true });
+      return board;
+    }
+  } catch (err) {
+    logger.error(`Error while creating team ${err}`);
+    return false;
+  }
+});
+
+async function getBoard(
+  name,
+  description,
+  teamId,
+  strategy,
+  settlementTokenName,
+  settlementTokenAddress,
+  settlementTokenType,
+  bumpUpValue,
+  dumpDownValue,
+  bumpUpTillPause,
+  dumpDownTillPause,
+  update = false
+) {
+  var board = new Moralis.Object("Board");
+  board.set("name", name);
+  board.set("description", description);
+  if (!update) {
+    board.set("teamId", teamId);
+  }
+  board.set("strategy", strategy);
+  board.set("settlementTokenName", settlementTokenName);
+  board.set("settlementTokenAddress", settlementTokenAddress);
+  board.set("settlementTokenType", settlementTokenType);
+  board.set("bumpUpValue", bumpUpValue);
+  board.set("dumpDownValue", dumpDownValue);
+  board.set("bumpUpTillPause", bumpUpTillPause);
+  board.set("dumpDownTillPause", dumpDownTillPause);
+
+  return board;
+}
+
+Moralis.Cloud.define("createTasks", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  var task;
+  var tasks = [];
+  for (var newTask of request.params.newTasks) {
+    if (request.params.taskSource === "github") {
+      task = await getGithubTask(newTask.issueLink, newTask.value);
+    } else {
+      task = await getSpectTask(newTask.name, newTask.description, newTask.deadline, newTask.value);
+    }
+    tasks.push(task);
+  }
+  await Moralis.Object.saveAll([tasks], { useMasterKey: true });
+
+  return task;
+});
+
+async function getGithubTask(issueLink, value, boardId) {
+  var task = new Moralis.Object("Task");
+  task.set("issueLink", issueLink);
+  task.set("boardId", boardId);
+  task.set("source", taskSource);
+  task.set("value", value);
+  task.set("votes", 0);
+  task.set("bumpUpCount", 0);
+  task.set("dumpDownCount", 0);
+  task.set("status", 100);
+
+  return task;
+}
+
+async function getSpectTask(name, description, deadline, value, boardId) {
+  var task = new Moralis.Object("Task");
+  task.set("name", name);
+  task.set("boardId", boardId);
+  task.set("description", description);
+  task.set("deadline", deadline);
+  task.set("source", "spect");
+  task.set("value", value);
+  task.set("votes", 0);
+  task.set("bumpUpCount", 0);
+  task.set("dumpDownCount", 0);
+  task.set("status", 100);
+
+  return task;
+}
