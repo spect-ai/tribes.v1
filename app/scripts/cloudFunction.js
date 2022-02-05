@@ -32,7 +32,6 @@ Moralis.Cloud.define("createTeam", async (request) => {
     team.set("teamId", teamId);
     team.set("name", request.params.name);
     team.set("mission", request.params.mission);
-    team.set("address", request.params.teamAddress);
     team.set("treasuryAddress", request.params.treasuryAddress);
     team.set("onchain", false);
     //team.set("members", [{ ethAddress: request.user.get("ethAddress"), role: "admin" }]);
@@ -124,6 +123,13 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     logger.error(`Error whilte creating epoch ${err}`);
     return false;
   }
+});
+
+Moralis.Cloud.define("getEpoch", async (request) => {
+  const epochQuery = new Moralis.Query("Epoch");
+  const pipeline = [{ match: { objectId: request.params.epochId } }];
+  const epoch = await epochQuery.aggregate(pipeline);
+  return epoch[0];
 });
 
 Moralis.Cloud.define("giftContributors", async (request) => {
@@ -437,7 +443,7 @@ Moralis.Cloud.define("createTasks", async (request) => {
   var tasks = [];
   for (var newTask of request.params.newTasks) {
     if (request.params.taskSource === "github") {
-      task = await getGithubTask(newTask.issueLink, newTask.value);
+      task = await getGithubTask(newTask.name, newTask.issueLink, newTask.value);
     } else {
       task = await getSpectTask(newTask.name, newTask.description, newTask.deadline, newTask.value);
     }
@@ -448,8 +454,9 @@ Moralis.Cloud.define("createTasks", async (request) => {
   return task;
 });
 
-async function getGithubTask(issueLink, value, boardId) {
+async function getGithubTask(name, issueLink, value, boardId) {
   var task = new Moralis.Object("Task");
+  task.set("name", name);
   task.set("issueLink", issueLink);
   task.set("boardId", boardId);
   task.set("source", taskSource);
