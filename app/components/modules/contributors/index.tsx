@@ -5,12 +5,18 @@ import { muiTheme } from "../../../constants/muiTheme";
 import { Epoch, Team } from "../../../types/index";
 import { useMoralis } from "react-moralis";
 import { getEpoch } from "../../../adapters/moralis";
+import { PrimaryButton } from "../epochModal";
+import PaidIcon from "@mui/icons-material/Paid";
+import { massPayment } from "../../../adapters/gnosis";
+import { useTribe } from "../../../../pages/tribe/[id]";
 
 interface Props {}
 
 const Contributor = (props: Props) => {
   const { isAuthenticated, Moralis } = useMoralis();
   const [epoch, setEpoch] = useState<Epoch>({} as Epoch);
+  const { tribe } = useTribe();
+  const { user } = useMoralis();
 
   useEffect(() => {
     if (Object.keys(epoch).length === 0) {
@@ -26,6 +32,17 @@ const Contributor = (props: Props) => {
         <ContributorsTableComponent epoch={epoch} />
       </MainContainer>
       <SideContainer>
+        <PrimaryButton
+          variant="outlined"
+          endIcon={<PaidIcon />}
+          fullWidth
+          sx={{ mb: 2 }}
+          onClick={() =>
+            massPayment(tribe.treasuryAddress, user?.get("ethAddress"))
+          }
+        >
+          Pay
+        </PrimaryButton>
         <DescriptionContainer>
           <Title>Remaining Votes</Title>
           <Value>29</Value>

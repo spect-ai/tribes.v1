@@ -1,15 +1,12 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  AvatarGroup,
-  Avatar,
-  Tooltip,
-} from "@mui/material";
+import { Box, Typography, AvatarGroup, Avatar, Tooltip } from "@mui/material";
 import styled from "@emotion/styled";
 import { muiTheme } from "../../../constants/muiTheme";
+import { useTribe } from "../../../../pages/tribe/[id]";
 
 const Overview = () => {
+  const { tribe } = useTribe();
+
   return (
     <Wrapper>
       <MainContainer>
@@ -21,14 +18,7 @@ const Overview = () => {
           }}
         >
           <Typography variant="h4">Mission</Typography>
-          As part of plans to enable a self-sustainable and competitive
-          decentralized exchange, the development team of Uniswap launched its
-          governance token, UNI, in September 2020. This singular act unlocked a
-          new governance structure and officially gave the Uniswap community a
-          say over the day-to-day running and development of the project. More
-          specifically, anyone holding UNI tokens could either vote or delegate
-          votes on development proposals that could alter the operation or
-          infrastructure of the Uniswap Protocol.
+          {tribe.mission}
         </Box>
       </MainContainer>
       <SideContainer>
@@ -36,15 +26,13 @@ const Overview = () => {
           <Box
             sx={{
               margin: 1,
-              
-              padding:1,
-              paddingLeft:0,
-              paddingRight:0
+
+              padding: 1,
+              paddingLeft: 0,
+              paddingRight: 0,
             }}
           >
-            <Title>
-              Admins
-            </Title>
+            <Title>Admins</Title>
             <AvatarGroup max={4} sx={{ width: "fit-content" }}>
               <Tooltip title="Remy SHarp">
                 <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
