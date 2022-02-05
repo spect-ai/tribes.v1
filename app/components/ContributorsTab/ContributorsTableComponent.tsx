@@ -6,7 +6,6 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TextField from '@mui/material/TextField';
-import {muiTheme} from '../../../constants/muiTheme'
 function createData(walletAddress:any, role:string, votes:number, reward:number) {
     let walletAddressSort = `${ walletAddress.slice(0,7)}...${walletAddress.slice(35)}`
     return { walletAddressSort, role, votes, reward };
@@ -69,7 +68,11 @@ const ContributorsTableComponent = () => {
                     shrink: true,
                 }}
                 defaultValue={row.votes}
-                onChange={(value)=>console.log(value)}
+                onChange={(event) =>
+                    event.target.value < 0
+                        ? (event.target.value = 0)
+                        : event.target.value}
+                
             />
               </TableCell>
               <TableCell align="center">{row.reward}</TableCell>
