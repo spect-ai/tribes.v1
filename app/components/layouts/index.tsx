@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import React from "react";
+import Footer from "../modules/footer";
 import Navbar from "../modules/navbar";
 import Sidebar from "../modules/sidebar";
 
@@ -37,6 +38,7 @@ const Layout = ({ children }: Props) => {
       <InnerDiv>
         <Navbar />
         <Main>{children}</Main>
+        <Footer />
       </InnerDiv>
     </OuterDiv>
   );

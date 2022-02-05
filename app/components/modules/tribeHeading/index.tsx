@@ -12,7 +12,8 @@ import { Box, width } from "@mui/system";
 import Link from "next/link";
 import React from "react";
 import { useTribe } from "../../../../pages/tribe/[id]";
-import EpochModal from "../epochModal";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import EpochModal, { PrimaryButton } from "../epochModal";
 
 const HeadingAvatar = styled(Avatar)(({ theme }) => ({
   width: "6rem",
@@ -44,13 +45,13 @@ const TribeHeading = (props: Props) => {
         sx={{ display: "flex", flexDirection: "row", width: "100%", margin: 1 }}
       >
         <Box
-          sx={{ display: "flex", flexDirection: "row", width: "75%", pt: 4 }}
+          sx={{ display: "flex", flexDirection: "row", width: "100%", pt: 4 }}
         >
-          <div style={{ marginRight: 8 }}>
+          <Box sx={{ mr: 1 }}>
             <Link href={`/profile/`} passHref>
               <HeadingAvatar alt="Username" />
             </Link>
-          </div>
+          </Box>
           <Box
             sx={{
               display: "flex",
@@ -61,7 +62,18 @@ const TribeHeading = (props: Props) => {
           >
             <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
               <Typography variant="h4">Spect Network DAO</Typography>
-              <EpochModal />
+              <EpochModal step={0} />
+              <EpochModal step={1} />
+              <PrimaryButton
+                variant="outlined"
+                size="large"
+                type="submit"
+                endIcon={<GitHubIcon />}
+                onClick={() => {}}
+                sx={{ ml: 3 }}
+              >
+                Integrate Github
+              </PrimaryButton>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "row" }}>
               <StyledAnchor>

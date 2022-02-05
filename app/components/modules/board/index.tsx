@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { useTribe } from "../../../../pages/tribe/[id]";
 
 import Task from "../../elements/task";
+import EpochModal, { PrimaryButton } from "../epochModal";
 
 type Props = {};
 
@@ -56,6 +57,9 @@ const Board = (props: Props) => {
           <StyledPaper sx={{ borderBottom: "5px solid #5fe086" }}>
             <BoardHeading>Done</BoardHeading>
           </StyledPaper>
+        </Grid>
+        <Grid item xs={3}>
+          <Box sx={{ my: 2, display: "flex", flexDirection: "column" }}></Box>
         </Grid>
       </Grid>
 

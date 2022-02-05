@@ -17,8 +17,11 @@ import TimelapseIcon from "@mui/icons-material/Timelapse";
 import { useForm } from "react-hook-form";
 import EpochForm from "../epochForm";
 import ImportTasks from "../importTasks";
+import ImportExportIcon from "@mui/icons-material/ImportExport";
 
-type Props = {};
+type Props = {
+  step: number;
+};
 
 export const PrimaryButton = styled(Button)<ButtonProps>(({ theme }) => ({
   color: theme.palette.getContrastText("#000f29"),
@@ -36,11 +39,13 @@ const modalStyle = {
   border: "2px solid #000",
   boxShadow: 24,
   p: 3,
+  overflow: "auto",
+  maxHeight: "calc(100% - 128px)",
 };
 
 const steps = ["Epoch Details", "Import Tasks"];
 
-const EpochModal = (props: Props) => {
+const EpochModal = ({ step }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
   const [activeStep, setActiveStep] = useState(0);
@@ -55,16 +60,36 @@ const EpochModal = (props: Props) => {
 
   return (
     <div>
-      <PrimaryButton
-        variant="outlined"
-        size="large"
-        type="submit"
-        endIcon={<TimelapseIcon />}
-        onClick={() => setIsOpen(true)}
-        sx={{ ml: 4 }}
-      >
-        Create Epoch
-      </PrimaryButton>
+      {step === 0 ? (
+        <PrimaryButton
+          variant="outlined"
+          size="large"
+          type="submit"
+          endIcon={<TimelapseIcon />}
+          onClick={() => {
+            setIsOpen(true);
+            setActiveStep(0);
+          }}
+          sx={{ mx: 1 }}
+        >
+          Create Epoch
+        </PrimaryButton>
+      ) : (
+        <PrimaryButton
+          variant="outlined"
+          size="large"
+          type="submit"
+          endIcon={<ImportExportIcon />}
+          onClick={() => {
+            setIsOpen(true);
+            setActiveStep(1);
+          }}
+          fullWidth
+          sx={{ mx: 1 }}
+        >
+          Import Tasks
+        </PrimaryButton>
+      )}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Fade in={isOpen} timeout={500}>
           <Box sx={modalStyle}>
