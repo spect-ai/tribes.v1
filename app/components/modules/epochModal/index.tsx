@@ -16,6 +16,7 @@ import React, { useState } from "react";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
 import { useForm } from "react-hook-form";
 import EpochForm from "../epochForm";
+import ImportTasks from "../importTasks";
 
 type Props = {};
 
@@ -45,6 +46,9 @@ const EpochModal = (props: Props) => {
   const [activeStep, setActiveStep] = useState(0);
   const handleStep = (step: number) => () => {
     setActiveStep(step);
+  };
+  const handleNext = () => {
+    setActiveStep(activeStep + 1);
   };
   const [loaderText, setLoaderText] = useState("Updating metadata");
   const [loading, setLoading] = useState(false);
@@ -97,7 +101,8 @@ const EpochModal = (props: Props) => {
                 </Typography>
               </Box>
             </Backdrop>
-            <EpochForm />
+            {activeStep === 0 && <EpochForm handleNext={handleNext} />}
+            {activeStep === 1 && <ImportTasks />}
           </Box>
         </Fade>
       </Modal>
