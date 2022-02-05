@@ -2,6 +2,8 @@ import { BigNumber } from "ethers";
 import Moralis from "moralis/types";
 import { Delta } from "quill";
 
+declare module "react-github-login";
+
 export interface Contracts {
   distributorContract?: ethers.Contract;
 }

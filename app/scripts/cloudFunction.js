@@ -35,7 +35,9 @@ Moralis.Cloud.define("createTeam", async (request) => {
     team.set("treasuryAddress", request.params.treasuryAddress);
     team.set("onchain", false);
     //team.set("members", [{ ethAddress: request.user.get("ethAddress"), role: "admin" }]);
-    team.set("members", [{ ethAddress: request.params.ethAddress, role: "admin" }]);
+    team.set("members", [
+      { ethAddress: request.params.ethAddress, role: "admin" },
+    ]);
     team.set("organization", request.params.organization);
     team.set("organizationVerified", false);
     team.set("openApplications", request.params.openApplications);
@@ -64,14 +66,21 @@ Moralis.Cloud.define("updateTeam", async (request) => {
     var team = await teamQuery.first();
 
     //const canUpdate = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
-    const canUpdate = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
+    const canUpdate = await hasAccess(
+      request.params.ethAddress,
+      team,
+      (requiredAccess = "admin")
+    );
     if (canUpdate) {
       team.set("name", request.params.name);
       team.set("mission", request.params.mission);
       team.set("treasuryAddress", request.params.treasuryAddress);
       team.set("organization", request.params.organization);
       team.set("openApplications", request.params.openApplications);
-      team.set("applicationRequirements", request.params.applicationRequirements);
+      team.set(
+        "applicationRequirements",
+        request.params.applicationRequirements
+      );
 
       await Moralis.Object.saveAll([team], { useMasterKey: true });
     }
@@ -90,13 +99,22 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     teamQuery.equalTo("teamId", request.params.teamId);
     var team = await teamQuery.first();
     //const canStart = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
-    const canStart = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
+    const canStart = await hasAccess(
+      request.params.ethAddress,
+      team,
+      (requiredAccess = "admin")
+    );
 
     if (canStart) {
       const epoch = new Moralis.Object("Epoch");
       var epochMembers = [];
       for (var memberAddress of request.params.members) {
-        epochMembers.push({ ethAddress: memberAddress, votesGiven: 0, votesReceived: 0, votesRemaining: 100 });
+        epochMembers.push({
+          ethAddress: memberAddress,
+          votesGiven: 0,
+          votesReceived: 0,
+          votesRemaining: 100,
+        });
       }
       const epochQuery = new Moralis.Query("Epoch");
       epochQuery.equalTo("teamId", request.params.teamId);
@@ -154,7 +172,11 @@ Moralis.Cloud.define("giftContributors", async (request) => {
 
 Moralis.Cloud.define("calcTest", async (request) => {
   try {
-    return await calcEffectiveVotes(request.params.votes, request.params.members, request.params.ethAddress);
+    return await calcEffectiveVotes(
+      request.params.votes,
+      request.params.members,
+      request.params.ethAddress
+    );
   } catch (err) {
     logger.error(`Error whilte creating team ${err}`);
     return false;
@@ -209,26 +231,44 @@ Moralis.Cloud.define("updateMembers", async (request) => {
     const teamQuery = new Moralis.Query("Team");
     teamQuery.equalTo("teamId", request.params.teamId);
     var team = await teamQuery.first();
-    const canUpdate = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
+    const canUpdate = await hasAccess(
+      request.params.ethAddress,
+      team,
+      (requiredAccess = "admin")
+    );
     if (canUpdate) {
-      var invitedMembers = request.params.members.filter((m) => m.updateType === "invite");
+      var invitedMembers = request.params.members.filter(
+        (m) => m.updateType === "invite"
+      );
       logger.info(`invitedMembers: ${JSON.stringify(invitedMembers)}`);
 
       var revokedMemberAddresses = [];
-      var revokedMembers = request.params.members.filter((m) => m.updateType === "revoke");
+      var revokedMembers = request.params.members.filter(
+        (m) => m.updateType === "revoke"
+      );
       revokedMembers.map((a) => revokedMemberAddresses.push(a.ethAddress));
-      logger.info(`revokedMemberAddresses: ${JSON.stringify(revokedMemberAddresses)}`);
+      logger.info(
+        `revokedMemberAddresses: ${JSON.stringify(revokedMemberAddresses)}`
+      );
 
-      var roleChangedMembers = request.params.members.filter((m) => m.updateType === "roleChange");
+      var roleChangedMembers = request.params.members.filter(
+        (m) => m.updateType === "roleChange"
+      );
       //invite(invitedMembers, request.params.teamId, request.user.get("ethAddress"));
 
-      await invite(invitedMembers, request.params.teamId, request.params.ethAddress);
+      await invite(
+        invitedMembers,
+        request.params.teamId,
+        request.params.ethAddress
+      );
       await revoke(revokedMemberAddresses, request.params.teamId);
 
       return true;
     } else {
       //logger.info(`User ${request.user.get("ethAddress")} doesnt have access to update member roles`);
-      logger.info(`User ${request.params.ethAddress} doesnt have access to update member roles`);
+      logger.info(
+        `User ${request.params.ethAddress} doesnt have access to update member roles`
+      );
       return false;
     }
   } catch (err) {
@@ -323,10 +363,14 @@ Moralis.Cloud.define("acceptInvite", async (request) => {
       teamQuery.equalTo("teamId", request.params.teamId);
       const team = await teamQuery.first();
       const members = team.get("members");
-      const member = [{ ethAddress: request.params.ethAddress, role: invitation.get("role") }];
+      const member = [
+        { ethAddress: request.params.ethAddress, role: invitation.get("role") },
+      ];
       team.set("members", members.concat(member));
 
-      await Moralis.Object.saveAll([invitation, userInfo, team], { useMasterKey: true });
+      await Moralis.Object.saveAll([invitation, userInfo, team], {
+        useMasterKey: true,
+      });
 
       return true;
     } else {
@@ -380,7 +424,11 @@ Moralis.Cloud.define("updateBoard", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     var team = await getTeam(request.params.teamId);
-    const canUpdate = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
+    const canUpdate = await hasAccess(
+      request.params.ethAddress,
+      team,
+      (requiredAccess = "admin")
+    );
     if (canUpdate) {
       const board = await getBoard(
         request.params.name,
@@ -443,9 +491,18 @@ Moralis.Cloud.define("createTasks", async (request) => {
   var tasks = [];
   for (var newTask of request.params.newTasks) {
     if (request.params.taskSource === "github") {
-      task = await getGithubTask(newTask.name, newTask.issueLink, newTask.value);
+      task = await getGithubTask(
+        newTask.name,
+        newTask.issueLink,
+        newTask.value
+      );
     } else {
-      task = await getSpectTask(newTask.name, newTask.description, newTask.deadline, newTask.value);
+      task = await getSpectTask(
+        newTask.name,
+        newTask.description,
+        newTask.deadline,
+        newTask.value
+      );
     }
     tasks.push(task);
   }
@@ -484,3 +541,21 @@ async function getSpectTask(name, description, deadline, value, boardId) {
 
   return task;
 }
+
+Moralis.Cloud.define("getGithubToken", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  var task;
+  var tasks = [];
+  return Moralis.Cloud.httpRequest({
+    method: "POST",
+    url: "https://github.com/login/oauth/access_token",
+    params: {
+      client_id: "4403e769e4d52b24eeab",
+      client_secret: "f525458baff411277086d660ace07b0a4b40af3d",
+      code: request.params.code,
+      redirect_uri: "http://localhost:3000/",
+    },
+  })
+    .then((httpResponse) => httpResponse.text)
+    .catch((error) => logger.info(error));
+});

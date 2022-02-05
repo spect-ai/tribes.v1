@@ -4269,6 +4269,11 @@ react-dom@17.0.2:
     object-assign "^4.1.1"
     scheduler "^0.20.2"
 
+react-github-login@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/react-github-login/-/react-github-login-1.0.3.tgz#e3fdc29c1162ecc0704d9fe6096c69d6f53315e7"
+  integrity sha1-4/3CnBFi7MBwTZ/mCWxp1vUzFec=
+
 react-hook-form@^7.26.0:
   version "7.26.0"
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.26.0.tgz#270ae0e7a27c01a57011efacd3d692c977eb1c5d"

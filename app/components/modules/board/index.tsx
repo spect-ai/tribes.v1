@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { useTribe } from "../../../../pages/tribe/[id]";
 
 import Task from "../../elements/task";
+import EpochModal, { PrimaryButton } from "../epochModal";
 
 type Props = {};
 
@@ -57,6 +58,9 @@ const Board = (props: Props) => {
             <BoardHeading>Done</BoardHeading>
           </StyledPaper>
         </Grid>
+        <Grid item xs={3}>
+          <Box sx={{ my: 2, display: "flex", flexDirection: "column" }}></Box>
+        </Grid>
       </Grid>
 
       <Box
@@ -77,17 +81,35 @@ const Board = (props: Props) => {
         <Grid container spacing={2}>
           <Grid item xs={3}>
             {toDoTasks.map((task, index) => (
-              <Task type={0} title={task.title} key={index} idx={index} />
+              <Task
+                type={0}
+                title={task.title}
+                key={index}
+                idx={index}
+                id={task.id}
+              />
             ))}
           </Grid>
           <Grid item xs={3}>
             {inProgressTasks.map((task, index) => (
-              <Task type={1} title={task.title} key={index} idx={index} />
+              <Task
+                type={1}
+                title={task.title}
+                key={index}
+                idx={index}
+                id={task.id}
+              />
             ))}
           </Grid>
           <Grid item xs={3}>
             {doneTasks.map((task, index) => (
-              <Task type={2} title={task.title} key={index} idx={index} />
+              <Task
+                type={2}
+                title={task.title}
+                key={index}
+                idx={index}
+                id={task.id}
+              />
             ))}
           </Grid>
           <Grid item xs={3} sx={{ borderLeft: "1px solid #5a6972" }}>
