@@ -139,7 +139,7 @@ const IconWrapper = styled.div`
 const FormBox = styled.div`
     display: flex;
     flex-direction: row;
-    padding: 4rem;
+    padding: 3rem;
     justify-content: space-between;
 `
 
