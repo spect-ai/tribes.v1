@@ -10,7 +10,7 @@ import {
 import Image from "next/image";
 import React from "react";
 import Logo from "../../../images/logo2.svg";
-import AddIcon from "@mui/icons-material/Add";
+import CreateTribeModal from "../createTribeModal";
 
 type Props = {};
 
@@ -30,14 +30,6 @@ const SidebarAvatar = styled(Avatar)(({ theme }) => ({
   objectFit: "cover",
 }));
 
-const CreateTeamButton = styled(IconButton)(({ theme }) => ({
-  border: "1px solid #99ccff",
-  marginTop: "1rem",
-  width: "3rem",
-  height: "3rem",
-  color: theme.palette.text.secondary,
-}));
-
 const Sidebar = (props: Props) => {
   return (
     <SidebarDiv>
@@ -51,15 +43,13 @@ const Sidebar = (props: Props) => {
         }}
       >
         <SidebarAvatar alt="Username" />
-        <CreateTeamButton>
-          <AddIcon />
-        </CreateTeamButton>
+        <CreateTribeModal />
         <Typography
           sx={{ fontSize: 13, textAlign: "center", mt: 1, fontWeight: "bold" }}
           color="text.secondary"
           gutterBottom
         >
-          Create DAO
+          Create Tribe
         </Typography>
       </Box>
     </SidebarDiv>

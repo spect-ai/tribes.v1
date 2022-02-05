@@ -5,3 +5,9 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
+
+.githubButton {
+  border-radius: 10%;
+  background-color: transparent;
+  border: 0px;
+}

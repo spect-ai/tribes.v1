@@ -7,6 +7,7 @@ import { useMoralis } from "react-moralis";
 import Logo from "../../../images/tribesLogo.png";
 import { smartTrim } from "../../../utils/utils";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { getOrCreateUser } from "../../../adapters/moralis";
 
 type Props = {};
 
@@ -38,8 +39,14 @@ const NavbarButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
 }));
 
 const Navbar = (props: Props) => {
-  const { isAuthenticated, isAuthenticating, authenticate, user } =
-    useMoralis();
+  const {
+    isAuthenticated,
+    isAuthenticating,
+    authenticate,
+    logout,
+    user,
+    Moralis,
+  } = useMoralis();
   return (
     <StyledNav>
       <Box sx={{ pt: 1, mx: 8 }}>
@@ -53,7 +60,11 @@ const Navbar = (props: Props) => {
           <NavbarButton
             variant="outlined"
             loading={isAuthenticating}
-            onClick={() => authenticate()}
+            onClick={() =>
+              authenticate().then(() => {
+                getOrCreateUser(Moralis).then((res: any) => console.log(res));
+              })
+            }
           >
             <Typography sx={{ mx: 2, fontSize: 15 }}>Connect Wallet</Typography>
           </NavbarButton>
@@ -61,6 +72,9 @@ const Navbar = (props: Props) => {
           <NavbarButton
             variant="outlined"
             endIcon={<ExpandMoreIcon color="primary" />}
+            onClick={() => {
+              logout();
+            }}
           >
             <NavbarAvatar />
             <Typography sx={{ ml: 1, fontSize: 15 }}>

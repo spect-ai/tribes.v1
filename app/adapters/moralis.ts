@@ -4,7 +4,7 @@ export function getOrCreateUser(Moralis: any) {
   return Moralis.Cloud.run("getOrCreateUser");
 }
 
-export function createTribe(Moralis: any, team: Team) {
+export function createTribe(Moralis: any, team: any) {
   const params = {
     name: team.name,
     mission: team.mission,
@@ -12,6 +12,7 @@ export function createTribe(Moralis: any, team: Team) {
     organization: team.organization,
     openApplications: team.openApplications,
     applicationRequirements: team.applicationRequirements,
+    ethAddress: team.ethAddress,
   };
   return Moralis.Cloud.run("createTeam", params);
 }
