@@ -4,6 +4,9 @@ import EthersAdapter from "@gnosis.pm/safe-ethers-lib";
 import { SafeTransactionDataPartial } from "@gnosis.pm/safe-core-sdk-types";
 import { ethers } from "ethers";
 
+import distributorABI from "../contracts/polygon/distributor.json";
+import distributorAddress from "../contracts/polygon/distributor-address.json";
+
 export async function getUserSafes(address: string) {
   const transactionServiceUrl = "https://safe-transaction.polygon.gnosis.io/";
   const safeService = new SafeServiceClient(transactionServiceUrl);
@@ -56,12 +59,18 @@ export async function massPayment(safeAddress: string, senderAddress: string) {
   const safeService = new SafeServiceClient(transactionServiceUrl);
 
   const provider = new ethers.providers.Web3Provider((window as any).ethereum);
-  // let userContract = new ethers.Contract(
-  //   "0x6304CE63F2EBf8C0Cc76b60d34Cc52a84aBB6057",
-  //   {"_abiCoder": new ethers.utils.AbiCoder(), "_signer": provider.getSigner(0)},
-  //   provider.getSigner()
-  // );
-  // const data = await userContract.populateTransaction.myFunction(value);
+  let contract = new ethers.Contract(
+    distributorAddress.Distributor,
+    distributorABI.abi,
+    provider.getSigner()
+  );
+  const data = await contract.populateTransaction.distributeEther(
+    ["0x6304CE63F2EBf8C0Cc76b60d34Cc52a84aBB6057"],
+    [ethers.utils.parseEther("0.1")],
+    2
+  );
+  console.log(data);
+  data.value = 0 as any;
 
   const safeOwner = provider.getSigner(0);
 
@@ -77,11 +86,7 @@ export async function massPayment(safeAddress: string, senderAddress: string) {
     ethAdapter,
     safeAddress: safeAddress,
   });
-  const transaction: SafeTransactionDataPartial = {
-    to: safeAddress,
-    data: "0x",
-    value: "10000",
-  };
+  const transaction: SafeTransactionDataPartial = data as any;
 
   console.log(transaction);
 
@@ -95,7 +100,7 @@ export async function massPayment(safeAddress: string, senderAddress: string) {
     safeAddress: safeAddress,
     safeTransaction,
     safeTxHash,
-    senderAddress: senderAddress,
+    senderAddress: ethers.utils.getAddress(senderAddress),
     origin: "Spect tribes",
   });
 }

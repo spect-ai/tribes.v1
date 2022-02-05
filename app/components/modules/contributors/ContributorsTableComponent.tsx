@@ -15,8 +15,14 @@ interface Props {
   epoch: Epoch;
 }
 
-function getRemainingVotes(prevRemainingVotes: number, votesGiven: number, prevVotesGiven: number) {
-  return prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2);
+function getRemainingVotes(
+  prevRemainingVotes: number,
+  votesGiven: number,
+  prevVotesGiven: number
+) {
+  return (
+    prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2)
+  );
 }
 
 const ContributorsTableComponent = (props: Props) => {
@@ -38,8 +44,11 @@ const ContributorsTableComponent = (props: Props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.epoch.memberStats?.map((row) => (
-            <TableRow key={row.ethAddress} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+          {props.epoch.memberStats?.map((row: any) => (
+            <TableRow
+              key={row.ethAddress}
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
               <TableCell component="th" scope="row">
                 {row.ethAddress}
               </TableCell>
