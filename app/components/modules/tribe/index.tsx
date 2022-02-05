@@ -1,9 +1,9 @@
 import styled from "@emotion/styled";
 import React from "react";
 import { useTribe } from "../../../../pages/tribe/[id]";
-import Board from "../../modules/board";
-import Contributor from "../../modules/contributors/index"
-import TribeHeading from "../../modules/tribeHeading";
+import Board from "../board";
+import Contributor from "../contributors/index"
+import TribeHeading from "../tribeHeading";
 import Overview from "./overview";
 
 type Props = {};

@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 import Head from "next/head";
 import { createContext, useContext, useState } from "react";
-import TribeTemplate from "../../app/components/templates/tribe";
+import TribeTemplate from "../../app/components/modules/tribe";
 
 interface Props {}
 
