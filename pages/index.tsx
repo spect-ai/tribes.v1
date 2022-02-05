@@ -13,6 +13,7 @@ import {
   Typography,
   alpha,
   InputBase,
+  Avatar
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
@@ -25,7 +26,7 @@ const DAOCards = ({ image, title }: Props) => {
     <Card
       sx={{
         maxWidth: 345,
-        minWidth: 100,
+        minWidth: 200,
         padding: 8,
         backgroundColor: "inherit",
         display: "flex",
@@ -36,15 +37,7 @@ const DAOCards = ({ image, title }: Props) => {
         margin: "0px 9px",
       }}
     >
-      <CardMedia
-        component="img"
-        height="140"
-        image={require("./graph.jpg")}
-        alt="The Graph DAO"
-        sx={{
-          borderRadius: "50%",
-        }}
-      />
+      <Avatar alt="Remy Sharp" src="graph.jpg" />
       <CardContent>
         <Typography
           gutterBottom
@@ -162,9 +155,11 @@ const Home: NextPage = () => {
           sx={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "center",
+            alignItems:'start',
+            paddingLeft:1
           }}
         >
+          <DAOCards />
           <DAOCards />
           <DAOCards />
           <DAOCards />

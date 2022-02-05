@@ -4,7 +4,7 @@ import { useTribe } from "../../../../pages/tribe/[id]";
 import Board from "../board";
 import Contributor from "../contributors/index"
 import TribeHeading from "../tribeHeading";
-import Overview from "./overview";
+import Overview from "../overview/overview";
 
 type Props = {};
 
