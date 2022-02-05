@@ -7,12 +7,19 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import { muiTheme } from "../../../constants/muiTheme";
-import { getTeam, getEpoch } from "../../adapters/moralis";
-import { Epoch, Team } from "../../types/index";
+import { getTeam } from "../../../adapters/moralis";
+import { Epoch, Team } from "../../../types/index";
 import { useMoralis } from "react-moralis";
 
-function createData(walletAddress: any, role: string, votes: number, reward: number) {
-  let walletAddressSort = `${walletAddress.slice(0, 7)}...${walletAddress.slice(35)}`;
+function createData(
+  walletAddress: any,
+  role: string,
+  votes: number,
+  reward: number
+) {
+  let walletAddressSort = `${walletAddress.slice(0, 7)}...${walletAddress.slice(
+    35
+  )}`;
   return { walletAddressSort, role, votes, reward };
 }
 const walletAddress: string = "0x350ba81398f44Bf06cd176004a275c451F0A1d91";
@@ -44,14 +51,14 @@ const ContributorsTableComponent = () => {
   const [epoch, setEpoch] = useState<Epoch>({} as Epoch);
   const [memberStats, setMemberStats] = useState([]);
 
-  useEffect(() => {
-    getEpoch(Moralis, "MkKNkxfyi1EHnFAmtnws3rw6").then((res: Epoch) => {
-      console.log(res);
-      setEpoch(res);
-      console.log(res.memberStats);
-      setMemberStats(res.memberStats);
-    }, []);
-  });
+  // useEffect(() => {
+  //   getEpoch(Moralis, "MkKNkxfyi1EHnFAmtnws3rw6").then((res: Epoch) => {
+  //     console.log(res);
+  //     setEpoch(res);
+  //     console.log(res.memberStats);
+  //     setMemberStats(res.memberStats);
+  //   }, []);
+  // });
   return (
     <TableContainer>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -71,7 +78,10 @@ const ContributorsTableComponent = () => {
         </TableHead>
         <TableBody>
           {rows.map((row) => (
-            <TableRow key={row.walletAddressSort} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+            <TableRow
+              key={row.walletAddressSort}
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
               <TableCell component="th" scope="row">
                 {row.walletAddressSort}
               </TableCell>
