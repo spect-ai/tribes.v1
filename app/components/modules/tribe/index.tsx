@@ -5,7 +5,7 @@ import Board from "../../modules/board";
 import Contributor from "../../modules/contributors/index"
 import TribeHeading from "../../modules/tribeHeading";
 import Settings from '../../modules/settings';
-import Overview from "./overview";
+import Overview from "../overview/overview";
 
 type Props = {};
 
