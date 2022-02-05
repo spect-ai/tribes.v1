@@ -13,36 +13,44 @@ import {
   Typography,
   alpha,
   InputBase,
-  Avatar
+  Avatar,
+  Grid,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
-import graphImage from "./graph.jpg";
 import { padding } from "@mui/system";
 
 type Props = {};
-const DAOCards = ({ image, title }: Props) => {
+
+const TribeAvatar = styled(Avatar)(({ theme }) => ({
+  height: 96,
+  width: 96,
+  objectFit: "cover",
+}));
+
+const DAOCards = (props: Props) => {
   return (
     <Card
       sx={{
-        maxWidth: 345,
-        minWidth: 200,
-        padding: 8,
+        maxWidth: 300,
+        minWidth: 180,
+        padding: 4,
         backgroundColor: "inherit",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         borderRadius: 3,
-        border: "1px solid #EAEAEA",
+        border: "1px solid #5a6972",
         margin: "0px 9px",
       }}
     >
-      <Avatar alt="Remy Sharp" src="graph.jpg" />
+      <TribeAvatar alt="Remy Sharp" />
       <CardContent>
         <Typography
           gutterBottom
           variant="h5"
           component="div"
+          color="text.secondary"
           sx={{ textAlign: "center" }}
         >
           The Graph
@@ -50,7 +58,7 @@ const DAOCards = ({ image, title }: Props) => {
         <Typography
           gutterBottom
           component="div"
-          sx={{ textAlign: "center", color: "#CDCDCD", fontSize: 13 }}
+          sx={{ textAlign: "center", color: "#5a6972", fontSize: 13 }}
         >
           42k members
         </Typography>
@@ -60,12 +68,13 @@ const DAOCards = ({ image, title }: Props) => {
           variant="outlined"
           sx={{
             borderRadius: 4,
-            borderColor: "#CDCDCD",
-            color: "#CDCDCD",
+            borderColor: "#5a6972",
+            color: "#5a6972",
             width: 100,
+            textTransform: "none",
           }}
         >
-          Join
+          View
         </Button>
       </CardActions>
     </Card>
@@ -81,10 +90,10 @@ const CreateTeamButton = styled(IconButton)(({ theme }) => ({
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: 20,
-  border:'1px solid #EAEAEA',
-  backgroundColor: 'inherit',
+  border: "1px solid #EAEAEA",
+  backgroundColor: "inherit",
   marginLeft: 0,
-  marginRight:'auto',
+  marginRight: "auto",
   width: "30%",
   [theme.breakpoints.up("sm")]: {
     marginLeft: theme.spacing(1),
@@ -122,11 +131,11 @@ const Home: NextPage = () => {
     <div>
       <Box
         sx={{
-          marginBottom: 8,
-          paddingTop:2,
-          paddingLeft:2,
-          paddingRight:2,
-          display:'flex'
+          marginBottom: 4,
+          paddingLeft: 2,
+          paddingRight: 12,
+          display: "flex",
+          marginTop: 4,
         }}
       >
         <Search>
@@ -138,9 +147,11 @@ const Home: NextPage = () => {
             inputProps={{ "aria-label": "search" }}
           />
         </Search>
-        <Typography sx={{
-          color:'#CDCDCD',
-        }}>
+        <Typography
+          sx={{
+            color: "#5a6972",
+          }}
+        >
           4 DAOs
         </Typography>
       </Box>
@@ -155,17 +166,27 @@ const Home: NextPage = () => {
           sx={{
             display: "flex",
             flexDirection: "row",
-            alignItems:'start',
-            paddingLeft:1
+            alignItems: "start",
+            paddingLeft: 2,
+            paddingRight: 12,
           }}
         >
-          <DAOCards />
-          <DAOCards />
-          <DAOCards />
-          <DAOCards />
-          <DAOCards />
+          <Grid container spacing={2}>
+            <Grid item xs={3}>
+              <DAOCards />
+            </Grid>
+            <Grid item xs={3}>
+              <DAOCards />
+            </Grid>
+            <Grid item xs={3}>
+              <DAOCards />
+            </Grid>
+            <Grid item xs={3}>
+              <DAOCards />
+            </Grid>
+          </Grid>
         </Box>
-        <Box
+        {/* <Box
           sx={{
             display: "flex",
             justifyContent: "center",
@@ -183,7 +204,7 @@ const Home: NextPage = () => {
             <AddIcon />
           </CreateTeamButton>
           Create DAO
-        </Box>
+        </Box> */}
       </Box>
     </div>
   );
