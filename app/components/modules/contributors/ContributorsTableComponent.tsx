@@ -10,100 +10,97 @@ import { muiTheme } from "../../../constants/muiTheme";
 import { getTeam } from "../../../adapters/moralis";
 import { Epoch, Team } from "../../../types/index";
 import { useMoralis } from "react-moralis";
-
-function createData(
-  walletAddress: any,
-  role: string,
-  votes: number,
-  reward: number
-) {
-  let walletAddressSort = `${walletAddress.slice(0, 7)}...${walletAddress.slice(
-    35
-  )}`;
-  return { walletAddressSort, role, votes, reward };
+import { getEpoch } from "../../../adapters/moralis";
+interface Props {
+  epoch: Epoch;
+  setRemainingVotes: any;
+  remainingVotes: number;
+  setVoteAllocation: any;
+  voteAllocation: object;
 }
-const walletAddress: string = "0x350ba81398f44Bf06cd176004a275c451F0A1d91";
-const rows = [
-  createData(walletAddress, "admin", 6, 24),
-  createData(walletAddress, "admin", 9, 37),
-  createData(walletAddress, "admin", 16, 24),
-  createData(walletAddress, "admin", 3, 67),
-  createData(walletAddress, "admin", 16, 49),
-  createData(walletAddress, "admin", 6, 24),
-  createData(walletAddress, "admin", 9, 37),
-  createData(walletAddress, "admin", 16, 24),
-  createData(walletAddress, "admin", 3, 67),
-  createData(walletAddress, "admin", 16, 49),
-  createData(walletAddress, "admin", 6, 24),
-  createData(walletAddress, "admin", 9, 37),
-  createData(walletAddress, "admin", 16, 24),
-  createData(walletAddress, "admin", 3, 67),
-  createData(walletAddress, "admin", 16, 49),
-  createData(walletAddress, "admin", 6, 24),
-  createData(walletAddress, "admin", 9, 37),
-  createData(walletAddress, "admin", 16, 24),
-  createData(walletAddress, "admin", 3, 67),
-  createData(walletAddress, "admin", 16, 49),
-];
 
-const ContributorsTableComponent = () => {
+function getRemainingVotes(prevRemainingVotes: number, votesGiven: number, prevVotesGiven: number) {
+  return prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2);
+}
+
+const ContributorsTableComponent = (props: Props) => {
   const { isAuthenticated, Moralis } = useMoralis();
   const [epoch, setEpoch] = useState<Epoch>({} as Epoch);
-  const [memberStats, setMemberStats] = useState([]);
 
-  // useEffect(() => {
-  //   getEpoch(Moralis, "MkKNkxfyi1EHnFAmtnws3rw6").then((res: Epoch) => {
-  //     console.log(res);
-  //     setEpoch(res);
-  //     console.log(res.memberStats);
-  //     setMemberStats(res.memberStats);
-  //   }, []);
-  // });
   return (
     <TableContainer>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
         <TableHead>
           <TableRow>
             <TableCell></TableCell>
-            <TableCell align="right" style={{ color: "#99ccff" }}>
-              Role
-            </TableCell>
-            <TableCell align="center" style={{ color: "#99ccff" }}>
-              Votes given
-            </TableCell>
-            <TableCell align="center" style={{ color: "#99ccff" }}>
-              Reward
-            </TableCell>
+            <TableCell align="right" style={{ color: "#99ccff" }}></TableCell>
+            <TableCell align="center" style={{ color: "#99ccff" }}></TableCell>
+            {epoch.active && (
+              <TableCell align="center" style={{ color: "#99ccff" }}>
+                Votes given
+              </TableCell>
+            )}
+            {!epoch.active && (
+              <TableCell align="center" style={{ color: "#99ccff" }}>
+                Reward Allocated
+              </TableCell>
+            )}
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map((row) => (
-            <TableRow
-              key={row.walletAddressSort}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
+          {props.epoch.memberStats?.map((row: any) => (
+            <TableRow key={row.ethAddress} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
               <TableCell component="th" scope="row">
-                {row.walletAddressSort}
+                {row.ethAddress}
               </TableCell>
-              <TableCell align="right">{row.role}</TableCell>
-              <TableCell align="center">
-                <TextField
-                  id={row.walletAddressSort}
-                  label="Votes Given"
-                  type="number"
-                  inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                  style={{ width: "40%" }}
-                  placeholder="Votes"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  defaultValue={row.votes}
-                  onChange={(event) => Number(event.target.value) < 0
-                    ? (event.target.value = String(0))
-                    : event.target.value}
-                />
-              </TableCell>
-              <TableCell align="center">{row.reward}</TableCell>
+              <TableCell align="right">{}</TableCell>
+              <TableCell align="center">{}</TableCell>
+              {epoch.active && (
+                <TableCell align="center">
+                  {epoch.active && (
+                    <TextField
+                      id={row.ethAddress}
+                      label="Votes Given"
+                      type="number"
+                      inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                      style={{ width: "40%" }}
+                      placeholder="Votes"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      defaultValue={
+                        // TODOD: Not rendering correctly
+                        props.voteAllocation?.hasOwnProperty(row.ethAddress)
+                          ? parseInt(props.voteAllocation[row.ethAddress])
+                          : 0
+                      }
+                      onChange={(event) => {
+                        console.log(props.voteAllocation);
+                        console.log(row.ethAddress);
+                        console.log(event.target.value);
+
+                        const remainingVotes = getRemainingVotes(
+                          props.remainingVotes,
+                          parseInt(event.target.value),
+                          props.voteAllocation?.hasOwnProperty(row.ethAddress)
+                            ? parseInt(props.voteAllocation[row.ethAddress])
+                            : 0
+                        );
+                        console.log(remainingVotes);
+                        props.setRemainingVotes(remainingVotes);
+                        props.voteAllocation[row.ethAddress] = parseInt(event.target.value);
+                        props.setVoteAllocation(props.voteAllocation);
+                        console.log(props.voteAllocation);
+                      }}
+                    />
+                  )}
+                </TableCell>
+              )}
+              {!epoch.active && (
+                <TableCell align="center" style={{ color: "#99ccff" }}>
+                  {row.reward} WMatic
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>

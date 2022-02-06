@@ -1,25 +1,20 @@
-import {
-  Autocomplete,
-  Button,
-  styled,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Autocomplete, Button, styled, TextField, Typography } from "@mui/material";
 import React from "react";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { FieldContainer, LightTooltip } from "../epochForm";
-import {
-  Controller,
-  SubmitHandler,
-  useFieldArray,
-  useForm,
-} from "react-hook-form";
+import { Controller, SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { PrimaryButton } from "../epochModal";
 import { Octokit } from "@octokit/rest";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import { useTribe } from "../../../../pages/tribe/[id]";
+import { createTasks } from "../../../adapters/moralis";
+import Moralis from "moralis/types";
+import { useMoralis } from "react-moralis";
 
-type Props = {};
+type Props = {
+  setIsOpen: (isOpen: boolean) => void;
+};
 
 export interface IImportTasksInput {
   repo: string;
@@ -33,10 +28,13 @@ const LinkContainer = styled("div")(({ theme }) => ({
   paddingBottom: "1rem",
 }));
 
-const ImportTasks = (props: Props) => {
+const ImportTasks = ({ setIsOpen }: Props) => {
   const octokit = new Octokit({
     auth: process.env.GITHUB_BOT_AUTH,
   });
+  const { setToDoTasks, setRepo, tribe } = useTribe();
+  const { Moralis, user } = useMoralis();
+
   const {
     handleSubmit,
     control,
@@ -50,16 +48,31 @@ const ImportTasks = (props: Props) => {
 
   const onSubmit: SubmitHandler<IImportTasksInput> = async (values) => {
     console.log(values);
+    const splitValues = values.repo.split("/");
+    setRepo(values.repo);
+    octokit.rest.issues
+      .listForRepo({
+        owner: splitValues[3],
+        repo: splitValues[4],
+        labels: values.labels.toString(),
+      })
+      .then(({ data }) => {
+        console.log(data);
+        const issues = data.map((issue) => {
+          return {
+            title: issue.title,
+            id: issue.number,
+            issueLink: issue.url,
+          };
+        });
+        createTasks(Moralis, tribe.latestTaskEpoch, issues, "github").then((res: any) => {
+          console.log(res);
+        });
 
-    // octokit.rest.issues
-    //   .listForRepo({
-    //     owner: values.name,
-    //     repo: values.repo,
-    //     labels: values.labels.toString(),
-    //   })
-    //   .then(({ data }) => {
-    //     console.log(data);
-    //   });
+        console.log(issues);
+        setToDoTasks(issues);
+        setIsOpen(false);
+      });
 
     // octokit.rest.issues
     //   .addAssignees({
@@ -83,18 +96,12 @@ const ImportTasks = (props: Props) => {
           name="repo"
           control={control}
           render={({ field, fieldState }) => (
-            <LightTooltip
-              arrow
-              placement="right"
-              title={"Duration of the epoch"}
-            >
+            <LightTooltip arrow placement="right" title={"Duration of the epoch"}>
               <TextField
                 {...field}
                 label="Github Repo Link"
                 variant="standard"
-                helperText={
-                  "Provide the repo link from where you want to import the tasks"
-                }
+                helperText={"Provide the repo link from where you want to import the tasks"}
                 required
                 InputProps={{
                   endAdornment: <GitHubIcon />,
@@ -130,12 +137,7 @@ const ImportTasks = (props: Props) => {
         />
       </FieldContainer>
 
-      <Typography
-        fontSize={18}
-        color="text.secondary"
-        gutterBottom
-        sx={{ textAlign: "center", width: "100%" }}
-      >
+      <Typography fontSize={18} color="text.secondary" gutterBottom sx={{ textAlign: "center", width: "100%" }}>
         Or
       </Typography>
       <Button

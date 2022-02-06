@@ -3,13 +3,13 @@ Moralis.Cloud.define("getOrCreateUser", async (request) => {
 
   try {
     const userInfoQuery = new Moralis.Query("UserInfo");
-    userInfoQuery.equalTo("ethAddress", request.params.ethAddress);
+    userInfoQuery.equalTo("ethAddress", request.user.get("ethAddress"));
     var userInfo = await userInfoQuery.first();
 
     if (!userInfo) {
       userInfo = new Moralis.Object("UserInfo");
-      //userInfo.set("ethAddress", request.user.get("ethAddress"));
-      userInfo.set("ethAddress", request.params.ethAddress);
+      userInfo.set("ethAddress", request.user.get("ethAddress"));
+      //userInfo.set("ethAddress", request.params.ethAddress);
       userInfo.set("teams", []);
       await Moralis.Object.saveAll([userInfo], { useMasterKey: true });
     }
@@ -40,7 +40,8 @@ Moralis.Cloud.define("createTeam", async (request) => {
     team.set("organizationVerified", false);
     team.set("openApplications", request.params.openApplications);
     team.set("applicationRequirements", request.params.applicationRequirements);
-
+    team.set("latestContributionEpoch", null);
+    team.set("latestTaskEpoch", null);
     const userInfoQuery = new Moralis.Query("UserInfo");
     //userInfoQuery.equalTo("ethAddress", request.user.get("ethAddress"))
     userInfoQuery.equalTo("ethAddress", request.params.ethAddress);
@@ -89,31 +90,77 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     const teamQuery = new Moralis.Query("Team");
     teamQuery.equalTo("teamId", request.params.teamId);
     var team = await teamQuery.first();
-    //const canStart = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
-    const canStart = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
-
+    const canStart = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
+    //const canStart = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
     if (canStart) {
       const epoch = new Moralis.Object("Epoch");
       var epochMembers = [];
-      for (var memberAddress of request.params.members) {
-        epochMembers.push({ ethAddress: memberAddress, votesGiven: 0, votesReceived: 0, votesRemaining: 100 });
+      var epochTasks = [];
+      var votesAllocatedObj = {};
+      if (request.params.type === "Contribution" && request.params.members) {
+        for (var memberAddress of request.params.members) {
+          votesAllocatedObj[memberAddress] = 0;
+        }
+        for (var memberAddress of request.params.members) {
+          epochMembers.push({
+            ethAddress: memberAddress,
+            votesGiven: 0,
+            votesReceived: 0,
+            votesRemaining: 100,
+            votesAllocated: votesAllocatedObj,
+            reward: 0,
+          });
+        }
+      } else if (request.params.type === "Contribution" && !request.params.members) {
+        for (var member of team.get("members")) {
+          votesAllocatedObj[member.ethAddress] = 0;
+        }
+        for (var member of team.get("members")) {
+          epochMembers.push({
+            ethAddress: member.ethAddress,
+            votesGiven: 0,
+            votesReceived: 0,
+            votesRemaining: 100,
+            votesAllocated: votesAllocatedObj,
+            reward: 0,
+          });
+        }
+      } else if (request.params.type === "Task") {
+        for (var member of team.get("members")) {
+          epochMembers.push({
+            ethAddress: member.ethAddress,
+            votesGiven: 0,
+            votesRemaining: 100,
+            votesAllocated: {},
+          });
+        }
       }
       const epochQuery = new Moralis.Query("Epoch");
       epochQuery.equalTo("teamId", request.params.teamId);
       const epochCount = await epochQuery.count();
-      const endTime = request.params.startTime + request.params.duration;
-      epoch.set("teamId", request.params.teamId);
-      epoch.set("startTime", new Date(request.params.startTime));
-      epoch.set("duration", request.params.duration); // in milliseconds
+      const endTime = parseInt(request.params.startTime) + parseInt(request.params.duration);
+      epoch.set("teamId", parseInt(request.params.teamId));
+      epoch.set("startTime", new Date(parseInt(request.params.startTime)));
+      epoch.set("duration", parseInt(request.params.duration)); // in milliseconds
       epoch.set("endTime", new Date(endTime));
       epoch.set("memberStats", epochMembers); // list
+      epoch.set("taskStats", epochTasks); // list
       epoch.set("type", request.params.type);
       epoch.set("strategy", request.params.strategy);
-      epoch.set("budget", request.params.budget);
+      epoch.set("budget", parseInt(request.params.budget));
       epoch.set("epochNumber", epochCount + 1);
+      epoch.set("active", true);
       logger.info(`epoch ${JSON.stringify(epoch)}`);
 
       await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+
+      if (request.params.type === "Contribution") {
+        team.set("latestContributionEpoch", epoch.id);
+      } else if (request.params.type === "Task") {
+        team.set("latestTaskEpoch", epoch.id);
+      }
+      await Moralis.Object.saveAll([team], { useMasterKey: true });
+
       return epoch;
     } else {
       logger.info(`User doesnt have access to start epoch`);
@@ -136,9 +183,9 @@ Moralis.Cloud.define("giftContributors", async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();
     const epochQuery = new Moralis.Query("Epoch");
-    epochQuery.equalTo("epochId", request.params.epochId);
+    epochQuery.equalTo("objectId", request.params.epochId);
     var epoch = await epochQuery.first();
-
+    logger.info(`epoch ${JSON.stringify(epoch)}`);
     const updatedMemberStats = await calcEffectiveVotes(
       request.params.votes,
       epoch.get("memberStats"),
@@ -146,6 +193,7 @@ Moralis.Cloud.define("giftContributors", async (request) => {
     );
     epoch.set("memberStats", updatedMemberStats);
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+    return epoch;
   } catch (err) {
     logger.error(`Error whilte creating team ${err}`);
     return false;
@@ -160,33 +208,6 @@ Moralis.Cloud.define("calcTest", async (request) => {
     return false;
   }
 });
-
-async function calcEffectiveVotes(votes, members, voterAddress) {
-  /* votes: {"0x232324": 10,
-            '0x232324': 19)
-    members: [{"ethAddress":"0x232324", "votesGiven": 10, "votesReceived":9, "votesRemaining":90},
-            {"ethAddress':'0x232324', 'votes': 19, "votesReceived":9, "votesRemaining":90}]
-  */
-  var totalEffectiveVote = 0;
-  var voterStats = members.filter((a) => a.ethAddress === voterAddress);
-  var idx = 0;
-  var voterIdx;
-  for (var member of members) {
-    if (member["ethAddress"] !== voterAddress) {
-      var numVotes = votes[member["ethAddress"]];
-      member["votesReceived"] += numVotes;
-      totalEffectiveVote += Math.pow(numVotes, 2);
-      if (voterStats["votesRemaining"] < totalEffectiveVote) {
-        throw "Not enough votes remaining";
-      }
-      idx++;
-    } else {
-      voterIdx = idx;
-    }
-  }
-  members[voterIdx]["votesRemaining"] -= totalEffectiveVote;
-  return members;
-}
 
 async function hasAccess(ethAddress, team, requiredAccess) {
   const members = team.get("members");
@@ -209,7 +230,7 @@ Moralis.Cloud.define("updateMembers", async (request) => {
     const teamQuery = new Moralis.Query("Team");
     teamQuery.equalTo("teamId", request.params.teamId);
     var team = await teamQuery.first();
-    const canUpdate = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
+    const canUpdate = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
     if (canUpdate) {
       var invitedMembers = request.params.members.filter((m) => m.updateType === "invite");
       logger.info(`invitedMembers: ${JSON.stringify(invitedMembers)}`);
@@ -219,16 +240,16 @@ Moralis.Cloud.define("updateMembers", async (request) => {
       revokedMembers.map((a) => revokedMemberAddresses.push(a.ethAddress));
       logger.info(`revokedMemberAddresses: ${JSON.stringify(revokedMemberAddresses)}`);
 
-      var roleChangedMembers = request.params.members.filter((m) => m.updateType === "roleChange");
-      //invite(invitedMembers, request.params.teamId, request.user.get("ethAddress"));
+      //var roleChangedMembers = request.params.members.filter((m) => m.updateType === "roleChange");
+      await invite(invitedMembers, request.params.teamId, request.user.get("ethAddress"));
 
-      await invite(invitedMembers, request.params.teamId, request.params.ethAddress);
-      await revoke(revokedMemberAddresses, request.params.teamId);
+      //await invite(invitedMembers, request.params.teamId, request.params.ethAddress);
+      //await revoke(revokedMemberAddresses, request.params.teamId);
 
       return true;
     } else {
       //logger.info(`User ${request.user.get("ethAddress")} doesnt have access to update member roles`);
-      logger.info(`User ${request.params.ethAddress} doesnt have access to update member roles`);
+      logger.info(`User ${request.user.get("ethAddress")} doesnt have access to update member roles`);
       return false;
     }
   } catch (err) {
@@ -304,29 +325,33 @@ Moralis.Cloud.define("acceptInvite", async (request) => {
     const invitationQuery = new Moralis.Query("Invitation");
     //invitationQuery.equalTo("ethAddress", request.user.get("ethAddress"));
     invitationQuery.equalTo("ethAddress", request.params.ethAddress);
-    invitationQuery.equalTo("teamId", request.params.teamId);
+    invitationQuery.equalTo("teamId", parseInt(request.params.teamId));
     invitationQuery.equalTo("active", true);
     const invitation = await invitationQuery.first();
     if (invitation) {
       invitation.set("active", false);
 
       // Add team in user's profile
+      /*
+      logger.info(`gafsfsfsf`);
       const userInfoQuery = new Moralis.Query("UserInfo");
       userInfoQuery.equalTo("ethAddress", request.params.ethAddress);
       var userInfo = await userInfoQuery.first();
-      var userTeams = userInfo.get("teams").concat([request.params.teamId]);
+      var userTeams = userInfo.get("teams").concat([parseInt(request.params.teamId)]);
       logger.info(`user teams ${JSON.stringify(userTeams)}`);
-      userInfo.set("teams", userTeams);
+      userInfo.set("teams", userTeams);*/
 
       // Add user and role to team members
       const teamQuery = new Moralis.Query("Team");
-      teamQuery.equalTo("teamId", request.params.teamId);
+      teamQuery.equalTo("teamId", parseInt(request.params.teamId));
       const team = await teamQuery.first();
       const members = team.get("members");
       const member = [{ ethAddress: request.params.ethAddress, role: invitation.get("role") }];
       team.set("members", members.concat(member));
 
-      await Moralis.Object.saveAll([invitation, userInfo, team], { useMasterKey: true });
+      await Moralis.Object.saveAll([invitation, team], {
+        useMasterKey: true,
+      });
 
       return true;
     } else {
@@ -341,14 +366,15 @@ Moralis.Cloud.define("acceptInvite", async (request) => {
 
 async function getTeam(teamId) {
   const teamQuery = new Moralis.Query("Team");
-  teamQuery.equalTo("teamId", teamId);
+  teamQuery.equalTo("teamId", parseInt(teamId));
   return await teamQuery.first();
 }
 
 Moralis.Cloud.define("getTeam", async (request) => {
-  const logger = Moralis.Cloud.getLogger();
-
-  return await getTeam(request.params.teamId);
+  const teamQuery = new Moralis.Query("Team");
+  const pipeline = [{ match: { teamId: parseInt(request.params.teamId) } }];
+  const team = await teamQuery.aggregate(pipeline);
+  return team[0];
 });
 
 Moralis.Cloud.define("createBoard", async (request) => {
@@ -441,25 +467,37 @@ Moralis.Cloud.define("createTasks", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   var task;
   var tasks = [];
+  logger.info(`newTasks ${JSON.stringify(request.params.newTasks)}`);
+  logger.info(`taskSource ${JSON.stringify(request.params.taskSource)}`);
+  logger.info(`epochId ${JSON.stringify(request.params.epochId)}`);
+
   for (var newTask of request.params.newTasks) {
     if (request.params.taskSource === "github") {
-      task = await getGithubTask(newTask.name, newTask.issueLink, newTask.value);
+      task = await getGithubTask(newTask.id, newTask.title, newTask.issueLink, newTask.value, request.params.epochId);
     } else {
-      task = await getSpectTask(newTask.name, newTask.description, newTask.deadline, newTask.value);
+      task = await getSpectTask(
+        newTask.id,
+        newTask.title,
+        newTask.description,
+        newTask.deadline,
+        newTask.value,
+        request.params.epochId
+      );
     }
     tasks.push(task);
   }
-  await Moralis.Object.saveAll([tasks], { useMasterKey: true });
+  await Moralis.Object.saveAll(tasks, { useMasterKey: true });
 
-  return task;
+  return tasks;
 });
 
-async function getGithubTask(name, issueLink, value, boardId) {
+async function getGithubTask(id, title, issueLink, value, epochId) {
   var task = new Moralis.Object("Task");
-  task.set("name", name);
+  task.set("id", id);
+  task.set("title", title);
   task.set("issueLink", issueLink);
-  task.set("boardId", boardId);
-  task.set("source", taskSource);
+  task.set("epochId", epochId);
+  task.set("source", "github");
   task.set("value", value);
   task.set("votes", 0);
   task.set("bumpUpCount", 0);
@@ -469,10 +507,11 @@ async function getGithubTask(name, issueLink, value, boardId) {
   return task;
 }
 
-async function getSpectTask(name, description, deadline, value, boardId) {
+async function getSpectTask(id, title, description, deadline, value, epochId) {
   var task = new Moralis.Object("Task");
-  task.set("name", name);
-  task.set("boardId", boardId);
+  task.set("id", id);
+  task.set("title", title);
+  task.set("epochId", epochId);
   task.set("description", description);
   task.set("deadline", deadline);
   task.set("source", "spect");
@@ -483,4 +522,156 @@ async function getSpectTask(name, description, deadline, value, boardId) {
   task.set("status", 100);
 
   return task;
+}
+
+Moralis.Cloud.define("getGithubToken", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  var task;
+  var tasks = [];
+  return Moralis.Cloud.httpRequest({
+    method: "POST",
+    url: "https://github.com/login/oauth/access_token",
+    params: {
+      client_id: "4403e769e4d52b24eeab",
+      client_secret: "f525458baff411277086d660ace07b0a4b40af3d",
+      code: request.params.code,
+      redirect_uri: "http://localhost:3000/",
+    },
+  })
+    .then((httpResponse) => httpResponse.text)
+    .catch((error) => logger.info(error));
+});
+
+Moralis.Cloud.define("getReward", async (request) => {
+  try {
+    const logger = Moralis.Cloud.getLogger();
+    const epochQuery = new Moralis.Query("Epoch");
+    epochQuery.equalTo("objectId", request.params.epochId);
+    var epoch = await epochQuery.first();
+    var totalVotesAllocated = 0;
+    var updatedMemberStats = epoch.get("memberStats");
+    if (epoch.get("type") === "Contribution") {
+      for (var member of updatedMemberStats) {
+        totalVotesAllocated += member["votesReceived"];
+      }
+      for (var member of updatedMemberStats) {
+        member["reward"] = (member["votesReceived"] * budget) / totalVotesAllocated;
+      }
+    }
+    epoch.set("memberStats", updatedMemberStats);
+    await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+
+    return epoch;
+  } catch (err) {
+    logger.error(`Error whilte creating team ${err}`);
+    return false;
+  }
+});
+
+async function calcReward(epoch) {
+  const logger = Moralis.Cloud.getLogger();
+  var totalVotesAllocated = 0;
+  var updatedMemberStats = epoch.get("memberStats");
+  if (epoch.get("type") === "Contribution") {
+    for (var member of updatedMemberStats) {
+      totalVotesAllocated += member["votesReceived"];
+    }
+    for (var member of updatedMemberStats) {
+      member["reward"] = (member["votesReceived"] * epoch.get("budget")) / totalVotesAllocated;
+    }
+  }
+  epoch.set("memberStats", updatedMemberStats);
+  return epoch;
+}
+
+Moralis.Cloud.define("endEpoch", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  const epochQuery = new Moralis.Query("Epoch");
+  epochQuery.equalTo("objectId", request.params.epochId);
+  var epoch = await epochQuery.first();
+  epoch = await calcReward(epoch);
+  epoch.set("active", false);
+  await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+
+  return epoch;
+});
+
+Moralis.Cloud.define("getTaskEpoch", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  const epochQuery = new Moralis.Query("Epoch");
+  const pipeline = [
+    { match: { objectId: request.params.epochId } },
+    {
+      lookup: {
+        from: "Task",
+        localField: "_id",
+        foreignField: "epochId",
+        as: "tasks",
+      },
+    },
+  ];
+
+  return await epochQuery.aggregate(pipeline);
+});
+
+Moralis.Cloud.define("voteOnTasks", async (request) => {
+  // {"objectId":numvotes}
+  const logger = Moralis.Cloud.getLogger();
+  const taskQuery = new Moralis.Query("Task");
+  taskQuery.equalTo("epochId", request.params.epochId);
+  const tasks = await taskQuery.find();
+
+  const epochQuery = new Moralis.Query("Epoch");
+  epochQuery.equalTo("objectId", request.params.epochId);
+  const epoch = await epochQuery.find();
+  var voterIndex = epoch.memberStats.findIndex((a) => a.ethAddress === request.user.get("ethAddress"));
+
+  var updatedTasks = [];
+  var totalEffectiveVote = 0;
+  for (var task of tasks) {
+    task.set("votes", request.params.votes[task.id]);
+    updatedTasks.push(task);
+
+    totalEffectiveVote += Math.pow(numVotes, 2);
+    if (epoch.memberStats[voterIndex]["votesRemaining"] < totalEffectiveVote) {
+      throw "Not enough votes remaining";
+    }
+  }
+  epoch.memberStats[voterIndex]["votesRemaining"] -= totalEffectiveVote;
+  epoch.memberStats[voterIndex]["votesGiven"] += totalEffectiveVote;
+  epoch.memberStats[voterIndex]["votesAllocated"] = request.params.votes;
+  epoch.set("memberStats", epoch.memberStats);
+  await Moralis.Object.saveAll(updatedTasks.concat(epoch), { useMasterKey: true });
+
+  return epoch;
+});
+
+async function calcEffectiveVotes(votes, members, voterAddress) {
+  /* votes: {"0x232324": 10,
+            '0x232324': 19)
+    members: [{"ethAddress":"0x232324", "votesGiven": 10, "votesReceived":9, "votesRemaining":90},
+            {"ethAddress':'0x232324', 'votes': 19, "votesReceived":9, "votesRemaining":90}]
+  */
+  var totalEffectiveVote = 0;
+  var voterStats = members.filter((a) => a.ethAddress === voterAddress);
+  var idx = 0;
+  var voterIdx;
+  for (var member of members) {
+    if (member["ethAddress"] !== voterAddress) {
+      var numVotes = votes[member["ethAddress"]];
+      member["votesReceived"] += numVotes;
+      totalEffectiveVote += Math.pow(numVotes, 2);
+      if (voterStats["votesRemaining"] < totalEffectiveVote) {
+        throw "Not enough votes remaining";
+      }
+      idx++;
+    } else {
+      voterIdx = idx;
+    }
+  }
+  members[voterIdx]["votesRemaining"] -= totalEffectiveVote;
+  members[voterIdx]["votesGiven"] += totalEffectiveVote;
+  members[voterIdx]["votesAllocated"] = votes;
+
+  return members;
 }

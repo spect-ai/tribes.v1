@@ -13,11 +13,13 @@ import React from "react";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useTribe } from "../../../../pages/tribe/[id]";
+import { Octokit } from "@octokit/rest";
 
 type Props = {
   title: string;
   type: number;
   idx: number;
+  id: number;
 };
 
 const StyledCard = styled(Card)(({ theme, ...props }) => ({
@@ -38,7 +40,7 @@ const typeMapping: colorMapping = {
   2: "#5fe086",
 };
 
-const Task = ({ title, type, idx }: Props) => {
+const Task = ({ title, type, idx, id }: Props) => {
   const {
     setToDoTasks,
     toDoTasks,
@@ -46,6 +48,8 @@ const Task = ({ title, type, idx }: Props) => {
     inProgressTasks,
     setDoneTasks,
     doneTasks,
+    githubToken,
+    repo,
   } = useTribe();
   return (
     <StyledCard sx={{ borderLeft: `5px solid ${typeMapping[type]}` }}>
@@ -103,6 +107,27 @@ const Task = ({ title, type, idx }: Props) => {
                   );
                   setDoneTasks([...doneTasks, inProgressTasks[idx]]);
                 }
+
+                const octokit = new Octokit({
+                  auth: githubToken,
+                });
+                const splitValues = repo.split("/");
+                console.log(id);
+                octokit.rest.users.getAuthenticated().then(({ data }) => {
+                  octokit.rest.issues
+                    .addAssignees({
+                      owner: splitValues[3],
+                      repo: splitValues[4],
+                      issue_number: id,
+                      assignees: [data.login],
+                    })
+                    .then(({ data }) => {
+                      console.log(data);
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                    });
+                });
               }}
             >
               <ChevronRightIcon />

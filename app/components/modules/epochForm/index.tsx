@@ -1,17 +1,11 @@
-import {
-  Autocomplete,
-  InputAdornment,
-  styled,
-  TextField,
-  Tooltip,
-  tooltipClasses,
-  TooltipProps,
-} from "@mui/material";
+import { Autocomplete, InputAdornment, styled, TextField, Tooltip, tooltipClasses, TooltipProps } from "@mui/material";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { DateTimePicker, LocalizationProvider } from "@mui/lab";
 import DateAdapter from "@mui/lab/AdapterDayjs";
 import dayjs from "dayjs";
 import { PrimaryButton } from "../epochModal";
+import { useMoralis } from "react-moralis";
+import { startEpoch } from "../../../adapters/moralis";
 
 type Props = {
   handleNext: () => void;
@@ -51,9 +45,21 @@ const EpochForm = ({ handleNext }: Props) => {
     control,
     formState: { errors },
   } = useForm<IEpochFormInput>();
+  const { Moralis, user } = useMoralis();
 
   const onSubmit: SubmitHandler<IEpochFormInput> = async (values) => {
     console.log(values);
+    // TODODO: Need to update tribe metadata (latestContributionEpoch or latestTaskEpoch) with the epoch id returned
+    startEpoch(Moralis, {
+      startTime: new Date(values.startTime).getTime(),
+      duration: values.duration * 60000, //convert to milliseconds
+      type: values.type,
+      strategy: "quadratic",
+      budget: values.budget,
+      teamId: 7, // TODODO
+    }).then((res: any) => {
+      console.log(res);
+    });
   };
   return (
     <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "2rem" }}>
@@ -71,11 +77,7 @@ const EpochForm = ({ handleNext }: Props) => {
                 onChange={field.onChange}
                 renderInput={(params) => (
                   <LightTooltip arrow placement="right" title={"start time"}>
-                    <TextField
-                      {...params}
-                      fullWidth
-                      helperText={params.error && "Enter a date later than now"}
-                    />
+                    <TextField {...params} fullWidth helperText={params.error && "Enter a date later than now"} />
                   </LightTooltip>
                 )}
               />
@@ -88,27 +90,18 @@ const EpochForm = ({ handleNext }: Props) => {
           name="duration"
           control={control}
           render={({ field, fieldState }) => (
-            <LightTooltip
-              arrow
-              placement="right"
-              title={"Duration of the epoch"}
-            >
+            <LightTooltip arrow placement="right" title={"Duration of the epoch"}>
               <TextField
                 {...field}
                 label="Duration"
                 variant="standard"
-                helperText={
-                  fieldState.error?.type === "min" &&
-                  "Gig collateral should atleast be 1 WMatic"
-                }
+                helperText={fieldState.error?.type === "min" && "Gig collateral should atleast be 1 WMatic"}
                 type="number"
                 required
                 error={fieldState.error ? true : false}
                 inputProps={{ min: 1, step: 1 }}
                 InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="start">Minutes</InputAdornment>
-                  ),
+                  endAdornment: <InputAdornment position="start">Minutes</InputAdornment>,
                 }}
                 fullWidth
               />
@@ -126,14 +119,7 @@ const EpochForm = ({ handleNext }: Props) => {
                 options={["Task", "Contribution"]}
                 getOptionLabel={(option) => option}
                 onChange={(e, data) => field.onChange(data)}
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    required
-                    variant="standard"
-                    label="Valuation Type"
-                  />
-                )}
+                renderInput={(params) => <TextField {...params} required variant="standard" label="Valuation Type" />}
               />
             </LightTooltip>
           )}
@@ -149,18 +135,13 @@ const EpochForm = ({ handleNext }: Props) => {
                 {...field}
                 label="Budget"
                 variant="standard"
-                helperText={
-                  fieldState.error?.type === "min" &&
-                  "Gig collateral should atleast be 1 WMatic"
-                }
+                helperText={fieldState.error?.type === "min" && "Gig collateral should atleast be 1 WMatic"}
                 type="number"
                 required
                 error={fieldState.error ? true : false}
                 inputProps={{ min: 1, step: 1 }}
                 InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="start">WMatic</InputAdornment>
-                  ),
+                  endAdornment: <InputAdornment position="start">WMatic</InputAdornment>,
                 }}
                 fullWidth
               />
@@ -168,13 +149,8 @@ const EpochForm = ({ handleNext }: Props) => {
           )}
         />
       </FieldContainer>
-      <PrimaryButton
-        type="submit"
-        variant="outlined"
-        fullWidth
-        onClick={handleNext}
-      >
-        Next
+      <PrimaryButton type="submit" variant="outlined" fullWidth>
+        Create Epoch
       </PrimaryButton>
     </form>
   );
