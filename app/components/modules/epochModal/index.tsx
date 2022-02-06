@@ -32,7 +32,7 @@ export const PrimaryButton = styled(LoadingButton)<ButtonProps>(
   })
 );
 
-const modalStyle = {
+export const modalStyle = {
   position: "absolute" as "absolute",
   top: "50%",
   left: "50%",
