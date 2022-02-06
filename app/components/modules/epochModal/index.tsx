@@ -29,7 +29,7 @@ export const PrimaryButton = styled(Button)<ButtonProps>(({ theme }) => ({
   textTransform: "none",
 }));
 
-const modalStyle = {
+export const modalStyle = {
   position: "absolute" as "absolute",
   top: "50%",
   left: "50%",

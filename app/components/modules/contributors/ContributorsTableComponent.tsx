@@ -98,7 +98,9 @@ const ContributorsTableComponent = () => {
                     shrink: true,
                   }}
                   defaultValue={row.votes}
-                  onChange={(value) => console.log(value)}
+                  onChange={(event) => Number(event.target.value) < 0
+                    ? (event.target.value = String(0))
+                    : event.target.value}
                 />
               </TableCell>
               <TableCell align="center">{row.reward}</TableCell>
