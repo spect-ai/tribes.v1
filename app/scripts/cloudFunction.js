@@ -685,9 +685,10 @@ Moralis.Cloud.define("voteOnTasks", async (request) => {
   epochQuery.equalTo("objectId", request.params.epochId);
   const epoch = await epochQuery.first();
   logger.info(epoch.get("memberStats"));
-  var voterIndex = epoch
-    .get("memberStats")
-    .findIndex((a) => a.ethAddress === request.user.get("ethAddress"));
+  const memberStats = epoch.get("memberStats");
+  var voterIndex = memberStats.findIndex(
+    (a) => a.ethAddress === request.user.get("ethAddress")
+  );
 
   var updatedTasks = [];
   var totalEffectiveVote = 0;
@@ -695,15 +696,15 @@ Moralis.Cloud.define("voteOnTasks", async (request) => {
     task.set("votes", request.params.votes[task.id]);
     updatedTasks.push(task);
 
-    totalEffectiveVote += Math.pow(numVotes, 2);
-    if (epoch.memberStats[voterIndex]["votesRemaining"] < totalEffectiveVote) {
+    totalEffectiveVote += Math.pow(request.params.votes[task.id], 2);
+    if (memberStats[voterIndex]["votesRemaining"] < totalEffectiveVote) {
       throw "Not enough votes remaining";
     }
   }
-  epoch.memberStats[voterIndex]["votesRemaining"] -= totalEffectiveVote;
-  epoch.memberStats[voterIndex]["votesGiven"] += totalEffectiveVote;
-  epoch.memberStats[voterIndex]["votesAllocated"] = request.params.votes;
-  epoch.set("memberStats", epoch.memberStats);
+  memberStats[voterIndex]["votesRemaining"] -= totalEffectiveVote;
+  memberStats[voterIndex]["votesGiven"] += totalEffectiveVote;
+  memberStats[voterIndex]["votesAllocated"] = request.params.votes;
+  epoch.set("memberStats", memberStats);
   await Moralis.Object.saveAll(updatedTasks.concat(epoch), {
     useMasterKey: true,
   });
