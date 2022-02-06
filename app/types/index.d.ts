@@ -45,6 +45,7 @@ export interface Epoch {
   budget: number;
   teamId: number;
   epochNumber: number;
+  active: boolean;
   _createdAt: object;
   _id: string;
   _updatedAt: object;

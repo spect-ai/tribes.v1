@@ -87,3 +87,19 @@ export function acceptInvitations(Moralis: any, ethAddress: string, teamId: numb
   };
   return Moralis.Cloud.run("acceptInvite", params);
 }
+
+export function giftContributors(Moralis: any, epochId: string, votes: object, ethAddress: string) {
+  const params = {
+    epochId: epochId,
+    votes: votes,
+    ethAddress: ethAddress,
+  };
+  return Moralis.Cloud.run("giftContributors", params);
+}
+
+export function endEpoch(Moralis: any, epochId: string) {
+  const params = {
+    epochId: epochId,
+  };
+  return Moralis.Cloud.run("endEpoch", params);
+}

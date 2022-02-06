@@ -4,7 +4,8 @@ import ContributorsTableComponent from "./ContributorsTableComponent";
 import { muiTheme } from "../../../constants/muiTheme";
 import { Epoch, Team } from "../../../types/index";
 import { useMoralis } from "react-moralis";
-import { getEpoch } from "../../../adapters/moralis";
+import { getEpoch, giftContributors } from "../../../adapters/moralis";
+import { PrimaryButton } from "../epochModal";
 
 interface Props {}
 
@@ -20,6 +21,8 @@ const Contributor = (props: Props) => {
       // TODODO
       getEpoch(Moralis, "Cj4mtnwlNEDxaq3b9TFZ0TV0").then((res: Epoch) => {
         console.log(res);
+        console.log(res.memberStats[0]?.votesAllocated);
+
         setEpoch(res);
         memberStats = res.memberStats.filter((m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress"));
         memberStats.length > 0 ? setRemainingVotes(memberStats[0]?.votesRemaining) : setRemainingVotes(0);
@@ -51,6 +54,22 @@ const Contributor = (props: Props) => {
           <Title>Epoch Budget</Title>
           <Value>${epoch.budget}</Value>
         </DescriptionContainer>
+        <PrimaryButton
+          variant="outlined"
+          size="large"
+          type="submit"
+          onClick={() => {
+            // TODODO
+            giftContributors(Moralis, "Cj4mtnwlNEDxaq3b9TFZ0TV0", voteAllocation, user?.get("ethAddress")).then(
+              (res: any) => {
+                console.log(res);
+              }
+            );
+          }}
+          sx={{ ml: 3 }}
+        >
+          Save Allocations
+        </PrimaryButton>
       </SideContainer>
     </Wrapper>
   );

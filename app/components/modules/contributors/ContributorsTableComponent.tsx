@@ -35,9 +35,16 @@ const ContributorsTableComponent = (props: Props) => {
             <TableCell></TableCell>
             <TableCell align="right" style={{ color: "#99ccff" }}></TableCell>
             <TableCell align="center" style={{ color: "#99ccff" }}></TableCell>
-            <TableCell align="center" style={{ color: "#99ccff" }}>
-              Votes given
-            </TableCell>
+            {epoch.active && (
+              <TableCell align="center" style={{ color: "#99ccff" }}>
+                Votes given
+              </TableCell>
+            )}
+            {!epoch.active && (
+              <TableCell align="center" style={{ color: "#99ccff" }}>
+                Reward Allocated
+              </TableCell>
+            )}
           </TableRow>
         </TableHead>
         <TableBody>
@@ -48,38 +55,52 @@ const ContributorsTableComponent = (props: Props) => {
               </TableCell>
               <TableCell align="right">{}</TableCell>
               <TableCell align="center">{}</TableCell>
-              <TableCell align="center">
-                <TextField
-                  id={row.ethAddress}
-                  label="Votes Given"
-                  type="number"
-                  inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
-                  style={{ width: "40%" }}
-                  placeholder="Votes"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  defaultValue={
-                    props.voteAllocation?.hasOwnProperty(row.ethAddress) ? props.voteAllocation[row.ethAddress] : 0
-                  }
-                  onChange={(event) => {
-                    console.log(props.voteAllocation);
-                    console.log(row.ethAddress);
-                    console.log(event.target.value);
+              {epoch.active && (
+                <TableCell align="center">
+                  {epoch.active && (
+                    <TextField
+                      id={row.ethAddress}
+                      label="Votes Given"
+                      type="number"
+                      inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                      style={{ width: "40%" }}
+                      placeholder="Votes"
+                      InputLabelProps={{
+                        shrink: true,
+                      }}
+                      defaultValue={
+                        // TODOD: Not rendering correctly
+                        props.voteAllocation?.hasOwnProperty(row.ethAddress)
+                          ? parseInt(props.voteAllocation[row.ethAddress])
+                          : 0
+                      }
+                      onChange={(event) => {
+                        console.log(props.voteAllocation);
+                        console.log(row.ethAddress);
+                        console.log(event.target.value);
 
-                    const remainingVotes = getRemainingVotes(
-                      props.remainingVotes,
-                      parseInt(event.target.value),
-                      props.voteAllocation?.hasOwnProperty(row.ethAddress) ? props.voteAllocation[row.ethAddress] : 0
-                    );
-                    console.log(remainingVotes);
-                    props.setRemainingVotes(remainingVotes);
-                    props.voteAllocation[row.ethAddress] = event.target.value;
-                    props.setVoteAllocation(props.voteAllocation);
-                    console.log(props.voteAllocation);
-                  }}
-                />
-              </TableCell>
+                        const remainingVotes = getRemainingVotes(
+                          props.remainingVotes,
+                          parseInt(event.target.value),
+                          props.voteAllocation?.hasOwnProperty(row.ethAddress)
+                            ? parseInt(props.voteAllocation[row.ethAddress])
+                            : 0
+                        );
+                        console.log(remainingVotes);
+                        props.setRemainingVotes(remainingVotes);
+                        props.voteAllocation[row.ethAddress] = parseInt(event.target.value);
+                        props.setVoteAllocation(props.voteAllocation);
+                        console.log(props.voteAllocation);
+                      }}
+                    />
+                  )}
+                </TableCell>
+              )}
+              {!epoch.active && (
+                <TableCell align="center" style={{ color: "#99ccff" }}>
+                  {row.reward} WMatic
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
