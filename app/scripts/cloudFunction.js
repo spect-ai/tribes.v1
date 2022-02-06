@@ -40,7 +40,8 @@ Moralis.Cloud.define("createTeam", async (request) => {
     team.set("organizationVerified", false);
     team.set("openApplications", request.params.openApplications);
     team.set("applicationRequirements", request.params.applicationRequirements);
-
+    team.set("latestContributionEpoch", null);
+    team.set("latestTaskEpoch", null);
     const userInfoQuery = new Moralis.Query("UserInfo");
     //userInfoQuery.equalTo("ethAddress", request.user.get("ethAddress"))
     userInfoQuery.equalTo("ethAddress", request.params.ethAddress);
@@ -124,6 +125,15 @@ Moralis.Cloud.define("startEpoch", async (request) => {
             reward: 0,
           });
         }
+      } else if (request.params.type === "Task") {
+        for (var member of team.get("members")) {
+          epochMembers.push({
+            ethAddress: member.ethAddress,
+            votesGiven: 0,
+            votesRemaining: 100,
+            votesAllocated: {},
+          });
+        }
       }
       const epochQuery = new Moralis.Query("Epoch");
       epochQuery.equalTo("teamId", request.params.teamId);
@@ -144,10 +154,10 @@ Moralis.Cloud.define("startEpoch", async (request) => {
 
       await Moralis.Object.saveAll([epoch], { useMasterKey: true });
 
-      if (request.params.type === "contribution") {
-        team.set("activeContributionEpoch", epoch.id);
-      } else if (request.params.type === "task") {
-        team.set("activeTaskEpoch", epoch.id);
+      if (request.params.type === "Contribution") {
+        team.set("latestContributionEpoch", epoch.id);
+      } else if (request.params.type === "Task") {
+        team.set("latestTaskEpoch", epoch.id);
       }
       await Moralis.Object.saveAll([team], { useMasterKey: true });
 
@@ -198,36 +208,6 @@ Moralis.Cloud.define("calcTest", async (request) => {
     return false;
   }
 });
-
-async function calcEffectiveVotes(votes, members, voterAddress) {
-  /* votes: {"0x232324": 10,
-            '0x232324': 19)
-    members: [{"ethAddress":"0x232324", "votesGiven": 10, "votesReceived":9, "votesRemaining":90},
-            {"ethAddress':'0x232324', 'votes': 19, "votesReceived":9, "votesRemaining":90}]
-  */
-  var totalEffectiveVote = 0;
-  var voterStats = members.filter((a) => a.ethAddress === voterAddress);
-  var idx = 0;
-  var voterIdx;
-  for (var member of members) {
-    if (member["ethAddress"] !== voterAddress) {
-      var numVotes = votes[member["ethAddress"]];
-      member["votesReceived"] += numVotes;
-      totalEffectiveVote += Math.pow(numVotes, 2);
-      if (voterStats["votesRemaining"] < totalEffectiveVote) {
-        throw "Not enough votes remaining";
-      }
-      idx++;
-    } else {
-      voterIdx = idx;
-    }
-  }
-  members[voterIdx]["votesRemaining"] -= totalEffectiveVote;
-  members[voterIdx]["votesGiven"] += totalEffectiveVote;
-  members[voterIdx]["votesAllocated"] = votes;
-
-  return members;
-}
 
 async function hasAccess(ethAddress, team, requiredAccess) {
   const members = team.get("members");
@@ -487,25 +467,37 @@ Moralis.Cloud.define("createTasks", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   var task;
   var tasks = [];
+  logger.info(`newTasks ${JSON.stringify(request.params.newTasks)}`);
+  logger.info(`taskSource ${JSON.stringify(request.params.taskSource)}`);
+  logger.info(`epochId ${JSON.stringify(request.params.epochId)}`);
+
   for (var newTask of request.params.newTasks) {
     if (request.params.taskSource === "github") {
-      task = await getGithubTask(newTask.name, newTask.issueLink, newTask.value);
+      task = await getGithubTask(newTask.id, newTask.title, newTask.issueLink, newTask.value, request.params.epochId);
     } else {
-      task = await getSpectTask(newTask.name, newTask.description, newTask.deadline, newTask.value);
+      task = await getSpectTask(
+        newTask.id,
+        newTask.title,
+        newTask.description,
+        newTask.deadline,
+        newTask.value,
+        request.params.epochId
+      );
     }
     tasks.push(task);
   }
-  await Moralis.Object.saveAll([tasks], { useMasterKey: true });
+  await Moralis.Object.saveAll(tasks, { useMasterKey: true });
 
-  return task;
+  return tasks;
 });
 
-async function getGithubTask(name, issueLink, value, boardId) {
+async function getGithubTask(id, title, issueLink, value, epochId) {
   var task = new Moralis.Object("Task");
-  task.set("name", name);
+  task.set("id", id);
+  task.set("title", title);
   task.set("issueLink", issueLink);
-  task.set("boardId", boardId);
-  task.set("source", taskSource);
+  task.set("epochId", epochId);
+  task.set("source", "github");
   task.set("value", value);
   task.set("votes", 0);
   task.set("bumpUpCount", 0);
@@ -515,10 +507,11 @@ async function getGithubTask(name, issueLink, value, boardId) {
   return task;
 }
 
-async function getSpectTask(name, description, deadline, value, boardId) {
+async function getSpectTask(id, title, description, deadline, value, epochId) {
   var task = new Moralis.Object("Task");
-  task.set("name", name);
-  task.set("boardId", boardId);
+  task.set("id", id);
+  task.set("title", title);
+  task.set("epochId", epochId);
   task.set("description", description);
   task.set("deadline", deadline);
   task.set("source", "spect");
@@ -602,3 +595,83 @@ Moralis.Cloud.define("endEpoch", async (request) => {
 
   return epoch;
 });
+
+Moralis.Cloud.define("getTaskEpoch", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  const epochQuery = new Moralis.Query("Epoch");
+  const pipeline = [
+    { match: { objectId: request.params.epochId } },
+    {
+      lookup: {
+        from: "Task",
+        localField: "_id",
+        foreignField: "epochId",
+        as: "tasks",
+      },
+    },
+  ];
+
+  return await epochQuery.aggregate(pipeline);
+});
+
+Moralis.Cloud.define("voteOnTasks", async (request) => {
+  // {"objectId":numvotes}
+  const logger = Moralis.Cloud.getLogger();
+  const taskQuery = new Moralis.Query("Task");
+  taskQuery.equalTo("epochId", request.params.epochId);
+  const tasks = await taskQuery.find();
+
+  const epochQuery = new Moralis.Query("Epoch");
+  epochQuery.equalTo("objectId", request.params.epochId);
+  const epoch = await epochQuery.find();
+  var voterIndex = epoch.memberStats.findIndex((a) => a.ethAddress === request.user.get("ethAddress"));
+
+  var updatedTasks = [];
+  var totalEffectiveVote = 0;
+  for (var task of tasks) {
+    task.set("votes", request.params.votes[task.id]);
+    updatedTasks.push(task);
+
+    totalEffectiveVote += Math.pow(numVotes, 2);
+    if (epoch.memberStats[voterIndex]["votesRemaining"] < totalEffectiveVote) {
+      throw "Not enough votes remaining";
+    }
+  }
+  epoch.memberStats[voterIndex]["votesRemaining"] -= totalEffectiveVote;
+  epoch.memberStats[voterIndex]["votesGiven"] += totalEffectiveVote;
+  epoch.memberStats[voterIndex]["votesAllocated"] = request.params.votes;
+  epoch.set("memberStats", epoch.memberStats);
+  await Moralis.Object.saveAll(updatedTasks.concat(epoch), { useMasterKey: true });
+
+  return epoch;
+});
+
+async function calcEffectiveVotes(votes, members, voterAddress) {
+  /* votes: {"0x232324": 10,
+            '0x232324': 19)
+    members: [{"ethAddress":"0x232324", "votesGiven": 10, "votesReceived":9, "votesRemaining":90},
+            {"ethAddress':'0x232324', 'votes': 19, "votesReceived":9, "votesRemaining":90}]
+  */
+  var totalEffectiveVote = 0;
+  var voterStats = members.filter((a) => a.ethAddress === voterAddress);
+  var idx = 0;
+  var voterIdx;
+  for (var member of members) {
+    if (member["ethAddress"] !== voterAddress) {
+      var numVotes = votes[member["ethAddress"]];
+      member["votesReceived"] += numVotes;
+      totalEffectiveVote += Math.pow(numVotes, 2);
+      if (voterStats["votesRemaining"] < totalEffectiveVote) {
+        throw "Not enough votes remaining";
+      }
+      idx++;
+    } else {
+      voterIdx = idx;
+    }
+  }
+  members[voterIdx]["votesRemaining"] -= totalEffectiveVote;
+  members[voterIdx]["votesGiven"] += totalEffectiveVote;
+  members[voterIdx]["votesAllocated"] = votes;
+
+  return members;
+}
