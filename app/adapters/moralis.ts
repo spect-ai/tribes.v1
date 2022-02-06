@@ -72,3 +72,18 @@ export function getGithubToken(Moralis: any, code: string) {
   };
   return Moralis.Cloud.run("getGithubToken", params);
 }
+
+export function getInvitations(Moralis: any, ethAddress: string) {
+  const params = {
+    ethAddress: ethAddress,
+  };
+  return Moralis.Cloud.run("getMyInvites", params);
+}
+
+export function acceptInvitations(Moralis: any, ethAddress: string, teamId: number) {
+  const params = {
+    ethAddress: ethAddress,
+    teamId: teamId,
+  };
+  return Moralis.Cloud.run("acceptInvite", params);
+}
