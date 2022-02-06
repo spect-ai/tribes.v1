@@ -1,30 +1,4 @@
 
-//                         <i className="fa fa-bell fa-xs" style={{color:"#054BD7"}}/>
-//                     :
-//                         <i className="fa fa-bell-o fa-xs"/>
-//                 }
-            
-
-
-// `
-
-// const NotificationIcon = styled.div`
-//     border: 1px solid #2369F6;
-//     border-radius: 50%;
-//     width: 40px;
-//     height: 40px;
-//     display: flex;
-//     flex-direction: row;
-//     justify-content: center;
-//     align-items: center;
-//     &:hover {
-//         border: 1px solid #054BD7;
-//         cursor: pointer;
-//         color: '#054BD7'
-//     }
-// `
-
-
 import React, {useEffect,useState} from 'react';
 import Popover from '@mui/material/Popover';
 import Button from '@mui/material/Button';
