@@ -39,9 +39,9 @@ export default function Notification() {
   const acceptInviteHandler = (teamId: number) => {
     acceptInvitations(Moralis, ethAddress, teamId).then((res:any[]) => {
         console.log('ethAdd',ethAddress)
-        console.log('ressssAccepted',res)
+        console.log('ressssAccepted',res)     
     })
-    
+    handleClose() 
   }
 
   const open = Boolean(anchorEl);
@@ -109,17 +109,22 @@ const PopoverContent = styled.div`
 `
 
 const Popnotification = styled.div`
-    margin: 4px 4px;
+    margin: 4px 6px;
     width: 270px;
     min-height: 40px;
     border: 1px solid #2369F6;
     border-radius: 5px;
     padding: 2px 9px;
     overflow: auto;
+
+    &:hover {
+        cursor: pointer;
+        border: 1px solid #054BD7;
+    }
 `
 
 const NotificationTitle = styled.div`
-    font-size: '11px'; 
+    font-size: '8px'; 
     color:'#91909D'; 
     text-transform: 'uppercase';
     font-weight: 'bold';
@@ -128,6 +133,8 @@ const NotificationTitle = styled.div`
 const NotificationObject = styled.div`
     font-size: '18px'; 
     font-weight: 'bold';
+    color:'#91909D'; 
+    overflow: hidden;
 `
 
 const NoNotificationTitle = styled.div`
