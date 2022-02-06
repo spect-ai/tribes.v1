@@ -1,7 +1,10 @@
 import { NextPage } from "next";
 import Head from "next/head";
-import { createContext, useContext, useState } from "react";
+import { useRouter } from "next/router";
+import { createContext, useContext, useEffect, useState } from "react";
+import { useMoralisCloudFunction } from "react-moralis";
 import TribeTemplate from "../../app/components/modules/tribe";
+import { Team } from "../../app/types";
 
 interface Props {}
 
@@ -23,6 +26,9 @@ interface TribeContextType {
   setGithubToken: (token: string) => void;
   repo: string;
   setRepo: (repo: string) => void;
+  tribe: Team;
+  setTribe: (tribe: Team) => void;
+  getTeam: () => void;
 }
 
 export const TribeContext = createContext<TribeContextType>(
@@ -30,7 +36,20 @@ export const TribeContext = createContext<TribeContextType>(
 );
 
 const TribePage: NextPage<Props> = (props: Props) => {
+  const router = useRouter();
+  const { id } = router.query;
   const context = useProviderTribe();
+  useEffect(() => {
+    context.getTeam({
+      onSuccess: (res: any) => {
+        context.setTribe(res as Team);
+      },
+      params: {
+        teamId: id,
+      },
+    });
+  }, [id]);
+
   return (
     <>
       <Head>
@@ -52,6 +71,15 @@ function useProviderTribe() {
   const [toDoTasks, setToDoTasks] = useState([] as any);
   const [inProgressTasks, setInProgressTasks] = useState([] as any);
   const [doneTasks, setDoneTasks] = useState([] as any);
+  const [tribe, setTribe] = useState({} as Team);
+
+  const { fetch: getTeam } = useMoralisCloudFunction(
+    "getTeam",
+    {
+      limit: 1,
+    },
+    { autoFetch: false }
+  );
 
   return {
     tab,
@@ -66,6 +94,9 @@ function useProviderTribe() {
     setGithubToken,
     repo,
     setRepo,
+    tribe,
+    setTribe,
+    getTeam,
   };
 }
 

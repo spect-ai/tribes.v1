@@ -31,7 +31,7 @@ const StyledAnchor = styled("a")(({ theme }) => ({
 type Props = {};
 
 const TribeHeading = (props: Props) => {
-  const { setTab, tab, setGithubToken } = useTribe();
+  const { setTab, tab, setGithubToken, tribe } = useTribe();
   const [githubLoading, setGithubLoading] = useState(false);
   const { Moralis } = useMoralis();
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
@@ -55,7 +55,7 @@ const TribeHeading = (props: Props) => {
             }}
           >
             <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-              <Typography variant="h4">Spect Network DAO</Typography>
+              <Typography variant="h4">{tribe.name}</Typography>
               <EpochModal step={0} />
               <PrimaryButton
                 variant="outlined"
