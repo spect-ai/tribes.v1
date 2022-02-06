@@ -6,11 +6,18 @@ import {
     FormLabel,
   } from "@mui/material";
   import { PrimaryButton } from "../epochModal";
+  import { useRouter } from "next/router";
+  import { useMoralis } from "react-moralis";
+  import { useTribe } from "../../../../pages/tribe/[id]";
 export interface ModalFormInput {
     address: string;
   }
 
 const InviteContributorModal = ({setIsOpen}:any) => {
+    const router = useRouter();
+    const { id } = router.query;
+    const { Moralis, user } = useMoralis();
+    const { getTeam, setTribe } = useTribe();
     const {
         handleSubmit,
         control,
