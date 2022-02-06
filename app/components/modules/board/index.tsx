@@ -10,7 +10,12 @@ import {
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
-import { endEpoch, getEpoch, voteOnTasks } from "../../../adapters/moralis";
+import {
+  endEpoch,
+  getEpoch,
+  getTaskEpoch,
+  voteOnTasks,
+} from "../../../adapters/moralis";
 import { Epoch } from "../../../types";
 import { formatTimeLeft } from "../../../utils/utils";
 
@@ -46,7 +51,7 @@ const Board = (props: Props) => {
     setChecked((prev) => !prev);
   };
   const { Moralis, user } = useMoralis();
-  const { tribe } = useTribe();
+  const { tribe, setToDoTasks, setInProgressTasks, setDoneTasks } = useTribe();
   const [remainingVotes, setRemainingVotes] = useState(0);
   const [voteAllocation, setVoteAllocation] = useState({});
   const [epoch, setEpoch] = useState<Epoch>({} as Epoch);
@@ -195,6 +200,28 @@ const Board = (props: Props) => {
                       (res: Epoch) => {
                         if (res) {
                           setEpoch(res);
+                        }
+                      }
+                    );
+                    getTaskEpoch(Moralis, tribe.latestTaskEpoch).then(
+                      (res: any) => {
+                        if (res.length > 0) {
+                          const tasks = (res as Epoch[])[0].tasks;
+                          setToDoTasks(
+                            tasks.filter((task) => {
+                              return task.status === 100;
+                            })
+                          );
+                          setInProgressTasks(
+                            tasks.filter((task) => {
+                              return task.status === 101;
+                            })
+                          );
+                          setDoneTasks(
+                            tasks.filter((task) => {
+                              return task.status === 102;
+                            })
+                          );
                         }
                       }
                     );

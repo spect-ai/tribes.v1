@@ -1,3 +1,5 @@
+import MD5 from "crypto-js/md5";
+
 export const smartTrim = (string: string, maxLength: number) => {
   if(!string)
   {
@@ -42,4 +44,8 @@ export function getRemainingVotes(
   return (
     prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2)
   );
+}
+
+export function getMD5String(string: string) {
+  return MD5(string).toString();
 }
