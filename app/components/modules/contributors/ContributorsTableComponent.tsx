@@ -8,6 +8,7 @@ import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import { Epoch, Team } from "../../../types/index";
 import { getRemainingVotes } from "../../../utils/utils";
+import { useMoralis } from "react-moralis";
 interface Props {
   epoch: Epoch;
   setRemainingVotes: any;
@@ -30,6 +31,8 @@ const ContributorsTableComponent = ({
     console.log(voteAllocation["0x6304ce63f2ebf8c0cc76b60d34cc52a84abb6057"]);
     console.log(remainingVotes);
   }, []);
+
+  const { user } = useMoralis();
 
   return (
     <TableContainer>
@@ -75,6 +78,7 @@ const ContributorsTableComponent = ({
                       InputLabelProps={{
                         shrink: true,
                       }}
+                      disabled={row.ethAddress === user?.get("ethAddress")}
                       // fix
                       defaultValue={voteAllocation[row.ethAddress]}
                       error={remainingVotes < 0}
@@ -104,7 +108,7 @@ const ContributorsTableComponent = ({
               )}
               {!epoch.active && (
                 <TableCell align="center" style={{ color: "#99ccff" }}>
-                  {row.reward} WMatic
+                  {row.reward.toFixed(2)} WMatic
                 </TableCell>
               )}
             </TableRow>

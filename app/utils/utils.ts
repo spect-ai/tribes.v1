@@ -1,4 +1,8 @@
 export const smartTrim = (string: string, maxLength: number) => {
+  if(!string)
+  {
+    return
+  }
   if (maxLength < 1) return string;
   if (string.length <= maxLength) return string;
   if (maxLength === 1) return `${string.substring(0, 1)}...`;

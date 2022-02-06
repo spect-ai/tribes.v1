@@ -1,4 +1,5 @@
 import { Autocomplete, TextField } from "@mui/material";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useMoralis } from "react-moralis";
@@ -31,6 +32,7 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
 
   const [safes, setSafes] = useState([] as any[]);
   const { Moralis, user } = useMoralis();
+  const router = useRouter();
 
   useEffect(() => {
     getUserSafes(user?.get("ethAddress")).then((res) => {
@@ -74,6 +76,9 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
         console.log(res);
       });
       setIsOpen(false);
+      router.push({
+        pathname: `/tribe/${res.get("teamId")}`,
+      });
     });
   };
   return (
@@ -131,7 +136,9 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
                     required
                     variant="standard"
                     label="Safe Address"
-                    helperText={"Gnosis Safe Address which will be used for the treasury"}
+                    helperText={
+                      "Gnosis Safe Address which will be used for the treasury"
+                    }
                   />
                 )}
               />
@@ -164,7 +171,15 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
           control={control}
           render={({ field, fieldState }) => (
             <LightTooltip arrow placement="right" title={"Budget"}>
-              <TextField {...field} label="Member 1" variant="standard" helperText={""} required fullWidth multiline />
+              <TextField
+                {...field}
+                label="Member 1"
+                variant="standard"
+                helperText={""}
+                required
+                fullWidth
+                multiline
+              />
             </LightTooltip>
           )}
         />
@@ -175,7 +190,15 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
           control={control}
           render={({ field, fieldState }) => (
             <LightTooltip arrow placement="right" title={"Budget"}>
-              <TextField {...field} label="Member 2" variant="standard" helperText={""} required fullWidth multiline />
+              <TextField
+                {...field}
+                label="Member 2"
+                variant="standard"
+                helperText={""}
+                required
+                fullWidth
+                multiline
+              />
             </LightTooltip>
           )}
         />
@@ -186,7 +209,15 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
           control={control}
           render={({ field, fieldState }) => (
             <LightTooltip arrow placement="right" title={"Budget"}>
-              <TextField {...field} label="Member 3" variant="standard" helperText={""} required fullWidth multiline />
+              <TextField
+                {...field}
+                label="Member 3"
+                variant="standard"
+                helperText={""}
+                required
+                fullWidth
+                multiline
+              />
             </LightTooltip>
           )}
         />

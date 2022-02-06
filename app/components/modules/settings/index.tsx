@@ -1,5 +1,5 @@
-import React, {useState} from 'react'
-import styled from '@emotion/styled';
+import React, { useState } from "react";
+import styled from "@emotion/styled";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
     TextField,
@@ -24,13 +24,13 @@ export interface SettingFormInput {
   
 
 const data = [
-    {address: '0x350ba81398f44Bf06cd176004a275c451F0A1d91', role: "admin"},
-    {address: '0x350ba81398f44Bf06cd176004a275c4a120A124u', role: "contrbutor"},
-    {address: '0x350ba81398f44Bf06cd176004a275c4a120A124u', role: "contrbutor"},
-    {address: '0x350ba81398f44Bf06cd176004a275c4a120A124u', role: "contrbutor"},
-    {address: '0x350ba81398f44Bf06cd176004a275c4a120A124u', role: "contrbutor"}
-  ];
-  
+  { address: "0x350ba81398f44Bf06cd176004a275c451F0A1d91", role: "admin" },
+  { address: "0x350ba81398f44Bf06cd176004a275c4a120A124u", role: "contrbutor" },
+  { address: "0x350ba81398f44Bf06cd176004a275c4a120A124u", role: "contrbutor" },
+  { address: "0x350ba81398f44Bf06cd176004a275c4a120A124u", role: "contrbutor" },
+  { address: "0x350ba81398f44Bf06cd176004a275c4a120A124u", role: "contrbutor" },
+];
+
 const Settings = () => {
     const [tabNo, setTabNo] = useState(1)
     const [openModal, setOpenModal] = useState(false)
@@ -253,21 +253,21 @@ const Settings = () => {
                             </Fade>
                         </Modal>
                     </SettingContainer>
-            }
-            
-        </MainContainer>
-    )
-}
 
-export default Settings
+        }
+    </MainContainer>
+  );
+};
+
+export default Settings;
 
 const MainContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    width: 50%;
-    margin-top: 20px;
-    margin-left: 250px;
-`
+  display: flex;
+  flex-direction: row;
+  width: 50%;
+  margin-top: 20px;
+  margin-left: 250px;
+`;
 
 const SettingTabContainer = styled.div`
     display: flex;
@@ -284,73 +284,71 @@ const SettingTabContainer = styled.div`
 `
 
 const TabHeader = styled.div`
-    border-bottom: 2px solid #282b2f;
-    font-size: 16px;
-`
+  border-bottom: 2px solid #282b2f;
+  font-size: 16px;
+`;
 
 const TabItems = styled.div`
-    font-size: 20px;
-    padding: 10px 5px;
-    width: 100%;
-`
+  font-size: 20px;
+  padding: 10px 5px;
+  width: 100%;
+`;
 
 const TabItem = styled.div`
-    margin-bottom: 10px;
-    &:hover {
-        cursor: pointer;
-        color: #99ccff;
-    }
-`
+  margin-bottom: 10px;
+  &:hover {
+    cursor: pointer;
+    color: #99ccff;
+  }
+`;
 
 const SettingContainer = styled.div`
-    display: flex;
-    flex: 5;
-    flex-direction: column;
-    margin-left: 30px;
-    width: 100%;
-`
+  display: flex;
+  flex: 5;
+  flex-direction: column;
+  margin-left: 30px;
+  width: 100%;
+`;
 
 const Header = styled.div`
-    font-size: 20px;
-    margin-top: 10px;
-    border-bottom: 2px solid #282b2f;
-
-`
+  font-size: 20px;
+  margin-top: 10px;
+  border-bottom: 2px solid #282b2f;
+`;
 
 const SettingsBlock = styled.div`
-    display: flex;
-    flex-direction: column !important;
-`
+  display: flex;
+  flex-direction: column !important;
+`;
 
-const Setting = styled.div``
+const Setting = styled.div``;
 
 const FormItem = styled.div`
-    margin-bottom: 5px;
-`
+  margin-bottom: 5px;
+`;
 
 const ButtonWrapper = styled.div`
-    width: 100%;
-`
+  width: 100%;
+`;
 
 const SubmitButton = styled.button`
-    color: "#ffffff" !important;
-    border-radius: 11px;
-    padding: 0.5rem 2rem;
-    font-weight: bold;
-    background: #2164F6;
-    font-size: 15px;
-`
+  color: "#ffffff" !important;
+  border-radius: 11px;
+  padding: 0.5rem 2rem;
+  font-weight: bold;
+  background: #2164f6;
+  font-size: 15px;
+`;
 
 const ContributorHeader = styled.div`
-    font-size: 20px;
-    margin-top: 10px;
-    border-bottom: 2px solid #282b2f;
-    display: flex;
-    flex-direction: row;
-    width: 600px;
-    justify-content: space-between;
-
-`
+  font-size: 20px;
+  margin-top: 10px;
+  border-bottom: 2px solid #282b2f;
+  display: flex;
+  flex-direction: row;
+  width: 600px;
+  justify-content: space-between;
+`;
 
 const InviteButton = styled.div`
     color: "#ffffff" !important;

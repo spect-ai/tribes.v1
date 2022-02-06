@@ -391,7 +391,10 @@ Moralis.Cloud.define("acceptInvite", async (request) => {
       const team = await teamQuery.first();
       const members = team.get("members");
       const member = [
-        { ethAddress: request.params.ethAddress, role: invitation.get("role") },
+        {
+          ethAddress: request.params.ethAddress,
+          role: invitation.get("role"),
+        },
       ];
       team.set("members", members.concat(member));
 
@@ -639,8 +642,26 @@ async function calcReward(epoch) {
       member["reward"] =
         (member["votesReceived"] * epoch.get("budget")) / totalVotesAllocated;
     }
+    epoch.set("memberStats", updatedMemberStats);
   }
-  epoch.set("memberStats", updatedMemberStats);
+  if (epoch.get("type") === "Task") {
+    const taskQuery = new Moralis.Query("Task");
+    taskQuery.equalTo("epochId", epoch.id);
+    const tasks = await taskQuery.find();
+    var totalVotesAllocated = 0;
+    for (var task of tasks) {
+      totalVotesAllocated += task.get("votes");
+    }
+    logger.info(JSON.stringify(tasks));
+    for (var task of tasks) {
+      var value =
+        (task.get("votes") * epoch.get("budget")) / totalVotesAllocated;
+      logger.info(value);
+      task.set("value", value);
+    }
+    await Moralis.Object.saveAll(tasks, { useMasterKey: true });
+  }
+
   return epoch;
 }
 
@@ -650,8 +671,11 @@ Moralis.Cloud.define("endEpoch", async (request) => {
   epochQuery.equalTo("objectId", request.params.epochId);
   var epoch = await epochQuery.first();
   epoch = await calcReward(epoch);
+  logger.info(JSON.stringify(epoch));
   epoch.set("active", false);
+  logger.info(JSON.stringify(epoch));
   await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+  logger.info(JSON.stringify(epoch));
 
   return epoch;
 });
@@ -693,7 +717,7 @@ Moralis.Cloud.define("voteOnTasks", async (request) => {
   var updatedTasks = [];
   var totalEffectiveVote = 0;
   for (var task of tasks) {
-    task.set("votes", request.params.votes[task.id]);
+    task.set("votes", task.get("votes") + request.params.votes[task.id]);
     updatedTasks.push(task);
 
     totalEffectiveVote += Math.pow(request.params.votes[task.id], 2);
@@ -719,7 +743,11 @@ async function calcEffectiveVotes(votes, members, voterAddress) {
             {"ethAddress':'0x232324', 'votes': 19, "votesReceived":9, "votesRemaining":90}]
   */
   var totalEffectiveVote = 0;
+  logger.info("members");
+  logger.info(JSON.stringify(members));
+  logger.info(JSON.stringify(voterAddress));
   var voterStats = members.filter((a) => a.ethAddress === voterAddress);
+  logger.info(JSON.stringify(voterStats));
   var idx = 0;
   var voterIdx;
   for (var member of members) {
@@ -735,6 +763,7 @@ async function calcEffectiveVotes(votes, members, voterAddress) {
       voterIdx = idx;
     }
   }
+  logger.info(`${voterIdx} voteridx`);
   members[voterIdx]["votesRemaining"] -= totalEffectiveVote;
   members[voterIdx]["votesGiven"] += totalEffectiveVote;
   members[voterIdx]["votesAllocated"] = votes;
@@ -742,7 +771,7 @@ async function calcEffectiveVotes(votes, members, voterAddress) {
   return members;
 }
 
-Moralis.Cloud.define("updateTaskStatus", async (request) => {
+Moralis.Cloud.define("updateTask", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   const taskQuery = new Moralis.Query("Task");
   try {
@@ -751,6 +780,9 @@ Moralis.Cloud.define("updateTaskStatus", async (request) => {
     const task = await taskQuery.first();
     logger.info(JSON.stringify(task));
     task.set("status", request.params.status);
+    if (request.params.status === 101) {
+      task.set("assignee", request.user.get("ethAddress"));
+    }
     logger.info("hi");
     task.save({
       useMasterKey: true,

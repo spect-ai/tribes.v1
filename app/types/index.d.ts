@@ -66,6 +66,7 @@ export interface Task {
   value: number;
   votes: number;
   status: number;
+  assignee: string;
   _createdAt: object;
   _id: string;
   _updatedAt: object;

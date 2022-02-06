@@ -4,12 +4,17 @@ import ContributorsTableComponent from "./ContributorsTableComponent";
 import { muiTheme } from "../../../constants/muiTheme";
 import { Epoch, Team } from "../../../types/index";
 import { useMoralis } from "react-moralis";
-import { getEpoch, giftContributors } from "../../../adapters/moralis";
+import {
+  endEpoch,
+  getEpoch,
+  giftContributors,
+} from "../../../adapters/moralis";
 import { PrimaryButton } from "../epochModal";
 import PaidIcon from "@mui/icons-material/Paid";
 import { massPayment } from "../../../adapters/gnosis";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { formatTimeLeft } from "../../../utils/utils";
+import TimelapseIcon from "@mui/icons-material/Timelapse";
 
 interface Props {}
 
@@ -25,18 +30,18 @@ const Contributor = (props: Props) => {
       let memberStats;
       getEpoch(Moralis, tribe.latestContributionEpoch).then((res: Epoch) => {
         console.log(res);
-        console.log(res.memberStats[0]?.votesAllocated);
-
-        setEpoch(res);
-        memberStats = res.memberStats.filter(
-          (m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress")
-        );
-        memberStats.length > 0
-          ? setRemainingVotes(memberStats[0]?.votesRemaining)
-          : setRemainingVotes(0);
-        memberStats.length > 0
-          ? setVoteAllocation(memberStats[0]?.votesAllocated)
-          : null;
+        if (res) {
+          setEpoch(res);
+          memberStats = res.memberStats.filter(
+            (m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress")
+          );
+          memberStats.length > 0
+            ? setRemainingVotes(memberStats[0]?.votesRemaining)
+            : setRemainingVotes(0);
+          memberStats.length > 0
+            ? setVoteAllocation(memberStats[0]?.votesAllocated)
+            : null;
+        }
       }, []);
     }
   });
@@ -96,6 +101,22 @@ const Contributor = (props: Props) => {
               sx={{ ml: 3 }}
             >
               Save Allocations
+            </PrimaryButton>
+            <PrimaryButton
+              variant="outlined"
+              size="large"
+              type="submit"
+              endIcon={<TimelapseIcon />}
+              onClick={() => {
+                endEpoch(Moralis, tribe.latestContributionEpoch).then(
+                  (res: any) => {
+                    console.log(res);
+                  }
+                );
+              }}
+              sx={{ ml: 3, mt: 2 }}
+            >
+              End Epoch
             </PrimaryButton>
           </div>
         )}
