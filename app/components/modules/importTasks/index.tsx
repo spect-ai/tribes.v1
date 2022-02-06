@@ -19,9 +19,11 @@ import { Octokit } from "@octokit/rest";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useTribe } from "../../../../pages/tribe/[id]";
-import { createTasks } from "../../../adapters/moralis";
+import { createTasks, getTaskEpoch } from "../../../adapters/moralis";
 import Moralis from "moralis/types";
 import { useMoralis } from "react-moralis";
+import { Epoch, Team } from "../../../types";
+import { useRouter } from "next/router";
 
 type Props = {
   setIsOpen: (isOpen: boolean) => void;
@@ -43,7 +45,10 @@ const ImportTasks = ({ setIsOpen }: Props) => {
   const octokit = new Octokit({
     auth: process.env.GITHUB_BOT_AUTH,
   });
-  const { setToDoTasks, setRepo, tribe } = useTribe();
+  const router = useRouter();
+  const { id } = router.query;
+  const { setToDoTasks, setInProgressTasks, setDoneTasks, setRepo, tribe } =
+    useTribe();
   const { Moralis, user } = useMoralis();
 
   const {
@@ -77,8 +82,27 @@ const ImportTasks = ({ setIsOpen }: Props) => {
           };
         });
         createTasks(Moralis, tribe.latestTaskEpoch, issues, "github").then(
-          (res: any) => {
-            console.log(res);
+          () => {
+            getTaskEpoch(Moralis, tribe.latestTaskEpoch).then((res: any) => {
+              if (res.length > 0) {
+                const tasks = (res as Epoch[])[0].tasks;
+                setToDoTasks(
+                  tasks.filter((task) => {
+                    return task.status === 100;
+                  })
+                );
+                setInProgressTasks(
+                  tasks.filter((task) => {
+                    return task.status === 101;
+                  })
+                );
+                setDoneTasks(
+                  tasks.filter((task) => {
+                    return task.status === 102;
+                  })
+                );
+              }
+            });
           }
         );
 

@@ -9,16 +9,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { Octokit } from "@octokit/rest";
 import { Epoch, Task } from "../../../types";
-import { updateTaskStatus } from "../../../adapters/moralis";
+import { getTaskEpoch, updateTask } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import { getRemainingVotes } from "../../../utils/utils";
+import { getRemainingVotes, smartTrim } from "../../../utils/utils";
 
 type Props = {
   task: Task;
@@ -57,15 +57,20 @@ const Task = ({
   setVoteAllocation,
   voteAllocation,
 }: Props) => {
-  const { githubToken, repo } = useTribe();
+  const { githubToken, setToDoTasks, setInProgressTasks, setDoneTasks, tribe } =
+    useTribe();
   const { Moralis } = useMoralis();
+  useEffect(() => {
+    console.log(task);
+  }, []);
+
   return (
     <StyledCard sx={{ borderLeft: `5px solid ${statusMapping[task.status]}` }}>
       <CardContent sx={{ pb: 0 }}>
         <Typography sx={{ fontSize: 14 }} component="div">
           {task.title}
         </Typography>
-        {task.status === 100 && (
+        {task.status === 100 && epoch.active && (
           <TextField
             label="Vote"
             type="number"
@@ -96,6 +101,16 @@ const Task = ({
             }}
           />
         )}
+        {!epoch.active && (
+          <Typography color="text.secondary">
+            {task.value?.toFixed(2)} WMatic
+          </Typography>
+        )}
+        {task.status !== 100 && (
+          <Typography color="text.secondary">
+            {smartTrim(task.assignee, 10)}
+          </Typography>
+        )}
       </CardContent>
       <Box sx={{ flex: "1" }} />
       <CardActions>
@@ -114,6 +129,7 @@ const Task = ({
           <Box sx={{ flex: "1 1 auto" }} />
           {task.status !== 102 && (
             <IconButton
+              disabled={epoch.active}
               onClick={() => {
                 if (task.status == 100) {
                   const splitValues = task.issueLink.split("/");
@@ -130,11 +146,31 @@ const Task = ({
                         assignees: [data.login],
                       })
                       .then(({ data }) => {
-                        updateTaskStatus(Moralis, task._id, 101).then(
-                          (res: any) => {
-                            console.log(res);
-                          }
-                        );
+                        updateTask(Moralis, task._id, 101).then((res: any) => {
+                          console.log(res);
+                          getTaskEpoch(Moralis, tribe.latestTaskEpoch).then(
+                            (res: any) => {
+                              if (res.length > 0) {
+                                const tasks = (res as Epoch[])[0].tasks;
+                                setToDoTasks(
+                                  tasks.filter((task) => {
+                                    return task.status === 100;
+                                  })
+                                );
+                                setInProgressTasks(
+                                  tasks.filter((task) => {
+                                    return task.status === 101;
+                                  })
+                                );
+                                setDoneTasks(
+                                  tasks.filter((task) => {
+                                    return task.status === 102;
+                                  })
+                                );
+                              }
+                            }
+                          );
+                        });
                       })
                       .catch((err) => {
                         console.log(err);
@@ -153,11 +189,31 @@ const Task = ({
                       state: "closed",
                     })
                     .then(({ data }) => {
-                      updateTaskStatus(Moralis, task._id, 102).then(
-                        (res: any) => {
-                          console.log(res);
-                        }
-                      );
+                      updateTask(Moralis, task._id, 102).then((res: any) => {
+                        console.log(res);
+                        getTaskEpoch(Moralis, tribe.latestTaskEpoch).then(
+                          (res: any) => {
+                            if (res.length > 0) {
+                              const tasks = (res as Epoch[])[0].tasks;
+                              setToDoTasks(
+                                tasks.filter((task) => {
+                                  return task.status === 100;
+                                })
+                              );
+                              setInProgressTasks(
+                                tasks.filter((task) => {
+                                  return task.status === 101;
+                                })
+                              );
+                              setDoneTasks(
+                                tasks.filter((task) => {
+                                  return task.status === 102;
+                                })
+                              );
+                            }
+                          }
+                        );
+                      });
                     })
                     .catch((err) => {
                       console.log(err);

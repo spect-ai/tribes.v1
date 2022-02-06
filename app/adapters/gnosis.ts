@@ -66,11 +66,11 @@ export async function massPayment(safeAddress: string, senderAddress: string) {
   );
   const data = await contract.populateTransaction.distributeEther(
     ["0x6304CE63F2EBf8C0Cc76b60d34Cc52a84aBB6057"],
-    [ethers.utils.parseEther("0.1")],
-    2
+    [ethers.utils.parseEther("0.0000001")],
+    2,
+    { value: ethers.utils.parseEther("0.1") }
   );
   console.log(data);
-  data.value = 0 as any;
 
   const safeOwner = provider.getSigner(0);
 
@@ -95,6 +95,8 @@ export async function massPayment(safeAddress: string, senderAddress: string) {
   await safeSdk.signTransaction(safeTransaction);
   const safeTxHash = await safeSdk.getTransactionHash(safeTransaction);
   console.log(safeTxHash);
+  // @ts-ignore
+  safeTransaction.data.value = 100000000000000000;
 
   await safeService.proposeTransaction({
     safeAddress: safeAddress,

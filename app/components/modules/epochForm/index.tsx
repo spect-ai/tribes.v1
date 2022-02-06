@@ -77,6 +77,7 @@ const EpochForm = ({ handleNext, setLoading, setIsOpen }: Props) => {
       getTeam({
         onSuccess: (res: any) => {
           setTribe(res as Team);
+          console.log(res);
           setLoading(false);
           if (values.type === "Task") {
             handleNext();

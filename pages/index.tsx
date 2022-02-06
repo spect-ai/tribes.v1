@@ -19,8 +19,13 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import { padding } from "@mui/system";
+import Link from "next/link";
 
-type Props = {};
+type Props = {
+  image: string;
+  title: string;
+  members: string;
+};
 
 const TribeAvatar = styled(Avatar)(({ theme }) => ({
   height: 96,
@@ -28,7 +33,7 @@ const TribeAvatar = styled(Avatar)(({ theme }) => ({
   objectFit: "cover",
 }));
 
-const DAOCards = (props: Props) => {
+const DAOCards = ({ image, title, members }: Props) => {
   return (
     <Card
       sx={{
@@ -44,7 +49,7 @@ const DAOCards = (props: Props) => {
         margin: "0px 9px",
       }}
     >
-      <TribeAvatar alt="Remy Sharp" />
+      <TribeAvatar alt="Remy Sharp" src={image} />
       <CardContent>
         <Typography
           gutterBottom
@@ -53,29 +58,31 @@ const DAOCards = (props: Props) => {
           color="text.secondary"
           sx={{ textAlign: "center" }}
         >
-          The Graph
+          {title}
         </Typography>
         <Typography
           gutterBottom
           component="div"
           sx={{ textAlign: "center", color: "#5a6972", fontSize: 13 }}
         >
-          42k members
+          {members} members
         </Typography>
       </CardContent>
       <CardActions>
-        <Button
-          variant="outlined"
-          sx={{
-            borderRadius: 4,
-            borderColor: "#5a6972",
-            color: "#5a6972",
-            width: 100,
-            textTransform: "none",
-          }}
-        >
-          View
-        </Button>
+        <Link href="/tribe/12" passHref>
+          <Button
+            variant="outlined"
+            sx={{
+              borderRadius: 4,
+              borderColor: "#5a6972",
+              color: "#5a6972",
+              width: 100,
+              textTransform: "none",
+            }}
+          >
+            View
+          </Button>
+        </Link>
       </CardActions>
     </Card>
   );
@@ -173,16 +180,34 @@ const Home: NextPage = () => {
         >
           <Grid container spacing={2}>
             <Grid item xs={3}>
-              <DAOCards />
+              <DAOCards image={""} title="Your Tribe" members="3" />
             </Grid>
             <Grid item xs={3}>
-              <DAOCards />
+              <DAOCards
+                image={
+                  "https://ipfs.moralis.io:2053/ipfs/QmRNqgazYuxUa5WdddFPftTWiP3KwzBMgV9Z19QWnLMETc"
+                }
+                title="Polygon DAO"
+                members="11k"
+              />
             </Grid>
             <Grid item xs={3}>
-              <DAOCards />
+              <DAOCards
+                image={
+                  "https://ipfs.moralis.io:2053/ipfs/QmR5W8pSKS7uPyGWtfPVKyNQD9QUdHCPyj4yK75NmZ2p9o"
+                }
+                title="Moralis DAO"
+                members="1.5k"
+              />
             </Grid>
             <Grid item xs={3}>
-              <DAOCards />
+              <DAOCards
+                image={
+                  "https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM"
+                }
+                title="Spect Tribe"
+                members="111"
+              />
             </Grid>
           </Grid>
         </Box>

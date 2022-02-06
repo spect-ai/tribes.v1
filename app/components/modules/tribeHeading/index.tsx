@@ -1,4 +1,13 @@
-import { Avatar, Button, ButtonProps, Fade, styled, Tab, Tabs, Typography } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  ButtonProps,
+  Fade,
+  styled,
+  Tab,
+  Tabs,
+  Typography,
+} from "@mui/material";
 import { Box, width } from "@mui/system";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -6,10 +15,8 @@ import { useTribe } from "../../../../pages/tribe/[id]";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import EpochModal, { PrimaryButton } from "../epochModal";
 import GitHubLogin from "react-github-login";
-import { Octokit } from "@octokit/rest";
 import { getGithubToken, endEpoch } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import TimelapseIcon from "@mui/icons-material/Timelapse";
 
 const HeadingAvatar = styled(Avatar)(({ theme }) => ({
   width: "6rem",
@@ -39,8 +46,12 @@ const TribeHeading = (props: Props) => {
   };
   return (
     <div>
-      <Box sx={{ display: "flex", flexDirection: "row", width: "100%", margin: 1 }}>
-        <Box sx={{ display: "flex", flexDirection: "row", width: "100%", pt: 4 }}>
+      <Box
+        sx={{ display: "flex", flexDirection: "row", width: "100%", margin: 1 }}
+      >
+        <Box
+          sx={{ display: "flex", flexDirection: "row", width: "100%", pt: 4 }}
+        >
           <Box sx={{ mr: 1 }}>
             <Link href={`/profile/`} passHref>
               <HeadingAvatar alt="Username" />
@@ -57,21 +68,7 @@ const TribeHeading = (props: Props) => {
             <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
               <Typography variant="h4">{tribe.name}</Typography>
               <EpochModal step={0} />
-              <PrimaryButton
-                variant="outlined"
-                size="large"
-                type="submit"
-                endIcon={<TimelapseIcon />}
-                onClick={() => {
-                  endEpoch(Moralis, "Cj4mtnwlNEDxaq3b9TFZ0TV0").then((res: any) => {
-                    console.log(res);
-                  });
-                }}
-                sx={{ ml: 3 }}
-                loading={githubLoading}
-              >
-                End Epoch
-              </PrimaryButton>
+
               <EpochModal step={1} />
               <GitHubLogin
                 clientId="4403e769e4d52b24eeab"
@@ -83,7 +80,10 @@ const TribeHeading = (props: Props) => {
                   getGithubToken(Moralis, res.code)
                     .then((token: string) => {
                       console.log(token);
-                      const accessToken = token.substring(token.indexOf("=") + 1, token.lastIndexOf("&scope"));
+                      const accessToken = token.substring(
+                        token.indexOf("=") + 1,
+                        token.lastIndexOf("&scope")
+                      );
                       setGithubToken(accessToken);
                       setGithubLoading(false);
                     })
