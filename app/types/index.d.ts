@@ -28,6 +28,8 @@ export interface Team {
   organizationVerified: boolean;
   openApplications: boolean;
   applicationRequirements: boolean;
+  latestContributionEpoch: string;
+  latestTaskEpoch: string;
   _createdAt: object;
   _id: string;
   _updatedAt: object;
@@ -46,6 +48,22 @@ export interface Epoch {
   teamId: number;
   epochNumber: number;
   active: boolean;
+  _createdAt: object;
+  _id: string;
+  _updatedAt: object;
+  _created_at: any;
+}
+
+export interface Task {
+  epochId: number;
+  title: string;
+  id: string;
+  issueLink: string;
+  onchain: boolean;
+  source: string;
+  value: number;
+  votes: number;
+  status: number;
   _createdAt: object;
   _id: string;
   _updatedAt: object;

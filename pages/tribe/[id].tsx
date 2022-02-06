@@ -11,6 +11,7 @@ interface Props {}
 type Issue = {
   id: number;
   title: string;
+  issueLink: string;
 };
 
 interface TribeContextType {
@@ -31,9 +32,7 @@ interface TribeContextType {
   getTeam: () => void;
 }
 
-export const TribeContext = createContext<TribeContextType>(
-  {} as TribeContextType
-);
+export const TribeContext = createContext<TribeContextType>({} as TribeContextType);
 
 const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();

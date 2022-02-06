@@ -1,24 +1,16 @@
-import {
-  Autocomplete,
-  Button,
-  styled,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Autocomplete, Button, styled, TextField, Typography } from "@mui/material";
 import React from "react";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { FieldContainer, LightTooltip } from "../epochForm";
-import {
-  Controller,
-  SubmitHandler,
-  useFieldArray,
-  useForm,
-} from "react-hook-form";
+import { Controller, SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { PrimaryButton } from "../epochModal";
 import { Octokit } from "@octokit/rest";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { useTribe } from "../../../../pages/tribe/[id]";
+import { createTasks } from "../../../adapters/moralis";
+import Moralis from "moralis/types";
+import { useMoralis } from "react-moralis";
 
 type Props = {
   setIsOpen: (isOpen: boolean) => void;
@@ -40,7 +32,8 @@ const ImportTasks = ({ setIsOpen }: Props) => {
   const octokit = new Octokit({
     auth: process.env.GITHUB_BOT_AUTH,
   });
-  const { setToDoTasks, setRepo } = useTribe();
+  const { setToDoTasks, setRepo, tribe } = useTribe();
+  const { Moralis, user } = useMoralis();
 
   const {
     handleSubmit,
@@ -69,8 +62,14 @@ const ImportTasks = ({ setIsOpen }: Props) => {
           return {
             title: issue.title,
             id: issue.number,
+            issueLink: issue.url,
           };
         });
+        createTasks(Moralis, tribe.latestTaskEpoch, issues, "github").then((res: any) => {
+          console.log(res);
+        });
+
+        console.log(issues);
         setToDoTasks(issues);
         setIsOpen(false);
       });
@@ -97,18 +96,12 @@ const ImportTasks = ({ setIsOpen }: Props) => {
           name="repo"
           control={control}
           render={({ field, fieldState }) => (
-            <LightTooltip
-              arrow
-              placement="right"
-              title={"Duration of the epoch"}
-            >
+            <LightTooltip arrow placement="right" title={"Duration of the epoch"}>
               <TextField
                 {...field}
                 label="Github Repo Link"
                 variant="standard"
-                helperText={
-                  "Provide the repo link from where you want to import the tasks"
-                }
+                helperText={"Provide the repo link from where you want to import the tasks"}
                 required
                 InputProps={{
                   endAdornment: <GitHubIcon />,
@@ -144,12 +137,7 @@ const ImportTasks = ({ setIsOpen }: Props) => {
         />
       </FieldContainer>
 
-      <Typography
-        fontSize={18}
-        color="text.secondary"
-        gutterBottom
-        sx={{ textAlign: "center", width: "100%" }}
-      >
+      <Typography fontSize={18} color="text.secondary" gutterBottom sx={{ textAlign: "center", width: "100%" }}>
         Or
       </Typography>
       <Button

@@ -46,43 +46,49 @@ const Contributor = (props: Props) => {
         />
       </MainContainer>
       <SideContainer>
-        <PrimaryButton
-          variant="outlined"
-          endIcon={<PaidIcon />}
-          fullWidth
-          sx={{ mb: 2 }}
-          onClick={() => massPayment(tribe.treasuryAddress, user?.get("ethAddress"))}
-        >
-          Pay
-        </PrimaryButton>
-        <DescriptionContainer>
-          <Title>Remaining Votes</Title>
-          <Value>{remainingVotes}</Value>
-        </DescriptionContainer>
-        <DescriptionContainer>
-          <Title>Remaining time</Title>
-          <Value>2 hours left</Value>
-        </DescriptionContainer>
-        <DescriptionContainer>
-          <Title>Epoch Budget</Title>
-          <Value>${epoch.budget}</Value>
-        </DescriptionContainer>
-        <PrimaryButton
-          variant="outlined"
-          size="large"
-          type="submit"
-          onClick={() => {
-            // TODODO
-            giftContributors(Moralis, "Cj4mtnwlNEDxaq3b9TFZ0TV0", voteAllocation, user?.get("ethAddress")).then(
-              (res: any) => {
-                console.log(res);
-              }
-            );
-          }}
-          sx={{ ml: 3 }}
-        >
-          Save Allocations
-        </PrimaryButton>
+        {!epoch.active && (
+          <PrimaryButton
+            variant="outlined"
+            endIcon={<PaidIcon />}
+            fullWidth
+            sx={{ mb: 2 }}
+            onClick={() => massPayment(tribe.treasuryAddress, user?.get("ethAddress"))}
+          >
+            Pay
+          </PrimaryButton>
+        )}
+        {epoch.active && (
+          <div>
+            <DescriptionContainer>
+              <Title>Remaining Votes</Title>
+              <Value>{remainingVotes}</Value>
+            </DescriptionContainer>
+            <DescriptionContainer>
+              <Title>Remaining time</Title>
+              <Value>2 hours left</Value>
+            </DescriptionContainer>
+            <DescriptionContainer>
+              <Title>Epoch Budget</Title>
+              <Value>${epoch.budget}</Value>
+            </DescriptionContainer>
+            <PrimaryButton
+              variant="outlined"
+              size="large"
+              type="submit"
+              onClick={() => {
+                // TODODO
+                giftContributors(Moralis, "Cj4mtnwlNEDxaq3b9TFZ0TV0", voteAllocation, user?.get("ethAddress")).then(
+                  (res: any) => {
+                    console.log(res);
+                  }
+                );
+              }}
+              sx={{ ml: 3 }}
+            >
+              Save Allocations
+            </PrimaryButton>
+          </div>
+        )}
       </SideContainer>
     </Wrapper>
   );

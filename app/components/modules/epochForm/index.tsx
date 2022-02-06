@@ -49,14 +49,14 @@ const EpochForm = ({ handleNext }: Props) => {
 
   const onSubmit: SubmitHandler<IEpochFormInput> = async (values) => {
     console.log(values);
-
+    // TODODO: Need to update tribe metadata (latestContributionEpoch or latestTaskEpoch) with the epoch id returned
     startEpoch(Moralis, {
       startTime: new Date(values.startTime).getTime(),
       duration: values.duration * 60000, //convert to milliseconds
       type: values.type,
       strategy: "quadratic",
       budget: values.budget,
-      teamId: 6, // TODODO
+      teamId: 7, // TODODO
     }).then((res: any) => {
       console.log(res);
     });

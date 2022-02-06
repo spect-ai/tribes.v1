@@ -103,3 +103,21 @@ export function endEpoch(Moralis: any, epochId: string) {
   };
   return Moralis.Cloud.run("endEpoch", params);
 }
+
+export function createTasks(Moralis: any, epochId: string, newTasks: any, taskSource: string) {
+  console.log(`epochId ${epochId}`);
+  const params = {
+    epochId: epochId,
+    newTasks: newTasks,
+    taskSource: taskSource,
+  };
+  return Moralis.Cloud.run("createTasks", params);
+}
+
+// Also includes tasks in that epoch
+export function getTaskEpoch(Moralis: any, epochId: string) {
+  const params = {
+    epochId: epochId,
+  };
+  return Moralis.Cloud.run("getTaskEpoch", params);
+}
