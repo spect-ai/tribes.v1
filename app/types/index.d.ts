@@ -59,6 +59,7 @@ export interface Task {
   epochId: number;
   title: string;
   // id: string;
+  paid: boolean;
   issueNumber: number;
   issueLink: string;
   onchain: boolean;

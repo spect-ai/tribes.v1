@@ -25,6 +25,7 @@ import {
   getRemainingVotes,
   smartTrim,
 } from "../../../utils/utils";
+import { PrimaryButton } from "../../modules/epochModal";
 
 type Props = {
   task: Task;
@@ -122,9 +123,6 @@ const Task = ({
               sx={{ mt: 1 }}
             />
           </Tooltip>
-          // <Typography color="text.secondary">
-          //   {smartTrim(task.assignee, 10)}
-          // </Typography>
         )}
       </CardContent>
       <Box sx={{ flex: "1" }} />
@@ -238,6 +236,44 @@ const Task = ({
             >
               <ChevronRightIcon />
             </IconButton>
+          )}
+          {task.status === 102 && !task.paid && (
+            <PrimaryButton
+              onClick={() => {
+                // metamask confirm payment then =>
+                updateTask(Moralis, task._id, 102, true).then((res: any) => {
+                  getTaskEpoch(Moralis, tribe.latestTaskEpoch).then(
+                    (res: any) => {
+                      if (res.length > 0) {
+                        const tasks = (res as Epoch[])[0].tasks;
+                        setToDoTasks(
+                          tasks.filter((task) => {
+                            return task.status === 100;
+                          })
+                        );
+                        setInProgressTasks(
+                          tasks.filter((task) => {
+                            return task.status === 101;
+                          })
+                        );
+                        setDoneTasks(
+                          tasks.filter((task) => {
+                            return task.status === 102;
+                          })
+                        );
+                      }
+                    }
+                  );
+                });
+              }}
+            >
+              Pay
+            </PrimaryButton>
+          )}
+          {task.paid && (
+            <Typography color="text.secondary" sx={{ m: 1 }}>
+              Paid
+            </Typography>
           )}
         </Box>
       </CardActions>

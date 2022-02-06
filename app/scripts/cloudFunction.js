@@ -783,7 +783,9 @@ Moralis.Cloud.define("updateTask", async (request) => {
     if (request.params.status === 101) {
       task.set("assignee", request.user.get("ethAddress"));
     }
-    logger.info("hi");
+    if (request.params.status === 102) {
+      task.set("paid", request.params.paid);
+    }
     task.save({
       useMasterKey: true,
     });

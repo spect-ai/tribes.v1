@@ -136,10 +136,16 @@ export function getTaskEpoch(Moralis: any, epochId: string) {
   return Moralis.Cloud.run("getTaskEpoch", params);
 }
 
-export function updateTask(Moralis: any, taskId: string, status: number) {
+export function updateTask(
+  Moralis: any,
+  taskId: string,
+  status: number,
+  paid: boolean = false
+) {
   const params = {
     id: taskId,
     status: status,
+    paid: paid,
   };
   return Moralis.Cloud.run("updateTask", params);
 }
