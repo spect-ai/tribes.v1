@@ -9,6 +9,7 @@ import { PrimaryButton } from "../epochModal";
 import PaidIcon from "@mui/icons-material/Paid";
 import { massPayment } from "../../../adapters/gnosis";
 import { useTribe } from "../../../../pages/tribe/[id]";
+import { formatTimeLeft } from "../../../utils/utils";
 
 interface Props {}
 
@@ -22,15 +23,20 @@ const Contributor = (props: Props) => {
   useEffect(() => {
     if (Object.keys(epoch).length === 0) {
       let memberStats;
-      // TODODO
-      getEpoch(Moralis, "Cj4mtnwlNEDxaq3b9TFZ0TV0").then((res: Epoch) => {
+      getEpoch(Moralis, tribe.latestContributionEpoch).then((res: Epoch) => {
         console.log(res);
         console.log(res.memberStats[0]?.votesAllocated);
 
         setEpoch(res);
-        memberStats = res.memberStats.filter((m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress"));
-        memberStats.length > 0 ? setRemainingVotes(memberStats[0]?.votesRemaining) : setRemainingVotes(0);
-        memberStats.length > 0 ? setVoteAllocation(memberStats[0]?.votesAllocated) : null;
+        memberStats = res.memberStats.filter(
+          (m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress")
+        );
+        memberStats.length > 0
+          ? setRemainingVotes(memberStats[0]?.votesRemaining)
+          : setRemainingVotes(0);
+        memberStats.length > 0
+          ? setVoteAllocation(memberStats[0]?.votesAllocated)
+          : null;
       }, []);
     }
   });
@@ -52,7 +58,9 @@ const Contributor = (props: Props) => {
             endIcon={<PaidIcon />}
             fullWidth
             sx={{ mb: 2 }}
-            onClick={() => massPayment(tribe.treasuryAddress, user?.get("ethAddress"))}
+            onClick={() =>
+              massPayment(tribe.treasuryAddress, user?.get("ethAddress"))
+            }
           >
             Pay
           </PrimaryButton>
@@ -65,23 +73,25 @@ const Contributor = (props: Props) => {
             </DescriptionContainer>
             <DescriptionContainer>
               <Title>Remaining time</Title>
-              <Value>2 hours left</Value>
+              <Value>{formatTimeLeft(epoch.endTime)}</Value>
             </DescriptionContainer>
             <DescriptionContainer>
               <Title>Epoch Budget</Title>
-              <Value>${epoch.budget}</Value>
+              <Value>{epoch.budget} WMatic</Value>
             </DescriptionContainer>
             <PrimaryButton
               variant="outlined"
               size="large"
               type="submit"
               onClick={() => {
-                // TODODO
-                giftContributors(Moralis, "Cj4mtnwlNEDxaq3b9TFZ0TV0", voteAllocation, user?.get("ethAddress")).then(
-                  (res: any) => {
-                    console.log(res);
-                  }
-                );
+                giftContributors(
+                  Moralis,
+                  tribe.latestContributionEpoch,
+                  voteAllocation,
+                  user?.get("ethAddress")
+                ).then((res: any) => {
+                  console.log(res);
+                });
               }}
               sx={{ ml: 3 }}
             >

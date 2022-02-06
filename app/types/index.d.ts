@@ -39,7 +39,7 @@ export interface Team {
 export interface Epoch {
   startTime: object;
   duration: number;
-  endTime: number;
+  endTime: Date;
   members: List<string>;
   memberStats: List<Object<string, any>>;
   type: string;
@@ -48,6 +48,7 @@ export interface Epoch {
   teamId: number;
   epochNumber: number;
   active: boolean;
+  tasks: Task[];
   _createdAt: object;
   _id: string;
   _updatedAt: object;
@@ -57,7 +58,8 @@ export interface Epoch {
 export interface Task {
   epochId: number;
   title: string;
-  id: string;
+  // id: string;
+  issueNumber: number;
   issueLink: string;
   onchain: boolean;
   source: string;
