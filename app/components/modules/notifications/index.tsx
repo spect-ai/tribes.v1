@@ -6,7 +6,7 @@ import styled from '@emotion/styled';
 import { useMoralis } from "react-moralis";
 import {getInvitations, acceptInvitations} from "../../../adapters/moralis";
 import { smartTrim } from "../../../utils/utils";
-export default function BasicPopover() {
+export default function Notification() {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null);
   const [notifs, setNotifs] = useState<any[]>([] as any[]);
   const [notifLeng, setNotifLeng] = useState<number>(0);
@@ -18,7 +18,7 @@ export default function BasicPopover() {
         setEthAddress(user?.get("ethAddress"))
         getInvitations(Moralis, ethAddress).then((res: any[]) => {  
         setNotifs(res.reverse());
-        console.log('rest',notifs[0].attributes)
+        console.log('rest',notifs[0])
         setNotifLeng(res.length);
       })
       .catch((ex:any)=>{
@@ -26,7 +26,7 @@ export default function BasicPopover() {
       })
       ;
     }
-  }, [isAuthenticated]);
+  },[]);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -82,6 +82,9 @@ export default function BasicPopover() {
                         </NotificationTitle>
                         <NotificationObject>
                             You are invited to By TeamId {noti.attributes.teamId}
+                        </NotificationObject>
+                        <NotificationObject>
+                            ethAddress -- {noti.attributes.invitedBy}
                         </NotificationObject>
                     </Popnotification>
                 ))
