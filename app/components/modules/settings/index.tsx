@@ -5,10 +5,13 @@ import {
     TextField,
     FormLabel,
     Autocomplete,
-    Box
+    Box,
+    Modal,
+    Fade
   } from "@mui/material";
 import ContributorsDetails from './contributorsDetails';
-
+import InviteContributorModal from './inviteContributorModal'
+import { PrimaryButton } from "../epochModal";
 export interface SettingFormInput {
     name: string;
     tagline: string;
@@ -18,6 +21,7 @@ export interface SettingFormInput {
     twitter: string;
     site: string;
   }
+  
 
 const data = [
     {address: '0x350ba81398f44Bf06cd176004a275c451F0A1d91', role: "admin"},
@@ -29,16 +33,19 @@ const data = [
   
 const Settings = () => {
     const [tabNo, setTabNo] = useState(1)
+    const [openModal, setOpenModal] = useState(false)
     const {
         handleSubmit,
         control,
         formState: { errors },
       } = useForm<SettingFormInput>();
 
-      const onSubmit: SubmitHandler<SettingFormInput> = async (values) => {
+    const onSubmit: SubmitHandler<SettingFormInput> = async (values) => {
         console.log(values);
-      };
+    };
 
+    const handleOpenModal = () => setOpenModal(true);
+    const handleClose = () => setOpenModal(false);
     return (
         <MainContainer>
             <SettingTabContainer>
@@ -212,9 +219,9 @@ const Settings = () => {
                                         </Box>
                                     </FormItem>
                                     <ButtonWrapper>
-                                        <SubmitButton type="submit">
+                                        <PrimaryButton type="submit" variant="outlined" style={{padding: '8px 30px'}}>
                                             Submit
-                                        </SubmitButton>
+                                        </PrimaryButton>
                                     </ButtonWrapper>
                                 </Setting>
                             </SettingsBlock>
@@ -226,7 +233,7 @@ const Settings = () => {
                             <div>
                                 Contributors Setting
                             </div>
-                            <InviteButton>
+                            <InviteButton onClick={handleOpenModal}>
                                 <div style={{color: '#5a6972', marginRight: '5px'}}>
                                     <i className="fa fa-link fa-xs" />
                                 </div>
@@ -238,6 +245,13 @@ const Settings = () => {
                                 data.map((role)=>(<ContributorsDetails address={role.address} role={role.role}/>))
                             }
                         </SettingsBlock>
+                        <Modal open={openModal} onClose={handleClose} closeAfterTransition>
+                            <Fade in={openModal} timeout={500}>
+                                <Box sx={modalStyle}>
+                                    <InviteContributorModal setIsOpen={setOpenModal}/>
+                                </Box>
+                            </Fade>
+                        </Modal>
                     </SettingContainer>
             }
             
@@ -262,7 +276,7 @@ const SettingTabContainer = styled.div`
     border: 1px solid #282b2f;
     border-radius: 10px;
     min-width: 180px;
-    min-height: 620px;
+    min-height: 400px;
     justify-content: flex-start;
     align-items: flex-start;
     padding: 1rem;
@@ -350,4 +364,23 @@ const InviteButton = styled.div`
     margin-top: -5px;
     display: flex;
     flex-direction: row;
+
+    &:hover {
+        cursor: pointer;
+        border: 1px solid #2164F6;
+    }
 `
+
+const modalStyle = {
+    position: "absolute" as "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "30rem",
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 3,
+    overflow: "auto",
+    maxHeight: "calc(100% - 128px)",
+  };

@@ -8,13 +8,26 @@ import {
     FormLabel,
     TextField
   } from "@mui/material";
-import {modalStyle} from '../epochModal'
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-
+import { PrimaryButton } from "../epochModal";
 export interface ModalFormInput {
     walletAddress: string;
     flowRate: number;
 }
+
+const modalStyle = {
+    position: "absolute" as "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "30rem",
+    bgcolor: "background.paper",
+    border: "2px solid #000",
+    boxShadow: 24,
+    p: 3,
+    overflow: "auto",
+    maxHeight: "calc(100% - 128px)",
+  };
 
 const ContributorsDetails = ({address, role}:any) => {
     const [openModal, setOpenModal] = useState(false)
@@ -38,7 +51,7 @@ const ContributorsDetails = ({address, role}:any) => {
             </Details>
             <Role>{role}</Role>
             <Modal open={openModal} onClose={handleClose} closeAfterTransition>
-                <Fade in={openModal} timeout={100}>
+                <Fade in={openModal} timeout={500}>
                 <Box sx={modalStyle}>
                     <ModalWrapper>
                         <form onSubmit={handleSubmit(onSubmit)}>
@@ -79,9 +92,9 @@ const ContributorsDetails = ({address, role}:any) => {
                                     />
                             </FormItem>
                             <ButtonWrapper>
-                                <SubmitButton type="submit">
+                                <PrimaryButton type="submit" variant="outlined">
                                     Start Stream
-                                </SubmitButton>
+                                </PrimaryButton>
                             </ButtonWrapper>
                         </form>
                     </ModalWrapper>
