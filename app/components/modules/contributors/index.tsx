@@ -4,14 +4,11 @@ import ContributorsTableComponent from "./ContributorsTableComponent";
 import { muiTheme } from "../../../constants/muiTheme";
 import { Epoch, Team } from "../../../types/index";
 import { useMoralis } from "react-moralis";
-import {
-  endEpoch,
-  getEpoch,
-  giftContributors,
-} from "../../../adapters/moralis";
+import { endEpoch, getEpoch, giftContributors } from "../../../adapters/moralis";
 import { PrimaryButton } from "../epochModal";
 import PaidIcon from "@mui/icons-material/Paid";
 import { massPayment } from "../../../adapters/gnosis";
+import { distributeTokensForContribution } from "../../../adapters/contract";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { formatTimeLeft } from "../../../utils/utils";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
@@ -26,21 +23,15 @@ const Contributor = (props: Props) => {
   const { tribe } = useTribe();
 
   useEffect(() => {
-    if (Object.keys(epoch).length === 0) {
+    if (Object.keys(epoch)?.length === 0) {
       let memberStats;
       getEpoch(Moralis, tribe.latestContributionEpoch).then((res: Epoch) => {
         console.log(res);
         if (res) {
           setEpoch(res);
-          memberStats = res.memberStats.filter(
-            (m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress")
-          );
-          memberStats.length > 0
-            ? setRemainingVotes(memberStats[0]?.votesRemaining)
-            : setRemainingVotes(0);
-          memberStats.length > 0
-            ? setVoteAllocation(memberStats[0]?.votesAllocated)
-            : null;
+          memberStats = res.memberStats.filter((m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress"));
+          memberStats.length > 0 ? setRemainingVotes(memberStats[0]?.votesRemaining) : setRemainingVotes(0);
+          memberStats.length > 0 ? setVoteAllocation(memberStats[0]?.votesAllocated) : null;
         }
       }, []);
     }
@@ -64,7 +55,10 @@ const Contributor = (props: Props) => {
             fullWidth
             sx={{ mb: 2 }}
             onClick={() =>
-              massPayment(tribe.treasuryAddress, user?.get("ethAddress"))
+              //massPayment(tribe.treasuryAddress, user?.get("ethAddress"))
+              distributeTokensForContribution(epoch).then((res: any) => {
+                console.log(res);
+              })
             }
           >
             Pay
@@ -89,14 +83,11 @@ const Contributor = (props: Props) => {
               size="large"
               type="submit"
               onClick={() => {
-                giftContributors(
-                  Moralis,
-                  tribe.latestContributionEpoch,
-                  voteAllocation,
-                  user?.get("ethAddress")
-                ).then((res: any) => {
-                  console.log(res);
-                });
+                giftContributors(Moralis, tribe.latestContributionEpoch, voteAllocation, user?.get("ethAddress")).then(
+                  (res: any) => {
+                    console.log(res);
+                  }
+                );
               }}
               sx={{ ml: 3 }}
             >
@@ -108,11 +99,9 @@ const Contributor = (props: Props) => {
               type="submit"
               endIcon={<TimelapseIcon />}
               onClick={() => {
-                endEpoch(Moralis, tribe.latestContributionEpoch).then(
-                  (res: any) => {
-                    console.log(res);
-                  }
-                );
+                endEpoch(Moralis, tribe.latestContributionEpoch).then((res: any) => {
+                  console.log(res);
+                });
               }}
               sx={{ ml: 3, mt: 2 }}
             >
