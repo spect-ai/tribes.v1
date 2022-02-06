@@ -56,7 +56,7 @@ const EpochForm = ({ handleNext }: Props) => {
       type: values.type,
       strategy: "quadratic",
       budget: values.budget,
-      teamId: 3,
+      teamId: 6, // TODODO
     }).then((res: any) => {
       console.log(res);
     });

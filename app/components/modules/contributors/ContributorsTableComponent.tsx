@@ -13,6 +13,10 @@ import { useMoralis } from "react-moralis";
 import { getEpoch } from "../../../adapters/moralis";
 interface Props {
   epoch: Epoch;
+  setRemainingVotes: any;
+  remainingVotes: number;
+  setVoteAllocation: any;
+  voteAllocation: object;
 }
 
 function getRemainingVotes(prevRemainingVotes: number, votesGiven: number, prevVotesGiven: number) {
@@ -22,7 +26,6 @@ function getRemainingVotes(prevRemainingVotes: number, votesGiven: number, prevV
 const ContributorsTableComponent = (props: Props) => {
   const { isAuthenticated, Moralis } = useMoralis();
   const [epoch, setEpoch] = useState<Epoch>({} as Epoch);
-  const [votes, setVotes] = useState({});
 
   return (
     <TableContainer>
@@ -38,7 +41,7 @@ const ContributorsTableComponent = (props: Props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.epoch.memberStats?.map((row) => (
+          {props.epoch.memberStats?.map((row: any) => (
             <TableRow key={row.ethAddress} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
               <TableCell component="th" scope="row">
                 {row.ethAddress}
@@ -56,9 +59,24 @@ const ContributorsTableComponent = (props: Props) => {
                   InputLabelProps={{
                     shrink: true,
                   }}
-                  defaultValue={row.votesGiven}
+                  defaultValue={
+                    props.voteAllocation?.hasOwnProperty(row.ethAddress) ? props.voteAllocation[row.ethAddress] : 0
+                  }
                   onChange={(event) => {
+                    console.log(props.voteAllocation);
+                    console.log(row.ethAddress);
                     console.log(event.target.value);
+
+                    const remainingVotes = getRemainingVotes(
+                      props.remainingVotes,
+                      parseInt(event.target.value),
+                      props.voteAllocation?.hasOwnProperty(row.ethAddress) ? props.voteAllocation[row.ethAddress] : 0
+                    );
+                    console.log(remainingVotes);
+                    props.setRemainingVotes(remainingVotes);
+                    props.voteAllocation[row.ethAddress] = event.target.value;
+                    props.setVoteAllocation(props.voteAllocation);
+                    console.log(props.voteAllocation);
                   }}
                 />
               </TableCell>

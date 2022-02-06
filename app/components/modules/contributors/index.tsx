@@ -9,38 +9,47 @@ import { getEpoch } from "../../../adapters/moralis";
 interface Props {}
 
 const Contributor = (props: Props) => {
-  const { isAuthenticated, Moralis } = useMoralis();
+  const { isAuthenticated, Moralis, user } = useMoralis();
   const [epoch, setEpoch] = useState<Epoch>({} as Epoch);
+  const [remainingVotes, setRemainingVotes] = useState(0);
+  const [voteAllocation, setVoteAllocation] = useState({});
 
   useEffect(() => {
     if (Object.keys(epoch).length === 0) {
-      getEpoch(Moralis, "MkKNkxfyi1EHnFAmtnws3rw6").then((res: Epoch) => {
+      let memberStats;
+      // TODODO
+      getEpoch(Moralis, "Cj4mtnwlNEDxaq3b9TFZ0TV0").then((res: Epoch) => {
         console.log(res);
         setEpoch(res);
+        memberStats = res.memberStats.filter((m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress"));
+        memberStats.length > 0 ? setRemainingVotes(memberStats[0]?.votesRemaining) : setRemainingVotes(0);
+        memberStats.length > 0 ? setVoteAllocation(memberStats[0]?.votesAllocated) : null;
       }, []);
     }
   });
   return (
     <Wrapper>
       <MainContainer>
-        <ContributorsTableComponent epoch={epoch} />
+        <ContributorsTableComponent
+          epoch={epoch}
+          setRemainingVotes={setRemainingVotes}
+          remainingVotes={remainingVotes}
+          setVoteAllocation={setVoteAllocation}
+          voteAllocation={voteAllocation}
+        />
       </MainContainer>
       <SideContainer>
         <DescriptionContainer>
           <Title>Remaining Votes</Title>
-          <Value>29</Value>
-        </DescriptionContainer>
-        <DescriptionContainer>
-          <Title>Budget</Title>
-          <Value>$ 500</Value>
-        </DescriptionContainer>
-        <DescriptionContainer>
-          <Title>Total Votes Allocated</Title>
-          <Value>100</Value>
+          <Value>{remainingVotes}</Value>
         </DescriptionContainer>
         <DescriptionContainer>
           <Title>Remaining time</Title>
           <Value>2 hours left</Value>
+        </DescriptionContainer>
+        <DescriptionContainer>
+          <Title>Epoch Budget</Title>
+          <Value>${epoch.budget}</Value>
         </DescriptionContainer>
       </SideContainer>
     </Wrapper>
