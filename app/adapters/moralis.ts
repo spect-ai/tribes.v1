@@ -30,7 +30,7 @@ export function updateTribe(Moralis: any, team: Team) {
   return Moralis.Cloud.run("updateTeam", params);
 }
 
-export function startEpoch(Moralis: any, epoch: Epoch) {
+export function startEpoch(Moralis: any, epoch: any) {
   const params = {
     startTime: epoch.startTime,
     duration: epoch.duration,
@@ -41,6 +41,14 @@ export function startEpoch(Moralis: any, epoch: Epoch) {
     teamId: epoch.teamId,
   };
   return Moralis.Cloud.run("startEpoch", params);
+}
+
+export function updateMembers(Moralis: any, updatePayload: any) {
+  const params = {
+    members: updatePayload.members,
+    teamId: updatePayload.teamId,
+  };
+  return Moralis.Cloud.run("updateMembers", params);
 }
 
 export function getTeam(Moralis: any, teamId: number) {

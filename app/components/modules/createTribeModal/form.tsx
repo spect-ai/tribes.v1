@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useMoralis } from "react-moralis";
 import { getUserSafes } from "../../../adapters/gnosis";
-import { createTribe } from "../../../adapters/moralis";
+import { createTribe, updateMembers } from "../../../adapters/moralis";
 import { FieldContainer, LightTooltip } from "../epochForm";
 import { PrimaryButton } from "../epochModal";
 
@@ -16,6 +16,10 @@ export interface ITribeFormInput {
   mission: string;
   safeAddress: string;
   organization: string;
+  member1: string;
+  member2: string;
+  member3: string;
+  member4: string;
 }
 
 const CreateTribeForm = ({ setIsOpen }: Props) => {
@@ -46,6 +50,29 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
       ethAddress: user?.get("ethAddress"),
     }).then((res: any) => {
       console.log(res);
+
+      updateMembers(Moralis, {
+        teamId: res.get("teamId"),
+        members: [
+          {
+            ethAddress: values.member1,
+            role: "admin",
+            updateType: "invite",
+          },
+          {
+            ethAddress: values.member2,
+            role: "admin",
+            updateType: "invite",
+          },
+          {
+            ethAddress: values.member3,
+            role: "admin",
+            updateType: "invite",
+          },
+        ],
+      }).then((res: any) => {
+        console.log(res);
+      });
       setIsOpen(false);
     });
   };
@@ -104,9 +131,7 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
                     required
                     variant="standard"
                     label="Safe Address"
-                    helperText={
-                      "Gnosis Safe Address which will be used for the treasury"
-                    }
+                    helperText={"Gnosis Safe Address which will be used for the treasury"}
                   />
                 )}
               />
@@ -133,7 +158,39 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
           )}
         />
       </FieldContainer>
-
+      <FieldContainer>
+        <Controller
+          name="member1"
+          control={control}
+          render={({ field, fieldState }) => (
+            <LightTooltip arrow placement="right" title={"Budget"}>
+              <TextField {...field} label="Member 1" variant="standard" helperText={""} required fullWidth multiline />
+            </LightTooltip>
+          )}
+        />
+      </FieldContainer>{" "}
+      <FieldContainer>
+        <Controller
+          name="member2"
+          control={control}
+          render={({ field, fieldState }) => (
+            <LightTooltip arrow placement="right" title={"Budget"}>
+              <TextField {...field} label="Member 2" variant="standard" helperText={""} required fullWidth multiline />
+            </LightTooltip>
+          )}
+        />
+      </FieldContainer>{" "}
+      <FieldContainer>
+        <Controller
+          name="member3"
+          control={control}
+          render={({ field, fieldState }) => (
+            <LightTooltip arrow placement="right" title={"Budget"}>
+              <TextField {...field} label="Member 3" variant="standard" helperText={""} required fullWidth multiline />
+            </LightTooltip>
+          )}
+        />
+      </FieldContainer>
       <PrimaryButton type="submit" variant="outlined" fullWidth>
         Create Tribe
       </PrimaryButton>
