@@ -23,7 +23,7 @@ export interface Team {
   mission: string;
   treasuryAddress: string;
   onchain: boolean;
-  members: List<Object<string, string>>;
+  members: { ethAddress: string; role: string }[];
   organization: string;
   organizationVerified: boolean;
   openApplications: boolean;

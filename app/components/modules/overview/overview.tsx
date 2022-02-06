@@ -3,9 +3,11 @@ import { Box, Typography, AvatarGroup, Avatar, Tooltip } from "@mui/material";
 import styled from "@emotion/styled";
 import { muiTheme } from "../../../constants/muiTheme";
 import { useTribe } from "../../../../pages/tribe/[id]";
+import { getMD5String } from "../../../utils/utils";
 
 const Overview = () => {
   const { tribe } = useTribe();
+  console.log(tribe);
 
   return (
     <Wrapper>
@@ -26,59 +28,21 @@ const Overview = () => {
           <Box
             sx={{
               margin: 1,
-
-              padding: 1,
-              paddingLeft: 0,
-              paddingRight: 0,
-            }}
-          >
-            <Title>Admins</Title>
-            <AvatarGroup max={4} sx={{ width: "fit-content" }}>
-              <Tooltip title="Remy SHarp">
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-              </Tooltip>
-              <Tooltip title="Travis Howard">
-                <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
-              </Tooltip>
-              <Tooltip title="Cindy Baker">
-                <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
-              </Tooltip>
-              <Tooltip title="Agnes Walker">
-                <Avatar alt="Agnes Walker" src="/static/images/avatar/4.jpg" />
-              </Tooltip>
-              <Tooltip title="Trevor Henderson">
-                <Avatar
-                  alt="Trevor Henderson"
-                  src="/static/images/avatar/5.jpg"
-                />
-              </Tooltip>
-            </AvatarGroup>
-          </Box>
-          <Box
-            sx={{
-              margin: 1,
+              mt: 4,
             }}
           >
             <Title>Contributors</Title>
             <AvatarGroup max={4} sx={{ width: "fit-content" }}>
-              <Tooltip title="Remy SHarp">
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-              </Tooltip>
-              <Tooltip title="Travis Howard">
-                <Avatar alt="Travis Howard" src="/static/images/avatar/2.jpg" />
-              </Tooltip>
-              <Tooltip title="Cindy Baker">
-                <Avatar alt="Cindy Baker" src="/static/images/avatar/3.jpg" />
-              </Tooltip>
-              <Tooltip title="Agnes Walker">
-                <Avatar alt="Agnes Walker" src="/static/images/avatar/4.jpg" />
-              </Tooltip>
-              <Tooltip title="Trevor Henderson">
-                <Avatar
-                  alt="Trevor Henderson"
-                  src="/static/images/avatar/5.jpg"
-                />
-              </Tooltip>
+              {tribe?.members?.map((member, idx) => (
+                <Tooltip title={member.ethAddress} key={idx}>
+                  <Avatar
+                    alt=""
+                    src={`https://www.gravatar.com/avatar/${getMD5String(
+                      member.ethAddress
+                    )}?d=identicon&s=32`}
+                  />
+                </Tooltip>
+              ))}
             </AvatarGroup>
           </Box>
         </DescriptionContainer>
@@ -92,7 +56,6 @@ const Wrapper = styled.div`
   flex-direction: row;
   width: 100%;
   justify-content: space-between;
-  align-items: center;
 
   & > div {
     width: 100%;
@@ -112,7 +75,6 @@ const SideContainer = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
-  margin-top: 10px;
   border-left: 1px solid #282b2f;
   align-content: flex-start;
   justify-content: flex-start;

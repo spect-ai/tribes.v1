@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Button,
   Card,
@@ -7,6 +8,7 @@ import {
   IconButton,
   styled,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import React, { useEffect } from "react";
@@ -18,7 +20,11 @@ import { Octokit } from "@octokit/rest";
 import { Epoch, Task } from "../../../types";
 import { getTaskEpoch, updateTask } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import { getRemainingVotes, smartTrim } from "../../../utils/utils";
+import {
+  getMD5String,
+  getRemainingVotes,
+  smartTrim,
+} from "../../../utils/utils";
 
 type Props = {
   task: Task;
@@ -107,9 +113,18 @@ const Task = ({
           </Typography>
         )}
         {task.status !== 100 && (
-          <Typography color="text.secondary">
-            {smartTrim(task.assignee, 10)}
-          </Typography>
+          <Tooltip title={task.assignee}>
+            <Avatar
+              alt=""
+              src={`https://www.gravatar.com/avatar/${getMD5String(
+                task.assignee
+              )}?d=identicon&s=32`}
+              sx={{ mt: 1 }}
+            />
+          </Tooltip>
+          // <Typography color="text.secondary">
+          //   {smartTrim(task.assignee, 10)}
+          // </Typography>
         )}
       </CardContent>
       <Box sx={{ flex: "1" }} />
