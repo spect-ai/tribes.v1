@@ -11,3 +11,31 @@ export const smartTrim = (string: string, maxLength: number) => {
     midpoint + rstrip
   )}`;
 };
+
+export function formatTimeLeft(date: Date) {
+  const deadline = new Date(date);
+  const now = Date.now();
+  return msToTime(deadline.getTime() - now);
+}
+
+function msToTime(ms: number) {
+  let seconds = parseInt((ms / 1000).toFixed(0));
+  let minutes = parseInt((ms / (1000 * 60)).toFixed(0));
+  let hours = parseInt((ms / (1000 * 60 * 60)).toFixed(0));
+  let days = (ms / (1000 * 60 * 60 * 24)).toFixed(0);
+  if (seconds < 0) return "Expired";
+  else if (seconds < 60) return seconds + " Sec";
+  else if (minutes < 60) return minutes + " Min";
+  else if (hours < 24) return hours + " Hrs";
+  else return days + " Days";
+}
+
+export function getRemainingVotes(
+  prevRemainingVotes: number,
+  votesGiven: number,
+  prevVotesGiven: number
+) {
+  return (
+    prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2)
+  );
+}

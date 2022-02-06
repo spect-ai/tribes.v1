@@ -129,7 +129,13 @@ const EpochModal = ({ step }: Props) => {
                 </Typography>
               </Box>
             </Backdrop>
-            {activeStep === 0 && <EpochForm handleNext={handleNext} />}
+            {activeStep === 0 && (
+              <EpochForm
+                handleNext={handleNext}
+                setLoading={setLoading}
+                setIsOpen={setIsOpen}
+              />
+            )}
             {activeStep === 1 && <ImportTasks setIsOpen={setIsOpen} />}
           </Box>
         </Fade>

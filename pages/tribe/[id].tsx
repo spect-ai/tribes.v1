@@ -2,9 +2,15 @@ import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { createContext, useContext, useEffect, useState } from "react";
-import { useMoralisCloudFunction } from "react-moralis";
+import {
+  MoralisCloudFunctionParameters,
+  useMoralis,
+  useMoralisCloudFunction,
+} from "react-moralis";
+import { ResolveCallOptions } from "react-moralis/lib/hooks/internal/_useResolveAsyncCall";
+import { getTaskEpoch } from "../../app/adapters/moralis";
 import TribeTemplate from "../../app/components/modules/tribe";
-import { Team } from "../../app/types";
+import { Epoch, Task, Team } from "../../app/types";
 
 interface Props {}
 
@@ -17,31 +23,54 @@ type Issue = {
 interface TribeContextType {
   tab: number;
   setTab: (tab: number) => void;
-  toDoTasks: Issue[];
-  setToDoTasks: (tasks: Issue[]) => void;
-  inProgressTasks: Issue[];
-  setInProgressTasks: (tasks: Issue[]) => void;
-  doneTasks: Issue[];
-  setDoneTasks: (tasks: Issue[]) => void;
+  toDoTasks: Task[];
+  setToDoTasks: (tasks: Task[]) => void;
+  inProgressTasks: Task[];
+  setInProgressTasks: (tasks: Task[]) => void;
+  doneTasks: Task[];
+  setDoneTasks: (tasks: Task[]) => void;
   githubToken: string;
   setGithubToken: (token: string) => void;
   repo: string;
   setRepo: (repo: string) => void;
   tribe: Team;
   setTribe: (tribe: Team) => void;
-  getTeam: () => void;
+  getTeam: Function;
 }
 
-export const TribeContext = createContext<TribeContextType>({} as TribeContextType);
+export const TribeContext = createContext<TribeContextType>(
+  {} as TribeContextType
+);
 
 const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();
   const { id } = router.query;
+  const { Moralis } = useMoralis();
   const context = useProviderTribe();
   useEffect(() => {
     context.getTeam({
       onSuccess: (res: any) => {
         context.setTribe(res as Team);
+        getTaskEpoch(Moralis, (res as Team).latestTaskEpoch).then(
+          (res: any) => {
+            const tasks = (res as Epoch[])[0].tasks;
+            context.setToDoTasks(
+              tasks.filter((task) => {
+                return task.status === 100;
+              })
+            );
+            context.setInProgressTasks(
+              tasks.filter((task) => {
+                return task.status === 101;
+              })
+            );
+            context.setDoneTasks(
+              tasks.filter((task) => {
+                return task.status === 102;
+              })
+            );
+          }
+        );
       },
       params: {
         teamId: id,

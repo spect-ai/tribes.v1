@@ -1,8 +1,19 @@
-import { Autocomplete, Button, styled, TextField, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  Button,
+  styled,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React from "react";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import { FieldContainer, LightTooltip } from "../epochForm";
-import { Controller, SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import {
+  Controller,
+  SubmitHandler,
+  useFieldArray,
+  useForm,
+} from "react-hook-form";
 import { PrimaryButton } from "../epochModal";
 import { Octokit } from "@octokit/rest";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
@@ -61,16 +72,16 @@ const ImportTasks = ({ setIsOpen }: Props) => {
         const issues = data.map((issue) => {
           return {
             title: issue.title,
-            id: issue.number,
+            issueNumber: issue.number,
             issueLink: issue.url,
           };
         });
-        createTasks(Moralis, tribe.latestTaskEpoch, issues, "github").then((res: any) => {
-          console.log(res);
-        });
+        createTasks(Moralis, tribe.latestTaskEpoch, issues, "github").then(
+          (res: any) => {
+            console.log(res);
+          }
+        );
 
-        console.log(issues);
-        setToDoTasks(issues);
         setIsOpen(false);
       });
 
@@ -96,12 +107,18 @@ const ImportTasks = ({ setIsOpen }: Props) => {
           name="repo"
           control={control}
           render={({ field, fieldState }) => (
-            <LightTooltip arrow placement="right" title={"Duration of the epoch"}>
+            <LightTooltip
+              arrow
+              placement="right"
+              title={"Duration of the epoch"}
+            >
               <TextField
                 {...field}
                 label="Github Repo Link"
                 variant="standard"
-                helperText={"Provide the repo link from where you want to import the tasks"}
+                helperText={
+                  "Provide the repo link from where you want to import the tasks"
+                }
                 required
                 InputProps={{
                   endAdornment: <GitHubIcon />,
@@ -137,7 +154,12 @@ const ImportTasks = ({ setIsOpen }: Props) => {
         />
       </FieldContainer>
 
-      <Typography fontSize={18} color="text.secondary" gutterBottom sx={{ textAlign: "center", width: "100%" }}>
+      <Typography
+        fontSize={18}
+        color="text.secondary"
+        gutterBottom
+        sx={{ textAlign: "center", width: "100%" }}
+      >
         Or
       </Typography>
       <Button

@@ -7,8 +7,12 @@ import {
   Switch,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useMoralis } from "react-moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
+import { getEpoch, voteOnTasks } from "../../../adapters/moralis";
+import { Epoch } from "../../../types";
+import { formatTimeLeft } from "../../../utils/utils";
 
 import Task from "../../elements/task";
 import EpochModal, { PrimaryButton } from "../epochModal";
@@ -40,6 +44,31 @@ const Board = (props: Props) => {
   const handleChange = () => {
     setChecked((prev) => !prev);
   };
+  const { Moralis, user } = useMoralis();
+  const { tribe } = useTribe();
+  const [remainingVotes, setRemainingVotes] = useState(0);
+  const [voteAllocation, setVoteAllocation] = useState({});
+  const [epoch, setEpoch] = useState<Epoch>({} as Epoch);
+  useEffect(() => {
+    if (Object.keys(epoch).length === 0) {
+      let memberStats;
+      getEpoch(Moralis, tribe.latestTaskEpoch).then((res: Epoch) => {
+        console.log(res);
+        console.log(res.memberStats[0]?.votesAllocated);
+
+        setEpoch(res);
+        memberStats = res.memberStats.filter(
+          (m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress")
+        );
+        memberStats.length > 0
+          ? setRemainingVotes(memberStats[0]?.votesRemaining)
+          : setRemainingVotes(0);
+        memberStats.length > 0
+          ? setVoteAllocation(memberStats[0]?.votesAllocated)
+          : null;
+      }, []);
+    }
+  });
   return (
     <div>
       <Grid container spacing={2}>
@@ -82,33 +111,39 @@ const Board = (props: Props) => {
           <Grid item xs={3}>
             {toDoTasks.map((task, index) => (
               <Task
-                type={0}
-                title={task.title}
+                task={task}
                 key={index}
-                idx={index}
-                id={task.id}
+                epoch={epoch}
+                setRemainingVotes={setRemainingVotes}
+                remainingVotes={remainingVotes}
+                setVoteAllocation={setVoteAllocation}
+                voteAllocation={voteAllocation}
               />
             ))}
           </Grid>
           <Grid item xs={3}>
             {inProgressTasks.map((task, index) => (
               <Task
-                type={1}
-                title={task.title}
+                task={task}
                 key={index}
-                idx={index}
-                id={task.id}
+                epoch={epoch}
+                setRemainingVotes={setRemainingVotes}
+                remainingVotes={remainingVotes}
+                setVoteAllocation={setVoteAllocation}
+                voteAllocation={voteAllocation}
               />
             ))}
           </Grid>
           <Grid item xs={3}>
             {doneTasks.map((task, index) => (
               <Task
-                type={2}
-                title={task.title}
+                task={task}
                 key={index}
-                idx={index}
-                id={task.id}
+                epoch={epoch}
+                setRemainingVotes={setRemainingVotes}
+                remainingVotes={remainingVotes}
+                setVoteAllocation={setVoteAllocation}
+                voteAllocation={voteAllocation}
               />
             ))}
           </Grid>
@@ -116,19 +151,37 @@ const Board = (props: Props) => {
             <StyledTypography color="text.secondary">
               Remaining Votes
             </StyledTypography>
-            <StyledTypography color="text.primary">100</StyledTypography>
-            <StyledTypography color="text.secondary">Budget</StyledTypography>
-            <StyledTypography color="text.primary">50 WMatic</StyledTypography>
-            <StyledTypography color="text.secondary">
-              Total Votes Allocated
+            <StyledTypography color="text.primary">
+              {remainingVotes}
             </StyledTypography>
-            <StyledTypography color="text.primary">500</StyledTypography>
+            <StyledTypography color="text.secondary">Budget</StyledTypography>
+            <StyledTypography color="text.primary">
+              {epoch.budget} WMatic
+            </StyledTypography>
+
             <StyledTypography color="text.secondary">
               Remaining Time
             </StyledTypography>
             <StyledTypography color="text.primary">
-              2 hours left
+              {formatTimeLeft(epoch.endTime)}
             </StyledTypography>
+            <PrimaryButton
+              variant="outlined"
+              size="large"
+              type="submit"
+              onClick={() => {
+                voteOnTasks(
+                  Moralis,
+                  tribe.latestTaskEpoch,
+                  voteAllocation
+                ).then((res: any) => {
+                  console.log(res);
+                });
+              }}
+              sx={{ ml: 3 }}
+            >
+              Save Allocations
+            </PrimaryButton>
           </Grid>
         </Grid>
       </Collapse>

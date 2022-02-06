@@ -6,26 +6,30 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
-import { muiTheme } from "../../../constants/muiTheme";
-import { getTeam } from "../../../adapters/moralis";
 import { Epoch, Team } from "../../../types/index";
-import { useMoralis } from "react-moralis";
-import { getEpoch } from "../../../adapters/moralis";
+import { getRemainingVotes } from "../../../utils/utils";
 interface Props {
   epoch: Epoch;
   setRemainingVotes: any;
   remainingVotes: number;
   setVoteAllocation: any;
-  voteAllocation: object;
+  voteAllocation: {
+    [key: string]: number;
+  };
 }
 
-function getRemainingVotes(prevRemainingVotes: number, votesGiven: number, prevVotesGiven: number) {
-  return prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2);
-}
-
-const ContributorsTableComponent = (props: Props) => {
-  const { isAuthenticated, Moralis } = useMoralis();
-  const [epoch, setEpoch] = useState<Epoch>({} as Epoch);
+const ContributorsTableComponent = ({
+  epoch,
+  setRemainingVotes,
+  remainingVotes,
+  setVoteAllocation,
+  voteAllocation,
+}: Props) => {
+  useEffect(() => {
+    console.log(epoch);
+    console.log(voteAllocation["0x6304ce63f2ebf8c0cc76b60d34cc52a84abb6057"]);
+    console.log(remainingVotes);
+  }, []);
 
   return (
     <TableContainer>
@@ -48,8 +52,11 @@ const ContributorsTableComponent = (props: Props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.epoch.memberStats?.map((row: any) => (
-            <TableRow key={row.ethAddress} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+          {epoch.memberStats?.map((row: any) => (
+            <TableRow
+              key={row.ethAddress}
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
               <TableCell component="th" scope="row">
                 {row.ethAddress}
               </TableCell>
@@ -62,35 +69,34 @@ const ContributorsTableComponent = (props: Props) => {
                       id={row.ethAddress}
                       label="Votes Given"
                       type="number"
-                      inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                      inputProps={{ min: 0, step: 1 }}
                       style={{ width: "40%" }}
                       placeholder="Votes"
                       InputLabelProps={{
                         shrink: true,
                       }}
-                      defaultValue={
-                        // TODOD: Not rendering correctly
-                        props.voteAllocation?.hasOwnProperty(row.ethAddress)
-                          ? parseInt(props.voteAllocation[row.ethAddress])
-                          : 0
-                      }
+                      // fix
+                      defaultValue={voteAllocation[row.ethAddress]}
+                      error={remainingVotes < 0}
                       onChange={(event) => {
-                        console.log(props.voteAllocation);
+                        console.log(voteAllocation);
                         console.log(row.ethAddress);
                         console.log(event.target.value);
 
-                        const remainingVotes = getRemainingVotes(
-                          props.remainingVotes,
+                        const userRemainingVotes = getRemainingVotes(
+                          remainingVotes,
                           parseInt(event.target.value),
-                          props.voteAllocation?.hasOwnProperty(row.ethAddress)
-                            ? parseInt(props.voteAllocation[row.ethAddress])
+                          voteAllocation?.hasOwnProperty(row.ethAddress)
+                            ? voteAllocation[row.ethAddress]
                             : 0
                         );
-                        console.log(remainingVotes);
-                        props.setRemainingVotes(remainingVotes);
-                        props.voteAllocation[row.ethAddress] = parseInt(event.target.value);
-                        props.setVoteAllocation(props.voteAllocation);
-                        console.log(props.voteAllocation);
+                        console.log(userRemainingVotes);
+                        setRemainingVotes(userRemainingVotes);
+                        voteAllocation[row.ethAddress] = parseInt(
+                          event.target.value
+                        );
+                        setVoteAllocation(voteAllocation);
+                        console.log(voteAllocation);
                       }}
                     />
                   )}
