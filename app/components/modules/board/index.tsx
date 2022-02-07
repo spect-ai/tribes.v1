@@ -1,21 +1,8 @@
-import {
-  Box,
-  Collapse,
-  Grid,
-  Paper,
-  styled,
-  Switch,
-  Typography,
-} from "@mui/material";
+import { Box, Collapse, Grid, Paper, styled, Switch, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
-import {
-  endEpoch,
-  getEpoch,
-  getTaskEpoch,
-  voteOnTasks,
-} from "../../../adapters/moralis";
+import { endEpoch, getEpoch, getTaskEpoch, voteOnTasks } from "../../../adapters/moralis";
 import { Epoch } from "../../../types";
 import { formatTimeLeft } from "../../../utils/utils";
 
@@ -61,15 +48,9 @@ const Board = (props: Props) => {
       getEpoch(Moralis, tribe.latestTaskEpoch).then((res: Epoch) => {
         if (res) {
           setEpoch(res);
-          memberStats = res.memberStats.filter(
-            (m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress")
-          );
-          memberStats.length > 0
-            ? setRemainingVotes(memberStats[0]?.votesRemaining)
-            : setRemainingVotes(0);
-          memberStats.length > 0
-            ? setVoteAllocation(memberStats[0]?.votesAllocated)
-            : null;
+          memberStats = res.memberStats.filter((m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress"));
+          memberStats.length > 0 ? setRemainingVotes(memberStats[0]?.votesRemaining) : setRemainingVotes(0);
+          memberStats.length > 0 ? setVoteAllocation(memberStats[0]?.votesAllocated) : null;
         }
       }, []);
     }
@@ -154,33 +135,19 @@ const Board = (props: Props) => {
           </Grid>
           {epoch.active && (
             <Grid item xs={3} sx={{ borderLeft: "1px solid #5a6972" }}>
-              <StyledTypography color="text.secondary">
-                Remaining Votes
-              </StyledTypography>
-              <StyledTypography color="text.primary">
-                {remainingVotes}
-              </StyledTypography>
+              <StyledTypography color="text.secondary">Remaining Votes</StyledTypography>
+              <StyledTypography color="text.primary">{remainingVotes}</StyledTypography>
               <StyledTypography color="text.secondary">Budget</StyledTypography>
-              <StyledTypography color="text.primary">
-                {epoch.budget} WMatic
-              </StyledTypography>
+              <StyledTypography color="text.primary">{epoch.budget} Matic</StyledTypography>
 
-              <StyledTypography color="text.secondary">
-                Remaining Time
-              </StyledTypography>
-              <StyledTypography color="text.primary">
-                {formatTimeLeft(epoch.endTime)}
-              </StyledTypography>
+              <StyledTypography color="text.secondary">Remaining Time</StyledTypography>
+              <StyledTypography color="text.primary">{formatTimeLeft(epoch.endTime)}</StyledTypography>
               <PrimaryButton
                 variant="outlined"
                 size="large"
                 type="submit"
                 onClick={() => {
-                  voteOnTasks(
-                    Moralis,
-                    tribe.latestTaskEpoch,
-                    voteAllocation
-                  ).then((res: any) => {
+                  voteOnTasks(Moralis, tribe.latestTaskEpoch, voteAllocation).then((res: any) => {
                     console.log(res);
                   });
                 }}
@@ -196,35 +163,31 @@ const Board = (props: Props) => {
                 onClick={() => {
                   endEpoch(Moralis, tribe.latestTaskEpoch).then((res: any) => {
                     console.log(res);
-                    getEpoch(Moralis, tribe.latestTaskEpoch).then(
-                      (res: Epoch) => {
-                        if (res) {
-                          setEpoch(res);
-                        }
+                    getEpoch(Moralis, tribe.latestTaskEpoch).then((res: Epoch) => {
+                      if (res) {
+                        setEpoch(res);
                       }
-                    );
-                    getTaskEpoch(Moralis, tribe.latestTaskEpoch).then(
-                      (res: any) => {
-                        if (res.length > 0) {
-                          const tasks = (res as Epoch[])[0].tasks;
-                          setToDoTasks(
-                            tasks.filter((task) => {
-                              return task.status === 100;
-                            })
-                          );
-                          setInProgressTasks(
-                            tasks.filter((task) => {
-                              return task.status === 101;
-                            })
-                          );
-                          setDoneTasks(
-                            tasks.filter((task) => {
-                              return task.status === 102;
-                            })
-                          );
-                        }
+                    });
+                    getTaskEpoch(Moralis, tribe.latestTaskEpoch).then((res: any) => {
+                      if (res.length > 0) {
+                        const tasks = (res as Epoch[])[0].tasks;
+                        setToDoTasks(
+                          tasks.filter((task) => {
+                            return task.status === 100;
+                          })
+                        );
+                        setInProgressTasks(
+                          tasks.filter((task) => {
+                            return task.status === 101;
+                          })
+                        );
+                        setDoneTasks(
+                          tasks.filter((task) => {
+                            return task.status === 102;
+                          })
+                        );
                       }
-                    );
+                    });
                   });
                 }}
                 sx={{ ml: 3, mt: 2 }}

@@ -35,9 +35,7 @@ Moralis.Cloud.define("createTeam", async (request) => {
     team.set("treasuryAddress", request.params.treasuryAddress);
     team.set("onchain", false);
     //team.set("members", [{ ethAddress: request.user.get("ethAddress"), role: "admin" }]);
-    team.set("members", [
-      { ethAddress: request.params.ethAddress, role: "admin" },
-    ]);
+    team.set("members", [{ ethAddress: request.params.ethAddress, role: "admin" }]);
     team.set("organization", request.params.organization);
     team.set("organizationVerified", false);
     team.set("openApplications", request.params.openApplications);
@@ -67,21 +65,14 @@ Moralis.Cloud.define("updateTeam", async (request) => {
     var team = await teamQuery.first();
 
     //const canUpdate = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
-    const canUpdate = await hasAccess(
-      request.params.ethAddress,
-      team,
-      (requiredAccess = "admin")
-    );
+    const canUpdate = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
     if (canUpdate) {
       team.set("name", request.params.name);
       team.set("mission", request.params.mission);
       team.set("treasuryAddress", request.params.treasuryAddress);
       team.set("organization", request.params.organization);
       team.set("openApplications", request.params.openApplications);
-      team.set(
-        "applicationRequirements",
-        request.params.applicationRequirements
-      );
+      team.set("applicationRequirements", request.params.applicationRequirements);
 
       await Moralis.Object.saveAll([team], { useMasterKey: true });
     }
@@ -101,11 +92,7 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     var team = await teamQuery.first();
     logger.info(JSON.stringify(team));
     logger.info(JSON.stringify(request.user));
-    const canStart = await hasAccess(
-      request.user.get("ethAddress"),
-      team,
-      (requiredAccess = "admin")
-    );
+    const canStart = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
     logger.info("1");
     //const canStart = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
     if (canStart) {
@@ -127,10 +114,7 @@ Moralis.Cloud.define("startEpoch", async (request) => {
             reward: 0,
           });
         }
-      } else if (
-        request.params.type === "Contribution" &&
-        !request.params.members
-      ) {
+      } else if (request.params.type === "Contribution" && !request.params.members) {
         for (var member of team.get("members")) {
           logger.info("2");
 
@@ -159,8 +143,7 @@ Moralis.Cloud.define("startEpoch", async (request) => {
       const epochQuery = new Moralis.Query("Epoch");
       epochQuery.equalTo("teamId", request.params.teamId);
       const epochCount = await epochQuery.count();
-      const endTime =
-        parseInt(request.params.startTime) + parseInt(request.params.duration);
+      const endTime = parseInt(request.params.startTime) + parseInt(request.params.duration);
       epoch.set("teamId", parseInt(request.params.teamId));
       epoch.set("startTime", new Date(parseInt(request.params.startTime)));
       epoch.set("duration", parseInt(request.params.duration)); // in milliseconds
@@ -224,11 +207,7 @@ Moralis.Cloud.define("giftContributors", async (request) => {
 
 Moralis.Cloud.define("calcTest", async (request) => {
   try {
-    return await calcEffectiveVotes(
-      request.params.votes,
-      request.params.members,
-      request.params.ethAddress
-    );
+    return await calcEffectiveVotes(request.params.votes, request.params.members, request.params.ethAddress);
   } catch (err) {
     logger.error(`Error whilte creating team ${err}`);
     return false;
@@ -256,32 +235,18 @@ Moralis.Cloud.define("updateMembers", async (request) => {
     const teamQuery = new Moralis.Query("Team");
     teamQuery.equalTo("teamId", request.params.teamId);
     var team = await teamQuery.first();
-    const canUpdate = await hasAccess(
-      request.user.get("ethAddress"),
-      team,
-      (requiredAccess = "admin")
-    );
+    const canUpdate = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
     if (canUpdate) {
-      var invitedMembers = request.params.members.filter(
-        (m) => m.updateType === "invite"
-      );
+      var invitedMembers = request.params.members.filter((m) => m.updateType === "invite");
       logger.info(`invitedMembers: ${JSON.stringify(invitedMembers)}`);
 
       var revokedMemberAddresses = [];
-      var revokedMembers = request.params.members.filter(
-        (m) => m.updateType === "revoke"
-      );
+      var revokedMembers = request.params.members.filter((m) => m.updateType === "revoke");
       revokedMembers.map((a) => revokedMemberAddresses.push(a.ethAddress));
-      logger.info(
-        `revokedMemberAddresses: ${JSON.stringify(revokedMemberAddresses)}`
-      );
+      logger.info(`revokedMemberAddresses: ${JSON.stringify(revokedMemberAddresses)}`);
 
       //var roleChangedMembers = request.params.members.filter((m) => m.updateType === "roleChange");
-      await invite(
-        invitedMembers,
-        request.params.teamId,
-        request.user.get("ethAddress")
-      );
+      await invite(invitedMembers, request.params.teamId, request.user.get("ethAddress"));
 
       //await invite(invitedMembers, request.params.teamId, request.params.ethAddress);
       //await revoke(revokedMemberAddresses, request.params.teamId);
@@ -289,11 +254,7 @@ Moralis.Cloud.define("updateMembers", async (request) => {
       return true;
     } else {
       //logger.info(`User ${request.user.get("ethAddress")} doesnt have access to update member roles`);
-      logger.info(
-        `User ${request.user.get(
-          "ethAddress"
-        )} doesnt have access to update member roles`
-      );
+      logger.info(`User ${request.user.get("ethAddress")} doesnt have access to update member roles`);
       return false;
     }
   } catch (err) {
@@ -314,7 +275,7 @@ async function invite(members, teamId, invitedBy) {
     const invited = await invitationQuery.first();
     if (!invited && member["ethAddress"] !== invitedBy) {
       const invitation = new Moralis.Object("Invitation");
-      invitation.set("ethAddress", member["ethAddress"]);
+      invitation.set("ethAddress", member["ethAddress"].toLowerCase());
       invitation.set("role", member["role"]);
       invitation.set("invitedBy", invitedBy);
       invitation.set("active", true);
@@ -455,11 +416,7 @@ Moralis.Cloud.define("updateBoard", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     var team = await getTeam(request.params.teamId);
-    const canUpdate = await hasAccess(
-      request.params.ethAddress,
-      team,
-      (requiredAccess = "admin")
-    );
+    const canUpdate = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
     if (canUpdate) {
       const board = await getBoard(
         request.params.name,
@@ -616,8 +573,7 @@ Moralis.Cloud.define("getReward", async (request) => {
         totalVotesAllocated += member["votesReceived"];
       }
       for (var member of updatedMemberStats) {
-        member["reward"] =
-          (member["votesReceived"] * budget) / totalVotesAllocated;
+        member["reward"] = (member["votesReceived"] * budget) / totalVotesAllocated;
       }
     }
     epoch.set("memberStats", updatedMemberStats);
@@ -639,8 +595,7 @@ async function calcReward(epoch) {
       totalVotesAllocated += member["votesReceived"];
     }
     for (var member of updatedMemberStats) {
-      member["reward"] =
-        (member["votesReceived"] * epoch.get("budget")) / totalVotesAllocated;
+      member["reward"] = (member["votesReceived"] * epoch.get("budget")) / totalVotesAllocated;
     }
     epoch.set("memberStats", updatedMemberStats);
   }
@@ -654,8 +609,7 @@ async function calcReward(epoch) {
     }
     logger.info(JSON.stringify(tasks));
     for (var task of tasks) {
-      var value =
-        (task.get("votes") * epoch.get("budget")) / totalVotesAllocated;
+      var value = (task.get("votes") * epoch.get("budget")) / totalVotesAllocated;
       logger.info(value);
       task.set("value", value);
     }
@@ -710,9 +664,7 @@ Moralis.Cloud.define("voteOnTasks", async (request) => {
   const epoch = await epochQuery.first();
   logger.info(epoch.get("memberStats"));
   const memberStats = epoch.get("memberStats");
-  var voterIndex = memberStats.findIndex(
-    (a) => a.ethAddress === request.user.get("ethAddress")
-  );
+  var voterIndex = memberStats.findIndex((a) => a.ethAddress === request.user.get("ethAddress"));
 
   var updatedTasks = [];
   var totalEffectiveVote = 0;

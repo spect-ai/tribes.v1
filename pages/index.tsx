@@ -51,25 +51,15 @@ const DAOCards = ({ image, title, members }: Props) => {
     >
       <TribeAvatar alt="Remy Sharp" src={image} />
       <CardContent>
-        <Typography
-          gutterBottom
-          variant="h5"
-          component="div"
-          color="text.secondary"
-          sx={{ textAlign: "center" }}
-        >
+        <Typography gutterBottom variant="h5" component="div" color="text.secondary" sx={{ textAlign: "center" }}>
           {title}
         </Typography>
-        <Typography
-          gutterBottom
-          component="div"
-          sx={{ textAlign: "center", color: "#5a6972", fontSize: 13 }}
-        >
+        <Typography gutterBottom component="div" sx={{ textAlign: "center", color: "#5a6972", fontSize: 13 }}>
           {members} members
         </Typography>
       </CardContent>
       <CardActions>
-        <Link href="/tribe/12" passHref>
+        <Link href="/tribe/22" passHref>
           <Button
             variant="outlined"
             sx={{
@@ -149,18 +139,15 @@ const Home: NextPage = () => {
           <SearchIconWrapper>
             <SearchIcon />
           </SearchIconWrapper>
-          <StyledInputBase
-            placeholder="Search…"
-            inputProps={{ "aria-label": "search" }}
-          />
+          <StyledInputBase placeholder="Search…" inputProps={{ "aria-label": "search" }} />
         </Search>
-        <Typography
+        {/*<Typography
           sx={{
             color: "#5a6972",
           }}
         >
           4 DAOs
-        </Typography>
+        </Typography>*/}
       </Box>
       <Box
         sx={{
@@ -180,32 +167,26 @@ const Home: NextPage = () => {
         >
           <Grid container spacing={2}>
             <Grid item xs={3}>
-              <DAOCards image={""} title="Your Tribe" members="3" />
+              <DAOCards image={""} title="Your Tribe at some other DAO" members="3" />
             </Grid>
             <Grid item xs={3}>
               <DAOCards
-                image={
-                  "https://ipfs.moralis.io:2053/ipfs/QmRNqgazYuxUa5WdddFPftTWiP3KwzBMgV9Z19QWnLMETc"
-                }
-                title="Polygon DAO"
+                image={"https://ipfs.moralis.io:2053/ipfs/QmRNqgazYuxUa5WdddFPftTWiP3KwzBMgV9Z19QWnLMETc"}
+                title="Marketing Tribe at Polygon DAO"
                 members="11k"
               />
             </Grid>
             <Grid item xs={3}>
               <DAOCards
-                image={
-                  "https://ipfs.moralis.io:2053/ipfs/QmR5W8pSKS7uPyGWtfPVKyNQD9QUdHCPyj4yK75NmZ2p9o"
-                }
-                title="Moralis DAO"
+                image={"https://ipfs.moralis.io:2053/ipfs/QmR5W8pSKS7uPyGWtfPVKyNQD9QUdHCPyj4yK75NmZ2p9o"}
+                title="Developer Relations at Moralis DAO"
                 members="1.5k"
               />
             </Grid>
             <Grid item xs={3}>
               <DAOCards
-                image={
-                  "https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM"
-                }
-                title="Spect Tribe"
+                image={"https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM"}
+                title="Product Tribe at Spect DAO"
                 members="111"
               />
             </Grid>

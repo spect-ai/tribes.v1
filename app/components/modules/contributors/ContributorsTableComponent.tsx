@@ -56,10 +56,7 @@ const ContributorsTableComponent = ({
         </TableHead>
         <TableBody>
           {epoch.memberStats?.map((row: any) => (
-            <TableRow
-              key={row.ethAddress}
-              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-            >
+            <TableRow key={row.ethAddress} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
               <TableCell component="th" scope="row">
                 {row.ethAddress}
               </TableCell>
@@ -90,15 +87,11 @@ const ContributorsTableComponent = ({
                         const userRemainingVotes = getRemainingVotes(
                           remainingVotes,
                           parseInt(event.target.value),
-                          voteAllocation?.hasOwnProperty(row.ethAddress)
-                            ? voteAllocation[row.ethAddress]
-                            : 0
+                          voteAllocation?.hasOwnProperty(row.ethAddress) ? voteAllocation[row.ethAddress] : 0
                         );
                         console.log(userRemainingVotes);
                         setRemainingVotes(userRemainingVotes);
-                        voteAllocation[row.ethAddress] = parseInt(
-                          event.target.value
-                        );
+                        voteAllocation[row.ethAddress] = parseInt(event.target.value);
                         setVoteAllocation(voteAllocation);
                         console.log(voteAllocation);
                       }}
@@ -108,7 +101,7 @@ const ContributorsTableComponent = ({
               )}
               {!epoch.active && (
                 <TableCell align="center" style={{ color: "#99ccff" }}>
-                  {row.reward.toFixed(2)} WMatic
+                  {row.reward.toFixed(2)} Matic
                 </TableCell>
               )}
             </TableRow>

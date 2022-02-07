@@ -95,7 +95,7 @@ const Task = ({ task, epoch, setRemainingVotes, remainingVotes, setVoteAllocatio
             }}
           />
         )}
-        {!epoch.active && <Typography color="text.secondary">{task.value?.toFixed(2)} WMatic</Typography>}
+        {!epoch.active && <Typography color="text.secondary">{task.value?.toFixed(2)} Matic</Typography>}
         {task.status !== 100 && (
           <Tooltip title={task.assignee}>
             <Avatar

@@ -76,7 +76,7 @@ const Contributor = (props: Props) => {
             </DescriptionContainer>
             <DescriptionContainer>
               <Title>Epoch Budget</Title>
-              <Value>{epoch.budget} WMatic</Value>
+              <Value>{epoch.budget} Matic</Value>
             </DescriptionContainer>
             <PrimaryButton
               variant="outlined"
