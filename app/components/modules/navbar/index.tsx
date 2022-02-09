@@ -8,7 +8,7 @@ import Logo from "../../../images/tribesLogo.png";
 import { smartTrim } from "../../../utils/utils";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { getOrCreateUser } from "../../../adapters/moralis";
-import Notifications from '../notifications'
+import Notifications from "../notifications";
 type Props = {};
 
 const StyledNav = styled("nav")(({ theme }) => ({
@@ -55,16 +55,14 @@ const Navbar = (props: Props) => {
         </a>
       </Box>
       <Box sx={{ flex: "1 1 auto" }} />
-      {
-        isAuthenticated
-        ?
+      {isAuthenticated ? (
         <Box>
-          <Notifications/>
+          <Notifications />
         </Box>
-        :
+      ) : (
         <></>
-      }
-      <Box sx={{ mx: 12 }}>
+      )}
+      <Box sx={{ mr: 12, ml: 4 }}>
         {!isAuthenticated ? (
           <NavbarButton
             variant="outlined"

@@ -1,11 +1,11 @@
 import styled from "@emotion/styled";
 import React from "react";
 import { useTribe } from "../../../../pages/tribe/[id]";
-import Board from "../../modules/board";
-import Contributor from "../../modules/contributors/index"
+import Board from "../../modules/boardsTab";
+import Contributor from "../../modules/contributorsTab/index";
 import TribeHeading from "../../modules/tribeHeading";
-import Settings from '../../modules/settings';
-import Overview from "../overview/overview";
+import Settings from "../../modules/settingsTab";
+import Overview from "../../modules/overviewTab";
 
 type Props = {};
 
@@ -20,9 +20,9 @@ const TribeTemplate = (props: Props) => {
     <OuterDiv>
       <TribeHeading />
       {tab == 0 && <Overview />}
-      {tab == 1 && <Contributor/>}
+      {tab == 1 && <Contributor />}
       {tab == 2 && <Board />}
-      {tab == 3 && <Settings/>}
+      {tab == 3 && <Settings />}
     </OuterDiv>
   );
 };

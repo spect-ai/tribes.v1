@@ -51,10 +51,20 @@ const DAOCards = ({ image, title, members }: Props) => {
     >
       <TribeAvatar alt="Remy Sharp" src={image} />
       <CardContent>
-        <Typography gutterBottom variant="h5" component="div" color="text.secondary" sx={{ textAlign: "center" }}>
+        <Typography
+          gutterBottom
+          variant="h5"
+          component="div"
+          color="text.secondary"
+          sx={{ textAlign: "center", maxHeight: "4rem", overflow: "hidden" }}
+        >
           {title}
         </Typography>
-        <Typography gutterBottom component="div" sx={{ textAlign: "center", color: "#5a6972", fontSize: 13 }}>
+        <Typography
+          gutterBottom
+          component="div"
+          sx={{ textAlign: "center", color: "#5a6972", fontSize: 13 }}
+        >
           {members} members
         </Typography>
       </CardContent>
@@ -139,7 +149,10 @@ const Home: NextPage = () => {
           <SearchIconWrapper>
             <SearchIcon />
           </SearchIconWrapper>
-          <StyledInputBase placeholder="Search…" inputProps={{ "aria-label": "search" }} />
+          <StyledInputBase
+            placeholder="Search…"
+            inputProps={{ "aria-label": "search" }}
+          />
         </Search>
         {/*<Typography
           sx={{
@@ -167,50 +180,41 @@ const Home: NextPage = () => {
         >
           <Grid container spacing={2}>
             <Grid item xs={3}>
-              <DAOCards image={""} title="Your Tribe at some other DAO" members="3" />
+              <DAOCards
+                image={""}
+                title="Your Tribe at some other DAO"
+                members="3"
+              />
             </Grid>
             <Grid item xs={3}>
               <DAOCards
-                image={"https://ipfs.moralis.io:2053/ipfs/QmRNqgazYuxUa5WdddFPftTWiP3KwzBMgV9Z19QWnLMETc"}
+                image={
+                  "https://ipfs.moralis.io:2053/ipfs/QmRNqgazYuxUa5WdddFPftTWiP3KwzBMgV9Z19QWnLMETc"
+                }
                 title="Marketing Tribe at Polygon DAO"
                 members="11k"
               />
             </Grid>
             <Grid item xs={3}>
               <DAOCards
-                image={"https://ipfs.moralis.io:2053/ipfs/QmR5W8pSKS7uPyGWtfPVKyNQD9QUdHCPyj4yK75NmZ2p9o"}
+                image={
+                  "https://ipfs.moralis.io:2053/ipfs/QmR5W8pSKS7uPyGWtfPVKyNQD9QUdHCPyj4yK75NmZ2p9o"
+                }
                 title="Developer Relations at Moralis DAO"
                 members="1.5k"
               />
             </Grid>
             <Grid item xs={3}>
               <DAOCards
-                image={"https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM"}
+                image={
+                  "https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM"
+                }
                 title="Product Tribe at Spect DAO"
                 members="111"
               />
             </Grid>
           </Grid>
         </Box>
-        {/* <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "inherit",
-            margin: 2,
-            height: "50%",
-            padding: 4,
-            borderRadius: 3,
-            border: "1px solid #EAEAEA",
-            gap: 1,
-          }}
-        >
-          <CreateTeamButton>
-            <AddIcon />
-          </CreateTeamButton>
-          Create DAO
-        </Box> */}
       </Box>
     </div>
   );

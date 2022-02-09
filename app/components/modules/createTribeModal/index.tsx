@@ -9,6 +9,7 @@ import {
 import React, { useState } from "react";
 import AddIcon from "@mui/icons-material/Add";
 import CreateTribeForm from "./form";
+import { useMoralis } from "react-moralis";
 
 const modalStyle = {
   position: "absolute" as "absolute",
@@ -39,9 +40,20 @@ const CreateTribeModal = (props: Props) => {
   const handleOpen = () => setIsOpen(true);
   const [isOpen, setIsOpen] = useState(false);
 
+  const { isAuthenticated, isAuthenticating, authenticate, isUserUpdating } =
+    useMoralis();
+
   return (
     <div>
-      <CreateTeamButton onClick={handleOpen}>
+      <CreateTeamButton
+        onClick={() => {
+          if (!isAuthenticated) {
+            authenticate();
+          } else {
+            handleOpen();
+          }
+        }}
+      >
         <AddIcon />
       </CreateTeamButton>
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>

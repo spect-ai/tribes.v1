@@ -8,9 +8,9 @@ import {
   useMoralisCloudFunction,
 } from "react-moralis";
 import { ResolveCallOptions } from "react-moralis/lib/hooks/internal/_useResolveAsyncCall";
-import { getTaskEpoch } from "../../app/adapters/moralis";
-import TribeTemplate from "../../app/components/modules/tribe";
-import { Epoch, Task, Team } from "../../app/types";
+import { getTaskEpoch } from "../../../app/adapters/moralis";
+import TribeTemplate from "../../../app/components/templates/tribe";
+import { Epoch, Task, Team } from "../../../app/types";
 
 interface Props {}
 

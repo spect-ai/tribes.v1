@@ -12,10 +12,7 @@ import { Box, width } from "@mui/system";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useTribe } from "../../../../pages/tribe/[id]";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import EpochModal, { PrimaryButton } from "../epochModal";
-import GitHubLogin from "react-github-login";
-import { getGithubToken, endEpoch } from "../../../adapters/moralis";
+
 import { useMoralis } from "react-moralis";
 
 const HeadingAvatar = styled(Avatar)(({ theme }) => ({
@@ -67,47 +64,6 @@ const TribeHeading = (props: Props) => {
           >
             <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
               <Typography variant="h4">{tribe.name}</Typography>
-              <EpochModal step={0} />
-
-              <EpochModal step={1} />
-              <GitHubLogin
-                clientId="4403e769e4d52b24eeab"
-                scope="repo"
-                buttonText=""
-                className="githubButton"
-                onSuccess={(res: any) => {
-                  console.log(res);
-                  getGithubToken(Moralis, res.code)
-                    .then((token: string) => {
-                      console.log(token);
-                      const accessToken = token.substring(
-                        token.indexOf("=") + 1,
-                        token.lastIndexOf("&scope")
-                      );
-                      setGithubToken(accessToken);
-                      setGithubLoading(false);
-                    })
-                    .catch((err: any) => {
-                      console.log(err);
-                      setGithubLoading(false);
-                    });
-                }}
-                onFailure={(err: any) => console.log(err)}
-                onclick={() => setGithubLoading(true)}
-                redirectUri="http://localhost:3000/"
-              >
-                <PrimaryButton
-                  variant="outlined"
-                  size="large"
-                  type="submit"
-                  endIcon={<GitHubIcon />}
-                  onClick={() => {}}
-                  sx={{ ml: 3 }}
-                  loading={githubLoading}
-                >
-                  Integrate Github
-                </PrimaryButton>
-              </GitHubLogin>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "row" }}>
               <StyledAnchor>

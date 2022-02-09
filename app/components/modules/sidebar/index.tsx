@@ -1,9 +1,9 @@
+import styled from "@emotion/styled";
 import {
   Avatar,
   Box,
   Button,
   IconButton,
-  styled,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -14,25 +14,38 @@ import CreateTribeModal from "../createTribeModal";
 
 type Props = {};
 
-const SidebarDiv = styled("div")(({ theme }) => ({
-  minHeight: "100vh",
-  width: "6rem",
-  paddingTop: "10rem",
-  alignItems: "center",
-  display: "flex",
-  flexDirection: "column",
-  backgroundColor: "#00194A",
-}));
+// const SidebarDiv = styled("div")(({ theme }) => ({
+//   minHeight: "100vh",
+//   width: "6rem",
+//   paddingTop: "10rem",
+//   alignItems: "center",
+//   display: "flex",
+//   flexDirection: "column",
+//   backgroundColor: "#00194A",
+//   position: "fixed", /* Fixed Sidebar (stay in place on scroll) */
+//   z-index: 1, /* Stay on top */
+// }));
 
-const SidebarAvatar = styled(Avatar)(({ theme }) => ({
-  width: "3rem",
-  height: "3rem",
-  objectFit: "cover",
-}));
+const SidebarContainer = styled.div`
+  minheight: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 6rem;
+  padding-top: 10rem;
+  align-items: center;
+  background-color: #00194a;
+  z-index: 1; /* Stay on top */
+`;
+
+// const SidebarAvatar = styled(Avatar)(({ theme }) => ({
+//   width: "3rem",
+//   height: "3rem",
+//   objectFit: "cover",
+// }));
 
 const Sidebar = (props: Props) => {
   return (
-    <SidebarDiv>
+    <SidebarContainer>
       <Box
         sx={{
           px: 2,
@@ -42,7 +55,10 @@ const Sidebar = (props: Props) => {
           justifyContent: "center",
         }}
       >
-        <SidebarAvatar alt="Username" />
+        <Avatar
+          alt="Username"
+          sx={{ width: "3rem", height: "3rem", objectFit: "cover" }}
+        />
         <CreateTribeModal />
         <Typography
           sx={{ fontSize: 13, textAlign: "center", mt: 1, fontWeight: "bold" }}
@@ -52,7 +68,7 @@ const Sidebar = (props: Props) => {
           Create Tribe
         </Typography>
       </Box>
-    </SidebarDiv>
+    </SidebarContainer>
   );
 };
 

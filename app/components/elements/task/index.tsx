@@ -21,7 +21,11 @@ import { Epoch, Task } from "../../../types";
 import { distributeTokensForTask } from "../../../adapters/contract";
 import { getTaskEpoch, updateTask } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import { getMD5String, getRemainingVotes, smartTrim } from "../../../utils/utils";
+import {
+  getMD5String,
+  getRemainingVotes,
+  smartTrim,
+} from "../../../utils/utils";
 import { PrimaryButton } from "../../modules/epochModal";
 
 type Props = {
@@ -53,8 +57,16 @@ const statusMapping: colorMapping = {
   102: "#5fe086",
 };
 
-const Task = ({ task, epoch, setRemainingVotes, remainingVotes, setVoteAllocation, voteAllocation }: Props) => {
-  const { githubToken, setToDoTasks, setInProgressTasks, setDoneTasks, tribe } = useTribe();
+const Task = ({
+  task,
+  epoch,
+  setRemainingVotes,
+  remainingVotes,
+  setVoteAllocation,
+  voteAllocation,
+}: Props) => {
+  const { githubToken, setToDoTasks, setInProgressTasks, setDoneTasks, tribe } =
+    useTribe();
   const { Moralis } = useMoralis();
   useEffect(() => {
     console.log(task);
@@ -84,7 +96,9 @@ const Task = ({ task, epoch, setRemainingVotes, remainingVotes, setVoteAllocatio
               const userRemainingVotes = getRemainingVotes(
                 remainingVotes,
                 parseInt(event.target.value),
-                voteAllocation?.hasOwnProperty(task._id) ? voteAllocation[task._id] : 0
+                voteAllocation?.hasOwnProperty(task._id)
+                  ? voteAllocation[task._id]
+                  : 0
               );
 
               console.log(userRemainingVotes);
@@ -95,12 +109,18 @@ const Task = ({ task, epoch, setRemainingVotes, remainingVotes, setVoteAllocatio
             }}
           />
         )}
-        {!epoch.active && <Typography color="text.secondary">{task.value?.toFixed(2)} Matic</Typography>}
+        {!epoch.active && (
+          <Typography color="text.secondary">
+            {task.value?.toFixed(2)} Matic
+          </Typography>
+        )}
         {task.status !== 100 && (
           <Tooltip title={task.assignee}>
             <Avatar
               alt=""
-              src={`https://www.gravatar.com/avatar/${getMD5String(task.assignee)}?d=identicon&s=32`}
+              src={`https://www.gravatar.com/avatar/${getMD5String(
+                task.assignee
+              )}?d=identicon&s=32`}
               sx={{ mt: 1 }}
             />
           </Tooltip>
@@ -142,26 +162,28 @@ const Task = ({ task, epoch, setRemainingVotes, remainingVotes, setVoteAllocatio
                       .then(({ data }) => {
                         updateTask(Moralis, task._id, 101).then((res: any) => {
                           console.log(res);
-                          getTaskEpoch(Moralis, tribe.latestTaskEpoch).then((res: any) => {
-                            if (res.length > 0) {
-                              const tasks = (res as Epoch[])[0].tasks;
-                              setToDoTasks(
-                                tasks.filter((task) => {
-                                  return task.status === 100;
-                                })
-                              );
-                              setInProgressTasks(
-                                tasks.filter((task) => {
-                                  return task.status === 101;
-                                })
-                              );
-                              setDoneTasks(
-                                tasks.filter((task) => {
-                                  return task.status === 102;
-                                })
-                              );
+                          getTaskEpoch(Moralis, tribe.latestTaskEpoch).then(
+                            (res: any) => {
+                              if (res.length > 0) {
+                                const tasks = (res as Epoch[])[0].tasks;
+                                setToDoTasks(
+                                  tasks.filter((task) => {
+                                    return task.status === 100;
+                                  })
+                                );
+                                setInProgressTasks(
+                                  tasks.filter((task) => {
+                                    return task.status === 101;
+                                  })
+                                );
+                                setDoneTasks(
+                                  tasks.filter((task) => {
+                                    return task.status === 102;
+                                  })
+                                );
+                              }
                             }
-                          });
+                          );
                         });
                       })
                       .catch((err) => {
@@ -183,26 +205,28 @@ const Task = ({ task, epoch, setRemainingVotes, remainingVotes, setVoteAllocatio
                     .then(({ data }) => {
                       updateTask(Moralis, task._id, 102).then((res: any) => {
                         console.log(res);
-                        getTaskEpoch(Moralis, tribe.latestTaskEpoch).then((res: any) => {
-                          if (res.length > 0) {
-                            const tasks = (res as Epoch[])[0].tasks;
-                            setToDoTasks(
-                              tasks.filter((task) => {
-                                return task.status === 100;
-                              })
-                            );
-                            setInProgressTasks(
-                              tasks.filter((task) => {
-                                return task.status === 101;
-                              })
-                            );
-                            setDoneTasks(
-                              tasks.filter((task) => {
-                                return task.status === 102;
-                              })
-                            );
+                        getTaskEpoch(Moralis, tribe.latestTaskEpoch).then(
+                          (res: any) => {
+                            if (res.length > 0) {
+                              const tasks = (res as Epoch[])[0].tasks;
+                              setToDoTasks(
+                                tasks.filter((task) => {
+                                  return task.status === 100;
+                                })
+                              );
+                              setInProgressTasks(
+                                tasks.filter((task) => {
+                                  return task.status === 101;
+                                })
+                              );
+                              setDoneTasks(
+                                tasks.filter((task) => {
+                                  return task.status === 102;
+                                })
+                              );
+                            }
                           }
-                        });
+                        );
                       });
                     })
                     .catch((err) => {
@@ -221,26 +245,28 @@ const Task = ({ task, epoch, setRemainingVotes, remainingVotes, setVoteAllocatio
                 distributeTokensForTask(task).then((res: any) => {
                   console.log(res);
                   updateTask(Moralis, task._id, 102, true).then((res: any) => {
-                    getTaskEpoch(Moralis, tribe.latestTaskEpoch).then((res: any) => {
-                      if (res.length > 0) {
-                        const tasks = (res as Epoch[])[0].tasks;
-                        setToDoTasks(
-                          tasks.filter((task) => {
-                            return task.status === 100;
-                          })
-                        );
-                        setInProgressTasks(
-                          tasks.filter((task) => {
-                            return task.status === 101;
-                          })
-                        );
-                        setDoneTasks(
-                          tasks.filter((task) => {
-                            return task.status === 102;
-                          })
-                        );
+                    getTaskEpoch(Moralis, tribe.latestTaskEpoch).then(
+                      (res: any) => {
+                        if (res.length > 0) {
+                          const tasks = (res as Epoch[])[0].tasks;
+                          setToDoTasks(
+                            tasks.filter((task) => {
+                              return task.status === 100;
+                            })
+                          );
+                          setInProgressTasks(
+                            tasks.filter((task) => {
+                              return task.status === 101;
+                            })
+                          );
+                          setDoneTasks(
+                            tasks.filter((task) => {
+                              return task.status === 102;
+                            })
+                          );
+                        }
                       }
-                    });
+                    );
                   });
                 });
               }}

@@ -19,6 +19,7 @@ const OuterDiv = styled.div`
   font-size: 1.5rem;
   display: flex;
   flex-direction: row;
+  overflow-x: hidden;
 `;
 
 const InnerDiv = styled.div`
