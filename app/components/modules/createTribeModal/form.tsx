@@ -5,8 +5,11 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useMoralis } from "react-moralis";
 import { getUserSafes } from "../../../adapters/gnosis";
 import { createTribe, updateMembers } from "../../../adapters/moralis";
-import { FieldContainer, LightTooltip } from "../epochForm";
-import { PrimaryButton } from "../epochModal";
+import {
+  FieldContainer,
+  LightTooltip,
+  PrimaryButton,
+} from "../../elements/styledComponents";
 
 type Props = {
   setIsOpen: (isOpen: boolean) => void;

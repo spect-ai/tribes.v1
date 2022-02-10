@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import styled from "@emotion/styled";
 import { TextField, FormLabel } from "@mui/material";
-import { PrimaryButton } from "../epochModal";
 import { useRouter } from "next/router";
 import { useMoralis } from "react-moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
+import { PrimaryButton } from "../../elements/styledComponents";
 export interface ModalFormInput {
   address: string;
 }

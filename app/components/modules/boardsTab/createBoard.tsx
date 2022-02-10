@@ -1,8 +1,8 @@
 import { Grow, IconButton, Modal, styled, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
-import { PrimaryButton } from "../epochModal";
 import CloseIcon from "@mui/icons-material/Close";
+import { PrimaryButton } from "../../elements/styledComponents";
 
 type Props = {
   isOpen: boolean;

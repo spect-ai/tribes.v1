@@ -3,8 +3,23 @@ export const initialData = {
     "task-0": {
       id: "task-0",
       title: "Take out the garbage",
-      reward: 200,
       deadline: "10 feb",
+      description: "Description",
+      tags: ["gig"],
+      assignee: "chaks.eth",
+      reviewer: "0xavp.eth",
+      reward: {
+        chain: "polygon",
+        value: 1000,
+        token: "USDC",
+      },
+      activity: [
+        {
+          userAddress: "0x6304CE63F2EBf8C0Cc76b60d34Cc52a84aBB6057",
+          timestamp: Date,
+          title: "0xavp created this Task",
+        },
+      ],
     },
     "task-1": {
       id: "task-1",

@@ -55,21 +55,42 @@ export interface Epoch {
   _created_at: any;
 }
 
+// export interface Task {
+//   epochId: number;
+//   title: string;
+//   // id: string;
+//   paid: boolean;
+//   issueNumber: number;
+//   issueLink: string;
+//   onchain: boolean;
+//   source: string;
+//   value: number;
+//   votes: number;
+//   status: number;
+//   assignee: string;
+//   _createdAt: object;
+//   _id: string;
+//   _updatedAt: object;
+//   _created_at: any;
+// }
+
 export interface Task {
-  epochId: number;
+  id: string;
   title: string;
-  // id: string;
-  paid: boolean;
-  issueNumber: number;
-  issueLink: string;
-  onchain: boolean;
-  source: string;
-  value: number;
-  votes: number;
-  status: number;
+  description: any;
+  submission: any;
+  deadline: Date;
+  tags: string[];
   assignee: string;
-  _createdAt: object;
-  _id: string;
-  _updatedAt: object;
-  _created_at: any;
+  reviewer: string;
+  reward: {
+    chain: "polygon" | "ethereum" | "bsc";
+    value: number;
+    token: string;
+  };
+  activity: {
+    userAddress: string;
+    timestamp: Date;
+    title: string;
+  }[];
 }

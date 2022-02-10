@@ -1,62 +1,69 @@
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import { Avatar } from "@mui/material";
 import { getMD5String } from "../../../utils/utils";
+import TaskModal from "../taskModal";
+import { Task } from "../../../types";
 
 type Props = {
-  id: string;
-  title: string;
+  task: Task;
   index: number;
-  reward: number;
-  deadline: string;
 };
 
-const Task = ({ id, title, index, reward, deadline }: Props) => {
+const TaskContainer = ({ task, index }: Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const handleClose = () => setIsOpen(false);
   return (
-    <Draggable draggableId={id} index={index}>
-      {(provided, snapshot) => (
-        <TaskCard
-          {...provided.draggableProps}
-          {...provided.dragHandleProps}
-          ref={provided.innerRef}
-          isDragging={snapshot.isDragging}
-        >
-          <Container>
-            <Title>{title}</Title>
-            {/* <Text>
+    <>
+      {isOpen && (
+        <TaskModal isOpen={isOpen} handleClose={handleClose} task={task} />
+      )}
+      <Draggable draggableId={task.id} index={index}>
+        {(provided, snapshot) => (
+          <TaskCard
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+            isDragging={snapshot.isDragging}
+            onClick={() => setIsOpen(true)}
+          >
+            <Container>
+              <Title>{task.title}</Title>
+              {/* <Text>
               This is the description of the task in hand, you can do it in
               anyway you want. Lets do it.
             </Text> */}
-            <ChipContainer>
-              <Chip color="#eaeaea">
-                <MonetizationOnIcon sx={{ fontSize: 12 }} />
-                {reward} Matic
-              </Chip>
-              {deadline !== "" && (
-                <Chip color="#5a6972">
-                  <DateRangeIcon sx={{ fontSize: 12 }} />
-                  {deadline}
+              <ChipContainer>
+                <Chip color="#eaeaea">
+                  <MonetizationOnIcon sx={{ fontSize: 12 }} />
+                  {task.reward.value} Matic
                 </Chip>
-              )}
-            </ChipContainer>
-            <Avatar
-              alt=""
-              src={`https://www.gravatar.com/avatar/${getMD5String(
-                "test"
-              )}?d=identicon&s=32`}
-              sx={{
-                width: "1.7rem",
-                height: "1.7rem",
-                objectFit: "cover",
-              }}
-            />
-          </Container>
-        </TaskCard>
-      )}
-    </Draggable>
+                {!task.deadline && (
+                  <Chip color="#5a6972">
+                    <DateRangeIcon sx={{ fontSize: 12 }} />
+                    {task.deadline}
+                  </Chip>
+                )}
+              </ChipContainer>
+              <Avatar
+                alt=""
+                src={`https://www.gravatar.com/avatar/${getMD5String(
+                  "test"
+                )}?d=identicon&s=32`}
+                sx={{
+                  width: "1.7rem",
+                  height: "1.7rem",
+                  objectFit: "cover",
+                }}
+              />
+            </Container>
+          </TaskCard>
+        )}
+      </Draggable>
+    </>
   );
 };
 
@@ -113,4 +120,4 @@ const Text = styled.div`
   color: #99ccff;
 `;
 
-export default Task;
+export default TaskContainer;

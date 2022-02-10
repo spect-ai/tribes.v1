@@ -1,4 +1,5 @@
 export const muiTheme = {
+  spacing: 4,
   palette: {
     mode: "dark" as any,
     primary: {

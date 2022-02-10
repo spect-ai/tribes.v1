@@ -7,14 +7,12 @@ import {
 } from "@mui/material";
 import React from "react";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import { FieldContainer, LightTooltip } from "../epochForm";
 import {
   Controller,
   SubmitHandler,
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { PrimaryButton } from "../epochModal";
 import { Octokit } from "@octokit/rest";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -24,6 +22,11 @@ import Moralis from "moralis/types";
 import { useMoralis } from "react-moralis";
 import { Epoch, Team } from "../../../types";
 import { useRouter } from "next/router";
+import {
+  FieldContainer,
+  LightTooltip,
+  PrimaryButton,
+} from "../../elements/styledComponents";
 
 type Props = {
   setIsOpen: (isOpen: boolean) => void;

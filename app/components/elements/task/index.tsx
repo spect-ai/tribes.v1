@@ -26,7 +26,7 @@ import {
   getRemainingVotes,
   smartTrim,
 } from "../../../utils/utils";
-import { PrimaryButton } from "../../modules/epochModal";
+import { PrimaryButton } from "../styledComponents";
 
 type Props = {
   task: Task;

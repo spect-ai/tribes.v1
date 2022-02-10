@@ -1,109 +1,137 @@
-import React, {useState} from 'react'
-import styled from '@emotion/styled';
-import {
-    Avatar,
-    Fade,
-    Modal,
-    Box,
-    FormLabel,
-    TextField
-  } from "@mui/material";
+import React, { useState } from "react";
+import styled from "@emotion/styled";
+import { Avatar, Fade, Modal, Box, FormLabel, TextField } from "@mui/material";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { PrimaryButton } from "../epochModal";
+import { PrimaryButton } from "../../elements/styledComponents";
 export interface ModalFormInput {
   walletAddress: string;
   flowRate: number;
 }
 
 const modalStyle = {
-    position: "absolute" as "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: "30rem",
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    boxShadow: 24,
-    p: 3,
-    overflow: "auto",
-    maxHeight: "calc(100% - 128px)",
-  };
+  position: "absolute" as "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "30rem",
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 3,
+  overflow: "auto",
+  maxHeight: "calc(100% - 128px)",
+};
 
-const ContributorsDetails = ({address, role}:any) => {
-    const [openModal, setOpenModal] = useState(false)
-    const {
-        handleSubmit,
-        control,
-        formState: { errors },
-      } = useForm<ModalFormInput>();
-    const handleClose = () => setOpenModal(false);
-    const onSubmit: SubmitHandler<ModalFormInput> = async (values) => {
-        console.log(values);
-        setOpenModal(false);
-      };
-    return (
-        <Wrapper onClick={() => {setOpenModal(true)}}>
-            <Details>
-                <Avatar sx={{ bgcolor: '#790D9F', color: '#fff', marginRight: '10px', width: 30, height: 30, fontSize: '15px' }}>OP</Avatar>
-                <div style={{marginTop: '2px'}}>
-                    {`${address.slice(0, 10)}...${address.slice(35)}`}
-                </div>
-            </Details>
-            <Role>{role}</Role>
-            <Modal open={openModal} onClose={handleClose} closeAfterTransition>
-                <Fade in={openModal} timeout={500}>
-                <Box sx={modalStyle}>
-                    <ModalWrapper>
-                        <form onSubmit={handleSubmit(onSubmit)}>
-                            <FormItem>
-                            <FormLabel id="demo-row-radio-buttons-group-label" style={{fontSize: '11px', color:'#91909D', textTransform: 'uppercase', fontWeight: 'bold'}}>Wallet Address</FormLabel>
-                                <Controller
-                                    name="walletAddress"
-                                    control={control}
-                                    defaultValue={address}
-                                    render={({ field, fieldState }) => (
-                                        <TextField
-                                        {...field}
-                                        variant="outlined"
-                                        type="text"
-                                        size="small"
-                                        fullWidth
-                                        placeholder="Wallet Address"
-                                    />
-                                    )}
-                                    />
-                            </FormItem>
-                            <FormItem>
-                            <FormLabel id="demo-row-radio-buttons-group-label" style={{fontSize: '11px', color:'#91909D', textTransform: 'uppercase', fontWeight: 'bold'}}>Flow Rate</FormLabel>
-                                <Controller
-                                    name="flowRate"
-                                    control={control}
-                                    defaultValue={'10'}
-                                    render={({ field, fieldState }) => (
-                                        <TextField
-                                        {...field}
-                                        variant="outlined"
-                                        type="text"
-                                        size="small"
-                                        fullWidth
-                                        placeholder="Flow Rate"
-                                    />
-                                    )}
-                                    />
-                            </FormItem>
-                            <ButtonWrapper>
-                                <PrimaryButton type="submit" variant="outlined">
-                                    Start Stream
-                                </PrimaryButton>
-                            </ButtonWrapper>
-                        </form>
-                    </ModalWrapper>
-                </Box>
-                </Fade>
-            </Modal>
-        </Wrapper>
-    )
-}
+const ContributorsDetails = ({ address, role }: any) => {
+  const [openModal, setOpenModal] = useState(false);
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<ModalFormInput>();
+  const handleClose = () => setOpenModal(false);
+  const onSubmit: SubmitHandler<ModalFormInput> = async (values) => {
+    console.log(values);
+    setOpenModal(false);
+  };
+  return (
+    <Wrapper
+      onClick={() => {
+        setOpenModal(true);
+      }}
+    >
+      <Details>
+        <Avatar
+          sx={{
+            bgcolor: "#790D9F",
+            color: "#fff",
+            marginRight: "10px",
+            width: 30,
+            height: 30,
+            fontSize: "15px",
+          }}
+        >
+          OP
+        </Avatar>
+        <div style={{ marginTop: "2px" }}>
+          {`${address.slice(0, 10)}...${address.slice(35)}`}
+        </div>
+      </Details>
+      <Role>{role}</Role>
+      <Modal open={openModal} onClose={handleClose} closeAfterTransition>
+        <Fade in={openModal} timeout={500}>
+          <Box sx={modalStyle}>
+            <ModalWrapper>
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <FormItem>
+                  <FormLabel
+                    id="demo-row-radio-buttons-group-label"
+                    style={{
+                      fontSize: "11px",
+                      color: "#91909D",
+                      textTransform: "uppercase",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Wallet Address
+                  </FormLabel>
+                  <Controller
+                    name="walletAddress"
+                    control={control}
+                    defaultValue={address}
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        {...field}
+                        variant="outlined"
+                        type="text"
+                        size="small"
+                        fullWidth
+                        placeholder="Wallet Address"
+                      />
+                    )}
+                  />
+                </FormItem>
+                <FormItem>
+                  <FormLabel
+                    id="demo-row-radio-buttons-group-label"
+                    style={{
+                      fontSize: "11px",
+                      color: "#91909D",
+                      textTransform: "uppercase",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Flow Rate
+                  </FormLabel>
+                  <Controller
+                    name="flowRate"
+                    control={control}
+                    defaultValue={"10" as any}
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        {...field}
+                        variant="outlined"
+                        type="text"
+                        size="small"
+                        fullWidth
+                        placeholder="Flow Rate"
+                      />
+                    )}
+                  />
+                </FormItem>
+                <ButtonWrapper>
+                  <PrimaryButton type="submit" variant="outlined">
+                    Start Stream
+                  </PrimaryButton>
+                </ButtonWrapper>
+              </form>
+            </ModalWrapper>
+          </Box>
+        </Fade>
+      </Modal>
+    </Wrapper>
+  );
+};
 
 export default ContributorsDetails;
 

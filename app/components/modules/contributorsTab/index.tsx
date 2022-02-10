@@ -9,13 +9,13 @@ import {
   getEpoch,
   giftContributors,
 } from "../../../adapters/moralis";
-import { PrimaryButton } from "../epochModal";
 import PaidIcon from "@mui/icons-material/Paid";
 import { massPayment } from "../../../adapters/gnosis";
 import { distributeTokensForContribution } from "../../../adapters/contract";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { formatTimeLeft } from "../../../utils/utils";
 import TimelapseIcon from "@mui/icons-material/Timelapse";
+import { PrimaryButton } from "../../elements/styledComponents";
 
 interface Props {}
 

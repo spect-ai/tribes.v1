@@ -1,8 +1,8 @@
 import React from "react";
-import { PrimaryButton } from "../../modules/epochModal";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import GitHubLogin from "react-github-login";
 import { getGithubToken, endEpoch } from "../../../adapters/moralis";
+import { PrimaryButton } from "../styledComponents";
 
 type Props = {};
 

@@ -1,22 +1,27 @@
 import styled from "@emotion/styled";
-import { Button, InputBase, IconButton } from "@mui/material";
+import {
+  Button,
+  InputBase,
+  IconButton,
+  Popover,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { column, useBoard } from ".";
-import Task from "./task";
+import TaskContainer from "./task";
 import AddIcon from "@mui/icons-material/Add";
-import DoneIcon from "@mui/icons-material/Done";
-import CloseIcon from "@mui/icons-material/Close";
+
 import { Box } from "@mui/system";
 import SettingsIcon from "@mui/icons-material/Settings";
+import ColumnSettingsPopover from "./columnSettingsPopover";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import CreateTask from "./createTask";
+import CreateGithubTask from "./createGithubTask";
+import { Task } from "../../../types";
 
 type Props = {
-  tasks: {
-    id: string;
-    title: string;
-    reward: number;
-    deadline: string;
-  }[];
+  tasks: Task[];
   id: string;
   column: column;
   index: number;
@@ -24,12 +29,17 @@ type Props = {
 
 const Column = ({ tasks, id, column, index }: Props) => {
   const [showCreateTask, setShowCreateTask] = useState(false);
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskReward, setNewTaskReward] = useState(
-    undefined as unknown as number
-  );
+  const [showCreateGithubTask, setShowCreateGithubTask] = useState(false);
   const [columnTitle, setColumnTitle] = useState(column.title);
-  const { data, setData } = useBoard();
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const open = Boolean(anchorEl);
 
   return (
     <OuterContainer>
@@ -58,110 +68,65 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       onChange={(e) => setColumnTitle(e.target.value)}
                     />
                     <Box sx={{ flex: "1 1 auto" }} />
-                    <IconButton sx={{ mb: 0.5, p: 0.5 }} size="small">
+                    <IconButton
+                      sx={{ mb: 0.5, p: 0.5 }}
+                      size="small"
+                      onClick={handleClick}
+                    >
                       <SettingsIcon fontSize="small" />
                     </IconButton>
+                    <ColumnSettingsPopover
+                      open={open}
+                      anchorEl={anchorEl}
+                      handleClose={handleClose}
+                    />
                   </TaskTitleContainer>
                   {tasks.map((task, index) => (
-                    <Task
-                      key={task.id}
-                      title={task.title}
-                      id={task.id}
-                      index={index}
-                      reward={task.reward}
-                      deadline={task.deadline}
-                    />
+                    <TaskContainer key={task.id} task={task} index={index} />
                   ))}
                   {provided.placeholder}
                   {showCreateTask && (
-                    <CreateTaskContainer>
-                      <InputBase
-                        placeholder="Name"
-                        sx={{
-                          fontSize: "14px",
-                          marginLeft: "6px",
-                        }}
-                        value={newTaskTitle}
-                        onChange={(e) => setNewTaskTitle(e.target.value)}
-                      />
-                      <InputBase
-                        placeholder="Reward"
-                        sx={{
-                          fontSize: "14px",
-                          marginLeft: "6px",
-                        }}
-                        value={newTaskReward}
-                        onChange={(e) =>
-                          setNewTaskReward(parseInt(e.target.value))
-                        }
-                      />
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                          alignItems: "center",
-                        }}
-                      >
-                        <Button
-                          startIcon={<DoneIcon />}
-                          onClick={() => {
-                            setData({
-                              ...data,
-                              tasks: {
-                                ...data.tasks,
-                                [`task-${Object.keys(data.tasks).length}`]: {
-                                  id: `task-${Object.keys(data.tasks).length}`,
-                                  title: newTaskTitle,
-                                  reward: newTaskReward,
-                                  deadline: "",
-                                },
-                              },
-                              columns: {
-                                ...data.columns,
-                                [id]: {
-                                  ...data.columns[id],
-                                  taskIds: [
-                                    ...data.columns[id].taskIds,
-                                    `task-${Object.keys(data.tasks).length}`,
-                                  ],
-                                },
-                              },
-                            });
-                            setNewTaskReward(0);
-                            setNewTaskTitle("");
-                            setShowCreateTask(false);
-                          }}
-                          sx={{ textTransform: "none" }}
-                          fullWidth
-                        >
-                          Done
-                        </Button>
-                        <Button
-                          startIcon={<CloseIcon />}
-                          onClick={() => setShowCreateTask(false)}
-                          sx={{ textTransform: "none" }}
-                          color="error"
-                          fullWidth
-                        >
-                          Cancel
-                        </Button>
-                      </Box>
-                    </CreateTaskContainer>
+                    <CreateTask
+                      setShowCreateTask={setShowCreateTask}
+                      columnId={id}
+                    />
                   )}
-
-                  <Button
-                    sx={{
-                      textTransform: "none",
-                      color: "inherit",
-                      textAlign: "left",
-                      mt: 2,
-                      justifyContent: "flex-start",
-                    }}
-                    startIcon={<AddIcon />}
-                    onClick={() => setShowCreateTask(true)}
-                  >
-                    Add Task
-                  </Button>
+                  {showCreateGithubTask && (
+                    <CreateGithubTask
+                      setShowCreateTask={setShowCreateGithubTask}
+                      columnId={id}
+                    />
+                  )}
+                  <Box sx={{ display: "flex", flexDirection: "row" }}>
+                    <Button
+                      sx={{
+                        textTransform: "none",
+                        color: "inherit",
+                        textAlign: "left",
+                        mt: 2,
+                        justifyContent: "flex-start",
+                      }}
+                      startIcon={<AddIcon />}
+                      onClick={() => setShowCreateTask(true)}
+                      fullWidth
+                    >
+                      Add Task
+                    </Button>
+                    <Button
+                      sx={{
+                        textTransform: "none",
+                        color: "inherit",
+                        textAlign: "left",
+                        mt: 2,
+                        justifyContent: "flex-start",
+                      }}
+                      startIcon={<GitHubIcon />}
+                      onClick={() => setShowCreateGithubTask(true)}
+                      fullWidth
+                    >
+                      Import Task
+                    </Button>
+                  </Box>
                 </TaskList>
               )}
             </Droppable>
@@ -179,19 +144,6 @@ const TaskTitleContainer = styled.div`
 
 const OuterContainer = styled.div`
   margin: 1rem 2rem 1rem 0rem;
-`;
-
-const CreateTaskContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 16rem;
-  padding: 5px;
-  margin: 5px;
-  border-radius: 5px;
-  background-color: #00194a;
-  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-  border: 0.5px solid #3f3f3e;
 `;
 
 const TaskList = styled.div<{ isDragging: boolean }>`
