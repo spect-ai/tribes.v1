@@ -46,9 +46,23 @@ const modalStyle = {
   maxHeight: "calc(100% - 128px)",
 };
 
+const taskModalStyle = {
+  position: "absolute" as "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: "60rem",
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 3,
+  overflow: "auto",
+  maxHeight: "calc(100% - 128px)",
+};
+
 const steps = ["Epoch Details", "Import Tasks"];
 
-const EpochModal = ({ step }: Props) => {
+const TaskModal = ({ step }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
   const [activeStep, setActiveStep] = useState(0);
@@ -63,21 +77,7 @@ const EpochModal = ({ step }: Props) => {
 
   return (
     <div>
-      {step === 0 ? (
-        <PrimaryButton
-          variant="outlined"
-          size="large"
-          type="submit"
-          endIcon={<TimelapseIcon />}
-          onClick={() => {
-            setIsOpen(true);
-            setActiveStep(0);
-          }}
-          sx={{ mx: 1 }}
-        >
-          Create Epoch
-        </PrimaryButton>
-      ) : (
+      {step === 0 && (
         <PrimaryButton
           variant="outlined"
           size="large"
@@ -90,24 +90,12 @@ const EpochModal = ({ step }: Props) => {
           fullWidth
           sx={{ mx: 1 }}
         >
-          Import Tasks
+          Create Task
         </PrimaryButton>
       )}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Fade in={isOpen} timeout={500}>
-          <Box sx={modalStyle}>
-            <Stepper nonLinear alternativeLabel activeStep={activeStep}>
-              {steps.map((label, index) => {
-                const stepProps: { completed?: boolean } = {};
-                return (
-                  <Step key={label} {...stepProps}>
-                    <StepButton color="inherit" onClick={handleStep(index)}>
-                      {label}
-                    </StepButton>
-                  </Step>
-                );
-              })}
-            </Stepper>
+          <Box sx={taskModalStyle}>
             <Backdrop
               sx={{
                 color: "#eaeaea",
@@ -127,9 +115,7 @@ const EpochModal = ({ step }: Props) => {
                 <Typography sx={{ mt: 2, mb: 1, color: "#eaeaea" }}>{loaderText}</Typography>
               </Box>
             </Backdrop>
-            {activeStep === 0 && <EpochForm handleNext={handleNext} setLoading={setLoading} setIsOpen={setIsOpen} />}
-            {activeStep === 1 && <ImportTasks setIsOpen={setIsOpen} />}
-            <ImportTasks setIsOpen={setIsOpen} />
+            {activeStep === 1 && <CreateTask setIsOpen={setIsOpen} />}
           </Box>
         </Fade>
       </Modal>
@@ -137,4 +123,4 @@ const EpochModal = ({ step }: Props) => {
   );
 };
 
-export default EpochModal;
+export default TaskModal;

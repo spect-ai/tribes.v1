@@ -1,19 +1,11 @@
-import {
-  Avatar,
-  Button,
-  ButtonProps,
-  Fade,
-  styled,
-  Tab,
-  Tabs,
-  Typography,
-} from "@mui/material";
+import { Avatar, Button, ButtonProps, Fade, styled, Tab, Tabs, Typography } from "@mui/material";
 import { Box, width } from "@mui/system";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useTribe } from "../../../../pages/tribe/[id]";
 
 import { useMoralis } from "react-moralis";
+import TaskModal from "../taskModal";
 
 const HeadingAvatar = styled(Avatar)(({ theme }) => ({
   width: "6rem",
@@ -43,12 +35,8 @@ const TribeHeading = (props: Props) => {
   };
   return (
     <div>
-      <Box
-        sx={{ display: "flex", flexDirection: "row", width: "100%", margin: 1 }}
-      >
-        <Box
-          sx={{ display: "flex", flexDirection: "row", width: "100%", pt: 4 }}
-        >
+      <Box sx={{ display: "flex", flexDirection: "row", width: "100%", margin: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "row", width: "100%", pt: 4 }}>
           <Box sx={{ mr: 1 }}>
             <Link href={`/profile/`} passHref>
               <HeadingAvatar alt="Username" />
