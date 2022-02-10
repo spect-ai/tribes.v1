@@ -1,8 +1,9 @@
-async function getNewSpectTask(id, title, description, deadline, value, epochId) {
+async function getNewSpectTask(id, title, description, deadline, value, epochId, boardId) {
   var task = new Moralis.Object("Task");
   task.set("id", id);
   task.set("title", title);
   task.set("epochId", epochId);
+  task.set("boardId", boardId);
   task.set("description", description);
   task.set("deadline", deadline);
   task.set("source", "spect");
@@ -15,13 +16,14 @@ async function getNewSpectTask(id, title, description, deadline, value, epochId)
   return task;
 }
 
-async function getNewGithubTask(title, issueLink, value, epochId, issueNumber) {
+async function getNewGithubTask(title, issueLink, value, epochId, issueNumber, boardId) {
   var task = new Moralis.Object("Task");
   logger.info(epochId, issueNumber);
   task.set("title", title);
   task.set("issueLink", issueLink);
   task.set("issueNumber", issueNumber);
   task.set("epochId", epochId);
+  task.set("boardId", boardId);
   task.set("source", "github");
   task.set("value", value);
   task.set("votes", 0);
@@ -44,7 +46,8 @@ Moralis.Cloud.define("createTasks", async (request) => {
         newTask.issueLink,
         newTask.value,
         request.params.epochId,
-        newTask.issueNumber
+        newTask.issueNumber,
+        request.params.boardId
       );
     } else {
       task = await getNewSpectTask(
@@ -53,7 +56,8 @@ Moralis.Cloud.define("createTasks", async (request) => {
         newTask.description,
         newTask.deadline,
         newTask.value,
-        request.params.epochId
+        request.params.epochId,
+        request.params.boardId
       );
     }
     tasks.push(task);
