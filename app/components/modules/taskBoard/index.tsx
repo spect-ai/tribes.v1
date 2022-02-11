@@ -8,7 +8,7 @@ import { Button } from "@mui/material";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { getBoard, updateColumnOrder } from "../../../adapters/moralis";
+import { getBoard, updateColumnOrder, addColumn, removeColumn } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 
 type Props = {};
@@ -185,6 +185,7 @@ const TaskBoard = (props: Props) => {
                     },
                     columnOrder: [...data.columnOrder, `column-${data.columnOrder.length}`],
                   });
+                  addColumn(Moralis, bid as string).then((res: any) => console.log(res));
                 }}
               >
                 Add new column

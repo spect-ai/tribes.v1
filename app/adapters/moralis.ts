@@ -69,6 +69,21 @@ export function updateColumnOrder(Moralis: any, boardId: string, newColumnOrder:
   return Moralis.Cloud.run("updateColumnOrder", params);
 }
 
+export function addColumn(Moralis: any, boardId: string) {
+  const params = {
+    boardId: boardId,
+  };
+  return Moralis.Cloud.run("addColumn", params);
+}
+
+export function removeColumn(Moralis: any, boardId: string, columnIdToRemove: string) {
+  const params = {
+    boardId: boardId,
+    columnIdToRemove: columnIdToRemove,
+  };
+  return Moralis.Cloud.run("removeColumn", params);
+}
+
 export function startEpoch(Moralis: any, epoch: any) {
   const params = {
     startTime: epoch.startTime,
