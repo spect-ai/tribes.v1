@@ -33,7 +33,7 @@ const Board = (props: Props) => {
             <BoardButton
               variant="contained"
               onClick={() => {
-                router.push(`/tribe/${tribe.teamId}/board/${board.id}`, undefined);
+                router.push(`/tribe/${tribe.teamId}/board/${board.objectId}`, undefined);
               }}
             >
               <ButtonText>{board.name}</ButtonText>

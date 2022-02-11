@@ -43,7 +43,9 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                 initBoard(Moralis, name, tribe.teamId)
                   .then((res: any) => {
                     console.log(res);
-                    router.push(`/tribe/${tribe.teamId}/board/${res.id}`, undefined);
+                    if (res) {
+                      router.push(`/tribe/${tribe.teamId}/board/${res.id}`, undefined);
+                    }
                   })
                   .catch((err: any) => alert(err));
               }}

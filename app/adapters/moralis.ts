@@ -45,6 +45,30 @@ export function getBoards(Moralis: any, teamId: number) {
   return Moralis.Cloud.run("getBoards", params);
 }
 
+export function getBoard(Moralis: any, boardId: string) {
+  const params = {
+    boardId: boardId,
+  };
+  return Moralis.Cloud.run("getBoard", params);
+}
+
+export function updateColumnName(Moralis: any, boardId: string, columnId: string, newName: string) {
+  const params = {
+    boardId: boardId,
+    columnId: columnId,
+    newName: newName,
+  };
+  return Moralis.Cloud.run("updateColumnName", params);
+}
+
+export function updateColumnOrder(Moralis: any, boardId: string, newColumnOrder: any) {
+  const params = {
+    boardId: boardId,
+    newColumnOrder: newColumnOrder,
+  };
+  return Moralis.Cloud.run("updateColumnOrder", params);
+}
+
 export function startEpoch(Moralis: any, epoch: any) {
   const params = {
     startTime: epoch.startTime,

@@ -1,3 +1,9 @@
+async function getBoardByObjectId(objectId) {
+  const boardQuery = new Moralis.Query("Board");
+  boardQuery.equalTo("objectId", objectId);
+  return await boardQuery.first();
+}
+
 async function getBoardObjByObjectId(objectId) {
   const boardQuery = new Moralis.Query("Board");
   const pipeline = [{ match: { objectId: objectId } }];
@@ -31,7 +37,7 @@ Moralis.Cloud.define("initBoard", async (request) => {
 
       for (let i = 0; i < 4; i++) {
         columnIds.push(generateUniqueIdByDatetimeAndNumber(i));
-        columnIdToColumnMap[columnIds[i]] = { id: columnIds[i], title: initColumns[i], tasks: [] };
+        columnIdToColumnMap[columnIds[i]] = { id: columnIds[i], title: initColumns[i], taskIds: [] };
         logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
       }
       var board = new Moralis.Object("Board");
@@ -47,10 +53,34 @@ Moralis.Cloud.define("initBoard", async (request) => {
       return board;
     } else {
       logger.info(`User ${request.user.get("ethAddress")} is not a member of the tribe`);
-      throw 'User ${request.user.get("ethAddress")} is not a member of the tribe';
+      throw `User ${request.user.get("ethAddress")} is not a member of the tribe`;
     }
   } catch (err) {
     logger.error(`Error while creating board ${err}`);
+    throw `${err}`;
+  }
+});
+
+Moralis.Cloud.define("updateColumnName", async (request) => {
+  try {
+    const board = await getBoardByObjectId(request.params.boardId);
+    var columns = board.get("columns");
+    columns[request.params.columnId]["title"] = request.params.newName;
+    board.set("columns", columns);
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+  } catch (err) {
+    logger.error(`Error while updating column name in board ${request.params.boardId}: ${err}`);
+    return false;
+  }
+});
+
+Moralis.Cloud.define("updateColumnOrder", async (request) => {
+  try {
+    const board = await getBoardByObjectId(request.params.boardId);
+    board.set("columnOrder", request.params.newColumnOrder);
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+  } catch (err) {
+    logger.error(`Error while updating column order in board ${request.params.boardId}: ${err}`);
     return false;
   }
 });

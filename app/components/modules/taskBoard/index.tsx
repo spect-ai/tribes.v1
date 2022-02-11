@@ -8,6 +8,8 @@ import { Button } from "@mui/material";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { getBoard, updateColumnOrder } from "../../../adapters/moralis";
+import { useMoralis } from "react-moralis";
 
 type Props = {};
 
@@ -55,12 +57,18 @@ const Container = styled.div`
 const TaskBoard = (props: Props) => {
   const context = useProviderBoard();
   const router = useRouter();
-  const { id } = router.query;
+  const { Moralis } = useMoralis();
+
+  const { id, bid } = router.query;
   const setData = context.setData;
   const data = context.data;
-
   useEffect(() => {
-    context.setData(initialData);
+    getBoard(Moralis, bid as string)
+      .then((res: any) => {
+        console.log(res);
+        context.setData(res);
+      })
+      .catch((err: any) => alert(err));
   }, []);
 
   const reorder = (list: string[], startIndex: number, endIndex: number) => {
@@ -85,6 +93,7 @@ const TaskBoard = (props: Props) => {
         ...data,
         columnOrder: newColumnOrder,
       });
+      updateColumnOrder(Moralis, bid as string, newColumnOrder).then((res: any) => console.log(res));
       return;
     }
 
@@ -92,6 +101,7 @@ const TaskBoard = (props: Props) => {
     const finish = data.columns[destination.droppableId];
 
     if (start === finish) {
+      console.log("heyyyo");
       const newList = reorder(start.taskIds, source.index, destination.index);
 
       setData({
@@ -105,6 +115,8 @@ const TaskBoard = (props: Props) => {
         },
       });
     } else {
+      console.log("yyuyyuy");
+
       const startTaskIds = Array.from(start.taskIds); // copy
       startTaskIds.splice(source.index, 1);
       const newStart = {
