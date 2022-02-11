@@ -84,6 +84,23 @@ export function removeColumn(Moralis: any, boardId: string, columnIdToRemove: st
   return Moralis.Cloud.run("removeColumn", params);
 }
 
+export function addTask(Moralis: any, boardId: string, columnId: string, title: string, reward: number) {
+  const params = {
+    boardId: boardId,
+    columnId: columnId,
+    title: title,
+    reward: reward,
+  };
+  return Moralis.Cloud.run("addTask", params);
+}
+
+export function getTask(Moralis: any, taskId: string) {
+  const params = {
+    taskId: taskId,
+  };
+  return Moralis.Cloud.run("getTask", params);
+}
+
 export function startEpoch(Moralis: any, epoch: any) {
   const params = {
     startTime: epoch.startTime,

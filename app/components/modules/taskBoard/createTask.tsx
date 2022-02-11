@@ -5,6 +5,9 @@ import React, { useState } from "react";
 import { useBoard } from ".";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
+import { addTask } from "../../../adapters/moralis";
+import { useMoralis } from "react-moralis";
+import { useRouter } from "next/router";
 
 type Props = {
   setShowCreateTask: (showCreateTask: boolean) => void;
@@ -26,10 +29,12 @@ export const CreateTaskContainer = styled.div`
 
 const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskReward, setNewTaskReward] = useState(
-    undefined as unknown as number
-  );
+  const [newTaskReward, setNewTaskReward] = useState(undefined as unknown as number);
   const { data, setData } = useBoard();
+  const { Moralis } = useMoralis();
+  const router = useRouter();
+  const { bid } = router.query;
+
   return (
     <CreateTaskContainer>
       <InputBase
@@ -75,16 +80,14 @@ const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
                 ...data.columns,
                 [columnId]: {
                   ...data.columns[columnId],
-                  taskIds: [
-                    ...data.columns[columnId].taskIds,
-                    `task-${Object.keys(data.tasks).length}`,
-                  ],
+                  taskIds: [...data.columns[columnId].taskIds, `task-${Object.keys(data.tasks).length}`],
                 },
               },
             });
             setNewTaskReward(0);
             setNewTaskTitle("");
             setShowCreateTask(false);
+            addTask(Moralis, bid as string, columnId, newTaskTitle, newTaskReward).then((res: any) => console.log(res));
           }}
           sx={{ textTransform: "none" }}
           fullWidth

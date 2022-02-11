@@ -34,12 +34,55 @@ async function getNewGithubTask(title, issueLink, value, epochId, issueNumber, b
   return task;
 }
 
+async function getTaskObjByTaskId(taskId) {
+  const epochQuery = new Moralis.Query("Task");
+  const pipeline = [{ match: { taskId: taskId } }];
+  return await epochQuery.aggregate(pipeline);
+}
+
+Moralis.Cloud.define("addTask", async (request) => {
+  try {
+    const board = await getBoardByObjectId(request.params.boardId);
+    var columns = board.get("columns");
+    var tasks = board.get("tasks");
+
+    const taskId = `task-${request.params.boardId}-${Object.keys(tasks).length}`;
+    tasks[taskId] = { taskId: taskId, title: request.params.title, reward: request.params.reward };
+    var taskIds = columns[request.params.columnId].taskIds;
+    columns[request.params.columnId].taskIds = taskIds.concat([taskId]);
+    board.set("columns", columns);
+    board.set("tasks", tasks);
+
+    var taskObj = new Moralis.Object("Task");
+    taskObj.set("taskId", taskId);
+    taskObj.set("title", request.params.title);
+    taskObj.set("reward", request.params.reward);
+    await Moralis.Object.saveAll([board, taskObj], { useMasterKey: true });
+    return taskObj;
+  } catch (err) {
+    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    return false;
+  }
+});
+
+Moralis.Cloud.define("getTask", async (request) => {
+  try {
+    if (request.params.taskId) {
+      const task = await getTaskObjByTaskId(request.params.taskId);
+      if (task.length === 0) throw `Task ${request.params.taskId} not found`;
+      return task[0];
+    }
+  } catch (err) {
+    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    return false;
+  }
+});
+
 Moralis.Cloud.define("createTasks", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   var task;
   var tasks = [];
   for (var newTask of request.params.newTasks) {
-    logger.info(JSON.stringify(newTask));
     if (request.params.taskSource === "github") {
       task = await getNewGithubTask(
         newTask.title,
