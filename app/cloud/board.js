@@ -1,34 +1,24 @@
-async function getBoard(
-  name,
-  description,
-  teamId,
-  strategy,
-  settlementTokenName,
-  settlementTokenAddress,
-  settlementTokenType,
-  bumpUpValue,
-  dumpDownValue,
-  bumpUpTillPause,
-  dumpDownTillPause,
-  update = false
-) {
-  var board = new Moralis.Object("Board");
-  board.set("name", name);
-  board.set("description", description);
-  if (!update) {
-    board.set("teamId", teamId);
-  }
-  board.set("strategy", strategy);
-  board.set("settlementTokenName", settlementTokenName);
-  board.set("settlementTokenAddress", settlementTokenAddress);
-  board.set("settlementTokenType", settlementTokenType);
-  board.set("bumpUpValue", bumpUpValue);
-  board.set("dumpDownValue", dumpDownValue);
-  board.set("bumpUpTillPause", bumpUpTillPause);
-  board.set("dumpDownTillPause", dumpDownTillPause);
-
-  return board;
+async function getBoardObjByObjectId(objectId) {
+  const boardQuery = new Moralis.Query("Board");
+  const pipeline = [{ match: { objectId: objectId } }];
+  return await boardQuery.aggregate(pipeline);
 }
+
+async function getBoardObjByTeamId(teamId) {
+  const boardQuery = new Moralis.Query("Board");
+  const pipeline = [{ match: { teamId: parseInt(teamId) } }];
+  return await boardQuery.aggregate(pipeline);
+}
+
+Moralis.Cloud.define("getBoard", async (request) => {
+  const boardObj = await getBoardObjByObjectId(request.params.boardId);
+  if (boardObj.length === 0) throw "Board not found";
+  return boardObj[0];
+});
+
+Moralis.Cloud.define("getBoards", async (request) => {
+  return await getBoardObjByTeamId(request.params.teamId);
+});
 
 Moralis.Cloud.define("initBoard", async (request) => {
   try {
@@ -64,6 +54,38 @@ Moralis.Cloud.define("initBoard", async (request) => {
     return false;
   }
 });
+
+async function getBoard(
+  name,
+  description,
+  teamId,
+  strategy,
+  settlementTokenName,
+  settlementTokenAddress,
+  settlementTokenType,
+  bumpUpValue,
+  dumpDownValue,
+  bumpUpTillPause,
+  dumpDownTillPause,
+  update = false
+) {
+  var board = new Moralis.Object("Board");
+  board.set("name", name);
+  board.set("description", description);
+  if (!update) {
+    board.set("teamId", teamId);
+  }
+  board.set("strategy", strategy);
+  board.set("settlementTokenName", settlementTokenName);
+  board.set("settlementTokenAddress", settlementTokenAddress);
+  board.set("settlementTokenType", settlementTokenType);
+  board.set("bumpUpValue", bumpUpValue);
+  board.set("dumpDownValue", dumpDownValue);
+  board.set("bumpUpTillPause", bumpUpTillPause);
+  board.set("dumpDownTillPause", dumpDownTillPause);
+
+  return board;
+}
 
 Moralis.Cloud.define("createBoard", async (request) => {
   try {

@@ -1,29 +1,46 @@
 import { Button, Grid, styled } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CreateBoard from "./createBoard";
+import { useTribe } from "../../../../pages/tribe/[id]";
+import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
+import { getBoards } from "../../../adapters/moralis";
 
 type Props = {};
 
 const Board = (props: Props) => {
+  const [boards, setBoards] = useState([]);
   const router = useRouter();
+  const { tribe } = useTribe();
+  const { Moralis } = useMoralis();
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
+  useEffect(() => {
+    getBoards(Moralis, tribe.teamId)
+      .then((res: any) => {
+        console.log(res);
+        setBoards(res);
+      })
+      .catch((err: any) => alert(err));
+  }, []);
   return (
     <Container>
       <CreateBoard isOpen={isOpen} handleClose={handleClose} />
       <Grid container spacing={2}>
-        <Grid item xs={3}>
-          <BoardButton
-            variant="contained"
-            onClick={() => {
-              router.push(`/tribe/11/board/1`, undefined);
-            }}
-          >
-            <ButtonText>Board 1</ButtonText>
-          </BoardButton>
-        </Grid>
+        {boards.map((board: any) => (
+          <Grid item xs={3} key={board.id}>
+            <BoardButton
+              variant="contained"
+              onClick={() => {
+                router.push(`/tribe/${tribe.teamId}/board/${board.id}`, undefined);
+              }}
+            >
+              <ButtonText>{board.name}</ButtonText>
+            </BoardButton>
+          </Grid>
+        ))}
+
         <Grid item xs={3}>
           <CreateBoardButton variant="outlined" onClick={() => setIsOpen(true)}>
             <ButtonText>Create new board</ButtonText>

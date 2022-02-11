@@ -38,6 +38,13 @@ export function initBoard(Moralis: any, name: string, teamId: number) {
   return Moralis.Cloud.run("initBoard", params);
 }
 
+export function getBoards(Moralis: any, teamId: number) {
+  const params = {
+    teamId: teamId,
+  };
+  return Moralis.Cloud.run("getBoards", params);
+}
+
 export function startEpoch(Moralis: any, epoch: any) {
   const params = {
     startTime: epoch.startTime,
