@@ -42,9 +42,11 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               onClick={() => {
                 initBoard(Moralis, name, tribe.teamId)
                   .then((res: any) => {
-                    console.log(res);
                     if (res) {
-                      router.push(`/tribe/${tribe.teamId}/board/${res.id}`, undefined);
+                      router.push(
+                        `/tribe/${tribe.teamId}/board/${res.id}`,
+                        undefined
+                      );
                     }
                   })
                   .catch((err: any) => alert(err));

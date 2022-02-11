@@ -52,7 +52,12 @@ export function getBoard(Moralis: any, boardId: string) {
   return Moralis.Cloud.run("getBoard", params);
 }
 
-export function updateColumnName(Moralis: any, boardId: string, columnId: string, newName: string) {
+export function updateColumnName(
+  Moralis: any,
+  boardId: string,
+  columnId: string,
+  newName: string
+) {
   const params = {
     boardId: boardId,
     columnId: columnId,
@@ -61,7 +66,11 @@ export function updateColumnName(Moralis: any, boardId: string, columnId: string
   return Moralis.Cloud.run("updateColumnName", params);
 }
 
-export function updateColumnOrder(Moralis: any, boardId: string, newColumnOrder: any) {
+export function updateColumnOrder(
+  Moralis: any,
+  boardId: string,
+  newColumnOrder: any
+) {
   const params = {
     boardId: boardId,
     newColumnOrder: newColumnOrder,
@@ -69,6 +78,23 @@ export function updateColumnOrder(Moralis: any, boardId: string, newColumnOrder:
   return Moralis.Cloud.run("updateColumnOrder", params);
 }
 
+export function updateColumnTasks(
+  Moralis: any,
+  boardId: string,
+  sourceId: string,
+  destinationId: string,
+  source: any,
+  destination: any
+) {
+  const params = {
+    boardId: boardId,
+    sourceId: sourceId,
+    destinationId: destinationId,
+    source: source,
+    destination: destination,
+  };
+  return Moralis.Cloud.run("updateColumnTasks", params);
+}
 export function addColumn(Moralis: any, boardId: string) {
   const params = {
     boardId: boardId,
@@ -76,7 +102,11 @@ export function addColumn(Moralis: any, boardId: string) {
   return Moralis.Cloud.run("addColumn", params);
 }
 
-export function removeColumn(Moralis: any, boardId: string, columnIdToRemove: string) {
+export function removeColumn(
+  Moralis: any,
+  boardId: string,
+  columnIdToRemove: string
+) {
   const params = {
     boardId: boardId,
     columnIdToRemove: columnIdToRemove,
@@ -84,7 +114,13 @@ export function removeColumn(Moralis: any, boardId: string, columnIdToRemove: st
   return Moralis.Cloud.run("removeColumn", params);
 }
 
-export function addTask(Moralis: any, boardId: string, columnId: string, title: string, reward: number) {
+export function addTask(
+  Moralis: any,
+  boardId: string,
+  columnId: string,
+  title: string,
+  reward: number
+) {
   const params = {
     boardId: boardId,
     columnId: columnId,
@@ -130,7 +166,6 @@ export function getTeam(Moralis: any, teamId: number) {
 }
 
 export function getEpoch(Moralis: any, epochId: string) {
-  console.log(epochId);
   const params = {
     epochId: epochId,
   };
@@ -151,7 +186,11 @@ export function getInvitations(Moralis: any, ethAddress: string) {
   return Moralis.Cloud.run("getMyInvites", params);
 }
 
-export function acceptInvitations(Moralis: any, ethAddress: string, teamId: number) {
+export function acceptInvitations(
+  Moralis: any,
+  ethAddress: string,
+  teamId: number
+) {
   const params = {
     ethAddress: ethAddress,
     teamId: teamId,
@@ -159,7 +198,12 @@ export function acceptInvitations(Moralis: any, ethAddress: string, teamId: numb
   return Moralis.Cloud.run("acceptInvite", params);
 }
 
-export function giftContributors(Moralis: any, epochId: string, votes: object, ethAddress: string) {
+export function giftContributors(
+  Moralis: any,
+  epochId: string,
+  votes: object,
+  ethAddress: string
+) {
   const params = {
     epochId: epochId,
     votes: votes,
@@ -175,8 +219,12 @@ export function endEpoch(Moralis: any, epochId: string) {
   return Moralis.Cloud.run("endEpoch", params);
 }
 
-export function createTasks(Moralis: any, epochId: string, newTasks: any, taskSource: string) {
-  console.log(`epochId ${epochId}`);
+export function createTasks(
+  Moralis: any,
+  epochId: string,
+  newTasks: any,
+  taskSource: string
+) {
   const params = {
     epochId: epochId,
     newTasks: newTasks,
@@ -193,7 +241,12 @@ export function getTaskEpoch(Moralis: any, epochId: string) {
   return Moralis.Cloud.run("getTaskEpoch", params);
 }
 
-export function updateTask(Moralis: any, taskId: string, status: number, paid: boolean = false) {
+export function updateTask(
+  Moralis: any,
+  taskId: string,
+  status: number,
+  paid: boolean = false
+) {
   const params = {
     id: taskId,
     status: status,
@@ -202,8 +255,11 @@ export function updateTask(Moralis: any, taskId: string, status: number, paid: b
   return Moralis.Cloud.run("updateTask", params);
 }
 
-export function voteOnTasks(Moralis: any, epochId: string, voteAllocation: any) {
-  console.log(epochId, voteAllocation);
+export function voteOnTasks(
+  Moralis: any,
+  epochId: string,
+  voteAllocation: any
+) {
   const params = {
     epochId: epochId,
     votes: voteAllocation,

@@ -75,7 +75,7 @@ export interface Epoch {
 // }
 
 export interface Task {
-  id: string;
+  taskId: string;
   title: string;
   description: any;
   submission: any;

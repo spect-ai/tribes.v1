@@ -21,7 +21,7 @@ const TaskContainer = ({ task, index }: Props) => {
       {isOpen && (
         <TaskModal isOpen={isOpen} handleClose={handleClose} task={task} />
       )}
-      <Draggable draggableId={task.id} index={index}>
+      <Draggable draggableId={task.taskId} index={index}>
         {(provided, snapshot) => (
           <TaskCard
             {...provided.draggableProps}

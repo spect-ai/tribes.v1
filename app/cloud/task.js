@@ -1,4 +1,12 @@
-async function getNewSpectTask(id, title, description, deadline, value, epochId, boardId) {
+async function getNewSpectTask(
+  id,
+  title,
+  description,
+  deadline,
+  value,
+  epochId,
+  boardId
+) {
   var task = new Moralis.Object("Task");
   task.set("id", id);
   task.set("title", title);
@@ -16,7 +24,14 @@ async function getNewSpectTask(id, title, description, deadline, value, epochId,
   return task;
 }
 
-async function getNewGithubTask(title, issueLink, value, epochId, issueNumber, boardId) {
+async function getNewGithubTask(
+  title,
+  issueLink,
+  value,
+  epochId,
+  issueNumber,
+  boardId
+) {
   var task = new Moralis.Object("Task");
   logger.info(epochId, issueNumber);
   task.set("title", title);
@@ -46,21 +61,36 @@ Moralis.Cloud.define("addTask", async (request) => {
     var columns = board.get("columns");
     var tasks = board.get("tasks");
 
-    const taskId = `task-${request.params.boardId}-${Object.keys(tasks).length}`;
-    tasks[taskId] = { taskId: taskId, title: request.params.title, reward: request.params.reward };
+    const taskId = `task-${request.params.boardId}-${
+      Object.keys(tasks).length
+    }`;
+    tasks[taskId] = {
+      taskId: taskId,
+      title: request.params.title,
+      reward: request.params.reward,
+    };
     var taskIds = columns[request.params.columnId].taskIds;
     columns[request.params.columnId].taskIds = taskIds.concat([taskId]);
     board.set("columns", columns);
     board.set("tasks", tasks);
 
     var taskObj = new Moralis.Object("Task");
+    //TODO: default chain and token should be fetched from teams data
+    var reward = {
+      chain: "polygon",
+      token: "Matic",
+      value: request.params.reward,
+    };
     taskObj.set("taskId", taskId);
     taskObj.set("title", request.params.title);
-    taskObj.set("reward", request.params.reward);
+    taskObj.set("reward", reward);
     await Moralis.Object.saveAll([board, taskObj], { useMasterKey: true });
-    return taskObj;
+    const boardObj = await getBoardObjByObjectId(request.params.boardId);
+    return boardObj[0];
   } catch (err) {
-    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
     return false;
   }
 });
@@ -73,7 +103,9 @@ Moralis.Cloud.define("getTask", async (request) => {
       return task[0];
     }
   } catch (err) {
-    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
     return false;
   }
 });
@@ -122,7 +154,9 @@ Moralis.Cloud.define("voteOnTasks", async (request) => {
   const epoch = await epochQuery.first();
   logger.info(epoch.get("memberStats"));
   const memberStats = epoch.get("memberStats");
-  var voterIndex = memberStats.findIndex((a) => a.ethAddress === request.user.get("ethAddress"));
+  var voterIndex = memberStats.findIndex(
+    (a) => a.ethAddress === request.user.get("ethAddress")
+  );
 
   var updatedTasks = [];
   var totalEffectiveVote = 0;

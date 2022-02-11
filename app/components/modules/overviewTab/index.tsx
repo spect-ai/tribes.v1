@@ -7,7 +7,6 @@ import { getMD5String } from "../../../utils/utils";
 
 const Overview = () => {
   const { tribe } = useTribe();
-  console.log(tribe);
 
   return (
     <Wrapper>

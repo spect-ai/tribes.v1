@@ -19,7 +19,7 @@ import Divider from "@mui/material/Divider";
 import { DateTimePicker, LocalizationProvider } from "@mui/lab";
 import dayjs from "dayjs";
 import DateAdapter from "@mui/lab/AdapterDayjs";
-import { FieldContainer } from "../../elements/styledComponents";
+import { FieldContainer, PrimaryButton } from "../../elements/styledComponents";
 import { muiTheme } from "../../../constants/muiTheme";
 import CloseIcon from "@mui/icons-material/Close";
 import { Task } from "../../../types";
@@ -326,6 +326,9 @@ const EditTask = ({ task, handleClose }: Props) => {
             </TaskModalBodyContainer>
           </Box>
         </Grid>
+        <PrimaryButton variant="outlined" fullWidth sx={{ width: "30%" }}>
+          Save
+        </PrimaryButton>
       </Grid>
     </form>
   );

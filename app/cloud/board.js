@@ -38,7 +38,11 @@ Moralis.Cloud.define("initBoard", async (request) => {
       for (let i = 0; i < 4; i++) {
         var columnId = `column-${i}`;
         columnIds.push(columnId);
-        columnIdToColumnMap[columnIds[i]] = { id: columnId, title: initColumns[i], taskIds: [] };
+        columnIdToColumnMap[columnIds[i]] = {
+          id: columnId,
+          title: initColumns[i],
+          taskIds: [],
+        };
         logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
       }
       var board = new Moralis.Object("Board");
@@ -53,8 +57,12 @@ Moralis.Cloud.define("initBoard", async (request) => {
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return board;
     } else {
-      logger.info(`User ${request.user.get("ethAddress")} is not a member of the tribe`);
-      throw `User ${request.user.get("ethAddress")} is not a member of the tribe`;
+      logger.info(
+        `User ${request.user.get("ethAddress")} is not a member of the tribe`
+      );
+      throw `User ${request.user.get(
+        "ethAddress"
+      )} is not a member of the tribe`;
     }
   } catch (err) {
     logger.error(`Error while creating board ${err}`);
@@ -64,14 +72,42 @@ Moralis.Cloud.define("initBoard", async (request) => {
 
 Moralis.Cloud.define("updateColumnName", async (request) => {
   try {
+    const logger = Moralis.Cloud.getLogger();
     const board = await getBoardByObjectId(request.params.boardId);
     var columns = board.get("columns");
     columns[request.params.columnId]["title"] = request.params.newName;
     board.set("columns", columns);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
   } catch (err) {
-    logger.error(`Error while updating column name in board ${request.params.boardId}: ${err}`);
+    logger.error(
+      `Error while updating column name in board ${request.params.boardId}: ${err}`
+    );
     return false;
+  }
+});
+
+Moralis.Cloud.define("updateColumnTasks", async (request) => {
+  try {
+    const logger = Moralis.Cloud.getLogger();
+    const board = await getBoardByObjectId(request.params.boardId);
+    var columns = board.get("columns");
+    if (request.params.sourceId === request.params.destinationId) {
+      columns[request.params.sourceId]["taskIds"] = request.params.source;
+    } else {
+      columns[request.params.sourceId] = request.params.source;
+      columns[request.params.destinationId] = request.params.destination;
+    }
+    board.set("columns", columns);
+    logger.info(`Updating column tasks ${JSON.stringify(columns)}`);
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+    const boardObj = await getBoardObjByObjectId(request.params.boardId);
+    return boardObj[0];
+  } catch (err) {
+    logger.error(
+      `Error while updating column name in board ${request.params.boardId}: ${err}`
+    );
+    const boardObj = await getBoardObjByObjectId(request.params.boardId);
+    return boardObj[0];
   }
 });
 
@@ -80,8 +116,14 @@ Moralis.Cloud.define("updateColumnOrder", async (request) => {
     const board = await getBoardByObjectId(request.params.boardId);
     board.set("columnOrder", request.params.newColumnOrder);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
+    const boardObj = await getBoardObjByObjectId(request.params.boardId);
+    return boardObj[0];
   } catch (err) {
-    logger.error(`Error while updating column order in board ${request.params.boardId}: ${err}`);
+    logger.error(
+      `Error while updating column order in board ${request.params.boardId}: ${err}`
+    );
+    const boardObj = await getBoardObjByObjectId(request.params.boardId);
+    return boardObj[0];
     return false;
   }
 });
@@ -100,7 +142,9 @@ Moralis.Cloud.define("addColumn", async (request) => {
     board.set("columns", columns);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
   } catch (err) {
-    logger.error(`Error while adding column order in board ${request.params.boardId}: ${err}`);
+    logger.error(
+      `Error while adding column order in board ${request.params.boardId}: ${err}`
+    );
     return false;
   }
 });
@@ -112,14 +156,18 @@ Moralis.Cloud.define("removeColumn", async (request) => {
     delete columnOrder[request.params.columnId];
 
     var columns = board.get("columns");
-    var remainingColumns = columns.filter((col) => col !== request.params.columnId);
+    var remainingColumns = columns.filter(
+      (col) => col !== request.params.columnId
+    );
 
     board.set("columnOrder", columnOrder);
     board.set("columns", remainingColumns);
 
     await Moralis.Object.saveAll([board], { useMasterKey: true });
   } catch (err) {
-    logger.error(`Error while removing column order in board ${request.params.boardId}: ${err}`);
+    logger.error(
+      `Error while removing column order in board ${request.params.boardId}: ${err}`
+    );
     return false;
   }
 });
@@ -185,7 +233,11 @@ Moralis.Cloud.define("updateBoard", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     var team = await getTeam(request.params.teamId);
-    const canUpdate = await hasAccess(request.params.ethAddress, team, (requiredAccess = "admin"));
+    const canUpdate = await hasAccess(
+      request.params.ethAddress,
+      team,
+      (requiredAccess = "admin")
+    );
     if (canUpdate) {
       const board = await getBoard(
         request.params.name,

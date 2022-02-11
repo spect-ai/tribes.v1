@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { Button, InputBase } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState } from "react";
-import { useBoard } from ".";
+import { BoardData, useBoard } from ".";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { addTask } from "../../../adapters/moralis";
@@ -29,7 +29,7 @@ export const CreateTaskContainer = styled.div`
 
 const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskReward, setNewTaskReward] = useState(undefined as unknown as number);
+  const [newTaskReward, setNewTaskReward] = useState(0);
   const { data, setData } = useBoard();
   const { Moralis } = useMoralis();
   const router = useRouter();
@@ -65,29 +65,16 @@ const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
         <Button
           startIcon={<DoneIcon />}
           onClick={() => {
-            setData({
-              ...data,
-              tasks: {
-                ...data.tasks,
-                [`task-${Object.keys(data.tasks).length}`]: {
-                  id: `task-${Object.keys(data.tasks).length}`,
-                  title: newTaskTitle,
-                  reward: newTaskReward,
-                  deadline: "",
-                },
-              },
-              columns: {
-                ...data.columns,
-                [columnId]: {
-                  ...data.columns[columnId],
-                  taskIds: [...data.columns[columnId].taskIds, `task-${Object.keys(data.tasks).length}`],
-                },
-              },
-            });
+            addTask(
+              Moralis,
+              bid as string,
+              columnId,
+              newTaskTitle,
+              newTaskReward
+            ).then((res: any) => setData(res as BoardData));
             setNewTaskReward(0);
             setNewTaskTitle("");
             setShowCreateTask(false);
-            addTask(Moralis, bid as string, columnId, newTaskTitle, newTaskReward).then((res: any) => console.log(res));
           }}
           sx={{ textTransform: "none" }}
           fullWidth

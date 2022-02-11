@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { initialData } from "../../../constants";
 import Column from "./column";
 import { DragDropContext, DropResult, Droppable } from "react-beautiful-dnd";
 import AddIcon from "@mui/icons-material/Add";
@@ -8,34 +7,37 @@ import { Button } from "@mui/material";
 import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { getBoard, updateColumnOrder, addColumn, removeColumn } from "../../../adapters/moralis";
+import {
+  getBoard,
+  updateColumnOrder,
+  addColumn,
+  removeColumn,
+  updateColumnTasks,
+} from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
+import { Task } from "../../../types";
 
 type Props = {};
 
-export type column = {
+export type Column = {
   id: string;
   title: string;
   taskIds: string[];
 };
 
-export type task = {
-  id: string;
-  title: string;
-  reward: number;
-  deadline: string;
-};
-
-interface BoardData {
-  id: string;
+export interface BoardData {
+  objectId: string;
   name: string;
   tasks: {
-    [key: string]: task;
+    [key: string]: Task;
   };
   columns: {
-    [key: string]: column;
+    [key: string]: Column;
   };
   columnOrder: string[];
+  teamId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface BoardContextType {
@@ -57,19 +59,25 @@ const Container = styled.div`
 const TaskBoard = (props: Props) => {
   const context = useProviderBoard();
   const router = useRouter();
-  const { Moralis } = useMoralis();
+  const { Moralis, isInitialized } = useMoralis();
+  const [isLoading, setIsLoading] = useState(true);
 
   const { id, bid } = router.query;
   const setData = context.setData;
   const data = context.data;
   useEffect(() => {
-    getBoard(Moralis, bid as string)
-      .then((res: any) => {
-        console.log(res);
-        context.setData(res);
-      })
-      .catch((err: any) => alert(err));
-  }, []);
+    setIsLoading(true);
+
+    if (isInitialized) {
+      getBoard(Moralis, bid as string)
+        .then((res: any) => {
+          console.log(res);
+          context.setData(res);
+          setIsLoading(false);
+        })
+        .catch((err: any) => alert(err));
+    }
+  }, [isInitialized]);
 
   const reorder = (list: string[], startIndex: number, endIndex: number) => {
     const result = Array.from(list);
@@ -84,16 +92,27 @@ const TaskBoard = (props: Props) => {
     if (!destination) {
       return;
     }
-    if (destination.droppableId === source.droppableId && destination.index === source.index) {
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
       return;
     }
     if (type === "column") {
-      const newColumnOrder = reorder(data.columnOrder, source.index, destination.index);
+      const newColumnOrder = reorder(
+        data.columnOrder,
+        source.index,
+        destination.index
+      );
       setData({
         ...data,
         columnOrder: newColumnOrder,
       });
-      updateColumnOrder(Moralis, bid as string, newColumnOrder).then((res: any) => console.log(res));
+      updateColumnOrder(Moralis, bid as string, newColumnOrder).then(
+        (res: any) => {
+          setData(res as BoardData);
+        }
+      );
       return;
     }
 
@@ -101,7 +120,6 @@ const TaskBoard = (props: Props) => {
     const finish = data.columns[destination.droppableId];
 
     if (start === finish) {
-      console.log("heyyyo");
       const newList = reorder(start.taskIds, source.index, destination.index);
 
       setData({
@@ -114,9 +132,18 @@ const TaskBoard = (props: Props) => {
           },
         },
       });
+      updateColumnTasks(
+        Moralis,
+        bid as string,
+        result.source.droppableId,
+        result.source.droppableId,
+        newList,
+        newList
+      ).then((res: any) => {
+        console.log(res);
+        setData(res as BoardData);
+      });
     } else {
-      console.log("yyuyyuy");
-
       const startTaskIds = Array.from(start.taskIds); // copy
       startTaskIds.splice(source.index, 1);
       const newStart = {
@@ -139,23 +166,52 @@ const TaskBoard = (props: Props) => {
           [newFinish.id]: newFinish,
         },
       });
+
+      updateColumnTasks(
+        Moralis,
+        bid as string,
+        newStart.id,
+        newFinish.id,
+        newStart,
+        newFinish
+      ).then((res: any) => setData(res as BoardData));
     }
   };
+  if (isLoading) {
+    return <div>Loading!</div>;
+  }
   return (
     <BoardContext.Provider value={context}>
       <DragDropContext onDragEnd={handleDragEnd}>
         <Link href={`/tribe/${id}`} passHref>
-          <Button startIcon={<ArrowLeftIcon />} sx={{ textTransform: "none", fontSize: 12, ml: 1 }}>
+          <Button
+            startIcon={<ArrowLeftIcon />}
+            sx={{ textTransform: "none", fontSize: 12, ml: 1 }}
+          >
             Back to tribe
           </Button>
         </Link>
-        <Droppable droppableId="all-columns" direction="horizontal" type="column">
+        <Droppable
+          droppableId="all-columns"
+          direction="horizontal"
+          type="column"
+        >
           {(provided, snapshot) => (
             <Container {...provided.droppableProps} ref={provided.innerRef}>
               {data.columnOrder.map((columnId, index) => {
                 const column = data.columns[columnId];
-                const tasks = column.taskIds.map((taskId) => data.tasks[taskId]);
-                return <Column key={columnId} column={column} tasks={tasks} id={columnId} index={index} />;
+                const tasks = column.taskIds.map(
+                  (taskId) => data.tasks[taskId]
+                );
+                return (
+                  <Column
+                    key={columnId}
+                    column={column}
+                    tasks={tasks}
+                    id={columnId}
+                    index={index}
+                  />
+                );
               })}
               {provided.placeholder}
               <Button
@@ -183,9 +239,14 @@ const TaskBoard = (props: Props) => {
                         taskIds: [],
                       },
                     },
-                    columnOrder: [...data.columnOrder, `column-${data.columnOrder.length}`],
+                    columnOrder: [
+                      ...data.columnOrder,
+                      `column-${data.columnOrder.length}`,
+                    ],
                   });
-                  addColumn(Moralis, bid as string).then((res: any) => console.log(res));
+                  addColumn(Moralis, bid as string).then((res: any) =>
+                    console.log(res)
+                  );
                 }}
               >
                 Add new column
@@ -199,7 +260,7 @@ const TaskBoard = (props: Props) => {
 };
 
 function useProviderBoard() {
-  const [data, setData] = useState<BoardData>(initialData as BoardData);
+  const [data, setData] = useState<BoardData>({} as BoardData);
   return {
     data,
     setData,

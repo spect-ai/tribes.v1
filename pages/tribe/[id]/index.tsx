@@ -48,34 +48,9 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const { Moralis, user } = useMoralis();
   const context = useProviderTribe();
   useEffect(() => {
-    console.log(user?.get("ethAddress"));
     context.getTeam({
       onSuccess: (res: any) => {
         context.setTribe(res as Team);
-        console.log(res);
-        getTaskEpoch(Moralis, (res as Team).latestTaskEpoch).then(
-          (res: any) => {
-            console.log(res);
-            if (res.length > 0) {
-              const tasks = (res as Epoch[])[0].tasks;
-              context.setToDoTasks(
-                tasks.filter((task) => {
-                  return task.status === 100;
-                })
-              );
-              context.setInProgressTasks(
-                tasks.filter((task) => {
-                  return task.status === 101;
-                })
-              );
-              context.setDoneTasks(
-                tasks.filter((task) => {
-                  return task.status === 102;
-                })
-              );
-            }
-          }
-        );
       },
       params: {
         teamId: id,

@@ -28,12 +28,15 @@ const Board = (props: Props) => {
     <Container>
       <CreateBoard isOpen={isOpen} handleClose={handleClose} />
       <Grid container spacing={2}>
-        {boards.map((board: any) => (
-          <Grid item xs={3} key={board.id}>
+        {boards.map((board: any, index) => (
+          <Grid item xs={3} key={index}>
             <BoardButton
               variant="contained"
               onClick={() => {
-                router.push(`/tribe/${tribe.teamId}/board/${board.objectId}`, undefined);
+                router.push(
+                  `/tribe/${tribe.teamId}/board/${board.objectId}`,
+                  undefined
+                );
               }}
             >
               <ButtonText>{board.name}</ButtonText>
