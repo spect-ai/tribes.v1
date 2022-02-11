@@ -1,10 +1,15 @@
 import styled from "@emotion/styled";
 import { Button, Popover } from "@mui/material";
+import { useRouter } from "next/router";
 import React from "react";
+import { useMoralis } from "react-moralis";
+import { BoardData, useBoard } from ".";
+import { removeColumn } from "../../../adapters/moralis";
 
 type Props = {
   open: boolean;
   anchorEl: HTMLButtonElement | null;
+  columnId: string;
   handleClose: () => void;
 };
 
@@ -14,7 +19,16 @@ const Container = styled.div`
   min-width: 6rem;
 `;
 
-const ColumnSettingsPopover = ({ open, anchorEl, handleClose }: Props) => {
+const ColumnSettingsPopover = ({
+  open,
+  anchorEl,
+  columnId,
+  handleClose,
+}: Props) => {
+  const { data, setData } = useBoard();
+  const { Moralis } = useMoralis();
+  const router = useRouter();
+  const { bid } = router.query;
   return (
     <Popover
       open={open}
@@ -31,6 +45,25 @@ const ColumnSettingsPopover = ({ open, anchorEl, handleClose }: Props) => {
           fullWidth
           sx={{ textTransform: "none" }}
           size="small"
+          onClick={() => {
+            const columnsArray = Object.entries(data.columns);
+
+            setData({
+              ...data,
+              columns: Object.fromEntries(
+                columnsArray.filter((column) => column[0] !== columnId)
+              ),
+              columnOrder: data.columnOrder.filter((id) => id !== columnId),
+            });
+
+            removeColumn(Moralis, bid as string, columnId)
+              .then((res: BoardData) => {
+                setData(res);
+              })
+              .catch((err: any) => {
+                console.log(err);
+              });
+          }}
         >
           Delete
         </Button>

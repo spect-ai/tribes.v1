@@ -12,22 +12,19 @@ body {
   border: 0px;
 }
 
-/* width */
 ::-webkit-scrollbar {
-  width: 10px;
+  height: 5px; /* height of horizontal scrollbar ← You're missing this */
+  width: 5px; /* width of vertical scrollbar */
 }
 
-/* Track */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #99ccff;
 }
 
-/* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #0061ff;
 }
 
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #0061ff;
 }

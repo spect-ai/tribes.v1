@@ -51,7 +51,8 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   padding: 0 0.5rem;
-  max-height: 80vh;
+  height: 80vh;
+  max-width: calc(100vw - 15rem);
   overflow-x: auto;
   overflow-y: hidden;
 `;
@@ -187,6 +188,7 @@ const TaskBoard = (props: Props) => {
           <Button
             startIcon={<ArrowLeftIcon />}
             sx={{ textTransform: "none", fontSize: 12, ml: 1 }}
+            color="inherit"
           >
             Back to tribe
           </Button>
@@ -220,7 +222,7 @@ const TaskBoard = (props: Props) => {
                 startIcon={<AddIcon />}
                 sx={{
                   textTransform: "none",
-                  height: "100%",
+                  height: "10%",
                   width: "16rem",
                   minWidth: "16rem",
                   margin: "1rem 2rem 1rem 0rem",

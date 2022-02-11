@@ -70,7 +70,8 @@ const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
               bid as string,
               columnId,
               newTaskTitle,
-              newTaskReward
+              newTaskReward,
+              ""
             ).then((res: any) => setData(res as BoardData));
             setNewTaskReward(0);
             setNewTaskTitle("");

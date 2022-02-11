@@ -1,8 +1,14 @@
 import styled from "@emotion/styled";
-import { Button, InputBase, IconButton, Popover, Typography } from "@mui/material";
+import {
+  Button,
+  InputBase,
+  IconButton,
+  Popover,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { column, useBoard } from ".";
+import { Column, useBoard } from ".";
 import TaskContainer from "./task";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -20,7 +26,7 @@ import { useRouter } from "next/router";
 type Props = {
   tasks: Task[];
   id: string;
-  column: column;
+  column: Column;
   index: number;
 };
 
@@ -46,10 +52,12 @@ const Column = ({ tasks, id, column, index }: Props) => {
   function updateColumn() {
     if (currentColumnTitle !== columnTitle) {
       console.log(`upating column title`);
-      updateColumnName(Moralis, bid as string, id, columnTitle).then((res: any) => {
-        setCurrentColumnTitle(columnTitle);
-        console.log(res);
-      });
+      updateColumnName(Moralis, bid as string, id, columnTitle).then(
+        (res: any) => {
+          setCurrentColumnTitle(columnTitle);
+          console.log(res);
+        }
+      );
     }
   }
 
@@ -57,15 +65,23 @@ const Column = ({ tasks, id, column, index }: Props) => {
     <OuterContainer>
       <Draggable draggableId={id} index={index}>
         {(provided, snapshot) => (
-          <Container {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+          <Container
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+          >
             <Droppable droppableId={id} type="task">
               {(provided) => (
-                <TaskList {...provided.droppableProps} ref={provided.innerRef} isDragging={snapshot.isDragging}>
+                <TaskList
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  isDragging={snapshot.isDragging}
+                >
                   <TaskTitleContainer>
                     <InputBase
                       placeholder="Add Title"
                       sx={{
-                        fontSize: "14px",
+                        fontSize: "16px",
                         marginLeft: "6px",
                       }}
                       value={columnTitle}
@@ -78,18 +94,39 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       }}
                     />
                     <Box sx={{ flex: "1 1 auto" }} />
-                    <IconButton sx={{ mb: 0.5, p: 0.5 }} size="small" onClick={handleClick}>
+                    <IconButton
+                      sx={{ mb: 0.5, p: 0.5 }}
+                      size="small"
+                      onClick={handleClick}
+                    >
                       <SettingsIcon fontSize="small" />
                     </IconButton>
-                    <ColumnSettingsPopover open={open} anchorEl={anchorEl} handleClose={handleClose} />
+                    <ColumnSettingsPopover
+                      open={open}
+                      anchorEl={anchorEl}
+                      handleClose={handleClose}
+                      columnId={column.id}
+                    />
                   </TaskTitleContainer>
                   {tasks.map((task, index) => (
-                    <TaskContainer key={task.id} task={task} index={index} />
+                    <TaskContainer
+                      key={task.taskId}
+                      task={task}
+                      index={index}
+                    />
                   ))}
                   {provided.placeholder}
-                  {showCreateTask && <CreateTask setShowCreateTask={setShowCreateTask} columnId={id} />}
+                  {showCreateTask && (
+                    <CreateTask
+                      setShowCreateTask={setShowCreateTask}
+                      columnId={id}
+                    />
+                  )}
                   {showCreateGithubTask && (
-                    <CreateGithubTask setShowCreateTask={setShowCreateGithubTask} columnId={id} />
+                    <CreateGithubTask
+                      setShowCreateTask={setShowCreateGithubTask}
+                      columnId={id}
+                    />
                   )}
                   <Box sx={{ display: "flex", flexDirection: "row" }}>
                     <Button
@@ -146,7 +183,8 @@ const TaskList = styled.div<{ isDragging: boolean }>`
   height: fit-content;
   padding: 1rem;
   border-radius: 0.5rem;
-  border: ${(props) => (props.isDragging ? "0.5px solid #0061ff" : "0.5px solid transparent")};
+  border: ${(props) =>
+    props.isDragging ? "0.5px solid #0061ff" : "0.5px solid transparent"};
   transition: 0.5s ease-in-out;
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   &:hover {
@@ -154,6 +192,7 @@ const TaskList = styled.div<{ isDragging: boolean }>`
   }
   max-height: 70vh;
   overflow-y: auto;
+  overflow-x: hidden;
   background-color: #00194a;
   min-width: 16rem;
 `;

@@ -32,12 +32,9 @@ const TaskContainer = ({ task, index }: Props) => {
           >
             <Container>
               <Title>{task.title}</Title>
-              {/* <Text>
-              This is the description of the task in hand, you can do it in
-              anyway you want. Lets do it.
-            </Text> */}
+
               <ChipContainer>
-                <Chip color="#eaeaea">
+                <Chip color="#99ccff">
                   <MonetizationOnIcon sx={{ fontSize: 12 }} />
                   {task.reward.value} Matic
                 </Chip>
@@ -48,7 +45,7 @@ const TaskContainer = ({ task, index }: Props) => {
                   </Chip>
                 )}
               </ChipContainer>
-              <Avatar
+              {/* <Avatar
                 alt=""
                 src={`https://www.gravatar.com/avatar/${getMD5String(
                   "test"
@@ -58,7 +55,8 @@ const TaskContainer = ({ task, index }: Props) => {
                   height: "1.7rem",
                   objectFit: "cover",
                 }}
-              />
+              /> */}
+              <Text>0xavp created this task on 29th feb</Text>
             </Container>
           </TaskCard>
         )}
@@ -111,7 +109,7 @@ const Container = styled.div`
 `;
 
 const Title = styled.div`
-  font-size: 12px;
+  font-size: 14px;
   word-wrap: break-word;
 `;
 

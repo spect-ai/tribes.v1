@@ -48,6 +48,7 @@ const EditTask = ({ task, handleClose }: Props) => {
   const router = useRouter();
   // const [taskTitle, setTaskTitle] = useState(title);
   const [taskDescription, setTaskDescription] = useState("");
+  console.log(task);
 
   const {
     handleSubmit,
@@ -90,9 +91,10 @@ const EditTask = ({ task, handleClose }: Props) => {
             <InputBase
               placeholder="Add Title"
               sx={{
-                fontSize: "22px",
+                fontSize: "20px",
               }}
               {...field}
+              fullWidth
             />
           )}
         />
@@ -127,6 +129,7 @@ const EditTask = ({ task, handleClose }: Props) => {
                   label="Make a submission ..."
                   onSave={saveDescription}
                   inheritFontSize
+                  defaultValue={task.description}
                 />
               </ThemeProvider>
             </Box>

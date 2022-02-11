@@ -60,6 +60,7 @@ Moralis.Cloud.define("addTask", async (request) => {
     const board = await getBoardByObjectId(request.params.boardId);
     var columns = board.get("columns");
     var tasks = board.get("tasks");
+    const logger = Moralis.Cloud.getLogger();
 
     const taskId = `task-${request.params.boardId}-${
       Object.keys(tasks).length
@@ -84,6 +85,7 @@ Moralis.Cloud.define("addTask", async (request) => {
     taskObj.set("taskId", taskId);
     taskObj.set("title", request.params.title);
     taskObj.set("reward", reward);
+    taskObj.set("description", request.params.description);
     await Moralis.Object.saveAll([board, taskObj], { useMasterKey: true });
     const boardObj = await getBoardObjByObjectId(request.params.boardId);
     return boardObj[0];

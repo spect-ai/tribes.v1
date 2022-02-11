@@ -64,11 +64,11 @@ const Contributor = (props: Props) => {
             endIcon={<PaidIcon />}
             fullWidth
             sx={{ mb: 2 }}
-            onClick={() =>
-              //massPayment(tribe.treasuryAddress, user?.get("ethAddress"))
-              distributeTokensForContribution(epoch).then((res: any) => {
-                console.log(res);
-              })
+            onClick={
+              () => massPayment(tribe.treasuryAddress, user?.get("ethAddress"))
+              // distributeTokensForContribution(epoch).then((res: any) => {
+              //   console.log(res);
+              // })
             }
           >
             Pay

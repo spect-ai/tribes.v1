@@ -102,14 +102,10 @@ export function addColumn(Moralis: any, boardId: string) {
   return Moralis.Cloud.run("addColumn", params);
 }
 
-export function removeColumn(
-  Moralis: any,
-  boardId: string,
-  columnIdToRemove: string
-) {
+export function removeColumn(Moralis: any, boardId: string, columnId: string) {
   const params = {
     boardId: boardId,
-    columnIdToRemove: columnIdToRemove,
+    columnId: columnId,
   };
   return Moralis.Cloud.run("removeColumn", params);
 }
@@ -119,13 +115,15 @@ export function addTask(
   boardId: string,
   columnId: string,
   title: string,
-  reward: number
+  reward: number,
+  description: string
 ) {
   const params = {
     boardId: boardId,
     columnId: columnId,
     title: title,
     reward: reward,
+    description: description,
   };
   return Moralis.Cloud.run("addTask", params);
 }
