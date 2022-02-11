@@ -30,6 +30,14 @@ export function updateTribe(Moralis: any, team: Team) {
   return Moralis.Cloud.run("updateTeam", params);
 }
 
+export function initBoard(Moralis: any, name: string, teamId: number) {
+  const params = {
+    name: name,
+    teamId: teamId,
+  };
+  return Moralis.Cloud.run("initBoard", params);
+}
+
 export function startEpoch(Moralis: any, epoch: any) {
   const params = {
     startTime: epoch.startTime,
@@ -80,11 +88,7 @@ export function getInvitations(Moralis: any, ethAddress: string) {
   return Moralis.Cloud.run("getMyInvites", params);
 }
 
-export function acceptInvitations(
-  Moralis: any,
-  ethAddress: string,
-  teamId: number
-) {
+export function acceptInvitations(Moralis: any, ethAddress: string, teamId: number) {
   const params = {
     ethAddress: ethAddress,
     teamId: teamId,
@@ -92,12 +96,7 @@ export function acceptInvitations(
   return Moralis.Cloud.run("acceptInvite", params);
 }
 
-export function giftContributors(
-  Moralis: any,
-  epochId: string,
-  votes: object,
-  ethAddress: string
-) {
+export function giftContributors(Moralis: any, epochId: string, votes: object, ethAddress: string) {
   const params = {
     epochId: epochId,
     votes: votes,
@@ -113,12 +112,7 @@ export function endEpoch(Moralis: any, epochId: string) {
   return Moralis.Cloud.run("endEpoch", params);
 }
 
-export function createTasks(
-  Moralis: any,
-  epochId: string,
-  newTasks: any,
-  taskSource: string
-) {
+export function createTasks(Moralis: any, epochId: string, newTasks: any, taskSource: string) {
   console.log(`epochId ${epochId}`);
   const params = {
     epochId: epochId,
@@ -136,12 +130,7 @@ export function getTaskEpoch(Moralis: any, epochId: string) {
   return Moralis.Cloud.run("getTaskEpoch", params);
 }
 
-export function updateTask(
-  Moralis: any,
-  taskId: string,
-  status: number,
-  paid: boolean = false
-) {
+export function updateTask(Moralis: any, taskId: string, status: number, paid: boolean = false) {
   const params = {
     id: taskId,
     status: status,
@@ -150,11 +139,7 @@ export function updateTask(
   return Moralis.Cloud.run("updateTask", params);
 }
 
-export function voteOnTasks(
-  Moralis: any,
-  epochId: string,
-  voteAllocation: any
-) {
+export function voteOnTasks(Moralis: any, epochId: string, voteAllocation: any) {
   console.log(epochId, voteAllocation);
   const params = {
     epochId: epochId,

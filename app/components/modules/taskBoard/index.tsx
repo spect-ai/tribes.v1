@@ -25,6 +25,8 @@ export type task = {
 };
 
 interface BoardData {
+  id: string;
+  name: string;
   tasks: {
     [key: string]: task;
   };
@@ -74,18 +76,11 @@ const TaskBoard = (props: Props) => {
     if (!destination) {
       return;
     }
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
+    if (destination.droppableId === source.droppableId && destination.index === source.index) {
       return;
     }
     if (type === "column") {
-      const newColumnOrder = reorder(
-        data.columnOrder,
-        source.index,
-        destination.index
-      );
+      const newColumnOrder = reorder(data.columnOrder, source.index, destination.index);
       setData({
         ...data,
         columnOrder: newColumnOrder,
@@ -138,34 +133,17 @@ const TaskBoard = (props: Props) => {
     <BoardContext.Provider value={context}>
       <DragDropContext onDragEnd={handleDragEnd}>
         <Link href={`/tribe/${id}`} passHref>
-          <Button
-            startIcon={<ArrowLeftIcon />}
-            sx={{ textTransform: "none", fontSize: 12, ml: 1 }}
-          >
+          <Button startIcon={<ArrowLeftIcon />} sx={{ textTransform: "none", fontSize: 12, ml: 1 }}>
             Back to tribe
           </Button>
         </Link>
-        <Droppable
-          droppableId="all-columns"
-          direction="horizontal"
-          type="column"
-        >
+        <Droppable droppableId="all-columns" direction="horizontal" type="column">
           {(provided, snapshot) => (
             <Container {...provided.droppableProps} ref={provided.innerRef}>
               {data.columnOrder.map((columnId, index) => {
                 const column = data.columns[columnId];
-                const tasks = column.taskIds.map(
-                  (taskId) => data.tasks[taskId]
-                );
-                return (
-                  <Column
-                    key={columnId}
-                    column={column}
-                    tasks={tasks}
-                    id={columnId}
-                    index={index}
-                  />
-                );
+                const tasks = column.taskIds.map((taskId) => data.tasks[taskId]);
+                return <Column key={columnId} column={column} tasks={tasks} id={columnId} index={index} />;
               })}
               {provided.placeholder}
               <Button
@@ -193,10 +171,7 @@ const TaskBoard = (props: Props) => {
                         taskIds: [],
                       },
                     },
-                    columnOrder: [
-                      ...data.columnOrder,
-                      `column-${data.columnOrder.length}`,
-                    ],
+                    columnOrder: [...data.columnOrder, `column-${data.columnOrder.length}`],
                   });
                 }}
               >

@@ -30,6 +30,41 @@ async function getBoard(
   return board;
 }
 
+Moralis.Cloud.define("initBoard", async (request) => {
+  try {
+    const logger = Moralis.Cloud.getLogger();
+    const team = await getTribeByTeamId(request.params.teamId);
+    if (isMember(request.user.get("ethAddress"), team)) {
+      var initColumns = ["To Do", "In Progress", "In Review", "Done"];
+      var columnIds = [];
+      var columnIdToColumnMap = {};
+
+      for (let i = 0; i < 4; i++) {
+        columnIds.push(generateUniqueIdByDatetimeAndNumber(i));
+        columnIdToColumnMap[columnIds[i]] = { id: columnIds[i], title: initColumns[i], tasks: [] };
+        logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
+      }
+      var board = new Moralis.Object("Board");
+      board.set("name", request.params.name);
+      board.set("teamId", parseInt(request.params.teamId));
+      board.set("tasks", {});
+      board.set("columns", columnIdToColumnMap);
+      board.set("columnOrder", columnIds);
+
+      logger.error(`Creating new board ${JSON.stringify(board)}`);
+
+      await Moralis.Object.saveAll([board], { useMasterKey: true });
+      return board;
+    } else {
+      logger.info(`User ${request.user.get("ethAddress")} is not a member of the tribe`);
+      throw 'User ${request.user.get("ethAddress")} is not a member of the tribe';
+    }
+  } catch (err) {
+    logger.error(`Error while creating board ${err}`);
+    return false;
+  }
+});
+
 Moralis.Cloud.define("createBoard", async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();

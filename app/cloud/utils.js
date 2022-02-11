@@ -65,3 +65,11 @@ async function calcEffectiveVotes(votes, members, voterAddress) {
 
   return members;
 }
+
+function getDate() {
+  return Date.now();
+}
+
+function generateUniqueIdByDatetimeAndNumber(num) {
+  return `${getDate() + num}`;
+}

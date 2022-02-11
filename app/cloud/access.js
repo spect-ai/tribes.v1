@@ -8,6 +8,16 @@ async function hasAccess(ethAddress, team, requiredAccess) {
   return false;
 }
 
+function isMember(ethAddress, team) {
+  const members = team.get("members");
+  for (var member of members) {
+    if (member["ethAddress"] === ethAddress) {
+      return true;
+    }
+  }
+  return false;
+}
+
 async function invite(members, teamId, invitedBy) {
   //members: [{'ethAddress':'0x232324', 'role': 'admin'}]
   const logger = Moralis.Cloud.getLogger();
