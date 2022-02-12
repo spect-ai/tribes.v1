@@ -4,11 +4,7 @@ import ContributorsTableComponent from "./ContributorsTableComponent";
 import { muiTheme } from "../../../constants/muiTheme";
 import { Epoch, Team } from "../../../types/index";
 import { useMoralis } from "react-moralis";
-import {
-  endEpoch,
-  getEpoch,
-  giftContributors,
-} from "../../../adapters/moralis";
+import { endEpoch, getEpoch, getTeam, giftContributors } from "../../../adapters/moralis";
 import PaidIcon from "@mui/icons-material/Paid";
 import { massPayment } from "../../../adapters/gnosis";
 import { distributeTokensForContribution } from "../../../adapters/contract";
@@ -21,110 +17,16 @@ interface Props {}
 
 const Contributor = (props: Props) => {
   const { isAuthenticated, Moralis, user } = useMoralis();
-  const [epoch, setEpoch] = useState<Epoch>({} as Epoch);
+  const [team, setTeam] = useState<Team>({} as Team);
   const [remainingVotes, setRemainingVotes] = useState(0);
   const [voteAllocation, setVoteAllocation] = useState({});
   const { tribe } = useTribe();
-
-  useEffect(() => {
-    if (Object.keys(epoch)?.length === 0) {
-      let memberStats;
-      getEpoch(Moralis, tribe.latestContributionEpoch).then((res: Epoch) => {
-        console.log(res);
-        if (res) {
-          setEpoch(res);
-          memberStats = res.memberStats.filter(
-            (m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress")
-          );
-          memberStats.length > 0
-            ? setRemainingVotes(memberStats[0]?.votesRemaining)
-            : setRemainingVotes(0);
-          memberStats.length > 0
-            ? setVoteAllocation(memberStats[0]?.votesAllocated)
-            : null;
-        }
-      }, []);
-    }
-  });
+  console.log(tribe);
   return (
     <Wrapper>
       <MainContainer>
-        <ContributorsTableComponent
-          epoch={epoch}
-          setRemainingVotes={setRemainingVotes}
-          remainingVotes={remainingVotes}
-          setVoteAllocation={setVoteAllocation}
-          voteAllocation={voteAllocation}
-        />
+        <ContributorsTableComponent tribe={tribe} />
       </MainContainer>
-      <SideContainer>
-        {!epoch.active && (
-          <PrimaryButton
-            variant="outlined"
-            endIcon={<PaidIcon />}
-            fullWidth
-            sx={{ mb: 2 }}
-            onClick={
-              () => massPayment(tribe.treasuryAddress, user?.get("ethAddress"))
-              // distributeTokensForContribution(epoch).then((res: any) => {
-              //   console.log(res);
-              // })
-            }
-          >
-            Pay
-          </PrimaryButton>
-        )}
-        {epoch.active && (
-          <div>
-            <DescriptionContainer>
-              <Title>Remaining Votes</Title>
-              <Value>{remainingVotes}</Value>
-            </DescriptionContainer>
-            <DescriptionContainer>
-              <Title>Remaining time</Title>
-              <Value>{formatTimeLeft(epoch.endTime)}</Value>
-            </DescriptionContainer>
-            <DescriptionContainer>
-              <Title>Epoch Budget</Title>
-              <Value>{epoch.budget} Matic</Value>
-            </DescriptionContainer>
-            <PrimaryButton
-              variant="outlined"
-              size="large"
-              type="submit"
-              onClick={() => {
-                giftContributors(
-                  Moralis,
-                  tribe.latestContributionEpoch,
-                  voteAllocation,
-                  user?.get("ethAddress")
-                ).then((res: any) => {
-                  console.log(res);
-                });
-              }}
-              sx={{ ml: 3 }}
-            >
-              Save Allocations
-            </PrimaryButton>
-            <PrimaryButton
-              variant="outlined"
-              size="large"
-              type="submit"
-              endIcon={<TimelapseIcon />}
-              onClick={() => {
-                endEpoch(Moralis, tribe.latestContributionEpoch).then(
-                  (res: any) => {
-                    console.log(res);
-                  }
-                );
-              }}
-              sx={{ ml: 3, mt: 2 }}
-            >
-              End Epoch
-            </PrimaryButton>
-          </div>
-        )}
-      </SideContainer>
     </Wrapper>
   );
 };
