@@ -69,18 +69,20 @@ const Navbar = (props: Props) => {
             loading={isAuthenticating}
             onClick={() =>
               authenticate({
-                provider: "web3Auth",
-                // @ts-ignore
-                clientId:
-                  "BADQJ8pY7u0cgWmzwXyNeOwi-gl6b4EgLk0076mEnIIwg39vAOCqrFiaL8n7khrPFLwikwyH15RT_KZyjlGkkZg",
-                appLogo:
-                  "https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM",
-                // @ts-ignore
-                chainId: Moralis.Chains.POLYGON_MAINNET,
-              }).then((res) => {
-                console.log(res);
-                getOrCreateUser(Moralis).then((res: any) => console.log(res));
+                // provider: "web3Auth",
+                // // @ts-ignore
+                // clientId:
+                //   "BADQJ8pY7u0cgWmzwXyNeOwi-gl6b4EgLk0076mEnIIwg39vAOCqrFiaL8n7khrPFLwikwyH15RT_KZyjlGkkZg",
+                // appLogo:
+                //   "https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM",
+                // // @ts-ignore
+                // chainId: Moralis.Chains.POLYGON_MAINNET,
               })
+                .then((res) => {
+                  console.log(res);
+                  getOrCreateUser(Moralis).then((res: any) => console.log(res));
+                })
+                .catch((err) => console.log(err))
             }
           >
             <Typography sx={{ mx: 2, fontSize: 15 }}>Connect Wallet</Typography>

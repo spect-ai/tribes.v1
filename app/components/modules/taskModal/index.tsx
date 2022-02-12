@@ -6,20 +6,32 @@ import {
   Modal,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useMoralis } from "react-moralis";
+import { getTask } from "../../../adapters/moralis";
 import { Task } from "../../../types";
 import EditTask from "./editTask";
 
 type Props = {
   isOpen: boolean;
   handleClose: () => void;
-  task: Task;
+  taskId: string;
 };
 
-const TaskModal = ({ isOpen, handleClose, task }: Props) => {
-  const [activeStep, setActiveStep] = useState(0);
+const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
   const [loaderText, setLoaderText] = useState("Updating metadata");
   const [loading, setLoading] = useState(false);
+  const [task, setTask] = useState<Task>({} as Task);
+  const { Moralis } = useMoralis();
+
+  useEffect(() => {
+    setLoading(true);
+    getTask(Moralis, taskId).then((task: Task) => {
+      console.log(task);
+      setTask(task);
+      setLoading(false);
+    });
+  }, []);
 
   return (
     <div>
@@ -47,7 +59,15 @@ const TaskModal = ({ isOpen, handleClose, task }: Props) => {
                 </Typography>
               </Box>
             </Backdrop>
-            <EditTask task={task} handleClose={handleClose} />
+            {loading ? (
+              <div>Loading....</div>
+            ) : (
+              <EditTask
+                task={task}
+                setTask={setTask}
+                handleClose={handleClose}
+              />
+            )}
           </Box>
         </Fade>
       </Modal>

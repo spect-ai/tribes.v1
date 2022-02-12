@@ -18,7 +18,9 @@ Moralis.Cloud.define("getTask", async (request) => {
       return task[0];
     }
   } catch (err) {
-    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
     return false;
   }
 });
@@ -29,15 +31,16 @@ Moralis.Cloud.define("addTask", async (request) => {
     var columns = board.get("columns");
     var tasks = board.get("tasks");
     const logger = Moralis.Cloud.getLogger();
-
-    const taskId = `task-${request.params.boardId}-${Object.keys(tasks).length}`;
+    const taskId = `task-${request.params.boardId}-${
+      Object.keys(tasks).length
+    }`;
     tasks[taskId] = {
       taskId: taskId,
       title: request.params.title,
       reward: request.params.reward,
       token: "Matic",
       deadline: request.params.deadline,
-      latestActor: request.user.username,
+      latestActor: request.user.get("username"),
       latestActionTime: new Date(),
       activeStatus: 100,
     };
@@ -49,7 +52,7 @@ Moralis.Cloud.define("addTask", async (request) => {
     var taskObj = new Moralis.Object("Task");
     //TODO: default chain and token should be fetched from teams data
     var reward = {
-      chain: "polygon",
+      chain: "Polygon",
       token: "Matic",
       value: request.params.reward,
     };
@@ -69,7 +72,9 @@ Moralis.Cloud.define("addTask", async (request) => {
     const boardObj = await getBoardObjByObjectId(request.params.boardId);
     return boardObj[0];
   } catch (err) {
-    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
     return false;
   }
 });
@@ -77,48 +82,75 @@ Moralis.Cloud.define("addTask", async (request) => {
 Moralis.Cloud.define("updateTask", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   var task = await getTaskByTaskId(request.params.task?.taskId);
+  logger.info(request.user.id);
+  logger.info(isTaskClient(task, request.user.id));
 
   try {
-    if (hasAccessToEditTask(request.user.id, task)) {
-      task = handleTitleUpdate(task, request.user.id, request.params.task.title);
-      task = handleDescriptionUpdate(task, request.user.id, request.params.task.description);
-      task = handleRewardUpdate(
-        task,
-        request.user.id,
-        request.params.task.reward,
-        request.params.task.token,
-        request.params.task.chain
-      );
-      task = handleTagUpdate(task, request.user.id, request.params.task.tags);
-      task = handleDueDateUpdate(task, request.user.id, request.params.task.dueDate);
-      task = handleAssigneeUpdate(task, request.user.id, request.params.task.assignee);
-      task = handleReviewerUpdate(task, request.user.id, request.params.task.reviewer);
-      task = handleSubmissionUpdate(task, request.user.id, request.params.task.submission);
-      logger.info(`Updating task ${JSON.stringify(task)}`);
+    // if (hasAccessToEditTask(request.user.id, task)) {
 
-      await Moralis.Object.saveAll([task], { useMasterKey: true });
-      return task;
-    } else {
-      throw "User doesnt have access to update task";
-    }
+    task = handleTitleUpdate(task, request.user.id, request.params.task.title);
+    task = handleDescriptionUpdate(
+      task,
+      request.user.id,
+      request.params.task.description
+    );
+    task = handleRewardUpdate(
+      task,
+      request.user.id,
+      request.params.task.reward,
+      request.params.task.token,
+      request.params.task.chain
+    );
+    task = handleTagUpdate(task, request.user.id, request.params.task.tags);
+    task = handleDueDateUpdate(
+      task,
+      request.user.id,
+      request.params.task.deadline
+    );
+    task = handleAssigneeUpdate(
+      task,
+      request.user.id,
+      request.params.task.assignee
+    );
+    task = handleReviewerUpdate(
+      task,
+      request.user.id,
+      request.params.task.reviewer
+    );
+    task = handleSubmissionUpdate(
+      task,
+      request.user.id,
+      request.params.task.submission
+    );
+    logger.info(`Updating task ${JSON.stringify(task)}`);
+
+    await Moralis.Object.saveAll([task], { useMasterKey: true });
+    const taskObj = await getTaskObjByTaskId(request.params.task?.taskId);
+    return taskObj[0];
+    // } else {
+    //   throw "User doesnt have access to update task";
+    // }
   } catch (err) {
-    logger.error(`Error while updating task ${request.params.task.taskId}: ${err}`);
-    return task;
+    logger.error(
+      `Error while updating task ${request.params.task.taskId}: ${err}`
+    );
+    const taskObj = await getTaskObjByTaskId(request.params.task?.taskId);
+    return taskObj[0];
   }
 });
 
 function handleTitleUpdate(task, userId, title) {
   if (isTaskClient(task, userId) && title.length > 0) {
     task.set("title", title);
-    return task;
   }
+  return task;
 }
 
 function handleDescriptionUpdate(task, userId, description) {
   if (isTaskClient(task, userId)) {
     task.set("description", description);
-    return task;
   }
+  return task;
 }
 
 function handleRewardUpdate(task, userId, reward, token, chain) {
@@ -130,43 +162,46 @@ function handleRewardUpdate(task, userId, reward, token, chain) {
     ["polygon", "ethereum", "bsc"].includes(chain.toLowerCase())
   ) {
     task.set("reward", { chain: chain, token: token, reward: reward });
-    return task;
   }
+  return task;
 }
 
 function handleTagUpdate(task, userId, tags) {
   if (isTaskClient(task, userId)) {
     task.set("tags", tags);
-    return task;
   }
+  return task;
 }
 
 function handleDueDateUpdate(task, userId, dueDate) {
   if (isTaskClient(task, userId) && dueDate) {
-    task.set("dueDate", new Date(parseInt(dueDate)));
-    return task;
+    task.set("dueDate", new Date(dueDate));
   }
+  return task;
 }
 
 function handleAssigneeUpdate(task, userId, assignee) {
-  if (isTaskClient(task, userId) || (isTaskAssignee(task, userId) && !assignee)) {
+  if (
+    isTaskClient(task, userId) ||
+    (isTaskAssignee(task, userId) && !assignee)
+  ) {
     task.set("assignee", assignee);
-    return task;
   }
+  return task;
 }
 
 function handleReviewerUpdate(task, userId, reviewer) {
   if (isTaskClient(task, userId)) {
     task.set("reviewer", reviewer);
-    return task;
   }
+  return task;
 }
 
 function handleSubmissionUpdate(task, userId, submission) {
   if (isTaskAssignee(task, userId)) {
     task.set("submission", submission);
-    return task;
   }
+  return task;
 }
 
 /*

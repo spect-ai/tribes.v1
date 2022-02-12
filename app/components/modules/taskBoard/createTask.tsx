@@ -29,7 +29,7 @@ export const CreateTaskContainer = styled.div`
 
 const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskReward, setNewTaskReward] = useState(0);
+  const [newTaskReward, setNewTaskReward] = useState("");
   const { data, setData } = useBoard();
   const { Moralis } = useMoralis();
   const router = useRouter();
@@ -52,8 +52,11 @@ const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
           fontSize: "14px",
           marginLeft: "6px",
         }}
+        inputProps={{
+          type: "number",
+        }}
         value={newTaskReward}
-        onChange={(e) => setNewTaskReward(parseInt(e.target.value))}
+        onChange={(e) => setNewTaskReward(e.target.value)}
       />
       <Box
         sx={{
@@ -70,10 +73,10 @@ const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
               bid as string,
               columnId,
               newTaskTitle,
-              newTaskReward,
+              parseFloat(newTaskReward),
               ""
             ).then((res: any) => setData(res as BoardData));
-            setNewTaskReward(0);
+            setNewTaskReward("");
             setNewTaskTitle("");
             setShowCreateTask(false);
           }}

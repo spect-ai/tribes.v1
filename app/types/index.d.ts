@@ -83,14 +83,16 @@ export interface Task {
   tags: string[];
   assignee: string;
   reviewer: string;
+  creator: string;
   reward: {
     chain: "polygon" | "ethereum" | "bsc";
     value: number;
     token: string;
   };
   activity: {
-    userAddress: string;
-    timestamp: Date;
-    title: string;
-  }[];
+    latestActor: string;
+    latestActionTime: Date;
+    statusChange: number;
+  };
+  status: number;
 }
