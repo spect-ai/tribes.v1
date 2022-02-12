@@ -74,6 +74,13 @@ Moralis.Cloud.define("getTeam", async (request) => {
   return team[0];
 });
 
+Moralis.Cloud.define("getMyTeams", async (request) => {
+  const userInfoQuery = new Moralis.Query("UserInfo");
+  userInfoQuery.equalTo("userId", request.user.id);
+  const userInfo = await userInfoQuery.find();
+  return userInfo.get("tribes");
+});
+
 Moralis.Cloud.define("createTeam", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
@@ -98,7 +105,7 @@ Moralis.Cloud.define("createTeam", async (request) => {
     // Add tribe to tribe creator's user info
     const userInfo = await getUserByUserId(request.user.id);
     teamMemberships = userInfo.get("tribes").concat([teamId]);
-    userInfo.set("teams", teamMemberships);
+    userInfo.set("tribes", teamMemberships);
 
     await Moralis.Object.saveAll([team, userInfo], { useMasterKey: true });
 
