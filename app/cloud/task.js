@@ -58,6 +58,7 @@ Moralis.Cloud.define("addTask", async (request) => {
     taskObj.set("creator", request.user.id);
     taskObj.set("reviewer", request.user.id);
     taskObj.set("status", 100);
+    taskObj.set("description", request.params.description);
     taskObj.set("activity", {
       latestActor: request.user.get("username"),
       latestActionTime: new Date(),

@@ -28,7 +28,7 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
   return (
     <CreateTaskContainer>
       <InputBase
-        placeholder="Issue"
+        placeholder="Issue Link"
         sx={{
           fontSize: "14px",
           marginLeft: "6px",

@@ -22,9 +22,9 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0061ff;
+  background: #5a6972;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0061ff;
+  background: #5a6972;
 }

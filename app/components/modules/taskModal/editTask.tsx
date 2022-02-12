@@ -27,6 +27,9 @@ import { getMD5String } from "../../../utils/utils";
 import { updateTask } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { monthMap } from "../../../constants";
+import ReactMde from "react-mde";
+import * as Showdown from "showdown";
+// import "react-mde/lib/styles/css/react-mde-all.css";
 
 type Props = {
   task: Task;
@@ -49,13 +52,18 @@ export interface IEditTask {
   reward: number;
 }
 
+const converter = new Showdown.Converter({
+  tables: true,
+  simplifiedAutoLink: true,
+  strikethrough: true,
+  tasklists: true,
+});
+
 const EditTask = ({ task, setTask, handleClose }: Props) => {
   // const router = useRouter();
   const { Moralis } = useMoralis();
   const [loading, setLoading] = useState(false);
-
-  const [description, setDescription] = useState("");
-
+  const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
   const {
     handleSubmit,
     control,
@@ -84,8 +92,17 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
     },
   });
 
-  const saveDescription = (data: any) => {
-    console.log(data);
+  const save = async function* (data: any) {
+    // Promise that waits for "time" milliseconds
+    // Upload "data" to your server
+    // Use XMLHttpRequest.send to send a FormData object containing
+    // "data"
+    // Check this question: https://stackoverflow.com/questions/18055422/how-to-receive-php-image-data-over-copy-n-paste-javascript-with-xmlhttprequest
+
+    // yields the URL that should be inserted in the markdown
+    yield "https://picsum.photos/300";
+    // returns true meaning that the save was successful
+    return true;
   };
 
   if (loading) {
@@ -93,7 +110,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} style={{ width: "60rem" }}>
+    <form onSubmit={handleSubmit(onSubmit)} style={{ width: "70rem" }}>
       <TaskModalTitleContainer>
         <Controller
           name="title"
@@ -122,43 +139,32 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
             <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
               Description
             </Divider>{" "}
-            <Box sx={{ color: "#eaeaea", height: "10rem", overflow: "auto" }}>
-              <ThemeProvider theme={myTheme}>
-                <MUIRichTextEditor
-                  label="Describe the task ..."
-                  // onSave={saveDescription}
-                  inheritFontSize
-                  defaultValue={task.description}
-                  // onChange={(data: any) => setDescription(data)}
-                  value={description}
-                />
-              </ThemeProvider>
-            </Box>
-          </TaskModalBodyContainer>
-          {/* <TaskModalBodyContainer>
-            <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
-              Submissions
-            </Divider>{" "}
-            <Box sx={{ color: "#eaeaea", height: "10rem", overflow: "auto" }}>
+            <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
               <Controller
                 name="description"
                 control={control}
+                defaultValue={task.description}
                 render={({ field }) => (
-                  <ThemeProvider theme={myTheme}>
-                    <MUIRichTextEditor
-                      label="Make a submission ..."
-                      onSave={saveDescription}
-                      inheritFontSize
-                      onChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      value={field.value || ""}
-                    />
-                  </ThemeProvider>
+                  <ReactMde
+                    {...field}
+                    selectedTab={selectedTab}
+                    onTabChange={setSelectedTab}
+                    generateMarkdownPreview={(markdown) =>
+                      Promise.resolve(converter.makeHtml(markdown))
+                    }
+                    childProps={{
+                      writeButton: {
+                        tabIndex: -1,
+                      },
+                    }}
+                    paste={{
+                      saveImage: save,
+                    }}
+                  />
                 )}
               />
             </Box>
-          </TaskModalBodyContainer> */}
+          </TaskModalBodyContainer>
           <TaskModalBodyContainer>
             <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
               Activity
@@ -192,7 +198,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                   <Controller
                     name="deadline"
                     control={control}
-                    defaultValue={dayjs(task.deadline)}
+                    defaultValue={dayjs(task.dueDate)}
                     render={({ field }) => (
                       <DateTimePicker
                         {...field}
@@ -222,13 +228,15 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                 <Controller
                   name="tags"
                   control={control}
-                  defaultValue={task.tags}
+                  defaultValue={task.tags || []}
                   render={({ field }) => (
                     <Autocomplete
+                      {...field}
                       freeSolo
                       options={[]}
                       multiple
                       onChange={(e, data) => field.onChange(data)}
+                      size="small"
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -323,7 +331,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                     <Controller
                       name="reward"
                       control={control}
-                      defaultValue={task.reward.value}
+                      defaultValue={task.reward.reward}
                       render={({ field, fieldState }) => (
                         <TextField
                           {...field}

@@ -4,6 +4,7 @@ import Script from "next/script";
 import { useRouter } from "next/router";
 import Layout from "../app/components/layouts";
 import "../app/styles/globals.css";
+import "../app/styles/mde.css";
 import { muiTheme } from "../app/constants/muiTheme";
 import { createTheme, ThemeProvider } from "@mui/material";
 
