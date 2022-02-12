@@ -66,7 +66,7 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     var team = await getTribeByTeamId(request.params.teamId);
     logger.info(`tea ${JSON.stringify(team)}`);
 
-    const canStart = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
+    const canStart = await hasAccess(request.user.id, team, (requiredAccess = "admin"));
     if (canStart) {
       logger.info(`canStart ${canStart}`);
 

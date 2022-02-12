@@ -88,7 +88,7 @@ Moralis.Cloud.define("createTeam", async (request) => {
       request.params.mission,
       request.params.treasuryAddress,
       (savedOnChain = false),
-      (members = [{ ethAddress: request.params.ethAddress, role: "admin" }]),
+      (members = [{ userId: request.user.id, role: "admin" }]),
       request.params.organization,
       (organizationVerified = false),
       request.params.openApplications,
@@ -96,8 +96,8 @@ Moralis.Cloud.define("createTeam", async (request) => {
     );
 
     // Add tribe to tribe creator's user info
-    const userInfo = await getUserByEthAddress(request.user.get("ethAddress"));
-    teamMemberships = userInfo.get("teams").concat([teamId]);
+    const userInfo = await getUserByUserId(request.user.id);
+    teamMemberships = userInfo.get("tribes").concat([teamId]);
     userInfo.set("teams", teamMemberships);
 
     await Moralis.Object.saveAll([team, userInfo], { useMasterKey: true });
@@ -114,8 +114,7 @@ Moralis.Cloud.define("updateTeam", async (request) => {
   try {
     var team = await getTribeByTeamId(request.params.teamId);
 
-    const canUpdate = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
-    if (canUpdate) {
+    if (hasAccess(request.user.id, team, (requiredAccess = "admin"))) {
       await getUpdatedTribeDetails(
         request.params.name,
         request.params.mission,
@@ -143,8 +142,7 @@ Moralis.Cloud.define("updateMembers", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     var team = await getTribeByTeamId(request.params.teamId);
-    const canUpdate = await hasAccess(request.user.get("ethAddress"), team, (requiredAccess = "admin"));
-    if (canUpdate) {
+    if (hasAccess(request.user.id, team, (requiredAccess = "admin"))) {
       var invitedMembers = request.params.members.filter((m) => m.updateType === "invite");
       logger.info(`Invited members: ${JSON.stringify(invitedMembers)}`);
 
@@ -154,15 +152,14 @@ Moralis.Cloud.define("updateMembers", async (request) => {
       logger.info(`Revoked members: ${JSON.stringify(revokedMemberAddresses)}`);
 
       //var roleChangedMembers = request.params.members.filter((m) => m.updateType === "roleChange");
-      await invite(invitedMembers, request.params.teamId, request.user.get("ethAddress"));
+      await invite(invitedMembers, request.params.teamId, request.user.id);
 
       //await invite(invitedMembers, request.params.teamId, request.params.ethAddress);
       //await revoke(revokedMemberAddresses, request.params.teamId);
 
       return true;
     } else {
-      //logger.info(`User ${request.user.get("ethAddress")} doesnt have access to update member roles`);
-      logger.info(`User ${request.user.get("ethAddress")} doesnt have access to update member roles`);
+      logger.info(`User ${request.user.id} doesnt have access to update member roles`);
       return false;
     }
   } catch (err) {

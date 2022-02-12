@@ -1,17 +1,17 @@
-async function hasAccess(ethAddress, team, requiredAccess) {
+function hasAccess(userId, team, requiredAccess) {
   const members = team.get("members");
   for (var member of members) {
-    if (member["ethAddress"] === ethAddress) {
+    if (member["userId"] === userId) {
       return member["role"] === requiredAccess;
     }
   }
   return false;
 }
 
-function isMember(ethAddress, team) {
+function isMember(userId, team) {
   const members = team.get("members");
   for (var member of members) {
-    if (member["ethAddress"] === ethAddress) {
+    if (member["userId"] === userId) {
       return true;
     }
   }
@@ -49,7 +49,7 @@ async function revoke(members, teamId) {
   var membersInTeam = team?.get("members");
   var i = 0;
   for (var member of membersInTeam) {
-    if (members.includes(member["ethAddress"])) {
+    if (members.includes(member["userId"])) {
       membersInTeam.splice(i, 1);
     } else {
       ++i;
@@ -64,8 +64,7 @@ Moralis.Cloud.define("getMyInvites", async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();
     const invitationQuery = new Moralis.Query("Invitation");
-    //invitationQuery.equalTo("ethAddress", request.user.get("ethAddress"));
-    invitationQuery.equalTo("ethAddress", request.params.ethAddress);
+    invitationQuery.equalTo("ethAddress", request.user.get("ethAddress"));
     invitationQuery.equalTo("active", true);
     return await invitationQuery.find();
   } catch (err) {
@@ -79,8 +78,7 @@ Moralis.Cloud.define("acceptInvite", async (request) => {
     const logger = Moralis.Cloud.getLogger();
     // Set invitation to inactive
     const invitationQuery = new Moralis.Query("Invitation");
-    //invitationQuery.equalTo("ethAddress", request.user.get("ethAddress"));
-    invitationQuery.equalTo("ethAddress", request.params.ethAddress);
+    invitationQuery.equalTo("ethAddress", request.user.get("ethAddress"));
     invitationQuery.equalTo("teamId", parseInt(request.params.teamId));
     invitationQuery.equalTo("active", true);
     const invitation = await invitationQuery.first();
@@ -102,7 +100,7 @@ Moralis.Cloud.define("acceptInvite", async (request) => {
       const members = team.get("members");
       const member = [
         {
-          ethAddress: request.params.ethAddress,
+          userId: request.user.id,
           role: invitation.get("role"),
         },
       ];

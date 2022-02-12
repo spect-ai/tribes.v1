@@ -1,6 +1,6 @@
-async function getCreatedUser(userInfo, ethAddress, tribes) {
-  userInfo.set("ethAddress", ethAddress);
-  userInfo.set("tribes", tribes);
+async function getCreatedUser(userInfo, userId) {
+  userInfo.set("userId", userId);
+  userInfo.set("tribes", []);
   return userInfo;
 }
 
@@ -15,20 +15,19 @@ async function getUserByEthAddress(ethAddress) {
   return await userInfoQuery.first();
 }
 
-async function getUserTribesByEthAddress(ethAddress) {
+async function getUserByUserId(userId) {
   const userInfoQuery = new Moralis.Query("UserInfo");
-  userInfoQuery.equalTo("ethAddress", ethAddress);
-  const userInfo = await userInfoQuery.first();
-  return userInfo.get("tribes");
+  userInfoQuery.equalTo("userId", userId);
+  return await userInfoQuery.first();
 }
 
 Moralis.Cloud.define("getOrCreateUser", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
-    var userInfo = await getUserByEthAddress(request.user.get("ethAddress"));
+    var userInfo = await getUserByUserId(request.user.id);
     if (!userInfo) {
       userInfo = new Moralis.Object("UserInfo");
-      userInfo = await getCreatedUser(userInfo, request.user.get("ethAddress"), (tribes = []));
+      userInfo = await getCreatedUser(userInfo, request.user.id);
       await Moralis.Object.saveAll([userInfo], { useMasterKey: true });
     }
     return userInfo;
