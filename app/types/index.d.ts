@@ -79,14 +79,14 @@ export interface Task {
   title: string;
   description: any;
   submission: any;
-  deadline: Date;
+  dueDate: Date;
   tags: string[];
   assignee: string;
   reviewer: string;
   creator: string;
   reward: {
     chain: "polygon" | "ethereum" | "bsc";
-    value: number;
+    reward: number;
     token: string;
   };
   activity: {

@@ -186,7 +186,7 @@ const TaskList = styled.div<{ isDragging: boolean }>`
   border: ${(props) =>
     props.isDragging ? "0.5px solid #0061ff" : "0.5px solid transparent"};
   transition: 0.5s ease-in-out;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow: 0 10px 30px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   &:hover {
     border: 0.1px solid #3f3f3e;
   }
