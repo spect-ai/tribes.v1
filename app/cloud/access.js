@@ -18,6 +18,18 @@ function isMember(userId, team) {
   return false;
 }
 
+function isTaskStakeholder(userId, task) {
+  return task.get("creator") === userId || task.get("reviewer") === userId || task.get("assignee") === userId;
+}
+
+function isTaskClient(userId, task) {
+  return task.get("creator") === userId || task.get("reviewer") === userId;
+}
+
+function isTaskAssignee(userId, task) {
+  return task.get("assignee") === userId;
+}
+
 async function invite(members, teamId, invitedBy) {
   //members: [{'ethAddress':'0x232324', 'role': 'admin'}]
   const logger = Moralis.Cloud.getLogger();

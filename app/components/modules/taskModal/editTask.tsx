@@ -24,6 +24,8 @@ import { muiTheme } from "../../../constants/muiTheme";
 import CloseIcon from "@mui/icons-material/Close";
 import { Task } from "../../../types";
 import { getMD5String } from "../../../utils/utils";
+import { updateTask } from "../../../adapters/moralis";
+import { useMoralis } from "react-moralis";
 
 type Props = {
   task: Task;
@@ -31,6 +33,7 @@ type Props = {
 };
 
 export interface IEditTask {
+  taskId: string;
   title: string;
   boardId: number;
   description: string;
@@ -40,12 +43,14 @@ export interface IEditTask {
   assignee: string;
   reviewer: string;
   chain: string;
-  currency: string;
+  token: string;
   reward: number;
 }
 
 const EditTask = ({ task, handleClose }: Props) => {
   const router = useRouter();
+  const { Moralis } = useMoralis();
+
   // const [taskTitle, setTaskTitle] = useState(title);
   const [taskDescription, setTaskDescription] = useState("");
   console.log(task);
@@ -56,18 +61,27 @@ const EditTask = ({ task, handleClose }: Props) => {
     formState: { errors },
   } = useForm<IEditTask>({
     defaultValues: {
+      taskId: task.taskId,
       title: task.title,
       description: task.description,
       deadline: task.deadline,
       assignee: task.assignee,
       reviewer: task.reviewer,
       reward: task.reward.value,
-      currency: task.reward.token,
+      token: task.reward.token,
       chain: task.reward.chain,
     },
   });
 
-  const onSubmit: SubmitHandler<IEditTask> = async (values) => {};
+  const onSubmit: SubmitHandler<IEditTask> = async (values) => {
+    console.log("asasas");
+    console.log(values);
+    console.log("asasas");
+
+    updateTask(Moralis, values)
+      .then((res: any) => console.log(res))
+      .catch((e: any) => alert(e));
+  };
 
   const myTheme = createTheme({
     ...muiTheme,
@@ -111,11 +125,7 @@ const EditTask = ({ task, handleClose }: Props) => {
             </Divider>{" "}
             <Box sx={{ color: "#eaeaea", height: "10rem", overflow: "auto" }}>
               <ThemeProvider theme={myTheme}>
-                <MUIRichTextEditor
-                  label="Describe the task ..."
-                  onSave={saveDescription}
-                  inheritFontSize
-                />
+                <MUIRichTextEditor label="Describe the task ..." onSave={saveDescription} inheritFontSize />
               </ThemeProvider>
             </Box>
           </TaskModalBodyContainer>
@@ -142,9 +152,7 @@ const EditTask = ({ task, handleClose }: Props) => {
               <ListItem key={index}>
                 <Avatar
                   sx={{ width: 24, height: 24, mr: 2 }}
-                  src={`https://www.gravatar.com/avatar/${getMD5String(
-                    activity.userAddress
-                  )}?d=identicon&s=32`}
+                  src={`https://www.gravatar.com/avatar/${getMD5String(activity.userAddress)}?d=identicon&s=32`}
                 />
                 <ListItemText primary={activity.title} />
               </ListItem>
@@ -171,9 +179,7 @@ const EditTask = ({ task, handleClose }: Props) => {
                           <TextField
                             {...params}
                             fullWidth
-                            helperText={
-                              params.error && "Enter a date later than now"
-                            }
+                            helperText={params.error && "Enter a date later than now"}
                             size="small"
                           />
                         )}
@@ -197,13 +203,7 @@ const EditTask = ({ task, handleClose }: Props) => {
                       options={[]}
                       multiple
                       onChange={(e, data) => field.onChange(data)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -221,13 +221,7 @@ const EditTask = ({ task, handleClose }: Props) => {
                     <Autocomplete
                       options={["chaks.eth", "0xavp.eth", "USDC.eth"]} // Get options from members
                       getOptionLabel={(option) => option}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -246,13 +240,7 @@ const EditTask = ({ task, handleClose }: Props) => {
                     <Autocomplete
                       options={["chaks.eth", "0xavp.eth", "USDC.eth"]} // Get options from members
                       getOptionLabel={(option) => option}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -271,13 +259,7 @@ const EditTask = ({ task, handleClose }: Props) => {
                     <Autocomplete
                       options={["Polygon", "Ethereum", "Binance Smart Chain"]} // Get options from members
                       getOptionLabel={(option) => option}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -290,10 +272,7 @@ const EditTask = ({ task, handleClose }: Props) => {
                         <TextField
                           {...field}
                           id="filled-hidden-label-normal"
-                          helperText={
-                            fieldState.error?.type === "min" &&
-                            "Gig collateral should atleast be 1 Matic"
-                          }
+                          helperText={fieldState.error?.type === "min" && "Gig collateral should atleast be 1 Matic"}
                           type="number"
                           required
                           error={fieldState.error ? true : false}
@@ -306,19 +285,14 @@ const EditTask = ({ task, handleClose }: Props) => {
                   </Grid>
                   <Grid item xs={6}>
                     <Controller
-                      name="currency"
+                      name="token"
                       control={control}
                       render={({ field }) => (
                         <Autocomplete
                           options={["Matic", "Weth", "USDC"]} // Get options from members
                           getOptionLabel={(option) => option}
                           renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              id="filled-hidden-label-normal"
-                              size="small"
-                              sx={{ mr: 1, mt: 1 }}
-                            />
+                            <TextField {...params} id="filled-hidden-label-normal" size="small" sx={{ mr: 1, mt: 1 }} />
                           )}
                         />
                       )}
@@ -329,7 +303,7 @@ const EditTask = ({ task, handleClose }: Props) => {
             </TaskModalBodyContainer>
           </Box>
         </Grid>
-        <PrimaryButton variant="outlined" fullWidth sx={{ width: "30%" }}>
+        <PrimaryButton variant="outlined" fullWidth sx={{ width: "30%" }} type="submit">
           Save
         </PrimaryButton>
       </Grid>
