@@ -162,16 +162,15 @@ function handleDescriptionUpdate(task, userId, description) {
 function handleRewardUpdate(task, board, userId, value, token, chain) {
   if (
     isTaskClient(task, userId) &&
-    task.get("status") === 100 &&
     value > 0 &&
-    ["matic", "eth", "usdc"].includes(token.toLowerCase()) &&
-    ["polygon", "ethereum", "bsc"].includes(chain.toLowerCase())
+    ["wmatic", "weth", "usdc"].includes(token.toLowerCase()) &&
+    ["polygon", "ethereum"].includes(chain.toLowerCase())
   ) {
     var boardTasks = board.get("tasks");
-    boardTasks[task.get("taskId")]["value"] = value;
+    boardTasks[task.get("taskId")]["value"] = parseInt(value);
     boardTasks[task.get("taskId")]["token"] = token;
     board.set("tasks", boardTasks);
-    task.set("value", value);
+    task.set("value", parseInt(value));
     task.set("token", token);
     task.set("chain", chain);
   }
@@ -193,9 +192,11 @@ function handleDeadlineUpdate(task, userId, deadline) {
 }
 
 function handleAssigneeUpdate(task, board, userId, assignee) {
-  if (isTaskClient(task, userId) || (isTaskAssignee(task, userId) && !assignee && task.get("assignee") !== assignee)) {
-    [task, board] = handleActivityUpdate(task, board, request.user.id, 105, 5);
-    task.set("assignee", assignee);
+  if ((isTaskClient(task, userId) && assignee) || (isTaskAssignee(task, userId) && !assignee)) {
+    if (task.get("assignee") !== assignee) {
+      [task, board] = handleActivityUpdate(task, board, userId, 105, 5);
+      task.set("assignee", assignee);
+    }
   }
   return [task, board];
 }
@@ -208,7 +209,7 @@ function handleReviewerUpdate(task, userId, reviewer) {
 }
 
 function handleSubmissionUpdate(task, board, userId, submission) {
-  if (isTaskAssignee(task, userId) && task.get("submission") !== submission) {
+  if ((submission || task.get("submission")) && isTaskAssignee(task, userId) && task.get("submission") !== submission) {
     [task, board] = handleActivityUpdate(task, board, userId, 200, 10);
     task.set("submission", submission);
   }

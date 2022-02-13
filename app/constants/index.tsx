@@ -120,3 +120,11 @@ export const distributorRegistry = {
   Ethereum: "",
   Polygon: "",
 };
+
+export const actionMap = {
+  1: "Created",
+  5: "Assigned",
+  10: "Work submitted",
+  15: "Closed",
+  20: "Paid out",
+};

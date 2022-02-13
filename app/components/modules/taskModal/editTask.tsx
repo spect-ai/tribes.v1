@@ -30,7 +30,9 @@ import { monthMap } from "../../../constants";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 // import "react-mde/lib/styles/css/react-mde-all.css";
-
+import { useTribe } from "../../../../pages/tribe/[id]";
+import { chainTokenRegistry, actionMap } from "../../../constants";
+import { getTokenOptions } from "../../../utils/utils";
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
@@ -62,8 +64,11 @@ const converter = new Showdown.Converter({
 const EditTask = ({ task, setTask, handleClose }: Props) => {
   // const router = useRouter();
   const { Moralis } = useMoralis();
+  const { tribe } = useTribe();
   const [loading, setLoading] = useState(false);
+  const [chain, setChain] = useState<string | null>(task.chain);
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
+  console.log(tribe);
   const {
     handleSubmit,
     control,
@@ -77,10 +82,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
     setLoading(true);
     updateTask(Moralis, values)
       .then((res: any) => {
-        console.log(`resssslessss`);
-
         console.log(res);
-        console.log(`resssslessss`);
 
         setTask(res[1]);
         setLoading(false);
@@ -182,7 +184,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                   }
                 />
                 <ListItemText
-                  primary={`Created by ${act.username} on ${act.timestamp.getDate()}  ${
+                  primary={`${actionMap[act.action as number]} by ${act.username} on ${act.timestamp.getDate()}  ${
                     // @ts-ignore
                     monthMap[act.timestamp.getMonth() as number]
                   }`}
@@ -301,9 +303,12 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                   render={({ field }) => (
                     <Autocomplete
                       {...field}
-                      options={["Polygon", "Ethereum", "Binance Smart Chain"]} // Get options from members
+                      options={Object.keys(chainTokenRegistry)} // Get options from members
                       getOptionLabel={(option) => option}
-                      onChange={(e, data) => field.onChange(data)}
+                      onChange={(e, data) => {
+                        field.onChange(data);
+                        setChain(data);
+                      }}
                       renderInput={(params) => <TextField {...params} size="small" />}
                     />
                   )}
@@ -337,7 +342,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                       render={({ field }) => (
                         <Autocomplete
                           {...field}
-                          options={["Matic", "Weth", "USDC"]} // Get options from members
+                          options={getTokenOptions(chain)} // Get options from members
                           getOptionLabel={(option) => option}
                           onChange={(e, data) => field.onChange(data)}
                           renderInput={(params) => (
