@@ -11,7 +11,7 @@ import styled from "@emotion/styled";
 import { PrimaryButton } from "../../../app/components/elements/styledComponents";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
-import { getInvitations, acceptInvitations, checkMemberInTeam, getOrCreateUser } from "../../../app/adapters/moralis";
+import { acceptInvitations, checkMemberInTeam, getOrCreateUser, getTeam } from "../../../app/adapters/moralis";
 // interface inviteModalProps {
 //     openModal: boolean;
 //     setShowModal: any
@@ -45,12 +45,25 @@ const InviteModal = () => {
                     {
                         setShowModal(true)
                     }
-                    console.log('Memeber exist')
+                    console.log('Memeber exist', res)
                 })
                 .catch((error: any)=>{
-                    console.log(error)
+                    console.log('checkMemberInTeam',error)
                     // handleClose()
                     console.log('Error in fetching memeber')
+                })
+
+                console.log('userId', user?.id)
+                console.log('teamId', id)
+            getTeam(Moralis, Number(id))
+                .then((res: any[]) => {
+                    
+                        console.log('teams',res)
+                    
+                    
+                })
+                .catch((error: any)=>{
+                    console.log('getTeam',error)
                 })
         }
         else
@@ -63,10 +76,13 @@ const InviteModal = () => {
         acceptInvitations(Moralis, ethAddress, Number(id))
         .then((res: any[]) => {
             console.log("ressssAccepted", res);
-            router.replace(`/tribe/${id}`)
+            if(res)
+            {
+                router.replace(`/tribe/${id}`)
+            }  
         })
         .catch((ex: any) => {
-            console.log("ressssAccepted", ex);
+            console.log("acceptInvitations", ex);
             router.replace(`/`)
         });
         setShowModal(false)
@@ -78,7 +94,6 @@ const InviteModal = () => {
             getOrCreateUser(Moralis).then((res: any) => console.log(res));
         })
         .catch((err) => console.log(err))
-        // router.reload()
     }
 
     return (
