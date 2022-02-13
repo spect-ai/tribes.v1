@@ -1,8 +1,8 @@
 import styled from "@emotion/styled";
-import { Button, InputBase, IconButton, Popover, Typography } from "@mui/material";
+import { Button, InputBase, IconButton } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { Column, useBoard } from ".";
+import { Column, TaskPreview, useBoard } from ".";
 import TaskContainer from "./task";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -12,13 +12,12 @@ import ColumnSettingsPopover from "./columnSettingsPopover";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import CreateTask from "./createTask";
 import CreateGithubTask from "./createGithubTask";
-import { Task } from "../../../types";
 import { useMoralis } from "react-moralis";
 import { updateColumnName } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
 
 type Props = {
-  tasks: Task[];
+  tasks: TaskPreview[];
   id: string;
   column: Column;
   index: number;
@@ -46,10 +45,12 @@ const Column = ({ tasks, id, column, index }: Props) => {
   function updateColumn() {
     if (currentColumnTitle !== columnTitle) {
       console.log(`upating column title`);
-      updateColumnName(Moralis, bid as string, id, columnTitle).then((res: any) => {
-        setCurrentColumnTitle(columnTitle);
-        console.log(res);
-      });
+      updateColumnName(Moralis, bid as string, id, columnTitle).then(
+        (res: any) => {
+          setCurrentColumnTitle(columnTitle);
+          console.log(res);
+        }
+      );
     }
   }
 
@@ -57,15 +58,23 @@ const Column = ({ tasks, id, column, index }: Props) => {
     <OuterContainer>
       <Draggable draggableId={id} index={index}>
         {(provided, snapshot) => (
-          <Container {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+          <Container
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+          >
             <Droppable droppableId={id} type="task">
               {(provided) => (
-                <TaskList {...provided.droppableProps} ref={provided.innerRef} isDragging={snapshot.isDragging}>
+                <TaskList
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  isDragging={snapshot.isDragging}
+                >
                   <TaskTitleContainer>
                     <InputBase
                       placeholder="Add Title"
                       sx={{
-                        fontSize: "16px",
+                        fontSize: "15px",
                         marginLeft: "6px",
                       }}
                       value={columnTitle}
@@ -78,7 +87,11 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       }}
                     />
                     <Box sx={{ flex: "1 1 auto" }} />
-                    <IconButton sx={{ mb: 0.5, p: 0.5 }} size="small" onClick={handleClick}>
+                    <IconButton
+                      sx={{ mb: 0.5, p: 1 }}
+                      size="small"
+                      onClick={handleClick}
+                    >
                       <SettingsIcon fontSize="small" />
                     </IconButton>
                     <ColumnSettingsPopover
@@ -88,21 +101,12 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       columnId={column.id}
                     />
                   </TaskTitleContainer>
-                  {tasks?.map((task, index) => (
-                    <TaskContainer key={task.taskId} task={task} index={index} />
-                  ))}
-                  {provided.placeholder}
-                  {showCreateTask && <CreateTask setShowCreateTask={setShowCreateTask} columnId={id} />}
-                  {showCreateGithubTask && (
-                    <CreateGithubTask setShowCreateTask={setShowCreateGithubTask} columnId={id} />
-                  )}
-                  <Box sx={{ display: "flex", flexDirection: "row" }}>
+                  <Box sx={{ display: "flex", flexDirection: "row", mt: 0.5 }}>
                     <Button
                       sx={{
                         textTransform: "none",
                         color: "inherit",
                         textAlign: "left",
-                        mt: 2,
                         justifyContent: "flex-start",
                       }}
                       startIcon={<AddIcon />}
@@ -116,7 +120,6 @@ const Column = ({ tasks, id, column, index }: Props) => {
                         textTransform: "none",
                         color: "inherit",
                         textAlign: "left",
-                        mt: 2,
                         justifyContent: "flex-start",
                       }}
                       startIcon={<GitHubIcon />}
@@ -126,6 +129,26 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       Import Task
                     </Button>
                   </Box>
+                  {tasks?.map((task, index) => (
+                    <TaskContainer
+                      key={task.taskId}
+                      task={task}
+                      index={index}
+                    />
+                  ))}
+                  {provided.placeholder}
+                  {showCreateTask && (
+                    <CreateTask
+                      setShowCreateTask={setShowCreateTask}
+                      columnId={id}
+                    />
+                  )}
+                  {showCreateGithubTask && (
+                    <CreateGithubTask
+                      setShowCreateTask={setShowCreateGithubTask}
+                      columnId={id}
+                    />
+                  )}
                 </TaskList>
               )}
             </Droppable>
@@ -142,7 +165,7 @@ const TaskTitleContainer = styled.div`
 `;
 
 const OuterContainer = styled.div`
-  margin: 1rem 2rem 1rem 0rem;
+  margin: 1rem 1.2rem 1rem 0rem;
 `;
 
 const TaskList = styled.div<{ isDragging: boolean }>`
@@ -151,9 +174,10 @@ const TaskList = styled.div<{ isDragging: boolean }>`
   height: fit-content;
   padding: 1rem;
   border-radius: 0.5rem;
-  border: ${(props) => (props.isDragging ? "0.5px solid #0061ff" : "0.5px solid transparent")};
+  border: ${(props) =>
+    props.isDragging ? "0.5px solid #0061ff" : "0.5px solid transparent"};
   transition: 0.5s ease-in-out;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow: 0 10px 30px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   &:hover {
     border: 0.1px solid #3f3f3e;
   }
@@ -166,6 +190,7 @@ const TaskList = styled.div<{ isDragging: boolean }>`
 
 const Container = styled.div`
   display: flex;
+  flex-direction: column;
 `;
 
 export default Column;

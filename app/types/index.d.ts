@@ -20,7 +20,7 @@ export interface User {
 export interface Team {
   teamId: number;
   name: string;
-  mission: string;
+  description: string;
   treasuryAddress: string;
   onchain: boolean;
   members: { ethAddress: string; role: string }[];
@@ -83,14 +83,18 @@ export interface Task {
   tags: string[];
   assignee: string;
   reviewer: string;
-  reward: {
-    chain: "polygon" | "ethereum" | "bsc";
-    value: number;
-    token: string;
-  };
-  activity: {
-    userAddress: string;
-    timestamp: Date;
-    title: string;
-  }[];
+  creator: string;
+  chain: "polygon" | "ethereum" | "bsc";
+  value: number;
+  token: string;
+  activity: [
+    {
+      actor: string;
+      action: number;
+      timestamp: Date;
+      username: string;
+      profilePicture: any;
+    }
+  ];
+  status: number;
 }

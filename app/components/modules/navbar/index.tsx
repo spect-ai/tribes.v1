@@ -16,14 +16,14 @@ const StyledNav = styled("nav")(({ theme }) => ({
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  height: "5rem",
+  height: "4.2rem",
   width: "100%",
-  paddingTop: "1rem",
+  paddingTop: "0.4rem",
 }));
 
 const NavbarAvatar = styled(Avatar)(({ theme }) => ({
-  height: 37,
-  width: 37,
+  height: 25,
+  width: 25,
   objectFit: "cover",
   borderWidth: 2,
   border: "1px solid #0066FF",
@@ -34,8 +34,8 @@ const NavbarButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
   borderRadius: "22.5px",
   textTransform: "none",
   border: "2px solid #0066FF",
-  width: "178px",
-  height: "45px",
+  width: "155px",
+  height: "35px",
 }));
 
 const Navbar = (props: Props) => {
@@ -49,9 +49,9 @@ const Navbar = (props: Props) => {
   } = useMoralis();
   return (
     <StyledNav>
-      <Box sx={{ pt: 1, mx: 8 }}>
+      <Box sx={{ pt: 0, mx: 8 }}>
         <a href="/">
-          <Image src={Logo} alt="logo" height="70" width="140" />
+          <Image src={Logo} alt="logo" height="50" width="110" />
         </a>
       </Box>
       <Box sx={{ flex: "1 1 auto" }} />
@@ -62,25 +62,27 @@ const Navbar = (props: Props) => {
       ) : (
         <></>
       )}
-      <Box sx={{ mr: 12, ml: 4 }}>
+      <Box sx={{ mr: 8, ml: 4 }}>
         {!isAuthenticated ? (
           <NavbarButton
             variant="outlined"
             loading={isAuthenticating}
             onClick={() =>
               authenticate({
-                provider: "web3Auth",
-                // @ts-ignore
-                clientId:
-                  "BADQJ8pY7u0cgWmzwXyNeOwi-gl6b4EgLk0076mEnIIwg39vAOCqrFiaL8n7khrPFLwikwyH15RT_KZyjlGkkZg",
-                appLogo:
-                  "https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM",
-                // @ts-ignore
-                chainId: Moralis.Chains.POLYGON_MAINNET,
-              }).then((res) => {
-                console.log(res);
-                getOrCreateUser(Moralis).then((res: any) => console.log(res));
+                // provider: "web3Auth",
+                // // @ts-ignore
+                // clientId:
+                //   "BADQJ8pY7u0cgWmzwXyNeOwi-gl6b4EgLk0076mEnIIwg39vAOCqrFiaL8n7khrPFLwikwyH15RT_KZyjlGkkZg",
+                // appLogo:
+                //   "https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM",
+                // // @ts-ignore
+                // chainId: Moralis.Chains.POLYGON_MAINNET,
               })
+                .then((res) => {
+                  console.log(res);
+                  getOrCreateUser(Moralis).then((res: any) => console.log(res));
+                })
+                .catch((err) => console.log(err))
             }
           >
             <Typography sx={{ mx: 2, fontSize: 15 }}>Connect Wallet</Typography>
@@ -94,7 +96,7 @@ const Navbar = (props: Props) => {
             }}
           >
             <NavbarAvatar />
-            <Typography sx={{ ml: 1, fontSize: 15 }}>
+            <Typography sx={{ ml: 1, fontSize: 14 }}>
               {smartTrim(user?.get("ethAddress"), 10)}
             </Typography>
           </NavbarButton>

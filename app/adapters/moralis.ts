@@ -5,14 +5,16 @@ export function getOrCreateUser(Moralis: any) {
 }
 
 export function createTribe(Moralis: any, team: any) {
+  console.log(team);
   const params = {
     name: team.name,
-    mission: team.mission,
+    description: team.description,
     treasuryAddress: team.treasuryAddress,
     organization: team.organization,
     openApplications: team.openApplications,
     applicationRequirements: team.applicationRequirements,
-    ethAddress: team.ethAddress,
+    preferredChain: team.preferredChain,
+    preferredToken: team.preferredToken,
   };
   return Moralis.Cloud.run("createTeam", params);
 }
@@ -20,7 +22,7 @@ export function createTribe(Moralis: any, team: any) {
 export function updateTribe(Moralis: any, team: Team) {
   const params = {
     name: team.name,
-    mission: team.mission,
+    description: team.description,
     treasuryAddress: team.treasuryAddress,
     organization: team.organization,
     openApplications: team.openApplications,
@@ -106,14 +108,14 @@ export function addTask(
   boardId: string,
   columnId: string,
   title: string,
-  reward: number,
+  value: number,
   description: string
 ) {
   const params = {
     boardId: boardId,
     columnId: columnId,
     title: title,
-    reward: reward,
+    value: value,
     description: description,
   };
   return Moralis.Cloud.run("addTask", params);
@@ -220,8 +222,6 @@ export function updateTask(Moralis: any, task: any) {
   const params = {
     task: task,
   };
-  console.log("dsdsdssdsd");
-  console.log(task);
   return Moralis.Cloud.run("updateTask", params);
 }
 
@@ -240,4 +240,18 @@ export function checkMemberInTeam(Moralis: any, teamId: number, userId: string) 
   };
 
   return Moralis.Cloud.run("checkMemberInTeam",params)
+}
+export function updateBoard(Moralis: any, boardId: string, name: string) {
+  const params = {
+    boardId: boardId,
+    name: name,
+  };
+  return Moralis.Cloud.run("updateBoard", params);
+}
+
+export function deleteBoard(Moralis: any, boardId: string) {
+  const params = {
+    boardId: boardId,
+  };
+  return Moralis.Cloud.run("deleteBoard", params);
 }

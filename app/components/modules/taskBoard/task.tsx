@@ -7,9 +7,10 @@ import { Avatar } from "@mui/material";
 import { getMD5String } from "../../../utils/utils";
 import TaskModal from "../taskModal";
 import { Task } from "../../../types";
+import { TaskPreview } from ".";
 
 type Props = {
-  task: Task;
+  task: TaskPreview;
   index: number;
 };
 
@@ -19,7 +20,11 @@ const TaskContainer = ({ task, index }: Props) => {
   return (
     <>
       {isOpen && (
-        <TaskModal isOpen={isOpen} handleClose={handleClose} task={task} />
+        <TaskModal
+          isOpen={isOpen}
+          handleClose={handleClose}
+          taskId={task.taskId}
+        />
       )}
       <Draggable draggableId={task.taskId} index={index}>
         {(provided, snapshot) => (
@@ -36,27 +41,31 @@ const TaskContainer = ({ task, index }: Props) => {
               <ChipContainer>
                 <Chip color="#99ccff">
                   <MonetizationOnIcon sx={{ fontSize: 12 }} />
-                  {task.reward.value} Matic
+                  {task.value} Matic
                 </Chip>
-                {!task.deadline && (
+                {task.deadline && (
                   <Chip color="#5a6972">
                     <DateRangeIcon sx={{ fontSize: 12 }} />
                     {task.deadline}
                   </Chip>
                 )}
               </ChipContainer>
-              {/* <Avatar
-                alt=""
-                src={`https://www.gravatar.com/avatar/${getMD5String(
-                  "test"
-                )}?d=identicon&s=32`}
-                sx={{
-                  width: "1.7rem",
-                  height: "1.7rem",
-                  objectFit: "cover",
-                }}
-              /> */}
-              <Text>0xavp created this task on 29th feb</Text>
+
+              <Text>
+                <Avatar
+                  alt=""
+                  src={`https://www.gravatar.com/avatar/${getMD5String(
+                    "test"
+                  )}?d=identicon&s=32`}
+                  sx={{
+                    width: "1.2rem",
+                    height: "1.2rem",
+                    objectFit: "cover",
+                    mr: 1,
+                  }}
+                />
+                0xavp created this task on 29th feb
+              </Text>
             </Container>
           </TaskCard>
         )}
@@ -116,6 +125,10 @@ const Title = styled.div`
 const Text = styled.div`
   font-size: 12px;
   color: #99ccff;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 2px;
 `;
 
 export default TaskContainer;

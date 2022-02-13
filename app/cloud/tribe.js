@@ -2,18 +2,20 @@ async function getCreatedTribe(
   tribe,
   teamId,
   name,
-  mission,
+  description,
   treasuryAddress,
   savedOnChain,
   members, // List<string, string> => [{'ethAddress':0x....s34efg, 'role':admin/core/general}]
   organization,
   organizationVerified,
   openApplications,
-  applicationRequirements
+  applicationRequirements,
+  preferredChain,
+  preferredToken
 ) {
   tribe.set("teamId", teamId);
   tribe.set("name", name);
-  tribe.set("mission", mission);
+  tribe.set("description", description);
   tribe.set("treasuryAddress", treasuryAddress);
   tribe.set("onchain", savedOnChain);
   tribe.set("members", members);
@@ -23,13 +25,15 @@ async function getCreatedTribe(
   tribe.set("applicationRequirements", applicationRequirements);
   tribe.set("latestContributionEpoch", null);
   tribe.set("latestTaskEpoch", null);
+  tribe.set("preferredChain", preferredChain);
+  tribe.set("preferredToken", preferredToken);
   return tribe;
 }
 
 async function getUpdatedTribeDetails(
   tribe,
   name,
-  mission,
+  description,
   treasuryAddress,
   organization,
   organizationVerified,
@@ -37,7 +41,7 @@ async function getUpdatedTribeDetails(
   applicationRequirements
 ) {
   tribe.set("name", name);
-  tribe.set("mission", mission);
+  tribe.set("description", description);
   tribe.set("treasuryAddress", treasuryAddress);
   tribe.set("organization", organization);
   tribe.set("organizationVerified", organizationVerified);
@@ -74,6 +78,13 @@ Moralis.Cloud.define("getTeam", async (request) => {
   return team[0];
 });
 
+Moralis.Cloud.define("getMyTeams", async (request) => {
+  const userInfoQuery = new Moralis.Query("UserInfo");
+  userInfoQuery.equalTo("userId", request.user.id);
+  const userInfo = await userInfoQuery.find();
+  return userInfo.get("tribes");
+});
+
 Moralis.Cloud.define("createTeam", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
@@ -85,20 +96,22 @@ Moralis.Cloud.define("createTeam", async (request) => {
       team,
       teamId,
       request.params.name,
-      request.params.mission,
+      request.params.description,
       request.params.treasuryAddress,
       (savedOnChain = false),
       (members = [{ userId: request.user.id, role: "admin" }]),
       request.params.organization,
       (organizationVerified = false),
       request.params.openApplications,
-      request.params.applicationRequirements
+      request.params.applicationRequirements,
+      request.params.preferredChain,
+      request.params.preferredToken
     );
 
     // Add tribe to tribe creator's user info
     const userInfo = await getUserByUserId(request.user.id);
     teamMemberships = userInfo.get("tribes").concat([teamId]);
-    userInfo.set("teams", teamMemberships);
+    userInfo.set("tribes", teamMemberships);
 
     await Moralis.Object.saveAll([team, userInfo], { useMasterKey: true });
 
@@ -117,7 +130,7 @@ Moralis.Cloud.define("updateTeam", async (request) => {
     if (hasAccess(request.user.id, team, (requiredAccess = "admin"))) {
       await getUpdatedTribeDetails(
         request.params.name,
-        request.params.mission,
+        request.params.description,
         request.params.treasuryAddress,
         request.params.organization,
         (organizationVerified = false),

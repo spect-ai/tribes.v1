@@ -19,14 +19,18 @@ function isMember(userId, team) {
 }
 
 function isTaskStakeholder(userId, task) {
-  return task.get("creator") === userId || task.get("reviewer") === userId || task.get("assignee") === userId;
+  return (
+    task.get("creator") === userId ||
+    task.get("reviewer") === userId ||
+    task.get("assignee") === userId
+  );
 }
 
-function isTaskClient(userId, task) {
+function isTaskClient(task, userId) {
   return task.get("creator") === userId || task.get("reviewer") === userId;
 }
 
-function isTaskAssignee(userId, task) {
+function isTaskAssignee(task, userId) {
   return task.get("assignee") === userId;
 }
 

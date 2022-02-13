@@ -1,9 +1,9 @@
 import MD5 from "crypto-js/md5";
+import { chainTokenRegistry } from "../constants";
 
 export const smartTrim = (string: string, maxLength: number) => {
-  if(!string)
-  {
-    return
+  if (!string) {
+    return;
   }
   if (maxLength < 1) return string;
   if (string.length <= maxLength) return string;
@@ -13,9 +13,7 @@ export const smartTrim = (string: string, maxLength: number) => {
   const toremove = string.length - maxLength;
   const lstrip = Math.ceil(toremove / 2);
   const rstrip = toremove - lstrip;
-  return `${string.substring(0, midpoint - lstrip)}...${string.substring(
-    midpoint + rstrip
-  )}`;
+  return `${string.substring(0, midpoint - lstrip)}...${string.substring(midpoint + rstrip)}`;
 };
 
 export function formatTimeLeft(date: Date) {
@@ -36,16 +34,20 @@ function msToTime(ms: number) {
   else return days + " Days";
 }
 
-export function getRemainingVotes(
-  prevRemainingVotes: number,
-  votesGiven: number,
-  prevVotesGiven: number
-) {
-  return (
-    prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2)
-  );
+export function getRemainingVotes(prevRemainingVotes: number, votesGiven: number, prevVotesGiven: number) {
+  return prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2);
 }
 
 export function getMD5String(string: string) {
   return MD5(string).toString();
+}
+
+export function getTokenOptions(chain: any) {
+  var tokenOptions =
+    chain === "Ethereum"
+      ? Object.keys(chainTokenRegistry["Ethereum"])
+      : chain === "Polygon"
+      ? Object.keys(chainTokenRegistry["Polygon"])
+      : [];
+  return tokenOptions;
 }

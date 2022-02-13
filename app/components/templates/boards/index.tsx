@@ -5,8 +5,8 @@ import TaskBoard from "../../modules/taskBoard";
 type Props = {};
 
 const OuterDiv = styled.div`
-  margin-left: 4rem;
-  margin-right: 4rem;
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
 `;
 
 const BoardsTemplate = (props: Props) => {
