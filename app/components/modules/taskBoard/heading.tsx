@@ -12,15 +12,20 @@ import {
   ListItemText,
   Tooltip,
   Typography,
+  ListItemButton,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useBoard } from ".";
 import BoardSettings from "../boardSettings";
 import GroupsIcon from "@mui/icons-material/Groups";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
+import PaidIcon from "@mui/icons-material/Paid";
 import Link from "next/link";
+import { getBoards } from "../../../adapters/moralis";
+import { useMoralis } from "react-moralis";
 
 type Props = {};
 
@@ -39,16 +44,37 @@ const Heading = (props: Props) => {
   const { data } = useBoard();
   const router = useRouter();
   const id = router.query.id as string;
+  const bid = router.query.bid as string;
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
+  const { Moralis, isInitialized } = useMoralis();
+  const [boards, setBoards] = useState([]);
+
+  useEffect(() => {
+    if (isInitialized) {
+      getBoards(Moralis, parseInt(id))
+        .then((res: any) => {
+          console.log(res);
+          setBoards(res);
+        })
+        .catch((err: any) => alert(err));
+    }
+  }, [isInitialized, data.name]);
+
   return (
     <Container>
       <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
-        <List>
-          {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemText primary={text} />
-            </ListItem>
+        <List sx={{ maxWidth: "10rem" }}>
+          {boards.map((board: any, index) => (
+            <Link
+              href={`/tribe/${id}/board/${board.objectId}`}
+              key={board.objectId}
+              passHref
+            >
+              <ListItemButton selected={board.objectId === bid}>
+                <ListItemText primary={board.name} />
+              </ListItemButton>
+            </Link>
           ))}
         </List>
       </Drawer>
@@ -102,6 +128,16 @@ const Heading = (props: Props) => {
               <RefreshIcon />
             </IconButton>
           </MuiLink>
+        </Tooltip>
+        <Tooltip title="Invite member">
+          <IconButton sx={{ mb: 0.5, p: 1.7 }} size="small">
+            <PeopleOutlineIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Batch Pay">
+          <IconButton sx={{ mb: 0.5, p: 1.7 }} size="small">
+            <PaidIcon />
+          </IconButton>
         </Tooltip>
       </Box>
     </Container>

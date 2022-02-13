@@ -3,20 +3,17 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import Column from "./column";
 import { DragDropContext, DropResult, Droppable } from "react-beautiful-dnd";
 import AddIcon from "@mui/icons-material/Add";
-import { Button } from "@mui/material";
-import ArrowLeftIcon from "@mui/icons-material/ArrowLeft";
+import { Button, Fade, Grow } from "@mui/material";
 import { useRouter } from "next/router";
-import Link from "next/link";
 import {
   getBoard,
   updateColumnOrder,
   addColumn,
-  removeColumn,
   updateColumnTasks,
 } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import { Task } from "../../../types";
 import Heading from "./heading";
+import SkeletonLoader from "./skeletonLoader";
 
 type Props = {};
 
@@ -191,11 +188,13 @@ const TaskBoard = (props: Props) => {
     }
   };
   if (isLoading) {
-    return <div>Loading!</div>;
+    return <SkeletonLoader />;
   }
   return (
-    <BoardContext.Provider value={context}>
-      {/* <Link href={`/tribe/${id}`} passHref>
+    <Fade in={!isLoading} timeout={500}>
+      <div>
+        <BoardContext.Provider value={context}>
+          {/* <Link href={`/tribe/${id}`} passHref>
         <Button
           startIcon={<ArrowLeftIcon />}
           sx={{ textTransform: "none", fontSize: 10, ml: 1 }}
@@ -204,72 +203,74 @@ const TaskBoard = (props: Props) => {
           Back to tribe
         </Button>
       </Link> */}
-      <Heading />
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable
-          droppableId="all-columns"
-          direction="horizontal"
-          type="column"
-        >
-          {(provided, snapshot) => (
-            <Container {...provided.droppableProps} ref={provided.innerRef}>
-              {data.columnOrder.map((columnId, index) => {
-                const column = data.columns[columnId];
-                const tasks = column.taskIds?.map(
-                  (taskId) => data.tasks[taskId]
-                );
-                return (
-                  <Column
-                    key={columnId}
-                    column={column}
-                    tasks={tasks}
-                    id={columnId}
-                    index={index}
-                  />
-                );
-              })}
-              {provided.placeholder}
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcon />}
-                sx={{
-                  textTransform: "none",
-                  height: "8%",
-                  width: "19rem",
-                  margin: "1rem 2rem 1rem 0rem",
-                }}
-                style={{
-                  backgroundColor: "#00194A",
-                }}
-                onClick={() => {
-                  setData({
-                    ...data,
-                    columns: {
-                      ...data.columns,
-                      [`column-${data.columnOrder.length}`]: {
-                        id: `column-${data.columnOrder.length}`,
-                        title: "",
-                        taskIds: [],
-                      },
-                    },
-                    columnOrder: [
-                      ...data.columnOrder,
-                      `column-${data.columnOrder.length}`,
-                    ],
-                  });
-                  addColumn(Moralis, bid as string).then((res: any) =>
-                    console.log(res)
-                  );
-                }}
-              >
-                Add new column
-              </Button>
-            </Container>
-          )}
-        </Droppable>
-      </DragDropContext>
-    </BoardContext.Provider>
+          <Heading />
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable
+              droppableId="all-columns"
+              direction="horizontal"
+              type="column"
+            >
+              {(provided, snapshot) => (
+                <Container {...provided.droppableProps} ref={provided.innerRef}>
+                  {data.columnOrder.map((columnId, index) => {
+                    const column = data.columns[columnId];
+                    const tasks = column.taskIds?.map(
+                      (taskId) => data.tasks[taskId]
+                    );
+                    return (
+                      <Column
+                        key={columnId}
+                        column={column}
+                        tasks={tasks}
+                        id={columnId}
+                        index={index}
+                      />
+                    );
+                  })}
+                  {provided.placeholder}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<AddIcon />}
+                    sx={{
+                      textTransform: "none",
+                      height: "8%",
+                      width: "19rem",
+                      margin: "1rem 2rem 1rem 0rem",
+                    }}
+                    style={{
+                      backgroundColor: "#00194A",
+                    }}
+                    onClick={() => {
+                      setData({
+                        ...data,
+                        columns: {
+                          ...data.columns,
+                          [`column-${data.columnOrder.length}`]: {
+                            id: `column-${data.columnOrder.length}`,
+                            title: "",
+                            taskIds: [],
+                          },
+                        },
+                        columnOrder: [
+                          ...data.columnOrder,
+                          `column-${data.columnOrder.length}`,
+                        ],
+                      });
+                      addColumn(Moralis, bid as string).then((res: any) =>
+                        console.log(res)
+                      );
+                    }}
+                  >
+                    Add new column
+                  </Button>
+                </Container>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </BoardContext.Provider>
+      </div>
+    </Fade>
   );
 };
 

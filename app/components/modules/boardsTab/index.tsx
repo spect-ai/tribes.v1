@@ -1,4 +1,4 @@
-import { Button, Grid, styled } from "@mui/material";
+import { Button, Grid, Skeleton, styled } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useState, useEffect } from "react";
 import CreateBoard from "./createBoard";
@@ -16,11 +16,14 @@ const Board = (props: Props) => {
   const { Moralis } = useMoralis();
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
+    setIsLoading(true);
     getBoards(Moralis, tribe.teamId)
       .then((res: any) => {
         console.log(res);
         setBoards(res);
+        setIsLoading(false);
       })
       .catch((err: any) => alert(err));
   }, []);
@@ -28,21 +31,31 @@ const Board = (props: Props) => {
     <Container>
       <CreateBoard isOpen={isOpen} handleClose={handleClose} />
       <Grid container spacing={2}>
-        {boards.map((board: any, index) => (
-          <Grid item xs={3} key={index}>
-            <BoardButton
-              variant="contained"
-              onClick={() => {
-                router.push(
-                  `/tribe/${tribe.teamId}/board/${board.objectId}`,
-                  undefined
-                );
-              }}
-            >
-              <ButtonText>{board.name}</ButtonText>
-            </BoardButton>
-          </Grid>
-        ))}
+        {!isLoading &&
+          boards.map((board: any, index) => (
+            <Grid item xs={3} key={index}>
+              <BoardButton
+                variant="contained"
+                onClick={() => {
+                  router.push(
+                    `/tribe/${tribe.teamId}/board/${board.objectId}`,
+                    undefined
+                  );
+                }}
+              >
+                <ButtonText>{board.name}</ButtonText>
+              </BoardButton>
+            </Grid>
+          ))}
+        {isLoading && (
+          <Skeleton
+            width={300}
+            height={128}
+            variant="rectangular"
+            animation="wave"
+            sx={{ mt: 2, borderRadius: "0.5rem" }}
+          />
+        )}
 
         <Grid item xs={3}>
           <CreateBoardButton variant="outlined" onClick={() => setIsOpen(true)}>

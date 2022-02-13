@@ -74,7 +74,7 @@ const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
               bid as string,
               columnId,
               newTaskTitle,
-              parseFloat(newTaskReward),
+              parseFloat(newTaskValue),
               ""
             ).then((res: any) => {
               if (!res) {
@@ -82,7 +82,7 @@ const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
                 return;
               }
               setData(res as BoardData);
-              setNewTaskReward("");
+              setNewTaskValue("");
               setNewTaskTitle("");
               setShowCreateTask(false);
             });

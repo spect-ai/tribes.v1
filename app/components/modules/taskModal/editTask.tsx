@@ -74,7 +74,6 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
     control,
     formState: { errors },
   } = useForm<IEditTask>({});
-
   const onSubmit: SubmitHandler<IEditTask> = async (values) => {
     values.deadline = new Date(values.deadline).toUTCString();
     values.taskId = task.taskId;
@@ -83,12 +82,15 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
     updateTask(Moralis, values)
       .then((res: any) => {
         console.log(res);
-
         setTask(res[1]);
         setLoading(false);
         handleClose();
       })
-      .catch((e: any) => console.log(e));
+      .catch((e: any) => {
+        alert(e);
+        console.log(e);
+        setLoading(false);
+      });
   };
 
   const myTheme = createTheme({
@@ -351,7 +353,6 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                             "Validation error"
                           }
                           type="number"
-                          required
                           error={fieldState.error ? true : false}
                           inputProps={{ min: 0, step: 1 }}
                           size="small"

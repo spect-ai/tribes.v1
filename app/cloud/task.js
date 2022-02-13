@@ -35,13 +35,13 @@ Moralis.Cloud.define("getTask", async (request) => {
     if (request.params.taskId) {
       const task = await getTaskObjByTaskId(request.params.taskId);
       if (task.length === 0) throw `Task ${request.params.taskId} not found`;
-      for (var act of task[0].activity) {
-        var userQuery = new Moralis.Query("User");
-        userQuery.equalTo("objectId", act.actor);
-        var user = await userQuery.first({ useMasterKey: true });
-        act.username = user.get("username");
-        act.profilePicture = user.get("profilePicture");
-      }
+      // for (var act of task[0].activity) {
+      //   var userQuery = new Moralis.Query("User");
+      //   userQuery.equalTo("objectId", act.actor);
+      //   var user = await userQuery.first({ useMasterKey: true });
+      //   act.username = user.get("username");
+      //   act.profilePicture = user.get("profilePicture");
+      // }
       return task[0];
     }
   } catch (err) {
