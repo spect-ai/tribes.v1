@@ -26,7 +26,7 @@ const ConfirmModal = ({ isOpen, handleClose }: Props) => {
   const { Moralis } = useMoralis();
   const router = useRouter();
   const id = router.query.id as string;
-  const [name, setName] = useState(data.name);
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <>
@@ -49,13 +49,17 @@ const ConfirmModal = ({ isOpen, handleClose }: Props) => {
                   variant="outlined"
                   sx={{ width: "50%", mt: 2 }}
                   color="error"
+                  loading={isLoading}
                   onClick={() => {
+                    setIsLoading(true);
                     deleteBoard(Moralis, data.objectId).then((res: any) => {
                       if (res) {
+                        handleClose();
                         router.push(`/tribe/${id}`);
                       } else {
                         alert("Error");
                       }
+                      setIsLoading(false);
                     });
                   }}
                 >

@@ -6,7 +6,6 @@ import DateRangeIcon from "@mui/icons-material/DateRange";
 import { Avatar } from "@mui/material";
 import { getMD5String } from "../../../utils/utils";
 import TaskModal from "../taskModal";
-import { Task } from "../../../types";
 import { TaskPreview } from ".";
 
 type Props = {

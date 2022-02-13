@@ -29,6 +29,7 @@ const BoardSettings = (props: Props) => {
     setIsOpen(false);
   };
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const handleConfirmClose = () => {
     setIsConfirmOpen(false);
   };
@@ -68,10 +69,14 @@ const BoardSettings = (props: Props) => {
                 <PrimaryButton
                   variant="outlined"
                   sx={{ width: "50%", mt: 2, mr: 1 }}
+                  loading={isLoading}
                   onClick={() => {
+                    setIsLoading(true);
                     updateBoard(Moralis, data.objectId, name).then(
                       (res: any) => {
                         setData(res as BoardData);
+                        setIsLoading(false);
+                        handleClose();
                       }
                     );
                   }}
