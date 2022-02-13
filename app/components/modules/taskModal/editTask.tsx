@@ -77,8 +77,12 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
     setLoading(true);
     updateTask(Moralis, values)
       .then((res: any) => {
+        console.log(`resssslessss`);
+
         console.log(res);
-        setTask(res);
+        console.log(`resssslessss`);
+
+        setTask(res[1]);
         setLoading(false);
       })
       .catch((e: any) => console.log(e));

@@ -16,7 +16,7 @@ async function getBoardObjByTeamId(teamId) {
   return await boardQuery.aggregate(pipeline);
 }
 
-async function getBoardObjFromBoardParseObj(board) {
+function getBoardObjFromBoardParseObj(board) {
   return {
     objectId: board.id,
     name: board.get("name"),
