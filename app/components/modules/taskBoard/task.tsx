@@ -19,7 +19,13 @@ const TaskContainer = ({ task, index }: Props) => {
   const handleClose = () => setIsOpen(false);
   return (
     <>
-      {isOpen && <TaskModal isOpen={isOpen} handleClose={handleClose} taskId={task.taskId} />}
+      {isOpen && (
+        <TaskModal
+          isOpen={isOpen}
+          handleClose={handleClose}
+          taskId={task.taskId}
+        />
+      )}
       <Draggable draggableId={task.taskId} index={index}>
         {(provided, snapshot) => (
           <TaskCard
@@ -48,10 +54,12 @@ const TaskContainer = ({ task, index }: Props) => {
               <Text>
                 <Avatar
                   alt=""
-                  src={`https://www.gravatar.com/avatar/${getMD5String("test")}?d=identicon&s=32`}
+                  src={`https://www.gravatar.com/avatar/${getMD5String(
+                    "test"
+                  )}?d=identicon&s=32`}
                   sx={{
-                    width: "1.3rem",
-                    height: "1.3rem",
+                    width: "1.2rem",
+                    height: "1.2rem",
                     objectFit: "cover",
                     mr: 1,
                   }}
@@ -91,7 +99,8 @@ const TaskCard = styled.div<{ isDragging: boolean }>`
   height: fit-content;
   width: 16rem;
   margin: 5px;
-  border: ${(props) => (props.isDragging ? "0.1px solid #0061ff" : "0.1px solid transparent")};
+  border: ${(props) =>
+    props.isDragging ? "0.1px solid #0061ff" : "0.1px solid transparent"};
   padding: 5px;
   border-radius: 5px;
   background-color: #0a2354;
@@ -119,6 +128,7 @@ const Text = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin-top: 2px;
 `;
 
 export default TaskContainer;

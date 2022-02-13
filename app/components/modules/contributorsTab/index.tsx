@@ -4,7 +4,12 @@ import ContributorsTableComponent from "./ContributorsTableComponent";
 import { muiTheme } from "../../../constants/muiTheme";
 import { Epoch, Team } from "../../../types/index";
 import { useMoralis } from "react-moralis";
-import { endEpoch, getEpoch, getTeam, giftContributors } from "../../../adapters/moralis";
+import {
+  endEpoch,
+  getEpoch,
+  getTeam,
+  giftContributors,
+} from "../../../adapters/moralis";
 import PaidIcon from "@mui/icons-material/Paid";
 import { massPayment } from "../../../adapters/gnosis";
 import { distributeTokensForContribution } from "../../../adapters/contract";
@@ -21,7 +26,27 @@ const Contributor = (props: Props) => {
   const [remainingVotes, setRemainingVotes] = useState(0);
   const [voteAllocation, setVoteAllocation] = useState({});
   const { tribe } = useTribe();
-  console.log(tribe);
+
+  // useEffect(() => {
+  //   if (Object.keys(epoch)?.length === 0) {
+  //     let memberStats;
+  //     getEpoch(Moralis, tribe.latestContributionEpoch).then((res: Epoch) => {
+  //       console.log(res);
+  //       if (res) {
+  //         setEpoch(res);
+  //         memberStats = res.memberStats.filter(
+  //           (m: any) => m.ethAddress.toLowerCase() === user?.get("ethAddress")
+  //         );
+  //         memberStats.length > 0
+  //           ? setRemainingVotes(memberStats[0]?.votesRemaining)
+  //           : setRemainingVotes(0);
+  //         memberStats.length > 0
+  //           ? setVoteAllocation(memberStats[0]?.votesAllocated)
+  //           : null;
+  //       }
+  //     }, []);
+  //   }
+  // });
   return (
     <Wrapper>
       <MainContainer>

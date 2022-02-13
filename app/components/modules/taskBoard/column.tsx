@@ -1,11 +1,5 @@
 import styled from "@emotion/styled";
-import {
-  Button,
-  InputBase,
-  IconButton,
-  Popover,
-  Typography,
-} from "@mui/material";
+import { Button, InputBase, IconButton } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { Column, TaskPreview, useBoard } from ".";
@@ -18,7 +12,6 @@ import ColumnSettingsPopover from "./columnSettingsPopover";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import CreateTask from "./createTask";
 import CreateGithubTask from "./createGithubTask";
-import { Task } from "../../../types";
 import { useMoralis } from "react-moralis";
 import { updateColumnName } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
@@ -81,7 +74,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                     <InputBase
                       placeholder="Add Title"
                       sx={{
-                        fontSize: "16px",
+                        fontSize: "15px",
                         marginLeft: "6px",
                       }}
                       value={columnTitle}
@@ -95,7 +88,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                     />
                     <Box sx={{ flex: "1 1 auto" }} />
                     <IconButton
-                      sx={{ mb: 0.5, p: 0.5 }}
+                      sx={{ mb: 0.5, p: 1 }}
                       size="small"
                       onClick={handleClick}
                     >
@@ -108,6 +101,34 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       columnId={column.id}
                     />
                   </TaskTitleContainer>
+                  <Box sx={{ display: "flex", flexDirection: "row", mt: 0.5 }}>
+                    <Button
+                      sx={{
+                        textTransform: "none",
+                        color: "inherit",
+                        textAlign: "left",
+                        justifyContent: "flex-start",
+                      }}
+                      startIcon={<AddIcon />}
+                      onClick={() => setShowCreateTask(true)}
+                      fullWidth
+                    >
+                      Add Task
+                    </Button>
+                    <Button
+                      sx={{
+                        textTransform: "none",
+                        color: "inherit",
+                        textAlign: "left",
+                        justifyContent: "flex-start",
+                      }}
+                      startIcon={<GitHubIcon />}
+                      onClick={() => setShowCreateGithubTask(true)}
+                      fullWidth
+                    >
+                      Import Task
+                    </Button>
+                  </Box>
                   {tasks?.map((task, index) => (
                     <TaskContainer
                       key={task.taskId}
@@ -128,36 +149,6 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       columnId={id}
                     />
                   )}
-                  <Box sx={{ display: "flex", flexDirection: "row" }}>
-                    <Button
-                      sx={{
-                        textTransform: "none",
-                        color: "inherit",
-                        textAlign: "left",
-                        mt: 2,
-                        justifyContent: "flex-start",
-                      }}
-                      startIcon={<AddIcon />}
-                      onClick={() => setShowCreateTask(true)}
-                      fullWidth
-                    >
-                      Add Task
-                    </Button>
-                    <Button
-                      sx={{
-                        textTransform: "none",
-                        color: "inherit",
-                        textAlign: "left",
-                        mt: 2,
-                        justifyContent: "flex-start",
-                      }}
-                      startIcon={<GitHubIcon />}
-                      onClick={() => setShowCreateGithubTask(true)}
-                      fullWidth
-                    >
-                      Import Task
-                    </Button>
-                  </Box>
                 </TaskList>
               )}
             </Droppable>
@@ -174,7 +165,7 @@ const TaskTitleContainer = styled.div`
 `;
 
 const OuterContainer = styled.div`
-  margin: 1rem 2rem 1rem 0rem;
+  margin: 1rem 1.2rem 1rem 0rem;
 `;
 
 const TaskList = styled.div<{ isDragging: boolean }>`
@@ -199,6 +190,7 @@ const TaskList = styled.div<{ isDragging: boolean }>`
 
 const Container = styled.div`
   display: flex;
+  flex-direction: column;
 `;
 
 export default Column;

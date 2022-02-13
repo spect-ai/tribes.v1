@@ -86,6 +86,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
 
         setTask(res[1]);
         setLoading(false);
+        handleClose();
       })
       .catch((e: any) => console.log(e));
   };
@@ -155,7 +156,9 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                     {...field}
                     selectedTab={selectedTab}
                     onTabChange={setSelectedTab}
-                    generateMarkdownPreview={(markdown) => Promise.resolve(converter.makeHtml(markdown))}
+                    generateMarkdownPreview={(markdown) =>
+                      Promise.resolve(converter.makeHtml(markdown))
+                    }
                     childProps={{
                       writeButton: {
                         tabIndex: -1,
@@ -169,29 +172,27 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
               />
             </Box>
           </TaskModalBodyContainer>
-          <TaskModalBodyContainer>
+          {/* <TaskModalBodyContainer>
             <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
               Activity
             </Divider>{" "}
-            {task.activity?.map((act: any) => (
-              <ListItem key={`${act.timestamp}`}>
-                <Avatar
-                  sx={{ width: 24, height: 24, mr: 2 }}
-                  src={
-                    act.profilePicture
-                      ? act.profilePicture._url
-                      : `https://www.gravatar.com/avatar/${getMD5String(act.username)}?d=identicon&s=32`
-                  }
-                />
-                <ListItemText
-                  primary={`${actionMap[act.action as number]} by ${act.username} on ${act.timestamp.getDate()}  ${
-                    // @ts-ignore
-                    monthMap[act.timestamp.getMonth() as number]
-                  }`}
-                />
-              </ListItem>
-            ))}
-          </TaskModalBodyContainer>
+            <ListItem>
+              <Avatar
+                sx={{ width: 24, height: 24, mr: 2 }}
+                src={`https://www.gravatar.com/avatar/${getMD5String(
+                  task.activity.latestActor
+                )}?d=identicon&s=32`}
+              />
+              <ListItemText
+                primary={`${
+                  task.activity.latestActor
+                } created this task on ${task.activity.latestActionTime.getDate()}  ${
+                  // @ts-ignore
+                  monthMap[task.activity.latestActionTime.getMonth() as number]
+                }`}
+              />
+            </ListItem>
+          </TaskModalBodyContainer> */}
         </Grid>
         <Grid item xs={3} sx={{ borderLeft: "1px solid #5a6972" }}>
           <Box ml={2}>
@@ -214,7 +215,9 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                           <TextField
                             {...params}
                             fullWidth
-                            helperText={params.error && "Enter a date later than now"}
+                            helperText={
+                              params.error && "Enter a date later than now"
+                            }
                             size="small"
                           />
                         )}
@@ -241,7 +244,13 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                       multiple
                       onChange={(e, data) => field.onChange(data)}
                       size="small"
-                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id="filled-hidden-label-normal"
+                          size="small"
+                        />
+                      )}
                     />
                   )}
                 />
@@ -262,7 +271,13 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                       options={["chaks.eth", "0xavp.eth", "USDC.eth"]} // Get options from members
                       getOptionLabel={(option) => option}
                       onChange={(e, data) => field.onChange(data)}
-                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id="filled-hidden-label-normal"
+                          size="small"
+                        />
+                      )}
                     />
                   )}
                 />
@@ -284,7 +299,13 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                       options={["chaks.eth", "0xavp.eth", "USDC.eth"]} // Get options from members
                       getOptionLabel={(option) => option}
                       onChange={(e, data) => field.onChange(data)}
-                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id="filled-hidden-label-normal"
+                          size="small"
+                        />
+                      )}
                     />
                   )}
                 />
@@ -309,7 +330,9 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                         field.onChange(data);
                         setChain(data);
                       }}
-                      renderInput={(params) => <TextField {...params} size="small" />}
+                      renderInput={(params) => (
+                        <TextField {...params} size="small" />
+                      )}
                     />
                   )}
                 />
@@ -323,7 +346,10 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                         <TextField
                           {...field}
                           id="filled-hidden-label-normal"
-                          helperText={fieldState.error?.type === "min" && "Validation error"}
+                          helperText={
+                            fieldState.error?.type === "min" &&
+                            "Validation error"
+                          }
                           type="number"
                           required
                           error={fieldState.error ? true : false}
@@ -346,7 +372,12 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                           getOptionLabel={(option) => option}
                           onChange={(e, data) => field.onChange(data)}
                           renderInput={(params) => (
-                            <TextField {...params} id="filled-hidden-label-normal" size="small" sx={{ mr: 1, mt: 1 }} />
+                            <TextField
+                              {...params}
+                              id="filled-hidden-label-normal"
+                              size="small"
+                              sx={{ mr: 1, mt: 1 }}
+                            />
                           )}
                         />
                       )}
@@ -357,7 +388,12 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
             </TaskModalBodyContainer>
           </Box>
         </Grid>
-        <PrimaryButton variant="outlined" fullWidth sx={{ width: "30%" }} type="submit">
+        <PrimaryButton
+          variant="outlined"
+          fullWidth
+          sx={{ width: "30%" }}
+          type="submit"
+        >
           Save
         </PrimaryButton>
       </Grid>

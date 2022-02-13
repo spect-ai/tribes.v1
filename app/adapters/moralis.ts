@@ -232,3 +232,18 @@ export function voteOnTasks(Moralis: any, epochId: string, voteAllocation: any) 
   };
   return Moralis.Cloud.run("voteOnTasks", params);
 }
+
+export function updateBoard(Moralis: any, boardId: string, name: string) {
+  const params = {
+    boardId: boardId,
+    name: name,
+  };
+  return Moralis.Cloud.run("updateBoard", params);
+}
+
+export function deleteBoard(Moralis: any, boardId: string) {
+  const params = {
+    boardId: boardId,
+  };
+  return Moralis.Cloud.run("deleteBoard", params);
+}

@@ -30,7 +30,7 @@ const SidebarContainer = styled.div`
   minheight: 100vh;
   display: flex;
   flex-direction: column;
-  width: 6rem;
+  width: 4.5rem;
   padding-top: 10rem;
   align-items: center;
   background-color: #00194a;
