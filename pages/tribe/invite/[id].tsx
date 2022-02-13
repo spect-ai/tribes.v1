@@ -45,6 +45,7 @@ const InviteModal = () => {
                     {
                         setShowModal(true)
                     }
+                    // router.replace(`/tribe/${id}`)
                     console.log('Memeber exist', res)
                 })
                 .catch((error: any)=>{
