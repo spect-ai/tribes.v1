@@ -92,6 +92,8 @@ export interface Task {
       actor: string;
       action: number;
       timestamp: Date;
+      username: string;
+      profilePicture: any;
     }
   ];
   status: number;

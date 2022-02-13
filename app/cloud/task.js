@@ -35,6 +35,13 @@ Moralis.Cloud.define("getTask", async (request) => {
     if (request.params.taskId) {
       const task = await getTaskObjByTaskId(request.params.taskId);
       if (task.length === 0) throw `Task ${request.params.taskId} not found`;
+      for (var act of task[0].activity) {
+        var userQuery = new Moralis.Query("User");
+        userQuery.equalTo("objectId", act.actor);
+        var user = await userQuery.first({ useMasterKey: true });
+        act.username = user.get("username");
+        act.profilePicture = user.get("profilePicture");
+      }
       return task[0];
     }
   } catch (err) {
@@ -117,17 +124,9 @@ Moralis.Cloud.define("updateTask", async (request) => {
       request.params.task.chain
     );
     task = handleTagUpdate(task, request.user.id, request.params.task.tags);
-    logger.info(`yr1 board ${JSON.stringify(board)}`);
-
     task = handleDeadlineUpdate(task, request.user.id, request.params.task.deadline);
-    logger.info(`yr2 board ${JSON.stringify(board)}`);
-
     [task, board] = handleAssigneeUpdate(task, board, request.user.id, request.params.task.assignee);
-    logger.info(`yr3 board ${JSON.stringify(board)}`);
-
     task = handleReviewerUpdate(task, request.user.id, request.params.task.reviewer);
-    logger.info(`yr4 board ${JSON.stringify(board)}`);
-
     [task, board] = handleSubmissionUpdate(task, board, request.user.id, request.params.task.submission);
 
     logger.info(`Updating task ${JSON.stringify(task)}`);

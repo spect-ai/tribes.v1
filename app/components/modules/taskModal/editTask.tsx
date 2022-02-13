@@ -171,18 +171,24 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
             <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
               Activity
             </Divider>{" "}
-            <ListItem>
-              <Avatar
-                sx={{ width: 24, height: 24, mr: 2 }}
-                src={`https://www.gravatar.com/avatar/${getMD5String(task.activity[0].actor)}?d=identicon&s=32`}
-              />
-              <ListItemText
-                primary={`Created by ${task.activity[0].actor} on ${task.activity[0].timestamp.getDate()}  ${
-                  // @ts-ignore
-                  monthMap[task.activity[0].timestamp.getMonth() as number]
-                }`}
-              />
-            </ListItem>
+            {task.activity?.map((act: any) => (
+              <ListItem key={`${act.timestamp}`}>
+                <Avatar
+                  sx={{ width: 24, height: 24, mr: 2 }}
+                  src={
+                    act.profilePicture
+                      ? act.profilePicture._url
+                      : `https://www.gravatar.com/avatar/${getMD5String(act.username)}?d=identicon&s=32`
+                  }
+                />
+                <ListItemText
+                  primary={`Created by ${act.username} on ${act.timestamp.getDate()}  ${
+                    // @ts-ignore
+                    monthMap[act.timestamp.getMonth() as number]
+                  }`}
+                />
+              </ListItem>
+            ))}
           </TaskModalBodyContainer>
         </Grid>
         <Grid item xs={3} sx={{ borderLeft: "1px solid #5a6972" }}>
