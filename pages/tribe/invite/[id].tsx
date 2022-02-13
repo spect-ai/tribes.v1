@@ -8,21 +8,25 @@ import {
     Fade,
   } from "@mui/material";
 import styled from "@emotion/styled";
-import { PrimaryButton } from "../../elements/styledComponents";
+import { PrimaryButton } from "../../../app/components/elements/styledComponents";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
-import { getInvitations, acceptInvitations, checkMemberInTeam, getTeam } from "../../../adapters/moralis";
-interface inviteModalProps {
-    openModal: boolean;
-    setShowModal: any
-}
+import { getInvitations, acceptInvitations, checkMemberInTeam, getOrCreateUser } from "../../../app/adapters/moralis";
+// interface inviteModalProps {
+//     openModal: boolean;
+//     setShowModal: any
+// }
 
 
-const InviteModal = ({openModal, setShowModal}:inviteModalProps) => {
+const InviteModal = () => {
     const [isAuth, setIsAuth] = useState(false)
-    const handleClose = () => setShowModal(false);
+    const handleClose = () => {
+        setShowModal(false)
+        router.replace('/')
+    };
     const [ethAddress, setEthAddress] = useState("");
-    const { isAuthenticated, Moralis, user, authenticate } = useMoralis();
+    const [showModal, setShowModal] = useState(true)
+    const { isAuthenticated, Moralis, user, authenticate, isAuthenticating } = useMoralis();
     const router = useRouter();
     const { id } = router.query;
     useEffect(() => {
@@ -32,11 +36,21 @@ const InviteModal = ({openModal, setShowModal}:inviteModalProps) => {
             setEthAddress(user?.get("ethAddress"));
             checkMemberInTeam(Moralis, Number(id), String(user?.id))
                 .then((res: any[]) => {
-                    setShowModal(!res)
+                    if(res)
+                    {
+                        router.replace(`/tribe/${id}`)
+                        setShowModal(false)
+                    }
+                    else
+                    {
+                        setShowModal(true)
+                    }
+                    console.log('Memeber exist')
                 })
                 .catch((error: any)=>{
                     console.log(error)
-                    setShowModal(false)
+                    // handleClose()
+                    console.log('Error in fetching memeber')
                 })
         }
         else
@@ -45,21 +59,31 @@ const InviteModal = ({openModal, setShowModal}:inviteModalProps) => {
         }
         
     })
-
     const handleClickInvite=()=>{
         acceptInvitations(Moralis, ethAddress, Number(id))
         .then((res: any[]) => {
             console.log("ressssAccepted", res);
+            router.replace(`/tribe/${id}`)
         })
         .catch((ex: any) => {
             console.log("ressssAccepted", ex);
+            router.replace(`/`)
         });
         setShowModal(false)
     }
 
+    const handleConnectWallet = () => {
+        authenticate({}).then((res) => {
+            console.log(res);
+            getOrCreateUser(Moralis).then((res: any) => console.log(res));
+        })
+        .catch((err) => console.log(err))
+        // router.reload()
+    }
+
     return (
-        <Modal open={openModal} onClose={handleClose} closeAfterTransition>
-            <Fade in={openModal} timeout={500}>
+        <Modal open={showModal} onClose={handleClose} closeAfterTransition>
+            <Fade in={showModal} timeout={500}>
               <Box sx={modalStyle}>
               <Wrapper>
                     {
@@ -68,7 +92,7 @@ const InviteModal = ({openModal, setShowModal}:inviteModalProps) => {
                         (
                             <Container>
                                 <Text>
-                                    You Got Invited To Team 12
+                                    You Got Invited To Team {id}
                                 </Text>
                                 <PrimaryButton variant="outlined" fullWidth onClick={()=>handleClickInvite()}>
                                     Accept Invite
@@ -79,10 +103,10 @@ const InviteModal = ({openModal, setShowModal}:inviteModalProps) => {
                         (
                             <Container>
                                 <Text>
-                                    You Got Invited To Team 12
+                                    Please connect your wallet
                                 </Text>
-                                <PrimaryButton type="submit" variant="outlined" fullWidth onClick={()=>authenticate()}>
-                                    Accept Invite
+                                <PrimaryButton loading={isAuthenticating} type="submit" variant="outlined" fullWidth onClick={()=>handleConnectWallet()}>
+                                    Connect Wallet
                                 </PrimaryButton>
                             </Container>
                         )
