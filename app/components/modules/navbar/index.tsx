@@ -1,14 +1,14 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
-import { LoadingButton } from "@mui/lab";
 import { Avatar, Box, ButtonProps, styled, Typography } from "@mui/material";
 import Image from "next/image";
 import React from "react";
 import { useMoralis } from "react-moralis";
 import Logo from "../../../images/tribesLogo.png";
 import { smartTrim } from "../../../utils/utils";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { getOrCreateUser } from "../../../adapters/moralis";
 import Notifications from "../notifications";
+import { NavbarButton } from "../../elements/styledComponents";
+import ProfileMenu from "../profileMenu";
 type Props = {};
 
 const StyledNav = styled("nav")(({ theme }) => ({
@@ -19,23 +19,6 @@ const StyledNav = styled("nav")(({ theme }) => ({
   height: "4.2rem",
   width: "100%",
   paddingTop: "0.4rem",
-}));
-
-const NavbarAvatar = styled(Avatar)(({ theme }) => ({
-  height: 25,
-  width: 25,
-  objectFit: "cover",
-  borderWidth: 2,
-  border: "1px solid #0066FF",
-}));
-
-const NavbarButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText("#000f29"),
-  borderRadius: "22.5px",
-  textTransform: "none",
-  border: "2px solid #0066FF",
-  width: "155px",
-  height: "35px",
 }));
 
 const Navbar = (props: Props) => {
@@ -88,18 +71,7 @@ const Navbar = (props: Props) => {
             <Typography sx={{ mx: 2, fontSize: 15 }}>Connect Wallet</Typography>
           </NavbarButton>
         ) : (
-          <NavbarButton
-            variant="outlined"
-            endIcon={<ExpandMoreIcon color="primary" />}
-            onClick={() => {
-              logout();
-            }}
-          >
-            <NavbarAvatar />
-            <Typography sx={{ ml: 1, fontSize: 14 }}>
-              {smartTrim(user?.get("ethAddress"), 10)}
-            </Typography>
-          </NavbarButton>
+          <ProfileMenu />
         )}
       </Box>
     </StyledNav>

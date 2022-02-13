@@ -1,5 +1,5 @@
 import MD5 from "crypto-js/md5";
-import { chainTokenRegistry } from "../constants";
+import { chainTokenRegistry, monthMap } from "../constants";
 
 export const smartTrim = (string: string, maxLength: number) => {
   if (!string) {
@@ -13,7 +13,9 @@ export const smartTrim = (string: string, maxLength: number) => {
   const toremove = string.length - maxLength;
   const lstrip = Math.ceil(toremove / 2);
   const rstrip = toremove - lstrip;
-  return `${string.substring(0, midpoint - lstrip)}...${string.substring(midpoint + rstrip)}`;
+  return `${string.substring(0, midpoint - lstrip)}...${string.substring(
+    midpoint + rstrip
+  )}`;
 };
 
 export function formatTimeLeft(date: Date) {
@@ -34,8 +36,14 @@ function msToTime(ms: number) {
   else return days + " Days";
 }
 
-export function getRemainingVotes(prevRemainingVotes: number, votesGiven: number, prevVotesGiven: number) {
-  return prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2);
+export function getRemainingVotes(
+  prevRemainingVotes: number,
+  votesGiven: number,
+  prevVotesGiven: number
+) {
+  return (
+    prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2)
+  );
 }
 
 export function getMD5String(string: string) {
@@ -50,4 +58,13 @@ export function getTokenOptions(chain: any) {
       ? Object.keys(chainTokenRegistry["Polygon"])
       : [];
   return tokenOptions;
+}
+
+export function activityFormatter(status: number, date: Date, actor: string) {
+  if (status === 100) {
+    return `${smartTrim(actor, 8)} created this task on ${date.getDate()}  ${
+      // @ts-ignore
+      monthMap[date.getMonth() as number]
+    }`;
+  }
 }

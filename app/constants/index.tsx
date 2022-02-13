@@ -85,7 +85,15 @@ export const initialData = {
     "column-1": {
       id: "column-1",
       title: "Doing",
-      taskIds: ["task-2", "task-3", "task-4", "task-6", "task-7", "task-8", "task-9"],
+      taskIds: [
+        "task-2",
+        "task-3",
+        "task-4",
+        "task-6",
+        "task-7",
+        "task-8",
+        "task-9",
+      ],
     },
     "column-2": {
       id: "column-2",
@@ -127,4 +135,12 @@ export const actionMap = {
   10: "Work submitted",
   15: "Closed",
   20: "Paid out",
+};
+
+export const statusMapping = {
+  100: "Open",
+  101: "In progress",
+  102: "In review",
+  103: "Done",
+  104: "Paid",
 };

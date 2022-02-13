@@ -6,6 +6,7 @@ import {
   Modal,
   Typography,
 } from "@mui/material";
+import { Octokit } from "@octokit/rest";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { getTask } from "../../../adapters/moralis";
@@ -31,6 +32,14 @@ const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
       setTask(task);
       setLoading(false);
     });
+    const octokit = new Octokit();
+    octokit.rest.pulls
+      .list({
+        owner: "spect-ai",
+        repo: "app.v3",
+        head: "spect-ai:develop",
+      })
+      .then(({ data }) => console.log(data));
   }, []);
 
   return (

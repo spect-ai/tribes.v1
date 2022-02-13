@@ -35,3 +35,12 @@ export const LightTooltip = styled(({ className, ...props }: TooltipProps) => (
     color: "#eaeaea",
   },
 }));
+
+export const NavbarButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
+  color: theme.palette.getContrastText("#000f29"),
+  borderRadius: "22.5px",
+  textTransform: "none",
+  border: "2px solid #0066FF",
+  width: "155px",
+  height: "35px",
+}));

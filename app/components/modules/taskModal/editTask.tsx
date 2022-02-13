@@ -64,16 +64,15 @@ const converter = new Showdown.Converter({
 const EditTask = ({ task, setTask, handleClose }: Props) => {
   // const router = useRouter();
   const { Moralis } = useMoralis();
-  const { tribe } = useTribe();
   const [loading, setLoading] = useState(false);
   const [chain, setChain] = useState<string | null>(task.chain);
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
-  console.log(tribe);
   const {
     handleSubmit,
     control,
     formState: { errors },
   } = useForm<IEditTask>({});
+  console.log(task);
   const onSubmit: SubmitHandler<IEditTask> = async (values) => {
     values.deadline = new Date(values.deadline).toUTCString();
     values.taskId = task.taskId;
