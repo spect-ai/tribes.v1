@@ -17,9 +17,7 @@ type Props = {
 
 const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
   const [newIssueLink, setNewIssueLink] = useState("");
-  const [newTaskReward, setNewTaskReward] = useState(
-    undefined as unknown as number
-  );
+  const [newTaskValue, setNewTaskValue] = useState(undefined as unknown as number);
   const { data, setData } = useBoard();
   const { Moralis } = useMoralis();
   const router = useRouter();
@@ -42,8 +40,8 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
           fontSize: "14px",
           marginLeft: "6px",
         }}
-        value={newTaskReward}
-        onChange={(e) => setNewTaskReward(parseInt(e.target.value))}
+        value={newTaskValue}
+        onChange={(e) => setNewTaskValue(parseInt(e.target.value))}
       />
       <Box
         sx={{
@@ -64,15 +62,10 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
               })
               .then(({ data }) => {
                 console.log(data);
-                addTask(
-                  Moralis,
-                  bid as string,
-                  columnId,
-                  data.title,
-                  newTaskReward,
-                  data.body as string
-                ).then((res: any) => setData(res as BoardData));
-                setNewTaskReward(0);
+                addTask(Moralis, bid as string, columnId, data.title, newTaskValue, data.body as string).then(
+                  (res: any) => setData(res as BoardData)
+                );
+                setNewTaskValue(0);
                 setNewIssueLink("");
                 setShowCreateTask(false);
               });

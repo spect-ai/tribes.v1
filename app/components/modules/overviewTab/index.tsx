@@ -18,8 +18,8 @@ const Overview = () => {
             paddingLeft: 0,
           }}
         >
-          <Typography variant="h4">Mission</Typography>
-          {tribe.mission}
+          <Typography variant="h4">Description</Typography>
+          {tribe.description}
         </Box>
       </MainContainer>
       <SideContainer>
@@ -36,9 +36,7 @@ const Overview = () => {
                 <Tooltip title={member.ethAddress} key={idx}>
                   <Avatar
                     alt=""
-                    src={`https://www.gravatar.com/avatar/${getMD5String(
-                      member.ethAddress
-                    )}?d=identicon&s=32`}
+                    src={`https://www.gravatar.com/avatar/${getMD5String(member.ethAddress)}?d=identicon&s=32`}
                   />
                 </Tooltip>
               ))}

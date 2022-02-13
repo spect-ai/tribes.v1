@@ -8,6 +8,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { addTask } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
+import { resolve } from "path/win32";
 
 type Props = {
   setShowCreateTask: (showCreateTask: boolean) => void;
@@ -29,7 +30,7 @@ export const CreateTaskContainer = styled.div`
 
 const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskReward, setNewTaskReward] = useState("");
+  const [newTaskValue, setNewTaskValue] = useState("");
   const { data, setData } = useBoard();
   const { Moralis } = useMoralis();
   const router = useRouter();
@@ -55,8 +56,8 @@ const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
         inputProps={{
           type: "number",
         }}
-        value={newTaskReward}
-        onChange={(e) => setNewTaskReward(e.target.value)}
+        value={newTaskValue}
+        onChange={(e) => setNewTaskValue(e.target.value)}
       />
       <Box
         sx={{
@@ -68,15 +69,12 @@ const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
         <Button
           startIcon={<DoneIcon />}
           onClick={() => {
-            addTask(
-              Moralis,
-              bid as string,
-              columnId,
-              newTaskTitle,
-              parseFloat(newTaskReward),
-              ""
-            ).then((res: any) => setData(res as BoardData));
-            setNewTaskReward("");
+            addTask(Moralis, bid as string, columnId, newTaskTitle, parseFloat(newTaskValue), "").then((res: any) => {
+              console.log(res);
+              setData(res as BoardData);
+            });
+
+            setNewTaskValue("");
             setNewTaskTitle("");
             setShowCreateTask(false);
           }}

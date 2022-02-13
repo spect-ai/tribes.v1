@@ -24,94 +24,103 @@ Moralis.Cloud.define("getTask", async (request) => {
 });
 
 Moralis.Cloud.define("addTask", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+
+  const board = await getBoardByObjectId(request.params.boardId);
+  const boardToReturnInFailure = board;
   try {
-    const board = await getBoardByObjectId(request.params.boardId);
-    var columns = board.get("columns");
-    var tasks = board.get("tasks");
-    const logger = Moralis.Cloud.getLogger();
-    const taskId = `task-${request.params.boardId}-${Object.keys(tasks).length}`;
-    tasks[taskId] = {
-      taskId: taskId,
-      title: request.params.title,
-      reward: request.params.reward,
-      token: "Matic",
-      deadline: request.params.deadline,
-      latestActor: request.user.get("username"),
-      latestActionTime: new Date(),
-      activeStatus: 100,
-    };
-    var taskIds = columns[request.params.columnId].taskIds;
-    columns[request.params.columnId].taskIds = taskIds.concat([taskId]);
-    board.set("columns", columns);
-    board.set("tasks", tasks);
+    const team = await getTribeByTeamId(board.get("teamId"));
+    if (isMember(request.user.id, team)) {
+      var columns = board.get("columns");
+      var tasks = board.get("tasks");
+      const taskId = `task-${request.params.boardId}-${Object.keys(tasks).length}`;
+      tasks[taskId] = {
+        taskId: taskId,
+        title: request.params.title,
+        value: request.params.value,
+        token: "Matic",
+        deadline: request.params.deadline,
+        latestActor: request.user.get("username"),
+        latestActionTime: new Date(),
+        activeStatus: 100,
+      };
+      var taskIds = columns[request.params.columnId].taskIds;
+      columns[request.params.columnId].taskIds = taskIds.concat([taskId]);
+      board.set("columns", columns);
+      board.set("tasks", tasks);
 
-    var taskObj = new Moralis.Object("Task");
-    //TODO: default chain and token should be fetched from teams data
-    var reward = {
-      chain: "Polygon",
-      token: "Matic",
-      value: request.params.reward,
-    };
-    taskObj.set("taskId", taskId);
-    taskObj.set("title", request.params.title);
-    taskObj.set("reward", reward);
-    taskObj.set("creator", request.user.id);
-    taskObj.set("reviewer", request.user.id);
-    taskObj.set("status", 100);
-    taskObj.set("description", request.params.description);
-    taskObj.set("activity", {
-      latestActor: request.user.get("username"),
-      latestActionTime: new Date(),
-      statusChange: 500,
-    });
+      var taskObj = new Moralis.Object("Task");
+      taskObj.set("taskId", taskId);
+      taskObj.set("boardId", request.params.boardId);
+      taskObj.set("title", request.params.title);
+      taskObj.set("chain", team.get("preferredChain"));
+      taskObj.set("token", team.get("preferredToken"));
+      taskObj.set("value", request.params.value);
+      taskObj.set("creator", request.user.id);
+      taskObj.set("reviewer", request.user.id);
+      taskObj.set("status", 100);
+      taskObj.set("description", request.params.description);
+      taskObj.set("activity", [
+        {
+          actor: request.user.id,
+          action: 1,
+          timestamp: new Date(),
+        },
+      ]);
 
-    await Moralis.Object.saveAll([board, taskObj], { useMasterKey: true });
-    const boardObj = await getBoardObjByObjectId(request.params.boardId);
-    return boardObj[0];
+      await Moralis.Object.saveAll([board, taskObj], { useMasterKey: true });
+      return getBoardObjFromBoardParseObj(board);
+    } else {
+      throw "User doesnt have access to create task";
+    }
   } catch (err) {
     logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
-    return false;
+    return getBoardObjFromBoardParseObj(boardToReturnInFailure);
   }
 });
 
 Moralis.Cloud.define("updateTask", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   var task = await getTaskByTaskId(request.params.task?.taskId);
+  var board = await getBoardByObjectId(task.get("boardId"));
+
   logger.info(request.user.id);
   logger.info(isTaskClient(task, request.user.id));
 
   try {
-    task = handleTitleUpdate(task, request.user.id, request.params.task.title);
+    [task, board] = handleTitleUpdate(task, board, request.user.id, request.params.task.title);
     task = handleDescriptionUpdate(task, request.user.id, request.params.task.description);
-    task = handleRewardUpdate(
+    [task, board] = handleRewardUpdate(
       task,
+      board,
       request.user.id,
-      request.params.task.reward,
+      request.params.task.value,
       request.params.task.token,
       request.params.task.chain
     );
     task = handleTagUpdate(task, request.user.id, request.params.task.tags);
-    task = handleDueDateUpdate(task, request.user.id, request.params.task.deadline);
+    task = handleDeadlineUpdate(task, request.user.id, request.params.task.deadline);
     task = handleAssigneeUpdate(task, request.user.id, request.params.task.assignee);
     task = handleReviewerUpdate(task, request.user.id, request.params.task.reviewer);
     task = handleSubmissionUpdate(task, request.user.id, request.params.task.submission);
+
     logger.info(`Updating task ${JSON.stringify(task)}`);
 
-    await Moralis.Object.saveAll([task], { useMasterKey: true });
-    const taskObj = await getTaskObjByTaskId(request.params.task?.taskId);
-    return taskObj[0];
+    await Moralis.Object.saveAll([task, board], { useMasterKey: true });
+    return getBoardObjFromBoardParseObj(board);
   } catch (err) {
-    logger.error(`Error while updating task ${request.params.task.taskId}: ${err}`);
-    const taskObj = await getTaskObjByTaskId(request.params.task?.taskId);
-    return taskObj[0];
+    return getBoardObjFromBoardParseObj(board);
   }
 });
 
-function handleTitleUpdate(task, userId, title) {
+function handleTitleUpdate(task, board, userId, title) {
   if (isTaskClient(task, userId) && title.length > 0) {
+    var boardTasks = board.get("tasks");
+    boardTasks[task.id]["title"] = title;
+    board.set("tasks", boardTasks);
     task.set("title", title);
   }
-  return task;
+  return [task, board];
 }
 
 function handleDescriptionUpdate(task, userId, description) {
@@ -121,17 +130,23 @@ function handleDescriptionUpdate(task, userId, description) {
   return task;
 }
 
-function handleRewardUpdate(task, userId, reward, token, chain) {
+function handleRewardUpdate(task, board, userId, value, token, chain) {
   if (
     isTaskClient(task, userId) &&
     task.get("status") === 100 &&
-    reward > 0 &&
+    value > 0 &&
     ["matic", "eth", "usdc"].includes(token.toLowerCase()) &&
     ["polygon", "ethereum", "bsc"].includes(chain.toLowerCase())
   ) {
-    task.set("reward", { chain: chain, token: token, reward: reward });
+    var boardTasks = board.get("tasks");
+    boardTasks[task.id]["value"] = value;
+    boardTasks[task.id]["token"] = token;
+    board.set("tasks", boardTasks);
+    task.set("value", value);
+    task.set("token", token);
+    task.set("chain", chain);
   }
-  return task;
+  return [task, board];
 }
 
 function handleTagUpdate(task, userId, tags) {
@@ -141,19 +156,44 @@ function handleTagUpdate(task, userId, tags) {
   return task;
 }
 
-function handleDueDateUpdate(task, userId, dueDate) {
-  if (isTaskClient(task, userId) && dueDate) {
-    task.set("dueDate", new Date(dueDate));
+function handleDeadlineUpdate(task, userId, deadline) {
+  if (isTaskClient(task, userId) && deadline) {
+    task.set("deadline", new Date(deadline));
   }
   return task;
 }
 
-function handleAssigneeUpdate(task, userId, assignee) {
-  if (isTaskClient(task, userId) || (isTaskAssignee(task, userId) && !assignee)) {
+function handleAssigneeUpdate(task, board, userId, assignee) {
+  if (isTaskClient(task, userId) || (isTaskAssignee(task, userId) && !assignee && task.get("assignee") !== assignee)) {
+    [task, board] = handleActivityUpdate(task, board, request.user.id, 105, 5);
     task.set("assignee", assignee);
   }
   return task;
 }
+
+Moralis.Cloud.define("closeTask", async (request) => {
+  try {
+    var task = await getTaskByTaskId(request.params.taskId);
+    var board = await getBoardByObjectId(task.get("boardId"));
+    [task, board] = handleActivityUpdate(task, board, request.user.id, 205, 15);
+    return getBoardObjFromBoardParseObj(board);
+  } catch (err) {
+    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    return false;
+  }
+});
+
+Moralis.Cloud.define("distributeTaskReward", async (request) => {
+  try {
+    var task = await getTaskByTaskId(request.params.taskId);
+    var board = await getBoardByObjectId(task.get("boardId"));
+    [task, board] = handleActivityUpdate(task, board, request.user.id, 300, 20);
+    return getBoardObjFromBoardParseObj(board);
+  } catch (err) {
+    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    return false;
+  }
+});
 
 function handleReviewerUpdate(task, userId, reviewer) {
   if (isTaskClient(task, userId)) {
@@ -162,11 +202,20 @@ function handleReviewerUpdate(task, userId, reviewer) {
   return task;
 }
 
-function handleSubmissionUpdate(task, userId, submission) {
-  if (isTaskAssignee(task, userId)) {
+function handleSubmissionUpdate(task, board, userId, submission) {
+  if (isTaskAssignee(task, userId) && task.get("submission") !== submission) {
+    [task, board] = handleActivityUpdate(task, board, userId, 200, 10);
     task.set("submission", submission);
   }
-  return task;
+  return [task, board];
+}
+
+function handleActivityUpdate(task, board, userId, status, action) {
+  var boardTasks = board.get("tasks");
+  boardTasks[task.id]["status"] = status;
+  board.set("tasks", boardTasks);
+  task.set("status", status);
+  task.set("activity", [...task.get("activity"), { actor: userId, action: action, timestamp: new Date() }]);
 }
 
 /*

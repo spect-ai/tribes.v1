@@ -49,7 +49,7 @@ export interface IEditTask {
   reviewer: string;
   chain: string;
   token: string;
-  reward: number;
+  value: number;
 }
 
 const converter = new Showdown.Converter({
@@ -149,9 +149,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                     {...field}
                     selectedTab={selectedTab}
                     onTabChange={setSelectedTab}
-                    generateMarkdownPreview={(markdown) =>
-                      Promise.resolve(converter.makeHtml(markdown))
-                    }
+                    generateMarkdownPreview={(markdown) => Promise.resolve(converter.makeHtml(markdown))}
                     childProps={{
                       writeButton: {
                         tabIndex: -1,
@@ -172,16 +170,12 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
             <ListItem>
               <Avatar
                 sx={{ width: 24, height: 24, mr: 2 }}
-                src={`https://www.gravatar.com/avatar/${getMD5String(
-                  task.activity.latestActor
-                )}?d=identicon&s=32`}
+                src={`https://www.gravatar.com/avatar/${getMD5String(task.activity[0].actor)}?d=identicon&s=32`}
               />
               <ListItemText
-                primary={`${
-                  task.activity.latestActor
-                } created this task on ${task.activity.latestActionTime.getDate()}  ${
+                primary={`Created by ${task.activity[0].actor} on ${task.activity[0].timestamp.getDate()}  ${
                   // @ts-ignore
-                  monthMap[task.activity.latestActionTime.getMonth() as number]
+                  monthMap[task.activity[0].timestamp.getMonth() as number]
                 }`}
               />
             </ListItem>
@@ -198,7 +192,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                   <Controller
                     name="deadline"
                     control={control}
-                    defaultValue={dayjs(task.dueDate)}
+                    defaultValue={dayjs(task.deadline)}
                     render={({ field }) => (
                       <DateTimePicker
                         {...field}
@@ -208,9 +202,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                           <TextField
                             {...params}
                             fullWidth
-                            helperText={
-                              params.error && "Enter a date later than now"
-                            }
+                            helperText={params.error && "Enter a date later than now"}
                             size="small"
                           />
                         )}
@@ -237,13 +229,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                       multiple
                       onChange={(e, data) => field.onChange(data)}
                       size="small"
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -264,13 +250,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                       options={["chaks.eth", "0xavp.eth", "USDC.eth"]} // Get options from members
                       getOptionLabel={(option) => option}
                       onChange={(e, data) => field.onChange(data)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -292,13 +272,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                       options={["chaks.eth", "0xavp.eth", "USDC.eth"]} // Get options from members
                       getOptionLabel={(option) => option}
                       onChange={(e, data) => field.onChange(data)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -313,33 +287,28 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                 <Controller
                   name="chain"
                   control={control}
-                  defaultValue={task.reward.chain}
+                  defaultValue={task.chain}
                   render={({ field }) => (
                     <Autocomplete
                       {...field}
                       options={["Polygon", "Ethereum", "Binance Smart Chain"]} // Get options from members
                       getOptionLabel={(option) => option}
                       onChange={(e, data) => field.onChange(data)}
-                      renderInput={(params) => (
-                        <TextField {...params} size="small" />
-                      )}
+                      renderInput={(params) => <TextField {...params} size="small" />}
                     />
                   )}
                 />
                 <Grid container spacing={0}>
                   <Grid item xs={6}>
                     <Controller
-                      name="reward"
+                      name="value"
                       control={control}
-                      defaultValue={task.reward.reward}
+                      defaultValue={task.value}
                       render={({ field, fieldState }) => (
                         <TextField
                           {...field}
                           id="filled-hidden-label-normal"
-                          helperText={
-                            fieldState.error?.type === "min" &&
-                            "Validation error"
-                          }
+                          helperText={fieldState.error?.type === "min" && "Validation error"}
                           type="number"
                           required
                           error={fieldState.error ? true : false}
@@ -354,7 +323,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                     <Controller
                       name="token"
                       control={control}
-                      defaultValue={task.reward.token}
+                      defaultValue={task.token}
                       render={({ field }) => (
                         <Autocomplete
                           {...field}
@@ -362,12 +331,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                           getOptionLabel={(option) => option}
                           onChange={(e, data) => field.onChange(data)}
                           renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              id="filled-hidden-label-normal"
-                              size="small"
-                              sx={{ mr: 1, mt: 1 }}
-                            />
+                            <TextField {...params} id="filled-hidden-label-normal" size="small" sx={{ mr: 1, mt: 1 }} />
                           )}
                         />
                       )}
@@ -378,12 +342,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
             </TaskModalBodyContainer>
           </Box>
         </Grid>
-        <PrimaryButton
-          variant="outlined"
-          fullWidth
-          sx={{ width: "30%" }}
-          type="submit"
-        >
+        <PrimaryButton variant="outlined" fullWidth sx={{ width: "30%" }} type="submit">
           Save
         </PrimaryButton>
       </Grid>

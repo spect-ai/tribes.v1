@@ -19,13 +19,7 @@ const TaskContainer = ({ task, index }: Props) => {
   const handleClose = () => setIsOpen(false);
   return (
     <>
-      {isOpen && (
-        <TaskModal
-          isOpen={isOpen}
-          handleClose={handleClose}
-          taskId={task.taskId}
-        />
-      )}
+      {isOpen && <TaskModal isOpen={isOpen} handleClose={handleClose} taskId={task.taskId} />}
       <Draggable draggableId={task.taskId} index={index}>
         {(provided, snapshot) => (
           <TaskCard
@@ -41,7 +35,7 @@ const TaskContainer = ({ task, index }: Props) => {
               <ChipContainer>
                 <Chip color="#99ccff">
                   <MonetizationOnIcon sx={{ fontSize: 12 }} />
-                  {task.reward} Matic
+                  {task.value} Matic
                 </Chip>
                 {task.deadline && (
                   <Chip color="#5a6972">
@@ -54,9 +48,7 @@ const TaskContainer = ({ task, index }: Props) => {
               <Text>
                 <Avatar
                   alt=""
-                  src={`https://www.gravatar.com/avatar/${getMD5String(
-                    "test"
-                  )}?d=identicon&s=32`}
+                  src={`https://www.gravatar.com/avatar/${getMD5String("test")}?d=identicon&s=32`}
                   sx={{
                     width: "1.3rem",
                     height: "1.3rem",
@@ -99,8 +91,7 @@ const TaskCard = styled.div<{ isDragging: boolean }>`
   height: fit-content;
   width: 16rem;
   margin: 5px;
-  border: ${(props) =>
-    props.isDragging ? "0.1px solid #0061ff" : "0.1px solid transparent"};
+  border: ${(props) => (props.isDragging ? "0.1px solid #0061ff" : "0.1px solid transparent")};
   padding: 5px;
   border-radius: 5px;
   background-color: #0a2354;

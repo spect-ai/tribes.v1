@@ -16,6 +16,19 @@ async function getBoardObjByTeamId(teamId) {
   return await boardQuery.aggregate(pipeline);
 }
 
+async function getBoardObjFromBoardParseObj(board) {
+  return {
+    objectId: board.id,
+    name: board.get("name"),
+    tasks: board.get("tasks"),
+    columns: board.get("columns"),
+    columnOrder: board.get("columnOrder"),
+    teamId: board.get("teamId"),
+    createdAt: board.get("createdAt"),
+    updatedAt: board.get("updatedAt"),
+  };
+}
+
 Moralis.Cloud.define("getBoard", async (request) => {
   const boardObj = await getBoardObjByObjectId(request.params.boardId);
   if (boardObj.length === 0) throw "Board not found";

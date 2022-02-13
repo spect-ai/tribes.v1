@@ -5,11 +5,9 @@ import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useMoralis } from "react-moralis";
 import { getUserSafes } from "../../../adapters/gnosis";
 import { createTribe, updateMembers } from "../../../adapters/moralis";
-import {
-  FieldContainer,
-  LightTooltip,
-  PrimaryButton,
-} from "../../elements/styledComponents";
+import { FieldContainer, LightTooltip, PrimaryButton } from "../../elements/styledComponents";
+import { chainTokenRegistry } from "../../../constants";
+import { getTokenOptions } from "../../../utils/utils";
 
 type Props = {
   setIsOpen: (isOpen: boolean) => void;
@@ -17,13 +15,14 @@ type Props = {
 
 export interface ITribeFormInput {
   name: string;
-  mission: string;
+  description: string;
   safeAddress: string;
   organization: string;
   member1: string;
   member2: string;
   member3: string;
-  member4: string;
+  preferredToken: string;
+  preferredChain: string;
 }
 
 const CreateTribeForm = ({ setIsOpen }: Props) => {
@@ -34,6 +33,8 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
   } = useForm<ITribeFormInput>();
 
   const [safes, setSafes] = useState([] as any[]);
+  const [chain, setChain] = useState<string | null>("");
+
   const { Moralis, user } = useMoralis();
   const router = useRouter();
 
@@ -47,12 +48,10 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
     console.log(values);
     createTribe(Moralis, {
       name: values.name,
-      mission: values.mission,
+      description: values.description,
       treasuryAddress: values.safeAddress,
-      organization: values.organization,
-      openApplications: false,
-      applicationRequirements: "",
-      ethAddress: user?.get("ethAddress"),
+      preferredToken: values.preferredToken,
+      preferredChain: values.preferredChain,
     }).then((res: any) => {
       console.log(res);
 
@@ -66,11 +65,6 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
           },
           {
             ethAddress: values.member2,
-            role: "admin",
-            updateType: "invite",
-          },
-          {
-            ethAddress: values.member3,
             role: "admin",
             updateType: "invite",
           },
@@ -92,38 +86,23 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
           control={control}
           render={({ field, fieldState }) => (
             <LightTooltip arrow placement="right" title={"Budget"}>
-              <TextField
-                {...field}
-                label="Name"
-                variant="standard"
-                helperText={"Name of the tribe"}
-                required
-                fullWidth
-              />
+              <TextField {...field} label="What's your tribe's name?" variant="standard" required fullWidth />
             </LightTooltip>
           )}
         />
       </FieldContainer>
       <FieldContainer>
         <Controller
-          name="mission"
+          name="description"
           control={control}
           render={({ field, fieldState }) => (
             <LightTooltip arrow placement="right" title={"Budget"}>
-              <TextField
-                {...field}
-                label="Mission"
-                variant="standard"
-                helperText={"Mission of the Tribe"}
-                required
-                fullWidth
-                multiline
-              />
+              <TextField {...field} label="What's your tribe about?" variant="standard" fullWidth multiline />
             </LightTooltip>
           )}
         />
       </FieldContainer>
-      <FieldContainer>
+      {/*<FieldContainer>
         <Controller
           name="safeAddress"
           control={control}
@@ -167,23 +146,13 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
             </LightTooltip>
           )}
         />
-      </FieldContainer>
+          </FieldContainer>*/}
       <FieldContainer>
         <Controller
           name="member1"
           control={control}
           render={({ field, fieldState }) => (
-            <LightTooltip arrow placement="right" title={"Budget"}>
-              <TextField
-                {...field}
-                label="Member 1"
-                variant="standard"
-                helperText={""}
-                required
-                fullWidth
-                multiline
-              />
-            </LightTooltip>
+            <TextField {...field} label="Member 1" variant="standard" helperText={""} fullWidth multiline />
           )}
         />
       </FieldContainer>{" "}
@@ -192,36 +161,44 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
           name="member2"
           control={control}
           render={({ field, fieldState }) => (
-            <LightTooltip arrow placement="right" title={"Budget"}>
-              <TextField
-                {...field}
-                label="Member 2"
-                variant="standard"
-                helperText={""}
-                required
-                fullWidth
-                multiline
-              />
-            </LightTooltip>
+            <TextField {...field} label="Member 2" variant="standard" helperText={""} fullWidth multiline />
           )}
         />
       </FieldContainer>{" "}
       <FieldContainer>
         <Controller
-          name="member3"
+          name="preferredChain"
           control={control}
-          render={({ field, fieldState }) => (
-            <LightTooltip arrow placement="right" title={"Budget"}>
-              <TextField
-                {...field}
-                label="Member 3"
-                variant="standard"
-                helperText={""}
-                required
-                fullWidth
-                multiline
-              />
-            </LightTooltip>
+          render={({ field }) => (
+            <Autocomplete
+              options={Object.keys(chainTokenRegistry)}
+              getOptionLabel={(option) => option}
+              onChange={(event: any, newValue: string | null) => {
+                setChain(newValue);
+                field.onChange(newValue);
+              }}
+              renderInput={(params) => (
+                <TextField {...params} variant="standard" label="Chain preference for rewards" />
+              )}
+            />
+          )}
+        />
+      </FieldContainer>
+      <FieldContainer>
+        <Controller
+          name="preferredToken"
+          control={control}
+          render={({ field }) => (
+            <Autocomplete
+              options={getTokenOptions(chain)}
+              getOptionLabel={(option) => option}
+              onChange={(event: any, newValue: string | null) => {
+                field.onChange(newValue);
+              }}
+              renderInput={(params) => (
+                <TextField {...params} variant="standard" label="Token preference for rewards" />
+              )}
+            />
           )}
         />
       </FieldContainer>
