@@ -11,7 +11,7 @@ import styled from "@emotion/styled";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
-import { getInvitations, acceptInvitations } from "../../../adapters/moralis";
+import { getInvitations, acceptInvitations, checkMemberInTeam, getTeam } from "../../../adapters/moralis";
 interface inviteModalProps {
     openModal: boolean;
     setShowModal: any
@@ -30,6 +30,14 @@ const InviteModal = ({openModal, setShowModal}:inviteModalProps) => {
         {
             setIsAuth(true)
             setEthAddress(user?.get("ethAddress"));
+            checkMemberInTeam(Moralis, Number(id), String(user?.id))
+                .then((res: any[]) => {
+                    setShowModal(!res)
+                })
+                .catch((error: any)=>{
+                    console.log(error)
+                    setShowModal(false)
+                })
         }
         else
         {
@@ -39,11 +47,12 @@ const InviteModal = ({openModal, setShowModal}:inviteModalProps) => {
     })
 
     const handleClickInvite=()=>{
-        acceptInvitations(Moralis, ethAddress, id)
+        acceptInvitations(Moralis, ethAddress, Number(id))
         .then((res: any[]) => {
             console.log("ressssAccepted", res);
         })
         .catch((ex: any) => {
+            console.log("ressssAccepted", ex);
         });
         setShowModal(false)
     }

@@ -18,13 +18,13 @@ const OuterDiv = styled.div`
 const TribeTemplate = (props: Props) => {
   const router = useRouter();
   const { tab } = useTribe();
-  const [showModal, setShowModal] = useState(true)
+  const [showModal, setShowModal] = useState(false)
   useEffect(() => {
-    if(router.asPath == '/tribe/team-invite/')
+    if(router.route == '/tribe/invite/[id]')
     {
       setShowModal(true)
     }
-  })
+  },[])
   return (
     <OuterDiv>
       <TribeHeading />
