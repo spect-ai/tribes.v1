@@ -18,9 +18,10 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
   const { getTeam, setTribe } = useTribe();
   const [state, setState] = useState({
     open: false,
-    text: ''
+    text: '',
+    severity: 'success'
   })
-  const { open, text } = state;
+  const { open, text, severity } = state;
   const {
     handleSubmit,
     control,
@@ -29,15 +30,23 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
 
   const onSubmit: SubmitHandler<ModalFormInput> = async (value) => {
     console.log(value.address);
-    setState({ text: 'Invite Accepted', open: true });
+    setState({ ...state, text: 'Invite Accepted', open: true });
     setIsOpen(false);
   };
 
   const onCopyText: SubmitHandler<ModalFormInput> = async (value) => {
     console.log('copy',value.inviteLink);
     if (navigator && navigator.clipboard && navigator.clipboard.writeText)
-    setState({ text: 'Copied To Clipboard', open: true });
-    return navigator.clipboard.writeText(value.inviteLink);
+    {
+      setState({ ...state, text: 'Copied To Clipboard', open: true });
+      return navigator.clipboard.writeText(value.inviteLink);
+    }
+    else
+    {
+      setState({ severity: 'error', text: "The Clipboard API is not available, Can't copy text", open: true });
+      return Promise.reject('The Clipboard API is not available.');
+    }
+    
   }
 
   const handleClose = () => {
@@ -122,7 +131,7 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
           open={open}
           onClose={handleClose}
         >
-          <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
+          <Alert onClose={handleClose} severity={String(severity)} sx={{ width: '100%' }}>
             {text}
           </Alert>
         </Snackbar>
