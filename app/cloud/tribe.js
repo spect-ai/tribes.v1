@@ -230,7 +230,7 @@ Moralis.Cloud.define("addMemberToTribe", async (request) => {
   }
   catch(err) {
     logger.error(
-      `Error while adding task in board ${request.params.boardId}: ${err}`
+      `Error while adding Member in team ${request.params.teamId}: ${err}`
     );
     return false
   }
