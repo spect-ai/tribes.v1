@@ -117,7 +117,8 @@ const TaskBoard = (props: Props) => {
       });
       updateColumnOrder(Moralis, bid as string, newColumnOrder).then(
         (res: any) => {
-          setData(res as BoardData);
+          console.log(res);
+          // setData(res as BoardData);
         }
       );
       return;
@@ -181,7 +182,10 @@ const TaskBoard = (props: Props) => {
         newFinish.id,
         newStart,
         newFinish
-      ).then((res: any) => setData(res as BoardData));
+      ).then((res: any) => {
+        console.log(res);
+        // setData(res as BoardData);
+      });
     }
   };
   if (isLoading) {
