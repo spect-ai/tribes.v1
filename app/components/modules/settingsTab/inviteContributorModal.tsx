@@ -126,7 +126,7 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
           </PrimaryButton>
         </Wrapper>
         <Snackbar
-          autoHideDuration={3000}
+          autoHideDuration={2000}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           open={open}
           onClose={handleClose}
