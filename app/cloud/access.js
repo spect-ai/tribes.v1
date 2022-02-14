@@ -28,16 +28,26 @@ function isAdmin(userId, entity) {
   return false;
 }
 
-function isTaskStakeholder(userId, task) {
-  return task.get("creator") === userId || task.get("reviewer") === userId || task.get("assignee") === userId;
-}
-
-function isTaskClient(task, userId) {
-  return task.get("creator") === userId || task.get("reviewer") === userId;
+function isTaskCreator(task, userId) {
+  return task.get("creator") === userId;
 }
 
 function isTaskAssignee(task, userId) {
-  return task.get("assignee") === userId;
+  for (var assignee of task.get("assignee")) {
+    if (userId === assignee.userId) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isTaskReviewer(task, userId) {
+  for (var reviewer of task.get("reviewer")) {
+    if (userId === reviewer.userId) {
+      return true;
+    }
+  }
+  return false;
 }
 
 async function invite(members, teamId, invitedBy) {

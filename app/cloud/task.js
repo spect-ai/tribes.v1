@@ -151,6 +151,7 @@ Moralis.Cloud.define("updateTask", async (request) => {
     task = handleAssigneeUpdate(task, request.user.id, request.params.task.assignee);
     task = handleReviewerUpdate(task, request.user.id, request.params.task.reviewer);
     task = handleSubmissionUpdate(task, request.user.id, request.params.task.submission);
+    task = handleStatusChange(task, request.user.id, request.params.task.status);
 
     logger.info(`Updating task ${JSON.stringify(task)}`);
 
@@ -166,14 +167,14 @@ Moralis.Cloud.define("updateTask", async (request) => {
 });
 
 function handleTitleUpdate(task, userId, title) {
-  if (isTaskClient(task, userId) && title.length > 0) {
+  if (isTaskCreator(task, userId) && title.length > 0) {
     task.set("title", title);
   }
   return task;
 }
 
 function handleDescriptionUpdate(task, userId, description) {
-  if (isTaskClient(task, userId)) {
+  if (isTaskCreator(task, userId)) {
     task.set("description", description);
   }
   return task;
@@ -181,7 +182,7 @@ function handleDescriptionUpdate(task, userId, description) {
 
 function handleRewardUpdate(task, userId, value, token, chain) {
   if (
-    isTaskClient(task, userId) &&
+    isTaskCreator(task, userId) &&
     value > 0 &&
     ["wmatic", "weth", "usdc"].includes(token.toLowerCase()) &&
     ["polygon", "ethereum"].includes(chain.toLowerCase())
@@ -194,31 +195,28 @@ function handleRewardUpdate(task, userId, value, token, chain) {
 }
 
 function handleTagUpdate(task, userId, tags) {
-  if (isTaskClient(task, userId)) {
+  if (isTaskCreator(task, userId)) {
     task.set("tags", tags);
   }
   return task;
 }
 
 function handleDeadlineUpdate(task, userId, deadline) {
-  if (isTaskClient(task, userId) && deadline) {
+  if (isTaskCreator(task, userId) && deadline) {
     task.set("deadline", new Date(deadline));
   }
   return task;
 }
 
 function handleAssigneeUpdate(task, userId, assignee) {
-  if ((isTaskClient(task, userId) && assignee) || (isTaskAssignee(task, userId) && !assignee)) {
-    if (task.get("assignee") !== assignee) {
-      task = handleActivityUpdate(task, userId, 105, 5);
-      task.set("assignee", [assignee]);
-    }
+  if (isTaskCreator(task, userId) || isTaskReviewer(task, userId) || isTaskAssignee(task, userId)) {
+    task.set("assignee", [assignee]);
   }
   return task;
 }
 
 function handleReviewerUpdate(task, userId, reviewer) {
-  if (isTaskClient(task, userId)) {
+  if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
     task.set("reviewer", [reviewer]);
   }
   return task;
@@ -226,22 +224,60 @@ function handleReviewerUpdate(task, userId, reviewer) {
 
 function handleSubmissionUpdate(task, userId, submission) {
   if ((submission || task.get("submission")) && isTaskAssignee(task, userId) && task.get("submission") !== submission) {
-    task = handleActivityUpdate(task, userId, 200, 10);
     task.set("submission", submission);
   }
   return task;
 }
 
-function handleActivityUpdate(task, userId, status, action) {
-  task.set("status", status);
+function handleActivityUpdate(task, userId, action) {
   task.set("activity", [...task.get("activity"), { actor: userId, action: action, timestamp: new Date() }]);
   return task;
 }
 
+function handleStatusChange(task, userId, status) {
+  const statusCode = getStatusCode(status);
+  if (statusCode === 100 && (isTaskCreator(task, userId) || isTaskReviewer(task, userId))) {
+    task.set("status", statusCode);
+  } else if (statusCode === 102) {
+    task.set("status", statusCode);
+    task = handleActivityUpdate(task, userId, 5);
+  } else if (statusCode === 105) {
+    task.set("status", statusCode);
+    task = handleActivityUpdate(task, userId, 7);
+  } else if (statusCode === 200) {
+    task.set("status", statusCode);
+    task = handleActivityUpdate(task, userId, 10);
+  } else if (statusCode === 205) {
+    task.set("status", statusCode);
+    task = handleActivityUpdate(task, userId, 15);
+  } else if (statusCode === 300) {
+    task.set("status", statusCode);
+    task = handleActivityUpdate(task, userId, 20);
+  }
+  return task;
+}
+
+/* Not needed not tested
+Moralis.Cloud.define("startWork", async (request) => {
+  try {
+    var task = await getTaskByTaskId(request.params.taskId);
+    if (isTaskAssignee(task, request.user.id) && !assignee) {
+      task = handleActivityUpdate(task, request.user.id, 7);
+      await Moralis.Object.saveAll(task, { useMasterKey: true });
+      const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+      return board[0];
+    }
+  } catch (err) {
+    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    return false;
+  }
+});
+
 Moralis.Cloud.define("closeTask", async (request) => {
   try {
     var task = await getTaskByTaskId(request.params.taskId);
-    task = handleActivityUpdate(task, request.user.id, 205, 15);
+    task = handleActivityUpdate(task, request.user.id, 15);
+    await Moralis.Object.saveAll(task, { useMasterKey: true });
     const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
     return board[0];
   } catch (err) {
@@ -253,7 +289,8 @@ Moralis.Cloud.define("closeTask", async (request) => {
 Moralis.Cloud.define("distributeTaskReward", async (request) => {
   try {
     var task = await getTaskByTaskId(request.params.taskId);
-    task = handleActivityUpdate(task, request.user.id, 300, 20);
+    task = handleActivityUpdate(task, request.user.id, 20);
+    await Moralis.Object.saveAll(task, { useMasterKey: true });
     const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
     return board[0];
   } catch (err) {
@@ -261,29 +298,4 @@ Moralis.Cloud.define("distributeTaskReward", async (request) => {
     return false;
   }
 });
-
-/*
-Moralis.Cloud.define("updateTask", async (request) => {
-  const logger = Moralis.Cloud.getLogger();
-  const taskQuery = new Moralis.Query("Task");
-  try {
-    logger.info(JSON.stringify(request.params));
-    taskQuery.equalTo("objectId", request.params.id);
-    const task = await taskQuery.first();
-    logger.info(JSON.stringify(task));
-    task.set("status", request.params.status);
-    if (request.params.status === 101) {
-      task.set("assignee", request.user.id);
-    }
-    if (request.params.status === 102) {
-      task.set("paid", request.params.paid);
-    }
-    task.save({
-      useMasterKey: true,
-    });
-    return true;
-  } catch (err) {
-    logger.error(err);
-    return false;
-  }
-});*/
+*/

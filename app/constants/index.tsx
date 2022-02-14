@@ -132,8 +132,24 @@ export const actionMap = {
 
 export const statusMapping = {
   100: "Open",
-  101: "In progress",
-  102: "In review",
-  103: "Closed",
-  104: "Paid",
+  102: "Assigned",
+  105: "In progress",
+  200: "In review",
+  205: "Closed",
+  300: "Paid",
+};
+
+export const reverseStatusMapping = {
+  Open: 100,
+  "In progress": 105,
+  "In review": 200,
+  Closed: 205,
+  Paid: 300,
+};
+
+export const currentStatusToFutureValidStatus = {
+  100: ["Open", "In progress", "Closed"],
+  105: ["In progress", "Open", "In review"],
+  200: ["In review", "Closed", "In progress"],
+  205: ["Closed", "Paid"],
 };

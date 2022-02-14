@@ -29,6 +29,7 @@ import { useMoralis } from "react-moralis";
 import { useBoard } from "../taskBoard";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
+import { statusMapping, currentStatusToFutureValidStatus } from "../../../constants";
 // import "react-mde/lib/styles/css/react-mde-all.css";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { chainTokenRegistry, actionMap, monthMap } from "../../../constants";
@@ -52,6 +53,7 @@ export interface IEditTask {
   chain: string;
   token: string;
   value: number;
+  status: string;
 }
 
 const converter = new Showdown.Converter({
@@ -197,6 +199,29 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
         </Grid>
         <Grid item xs={3} sx={{ borderLeft: "1px solid #5a6972" }}>
           <Box ml={2}>
+            <TaskModalBodyContainer>
+              <Divider textAlign="left" color="text.secondary">
+                Status
+              </Divider>{" "}
+              <FieldContainer>
+                <Controller
+                  name="status"
+                  control={control}
+                  defaultValue={statusMapping[task.status as keyof typeof statusMapping]}
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      options={
+                        currentStatusToFutureValidStatus[task.status as keyof typeof currentStatusToFutureValidStatus]
+                      }
+                      getOptionLabel={(option) => option}
+                      onChange={(e, data) => field.onChange(data)}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
+                    />
+                  )}
+                />
+              </FieldContainer>
+            </TaskModalBodyContainer>
             <TaskModalBodyContainer>
               <Divider textAlign="left" color="text.secondary">
                 Due Date
