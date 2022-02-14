@@ -69,18 +69,16 @@ const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
         <Button
           startIcon={<DoneIcon />}
           onClick={() => {
-            addTask(
-              Moralis,
-              bid as string,
-              columnId,
-              newTaskTitle,
-              parseFloat(newTaskValue),
-              ""
-            ).then((res: any) => {
+            addTask(Moralis, bid as string, columnId, newTaskTitle, parseFloat(newTaskValue), "").then((res: any) => {
               if (!res) {
                 alert("Error");
                 return;
               }
+              console.log(`resgggg`);
+
+              console.log(res);
+              console.log(`resgggg`);
+
               setData(res as BoardData);
               setNewTaskValue("");
               setNewTaskTitle("");
