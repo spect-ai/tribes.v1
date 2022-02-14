@@ -73,9 +73,10 @@ Moralis.Cloud.define("getTask", async (request) => {
 
       task[0].reviewer = task[0].members.filter((a) => reviewerIds.includes(a.userId));
       task[0].assignee = task[0].members.filter((a) => assigneeIds.includes(a.userId));
-      logger.info(`task[0].reviewer ${JSON.stringify(task[0].reviewer)}`);
-      logger.info(`task[0].assignee ${JSON.stringify(task[0].assignee)}`);
 
+      const taskParseObj = await getTaskByTaskId(request.params.taskId);
+      const access = getFieldLevelAccess(taskParseObj, request.user.id);
+      task[0].access = access;
       return task[0];
     }
   } catch (err) {

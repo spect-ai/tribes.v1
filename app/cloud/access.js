@@ -50,6 +50,20 @@ function isTaskReviewer(task, userId) {
   return false;
 }
 
+function getFieldLevelAccess(task, userId) {
+  var access = {};
+  if (isTaskCreator(task, userId)) {
+    access["creator"] = true;
+  }
+  if (isTaskReviewer(task, userId)) {
+    access["reviewer"] = true;
+  }
+  if (isTaskAssignee(task, userId)) {
+    access["assignee"] = true;
+  }
+  return access;
+}
+
 async function invite(members, teamId, invitedBy) {
   //members: [{'ethAddress':'0x232324', 'role': 'admin'}]
   const logger = Moralis.Cloud.getLogger();

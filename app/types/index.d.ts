@@ -98,5 +98,5 @@ export interface Task {
   ];
   status: number;
   members: list;
-  readOnly: object;
+  access: object;
 }
