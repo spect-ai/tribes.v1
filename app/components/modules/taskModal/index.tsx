@@ -1,11 +1,4 @@
-import {
-  Backdrop,
-  Box,
-  CircularProgress,
-  Fade,
-  Modal,
-  Typography,
-} from "@mui/material";
+import { Backdrop, Box, CircularProgress, Fade, Modal, Typography } from "@mui/material";
 import { Octokit } from "@octokit/rest";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
@@ -28,6 +21,7 @@ const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
   useEffect(() => {
     setLoading(true);
     getTask(Moralis, taskId).then((task: Task) => {
+      console.log(`ggggg`);
       console.log(task);
       setTask(task);
       setLoading(false);
@@ -63,20 +57,10 @@ const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
                 }}
               >
                 <CircularProgress color="inherit" />
-                <Typography sx={{ mt: 2, mb: 1, color: "#eaeaea" }}>
-                  {loaderText}
-                </Typography>
+                <Typography sx={{ mt: 2, mb: 1, color: "#eaeaea" }}>{loaderText}</Typography>
               </Box>
             </Backdrop>
-            {loading ? (
-              <div>Loading....</div>
-            ) : (
-              <EditTask
-                task={task}
-                setTask={setTask}
-                handleClose={handleClose}
-              />
-            )}
+            {loading ? <div>Loading....</div> : <EditTask task={task} setTask={setTask} handleClose={handleClose} />}
           </Box>
         </Fade>
       </Modal>

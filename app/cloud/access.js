@@ -8,8 +8,8 @@ function hasAccess(userId, team, requiredAccess) {
   return false;
 }
 
-function isMember(userId, team) {
-  const members = team.get("members");
+function isMember(userId, entity) {
+  const members = entity.get("members");
   for (var member of members) {
     if (member["userId"] === userId) {
       return true;
@@ -18,12 +18,18 @@ function isMember(userId, team) {
   return false;
 }
 
+function isAdmin(userId, entity) {
+  const members = entity.get("members");
+  for (var member of members) {
+    if (member["userId"] === userId) {
+      return member["userId"] === "admin";
+    }
+  }
+  return false;
+}
+
 function isTaskStakeholder(userId, task) {
-  return (
-    task.get("creator") === userId ||
-    task.get("reviewer") === userId ||
-    task.get("assignee") === userId
-  );
+  return task.get("creator") === userId || task.get("reviewer") === userId || task.get("assignee") === userId;
 }
 
 function isTaskClient(task, userId) {

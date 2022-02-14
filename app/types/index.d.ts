@@ -81,8 +81,8 @@ export interface Task {
   submission: any;
   deadline: Date;
   tags: string[];
-  assignee: string;
-  reviewer: string;
+  assignee: list;
+  reviewer: list;
   creator: string;
   chain: "polygon" | "ethereum" | "bsc";
   value: number;
@@ -97,4 +97,6 @@ export interface Task {
     }
   ];
   status: number;
+  members: list;
+  readOnly: object;
 }

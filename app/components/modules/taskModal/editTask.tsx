@@ -26,6 +26,7 @@ import { Task } from "../../../types";
 import { getMD5String } from "../../../utils/utils";
 import { updateTask } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
+import { useBoard } from "../taskBoard";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 // import "react-mde/lib/styles/css/react-mde-all.css";
@@ -46,8 +47,8 @@ export interface IEditTask {
   deadline: any;
   source: string;
   tags: string[];
-  assignee: string;
-  reviewer: string;
+  assignee: any; //list of objects
+  reviewer: any; //list of objects
   chain: string;
   token: string;
   value: number;
@@ -62,11 +63,11 @@ const converter = new Showdown.Converter({
 
 const EditTask = ({ task, setTask, handleClose }: Props) => {
   // const router = useRouter();
+
   const { Moralis } = useMoralis();
   const [loading, setLoading] = useState(false);
   const [chain, setChain] = useState<string | null>(task.chain);
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
-  console.log(task);
   const {
     handleSubmit,
     control,
@@ -80,13 +81,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
     setLoading(true);
     updateTask(Moralis, values)
       .then((res: any) => {
-        console.log(`ssfsfeeee`);
-        console.log(res);
-
-        console.log(`ssfsfeeee`);
-
-        console.log(res);
-        setTask(res.tasks[task.taskId]);
+        //setTask(res.tasks[task.taskId]);
         setLoading(false);
         handleClose();
       })
@@ -262,12 +257,12 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                 <Controller
                   name="assignee"
                   control={control}
-                  defaultValue={task.assignee}
+                  defaultValue={task.assignee?.length > 0 ? task.assignee[0] : null}
                   render={({ field }) => (
                     <Autocomplete
                       {...field}
-                      options={["chaks.eth", "0xavp.eth", "USDC.eth"]} // Get options from members
-                      getOptionLabel={(option) => option}
+                      options={task.members} // Get options from members
+                      getOptionLabel={(option) => option.username}
                       onChange={(e, data) => field.onChange(data)}
                       renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
@@ -284,12 +279,12 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                 <Controller
                   name="reviewer"
                   control={control}
-                  defaultValue={task.reviewer}
+                  defaultValue={task.reviewer?.length > 0 ? task.reviewer[0] : null}
                   render={({ field }) => (
                     <Autocomplete
                       {...field}
-                      options={["chaks.eth", "0xavp.eth", "USDC.eth"]} // Get options from members
-                      getOptionLabel={(option) => option}
+                      options={task.members} // Get options from members
+                      getOptionLabel={(option) => option.username}
                       onChange={(e, data) => field.onChange(data)}
                       renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />

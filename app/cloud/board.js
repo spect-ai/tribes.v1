@@ -80,6 +80,9 @@ Moralis.Cloud.define("initBoard", async (request) => {
       board.set("columns", columnIdToColumnMap);
       board.set("columnOrder", columnIds);
 
+      // TODO: Make this customizable
+      board.set("members", team.get("members"));
+
       logger.error(`Creating new board ${JSON.stringify(board)}`);
 
       await Moralis.Object.saveAll([board], { useMasterKey: true });
@@ -209,4 +212,12 @@ Moralis.Cloud.define("deleteBoard", async (request) => {
     logger.error(`Error while deleting board ${request.params.boardId}: ${err}`);
     return false;
   }
+});
+
+Moralis.Cloud.define("addBoardMembers", async (request) => {
+  const boardQuery = new Moralis.Query("Board");
+  boardQuery.equalTo("objectId", request.params.boardId);
+  const board = await boardQuery.first();
+  board.set("members", board.get("members").concat(request.params.members));
+  await Moralis.Object.saveAll([board], { useMasterKey: true });
 });

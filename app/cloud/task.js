@@ -49,6 +49,7 @@ Moralis.Cloud.define("getTask", async (request) => {
   try {
     if (request.params.taskId) {
       const task = await getTaskObjByTaskId(request.params.taskId);
+      const board = await getBoardObjByObjectId(task[0].boardId);
       if (task.length === 0) throw `Task ${request.params.taskId} not found`;
       for (var act of task[0].activity) {
         var userQuery = new Moralis.Query("User");
@@ -57,10 +58,28 @@ Moralis.Cloud.define("getTask", async (request) => {
         act.username = user.get("username");
         act.profilePicture = user.get("profilePicture");
       }
+      var memberIds = [];
+      for (var member of board[0].members) {
+        memberIds.push(member.userId);
+      }
+      task[0].members = await getUsernamesByUserIds(memberIds);
+      let assigneeIds = [];
+      let reviewerIds = [];
+
+      task[0].reviewer.filter((a) => reviewerIds.push(a.userId));
+      task[0].assignee.filter((a) => assigneeIds.push(a.userId));
+      logger.info(` assigneeIds ${JSON.stringify(assigneeIds)}`);
+      logger.info(`reviewerIds ${JSON.stringify(reviewerIds)}`);
+
+      task[0].reviewer = task[0].members.filter((a) => reviewerIds.includes(a.userId));
+      task[0].assignee = task[0].members.filter((a) => assigneeIds.includes(a.userId));
+      logger.info(`task[0].reviewer ${JSON.stringify(task[0].reviewer)}`);
+      logger.info(`task[0].assignee ${JSON.stringify(task[0].assignee)}`);
+
       return task[0];
     }
   } catch (err) {
-    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    logger.error(`Error while getting task from board ${request.params.taskId}: ${err}`);
     return false;
   }
 });
@@ -87,7 +106,8 @@ Moralis.Cloud.define("addTask", async (request) => {
       task.set("chain", team.get("preferredChain"));
       task.set("value", parseInt(request.params.value));
       task.set("creator", request.user.id);
-      task.set("reviewer", request.user.id);
+      task.set("reviewer", [{ userId: request.user.id }]);
+      task.set("assignee", []);
       task.set("status", 100);
       task.set("description", request.params.description);
       task.set("activity", [
@@ -191,7 +211,7 @@ function handleAssigneeUpdate(task, userId, assignee) {
   if ((isTaskClient(task, userId) && assignee) || (isTaskAssignee(task, userId) && !assignee)) {
     if (task.get("assignee") !== assignee) {
       task = handleActivityUpdate(task, userId, 105, 5);
-      task.set("assignee", assignee);
+      task.set("assignee", [assignee]);
     }
   }
   return task;
@@ -199,7 +219,7 @@ function handleAssigneeUpdate(task, userId, assignee) {
 
 function handleReviewerUpdate(task, userId, reviewer) {
   if (isTaskClient(task, userId)) {
-    task.set("reviewer", reviewer);
+    task.set("reviewer", [reviewer]);
   }
   return task;
 }
