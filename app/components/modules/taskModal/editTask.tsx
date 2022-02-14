@@ -38,6 +38,7 @@ import { useTribe } from "../../../../pages/tribe/[id]";
 import { chainTokenRegistry, actionMap, monthMap } from "../../../constants";
 import { getTokenOptions } from "../../../utils/utils";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { Octokit } from "@octokit/rest";
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
@@ -52,8 +53,14 @@ export interface IEditTask {
   deadline: any;
   source: string;
   tags: string[];
-  assignee: any; //list of objects
-  reviewer: any; //list of objects
+  assignee: {
+    userId: string;
+    username: string;
+  };
+  reviewer: {
+    userId: string;
+    username: string;
+  };
   chain: string;
   token: string;
   value: number;
@@ -70,36 +77,51 @@ const converter = new Showdown.Converter({
 const EditTask = ({ task, setTask, handleClose }: Props) => {
   // const router = useRouter();
 
-  const { Moralis } = useMoralis();
+  const { Moralis, user } = useMoralis();
   const [loading, setLoading] = useState(false);
   const [chain, setChain] = useState<string | null>(task.chain);
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
+  const [submissionPR, setSubmissionPR] = useState("");
+  const [assigned, setAssigned] = useState(false);
   const {
     handleSubmit,
     control,
     formState: { isDirty },
+    setValue,
   } = useForm<IEditTask>({});
   const onSubmit: SubmitHandler<IEditTask> = async (values) => {
     setLoading(true);
     values.deadline = new Date(values.deadline).toUTCString();
     values.taskId = task.taskId;
     console.log(values);
-    updateTask(Moralis, values)
-      .then((res: any) => {
-        //setTask(res.tasks[task.taskId]);
-        setLoading(false);
-        handleClose();
-      })
-      .catch((e: any) => {
-        alert(e);
-        console.log(e);
-        setLoading(false);
-      });
+    // updateTask(Moralis, values)
+    //   .then((res: any) => {
+    //     //setTask(res.tasks[task.taskId]);
+    //     setLoading(false);
+    //     handleClose();
+    //   })
+    //   .catch((e: any) => {
+    //     alert(e);
+    //     console.log(e);
+    //     setLoading(false);
+    //   });
   };
 
   useEffect(() => {
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
+    }
+    const octokit = new Octokit();
+
+    if (task.issueLink) {
+      const splitValues = task.issueLink?.split("/");
+      octokit.rest.pulls
+        .list({
+          owner: splitValues[3],
+          repo: splitValues[4],
+          head: `${splitValues[3]}:${task.taskId}`,
+        })
+        .then(({ data }) => console.log(data));
     }
   }, []);
 
@@ -176,7 +198,9 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
             </Divider>{" "}
             <TextField
               id="filled-hidden-label-normal"
-              helperText={"Copy branch name to track PRs here"}
+              helperText={
+                "Automatically link this task with a Github Pull Request using the branch name above"
+              }
               InputProps={{
                 readOnly: true,
                 endAdornment: (
@@ -189,7 +213,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                   </IconButton>
                 ),
               }}
-              value={"git checkout -b board-1/task-cltoZ8T0rdTcMBtSOY7RMTy8-1"}
+              value={`git checkout -b ${task.taskId}`}
               sx={{ my: 4, width: "50%" }}
               fullWidth
             />
@@ -339,29 +363,48 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                 Assignee
               </Divider>{" "}
               <FieldContainer>
-                <Controller
-                  name="assignee"
-                  control={control}
-                  defaultValue={
-                    task.assignee?.length > 0 ? task.assignee[0] : null
-                  }
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      options={task.members} // Get options from members
-                      getOptionLabel={(option) => option.username}
-                      onChange={(e, data) => field.onChange(data)}
-                      readOnly={task.status !== 100}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
-                    />
-                  )}
-                />
+                {task.access.creator ||
+                task.access.reviewer ||
+                task.assignee.length ? (
+                  <Controller
+                    name="assignee"
+                    control={control}
+                    defaultValue={
+                      task.assignee?.length > 0 ? task.assignee[0] : null
+                    }
+                    render={({ field }) => (
+                      <Autocomplete
+                        {...field}
+                        options={task.members} // Get options from members
+                        getOptionLabel={(option) => option.username}
+                        onChange={(e, data) => field.onChange(data)}
+                        readOnly={task.status !== 100}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            id="filled-hidden-label-normal"
+                            size="small"
+                          />
+                        )}
+                      />
+                    )}
+                  />
+                ) : (
+                  <PrimaryButton
+                    variant="contained"
+                    color="primary"
+                    onClick={() => {
+                      setValue("assignee", {
+                        userId: user?.id || "",
+                        username: user?.get("username"),
+                      });
+                      task.assignee.userId = user?.id || "";
+                      task.assignee.username = user?.get("username"); // @ts-ignore
+                    }}
+                  >
+                    Assign to me!
+                  </PrimaryButton>
+                )}
               </FieldContainer>
             </TaskModalBodyContainer>
 

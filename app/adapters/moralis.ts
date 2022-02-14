@@ -118,7 +118,8 @@ export function addTask(
   columnId: string,
   title: string,
   value: number,
-  description: string
+  description: string,
+  issueLink: string
 ) {
   const params = {
     boardId: boardId,
@@ -126,6 +127,7 @@ export function addTask(
     title: title,
     value: value,
     description: description,
+    issueLink: issueLink,
   };
   return Moralis.Cloud.run("addTask", params);
 }

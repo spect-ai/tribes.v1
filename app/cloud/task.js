@@ -133,6 +133,7 @@ Moralis.Cloud.define("addTask", async (request) => {
           timestamp: new Date(),
         },
       ]);
+      task.set("issueLink", request.params.issueLink);
 
       await Moralis.Object.saveAll([task], { useMasterKey: true });
       await Moralis.Object.saveAll([board], { useMasterKey: true });

@@ -35,14 +35,6 @@ const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
       setTask(task);
       setLoading(false);
     });
-    const octokit = new Octokit();
-    octokit.rest.pulls
-      .list({
-        owner: "spect-ai",
-        repo: "app.v3",
-        head: "spect-ai:develop",
-      })
-      .then(({ data }) => console.log(data));
   }, []);
 
   return (

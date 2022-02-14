@@ -103,4 +103,5 @@ export interface Task {
     reviewer: boolean;
     assignee: boolean;
   };
+  issueLink?: string;
 }
