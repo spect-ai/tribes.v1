@@ -8,8 +8,8 @@ function hasAccess(userId, team, requiredAccess) {
   return false;
 }
 
-function isMember(userId, team) {
-  const members = team.get("members");
+function isMember(userId, entity) {
+  const members = entity.get("members");
   for (var member of members) {
     if (member["userId"] === userId) {
       return true;
@@ -18,20 +18,50 @@ function isMember(userId, team) {
   return false;
 }
 
-function isTaskStakeholder(userId, task) {
-  return (
-    task.get("creator") === userId ||
-    task.get("reviewer") === userId ||
-    task.get("assignee") === userId
-  );
+function isAdmin(userId, entity) {
+  const members = entity.get("members");
+  for (var member of members) {
+    if (member["userId"] === userId) {
+      return member["userId"] === "admin";
+    }
+  }
+  return false;
 }
 
-function isTaskClient(task, userId) {
-  return task.get("creator") === userId || task.get("reviewer") === userId;
+function isTaskCreator(task, userId) {
+  return task.get("creator") === userId;
 }
 
 function isTaskAssignee(task, userId) {
-  return task.get("assignee") === userId;
+  for (var assignee of task.get("assignee")) {
+    if (userId === assignee.userId) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isTaskReviewer(task, userId) {
+  for (var reviewer of task.get("reviewer")) {
+    if (userId === reviewer.userId) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function getFieldLevelAccess(task, userId) {
+  var access = {};
+  if (isTaskCreator(task, userId)) {
+    access["creator"] = true;
+  }
+  if (isTaskReviewer(task, userId)) {
+    access["reviewer"] = true;
+  }
+  if (isTaskAssignee(task, userId)) {
+    access["assignee"] = true;
+  }
+  return access;
 }
 
 async function invite(members, teamId, invitedBy) {

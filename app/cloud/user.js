@@ -21,6 +21,17 @@ async function getUserByUserId(userId) {
   return await userInfoQuery.first();
 }
 
+async function getUsernamesByUserIds(userIds) {
+  const userQuery = new Moralis.Query("User");
+  userQuery.containedIn("objectId", userIds);
+  const users = await userQuery.find({ useMasterKey: true });
+  var userArray = [];
+  for (var user of users) {
+    userArray.push({ userId: user.id, username: user.get("username") });
+  }
+  return userArray;
+}
+
 Moralis.Cloud.define("getOrCreateUser", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {

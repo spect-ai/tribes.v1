@@ -11,7 +11,7 @@ import {
   InputBase,
   IconButton,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import styled from "@emotion/styled";
@@ -26,13 +26,18 @@ import { Task } from "../../../types";
 import { getMD5String } from "../../../utils/utils";
 import { updateTask } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import { monthMap } from "../../../constants";
+import { useBoard } from "../taskBoard";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
+import {
+  statusMapping,
+  currentStatusToFutureValidStatus,
+} from "../../../constants";
 // import "react-mde/lib/styles/css/react-mde-all.css";
 import { useTribe } from "../../../../pages/tribe/[id]";
-import { chainTokenRegistry, actionMap } from "../../../constants";
+import { chainTokenRegistry, actionMap, monthMap } from "../../../constants";
 import { getTokenOptions } from "../../../utils/utils";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
@@ -47,11 +52,12 @@ export interface IEditTask {
   deadline: any;
   source: string;
   tags: string[];
-  assignee: string;
-  reviewer: string;
+  assignee: any; //list of objects
+  reviewer: any; //list of objects
   chain: string;
   token: string;
   value: number;
+  status: string;
 }
 
 const converter = new Showdown.Converter({
@@ -63,26 +69,24 @@ const converter = new Showdown.Converter({
 
 const EditTask = ({ task, setTask, handleClose }: Props) => {
   // const router = useRouter();
+
   const { Moralis } = useMoralis();
-  const { tribe } = useTribe();
   const [loading, setLoading] = useState(false);
   const [chain, setChain] = useState<string | null>(task.chain);
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
-  console.log(tribe);
   const {
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { isDirty },
   } = useForm<IEditTask>({});
   const onSubmit: SubmitHandler<IEditTask> = async (values) => {
+    setLoading(true);
     values.deadline = new Date(values.deadline).toUTCString();
     values.taskId = task.taskId;
     console.log(values);
-    setLoading(true);
     updateTask(Moralis, values)
       .then((res: any) => {
-        console.log(res);
-        setTask(res[1]);
+        //setTask(res.tasks[task.taskId]);
         setLoading(false);
         handleClose();
       })
@@ -93,13 +97,11 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
       });
   };
 
-  const myTheme = createTheme({
-    ...muiTheme,
-    spacing: 1,
-    typography: {
-      fontSize: 14,
-    },
-  });
+  useEffect(() => {
+    if (!(task.access.creator || task.access.reviewer)) {
+      setSelectedTab("preview");
+    }
+  }, []);
 
   const save = async function* (data: any) {
     // Promise that waits for "time" milliseconds
@@ -113,11 +115,6 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
     // returns true meaning that the save was successful
     return true;
   };
-
-  if (loading) {
-    return <div>Fetching</div>;
-  }
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} style={{ width: "70rem" }}>
       <TaskModalTitleContainer>
@@ -134,6 +131,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
               }}
               {...field}
               fullWidth
+              readOnly={!(task.access.creator || task.access.reviewer)}
             />
           )}
         />
@@ -166,38 +164,106 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                         tabIndex: -1,
                       },
                     }}
-                    paste={{
-                      saveImage: save,
-                    }}
+                    readOnly={!(task.access.creator || task.access.reviewer)}
                   />
                 )}
               />
             </Box>
           </TaskModalBodyContainer>
-          {/* <TaskModalBodyContainer>
+          <TaskModalBodyContainer>
+            <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
+              Submissions
+            </Divider>{" "}
+            <TextField
+              id="filled-hidden-label-normal"
+              helperText={"Copy branch name to track PRs here"}
+              InputProps={{
+                readOnly: true,
+                endAdornment: (
+                  <IconButton
+                    onClick={() => {
+                      navigator.clipboard.writeText("copied gg");
+                    }}
+                  >
+                    <ContentCopyIcon />
+                  </IconButton>
+                ),
+              }}
+              value={"git checkout -b board-1/task-cltoZ8T0rdTcMBtSOY7RMTy8-1"}
+              sx={{ my: 4, width: "50%" }}
+              fullWidth
+            />
+          </TaskModalBodyContainer>
+          <TaskModalBodyContainer>
             <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
               Activity
             </Divider>{" "}
-            <ListItem>
-              <Avatar
-                sx={{ width: 24, height: 24, mr: 2 }}
-                src={`https://www.gravatar.com/avatar/${getMD5String(
-                  task.activity.latestActor
-                )}?d=identicon&s=32`}
-              />
-              <ListItemText
-                primary={`${
-                  task.activity.latestActor
-                } created this task on ${task.activity.latestActionTime.getDate()}  ${
-                  // @ts-ignore
-                  monthMap[task.activity.latestActionTime.getMonth() as number]
-                }`}
-              />
-            </ListItem>
-          </TaskModalBodyContainer> */}
+            {task.activity?.map((act: any) => (
+              <ListItem key={`${act.timestamp}`}>
+                <Avatar
+                  sx={{ width: 24, height: 24, mr: 2 }}
+                  src={
+                    act.profilePicture
+                      ? act.profilePicture._url
+                      : `https://www.gravatar.com/avatar/${getMD5String(
+                          act.username
+                        )}?d=identicon&s=32`
+                  }
+                />
+                <ListItemText
+                  primary={`${
+                    actionMap[act.action as keyof typeof actionMap]
+                  } by ${act.username} on ${act.timestamp.getDate()}  ${
+                    // @ts-ignore
+                    monthMap[act.timestamp.getMonth() as number]
+                  }`}
+                />
+              </ListItem>
+            ))}
+          </TaskModalBodyContainer>
         </Grid>
         <Grid item xs={3} sx={{ borderLeft: "1px solid #5a6972" }}>
           <Box ml={2}>
+            <TaskModalBodyContainer>
+              <Divider textAlign="left" color="text.secondary">
+                Status
+              </Divider>{" "}
+              <FieldContainer>
+                <Controller
+                  name="status"
+                  control={control}
+                  defaultValue={
+                    statusMapping[task.status as keyof typeof statusMapping]
+                  }
+                  render={({ field }) => (
+                    <Autocomplete
+                      {...field}
+                      options={
+                        currentStatusToFutureValidStatus[
+                          task.status as keyof typeof currentStatusToFutureValidStatus
+                        ]
+                      }
+                      getOptionLabel={(option) => option}
+                      onChange={(e, data) => field.onChange(data)}
+                      readOnly={
+                        !(
+                          task.access.creator ||
+                          task.access.reviewer ||
+                          task.access.assignee
+                        )
+                      }
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id="filled-hidden-label-normal"
+                          size="small"
+                        />
+                      )}
+                    />
+                  )}
+                />
+              </FieldContainer>
+            </TaskModalBodyContainer>
             <TaskModalBodyContainer>
               <Divider textAlign="left" color="text.secondary">
                 Due Date
@@ -213,6 +279,9 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                         {...field}
                         minDateTime={dayjs()}
                         onChange={field.onChange}
+                        readOnly={
+                          !(task.access.creator || task.access.reviewer)
+                        }
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -246,6 +315,13 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                       multiple
                       onChange={(e, data) => field.onChange(data)}
                       size="small"
+                      readOnly={
+                        !(
+                          task.access.creator ||
+                          task.access.reviewer ||
+                          task.access.assignee
+                        )
+                      }
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -266,13 +342,16 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                 <Controller
                   name="assignee"
                   control={control}
-                  defaultValue={task.assignee}
+                  defaultValue={
+                    task.assignee?.length > 0 ? task.assignee[0] : null
+                  }
                   render={({ field }) => (
                     <Autocomplete
                       {...field}
-                      options={["chaks.eth", "0xavp.eth", "USDC.eth"]} // Get options from members
-                      getOptionLabel={(option) => option}
+                      options={task.members} // Get options from members
+                      getOptionLabel={(option) => option.username}
                       onChange={(e, data) => field.onChange(data)}
+                      readOnly={task.status !== 100}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -294,13 +373,16 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                 <Controller
                   name="reviewer"
                   control={control}
-                  defaultValue={task.reviewer}
+                  defaultValue={
+                    task.reviewer?.length > 0 ? task.reviewer[0] : null
+                  }
                   render={({ field }) => (
                     <Autocomplete
                       {...field}
-                      options={["chaks.eth", "0xavp.eth", "USDC.eth"]} // Get options from members
-                      getOptionLabel={(option) => option}
+                      options={task.members} // Get options from members
+                      getOptionLabel={(option) => option.username}
                       onChange={(e, data) => field.onChange(data)}
+                      readOnly={!(task.access.creator || task.access.reviewer)}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -328,6 +410,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                       {...field}
                       options={Object.keys(chainTokenRegistry)} // Get options from members
                       getOptionLabel={(option) => option}
+                      readOnly={!task.access.creator}
                       onChange={(e, data) => {
                         field.onChange(data);
                         setChain(data);
@@ -354,6 +437,9 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                           }
                           type="number"
                           error={fieldState.error ? true : false}
+                          InputProps={{
+                            readOnly: !task.access.creator,
+                          }}
                           inputProps={{ min: 0, step: 1 }}
                           size="small"
                           sx={{ mr: 1, mt: 1 }}
@@ -372,6 +458,7 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
                           options={getTokenOptions(chain)} // Get options from members
                           getOptionLabel={(option) => option}
                           onChange={(e, data) => field.onChange(data)}
+                          readOnly={!task.access.creator}
                           renderInput={(params) => (
                             <TextField
                               {...params}
@@ -394,6 +481,8 @@ const EditTask = ({ task, setTask, handleClose }: Props) => {
           fullWidth
           sx={{ width: "30%" }}
           type="submit"
+          loading={loading}
+          disabled={!isDirty}
         >
           Save
         </PrimaryButton>

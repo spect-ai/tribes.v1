@@ -14,6 +14,7 @@ import {
 import { useMoralis } from "react-moralis";
 import Heading from "./heading";
 import SkeletonLoader from "./skeletonLoader";
+import { Task } from "../../../types";
 
 type Props = {};
 
@@ -23,22 +24,11 @@ export type Column = {
   taskIds: string[];
 };
 
-export type TaskPreview = {
-  activeStatus: number;
-  deadline: Date;
-  latestActionTime: Date;
-  latestActor: string;
-  value: number;
-  title: string;
-  token: string;
-  taskId: string;
-};
-
 export interface BoardData {
   objectId: string;
   name: string;
   tasks: {
-    [key: string]: TaskPreview;
+    [key: string]: Task;
   };
   columns: {
     [key: string]: Column;
@@ -75,13 +65,20 @@ const TaskBoard = (props: Props) => {
   const { id, bid } = router.query;
   const setData = context.setData;
   const data = context.data;
+  console.log(`data`);
+  console.log(data);
+  console.log(`data`);
+
   useEffect(() => {
     setIsLoading(true);
 
     if (isInitialized && bid) {
       getBoard(Moralis, bid as string)
         .then((res: any) => {
+          console.log("sfsfsf");
           console.log(res);
+          console.log("sfsfsf");
+
           context.setData(res);
           setIsLoading(false);
         })

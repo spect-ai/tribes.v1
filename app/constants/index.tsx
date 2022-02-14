@@ -124,7 +124,32 @@ export const distributorRegistry = {
 export const actionMap = {
   1: "Created",
   5: "Assigned",
+  7: "Work started",
   10: "Work submitted",
   15: "Closed",
   20: "Paid out",
+};
+
+export const statusMapping = {
+  100: "Open",
+  102: "Assigned",
+  105: "In progress",
+  200: "In review",
+  205: "Closed",
+  300: "Paid",
+};
+
+export const reverseStatusMapping = {
+  Open: 100,
+  "In progress": 105,
+  "In review": 200,
+  Closed: 205,
+  Paid: 300,
+};
+
+export const currentStatusToFutureValidStatus = {
+  100: ["Open", "In progress", "Closed"],
+  105: ["In progress", "Open", "In review"],
+  200: ["In review", "Closed", "In progress"],
+  205: ["Closed", "Paid"],
 };
