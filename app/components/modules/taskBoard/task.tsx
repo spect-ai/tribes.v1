@@ -35,7 +35,7 @@ const TaskContainer = ({ task, index }: Props) => {
                 {task.value && (
                   <Chip color="#99ccff">
                     <MonetizationOnIcon sx={{ fontSize: 12 }} />
-                    {task.value} Matic
+                    {task.value} {task.token}
                   </Chip>
                 )}
                 {task.deadline && (
