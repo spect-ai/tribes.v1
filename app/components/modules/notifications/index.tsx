@@ -28,7 +28,6 @@ export default function Notification() {
       getInvitations(Moralis, ethAddress)
         .then((res: any[]) => {
           setNotifs(res.reverse());
-          console.log("rest", res);
           setNotifLeng(res.length);
         })
         .catch((ex: any) => {

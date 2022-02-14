@@ -180,3 +180,28 @@ Moralis.Cloud.define("updateMembers", async (request) => {
     return false;
   }
 });
+
+Moralis.Cloud.define("checkMemberInTeam", async (request) => {
+  const team = await getTribeObjByTeamId(request.params.teamId);
+  if (team.length === 0 || !team)
+  {
+  	return false
+  }
+  const members = team[0].members;
+  if(members)
+  {
+	let result = members.filter((member) => member.userId == request.params.userId);
+	if(result.length > 0)
+    {
+       return true;
+    }
+    else
+    {
+       return false;
+    }
+  }
+  else
+  {
+    return false;
+  }
+});

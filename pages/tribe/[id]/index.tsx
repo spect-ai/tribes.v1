@@ -16,7 +16,7 @@ interface Props {}
 
 type Issue = {
   id: number;
-  title: string;
+  title?: string;
   issueLink: string;
 };
 
