@@ -205,3 +205,34 @@ Moralis.Cloud.define("checkMemberInTeam", async (request) => {
     return false;
   }
 });
+
+Moralis.Cloud.define("addMemberToTribe", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  const team = await getTribeByTeamId(request.params.teamId);
+  try {
+    if(isMember(request.params.userId, team))
+    {
+      return true
+    }
+    else
+    {
+      let newMember = 
+        {
+          "userId": request.params.userId,
+          "role": request.params.userType
+        }
+      let members = team.get('members');
+      members.push(newMember)
+      team.set('members', members);
+      await Moralis.Object.saveAll([team], { useMasterKey: true });
+      return true
+    }
+  }
+  catch(err) {
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
+    return false
+  }
+  
+});

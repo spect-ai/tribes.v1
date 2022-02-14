@@ -255,3 +255,13 @@ export function deleteBoard(Moralis: any, boardId: string) {
   };
   return Moralis.Cloud.run("deleteBoard", params);
 }
+
+export function addMemberToTribe(Moralis: any, teamId: number, userId: string, userType: string) {
+  const params = {
+    teamId : teamId,
+    userId: userId,
+    userType: userType
+  };
+
+  return Moralis.Cloud.run("addMemberToTribe",params)
+}
