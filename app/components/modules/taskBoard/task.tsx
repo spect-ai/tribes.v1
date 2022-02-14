@@ -5,7 +5,11 @@ import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import DateRangeIcon from "@mui/icons-material/DateRange";
 import { Avatar } from "@mui/material";
 import TaskModal from "../taskModal";
-import { statusMapping } from "../../../constants";
+import {
+  monthMap,
+  statusColorMapping,
+  statusMapping,
+} from "../../../constants";
 import { Task } from "../../../types";
 
 type Props = {
@@ -18,7 +22,13 @@ const TaskContainer = ({ task, index }: Props) => {
   const handleClose = () => setIsOpen(false);
   return (
     <>
-      {isOpen && <TaskModal isOpen={isOpen} handleClose={handleClose} taskId={task.taskId} />}
+      {isOpen && (
+        <TaskModal
+          isOpen={isOpen}
+          handleClose={handleClose}
+          taskId={task.taskId}
+        />
+      )}
       <Draggable draggableId={task.taskId} index={index}>
         {(provided, snapshot) => (
           <TaskCard
@@ -41,10 +51,23 @@ const TaskContainer = ({ task, index }: Props) => {
                 {task.deadline && (
                   <Chip color="#5a6972">
                     <DateRangeIcon sx={{ fontSize: 12 }} />
-                    {task.deadline}
+                    {task.deadline.getDate()}{" "}
+                    {
+                      monthMap[
+                        task.deadline.getMonth() as keyof typeof monthMap
+                      ]
+                    }
                   </Chip>
                 )}
-                <Chip color="#5a6972">{statusMapping[task.status as keyof typeof statusMapping]}</Chip>
+                <Chip
+                  color={
+                    statusColorMapping[
+                      task.status as keyof typeof statusColorMapping
+                    ]
+                  }
+                >
+                  {statusMapping[task.status as keyof typeof statusMapping]}
+                </Chip>
               </ChipContainer>
             </Container>
           </TaskCard>
@@ -79,7 +102,8 @@ const TaskCard = styled.div<{ isDragging: boolean }>`
   height: fit-content;
   width: 16rem;
   margin: 5px;
-  border: ${(props) => (props.isDragging ? "0.1px solid #0061ff" : "0.1px solid transparent")};
+  border: ${(props) =>
+    props.isDragging ? "0.1px solid #0061ff" : "0.1px solid transparent"};
   padding: 5px;
   border-radius: 5px;
   background-color: #0a2354;
