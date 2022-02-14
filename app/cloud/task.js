@@ -14,7 +14,15 @@ async function getTaskObjByBoardId(boardId) {
   const taskQuery = new Moralis.Query("Task");
   const pipeline = [
     { match: { boardId: boardId } },
-    { project: { deadline: 0, description: 0, submission: 0, activity: 0, chain: 0 } },
+    {
+      project: {
+        deadline: 0,
+        description: 0,
+        submission: 0,
+        activity: 0,
+        chain: 0,
+      },
+    },
   ];
   return await taskQuery.aggregate(pipeline);
 }
@@ -65,14 +73,19 @@ Moralis.Cloud.define("getTask", async (request) => {
       task[0].members = await getUsernamesByUserIds(memberIds);
       let assigneeIds = [];
       let reviewerIds = [];
+      logger.info(JSON.stringify(task[0]));
 
       task[0].reviewer.filter((a) => reviewerIds.push(a.userId));
       task[0].assignee.filter((a) => assigneeIds.push(a.userId));
       logger.info(` assigneeIds ${JSON.stringify(assigneeIds)}`);
       logger.info(`reviewerIds ${JSON.stringify(reviewerIds)}`);
 
-      task[0].reviewer = task[0].members.filter((a) => reviewerIds.includes(a.userId));
-      task[0].assignee = task[0].members.filter((a) => assigneeIds.includes(a.userId));
+      task[0].reviewer = task[0].members.filter((a) =>
+        reviewerIds.includes(a.userId)
+      );
+      task[0].assignee = task[0].members.filter((a) =>
+        assigneeIds.includes(a.userId)
+      );
 
       const taskParseObj = await getTaskByTaskId(request.params.taskId);
       const access = getFieldLevelAccess(taskParseObj, request.user.id);
@@ -80,7 +93,9 @@ Moralis.Cloud.define("getTask", async (request) => {
       return task[0];
     }
   } catch (err) {
-    logger.error(`Error while getting task from board ${request.params.taskId}: ${err}`);
+    logger.error(
+      `Error while getting task from board ${request.params.taskId}: ${err}`
+    );
     return false;
   }
 });
@@ -121,14 +136,20 @@ Moralis.Cloud.define("addTask", async (request) => {
 
       await Moralis.Object.saveAll([task], { useMasterKey: true });
       await Moralis.Object.saveAll([board], { useMasterKey: true });
-      const boardObj = await getBoardObjWithTasksByObjectId(request.params.boardId);
+      const boardObj = await getBoardObjWithTasksByObjectId(
+        request.params.boardId
+      );
       return boardObj[0];
     } else {
       throw "User doesnt have access to create task";
     }
   } catch (err) {
-    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
-    const boardObj = await getBoardObjWithTasksByObjectId(request.params.boardId);
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
+    const boardObj = await getBoardObjWithTasksByObjectId(
+      request.params.boardId
+    );
     return boardObj[0];
   }
 });
@@ -139,7 +160,11 @@ Moralis.Cloud.define("updateTask", async (request) => {
   try {
     task = handleTitleUpdate(task, request.user.id, request.params.task.title);
 
-    task = handleDescriptionUpdate(task, request.user.id, request.params.task.description);
+    task = handleDescriptionUpdate(
+      task,
+      request.user.id,
+      request.params.task.description
+    );
     task = handleRewardUpdate(
       task,
       request.user.id,
@@ -148,11 +173,31 @@ Moralis.Cloud.define("updateTask", async (request) => {
       request.params.task.chain
     );
     task = handleTagUpdate(task, request.user.id, request.params.task.tags);
-    task = handleDeadlineUpdate(task, request.user.id, request.params.task.deadline);
-    task = handleAssigneeUpdate(task, request.user.id, request.params.task.assignee);
-    task = handleReviewerUpdate(task, request.user.id, request.params.task.reviewer);
-    task = handleSubmissionUpdate(task, request.user.id, request.params.task.submission);
-    task = handleStatusChange(task, request.user.id, request.params.task.status);
+    task = handleDeadlineUpdate(
+      task,
+      request.user.id,
+      request.params.task.deadline
+    );
+    task = handleAssigneeUpdate(
+      task,
+      request.user.id,
+      request.params.task.assignee
+    );
+    task = handleReviewerUpdate(
+      task,
+      request.user.id,
+      request.params.task.reviewer
+    );
+    task = handleSubmissionUpdate(
+      task,
+      request.user.id,
+      request.params.task.submission
+    );
+    task = handleStatusChange(
+      task,
+      request.user.id,
+      request.params.task.status
+    );
 
     logger.info(`Updating task ${JSON.stringify(task)}`);
 
@@ -161,22 +206,24 @@ Moralis.Cloud.define("updateTask", async (request) => {
     const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
     return board[0];
   } catch (err) {
-    logger.error(`Error while updating task with task Id ${request.params.task?.taskId}: ${err}`);
+    logger.error(
+      `Error while updating task with task Id ${request.params.task?.taskId}: ${err}`
+    );
     const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
     return board[0];
   }
 });
 
 function handleTitleUpdate(task, userId, title) {
-  if (isTaskCreator(task, userId) && title.length > 0) {
-    task.set("title", title);
+  if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
+    title.length && task.set("title", title);
   }
   return task;
 }
 
 function handleDescriptionUpdate(task, userId, description) {
-  if (isTaskCreator(task, userId)) {
-    task.set("description", description);
+  if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
+    task.description && task.set("description", description);
   }
   return task;
 }
@@ -196,7 +243,11 @@ function handleRewardUpdate(task, userId, value, token, chain) {
 }
 
 function handleTagUpdate(task, userId, tags) {
-  if (isTaskCreator(task, userId)) {
+  if (
+    isTaskCreator(task, userId) ||
+    isTaskReviewer(task, userId) ||
+    isTaskAssignee(task, userId)
+  ) {
     task.set("tags", tags);
   }
   return task;
@@ -210,34 +261,49 @@ function handleDeadlineUpdate(task, userId, deadline) {
 }
 
 function handleAssigneeUpdate(task, userId, assignee) {
-  if (isTaskCreator(task, userId) || isTaskReviewer(task, userId) || isTaskAssignee(task, userId)) {
-    task.set("assignee", [assignee]);
+  if (
+    // isTaskCreator(task, userId) ||
+    // isTaskReviewer(task, userId) ||
+    // isTaskAssignee(task, userId)
+    task.status !== 100
+  ) {
+    assignee && task.set("assignee", [assignee]);
   }
   return task;
 }
 
 function handleReviewerUpdate(task, userId, reviewer) {
   if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
-    task.set("reviewer", [reviewer]);
+    reviewer && task.set("reviewer", [reviewer]);
   }
   return task;
 }
 
 function handleSubmissionUpdate(task, userId, submission) {
-  if ((submission || task.get("submission")) && isTaskAssignee(task, userId) && task.get("submission") !== submission) {
+  if (
+    (submission || task.get("submission")) &&
+    isTaskAssignee(task, userId) &&
+    task.get("submission") !== submission
+  ) {
     task.set("submission", submission);
   }
   return task;
 }
 
 function handleActivityUpdate(task, userId, action) {
-  task.set("activity", [...task.get("activity"), { actor: userId, action: action, timestamp: new Date() }]);
+  task.set("activity", [
+    { actor: userId, action: action, timestamp: new Date() },
+    ...task.get("activity"),
+  ]);
   return task;
 }
 
 function handleStatusChange(task, userId, status) {
   const statusCode = getStatusCode(status);
-  if (statusCode === 100 && (isTaskCreator(task, userId) || isTaskReviewer(task, userId))) {
+  if (
+    statusCode === 100 &&
+    (isTaskCreator(task, userId) || isTaskReviewer(task, userId))
+  ) {
     task.set("status", statusCode);
   } else if (statusCode === 102) {
     task.set("status", statusCode);

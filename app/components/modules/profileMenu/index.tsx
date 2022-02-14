@@ -12,7 +12,7 @@ import {
 import React, { useState } from "react";
 import { NavbarButton } from "../../elements/styledComponents";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { smartTrim } from "../../../utils/utils";
+import { getMD5String, smartTrim } from "../../../utils/utils";
 import { useMoralis } from "react-moralis";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -28,14 +28,7 @@ const NavbarAvatar = styled(Avatar)(({ theme }) => ({
 }));
 
 const ProfileMenu = (props: Props) => {
-  const {
-    isAuthenticated,
-    isAuthenticating,
-    authenticate,
-    logout,
-    user,
-    Moralis,
-  } = useMoralis();
+  const { isAuthenticating, logout, user } = useMoralis();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const handleSettingsClose = () => setIsOpen(false);
@@ -55,7 +48,14 @@ const ProfileMenu = (props: Props) => {
         onClick={handleClick}
         loading={isAuthenticating}
       >
-        <NavbarAvatar src={user?.get("displayPicture")} />
+        <NavbarAvatar
+          src={
+            user?.get("profilePicture")?._url ||
+            `https://www.gravatar.com/avatar/${getMD5String(
+              user?.get("username")
+            )}?d=identicon&s=32`
+          }
+        />
         <Typography sx={{ ml: 1, fontSize: 14 }}>
           {smartTrim(user?.get("ethAddress"), 10)}
         </Typography>

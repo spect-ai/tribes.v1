@@ -23,7 +23,7 @@ export interface Team {
   description: string;
   treasuryAddress: string;
   onchain: boolean;
-  members: { ethAddress: string; role: string }[];
+  members: { userId: string; role: string }[];
   organization: string;
   organizationVerified: boolean;
   openApplications: boolean;
@@ -98,5 +98,9 @@ export interface Task {
   ];
   status: number;
   members: list;
-  access: object;
+  access: {
+    creator: boolean;
+    reviewer: boolean;
+    assignee: boolean;
+  };
 }

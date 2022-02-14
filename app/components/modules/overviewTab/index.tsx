@@ -33,10 +33,12 @@ const Overview = () => {
             <Title>Contributors</Title>
             <AvatarGroup max={4} sx={{ width: "fit-content" }}>
               {tribe?.members?.map((member, idx) => (
-                <Tooltip title={member.ethAddress} key={idx}>
+                <Tooltip title={member.userId} key={idx}>
                   <Avatar
                     alt=""
-                    src={`https://www.gravatar.com/avatar/${getMD5String(member.ethAddress)}?d=identicon&s=32`}
+                    src={`https://www.gravatar.com/avatar/${getMD5String(
+                      member.userId
+                    )}?d=identicon&s=32`}
                   />
                 </Tooltip>
               ))}

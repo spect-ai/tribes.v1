@@ -23,14 +23,11 @@ type Props = {
 
 const ProfileSettings = ({ isOpen, handleClose }: Props) => {
   const { Moralis, user } = useMoralis();
+  console.log(user?.get("ethAddress"));
 
   const [userName, setuserName] = useState(user?.get("username"));
   const [userEmail, setuserEmail] = useState(user?.get("email"));
   const [isLoading, setIsLoading] = useState(false);
-  const [file, setFile] = useState({});
-  const [profilePicture, setProfilePicture] = useState(
-    "https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM"
-  );
   return (
     <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
       <Grow in={isOpen} timeout={500}>
@@ -46,7 +43,7 @@ const ProfileSettings = ({ isOpen, handleClose }: Props) => {
             <FieldContainer>
               <Avatar
                 src={
-                  profilePicture ||
+                  user?.get("profilePicture")?._url ||
                   `https://www.gravatar.com/avatar/${getMD5String(
                     user?.get("username")
                   )}?d=identicon&s=64`
@@ -59,7 +56,17 @@ const ProfileSettings = ({ isOpen, handleClose }: Props) => {
                 id="contained-button-file"
                 multiple
                 type="file"
-                onChange={(e) => {}}
+                onChange={(e) => {
+                  const file = e.target.files && e.target.files[0];
+                  if (file) {
+                    setIsLoading(true);
+                    const moralisFile = new Moralis.File(file.name, file);
+                    user?.set("profilePicture", moralisFile);
+                    user?.save().then((res: any) => {
+                      setIsLoading(false);
+                    });
+                  }
+                }}
               />
               <label htmlFor="contained-button-file">
                 {/*// @ts-ignore */}
@@ -93,7 +100,6 @@ const ProfileSettings = ({ isOpen, handleClose }: Props) => {
                 if (user) {
                   user.set("username", userName);
                   user.set("email", userEmail);
-                  user.set("displayPicture", profilePicture);
                   user.save().then((res: any) => {
                     setIsLoading(false);
                     handleClose();

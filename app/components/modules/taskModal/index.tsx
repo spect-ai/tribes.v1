@@ -1,10 +1,19 @@
-import { Backdrop, Box, CircularProgress, Fade, Modal, Typography } from "@mui/material";
+import styled from "@emotion/styled";
+import {
+  Backdrop,
+  Box,
+  CircularProgress,
+  Fade,
+  Modal,
+  Typography,
+} from "@mui/material";
 import { Octokit } from "@octokit/rest";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { getTask } from "../../../adapters/moralis";
 import { Task } from "../../../types";
 import EditTask from "./editTask";
+import SkeletonLoader from "./skeletonLoader";
 
 type Props = {
   isOpen: boolean;
@@ -41,26 +50,19 @@ const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Fade in={isOpen} timeout={500}>
           <Box sx={taskModalStyle}>
-            <Backdrop
-              sx={{
-                color: "#eaeaea",
-                zIndex: (theme) => theme.zIndex.drawer + 1,
-              }}
-              open={loading}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <CircularProgress color="inherit" />
-                <Typography sx={{ mt: 2, mb: 1, color: "#eaeaea" }}>{loaderText}</Typography>
-              </Box>
-            </Backdrop>
-            {loading ? <div>Loading....</div> : <EditTask task={task} setTask={setTask} handleClose={handleClose} />}
+            {loading ? (
+              <SkeletonLoader />
+            ) : (
+              <Fade timeout={1000} in={!loading}>
+                <div>
+                  <EditTask
+                    task={task}
+                    setTask={setTask}
+                    handleClose={handleClose}
+                  />
+                </div>
+              </Fade>
+            )}
           </Box>
         </Fade>
       </Modal>
