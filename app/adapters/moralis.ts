@@ -233,6 +233,14 @@ export function voteOnTasks(Moralis: any, epochId: string, voteAllocation: any) 
   return Moralis.Cloud.run("voteOnTasks", params);
 }
 
+export function checkMemberInTeam(Moralis: any, teamId: number, userId: string) {
+  const params = {
+    teamId : teamId,
+    userId: userId
+  };
+
+  return Moralis.Cloud.run("checkMemberInTeam",params)
+}
 export function updateBoard(Moralis: any, boardId: string, name: string) {
   const params = {
     boardId: boardId,
