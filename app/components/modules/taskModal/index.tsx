@@ -34,26 +34,30 @@ const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
       console.log(task);
       setTask(task);
       const octokit = new Octokit();
-      if (task.issueLink) {
-        const splitValues = task.issueLink?.split("/");
-        octokit.rest.pulls
-          .list({
-            owner: splitValues[3],
-            repo: splitValues[4],
-            head: `${splitValues[3]}:${task.taskId}`,
-          })
-          .then(({ data }) => {
-            console.log(data[0]);
-            setSubmissionPR(data[0]);
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
-      } else {
-        setLoading(false);
-      }
+      setLoading(false);
+      // if (task.issueLink) {
+      //   const splitValues = task.issueLink?.split("/");
+      //   console.log(splitValues);
+      //   octokit.rest.pulls
+      //     .list({
+      //       owner: splitValues[3],
+      //       repo: splitValues[4],
+      //       head: `${splitValues[3]}:${task.taskId}`,
+      //     })
+      //     .then(({ data }) => {
+      //       console.log(data);
+      //       if (data && data.length) {
+      //         setSubmissionPR(data[0]);
+      //       }
+      //       setLoading(false);
+      //     })
+      //     .catch((err) => {
+      //       console.log(err);
+      //       setLoading(false);
+      //     });
+      // } else {
+      //   setLoading(false);
+      // }
     });
   }, []);
 

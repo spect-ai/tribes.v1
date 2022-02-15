@@ -1,4 +1,13 @@
-import { Grow, IconButton, Modal, styled, Typography, Tooltip, Avatar, Grid } from "@mui/material";
+import {
+  Grow,
+  IconButton,
+  Modal,
+  styled,
+  Typography,
+  Tooltip,
+  Avatar,
+  Grid,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
@@ -25,7 +34,8 @@ export interface BatchPay {
 }
 
 function getNetworkImage(network: string) {
-  var img = network === "Ethereum" ? Ethereum : network === "Polygon" ? Polygon : null;
+  var img =
+    network === "Ethereum" ? Ethereum : network === "Polygon" ? Polygon : null;
   return img;
 }
 
@@ -60,7 +70,11 @@ const BatchPay = (props: Props) => {
   return (
     <>
       <Tooltip title="Batch Pay">
-        <IconButton sx={{ mb: 0.5, p: 2 }} size="small" onClick={() => setIsOpen(true)}>
+        <IconButton
+          sx={{ mb: 0.5, p: 2 }}
+          size="small"
+          onClick={() => setIsOpen(true)}
+        >
           <PaidIcon fontSize="small" />
         </IconButton>
       </Tooltip>
@@ -80,12 +94,29 @@ const BatchPay = (props: Props) => {
             <ModalContent>
               {Object.keys(amounts).map((chain, index) => (
                 <Box key={index}>
-                  <Grid container spacing={1} key={index} sx={{ display: "flex" }} margin="8px">
+                  <Grid
+                    container
+                    spacing={1}
+                    key={index}
+                    sx={{ display: "flex" }}
+                    margin="8px"
+                  >
                     <Grid item xs={9}>
                       <Box sx={{ display: "flex" }}>
-                        <Image src={getNetworkImage(chain)} alt="eth" height="30%" width="30%" />
+                        <Image
+                          src={getNetworkImage(chain) as any}
+                          alt="eth"
+                          height="26%"
+                          width="35%"
+                        />
 
-                        <Typography color="text.primary" variant="h6" key={index} marginBottom="10px" marginLeft="10px">
+                        <Typography
+                          color="text.primary"
+                          variant="h6"
+                          key={index}
+                          marginBottom="10px"
+                          marginLeft="10px"
+                        >
                           {chain} network
                         </Typography>
                       </Box>
@@ -100,31 +131,50 @@ const BatchPay = (props: Props) => {
                       </PrimaryButton>
                     </Grid>
                   </Grid>
-                  {amounts[chain][0].map((token, index) => (
-                    <Grid container spacing={1} key={index} sx={{ display: "flex" }} margin="8px">
-                      <Grid item xs={8}>
-                        <Box sx={{ display: "flex" }}>
-                          <Avatar
-                            alt=""
-                            src={
-                              amounts[chain][1][index].profilePicture
-                                ? amounts[chain][1][index].profilePicture._url
-                                : `https://www.gravatar.com/avatar/${amounts[chain][1][index].username}?d=identicon&s=32`
-                            }
-                            sx={{ height: 30, width: 30 }}
-                          />
+                  {amounts[chain as keyof typeof amounts][0].map(
+                    (token: string, index: number) => (
+                      <Grid
+                        container
+                        spacing={1}
+                        key={index}
+                        sx={{ display: "flex" }}
+                        margin="8px"
+                      >
+                        <Grid item xs={8}>
+                          <Box sx={{ display: "flex" }}>
+                            <Avatar
+                              alt=""
+                              src={
+                                amounts[chain as keyof typeof amounts][1][index]
+                                  .profilePicture
+                                  ? amounts[chain as keyof typeof amounts][1][
+                                      index
+                                    ].profilePicture._url
+                                  : `https://www.gravatar.com/avatar/${
+                                      amounts[chain as keyof typeof amounts][1][
+                                        index
+                                      ].username
+                                    }?d=identicon&s=32`
+                              }
+                              sx={{ height: 30, width: 30 }}
+                            />
+                            <Typography color="text.primary" marginLeft="20px">
+                              {
+                                amounts[chain as keyof typeof amounts][1][index]
+                                  .username
+                              }
+                            </Typography>
+                          </Box>
+                        </Grid>
+                        <Grid item xs={4}>
                           <Typography color="text.primary" marginLeft="20px">
-                            {amounts[chain][1][index].username}
+                            {amounts[chain as keyof typeof amounts][2][index]}{" "}
+                            {token}
                           </Typography>
-                        </Box>
+                        </Grid>
                       </Grid>
-                      <Grid item xs={4}>
-                        <Typography color="text.primary" marginLeft="20px">
-                          {amounts[chain][2][index]} {token}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  ))}
+                    )
+                  )}
                 </Box>
               ))}
 

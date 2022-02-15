@@ -5,7 +5,12 @@ import { DragDropContext, DropResult, Droppable } from "react-beautiful-dnd";
 import AddIcon from "@mui/icons-material/Add";
 import { Button, Fade, Grow } from "@mui/material";
 import { useRouter } from "next/router";
-import { getBoard, updateColumnOrder, addColumn, updateColumnTasks } from "../../../adapters/moralis";
+import {
+  getBoard,
+  updateColumnOrder,
+  addColumn,
+  updateColumnTasks,
+} from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import Heading from "./heading";
 import SkeletonLoader from "./skeletonLoader";
@@ -60,10 +65,6 @@ const TaskBoard = (props: Props) => {
   const { id, bid } = router.query;
   const setData = context.setData;
   const data = context.data;
-  console.log(`data`);
-  console.log(data);
-  console.log(`data`);
-
   useEffect(() => {
     setIsLoading(true);
 
@@ -91,18 +92,27 @@ const TaskBoard = (props: Props) => {
     if (!destination) {
       return;
     }
-    if (destination.droppableId === source.droppableId && destination.index === source.index) {
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
       return;
     }
     if (type === "column") {
-      const newColumnOrder = reorder(data.columnOrder, source.index, destination.index);
+      const newColumnOrder = reorder(
+        data.columnOrder,
+        source.index,
+        destination.index
+      );
       setData({
         ...data,
         columnOrder: newColumnOrder,
       });
-      updateColumnOrder(Moralis, bid as string, newColumnOrder).then((res: any) => {
-        setData(res as BoardData);
-      });
+      updateColumnOrder(Moralis, bid as string, newColumnOrder).then(
+        (res: any) => {
+          setData(res as BoardData);
+        }
+      );
       return;
     }
 
@@ -156,7 +166,14 @@ const TaskBoard = (props: Props) => {
         },
       });
 
-      updateColumnTasks(Moralis, bid as string, newStart.id, newFinish.id, newStart, newFinish).then((res: any) => {
+      updateColumnTasks(
+        Moralis,
+        bid as string,
+        newStart.id,
+        newFinish.id,
+        newStart,
+        newFinish
+      ).then((res: any) => {
         setData(res as BoardData);
       });
     }
@@ -179,13 +196,27 @@ const TaskBoard = (props: Props) => {
       </Link> */}
           <Heading />
           <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="all-columns" direction="horizontal" type="column">
+            <Droppable
+              droppableId="all-columns"
+              direction="horizontal"
+              type="column"
+            >
               {(provided, snapshot) => (
                 <Container {...provided.droppableProps} ref={provided.innerRef}>
                   {data.columnOrder.map((columnId, index) => {
                     const column = data.columns[columnId];
-                    const tasks = column.taskIds?.map((taskId) => data.tasks[taskId]);
-                    return <Column key={columnId} column={column} tasks={tasks} id={columnId} index={index} />;
+                    const tasks = column.taskIds?.map(
+                      (taskId) => data.tasks[taskId]
+                    );
+                    return (
+                      <Column
+                        key={columnId}
+                        column={column}
+                        tasks={tasks}
+                        id={columnId}
+                        index={index}
+                      />
+                    );
                   })}
                   {provided.placeholder}
                   <Button
@@ -212,9 +243,14 @@ const TaskBoard = (props: Props) => {
                             taskIds: [],
                           },
                         },
-                        columnOrder: [...data.columnOrder, `column-${data.columnOrder.length}`],
+                        columnOrder: [
+                          ...data.columnOrder,
+                          `column-${data.columnOrder.length}`,
+                        ],
                       });
-                      addColumn(Moralis, bid as string).then((res: any) => console.log(res));
+                      addColumn(Moralis, bid as string).then((res: any) =>
+                        console.log(res)
+                      );
                     }}
                   >
                     Add new column

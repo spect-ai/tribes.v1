@@ -85,7 +85,15 @@ export const initialData = {
     "column-1": {
       id: "column-1",
       title: "Doing",
-      taskIds: ["task-2", "task-3", "task-4", "task-6", "task-7", "task-8", "task-9"],
+      taskIds: [
+        "task-2",
+        "task-3",
+        "task-4",
+        "task-6",
+        "task-7",
+        "task-8",
+        "task-9",
+      ],
     },
     "column-2": {
       id: "column-2",
@@ -148,7 +156,8 @@ export const reverseStatusMapping = {
 };
 
 export const currentStatusToFutureValidStatus = {
-  100: ["Open", "In progress", "Closed"],
+  100: ["Open", "In progress"],
+  102: ["In progress", "Open"],
   105: ["In progress", "Open", "In review"],
   200: ["In review", "Closed", "In progress"],
   205: ["Closed", "Paid"],
