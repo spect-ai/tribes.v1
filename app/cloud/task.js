@@ -99,7 +99,7 @@ Moralis.Cloud.define("addTask", async (request) => {
   const board = await getBoardByObjectId(request.params.boardId);
   try {
     const team = await getTribeByTeamId(board.get("teamId"));
-    if (isMember(request.user.id, team)) {
+    if (isMember(request.user.id, board)) {
       var columns = board.get("columns");
       const numTasks = await getTaskCountInBoard(request.params.boardId);
       const taskId = `task-${request.params.boardId}-${numTasks + 1}`;
@@ -288,11 +288,6 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
   const tasks = await taskQuery.aggregate(pipeline);
   logger.info(`tyasks ${JSON.stringify(tasks)}`);
 
-  /*
-[
-    ({ total: 2, objectId: { chain: "Polygon", token: "Wmatic" } },
-    { total: 3, objectId: { chain: "Polygon", token: "USDC" } })
-  ][{ chain: "polygon", token: "Matic", amounts: [{ contributor: "adadad", value: 10 }] }];*/
   var paymentAmount = {};
   var polygonContributorOrder = [];
   var polygonTokenOrder = [];
@@ -320,38 +315,23 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
     paymentAmount["Ethereum"] = [ethereumTokenOrder, ethereumContributorOrder, ethereumValueOrder];
 
   return paymentAmount;
+});
 
-  /*
-Polygon: [
-      [Matic, USDC]
-      ["chaks.eth", "0xavp.eth"],
-      [10, 5],
-    USDC: [
-      ["contributorAddress", "contributorAddress2"],
-      [10, 5],
-    ],
-  },
-
-
-
-    export const amountData = {
-  Polygon: {
-    Matic: [
-      ["chaks.eth", "0xavp.eth"],
-      [10, 5],
-    ],
-    USDC: [
-      ["contributorAddress", "contributorAddress2"],
-      [10, 5],
-    ],
-  },
-  Ethereum: {
-    Weth: [
-      ["contributorAddress", "contributorAddress2"],
-      [10, 5],
-    ],
-  },
-};*/
+Moralis.Cloud.define("assignToMe", async (request) => {
+  try {
+    var task = await getTaskByTaskId(request.params.taskId);
+    var board = await getBoardByObjectId(task.get("boardId"));
+    if (isMember(request.user.id, board)) {
+      task = handleAssigneeUpdate(task, request.user.id, { userId: request.user.id });
+      task = handleStatusChange(task, request.user.id, "Assigned");
+      await Moralis.Object.saveAll(task, { useMasterKey: true });
+      board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+      return board[0];
+    }
+  } catch (err) {
+    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    return false;
+  }
 });
 
 /* Not needed not tested

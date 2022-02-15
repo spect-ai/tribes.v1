@@ -24,16 +24,13 @@ import { muiTheme } from "../../../constants/muiTheme";
 import CloseIcon from "@mui/icons-material/Close";
 import { Task } from "../../../types";
 import { getMD5String } from "../../../utils/utils";
-import { updateTask } from "../../../adapters/moralis";
+import { updateTask, assignToMe } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useBoard } from "../taskBoard";
 import ReactMde from "react-mde";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import * as Showdown from "showdown";
-import {
-  statusMapping,
-  currentStatusToFutureValidStatus,
-} from "../../../constants";
+import { statusMapping, currentStatusToFutureValidStatus } from "../../../constants";
 // import "react-mde/lib/styles/css/react-mde-all.css";
 import { chainTokenRegistry, actionMap, monthMap } from "../../../constants";
 import { getTokenOptions } from "../../../utils/utils";
@@ -167,9 +164,7 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                     {...field}
                     selectedTab={selectedTab}
                     onTabChange={setSelectedTab}
-                    generateMarkdownPreview={(markdown) =>
-                      Promise.resolve(converter.makeHtml(markdown))
-                    }
+                    generateMarkdownPreview={(markdown) => Promise.resolve(converter.makeHtml(markdown))}
                     childProps={{
                       writeButton: {
                         tabIndex: -1,
@@ -186,12 +181,7 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
               Submissions
             </Divider>{" "}
             {submissionPR ? (
-              <a
-                href={submissionPR.html_url}
-                target="_blank"
-                rel="noreferrer"
-                style={{ textDecoration: "none" }}
-              >
+              <a href={submissionPR.html_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
                 <PrimaryButton
                   startIcon={<GitHubIcon />}
                   sx={{
@@ -204,30 +194,20 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                   <Box sx={{ mx: 1 }}>#{submissionPR.number}</Box>
                   <Box sx={{ mx: 1 }}>{submissionPR.title}</Box>
                   <Box sx={{ mx: 1 }}>
-                    <Chip
-                      color={
-                        submissionPR.state === "open" ? "#5fe086" : "#5a6972"
-                      }
-                    >
-                      {submissionPR.state}
-                    </Chip>
+                    <Chip color={submissionPR.state === "open" ? "#5fe086" : "#5a6972"}>{submissionPR.state}</Chip>
                   </Box>
                 </PrimaryButton>
               </a>
             ) : (
               <TextField
                 id="filled-hidden-label-normal"
-                helperText={
-                  "Automatically link this task with a Github Pull Request using the branch name above"
-                }
+                helperText={"Automatically link this task with a Github Pull Request using the branch name above"}
                 InputProps={{
                   readOnly: true,
                   endAdornment: (
                     <IconButton
                       onClick={() => {
-                        navigator.clipboard.writeText(
-                          `git checkout -b ${task.taskId}`
-                        );
+                        navigator.clipboard.writeText(`git checkout -b ${task.taskId}`);
                       }}
                     >
                       <ContentCopyIcon />
@@ -251,15 +231,13 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                   src={
                     act.profilePicture
                       ? act.profilePicture._url
-                      : `https://www.gravatar.com/avatar/${getMD5String(
-                          act.username
-                        )}?d=identicon&s=32`
+                      : `https://www.gravatar.com/avatar/${getMD5String(act.username)}?d=identicon&s=32`
                   }
                 />
                 <ListItemText
-                  primary={`${
-                    actionMap[act.action as keyof typeof actionMap]
-                  } by ${act.username} on ${act.timestamp.getDate()}  ${
+                  primary={`${actionMap[act.action as keyof typeof actionMap]} by ${
+                    act.username
+                  } on ${act.timestamp.getDate()}  ${
                     // @ts-ignore
                     monthMap[act.timestamp.getMonth() as number]
                   }`}
@@ -278,33 +256,17 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                 <Controller
                   name="status"
                   control={control}
-                  defaultValue={
-                    statusMapping[task.status as keyof typeof statusMapping]
-                  }
+                  defaultValue={statusMapping[task.status as keyof typeof statusMapping]}
                   render={({ field }) => (
                     <Autocomplete
                       {...field}
                       options={
-                        currentStatusToFutureValidStatus[
-                          task.status as keyof typeof currentStatusToFutureValidStatus
-                        ]
+                        currentStatusToFutureValidStatus[task.status as keyof typeof currentStatusToFutureValidStatus]
                       }
                       getOptionLabel={(option) => option}
                       onChange={(e, data) => field.onChange(data)}
-                      readOnly={
-                        !(
-                          task.access.creator ||
-                          task.access.reviewer ||
-                          task.access.assignee
-                        )
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      readOnly={!(task.access.creator || task.access.reviewer || task.access.assignee)}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -325,16 +287,12 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                         {...field}
                         minDateTime={dayjs()}
                         onChange={field.onChange}
-                        readOnly={
-                          !(task.access.creator || task.access.reviewer)
-                        }
+                        readOnly={!(task.access.creator || task.access.reviewer)}
                         renderInput={(params) => (
                           <TextField
                             {...params}
                             fullWidth
-                            helperText={
-                              params.error && "Enter a date later than now"
-                            }
+                            helperText={params.error && "Enter a date later than now"}
                             size="small"
                           />
                         )}
@@ -361,20 +319,8 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                       multiple
                       onChange={(e, data) => field.onChange(data)}
                       size="small"
-                      readOnly={
-                        !(
-                          task.access.creator ||
-                          task.access.reviewer ||
-                          task.access.assignee
-                        )
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      readOnly={!(task.access.creator || task.access.reviewer || task.access.assignee)}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -385,15 +331,11 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                 Assignee
               </Divider>{" "}
               <FieldContainer>
-                {task.access.creator ||
-                task.access.reviewer ||
-                task.assignee.length ? (
+                {task.access.creator || task.access.reviewer || task.assignee.length ? (
                   <Controller
                     name="assignee"
                     control={control}
-                    defaultValue={
-                      task.assignee?.length > 0 ? task.assignee[0] : null
-                    }
+                    defaultValue={task.assignee?.length > 0 ? task.assignee[0] : null}
                     render={({ field }) => (
                       <Autocomplete
                         {...field}
@@ -401,13 +343,7 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                         getOptionLabel={(option) => option.username}
                         onChange={(e, data) => field.onChange(data)}
                         readOnly={task.status !== 100}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            id="filled-hidden-label-normal"
-                            size="small"
-                          />
-                        )}
+                        renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                       />
                     )}
                   />
@@ -416,20 +352,24 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                     variant="contained"
                     color="primary"
                     onClick={() => {
-                      setValue(
-                        "assignee",
-                        {
-                          userId: user?.id || "",
-                          username: user?.get("username"),
-                        },
-                        { shouldDirty: true }
-                      );
-                      setAssigned(true);
+                      assignToMe(Moralis, task.taskId)
+                        .then((res: any) => {
+                          console.log(res);
+                          setValue(
+                            "assignee",
+                            {
+                              userId: user?.id || "",
+                              username: user?.get("username"),
+                            },
+                            { shouldDirty: true }
+                          );
+                          setAssigned(true);
+                          setData(res);
+                        })
+                        .catch((err: any) => alert(err));
                     }}
                   >
-                    {assigned
-                      ? `Assigned to ${user?.get("username")}`
-                      : `Assign to me!`}
+                    {assigned ? `Assigned to ${user?.get("username")}` : `Assign to me!`}
                   </PrimaryButton>
                 )}
               </FieldContainer>
@@ -443,9 +383,7 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                 <Controller
                   name="reviewer"
                   control={control}
-                  defaultValue={
-                    task.reviewer?.length > 0 ? task.reviewer[0] : null
-                  }
+                  defaultValue={task.reviewer?.length > 0 ? task.reviewer[0] : null}
                   render={({ field }) => (
                     <Autocomplete
                       {...field}
@@ -453,13 +391,7 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                       getOptionLabel={(option) => option.username}
                       onChange={(e, data) => field.onChange(data)}
                       readOnly={!(task.access.creator || task.access.reviewer)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -485,9 +417,7 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                         field.onChange(data);
                         setChain(data);
                       }}
-                      renderInput={(params) => (
-                        <TextField {...params} size="small" />
-                      )}
+                      renderInput={(params) => <TextField {...params} size="small" />}
                     />
                   )}
                 />
@@ -501,10 +431,7 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                         <TextField
                           {...field}
                           id="filled-hidden-label-normal"
-                          helperText={
-                            fieldState.error?.type === "min" &&
-                            "Validation error"
-                          }
+                          helperText={fieldState.error?.type === "min" && "Validation error"}
                           type="number"
                           error={fieldState.error ? true : false}
                           InputProps={{
@@ -530,12 +457,7 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                           onChange={(e, data) => field.onChange(data)}
                           readOnly={!task.access.creator}
                           renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              id="filled-hidden-label-normal"
-                              size="small"
-                              sx={{ mr: 1, mt: 1 }}
-                            />
+                            <TextField {...params} id="filled-hidden-label-normal" size="small" sx={{ mr: 1, mt: 1 }} />
                           )}
                         />
                       )}

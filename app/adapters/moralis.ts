@@ -228,6 +228,15 @@ export function updateTask(Moralis: any, task: any) {
   return Moralis.Cloud.run("updateTask", params);
 }
 
+export function assignToMe(Moralis: any, taskId: string) {
+  console.log(`taskId`);
+  console.log(taskId);
+  const params = {
+    taskId: taskId,
+  };
+  return Moralis.Cloud.run("assignToMe", params);
+}
+
 export function voteOnTasks(Moralis: any, epochId: string, voteAllocation: any) {
   const params = {
     epochId: epochId,
