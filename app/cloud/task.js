@@ -314,8 +314,10 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
       ethereumValueOrder.push(task["value"]);
     }
   }
-  paymentAmount["Polygon"] = [polygonTokenOrder, polygonContributorOrder, polygonValueOrder];
-  paymentAmount["Ethereum"] = [ethereumTokenOrder, ethereumContributorOrder, ethereumValueOrder];
+  if (polygonTokenOrder.length > 0)
+    paymentAmount["Polygon"] = [polygonTokenOrder, polygonContributorOrder, polygonValueOrder];
+  if (ethereumTokenOrder.length > 0)
+    paymentAmount["Ethereum"] = [ethereumTokenOrder, ethereumContributorOrder, ethereumValueOrder];
 
   return paymentAmount;
 

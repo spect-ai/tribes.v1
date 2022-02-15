@@ -8,7 +8,7 @@ contract Distributor {
   using SafeTransferLib for ERC20;
 
   event ethDistributed(address indexed sender, string indexed id);
-  event tokenDistributed(address indexed sender, address indexed token, string indexed id);
+  event tokenDistributed(address indexed sender, string indexed id);
 
   function distributeEther(
     address[] memory recipients,
@@ -37,7 +37,7 @@ contract Distributor {
   }
 
   function distributeToken(
-    ERC20 token,
+    ERC20[] memory tokens,
     address[] memory recipients,
     uint256[] memory values,
     string memory id
@@ -52,9 +52,9 @@ contract Distributor {
     }
 
     for (uint256 i = 0; i < recipients.length; i++) {
-      token.safeTransferFrom(msg.sender, recipients[i], values[i]);
+      tokens[i].safeTransferFrom(msg.sender, recipients[i], values[i]);
     }
 
-    emit tokenDistributed(msg.sender, address(token), id);
+    emit tokenDistributed(msg.sender, id);
   }
 }
