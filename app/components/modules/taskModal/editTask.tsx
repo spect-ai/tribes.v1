@@ -558,6 +558,7 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                   color="primary"
                   endIcon={<MonetizationOnIcon />}
                   onClick={() => distributeTokensForTask(task)}
+                  hidden={!task.access.creator}
                 >
                   Pay
                 </PrimaryButton>
