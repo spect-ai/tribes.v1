@@ -40,7 +40,7 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
     if (navigator && navigator.clipboard && navigator.clipboard.writeText)
     {
       setState({ ...state, text: 'Copied To Clipboard', open: true });
-      const link = `localhost:3000/tribe/invite/${value.inviteLinkAdmin}`
+      const link = value.inviteLinkAdmin
       return navigator.clipboard.writeText(link);
     }
     else
@@ -55,7 +55,7 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
     if (navigator && navigator.clipboard && navigator.clipboard.writeText)
     {
       setState({ ...state, text: 'Copied To Clipboard', open: true });
-      const link = `localhost:3000/tribe/invite/${value.inviteLinkMember}`
+      const link = value.inviteLinkMember
       return navigator.clipboard.writeText(link);
     }
     else
@@ -77,7 +77,11 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
       userId: user?.id
     }]
     let ciphertext = CryptoJS.AES.encrypt(JSON.stringify(unencrypted), String(process.env.ENCRYPTION_SECRET_KEY)).toString();
-    return ciphertext;
+    console.log('oldciper',ciphertext)
+    ciphertext = ciphertext.toString().replaceAll('+','_mumbai_').replace('/','_tribes_').replace('=','_spect_');
+    console.log('newciper',ciphertext)
+    const link =`localhost:3000/tribe/invite/${ciphertext}`
+    return link;
   }
   
   return (
