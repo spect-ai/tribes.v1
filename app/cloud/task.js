@@ -272,6 +272,86 @@ function handleStatusChange(task, userId, status) {
   return task;
 }
 
+Moralis.Cloud.define("getBatchPayAmount", async (request) => {
+  const taskQuery = new Moralis.Query("Task");
+  const pipeline = [
+    { match: { boardId: request.params.boardId } },
+    { match: { status: 205 } },
+    { match: { value: { $gt: 0 } } },
+    {
+      group: {
+        objectId: { chain: "$chain", token: "$token", assigneeId: "$assignee.userId" },
+        value: { $sum: "$value" },
+      },
+    },
+  ];
+  const tasks = await taskQuery.aggregate(pipeline);
+  logger.info(`tyasks ${JSON.stringify(tasks)}`);
+
+  /*
+[
+    ({ total: 2, objectId: { chain: "Polygon", token: "Wmatic" } },
+    { total: 3, objectId: { chain: "Polygon", token: "USDC" } })
+  ][{ chain: "polygon", token: "Matic", amounts: [{ contributor: "adadad", value: 10 }] }];*/
+  var paymentAmount = {};
+  var polygonContributorOrder = [];
+  var polygonTokenOrder = [];
+  var polygonValueOrder = [];
+  var ethereumContributorOrder = [];
+  var ethereumTokenOrder = [];
+  var ethereumValueOrder = [];
+  logger.info(`tyasks2 ${JSON.stringify(paymentAmount)}`);
+  for (var task of tasks) {
+    if (task["objectId"]["chain"] === "Polygon") {
+      var user = await getUsernameProfilePicByUserId(task["objectId"]["assigneeId"][0]);
+      polygonContributorOrder.push(user);
+      polygonTokenOrder.push(task["objectId"]["token"]);
+      polygonValueOrder.push(task["value"]);
+    } else if (task["objectId"]["chain"] === "Ethereum") {
+      var user = await getUsernameProfilePicByUserId(task["objectId"]["assigneeId"][0]);
+      ethereumContributorOrder.push(user);
+      ethereumTokenOrder.push(task["objectId"]["token"]);
+      ethereumValueOrder.push(task["value"]);
+    }
+  }
+  paymentAmount["Polygon"] = [polygonTokenOrder, polygonContributorOrder, polygonValueOrder];
+  paymentAmount["Ethereum"] = [ethereumTokenOrder, ethereumContributorOrder, ethereumValueOrder];
+
+  return paymentAmount;
+
+  /*
+Polygon: [
+      [Matic, USDC]
+      ["chaks.eth", "0xavp.eth"],
+      [10, 5],
+    USDC: [
+      ["contributorAddress", "contributorAddress2"],
+      [10, 5],
+    ],
+  },
+
+
+
+    export const amountData = {
+  Polygon: {
+    Matic: [
+      ["chaks.eth", "0xavp.eth"],
+      [10, 5],
+    ],
+    USDC: [
+      ["contributorAddress", "contributorAddress2"],
+      [10, 5],
+    ],
+  },
+  Ethereum: {
+    Weth: [
+      ["contributorAddress", "contributorAddress2"],
+      [10, 5],
+    ],
+  },
+};*/
+});
+
 /* Not needed not tested
 Moralis.Cloud.define("startWork", async (request) => {
   try {

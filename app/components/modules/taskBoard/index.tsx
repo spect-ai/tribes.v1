@@ -70,10 +70,7 @@ const TaskBoard = (props: Props) => {
     if (isInitialized && bid) {
       getBoard(Moralis, bid as string)
         .then((res: any) => {
-          console.log("sfsfsf");
           console.log(res);
-          console.log("sfsfsf");
-
           context.setData(res);
           setIsLoading(false);
         })

@@ -85,15 +85,7 @@ export const initialData = {
     "column-1": {
       id: "column-1",
       title: "Doing",
-      taskIds: [
-        "task-2",
-        "task-3",
-        "task-4",
-        "task-6",
-        "task-7",
-        "task-8",
-        "task-9",
-      ],
+      taskIds: ["task-2", "task-3", "task-4", "task-6", "task-7", "task-8", "task-9"],
     },
     "column-2": {
       id: "column-2",
@@ -169,4 +161,23 @@ export const statusColorMapping = {
   200: "#2e5da9",
   205: "#5fe086",
   300: "#5fe086",
+};
+
+export const amountData = {
+  Polygon: {
+    Matic: [
+      ["chaks.eth", "0xavp.eth"],
+      [10, 5],
+    ],
+    USDC: [
+      ["contributorAddress", "contributorAddress2"],
+      [10, 5],
+    ],
+  },
+  Ethereum: {
+    Weth: [
+      ["contributorAddress", "contributorAddress2"],
+      [10, 5],
+    ],
+  },
 };

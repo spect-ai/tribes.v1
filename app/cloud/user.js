@@ -32,6 +32,23 @@ async function getUsernamesByUserIds(userIds) {
   return userArray;
 }
 
+async function getUsernameProfilePicByUserId(userId) {
+  const userQuery = new Moralis.Query("User");
+  const pipeline = [
+    { match: { objectId: userId } },
+    {
+      project: {
+        objectId: 1,
+        username: 1,
+        profilePicture: 1,
+      },
+    },
+  ];
+  const user = await userQuery.aggregate(pipeline, { useMasterKey: true });
+  if (user) return user[0];
+  else return null;
+}
+
 Moralis.Cloud.define("getOrCreateUser", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
