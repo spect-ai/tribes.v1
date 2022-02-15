@@ -275,6 +275,7 @@ export function addMemberToTribe(Moralis: any, teamId: number, userId: string, u
     userType: userType,
     adminId: adminId
   };
+  console.log('params', params)
   return Moralis.Cloud.run("addMemberToTribe",params)
 }
 export function getBatchPayAmount(Moralis: any, boardId: string) {

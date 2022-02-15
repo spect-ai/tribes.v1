@@ -115,13 +115,18 @@ const InviteModal = () => {
         addMemberToTribe(Moralis, Number(teamId), String(user?.id), String(inviteType), adminUserId)
         .then((res: any[]) => {
             console.log("ressssAccepted", res);
-            if(res)
+            if(String(res) == 'member already exist' || String(res) == 'invite accepted')
             {
                 router.replace(`/tribe/${teamId}`)
-            }  
+            }
+            else if(String(res) == 'Invite Not Valid')
+            {
+                router.replace(`/`)
+            }
+
         })
         .catch((ex: any) => {
-            console.log("acceptInvitations", ex);
+            console.log("acceptError", ex);
             router.replace(`/`)
         });
         setShowModal(false)
@@ -135,7 +140,10 @@ const InviteModal = () => {
     }
 
     const decryptData = (link: string) => {
-        var bytes = CryptoJS.AES.decrypt(link, String(process.env.ENCRYPTION_SECRET_KEY));
+        console.log('oldlink',link)
+        let newLink = link.toString().replaceAll('_mumbai_', '+' ).replace('_tribes_', '/').replace('_spect_', '=');
+        console.log('newlink',newLink)
+        var bytes = CryptoJS.AES.decrypt(newLink, String(process.env.ENCRYPTION_SECRET_KEY));
         var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8))[0];
         setState({
             teamId: decryptedData.id, 
