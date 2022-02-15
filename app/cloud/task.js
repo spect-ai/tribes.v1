@@ -16,7 +16,6 @@ async function getTaskObjByBoardId(boardId) {
     { match: { boardId: boardId } },
     {
       project: {
-        deadline: 0,
         description: 0,
         submission: 0,
         activity: 0,
@@ -80,12 +79,8 @@ Moralis.Cloud.define("getTask", async (request) => {
       logger.info(` assigneeIds ${JSON.stringify(assigneeIds)}`);
       logger.info(`reviewerIds ${JSON.stringify(reviewerIds)}`);
 
-      task[0].reviewer = task[0].members.filter((a) =>
-        reviewerIds.includes(a.userId)
-      );
-      task[0].assignee = task[0].members.filter((a) =>
-        assigneeIds.includes(a.userId)
-      );
+      task[0].reviewer = task[0].members.filter((a) => reviewerIds.includes(a.userId));
+      task[0].assignee = task[0].members.filter((a) => assigneeIds.includes(a.userId));
 
       const taskParseObj = await getTaskByTaskId(request.params.taskId);
       const access = getFieldLevelAccess(taskParseObj, request.user.id);
@@ -93,9 +88,7 @@ Moralis.Cloud.define("getTask", async (request) => {
       return task[0];
     }
   } catch (err) {
-    logger.error(
-      `Error while getting task from board ${request.params.taskId}: ${err}`
-    );
+    logger.error(`Error while getting task from board ${request.params.taskId}: ${err}`);
     return false;
   }
 });
@@ -106,7 +99,7 @@ Moralis.Cloud.define("addTask", async (request) => {
   const board = await getBoardByObjectId(request.params.boardId);
   try {
     const team = await getTribeByTeamId(board.get("teamId"));
-    if (isMember(request.user.id, team)) {
+    if (isMember(request.user.id, board)) {
       var columns = board.get("columns");
       const numTasks = await getTaskCountInBoard(request.params.boardId);
       const taskId = `task-${request.params.boardId}-${numTasks + 1}`;
@@ -133,23 +126,18 @@ Moralis.Cloud.define("addTask", async (request) => {
           timestamp: new Date(),
         },
       ]);
+      task.set("issueLink", request.params.issueLink);
 
       await Moralis.Object.saveAll([task], { useMasterKey: true });
       await Moralis.Object.saveAll([board], { useMasterKey: true });
-      const boardObj = await getBoardObjWithTasksByObjectId(
-        request.params.boardId
-      );
+      const boardObj = await getBoardObjWithTasksByObjectId(request.params.boardId);
       return boardObj[0];
     } else {
       throw "User doesnt have access to create task";
     }
   } catch (err) {
-    logger.error(
-      `Error while adding task in board ${request.params.boardId}: ${err}`
-    );
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId
-    );
+    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    const boardObj = await getBoardObjWithTasksByObjectId(request.params.boardId);
     return boardObj[0];
   }
 });
@@ -160,11 +148,7 @@ Moralis.Cloud.define("updateTask", async (request) => {
   try {
     task = handleTitleUpdate(task, request.user.id, request.params.task.title);
 
-    task = handleDescriptionUpdate(
-      task,
-      request.user.id,
-      request.params.task.description
-    );
+    task = handleDescriptionUpdate(task, request.user.id, request.params.task.description);
     task = handleRewardUpdate(
       task,
       request.user.id,
@@ -173,31 +157,11 @@ Moralis.Cloud.define("updateTask", async (request) => {
       request.params.task.chain
     );
     task = handleTagUpdate(task, request.user.id, request.params.task.tags);
-    task = handleDeadlineUpdate(
-      task,
-      request.user.id,
-      request.params.task.deadline
-    );
-    task = handleAssigneeUpdate(
-      task,
-      request.user.id,
-      request.params.task.assignee
-    );
-    task = handleReviewerUpdate(
-      task,
-      request.user.id,
-      request.params.task.reviewer
-    );
-    task = handleSubmissionUpdate(
-      task,
-      request.user.id,
-      request.params.task.submission
-    );
-    task = handleStatusChange(
-      task,
-      request.user.id,
-      request.params.task.status
-    );
+    task = handleDeadlineUpdate(task, request.user.id, request.params.task.deadline);
+    task = handleAssigneeUpdate(task, request.user.id, request.params.task.assignee);
+    task = handleReviewerUpdate(task, request.user.id, request.params.task.reviewer);
+    task = handleSubmissionUpdate(task, request.user.id, request.params.task.submission);
+    task = handleStatusChange(task, request.user.id, request.params.task.status);
 
     logger.info(`Updating task ${JSON.stringify(task)}`);
 
@@ -206,9 +170,7 @@ Moralis.Cloud.define("updateTask", async (request) => {
     const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
     return board[0];
   } catch (err) {
-    logger.error(
-      `Error while updating task with task Id ${request.params.task?.taskId}: ${err}`
-    );
+    logger.error(`Error while updating task with task Id ${request.params.task?.taskId}: ${err}`);
     const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
     return board[0];
   }
@@ -243,11 +205,7 @@ function handleRewardUpdate(task, userId, value, token, chain) {
 }
 
 function handleTagUpdate(task, userId, tags) {
-  if (
-    isTaskCreator(task, userId) ||
-    isTaskReviewer(task, userId) ||
-    isTaskAssignee(task, userId)
-  ) {
+  if (isTaskCreator(task, userId) || isTaskReviewer(task, userId) || isTaskAssignee(task, userId)) {
     task.set("tags", tags);
   }
   return task;
@@ -280,30 +238,20 @@ function handleReviewerUpdate(task, userId, reviewer) {
 }
 
 function handleSubmissionUpdate(task, userId, submission) {
-  if (
-    (submission || task.get("submission")) &&
-    isTaskAssignee(task, userId) &&
-    task.get("submission") !== submission
-  ) {
+  if ((submission || task.get("submission")) && isTaskAssignee(task, userId) && task.get("submission") !== submission) {
     task.set("submission", submission);
   }
   return task;
 }
 
 function handleActivityUpdate(task, userId, action) {
-  task.set("activity", [
-    { actor: userId, action: action, timestamp: new Date() },
-    ...task.get("activity"),
-  ]);
+  task.set("activity", [{ actor: userId, action: action, timestamp: new Date() }, ...task.get("activity")]);
   return task;
 }
 
 function handleStatusChange(task, userId, status) {
   const statusCode = getStatusCode(status);
-  if (
-    statusCode === 100 &&
-    (isTaskCreator(task, userId) || isTaskReviewer(task, userId))
-  ) {
+  if (statusCode === 100 && (isTaskCreator(task, userId) || isTaskReviewer(task, userId))) {
     task.set("status", statusCode);
   } else if (statusCode === 102) {
     task.set("status", statusCode);
@@ -323,6 +271,68 @@ function handleStatusChange(task, userId, status) {
   }
   return task;
 }
+
+Moralis.Cloud.define("getBatchPayAmount", async (request) => {
+  const taskQuery = new Moralis.Query("Task");
+  const pipeline = [
+    { match: { boardId: request.params.boardId } },
+    { match: { status: 205 } },
+    { match: { value: { $gt: 0 } } },
+    {
+      group: {
+        objectId: { chain: "$chain", token: "$token", assigneeId: "$assignee.userId" },
+        value: { $sum: "$value" },
+      },
+    },
+  ];
+  const tasks = await taskQuery.aggregate(pipeline);
+  logger.info(`tyasks ${JSON.stringify(tasks)}`);
+
+  var paymentAmount = {};
+  var polygonContributorOrder = [];
+  var polygonTokenOrder = [];
+  var polygonValueOrder = [];
+  var ethereumContributorOrder = [];
+  var ethereumTokenOrder = [];
+  var ethereumValueOrder = [];
+  logger.info(`tyasks2 ${JSON.stringify(paymentAmount)}`);
+  for (var task of tasks) {
+    if (task["objectId"]["chain"] === "Polygon") {
+      var user = await getUsernameProfilePicByUserId(task["objectId"]["assigneeId"][0]);
+      polygonContributorOrder.push(user);
+      polygonTokenOrder.push(task["objectId"]["token"]);
+      polygonValueOrder.push(task["value"]);
+    } else if (task["objectId"]["chain"] === "Ethereum") {
+      var user = await getUsernameProfilePicByUserId(task["objectId"]["assigneeId"][0]);
+      ethereumContributorOrder.push(user);
+      ethereumTokenOrder.push(task["objectId"]["token"]);
+      ethereumValueOrder.push(task["value"]);
+    }
+  }
+  if (polygonTokenOrder.length > 0)
+    paymentAmount["Polygon"] = [polygonTokenOrder, polygonContributorOrder, polygonValueOrder];
+  if (ethereumTokenOrder.length > 0)
+    paymentAmount["Ethereum"] = [ethereumTokenOrder, ethereumContributorOrder, ethereumValueOrder];
+
+  return paymentAmount;
+});
+
+Moralis.Cloud.define("assignToMe", async (request) => {
+  try {
+    var task = await getTaskByTaskId(request.params.taskId);
+    var board = await getBoardByObjectId(task.get("boardId"));
+    if (isMember(request.user.id, board)) {
+      task = handleAssigneeUpdate(task, request.user.id, { userId: request.user.id });
+      task = handleStatusChange(task, request.user.id, "Assigned");
+      await Moralis.Object.saveAll(task, { useMasterKey: true });
+      board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+      return board[0];
+    }
+  } catch (err) {
+    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    return false;
+  }
+});
 
 /* Not needed not tested
 Moralis.Cloud.define("startWork", async (request) => {

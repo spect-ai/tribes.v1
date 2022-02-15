@@ -26,23 +26,35 @@ const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
   const [loading, setLoading] = useState(false);
   const [task, setTask] = useState<Task>({} as Task);
   const { Moralis } = useMoralis();
+  const [submissionPR, setSubmissionPR] = useState<any>();
 
   useEffect(() => {
     setLoading(true);
     getTask(Moralis, taskId).then((task: Task) => {
-      console.log(`ggggg`);
       console.log(task);
       setTask(task);
-      setLoading(false);
+      const octokit = new Octokit();
+      if (task.issueLink) {
+        const splitValues = task.issueLink?.split("/");
+        octokit.rest.pulls
+          .list({
+            owner: splitValues[3],
+            repo: splitValues[4],
+            head: `${splitValues[3]}:${task.taskId}`,
+          })
+          .then(({ data }) => {
+            console.log(data[0]);
+            setSubmissionPR(data[0]);
+            setLoading(false);
+          })
+          .catch((err) => {
+            console.log(err);
+            setLoading(false);
+          });
+      } else {
+        setLoading(false);
+      }
     });
-    const octokit = new Octokit();
-    octokit.rest.pulls
-      .list({
-        owner: "spect-ai",
-        repo: "app.v3",
-        head: "spect-ai:develop",
-      })
-      .then(({ data }) => console.log(data));
   }, []);
 
   return (
@@ -59,6 +71,7 @@ const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
                     task={task}
                     setTask={setTask}
                     handleClose={handleClose}
+                    submissionPR={submissionPR}
                   />
                 </div>
               </Fade>

@@ -153,3 +153,31 @@ export const currentStatusToFutureValidStatus = {
   200: ["In review", "Closed", "In progress"],
   205: ["Closed", "Paid"],
 };
+
+export const statusColorMapping = {
+  100: "#eaeaea",
+  102: "#99ccff",
+  105: "#0061ff",
+  200: "#2e5da9",
+  205: "#5fe086",
+  300: "#5fe086",
+};
+
+export const amountData = {
+  Polygon: {
+    Matic: [
+      ["chaks.eth", "0xavp.eth"],
+      [10, 5],
+    ],
+    USDC: [
+      ["contributorAddress", "contributorAddress2"],
+      [10, 5],
+    ],
+  },
+  Ethereum: {
+    Weth: [
+      ["contributorAddress", "contributorAddress2"],
+      [10, 5],
+    ],
+  },
+};

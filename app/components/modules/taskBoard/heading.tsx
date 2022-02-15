@@ -22,10 +22,10 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
-import PaidIcon from "@mui/icons-material/Paid";
 import Link from "next/link";
 import { getBoards } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
+import BatchPay from "../batchPay";
 
 type Props = {};
 
@@ -66,11 +66,7 @@ const Heading = (props: Props) => {
       <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
         <List sx={{ maxWidth: "10rem" }}>
           {boards.map((board: any, index) => (
-            <Link
-              href={`/tribe/${id}/board/${board.objectId}`}
-              key={board.objectId}
-              passHref
-            >
+            <Link href={`/tribe/${id}/board/${board.objectId}`} key={board.objectId} passHref>
               <ListItemButton selected={board.objectId === bid}>
                 <ListItemText primary={board.name} />
               </ListItemButton>
@@ -113,12 +109,9 @@ const Heading = (props: Props) => {
           {data.name}
         </Typography>
         <BoardSettings />
+        <BatchPay />
         <Tooltip title="Switch Board">
-          <IconButton
-            sx={{ mb: 0.5, p: 2.5 }}
-            size="small"
-            onClick={() => setIsOpen(true)}
-          >
+          <IconButton sx={{ mb: 0.5, p: 2.5 }} size="small" onClick={() => setIsOpen(true)}>
             <StyledIcon className="fa-solid fa-arrow-right-arrow-left"></StyledIcon>
           </IconButton>
         </Tooltip>
@@ -132,11 +125,6 @@ const Heading = (props: Props) => {
         <Tooltip title="Invite member">
           <IconButton sx={{ mb: 0.5, p: 1.7 }} size="small">
             <PeopleOutlineIcon />
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Batch Pay">
-          <IconButton sx={{ mb: 0.5, p: 1.7 }} size="small">
-            <PaidIcon />
           </IconButton>
         </Tooltip>
       </Box>
