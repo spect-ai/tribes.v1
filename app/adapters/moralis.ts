@@ -288,12 +288,12 @@ export function deleteBoard(Moralis: any, boardId: string) {
   return Moralis.Cloud.run("deleteBoard", params);
 }
 
-export function addMemberToTribe(Moralis: any, teamId: number, userId: string, userType: string) {
+export function addMemberToTribe(Moralis: any, teamId: number, userId: string, userType: string, adminId: string) {
   const params = {
     teamId : teamId,
     userId: userId,
-    userType: userType
+    userType: userType,
+    adminId: adminId
   };
-
   return Moralis.Cloud.run("addMemberToTribe",params)
 }

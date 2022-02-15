@@ -209,30 +209,39 @@ Moralis.Cloud.define("checkMemberInTeam", async (request) => {
 Moralis.Cloud.define("addMemberToTribe", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   const team = await getTribeByTeamId(request.params.teamId);
-  try {
-    if(isMember(request.params.userId, team))
-    {
-      return true
+  let members = team.get('members');
+  if (hasAccess(request.params.adminId, team, (requiredAccess = "admin"))) 
+  {
+    try {
+      if(isMember(request.params.userId, team))
+      {
+        return 'member already exist'
+      }
+      else
+      {
+        let newMember = 
+          {
+            "userId": request.params.userId,
+            "role": request.params.userType
+          }
+        members.push(newMember)
+        team.set('members', members);
+        await Moralis.Object.saveAll([team], { useMasterKey: true });
+        return 'invite accepted'
+      }
     }
-    else
-    {
-      let newMember = 
-        {
-          "userId": request.params.userId,
-          "role": request.params.userType
-        }
-      let members = team.get('members');
-      members.push(newMember)
-      team.set('members', members);
-      await Moralis.Object.saveAll([team], { useMasterKey: true });
-      return true
+    catch(err) {
+      logger.error(
+        `Error while adding Member in team ${request.params.teamId}: ${err}`
+      );
+      return 'Error while adding Member'
     }
   }
-  catch(err) {
+  else
+  {
     logger.error(
-      `Error while adding Member in team ${request.params.teamId}: ${err}`
+      `Error while adding Member in team ${request.params.teamId}: invide not valid`
     );
-    return false
+    return 'Invite Not Valid'
   }
-  
 });
