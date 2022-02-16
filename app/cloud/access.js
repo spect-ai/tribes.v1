@@ -166,3 +166,19 @@ Moralis.Cloud.define("acceptInvite", async (request) => {
     return false;
   }
 });
+
+
+Moralis.Cloud.define("sendInvite", async (request) => {
+  try {
+    const logger = Moralis.Cloud.getLogger();
+    const members = [{
+      "ethAddress": request.params.ethAddress,
+      "role": "invited"
+    }]
+    await invite(members, request.params.teamId, request.params.invitedBy);
+    return true;
+  } catch (err) {
+    logger.error(`Error whilte creating team ${err}`);
+    return false;
+  }
+});

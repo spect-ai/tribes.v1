@@ -187,6 +187,15 @@ export function acceptInvitations(Moralis: any, ethAddress: string, teamId: numb
   return Moralis.Cloud.run("acceptInvite", params);
 }
 
+export function sendInvitations(Moralis: any, ethAddress: string, teamId: number, userId: string) {
+  const params = {
+    ethAddress: ethAddress,
+    teamId: teamId,
+    invitedBy: userId
+  };
+  return Moralis.Cloud.run("sendInvite", params);
+}
+
 export function giftContributors(Moralis: any, epochId: string, votes: object, ethAddress: string) {
   const params = {
     epochId: epochId,
