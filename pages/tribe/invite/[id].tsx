@@ -82,6 +82,7 @@ const InviteModal = () => {
             decryptData(String(id))
             checkMemberInTeam(Moralis, Number(teamId), String(user?.id))
                 .then((res: any[]) => {
+                    console.log('checkmember',res)
                     if(res)
                     {
                         router.replace(`/tribe/${teamId}`)
@@ -141,7 +142,7 @@ const InviteModal = () => {
 
     const decryptData = (link: string) => {
         console.log('oldlink',link)
-        let newLink = link.toString().replaceAll('_mumbai_', '+' ).replace('_tribes_', '/').replace('_spect_', '=');
+        let newLink = link.toString().replaceAll('_mumbai_', '+' ).replaceAll('_tribes_', '/').replaceAll('_spect_', '=');
         console.log('newlink',newLink)
         var bytes = CryptoJS.AES.decrypt(newLink, String(process.env.ENCRYPTION_SECRET_KEY));
         var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8))[0];

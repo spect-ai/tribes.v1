@@ -209,7 +209,8 @@ Moralis.Cloud.define("checkMemberInTeam", async (request) => {
 Moralis.Cloud.define("addMemberToTribe", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   const team = await getTribeByTeamId(request.params.teamId);
-  let members = team.get('members');
+
+  let members = team ? team.get('members') : [];
   if (hasAccess(request.params.adminId, team, (requiredAccess = "admin"))) 
   {
     try {
