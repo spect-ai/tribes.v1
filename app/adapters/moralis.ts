@@ -268,6 +268,16 @@ export function deleteBoard(Moralis: any, boardId: string) {
   return Moralis.Cloud.run("deleteBoard", params);
 }
 
+export function addMemberToTribe(Moralis: any, teamId: number, userId: string, userType: string, adminId: string) {
+  const params = {
+    teamId : teamId,
+    userId: userId,
+    userType: userType,
+    adminId: adminId
+  };
+  console.log('params', params)
+  return Moralis.Cloud.run("addMemberToTribe",params)
+}
 export function getBatchPayAmount(Moralis: any, boardId: string) {
   const params = {
     boardId: boardId,

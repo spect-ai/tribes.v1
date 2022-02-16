@@ -11,7 +11,8 @@ import styled from "@emotion/styled";
 import { PrimaryButton } from "../../../app/components/elements/styledComponents";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
-import { acceptInvitations, checkMemberInTeam, getOrCreateUser, getTeam } from "../../../app/adapters/moralis";
+import { addMemberToTribe, checkMemberInTeam, getOrCreateUser, getTeam } from "../../../app/adapters/moralis";
+import * as CryptoJS from "crypto-js";
 // interface inviteModalProps {
 //     openModal: boolean;
 //     setShowModal: any
@@ -26,6 +27,12 @@ const InviteModal = () => {
     };
     const [ethAddress, setEthAddress] = useState("");
     const [showModal, setShowModal] = useState(true)
+    const [state, setState] = useState({
+        teamId: '', 
+        inviteType: '', 
+        adminUserId: ''
+    })
+    const {teamId, inviteType, adminUserId} = state
     const { isAuthenticated, Moralis, user, authenticate, isAuthenticating } = useMoralis();
     const router = useRouter();
     const { id } = router.query;
@@ -33,39 +40,34 @@ const InviteModal = () => {
         if(isAuthenticated)
         {
             setIsAuth(true)
-            setEthAddress(user?.get("ethAddress"));
-            checkMemberInTeam(Moralis, Number(id), String(user?.id))
-                .then((res: any[]) => {
-                    if(res)
-                    {
-                        router.replace(`/tribe/${id}`)
-                        setShowModal(false)
-                    }
-                    else
-                    {
-                        setShowModal(true)
-                    }
-                    // router.replace(`/tribe/${id}`)
-                    console.log('Memeber exist', res)
-                })
-                .catch((error: any)=>{
-                    console.log('checkMemberInTeam',error)
-                    // handleClose()
-                    console.log('Error in fetching memeber')
-                })
 
-                console.log('userId', user?.id)
-                console.log('teamId', id)
-            getTeam(Moralis, Number(id))
-                .then((res: any[]) => {
-                    
-                        console.log('teams',res)
-                    
-                    
-                })
-                .catch((error: any)=>{
-                    console.log('getTeam',error)
-                })
+            setEthAddress(user?.get("ethAddress"));
+            // checkMemberInTeam(Moralis, Number(id), String(user?.id))
+            //     .then((res: any[]) => {
+            //         // decryptData(String(id))
+            //         if(res)
+            //         {
+            //             router.replace(`/tribe/${id}`)
+            //             setShowModal(false)
+            //         }
+            //         else
+            //         {
+            //             setShowModal(true)
+            //         }
+            //         // router.replace(`/tribe/${id}`)
+            //     })
+            //     .catch((error: any)=>{
+            //         console.log('checkMemberInTeam',error)
+            //         // handleClose()
+            //         console.log('Error in fetching memeber')
+            //     })
+            //     getTeam(Moralis, Number(id))
+            //         .then((res: any[]) => {
+            //                 console.log('teams',res)
+            //         })
+            //         .catch((error: any)=>{
+            //             console.log('getTeam',error)
+            //         })
         }
         else
         {
@@ -73,17 +75,58 @@ const InviteModal = () => {
         }
         
     })
+
+    useEffect(() => {
+        if(id)
+        {
+            decryptData(String(id))
+            checkMemberInTeam(Moralis, Number(teamId), String(user?.id))
+                .then((res: any[]) => {
+                    if(res)
+                    {
+                        router.replace(`/tribe/${teamId}`)
+                        setShowModal(false)
+                    }
+                    else
+                    {
+                        setShowModal(true)
+                    }
+                })
+                .catch((error: any)=>{
+                    console.log('checkMemberInTeam',error)
+                    handleClose()
+                })
+                // getTeam(Moralis, Number(teamId))
+                //     .then((res: any[]) => {
+                //             console.log('teams',res)
+                //     })
+                //     .catch((error: any)=>{
+                //         console.log('getTeam',error)
+                //     })
+        }
+        else
+        {
+            console.log('id not fetched', id)
+        }
+        
+    },[id])
+
     const handleClickInvite=()=>{
-        acceptInvitations(Moralis, ethAddress, Number(id))
+        addMemberToTribe(Moralis, Number(teamId), String(user?.id), String(inviteType), adminUserId)
         .then((res: any[]) => {
             console.log("ressssAccepted", res);
-            if(res)
+            if(String(res) == 'member already exist' || String(res) == 'invite accepted')
             {
-                router.replace(`/tribe/${id}`)
-            }  
+                router.replace(`/tribe/${teamId}`)
+            }
+            else if(String(res) == 'Invite Not Valid')
+            {
+                router.replace(`/`)
+            }
+
         })
         .catch((ex: any) => {
-            console.log("acceptInvitations", ex);
+            console.log("acceptError", ex);
             router.replace(`/`)
         });
         setShowModal(false)
@@ -91,11 +134,24 @@ const InviteModal = () => {
 
     const handleConnectWallet = () => {
         authenticate({}).then((res) => {
-            console.log(res);
             getOrCreateUser(Moralis).then((res: any) => console.log(res));
         })
         .catch((err) => console.log(err))
     }
+
+    const decryptData = (link: string) => {
+        console.log('oldlink',link)
+        let newLink = link.toString().replaceAll('_mumbai_', '+' ).replace('_tribes_', '/').replace('_spect_', '=');
+        console.log('newlink',newLink)
+        var bytes = CryptoJS.AES.decrypt(newLink, String(process.env.ENCRYPTION_SECRET_KEY));
+        var decryptedData = JSON.parse(bytes.toString(CryptoJS.enc.Utf8))[0];
+        setState({
+            teamId: decryptedData.id, 
+            inviteType: decryptedData.type, 
+            adminUserId: decryptedData.userId
+        })
+
+      }
 
     return (
         <Modal open={showModal} onClose={handleClose} closeAfterTransition>
@@ -108,7 +164,7 @@ const InviteModal = () => {
                         (
                             <Container>
                                 <Text>
-                                    You Got Invited To Team {id}
+                                    You Got Invited To Team {teamId}
                                 </Text>
                                 <PrimaryButton variant="outlined" fullWidth onClick={()=>handleClickInvite()}>
                                     Accept Invite

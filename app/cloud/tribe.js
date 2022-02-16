@@ -205,3 +205,43 @@ Moralis.Cloud.define("checkMemberInTeam", async (request) => {
     return false;
   }
 });
+
+Moralis.Cloud.define("addMemberToTribe", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  const team = await getTribeByTeamId(request.params.teamId);
+  let members = team.get('members');
+  if (hasAccess(request.params.adminId, team, (requiredAccess = "admin"))) 
+  {
+    try {
+      if(isMember(request.params.userId, team))
+      {
+        return 'member already exist'
+      }
+      else
+      {
+        let newMember = 
+          {
+            "userId": request.params.userId,
+            "role": request.params.userType
+          }
+        members.push(newMember)
+        team.set('members', members);
+        await Moralis.Object.saveAll([team], { useMasterKey: true });
+        return 'invite accepted'
+      }
+    }
+    catch(err) {
+      logger.error(
+        `Error while adding Member in team ${request.params.teamId}: ${err}`
+      );
+      return 'Error while adding Member'
+    }
+  }
+  else
+  {
+    logger.error(
+      `Error while adding Member in team ${request.params.teamId}: invide not valid`
+    );
+    return 'Invite Not Valid'
+  }
+});
