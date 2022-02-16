@@ -238,9 +238,9 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                   }
                 />
                 <ListItemText
-                  primary={`${actionMap[act.action as keyof typeof actionMap]} by ${
-                    act.username
-                  } on ${act.timestamp.getDate()}  ${
+                  primary={`${act.username} set status to "${
+                    statusMapping[act.action as keyof typeof statusMapping]
+                  }" on ${act.timestamp.getDate()}  ${
                     // @ts-ignore
                     monthMap[act.timestamp.getMonth() as number]
                   }`}

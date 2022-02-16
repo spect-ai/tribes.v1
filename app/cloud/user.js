@@ -21,7 +21,7 @@ async function getUserByUserId(userId) {
   return await userInfoQuery.first();
 }
 
-async function getUsernamesByUserIds(userIds) {
+async function getUserDetailsByUserIds(userIds) {
   const userQuery = new Moralis.Query("User");
   const pipeline = [
     { match: { objectId: { $in: userIds } } },

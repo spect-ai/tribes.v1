@@ -63,7 +63,7 @@ Moralis.Cloud.define("getTask", async (request) => {
       const board = await getBoardObjByObjectId(task.boardId);
       var memberIds = [];
       for (var member of board[0].members) memberIds.push(member.userId);
-      task.members = await getUsernamesByUserIds(memberIds);
+      task.members = await getUserDetailsByUserIds(memberIds);
 
       // Get userId and usernames of all reviewers
       let reviewerIds = [];
@@ -76,10 +76,20 @@ Moralis.Cloud.define("getTask", async (request) => {
       task.assignee = task.members.filter((a) => assigneeIds.includes(a.objectId));
 
       // Get userId, usernames and profile picture of all the actors who have done some activity
-      var actorIds = [];
-      task.activity.filter((a) => actorIds.push(a.actor));
-      var activityMemberrDetails = task.members.filter((a) => actorIds.includes(a.objectId));
-      activityMemberrDetails.map((memberDetail, index) => Object.assign(task.activity[index], memberDetail));
+      var userIdToMemberDetails = {};
+      for (var memberDetail of task.members) userIdToMemberDetails[memberDetail.objectId] = memberDetail;
+      logger.info(`userIdToMemberDetails ${JSON.stringify(userIdToMemberDetails)}`);
+      //var actorIds = [];
+      //task.activity.map((activity) => Object.assign(activity, userIdToMemberDetails[activity.userId]));
+      //var activityMemberDetails = task.members.filter((a) => actorIds.includes(a.objectId));
+      //activityMemberDetails.map((memberDetail) =>
+      //  Object.assign(task.activity[actorIds.indexOf(memberDetail.objectId)], memberDetail)
+      //);
+      for (activity of task.activity) {
+        activity.username = userIdToMemberDetails[activity.actor].username;
+        activity.profilePicture = userIdToMemberDetails[activity.actor].profilePicture;
+      }
+      logger.info(`task.activity ${JSON.stringify(task.activity)}`);
 
       // Get access level of caller
       const access = getFieldLevelAccess(task, request.user.id);
@@ -121,7 +131,7 @@ Moralis.Cloud.define("addTask", async (request) => {
       task.set("activity", [
         {
           actor: request.user.id,
-          action: 1,
+          action: 100,
           timestamp: new Date(),
         },
       ]);
@@ -254,19 +264,19 @@ function handleStatusChange(task, userId, status) {
     task.set("status", statusCode);
   } else if (statusCode === 102) {
     task.set("status", statusCode);
-    task = handleActivityUpdate(task, userId, 5);
+    task = handleActivityUpdate(task, userId, statusCode);
   } else if (statusCode === 105) {
     task.set("status", statusCode);
-    task = handleActivityUpdate(task, userId, 7);
+    task = handleActivityUpdate(task, userId, statusCode);
   } else if (statusCode === 200) {
     task.set("status", statusCode);
-    task = handleActivityUpdate(task, userId, 10);
+    task = handleActivityUpdate(task, userId, statusCode);
   } else if (statusCode === 205) {
     task.set("status", statusCode);
-    task = handleActivityUpdate(task, userId, 15);
+    task = handleActivityUpdate(task, userId, statusCode);
   } else if (statusCode === 300) {
     task.set("status", statusCode);
-    task = handleActivityUpdate(task, userId, 20);
+    task = handleActivityUpdate(task, userId, statusCode);
   }
   return task;
 }
