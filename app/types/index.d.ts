@@ -105,3 +105,7 @@ export interface Task {
   };
   issueLink?: string;
 }
+
+export interface Contracts {
+  distributorContract?: ethers.Contract;
+}

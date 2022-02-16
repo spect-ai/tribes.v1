@@ -148,10 +148,11 @@ export const reverseStatusMapping = {
 };
 
 export const currentStatusToFutureValidStatus = {
-  100: ["Open", "In progress", "Closed"],
-  105: ["In progress", "Open", "In review"],
-  200: ["In review", "Closed", "In progress"],
-  205: ["Closed", "Paid"],
+  100: ["Open", "In progress"],
+  102: ["In progress", "Open"],
+  105: ["In progress", "Open", "Assigned", "In review"],
+  200: ["In review", "In progress"],
+  205: ["Closed"],
 };
 
 export const statusColorMapping = {

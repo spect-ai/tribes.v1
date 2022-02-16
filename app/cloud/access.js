@@ -50,17 +50,33 @@ function isTaskReviewer(task, userId) {
   return false;
 }
 
+function isTaskCreatorFromTaskObj(task, userId) {
+  return task.creator === userId;
+}
+
+function isTaskAssigneeFromTaskObj(task, userId) {
+  for (var assignee of task.assignee) {
+    if (userId === assignee.objectId) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isTaskReviewerFromTaskObj(task, userId) {
+  for (var reviewer of task.reviewer) {
+    if (userId === reviewer.objectId) {
+      return true;
+    }
+  }
+  return false;
+}
+
 function getFieldLevelAccess(task, userId) {
   var access = {};
-  if (isTaskCreator(task, userId)) {
-    access["creator"] = true;
-  }
-  if (isTaskReviewer(task, userId)) {
-    access["reviewer"] = true;
-  }
-  if (isTaskAssignee(task, userId)) {
-    access["assignee"] = true;
-  }
+  access["creator"] = isTaskCreatorFromTaskObj(task, userId);
+  access["assignee"] = isTaskAssigneeFromTaskObj(task, userId);
+  access["reviewer"] = isTaskReviewerFromTaskObj(task, userId);
   return access;
 }
 

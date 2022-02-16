@@ -238,12 +238,17 @@ export function updateTask(Moralis: any, task: any) {
 }
 
 export function assignToMe(Moralis: any, taskId: string) {
-  console.log(`taskId`);
-  console.log(taskId);
   const params = {
     taskId: taskId,
   };
   return Moralis.Cloud.run("assignToMe", params);
+}
+
+export function closeTask(Moralis: any, taskId: string) {
+  const params = {
+    taskId: taskId,
+  };
+  return Moralis.Cloud.run("closeTask", params);
 }
 
 export function voteOnTasks(Moralis: any, epochId: string, voteAllocation: any) {
@@ -279,13 +284,13 @@ export function deleteBoard(Moralis: any, boardId: string) {
 
 export function addMemberToTribe(Moralis: any, teamId: number, userId: string, userType: string, adminId: string) {
   const params = {
-    teamId : teamId,
+    teamId: teamId,
     userId: userId,
     userType: userType,
-    adminId: adminId
+    adminId: adminId,
   };
-  console.log('params', params)
-  return Moralis.Cloud.run("addMemberToTribe",params)
+  console.log("params", params);
+  return Moralis.Cloud.run("addMemberToTribe", params);
 }
 export function getBatchPayAmount(Moralis: any, boardId: string) {
   const params = {

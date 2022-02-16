@@ -1,12 +1,5 @@
 import styled from "@emotion/styled";
-import {
-  Backdrop,
-  Box,
-  CircularProgress,
-  Fade,
-  Modal,
-  Typography,
-} from "@mui/material";
+import { Backdrop, Box, CircularProgress, Fade, Modal, Typography } from "@mui/material";
 import { Octokit } from "@octokit/rest";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
@@ -30,31 +23,37 @@ const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
 
   useEffect(() => {
     setLoading(true);
-    getTask(Moralis, taskId).then((task: Task) => {
-      console.log(task);
-      setTask(task);
-      const octokit = new Octokit();
-      if (task.issueLink) {
-        const splitValues = task.issueLink?.split("/");
-        octokit.rest.pulls
-          .list({
-            owner: splitValues[3],
-            repo: splitValues[4],
-            head: `${splitValues[3]}:${task.taskId}`,
-          })
-          .then(({ data }) => {
-            console.log(data[0]);
-            setSubmissionPR(data[0]);
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
-      } else {
+    getTask(Moralis, taskId)
+      .then((task: Task) => {
+        console.log(task);
+        setTask(task);
+        const octokit = new Octokit();
         setLoading(false);
-      }
-    });
+        // if (task.issueLink) {
+        //   const splitValues = task.issueLink?.split("/");
+        //   console.log(splitValues);
+        //   octokit.rest.pulls
+        //     .list({
+        //       owner: splitValues[3],
+        //       repo: splitValues[4],
+        //       head: `${splitValues[3]}:${task.taskId}`,
+        //     })
+        //     .then(({ data }) => {
+        //       console.log(data);
+        //       if (data && data.length) {
+        //         setSubmissionPR(data[0]);
+        //       }
+        //       setLoading(false);
+        //     })
+        //     .catch((err) => {
+        //       console.log(err);
+        //       setLoading(false);
+        //     });
+        // } else {
+        //   setLoading(false);
+        // }
+      })
+      .catch((err: any) => alert(err));
   }, []);
 
   return (
@@ -67,12 +66,7 @@ const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
             ) : (
               <Fade timeout={1000} in={!loading}>
                 <div>
-                  <EditTask
-                    task={task}
-                    setTask={setTask}
-                    handleClose={handleClose}
-                    submissionPR={submissionPR}
-                  />
+                  <EditTask task={task} setTask={setTask} handleClose={handleClose} submissionPR={submissionPR} />
                 </div>
               </Fade>
             )}

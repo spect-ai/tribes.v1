@@ -21,15 +21,20 @@ async function getUserByUserId(userId) {
   return await userInfoQuery.first();
 }
 
-async function getUsernamesByUserIds(userIds) {
+async function getUserDetailsByUserIds(userIds) {
   const userQuery = new Moralis.Query("User");
-  userQuery.containedIn("objectId", userIds);
-  const users = await userQuery.find({ useMasterKey: true });
-  var userArray = [];
-  for (var user of users) {
-    userArray.push({ userId: user.id, username: user.get("username") });
-  }
-  return userArray;
+  const pipeline = [
+    { match: { objectId: { $in: userIds } } },
+    {
+      project: {
+        objectId: 1,
+        username: 1,
+        profilePicture: 1,
+        ethAddress: 1,
+      },
+    },
+  ];
+  return await userQuery.aggregate(pipeline, { useMasterKey: true });
 }
 
 async function getUsernameProfilePicByUserId(userId) {
