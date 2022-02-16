@@ -35,6 +35,7 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
   const onSubmit: SubmitHandler<ModalFormInput> = async (value) => {
     sendInvitations(Moralis, String(value.address), Number(id), String(user?.id))
         .then((res: any[]) => {
+          console.log(sendInvitations, res)
           if(res)
           {
             setState({ ...state, text: 'Invite Sent', open: true });
@@ -49,7 +50,9 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
           setState({ severity: 'error', text: 'Error', open: true });
         });
     
-    setIsOpen(false);
+    setTimeout(function () {
+        setIsOpen(false);
+        }, 2000);
   };
 
   const onCopyTextAdmin: SubmitHandler<ModalFormInput> = async (value) => {
@@ -92,10 +95,9 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
       type: type,
       userId: user?.id
     }]
+    console.log('userId',user?.id)
     let ciphertext = CryptoJS.AES.encrypt(JSON.stringify(unencrypted), String(process.env.ENCRYPTION_SECRET_KEY)).toString();
-    console.log('oldciper',ciphertext)
     ciphertext = ciphertext.toString().replaceAll('+','_mumbai_').replaceAll('/','_tribes_').replaceAll('=','_spect_');
-    console.log('newciper',ciphertext)
     const link =`localhost:3000/tribe/invite/${ciphertext}`
     return link;
   }
