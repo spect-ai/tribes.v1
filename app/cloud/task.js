@@ -6,8 +6,9 @@ async function getTaskByTaskId(taskId) {
 
 async function getTaskObjByTaskId(taskId) {
   const taskQuery = new Moralis.Query("Task");
-  const pipeline = [{ match: { taskId: taskId } }];
-  return await taskQuery.aggregate(pipeline);
+  const pipeline = [{ match: { taskId: taskId } }, { limit: 1 }];
+  const task = await taskQuery.aggregate(pipeline);
+  return task.length > 0 ? task[0] : null;
 }
 
 async function getTaskObjByBoardId(boardId) {
@@ -56,40 +57,38 @@ Moralis.Cloud.define("getTask", async (request) => {
   try {
     if (request.params.taskId) {
       const task = await getTaskObjByTaskId(request.params.taskId);
-      const board = await getBoardObjByObjectId(task[0].boardId);
-      if (task.length === 0) throw `Task ${request.params.taskId} not found`;
-      for (var act of task[0].activity) {
-        var userQuery = new Moralis.Query("User");
-        userQuery.equalTo("objectId", act.actor);
-        var user = await userQuery.first({ useMasterKey: true });
-        act.username = user.get("username");
-        act.profilePicture = user.get("profilePicture");
-      }
+      if (!task) throw `Task ${request.params.taskId} not found`;
+
+      // Get all board members so they can be displayed as options for reviewers and assignees
+      const board = await getBoardObjByObjectId(task.boardId);
       var memberIds = [];
-      for (var member of board[0].members) {
-        memberIds.push(member.userId);
-      }
-      task[0].members = await getUsernamesByUserIds(memberIds);
-      let assigneeIds = [];
+      for (var member of board[0].members) memberIds.push(member.userId);
+      task.members = await getUsernamesByUserIds(memberIds);
+
+      // Get userId and usernames of all reviewers
       let reviewerIds = [];
-      logger.info(JSON.stringify(task[0]));
+      task.reviewer.filter((a) => reviewerIds.push(a.userId));
+      task.reviewer = task.members.filter((a) => reviewerIds.includes(a.objectId));
 
-      task[0].reviewer.filter((a) => reviewerIds.push(a.userId));
-      task[0].assignee.filter((a) => assigneeIds.push(a.userId));
-      logger.info(` assigneeIds ${JSON.stringify(assigneeIds)}`);
-      logger.info(`reviewerIds ${JSON.stringify(reviewerIds)}`);
+      // Get userId and usernames of all assignees
+      let assigneeIds = [];
+      task.assignee.filter((a) => assigneeIds.push(a.userId));
+      task.assignee = task.members.filter((a) => assigneeIds.includes(a.objectId));
 
-      task[0].reviewer = task[0].members.filter((a) => reviewerIds.includes(a.userId));
-      task[0].assignee = task[0].members.filter((a) => assigneeIds.includes(a.userId));
+      // Get userId, usernames and profile picture of all the actors who have done some activity
+      var actorIds = [];
+      task.activity.filter((a) => actorIds.push(a.actor));
+      var activityMemberrDetails = task.members.filter((a) => actorIds.includes(a.objectId));
+      activityMemberrDetails.map((memberDetail, index) => Object.assign(task.activity[index], memberDetail));
 
-      const taskParseObj = await getTaskByTaskId(request.params.taskId);
-      const access = getFieldLevelAccess(taskParseObj, request.user.id);
-      task[0].access = access;
-      return task[0];
+      // Get access level of caller
+      const access = getFieldLevelAccess(task, request.user.id);
+      task.access = access;
+      return task;
     }
   } catch (err) {
     logger.error(`Error while getting task from board ${request.params.taskId}: ${err}`);
-    return false;
+    throw `Error while getting task from board ${request.params.taskId}: ${err}`;
   }
 });
 
@@ -185,7 +184,7 @@ function handleTitleUpdate(task, userId, title) {
 
 function handleDescriptionUpdate(task, userId, description) {
   if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
-    task.description && task.set("description", description);
+    task.set("description", description);
   }
   return task;
 }
