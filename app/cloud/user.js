@@ -30,6 +30,7 @@ async function getUserDetailsByUserIds(userIds) {
         objectId: 1,
         username: 1,
         profilePicture: 1,
+        ethAddress: 1,
       },
     },
   ];

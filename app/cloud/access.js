@@ -56,7 +56,7 @@ function isTaskCreatorFromTaskObj(task, userId) {
 
 function isTaskAssigneeFromTaskObj(task, userId) {
   for (var assignee of task.assignee) {
-    if (userId === assignee.userId) {
+    if (userId === assignee.objectId) {
       return true;
     }
   }
@@ -65,7 +65,7 @@ function isTaskAssigneeFromTaskObj(task, userId) {
 
 function isTaskReviewerFromTaskObj(task, userId) {
   for (var reviewer of task.reviewer) {
-    if (userId === reviewer.userId) {
+    if (userId === reviewer.objectId) {
       return true;
     }
   }
@@ -74,15 +74,9 @@ function isTaskReviewerFromTaskObj(task, userId) {
 
 function getFieldLevelAccess(task, userId) {
   var access = {};
-  if (isTaskCreatorFromTaskObj(task, userId)) {
-    access["creator"] = true;
-  }
-  if (isTaskAssigneeFromTaskObj(task, userId)) {
-    access["reviewer"] = true;
-  }
-  if (isTaskReviewerFromTaskObj(task, userId)) {
-    access["assignee"] = true;
-  }
+  access["creator"] = isTaskCreatorFromTaskObj(task, userId);
+  access["assignee"] = isTaskAssigneeFromTaskObj(task, userId);
+  access["reviewer"] = isTaskReviewerFromTaskObj(task, userId);
   return access;
 }
 

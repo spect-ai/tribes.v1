@@ -22,20 +22,21 @@ import { muiTheme } from "../../../constants/muiTheme";
 import CloseIcon from "@mui/icons-material/Close";
 import { Task } from "../../../types";
 import { getMD5String } from "../../../utils/utils";
-import { updateTask, assignToMe } from "../../../adapters/moralis";
+import { updateTask, assignToMe, closeTask } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useBoard } from "../taskBoard";
 import ReactMde from "react-mde";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import * as Showdown from "showdown";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import DoneIcon from "@mui/icons-material/Done";
 import { statusMapping, currentStatusToFutureValidStatus } from "../../../constants";
 // import "react-mde/lib/styles/css/react-mde-all.css";
 import { chainTokenRegistry, actionMap, monthMap } from "../../../constants";
 import { getTokenOptions } from "../../../utils/utils";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Octokit } from "@octokit/rest";
-import { distributeTokensForTask } from "../../../adapters/contract";
+import { distributeEther, distributeTokensForTask } from "../../../adapters/contract";
 import { useGlobal } from "../../../context/globalContext";
 type Props = {
   task: Task;
@@ -322,7 +323,7 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                       multiple
                       onChange={(e, data) => field.onChange(data)}
                       size="small"
-                      readOnly={!(task.access.creator || task.access.reviewer || task.access.assignee)}
+                      readOnly={!(task.access.creator || task.access.reviewer)}
                       renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
@@ -468,13 +469,30 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                   </Grid>
                 </Grid>
               </FieldContainer>
+              {task.status === 200 && (
+                <FieldContainer>
+                  <PrimaryButton
+                    variant="contained"
+                    color="primary"
+                    endIcon={<DoneIcon />}
+                    onClick={() =>
+                      closeTask(Moralis, task.taskId).then((res: any) => {
+                        setData(res);
+                      })
+                    }
+                    hidden={!task.access.creator}
+                  >
+                    Close
+                  </PrimaryButton>
+                </FieldContainer>
+              )}
               {task.status === 205 && (
                 <FieldContainer>
                   <PrimaryButton
                     variant="contained"
                     color="primary"
                     endIcon={<MonetizationOnIcon />}
-                    onClick={() => distributeTokensForTask(task)}
+                    onClick={() => distributeEther([task.assignee.ethAddress], [task.value], task.taskId)}
                     hidden={!task.access.creator}
                   >
                     Pay

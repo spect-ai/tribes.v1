@@ -78,16 +78,18 @@ Moralis.Cloud.define("getTask", async (request) => {
       // Get userId, usernames and profile picture of all the actors who have done some activity
       var userIdToMemberDetails = {};
       for (var memberDetail of task.members) userIdToMemberDetails[memberDetail.objectId] = memberDetail;
-      logger.info(`userIdToMemberDetails ${JSON.stringify(userIdToMemberDetails)}`);
       for (activity of task.activity) {
         activity.username = userIdToMemberDetails[activity.actor].username;
         activity.profilePicture = userIdToMemberDetails[activity.actor].profilePicture;
       }
-      logger.info(`task.activity ${JSON.stringify(task.activity)}`);
 
       // Get access level of caller
+      logger.info(`task ${JSON.stringify(task)}`);
+
       const access = getFieldLevelAccess(task, request.user.id);
       task.access = access;
+      logger.info(`access ${JSON.stringify(access)}`);
+
       return task;
     }
   } catch (err) {
@@ -220,10 +222,20 @@ function handleDeadlineUpdate(task, userId, deadline) {
   return task;
 }
 
+function isDifferentAssignee(assignees1, assignees2) {
+  var assignees1Array = [];
+  assignees1.filter((a) => assignees1Array.push(a.objectId));
+  var assignees2Array = [];
+  assignees2.filter((a) => assignees2Array.push(a.objectId));
+  return !areEqualArrays(assignees1Array, assignees2Array);
+}
+
 function handleAssigneeUpdate(task, userId, assignee) {
   if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
-    task.set("assignee", [assignee]);
-    task = handleStatusChange(task, userId, "Assigned");
+    if (isDifferentAssignee(task.get("assignee"), [assignee])) {
+      task.set("assignee", [assignee]);
+      task = handleStatusChange(task, userId, "Assigned");
+    }
   }
   return task;
 }
@@ -329,6 +341,22 @@ Moralis.Cloud.define("assignToMe", async (request) => {
   } catch (err) {
     logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
     return false;
+  }
+});
+
+Moralis.Cloud.define("closeTask", async (request) => {
+  try {
+    var task = await getTaskByTaskId(request.params.taskId);
+    if (isTaskCreator(task, request.user.id) || isTaskReviewer(task, request.user.id)) {
+      task = handleStatusChange(task, request.user.id, "Closed");
+      await Moralis.Object.saveAll(task, { useMasterKey: true });
+      var board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+      return board[0];
+    }
+  } catch (err) {
+    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    var board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
   }
 });
 
