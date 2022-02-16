@@ -12,7 +12,6 @@ async function getBoardObjByObjectId(objectId) {
 
 async function getBoardObjWithTasksByObjectId(objectId) {
   var board = await getBoardObjByObjectId(objectId);
-  logger.info(`aaaaa ${JSON.stringify(board)}`);
   if (board) {
     var tasks = await getTaskObjByBoardId(objectId);
     var boardTasks = {};
@@ -21,7 +20,6 @@ async function getBoardObjWithTasksByObjectId(objectId) {
     }
     board[0].tasks = boardTasks;
   }
-  logger.info(`bbbb ${JSON.stringify(board)}`);
 
   return board;
 }
