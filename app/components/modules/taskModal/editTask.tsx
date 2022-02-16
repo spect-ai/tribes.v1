@@ -492,7 +492,7 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                     variant="contained"
                     color="primary"
                     endIcon={<MonetizationOnIcon />}
-                    onClick={() => distributeEther([task.assignee.ethAddress], [task.value], task.taskId)}
+                    onClick={() => distributeEther([task.assignee[0].ethAddress], [task.value], task.taskId)}
                     hidden={!task.access.creator}
                   >
                     Pay
