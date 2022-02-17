@@ -23,15 +23,18 @@ function getContract() {
 
 export async function distributeEther(contributors: any, values: any, taskId: string) {
   let contract = getContract();
-  console.log(contract);
-  console.log(contributors);
-  console.log(values);
-  console.log(taskId);
   var valuesInWei = [];
-  values.map((v: any) => valuesInWei.push(ethers.utils.parseEther(`${v}`)));
-  console.log(valuesInWei);
+  var totalValue = 0;
+  for (var val of values) {
+    valuesInWei.push(ethers.utils.parseEther(`${val}`));
+    totalValue += val;
+  }
 
-  const tx = await contract.distributeEther(["0x115Db4bd000B6D7c6f6fFB2fB6636387fAaBa0a5"], [1], "taskId");
+  let overrides: any = {
+    value: ethers.utils.parseEther(totalValue.toString()),
+  };
+
+  const tx = await contract.distributeEther(contributors, valuesInWei, taskId, overrides);
   return tx.wait();
 }
 
