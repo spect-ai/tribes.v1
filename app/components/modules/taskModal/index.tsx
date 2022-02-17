@@ -1,10 +1,18 @@
 import styled from "@emotion/styled";
-import { Backdrop, Box, CircularProgress, Fade, Modal, Typography } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  CircularProgress,
+  Fade,
+  Modal,
+  Typography,
+} from "@mui/material";
 import { Octokit } from "@octokit/rest";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { getTask } from "../../../adapters/moralis";
 import { Task } from "../../../types";
+import { Column } from "../taskBoard";
 import EditTask from "./editTask";
 import SkeletonLoader from "./skeletonLoader";
 
@@ -12,9 +20,10 @@ type Props = {
   isOpen: boolean;
   handleClose: () => void;
   taskId: string;
+  column: Column;
 };
 
-const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
+const TaskModal = ({ isOpen, handleClose, taskId, column }: Props) => {
   const [loaderText, setLoaderText] = useState("Updating metadata");
   const [loading, setLoading] = useState(false);
   const [task, setTask] = useState<Task>({} as Task);
@@ -66,7 +75,13 @@ const TaskModal = ({ isOpen, handleClose, taskId }: Props) => {
             ) : (
               <Fade timeout={1000} in={!loading}>
                 <div>
-                  <EditTask task={task} setTask={setTask} handleClose={handleClose} submissionPR={submissionPR} />
+                  <EditTask
+                    task={task}
+                    setTask={setTask}
+                    handleClose={handleClose}
+                    submissionPR={submissionPR}
+                    column={column}
+                  />
                 </div>
               </Fade>
             )}

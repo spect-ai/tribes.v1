@@ -54,7 +54,12 @@ export function getBoard(Moralis: any, boardId: string) {
   return Moralis.Cloud.run("getBoard", params);
 }
 
-export function updateColumnName(Moralis: any, boardId: string, columnId: string, newName: string) {
+export function updateColumnName(
+  Moralis: any,
+  boardId: string,
+  columnId: string,
+  newName: string
+) {
   const params = {
     boardId: boardId,
     columnId: columnId,
@@ -63,7 +68,11 @@ export function updateColumnName(Moralis: any, boardId: string, columnId: string
   return Moralis.Cloud.run("updateColumnName", params);
 }
 
-export function updateColumnOrder(Moralis: any, boardId: string, newColumnOrder: any) {
+export function updateColumnOrder(
+  Moralis: any,
+  boardId: string,
+  newColumnOrder: any
+) {
   const params = {
     boardId: boardId,
     newColumnOrder: newColumnOrder,
@@ -179,7 +188,11 @@ export function getInvitations(Moralis: any, ethAddress: string) {
   return Moralis.Cloud.run("getMyInvites", params);
 }
 
-export function acceptInvitations(Moralis: any, ethAddress: string, teamId: number) {
+export function acceptInvitations(
+  Moralis: any,
+  ethAddress: string,
+  teamId: number
+) {
   const params = {
     ethAddress: ethAddress,
     teamId: teamId,
@@ -187,16 +200,26 @@ export function acceptInvitations(Moralis: any, ethAddress: string, teamId: numb
   return Moralis.Cloud.run("acceptInvite", params);
 }
 
-export function sendInvitations(Moralis: any, ethAddress: string, teamId: number, userId: string) {
+export function sendInvitations(
+  Moralis: any,
+  ethAddress: string,
+  teamId: number,
+  userId: string
+) {
   const params = {
     ethAddress: ethAddress,
     teamId: teamId,
-    invitedBy: userId
+    invitedBy: userId,
   };
   return Moralis.Cloud.run("sendInvite", params);
 }
 
-export function giftContributors(Moralis: any, epochId: string, votes: object, ethAddress: string) {
+export function giftContributors(
+  Moralis: any,
+  epochId: string,
+  votes: object,
+  ethAddress: string
+) {
   const params = {
     epochId: epochId,
     votes: votes,
@@ -212,7 +235,12 @@ export function endEpoch(Moralis: any, epochId: string) {
   return Moralis.Cloud.run("endEpoch", params);
 }
 
-export function createTasks(Moralis: any, epochId: string, newTasks: any, taskSource: string) {
+export function createTasks(
+  Moralis: any,
+  epochId: string,
+  newTasks: any,
+  taskSource: string
+) {
   const params = {
     epochId: epochId,
     newTasks: newTasks,
@@ -229,10 +257,16 @@ export function getTaskEpoch(Moralis: any, epochId: string) {
   return Moralis.Cloud.run("getTaskEpoch", params);
 }
 
-export function updateTask(Moralis: any, task: any) {
-  console.log(task);
+export function updateTask(
+  Moralis: any,
+  task: any,
+  status: string,
+  columnId: string
+) {
   const params = {
     task: task,
+    status: status,
+    columnId: columnId,
   };
   return Moralis.Cloud.run("updateTask", params);
 }
@@ -251,7 +285,11 @@ export function closeTask(Moralis: any, taskId: string) {
   return Moralis.Cloud.run("closeTask", params);
 }
 
-export function voteOnTasks(Moralis: any, epochId: string, voteAllocation: any) {
+export function voteOnTasks(
+  Moralis: any,
+  epochId: string,
+  voteAllocation: any
+) {
   const params = {
     epochId: epochId,
     votes: voteAllocation,
@@ -259,7 +297,11 @@ export function voteOnTasks(Moralis: any, epochId: string, voteAllocation: any) 
   return Moralis.Cloud.run("voteOnTasks", params);
 }
 
-export function checkMemberInTeam(Moralis: any, teamId: number, userId: string) {
+export function checkMemberInTeam(
+  Moralis: any,
+  teamId: number,
+  userId: string
+) {
   const params = {
     teamId: teamId,
     userId: userId,
@@ -267,10 +309,18 @@ export function checkMemberInTeam(Moralis: any, teamId: number, userId: string) 
 
   return Moralis.Cloud.run("checkMemberInTeam", params);
 }
-export function updateBoard(Moralis: any, boardId: string, name: string) {
+export function updateBoard(
+  Moralis: any,
+  boardId: string,
+  name: string,
+  columns: any,
+  statusList: string[]
+) {
   const params = {
     boardId: boardId,
     name: name,
+    columns: columns,
+    statusList: statusList,
   };
   return Moralis.Cloud.run("updateBoard", params);
 }
@@ -282,7 +332,13 @@ export function deleteBoard(Moralis: any, boardId: string) {
   return Moralis.Cloud.run("deleteBoard", params);
 }
 
-export function addMemberToTribe(Moralis: any, teamId: number, userId: string, userType: string, adminId: string) {
+export function addMemberToTribe(
+  Moralis: any,
+  teamId: number,
+  userId: string,
+  userType: string,
+  adminId: string
+) {
   const params = {
     teamId: teamId,
     userId: userId,

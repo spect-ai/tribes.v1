@@ -37,10 +37,6 @@ const Column = ({ tasks, id, column, index }: Props) => {
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  console.log(`tasksss`);
-  console.log(tasks);
-  console.log(`tasksss`);
-
   const handleClose = () => {
     setAnchorEl(null);
   };
@@ -49,10 +45,12 @@ const Column = ({ tasks, id, column, index }: Props) => {
   function updateColumn() {
     if (currentColumnTitle !== columnTitle) {
       console.log(`upating column title`);
-      updateColumnName(Moralis, bid as string, id, columnTitle).then((res: any) => {
-        setCurrentColumnTitle(columnTitle);
-        console.log(res);
-      });
+      updateColumnName(Moralis, bid as string, id, columnTitle).then(
+        (res: any) => {
+          setCurrentColumnTitle(columnTitle);
+          console.log(res);
+        }
+      );
     }
   }
 
@@ -60,10 +58,18 @@ const Column = ({ tasks, id, column, index }: Props) => {
     <OuterContainer>
       <Draggable draggableId={id} index={index}>
         {(provided, snapshot) => (
-          <Container {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
+          <Container
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+          >
             <Droppable droppableId={id} type="task">
               {(provided) => (
-                <TaskList {...provided.droppableProps} ref={provided.innerRef} isDragging={snapshot.isDragging}>
+                <TaskList
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  isDragging={snapshot.isDragging}
+                >
                   <TaskTitleContainer>
                     <InputBase
                       placeholder="Add Title"
@@ -81,7 +87,11 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       }}
                     />
                     <Box sx={{ flex: "1 1 auto" }} />
-                    <IconButton sx={{ mb: 0.5, p: 1 }} size="small" onClick={handleClick}>
+                    <IconButton
+                      sx={{ mb: 0.5, p: 1 }}
+                      size="small"
+                      onClick={handleClick}
+                    >
                       <SettingsIcon fontSize="small" />
                     </IconButton>
                     <ColumnSettingsPopover
@@ -120,12 +130,25 @@ const Column = ({ tasks, id, column, index }: Props) => {
                     </Button>
                   </Box>
                   {tasks?.map((task, index) => (
-                    <TaskContainer key={task.taskId} task={task} index={index} />
+                    <TaskContainer
+                      key={task.taskId}
+                      task={task}
+                      index={index}
+                      column={column}
+                    />
                   ))}
                   {provided.placeholder}
-                  {showCreateTask && <CreateTask setShowCreateTask={setShowCreateTask} columnId={id} />}
+                  {showCreateTask && (
+                    <CreateTask
+                      setShowCreateTask={setShowCreateTask}
+                      columnId={id}
+                    />
+                  )}
                   {showCreateGithubTask && (
-                    <CreateGithubTask setShowCreateTask={setShowCreateGithubTask} columnId={id} />
+                    <CreateGithubTask
+                      setShowCreateTask={setShowCreateGithubTask}
+                      columnId={id}
+                    />
                   )}
                 </TaskList>
               )}
@@ -152,7 +175,8 @@ const TaskList = styled.div<{ isDragging: boolean }>`
   height: fit-content;
   padding: 1rem;
   border-radius: 0.5rem;
-  border: ${(props) => (props.isDragging ? "0.5px solid #0061ff" : "0.5px solid transparent")};
+  border: ${(props) =>
+    props.isDragging ? "0.5px solid #0061ff" : "0.5px solid transparent"};
   transition: 0.5s ease-in-out;
   box-shadow: 0 10px 30px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   &:hover {

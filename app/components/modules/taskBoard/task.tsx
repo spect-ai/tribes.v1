@@ -11,13 +11,15 @@ import {
   statusMapping,
 } from "../../../constants";
 import { Task } from "../../../types";
+import { Column } from ".";
 
 type Props = {
   task: Task;
   index: number;
+  column: Column;
 };
 
-const TaskContainer = ({ task, index }: Props) => {
+const TaskContainer = ({ task, index, column }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
   return (
@@ -27,6 +29,7 @@ const TaskContainer = ({ task, index }: Props) => {
           isOpen={isOpen}
           handleClose={handleClose}
           taskId={task.taskId}
+          column={column}
         />
       )}
       <Draggable draggableId={task.taskId} index={index}>
@@ -59,15 +62,7 @@ const TaskContainer = ({ task, index }: Props) => {
                     }
                   </Chip>
                 )}
-                <Chip
-                  color={
-                    statusColorMapping[
-                      task.status as keyof typeof statusColorMapping
-                    ]
-                  }
-                >
-                  {statusMapping[task.status as keyof typeof statusMapping]}
-                </Chip>
+                <Chip color={column.color}>{column.status}</Chip>
               </ChipContainer>
             </Container>
           </TaskCard>
@@ -80,6 +75,7 @@ const TaskContainer = ({ task, index }: Props) => {
 const ChipContainer = styled.div`
   display: flex;
   flex-direction: row;
+  transition: 2s ease-in-out;
 `;
 
 const Chip = styled.div<{ color: string }>`
@@ -94,6 +90,7 @@ const Chip = styled.div<{ color: string }>`
   justify-content: center;
   width: fit-content;
   margin: 4px 4px 6px 0px;
+  transition: color 2s ease-in-out;
 `;
 
 const TaskCard = styled.div<{ isDragging: boolean }>`

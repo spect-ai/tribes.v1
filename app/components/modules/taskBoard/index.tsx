@@ -22,6 +22,8 @@ export type Column = {
   id: string;
   title: string;
   taskIds: string[];
+  status: string;
+  color: string;
 };
 
 export interface BoardData {
@@ -37,6 +39,7 @@ export interface BoardData {
   teamId: number;
   createdAt: string;
   updatedAt: string;
+  statusList: string[];
 }
 
 interface BoardContextType {
@@ -226,7 +229,7 @@ const TaskBoard = (props: Props) => {
                     sx={{
                       textTransform: "none",
                       height: "8%",
-                      width: "19rem",
+                      minWidth: "18rem",
                       margin: "1rem 2rem 1rem 0rem",
                     }}
                     style={{
@@ -241,6 +244,8 @@ const TaskBoard = (props: Props) => {
                             id: `column-${data.columnOrder.length}`,
                             title: "",
                             taskIds: [],
+                            status: "",
+                            color: "",
                           },
                         },
                         columnOrder: [
