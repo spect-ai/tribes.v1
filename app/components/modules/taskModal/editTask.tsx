@@ -221,20 +221,30 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                   <Box sx={{ mx: 1 }}>#{submissionPR.number}</Box>
                   <Box sx={{ mx: 1 }}>{submissionPR.title}</Box>
                   <Box sx={{ mx: 1 }}>
-                    <Chip color={submissionPR.state === "open" ? "#5fe086" : "#5a6972"}>{submissionPR.state}</Chip>
+                    <Chip
+                      color={
+                        submissionPR.state === "open" ? "#5fe086" : "#5a6972"
+                      }
+                    >
+                      {submissionPR.state}
+                    </Chip>
                   </Box>
                 </PrimaryButton>
               </a>
             ) : (
               <TextField
                 id="filled-hidden-label-normal"
-                helperText={"Automatically link this task with a Github Pull Request using the branch name above"}
+                helperText={
+                  "Automatically link this task with a Github Pull Request using the branch name above"
+                }
                 InputProps={{
                   readOnly: true,
                   endAdornment: (
                     <IconButton
                       onClick={() => {
-                        navigator.clipboard.writeText(`git checkout -b ${task.taskId}`);
+                        navigator.clipboard.writeText(
+                          `git checkout -b ${task.taskId}`
+                        );
                       }}
                     >
                       <ContentCopyIcon />
