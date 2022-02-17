@@ -120,7 +120,7 @@ Moralis.Cloud.define("addTask", async (request) => {
       task.set("chain", team.get("preferredChain"));
       task.set("value", parseInt(request.params.value));
       task.set("creator", request.user.id);
-      task.set("reviewer", [{ userId: request.user.id }]);
+      task.set("reviewer", [{ objectId: request.user.id }]);
       task.set("assignee", []);
       task.set("status", 100);
       task.set("description", request.params.description);

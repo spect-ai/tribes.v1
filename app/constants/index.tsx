@@ -148,7 +148,7 @@ export const reverseStatusMapping = {
 };
 
 export const currentStatusToFutureValidStatus = {
-  100: ["Open", "In progress"],
+  100: ["Open"],
   102: ["In progress", "Open"],
   105: ["In progress", "Open", "Assigned", "In review"],
   200: ["In review", "In progress"],

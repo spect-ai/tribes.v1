@@ -36,7 +36,7 @@ import { chainTokenRegistry, actionMap, monthMap } from "../../../constants";
 import { getTokenOptions } from "../../../utils/utils";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { Octokit } from "@octokit/rest";
-import { distributeEther, distributeTokensForTask } from "../../../adapters/contract";
+import { distributeEther } from "../../../adapters/contract";
 import { useGlobal } from "../../../context/globalContext";
 type Props = {
   task: Task;
@@ -65,6 +65,7 @@ export interface IEditTask {
   token: string;
   value: number;
   status: string;
+  submission: string;
 }
 
 const converter = new Showdown.Converter({
@@ -180,11 +181,33 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
               />
             </Box>
           </TaskModalBodyContainer>
-          <TaskModalBodyContainer>
-            <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
-              Submissions
-            </Divider>{" "}
-            {submissionPR ? (
+          {task.status !== 100 && (
+            <TaskModalBodyContainer>
+              <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
+                Submissions
+              </Divider>{" "}
+              <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
+                <Controller
+                  name="submission"
+                  control={control}
+                  defaultValue={task.submission}
+                  render={({ field }) => (
+                    <ReactMde
+                      {...field}
+                      selectedTab={selectedTab}
+                      onTabChange={setSelectedTab}
+                      generateMarkdownPreview={(markdown) => Promise.resolve(converter.makeHtml(markdown))}
+                      childProps={{
+                        writeButton: {
+                          tabIndex: -1,
+                        },
+                      }}
+                      readOnly={!task.access.assignee}
+                    />
+                  )}
+                />
+              </Box>
+              {/* submissionPR ? (
               <a href={submissionPR.html_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
                 <PrimaryButton
                   startIcon={<GitHubIcon />}
@@ -222,8 +245,9 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                 sx={{ my: 4, width: "50%" }}
                 fullWidth
               />
-            )}
-          </TaskModalBodyContainer>
+              )*/}
+            </TaskModalBodyContainer>
+          )}
           <ActivityContainer>
             <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
               Activity

@@ -31,7 +31,7 @@ export async function distributeEther(contributors: any, values: any, taskId: st
   values.map((v: any) => valuesInWei.push(ethers.utils.parseEther(`${v}`)));
   console.log(valuesInWei);
 
-  const tx = await contract.distributeEther(contributors, values, taskId);
+  const tx = await contract.distributeEther(["0x115Db4bd000B6D7c6f6fFB2fB6636387fAaBa0a5"], [1], "taskId");
   return tx.wait();
 }
 
