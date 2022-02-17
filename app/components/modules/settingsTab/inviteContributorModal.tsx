@@ -7,6 +7,7 @@ import { useMoralis } from "react-moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { PrimaryButton } from "../../elements/styledComponents";
 import * as CryptoJS from "crypto-js";
+import { sendInvitations } from "../../../adapters/moralis";
 export interface ModalFormInput {
   address: string;
   inviteLinkAdmin: string;
@@ -32,8 +33,26 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
   } = useForm<ModalFormInput>();
 
   const onSubmit: SubmitHandler<ModalFormInput> = async (value) => {
-    setState({ ...state, text: 'Invite Accepted', open: true });
-    setIsOpen(false);
+    sendInvitations(Moralis, String(value.address), Number(id), String(user?.id))
+        .then((res: any[]) => {
+          console.log(sendInvitations, res)
+          if(res)
+          {
+            setState({ ...state, text: 'Invite Sent', open: true });
+          }
+          else
+          {
+            setState({ severity: 'error', text: 'Invite Not Sent', open: true });
+          }
+        })
+        .catch((ex: any) => {
+          console.log('sendInvitations', ex)
+          setState({ severity: 'error', text: 'Error', open: true });
+        });
+    
+    setTimeout(function () {
+        setIsOpen(false);
+        }, 2000);
   };
 
   const onCopyTextAdmin: SubmitHandler<ModalFormInput> = async (value) => {
@@ -76,10 +95,9 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
       type: type,
       userId: user?.id
     }]
+    console.log('userId',user?.id)
     let ciphertext = CryptoJS.AES.encrypt(JSON.stringify(unencrypted), String(process.env.ENCRYPTION_SECRET_KEY)).toString();
-    console.log('oldciper',ciphertext)
-    ciphertext = ciphertext.toString().replaceAll('+','_mumbai_').replace('/','_tribes_').replace('=','_spect_');
-    console.log('newciper',ciphertext)
+    ciphertext = ciphertext.toString().replaceAll('+','_mumbai_').replaceAll('/','_tribes_').replaceAll('=','_spect_');
     const link =`localhost:3000/tribe/invite/${ciphertext}`
     return link;
   }
