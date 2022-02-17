@@ -34,7 +34,7 @@ function isTaskCreator(task, userId) {
 
 function isTaskAssignee(task, userId) {
   for (var assignee of task.get("assignee")) {
-    if (userId === assignee.userId) {
+    if (userId === assignee.objectId) {
       return true;
     }
   }
@@ -43,7 +43,7 @@ function isTaskAssignee(task, userId) {
 
 function isTaskReviewer(task, userId) {
   for (var reviewer of task.get("reviewer")) {
-    if (userId === reviewer.userId) {
+    if (userId === reviewer.objectId) {
       return true;
     }
   }
@@ -56,6 +56,7 @@ function isTaskCreatorFromTaskObj(task, userId) {
 
 function isTaskAssigneeFromTaskObj(task, userId) {
   for (var assignee of task.assignee) {
+    logger.info(`assignee ${JSON.stringify(assignee)}`);
     if (userId === assignee.objectId) {
       return true;
     }

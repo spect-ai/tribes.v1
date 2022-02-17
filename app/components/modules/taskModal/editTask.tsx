@@ -82,6 +82,8 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
   const [loading, setLoading] = useState(false);
   const [chain, setChain] = useState<string | null>(task.chain);
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
+  const [selectedSubmisisonTab, setSelectedSubmissionTab] = useState<"write" | "preview">("write");
+
   const [assigned, setAssigned] = useState(false);
   const { state, dispatch } = useGlobal();
   const {
@@ -112,6 +114,9 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
   useEffect(() => {
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
+    }
+    if (!task.access.assignee) {
+      setSelectedSubmissionTab("preview");
     }
     console.log(state);
   }, []);
@@ -194,8 +199,8 @@ const EditTask = ({ task, setTask, handleClose, submissionPR }: Props) => {
                   render={({ field }) => (
                     <ReactMde
                       {...field}
-                      selectedTab={selectedTab}
-                      onTabChange={setSelectedTab}
+                      selectedTab={selectedSubmisisonTab}
+                      onTabChange={setSelectedSubmissionTab}
                       generateMarkdownPreview={(markdown) => Promise.resolve(converter.makeHtml(markdown))}
                       childProps={{
                         writeButton: {
