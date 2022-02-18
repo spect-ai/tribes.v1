@@ -25,7 +25,7 @@ import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import Link from "next/link";
 import { getBoards } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import BatchPay from "../batchPay";
+import Payment from "../payment";
 
 type Props = {};
 
@@ -109,7 +109,7 @@ const Heading = (props: Props) => {
           {data.name}
         </Typography>
         <BoardSettings />
-        <BatchPay />
+        <Payment />
         <Tooltip title="Switch Board">
           <IconButton sx={{ mb: 0.5, p: 2.5 }} size="small" onClick={() => setIsOpen(true)}>
             <StyledIcon className="fa-solid fa-arrow-right-arrow-left"></StyledIcon>
