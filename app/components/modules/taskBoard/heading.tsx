@@ -26,6 +26,8 @@ import Link from "next/link";
 import { getBoards } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import BatchPay from "../batchPay";
+import { PrimaryButton } from "../../elements/styledComponents";
+import CreateEpochModal from "../epoch/createEpochModal";
 
 type Props = {};
 
@@ -64,9 +66,15 @@ const Heading = (props: Props) => {
   return (
     <Container>
       <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
-        <List sx={{ maxWidth: "10rem" }}>
+        <List
+          sx={{ maxWidth: "10rem", backgroundColor: "#00194A", height: "100%" }}
+        >
           {boards.map((board: any, index) => (
-            <Link href={`/tribe/${id}/board/${board.objectId}`} key={board.objectId} passHref>
+            <Link
+              href={`/tribe/${id}/board/${board.objectId}`}
+              key={board.objectId}
+              passHref
+            >
               <ListItemButton selected={board.objectId === bid}>
                 <ListItemText primary={board.name} />
               </ListItemButton>
@@ -111,7 +119,11 @@ const Heading = (props: Props) => {
         <BoardSettings />
         <BatchPay />
         <Tooltip title="Switch Board">
-          <IconButton sx={{ mb: 0.5, p: 2.5 }} size="small" onClick={() => setIsOpen(true)}>
+          <IconButton
+            sx={{ mb: 0.5, p: 2.5 }}
+            size="small"
+            onClick={() => setIsOpen(true)}
+          >
             <StyledIcon className="fa-solid fa-arrow-right-arrow-left"></StyledIcon>
           </IconButton>
         </Tooltip>
@@ -127,6 +139,7 @@ const Heading = (props: Props) => {
             <PeopleOutlineIcon />
           </IconButton>
         </Tooltip>
+        <CreateEpochModal />
       </Box>
     </Container>
   );

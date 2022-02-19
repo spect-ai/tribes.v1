@@ -9,7 +9,7 @@ import {
 
 export const PrimaryButton = styled(LoadingButton)<ButtonProps>(
   ({ theme }) => ({
-    color: theme.palette.getContrastText("#000f29"),
+    color: theme.palette.getContrastText(theme.palette.background.paper),
     borderRadius: "20px",
     textTransform: "none",
   })
@@ -40,7 +40,7 @@ export const NavbarButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
   color: theme.palette.getContrastText("#000f29"),
   borderRadius: "22.5px",
   textTransform: "none",
-  border: "2px solid #0066FF",
+  border: "1px solid #eaeaea",
   width: "155px",
   height: "35px",
 }));

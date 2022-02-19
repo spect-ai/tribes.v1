@@ -7,6 +7,7 @@ import {
   MenuItem,
   MenuList,
   styled,
+  Theme,
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
@@ -17,6 +18,7 @@ import { useMoralis } from "react-moralis";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ProfileSettings from "../profileSettings";
+import { makeStyles } from "@mui/styles";
 
 type Props = {};
 const NavbarAvatar = styled(Avatar)(({ theme }) => ({
@@ -27,12 +29,19 @@ const NavbarAvatar = styled(Avatar)(({ theme }) => ({
   border: "1px solid #0066FF",
 }));
 
+export const useStyles = makeStyles((theme: Theme) => ({
+  menuPaper: {
+    backgroundColor: theme.palette.secondary.main,
+  },
+}));
+
 const ProfileMenu = (props: Props) => {
   const { isAuthenticating, logout, user } = useMoralis();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const handleSettingsClose = () => setIsOpen(false);
   const open = Boolean(anchorEl);
+  const classes = useStyles();
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -69,6 +78,7 @@ const ProfileMenu = (props: Props) => {
           "aria-labelledby": "basic-button",
         }}
         sx={{ p: 0, m: 0 }}
+        classes={{ paper: classes.menuPaper }}
       >
         <MenuList dense sx={{ p: 0, m: 0 }}>
           <MenuItem

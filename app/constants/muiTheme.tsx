@@ -3,7 +3,10 @@ export const muiTheme = {
   palette: {
     mode: "dark" as any,
     primary: {
-      main: "#0061ff",
+      main: "#eaeaea",
+    },
+    secondary: {
+      main: "#00194A",
     },
     background: {
       default: "#000f29",

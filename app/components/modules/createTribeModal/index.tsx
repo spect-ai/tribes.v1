@@ -4,6 +4,7 @@ import {
   IconButton,
   Modal,
   styled,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import React, { useState } from "react";
@@ -45,17 +46,19 @@ const CreateTribeModal = (props: Props) => {
 
   return (
     <div>
-      <CreateTeamButton
-        onClick={() => {
-          if (!isAuthenticated) {
-            authenticate();
-          } else {
-            handleOpen();
-          }
-        }}
-      >
-        <AddIcon />
-      </CreateTeamButton>
+      <Tooltip title="Create Tribe">
+        <CreateTeamButton
+          onClick={() => {
+            if (!isAuthenticated) {
+              authenticate();
+            } else {
+              handleOpen();
+            }
+          }}
+        >
+          <AddIcon />
+        </CreateTeamButton>
+      </Tooltip>
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Fade in={isOpen} timeout={500}>
           <Box sx={modalStyle}>

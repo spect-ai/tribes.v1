@@ -182,7 +182,7 @@ const TaskList = styled.div<{ isDragging: boolean }>`
   &:hover {
     border: 0.1px solid #3f3f3e;
   }
-  max-height: 70vh;
+  max-height: 80vh;
   overflow-y: auto;
   overflow-x: hidden;
   background-color: #00194a;
