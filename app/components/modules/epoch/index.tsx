@@ -74,162 +74,145 @@ const rows = [
 const EpochList = ({ expanded, handleChange }: Props) => {
   return (
     <Container>
-      <Accordion
-        disableGutters
-        expanded={expanded}
-        onChange={handleChange("epoch")}
-        sx={{ border: "2px solid #00194A" }}
-      >
-        <AccordionSummary
-          aria-controls="panel1d-content"
-          id="panel1d-header"
-          expandIcon={<ExpandMoreIcon />}
-          sx={{ backgroundColor: "#00194A" }}
-        >
-          <Typography sx={{ width: "33%", flexShrink: 0 }}>Epochs</Typography>
-        </AccordionSummary>
-        <AccordionDetails sx={{ backgroundColor: "#000f29" }}>
-          <Accordion hidden>
-            <AccordionSummary />
-          </Accordion>
-          {rows.map((epoch, index) => (
-            <Accordion
-              disableGutters
-              key={index}
-              sx={{ border: "2px solid #00194A" }}
-            >
-              <AccordionSummary
-                aria-controls="panel1d-content"
-                id="panel1d-header"
-                expandIcon={<ExpandMoreIcon />}
-                sx={{ backgroundColor: "#00194A" }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                    width: "100%",
-                  }}
-                >
-                  <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                    {epoch.epochId}
-                  </Typography>
-                  <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                    Started on {epoch.date}
-                  </Typography>
-                  <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                    {epoch.epochType}
-                  </Typography>
-                  {epoch.active && <Chip label="Ongoing" color="primary" />}
-                </Box>
-              </AccordionSummary>
-              <AccordionDetails sx={{ backgroundColor: "#000f29" }}>
-                <Grid container>
-                  <Grid item xs={8}>
-                    <TableContainer>
-                      <Table aria-label="simple table" size="small">
-                        <TableHead>
-                          <TableRow>
-                            <TableCell sx={{ color: "#99ccff" }}>
-                              {epoch.epochType === "Contributions"
-                                ? "Contributor"
-                                : "Task"}
-                            </TableCell>
-                            <TableCell align="right" sx={{ color: "#99ccff" }}>
-                              Votes Given
-                            </TableCell>
-                            <TableCell align="right" sx={{ color: "#99ccff" }}>
-                              Value
-                            </TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          {epoch.data.map((row, index) => (
-                            <TableRow
-                              key={index}
-                              sx={{
-                                "&:last-child td, &:last-child th": {
-                                  border: 0,
-                                },
-                              }}
-                            >
-                              <TableCell component="th" scope="row">
-                                {row.name}
-                              </TableCell>
-                              <TableCell align="right">{row.votes}</TableCell>
-                              <TableCell align="right">{row.value}</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </TableContainer>
-                  </Grid>
-                  <Grid item xs={4}>
-                    <DetailContainer>
-                      <InfoContainer>
-                        <Typography
-                          sx={{
-                            color: "#99ccff",
-                            textAlign: "right",
-                            fontSize: 14,
-                          }}
-                        >
-                          Votes left
-                        </Typography>
-                        <Typography sx={{ textAlign: "right" }}>12</Typography>
-                      </InfoContainer>
-                      <InfoContainer>
-                        <Typography
-                          sx={{
-                            color: "#99ccff",
-                            textAlign: "right",
-                            fontSize: 14,
-                          }}
-                        >
-                          Budget
-                        </Typography>
-                        <Typography sx={{ textAlign: "right" }}>
-                          100 WMatic
-                        </Typography>
-                      </InfoContainer>
-                      {epoch.active ? (
-                        <ButtonContainer>
-                          <PrimaryButton
-                            endIcon={<SaveIcon />}
-                            variant="outlined"
-                            sx={{ mx: 4 }}
-                            size="small"
-                          >
-                            Save
-                          </PrimaryButton>
-                          <PrimaryButton
-                            endIcon={<CloseIcon />}
-                            variant="outlined"
-                            size="small"
-                          >
-                            End Epoch
-                          </PrimaryButton>
-                        </ButtonContainer>
-                      ) : (
-                        <ButtonContainer>
-                          <PrimaryButton
-                            endIcon={<DownloadIcon />}
-                            variant="outlined"
-                            size="small"
-                          >
-                            Export to csv
-                          </PrimaryButton>
-                        </ButtonContainer>
-                      )}
-                    </DetailContainer>
-                  </Grid>
-                </Grid>
-              </AccordionDetails>
-            </Accordion>
-          ))}
-        </AccordionDetails>
+      <Accordion hidden>
+        <AccordionSummary />
       </Accordion>
+      {rows.map((epoch, index) => (
+        <Accordion
+          disableGutters
+          key={index}
+          sx={{ border: "2px solid #00194A" }}
+        >
+          <AccordionSummary
+            aria-controls="panel1d-content"
+            id="panel1d-header"
+            expandIcon={<ExpandMoreIcon />}
+            sx={{ backgroundColor: "#00194A" }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                width: "100%",
+              }}
+            >
+              <Typography sx={{ width: "30%", flexShrink: 0 }}>
+                {epoch.epochId}
+              </Typography>
+              <Typography sx={{ width: "30%", flexShrink: 0 }}>
+                Started on {epoch.date}
+              </Typography>
+              <Typography sx={{ width: "30%", flexShrink: 0 }}>
+                {epoch.epochType}
+              </Typography>
+              {epoch.active && <Chip label="Ongoing" color="primary" />}
+            </Box>
+          </AccordionSummary>
+          <AccordionDetails sx={{ backgroundColor: "#000f29" }}>
+            <Grid container>
+              <Grid item xs={8}>
+                <TableContainer>
+                  <Table aria-label="simple table" size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ color: "#99ccff" }}>
+                          {epoch.epochType === "Contributions"
+                            ? "Contributor"
+                            : "Task"}
+                        </TableCell>
+                        <TableCell align="right" sx={{ color: "#99ccff" }}>
+                          Votes Given
+                        </TableCell>
+                        <TableCell align="right" sx={{ color: "#99ccff" }}>
+                          Value
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {epoch.data.map((row, index) => (
+                        <TableRow
+                          key={index}
+                          sx={{
+                            "&:last-child td, &:last-child th": {
+                              border: 0,
+                            },
+                          }}
+                        >
+                          <TableCell component="th" scope="row">
+                            {row.name}
+                          </TableCell>
+                          <TableCell align="right">{row.votes}</TableCell>
+                          <TableCell align="right">{row.value}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Grid>
+              <Grid item xs={4}>
+                <DetailContainer>
+                  <InfoContainer>
+                    <Typography
+                      sx={{
+                        color: "#99ccff",
+                        textAlign: "right",
+                        fontSize: 14,
+                      }}
+                    >
+                      Votes left
+                    </Typography>
+                    <Typography sx={{ textAlign: "right" }}>12</Typography>
+                  </InfoContainer>
+                  <InfoContainer>
+                    <Typography
+                      sx={{
+                        color: "#99ccff",
+                        textAlign: "right",
+                        fontSize: 14,
+                      }}
+                    >
+                      Budget
+                    </Typography>
+                    <Typography sx={{ textAlign: "right" }}>
+                      100 WMatic
+                    </Typography>
+                  </InfoContainer>
+                  {epoch.active ? (
+                    <ButtonContainer>
+                      <PrimaryButton
+                        endIcon={<SaveIcon />}
+                        variant="outlined"
+                        sx={{ mx: 4 }}
+                        size="small"
+                      >
+                        Save
+                      </PrimaryButton>
+                      <PrimaryButton
+                        endIcon={<CloseIcon />}
+                        variant="outlined"
+                        size="small"
+                      >
+                        End Epoch
+                      </PrimaryButton>
+                    </ButtonContainer>
+                  ) : (
+                    <ButtonContainer>
+                      <PrimaryButton
+                        endIcon={<DownloadIcon />}
+                        variant="outlined"
+                        size="small"
+                      >
+                        Export to csv
+                      </PrimaryButton>
+                    </ButtonContainer>
+                  )}
+                </DetailContainer>
+              </Grid>
+            </Grid>
+          </AccordionDetails>
+        </Accordion>
+      ))}
     </Container>
   );
 };

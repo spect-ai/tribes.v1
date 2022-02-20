@@ -2,6 +2,8 @@ import { LoadingButton } from "@mui/lab";
 import {
   ButtonProps,
   styled,
+  Tab,
+  Tabs,
   Tooltip,
   tooltipClasses,
   TooltipProps,
@@ -43,4 +45,62 @@ export const NavbarButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
   border: "1px solid #eaeaea",
   width: "155px",
   height: "35px",
+}));
+
+interface StyledTabProps {
+  label: string;
+  disabled?: boolean;
+}
+
+interface StyledTabsProps {
+  children?: React.ReactNode;
+  value: number;
+  onChange: (event: React.SyntheticEvent, newValue: number) => void;
+  centered?: boolean;
+}
+
+export const StyledTabs = styled((props: StyledTabsProps) => (
+  <Tabs
+    {...props}
+    TabIndicatorProps={{ children: <span className="MuiTabs-indicatorSpan" /> }}
+  />
+))({
+  "& .MuiTabs-indicator": {
+    display: "flex",
+    justifyContent: "center",
+    backgroundColor: "transparent",
+  },
+  "& .MuiTabs-indicatorSpan": {
+    maxWidth: 40,
+    width: "100%",
+    backgroundColor: "#99ccff",
+  },
+});
+
+export const StyledTab = styled((props: StyledTabProps) => (
+  <Tab disableRipple {...props} />
+))(({ theme }) => ({
+  textTransform: "none",
+  fontWeight: theme.typography.fontWeightRegular,
+  fontSize: theme.typography.pxToRem(15),
+  marginRight: theme.spacing(1),
+  color: "rgba(255, 255, 255, 0.6)",
+  "&.Mui-selected": {
+    color: theme.palette.text.secondary,
+  },
+  "&.Mui-focusVisible": {
+    backgroundColor: "rgba(100, 95, 228, 0.32)",
+  },
+}));
+
+export const ModalHeading = styled("div")(({ theme }) => ({
+  fontWeight: 500,
+  fontSize: 16,
+  color: theme.palette.text.secondary,
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  borderBottom: "1px solid #99ccff",
+  padding: 16,
+  paddingLeft: 32,
 }));

@@ -26,12 +26,11 @@ const NavbarAvatar = styled(Avatar)(({ theme }) => ({
   width: 25,
   objectFit: "cover",
   borderWidth: 2,
-  border: "1px solid #0066FF",
 }));
 
 export const useStyles = makeStyles((theme: Theme) => ({
   menuPaper: {
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.background.default,
   },
 }));
 

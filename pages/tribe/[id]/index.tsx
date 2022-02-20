@@ -22,20 +22,12 @@ type Issue = {
 
 interface TribeContextType {
   tab: number;
-  setTab: (tab: number) => void;
-  toDoTasks: Task[];
-  setToDoTasks: (tasks: Task[]) => void;
-  inProgressTasks: Task[];
-  setInProgressTasks: (tasks: Task[]) => void;
-  doneTasks: Task[];
-  setDoneTasks: (tasks: Task[]) => void;
-  githubToken: string;
-  setGithubToken: (token: string) => void;
-  repo: string;
-  setRepo: (repo: string) => void;
+  handleTabChange: (event: React.SyntheticEvent, newValue: number) => void;
   tribe: Team;
   setTribe: (tribe: Team) => void;
   getTeam: Function;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
 }
 
 export const TribeContext = createContext<TribeContextType>(
@@ -45,12 +37,14 @@ export const TribeContext = createContext<TribeContextType>(
 const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();
   const { id } = router.query;
-  const { Moralis, user } = useMoralis();
   const context = useProviderTribe();
   useEffect(() => {
+    context.setLoading(true);
     context.getTeam({
       onSuccess: (res: any) => {
+        console.log(res);
         context.setTribe(res as Team);
+        context.setLoading(false);
       },
       params: {
         teamId: id,
@@ -74,12 +68,13 @@ const TribePage: NextPage<Props> = (props: Props) => {
 
 function useProviderTribe() {
   const [tab, setTab] = useState(0);
-  const [githubToken, setGithubToken] = useState("");
-  const [repo, setRepo] = useState("");
-  const [toDoTasks, setToDoTasks] = useState([] as any);
-  const [inProgressTasks, setInProgressTasks] = useState([] as any);
-  const [doneTasks, setDoneTasks] = useState([] as any);
+
   const [tribe, setTribe] = useState({} as Team);
+  const [loading, setLoading] = useState(false);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTab(newValue);
+  };
 
   const { fetch: getTeam } = useMoralisCloudFunction(
     "getTeam",
@@ -91,20 +86,12 @@ function useProviderTribe() {
 
   return {
     tab,
-    setTab,
-    toDoTasks,
-    setToDoTasks,
-    inProgressTasks,
-    setInProgressTasks,
-    doneTasks,
-    setDoneTasks,
-    githubToken,
-    setGithubToken,
-    repo,
-    setRepo,
+    handleTabChange,
     tribe,
     setTribe,
     getTeam,
+    loading,
+    setLoading,
   };
 }
 

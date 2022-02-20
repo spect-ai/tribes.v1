@@ -149,7 +149,6 @@ const Popnotification = styled.div`
   border-radius: 5px;
   padding: 2px 9px;
   overflow: auto;
-
   &:hover {
     cursor: pointer;
     border: 1px solid #054bd7;

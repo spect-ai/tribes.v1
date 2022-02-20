@@ -129,86 +129,63 @@ const Board = ({ expanded, handleChange }: Props) => {
 
   const { id, bid } = router.query;
   return (
-    <Accordion
-      disableGutters
-      expanded={expanded}
-      onChange={handleChange("board")}
-      sx={{ border: "2px solid #00194A" }}
-    >
-      <AccordionSummary
-        aria-controls="panel1d-content"
-        id="panel1d-header"
-        expandIcon={<ExpandMoreIcon />}
-        sx={{ backgroundColor: "#00194A" }}
-      >
-        <Typography sx={{ width: "33%", flexShrink: 0 }}>Board</Typography>
-      </AccordionSummary>
-      <AccordionDetails sx={{ backgroundColor: "#000f29" }}>
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable
-            droppableId="all-columns"
-            direction="horizontal"
-            type="column"
-          >
-            {(provided, snapshot) => (
-              <Container {...provided.droppableProps} ref={provided.innerRef}>
-                {data.columnOrder.map((columnId, index) => {
-                  const column = data.columns[columnId];
-                  const tasks = column.taskIds?.map(
-                    (taskId) => data.tasks[taskId]
-                  );
-                  return (
-                    <Column
-                      key={columnId}
-                      column={column}
-                      tasks={tasks}
-                      id={columnId}
-                      index={index}
-                    />
-                  );
-                })}
-                {provided.placeholder}
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  startIcon={<AddIcon />}
-                  sx={{
-                    textTransform: "none",
-                    height: "8%",
-                    minWidth: "18rem",
-                    margin: "1rem 2rem 1rem 0rem",
-                  }}
-                  onClick={() => {
-                    setData({
-                      ...data,
-                      columns: {
-                        ...data.columns,
-                        [`column-${data.columnOrder.length}`]: {
-                          id: `column-${data.columnOrder.length}`,
-                          title: "",
-                          taskIds: [],
-                          status: "",
-                          color: "",
-                        },
-                      },
-                      columnOrder: [
-                        ...data.columnOrder,
-                        `column-${data.columnOrder.length}`,
-                      ],
-                    });
-                    addColumn(Moralis, bid as string).then((res: any) =>
-                      console.log(res)
-                    );
-                  }}
-                >
-                  Add new column
-                </Button>
-              </Container>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </AccordionDetails>
-    </Accordion>
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <Droppable droppableId="all-columns" direction="horizontal" type="column">
+        {(provided, snapshot) => (
+          <Container {...provided.droppableProps} ref={provided.innerRef}>
+            {data.columnOrder.map((columnId, index) => {
+              const column = data.columns[columnId];
+              const tasks = column.taskIds?.map((taskId) => data.tasks[taskId]);
+              return (
+                <Column
+                  key={columnId}
+                  column={column}
+                  tasks={tasks}
+                  id={columnId}
+                  index={index}
+                />
+              );
+            })}
+            {provided.placeholder}
+            <Button
+              variant="contained"
+              color="secondary"
+              startIcon={<AddIcon />}
+              sx={{
+                textTransform: "none",
+                height: "8%",
+                minWidth: "18rem",
+                margin: "1rem 2rem 1rem 0rem",
+              }}
+              onClick={() => {
+                setData({
+                  ...data,
+                  columns: {
+                    ...data.columns,
+                    [`column-${data.columnOrder.length}`]: {
+                      id: `column-${data.columnOrder.length}`,
+                      title: "",
+                      taskIds: [],
+                      status: "",
+                      color: "",
+                    },
+                  },
+                  columnOrder: [
+                    ...data.columnOrder,
+                    `column-${data.columnOrder.length}`,
+                  ],
+                });
+                addColumn(Moralis, bid as string).then((res: any) =>
+                  console.log(res)
+                );
+              }}
+            >
+              Add new column
+            </Button>
+          </Container>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 };
 const Container = styled.div`

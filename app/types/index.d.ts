@@ -21,19 +21,25 @@ export interface Team {
   teamId: number;
   name: string;
   description: string;
-  treasuryAddress: string;
-  onchain: boolean;
+  // treasuryAddress: string;
+  // onchain: boolean;
   members: { userId: string; role: string }[];
-  organization: string;
-  organizationVerified: boolean;
-  openApplications: boolean;
-  applicationRequirements: boolean;
-  latestContributionEpoch: string;
-  latestTaskEpoch: string;
+  // organization: string;
+  // organizationVerified: boolean;
+  // openApplications: boolean;
+  // applicationRequirements: boolean;
+  // latestContributionEpoch: string;
+  // latestTaskEpoch: string;
+  isPublic: boolean;
+  discord: string;
+  twitter: string;
+  github: string;
   _createdAt: object;
   _id: string;
   _updatedAt: object;
   _created_at: any;
+  logo: string;
+  boards: BoardData[];
 }
 
 export interface Epoch {
@@ -108,4 +114,30 @@ export interface Task {
 
 export interface Contracts {
   distributorContract?: ethers.Contract;
+}
+
+export type Column = {
+  id: string;
+  title: string;
+  taskIds: string[];
+  status: string;
+  color: string;
+};
+
+export interface BoardData {
+  objectId: string;
+  name: string;
+  tasks: {
+    [key: string]: Task;
+  };
+  columns: {
+    [key: string]: Column;
+  };
+  columnOrder: string[];
+  teamId: number;
+  createdAt: string;
+  updatedAt: string;
+  statusList: string[];
+  _id: string;
+  _createdAt: string;
 }

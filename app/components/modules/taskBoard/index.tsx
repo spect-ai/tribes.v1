@@ -6,39 +6,18 @@ import { getBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import Heading from "./heading";
 import SkeletonLoader from "./skeletonLoader";
-import { Task } from "../../../types";
+import { BoardData, Task } from "../../../types";
 import Board from "./board";
 import EpochList from "../epoch";
+import Analytics from "../analytics";
 
 type Props = {};
-
-export type Column = {
-  id: string;
-  title: string;
-  taskIds: string[];
-  status: string;
-  color: string;
-};
-
-export interface BoardData {
-  objectId: string;
-  name: string;
-  tasks: {
-    [key: string]: Task;
-  };
-  columns: {
-    [key: string]: Column;
-  };
-  columnOrder: string[];
-  teamId: number;
-  createdAt: string;
-  updatedAt: string;
-  statusList: string[];
-}
 
 interface BoardContextType {
   data: BoardData;
   setData: (data: BoardData) => void;
+  tab: number;
+  handleTabChange: (event: React.SyntheticEvent, newValue: number) => void;
 }
 
 const BoardContext = createContext<BoardContextType>({} as BoardContextType);
@@ -53,6 +32,8 @@ const TaskBoard = (props: Props) => {
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
       setPanelExpanded(newExpanded ? panel : false);
     };
+
+  const tab = context.tab;
 
   const { bid } = router.query;
   useEffect(() => {
@@ -77,14 +58,19 @@ const TaskBoard = (props: Props) => {
       <div>
         <BoardContext.Provider value={context}>
           <Heading />
-          <EpochList
-            expanded={panelExpanded === "epoch"}
-            handleChange={handleChange}
-          />
-          <Board
-            expanded={panelExpanded === "board"}
-            handleChange={handleChange}
-          />
+          {tab === 0 && (
+            <Board
+              expanded={panelExpanded === "board"}
+              handleChange={handleChange}
+            />
+          )}
+          {tab === 1 && (
+            <EpochList
+              expanded={panelExpanded === "epoch"}
+              handleChange={handleChange}
+            />
+          )}
+          {tab === 3 && <Analytics />}
         </BoardContext.Provider>
       </div>
     </Fade>
@@ -93,9 +79,16 @@ const TaskBoard = (props: Props) => {
 
 function useProviderBoard() {
   const [data, setData] = useState<BoardData>({} as BoardData);
+  const [tab, setTab] = useState(0);
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTab(newValue);
+  };
   return {
     data,
     setData,
+    tab,
+    handleTabChange,
   };
 }
 

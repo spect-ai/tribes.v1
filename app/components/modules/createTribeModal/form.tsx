@@ -76,7 +76,7 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
     });
   };
   return (
-    <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "2rem" }}>
+    <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "0rem 1rem" }}>
       <FieldContainer>
         <Controller
           name="name"
