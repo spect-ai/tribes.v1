@@ -6,13 +6,14 @@ import {
   Drawer,
   IconButton,
   List,
-  ListItem,
-  ListItemIcon,
   Link as MuiLink,
   ListItemText,
   Tooltip,
   Typography,
   ListItemButton,
+  styled as MUIStyled,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -26,6 +27,8 @@ import Link from "next/link";
 import { getBoards } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import Payment from "../payment";
+import { PrimaryButton, StyledTab, StyledTabs } from "../../elements/styledComponents";
+import CreateEpochModal from "../epoch/createEpochModal";
 
 type Props = {};
 
@@ -41,7 +44,7 @@ const StyledIcon = styled.div`
 `;
 
 const Heading = (props: Props) => {
-  const { data } = useBoard();
+  const { data, tab, handleTabChange } = useBoard();
   const router = useRouter();
   const id = router.query.id as string;
   const bid = router.query.bid as string;
@@ -64,7 +67,7 @@ const Heading = (props: Props) => {
   return (
     <Container>
       <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
-        <List sx={{ maxWidth: "10rem" }}>
+        <List sx={{ maxWidth: "10rem", backgroundColor: "#00194A", height: "100%" }}>
           {boards.map((board: any, index) => (
             <Link href={`/tribe/${id}/board/${board.objectId}`} key={board.objectId} passHref>
               <ListItemButton selected={board.objectId === bid}>
@@ -83,9 +86,10 @@ const Heading = (props: Props) => {
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
+              fontSize: 14,
             }}
           >
-            <GroupsIcon />
+            <GroupsIcon sx={{ fontSize: 14 }} />
             Tribe
           </MuiLink>
         </Link>
@@ -96,15 +100,16 @@ const Heading = (props: Props) => {
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
+            fontSize: 14,
           }}
           href=""
         >
-          <DashboardIcon sx={{ fontSize: 16 }} />
+          <DashboardIcon sx={{ fontSize: 12 }} />
           {data.name}
         </MuiLink>
       </Breadcrumbs>
       <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-        <Avatar src="" />
+        <Avatar src="" sx={{ height: 35, width: 35 }} />
         <Typography variant="h6" sx={{ mx: 2 }}>
           {data.name}
         </Typography>
@@ -127,7 +132,18 @@ const Heading = (props: Props) => {
             <PeopleOutlineIcon />
           </IconButton>
         </Tooltip>
+        <CreateEpochModal />
       </Box>
+      <Typography sx={{ ml: 11, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
+        {"This space is for project planning, discussions, and more."}
+      </Typography>
+      <StyledTabs value={tab} onChange={handleTabChange}>
+        <StyledTab label="Board" />
+        <StyledTab label="Epoch" />
+        <StyledTab label="Settings" />
+        <StyledTab label="Analytics" />
+        <StyledTab label="Meetings" disabled />
+      </StyledTabs>
     </Container>
   );
 };

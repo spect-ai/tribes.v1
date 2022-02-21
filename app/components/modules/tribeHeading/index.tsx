@@ -1,87 +1,128 @@
-import { Avatar, Button, ButtonProps, Fade, styled, Tab, Tabs, Typography } from "@mui/material";
-import { Box, width } from "@mui/system";
+import styled from "@emotion/styled";
+import {
+  Avatar,
+  Box,
+  Breadcrumbs,
+  Drawer,
+  IconButton,
+  List,
+  Link as MuiLink,
+  ListItemText,
+  Tooltip,
+  Typography,
+  ListItemButton,
+  styled as MUIStyled,
+  Tabs,
+  Tab,
+} from "@mui/material";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
+import BoardSettings from "../boardSettings";
+import GroupsIcon from "@mui/icons-material/Groups";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import Link from "next/link";
-import React, { useState } from "react";
-import { useTribe } from "../../../../pages/tribe/[id]";
-
+import { getBoards } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import TaskModal from "../taskModal";
-
-const HeadingAvatar = styled(Avatar)(({ theme }) => ({
-  width: "6rem",
-  height: "6rem",
-  objectFit: "cover",
-}));
-
-const StyledTab = styled(Tab)(({ theme }) => ({
-  textTransform: "none",
-  fontSize: "1.2rem",
-  marginRight: 25,
-}));
-
-const StyledAnchor = styled("a")(({ theme }) => ({
-  color: "#5a6972",
-  marginRight: "1.5rem",
-}));
+import BatchPay from "../batchPay";
+import {
+  PrimaryButton,
+  StyledTab,
+  StyledTabs,
+} from "../../elements/styledComponents";
+import CreateEpochModal from "../epoch/createEpochModal";
+import { useTribe } from "../../../../pages/tribe/[id]";
 
 type Props = {};
 
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-left: 4px;
+`;
+
+const StyledIcon = styled.div`
+  font-size: 16px;
+  color: #eaeaea;
+`;
+
 const TribeHeading = (props: Props) => {
-  const { setTab, tab, setGithubToken, tribe } = useTribe();
-  const [githubLoading, setGithubLoading] = useState(false);
-  const { Moralis } = useMoralis();
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTab(newValue);
-  };
+  const { tab, handleTabChange, tribe } = useTribe();
+  const router = useRouter();
+  const id = router.query.id as string;
+  const bid = router.query.bid as string;
+  const [isOpen, setIsOpen] = useState(false);
+  const handleClose = () => setIsOpen(false);
+  const { Moralis, isInitialized } = useMoralis();
+  const [boards, setBoards] = useState([]);
+
   return (
-    <div>
-      <Box sx={{ display: "flex", flexDirection: "row", width: "100%", margin: 1 }}>
-        <Box sx={{ display: "flex", flexDirection: "row", width: "100%", pt: 4 }}>
-          <Box sx={{ mr: 1 }}>
-            <Link href={`/profile/`} passHref>
-              <HeadingAvatar alt="Username" />
+    <Container>
+      <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
+        <List
+          sx={{ maxWidth: "10rem", backgroundColor: "#00194A", height: "100%" }}
+        >
+          {boards.map((board: any, index) => (
+            <Link
+              href={`/tribe/${id}/board/${board.objectId}`}
+              key={board.objectId}
+              passHref
+            >
+              <ListItemButton selected={board.objectId === bid}>
+                <ListItemText primary={board.name} />
+              </ListItemButton>
             </Link>
-          </Box>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              marginLeft: 4,
-              width: "100%",
-            }}
-          >
-            <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-              <Typography variant="h4">{tribe.name}</Typography>
-            </Box>
-            <Box sx={{ display: "flex", flexDirection: "row" }}>
-              <StyledAnchor>
-                <i className="fab fa-github" />
-              </StyledAnchor>
-              <StyledAnchor>
-                <i className="fab fa-discord"></i>
-              </StyledAnchor>
-              <StyledAnchor>
-                <i className="fab fa-twitter" />
-              </StyledAnchor>
-            </Box>
-          </Box>
-        </Box>
-      </Box>
+          ))}
+        </List>
+      </Drawer>
       <Box
         sx={{
-          borderBottom: 1,
-          borderColor: "divider",
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          ml: 4,
         }}
       >
-        <Tabs value={tab} onChange={handleChange}>
-          <StyledTab label="Overview" value={0} />
-          <StyledTab label="Contributors" value={1} />
-          <StyledTab label="Board" value={2} />
-          <StyledTab label="Settings" value={3} />
-        </Tabs>
+        <Avatar src={tribe.logo} sx={{ height: 35, width: 35 }} />
+        <Typography variant="h6" sx={{ mx: 2 }}>
+          {tribe.name}
+        </Typography>
+        <Tooltip title="Invite member">
+          <IconButton sx={{ mb: 0.5, p: 1.7 }} size="small">
+            <PeopleOutlineIcon />
+          </IconButton>
+        </Tooltip>
+        <CreateEpochModal />
       </Box>
-    </div>
+      <Box sx={{ display: "flex", flexDirection: "row", ml: 14 }}>
+        <StyledAnchor href={tribe.github} target="_blank">
+          <i className="fab fa-github" />
+        </StyledAnchor>
+        <StyledAnchor href={tribe.discord} target="_blank">
+          <i className="fab fa-discord"></i>
+        </StyledAnchor>
+        <StyledAnchor href={tribe.twitter} target="_blank">
+          <i className="fab fa-twitter" />
+        </StyledAnchor>
+      </Box>
+      <StyledTabs value={tab} onChange={handleTabChange}>
+        <StyledTab label="Overview" />
+        <StyledTab label="Epochs" disabled />
+        <StyledTab label="Settings" />
+      </StyledTabs>
+    </Container>
   );
 };
+
+const StyledAnchor = MUIStyled("a")(({ theme }) => ({
+  color: "rgb(90, 105, 114,0.6)",
+  marginRight: "1rem",
+  fontSize: "1.2rem",
+  transition: "0.3s ease-in-out",
+  "&:hover": {
+    color: "rgb(90, 105, 114,1)",
+  },
+}));
 
 export default TribeHeading;

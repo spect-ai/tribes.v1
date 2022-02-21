@@ -53,6 +53,8 @@ const Sidebar = (props: Props) => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          position: "fixed",
+          zIndex: 1,
         }}
       >
         <Avatar
@@ -60,13 +62,6 @@ const Sidebar = (props: Props) => {
           sx={{ width: "3rem", height: "3rem", objectFit: "cover" }}
         />
         <CreateTribeModal />
-        <Typography
-          sx={{ fontSize: 13, textAlign: "center", mt: 1, fontWeight: "bold" }}
-          color="text.secondary"
-          gutterBottom
-        >
-          Create Tribe
-        </Typography>
       </Box>
     </SidebarContainer>
   );

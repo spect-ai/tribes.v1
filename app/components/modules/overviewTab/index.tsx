@@ -1,51 +1,58 @@
 import React from "react";
-import { Box, Typography, AvatarGroup, Avatar, Tooltip } from "@mui/material";
+import {
+  Box,
+  Typography,
+  AvatarGroup,
+  Avatar,
+  Tooltip,
+  Grid,
+  InputBase,
+} from "@mui/material";
 import styled from "@emotion/styled";
 import { muiTheme } from "../../../constants/muiTheme";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { getMD5String } from "../../../utils/utils";
+import Board from "../boardsTab";
 
 const Overview = () => {
   const { tribe } = useTribe();
 
   return (
     <Wrapper>
-      <MainContainer>
-        <Box
-          sx={{
-            padding: 5,
-            paddingRight: 0,
-            paddingLeft: 0,
-          }}
-        >
-          <Typography variant="h4">Description</Typography>
-          {tribe.description}
-        </Box>
-      </MainContainer>
-      <SideContainer>
-        <DescriptionContainer>
-          <Box
-            sx={{
-              margin: 1,
-              mt: 4,
-            }}
-          >
-            <Title>Contributors</Title>
-            <AvatarGroup max={4} sx={{ width: "fit-content" }}>
-              {tribe?.members?.map((member, idx) => (
-                <Tooltip title={member.userId} key={idx}>
-                  <Avatar
-                    alt=""
-                    src={`https://www.gravatar.com/avatar/${getMD5String(
-                      member.userId
-                    )}?d=identicon&s=32`}
-                  />
-                </Tooltip>
-              ))}
-            </AvatarGroup>
-          </Box>
-        </DescriptionContainer>
-      </SideContainer>
+      <Grid container>
+        <Grid item xs={9}>
+          <MainContainer>
+            <InputBase multiline value={tribe.description} readOnly />
+            <Board />
+          </MainContainer>
+        </Grid>
+        <Grid item xs={3}>
+          <SideContainer>
+            <DescriptionContainer>
+              <Box
+                sx={{
+                  margin: 1,
+                  mt: 4,
+                }}
+              >
+                <Title>Contributors</Title>
+                <AvatarGroup max={4} sx={{ width: "fit-content" }}>
+                  {tribe?.members?.map((member, idx) => (
+                    <Tooltip title={member.userId} key={idx}>
+                      <Avatar
+                        alt=""
+                        src={`https://www.gravatar.com/avatar/${getMD5String(
+                          member.userId
+                        )}?d=identicon&s=32`}
+                      />
+                    </Tooltip>
+                  ))}
+                </AvatarGroup>
+              </Box>
+            </DescriptionContainer>
+          </SideContainer>
+        </Grid>
+      </Grid>
     </Wrapper>
   );
 };
@@ -54,30 +61,25 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  justify-content: space-between;
-
   & > div {
     width: 100%;
     display: flex;
-    justify-content: space-between;
-    padding: 1rem 2rem;
-    font-size: 16px;
+    padding: 0rem 2rem;
   }
 `;
 
 const MainContainer = styled.div`
-  flex: 4;
-  height: 400px;
+  display: flex;
+  flex-direction: column;
+  padding-right: 1rem;
 `;
 
 const SideContainer = styled.div`
   display: flex;
-  flex: 1;
   flex-direction: column;
   border-left: 1px solid #282b2f;
-  align-content: flex-start;
-  justify-content: flex-start;
-  align-items: flex-start;
+  height: 100%;
+  padding-left: 1rem;
 `;
 
 const DescriptionContainer = styled.div`

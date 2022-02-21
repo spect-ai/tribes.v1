@@ -4,30 +4,23 @@ export function getOrCreateUser(Moralis: any) {
   return Moralis.Cloud.run("getOrCreateUser");
 }
 
-export function createTribe(Moralis: any, team: any) {
-  console.log(team);
+export function createTribe(Moralis: any, name: string) {
   const params = {
-    name: team.name,
-    description: team.description,
-    treasuryAddress: team.treasuryAddress,
-    organization: team.organization,
-    openApplications: team.openApplications,
-    applicationRequirements: team.applicationRequirements,
-    preferredChain: team.preferredChain,
-    preferredToken: team.preferredToken,
+    name: name,
   };
   return Moralis.Cloud.run("createTeam", params);
 }
 
-export function updateTribe(Moralis: any, team: Team) {
+export function updateTribe(Moralis: any, team: Team, teamId: number) {
   const params = {
+    teamId: teamId,
     name: team.name,
     description: team.description,
-    treasuryAddress: team.treasuryAddress,
-    organization: team.organization,
-    openApplications: team.openApplications,
-    applicationRequirements: team.applicationRequirements,
-    teamId: team.teamId,
+    isPublic: team.isPublic,
+    discord: team.discord,
+    twitter: team.twitter,
+    github: team.github,
+    logo: team.logo,
   };
   return Moralis.Cloud.run("updateTeam", params);
 }
@@ -165,6 +158,10 @@ export function getTeam(Moralis: any, teamId: number) {
     teamId: teamId,
   };
   return Moralis.Cloud.run("getTeam", params);
+}
+
+export function getPublicTeams(Moralis: any) {
+  return Moralis.Cloud.run("getPublicTeams");
 }
 
 export function getEpoch(Moralis: any, epochId: string) {

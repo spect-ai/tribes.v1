@@ -1,41 +1,202 @@
-import { Grow, IconButton, Modal, styled, TextField } from "@mui/material";
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Checkbox,
+  Grow,
+  IconButton,
+  Modal,
+  styled,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState } from "react";
-import CloseIcon from "@mui/icons-material/Close";
-import { PrimaryButton } from "../../elements/styledComponents";
+import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
 import { initBoard } from "../../../adapters/moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
+import CloseIcon from "@mui/icons-material/Close";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 type Props = {
   isOpen: boolean;
   handleClose: () => void;
 };
 
+function createData(username: string, role: string) {
+  return {
+    username,
+    role,
+  };
+}
+
+const rows = [
+  createData("0xavp.eth", "Chief"),
+  createData("chaks.eth", "Chief"),
+  createData("ateet", "Member"),
+  createData("rishab", "Member"),
+];
+
+const plugins = [
+  createData("Organize", "Organize tasks using a kanban style board"),
+  createData("Value", "Value tasks using epochs"),
+  createData("Analyze", "Analyze statistics of your space using charts"),
+  createData("Meet", "Create meetings among your members"),
+];
+
 const CreateBoard = ({ isOpen, handleClose }: Props) => {
   const { tribe } = useTribe();
   const { Moralis } = useMoralis();
   const router = useRouter();
   const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   return (
     <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
       <Grow in={isOpen} timeout={500}>
         <Box sx={modalStyle}>
-          <Heading>
-            <div>Add Board</div>
+          <ModalHeading>
+            <Typography color="primary">Create Space</Typography>
             <Box sx={{ flex: "1 1 auto" }} />
             <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
               <CloseIcon />
             </IconButton>
-          </Heading>
+          </ModalHeading>
           <ModalContent>
             <TextField
-              placeholder="Board Name"
+              placeholder="Space Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               fullWidth
-            ></TextField>
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              placeholder="Space Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+            <Accordion disableGutters>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                Members
+              </AccordionSummary>
+              <AccordionDetails>
+                <Table aria-label="simple table" size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          inputProps={{
+                            "aria-label": "select all desserts",
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell align="right" sx={{ color: "#99ccff" }}>
+                        Username
+                      </TableCell>
+                      <TableCell align="right" sx={{ color: "#99ccff" }}>
+                        Role
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {rows.map((row, index) => (
+                      <TableRow
+                        key={index}
+                        sx={{
+                          "&:last-child td, &:last-child th": {
+                            border: 0,
+                          },
+                        }}
+                      >
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          padding="checkbox"
+                        >
+                          <Checkbox
+                            color="primary"
+                            inputProps={{
+                              "aria-label": "select all desserts",
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="right">{row.username}</TableCell>
+                        <TableCell align="right">{row.role}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </AccordionDetails>
+            </Accordion>
+            <Accordion disableGutters>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="panel1a-content"
+                id="panel1a-header"
+              >
+                <Typography>Plugins</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Table aria-label="simple table" size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          inputProps={{
+                            "aria-label": "select all desserts",
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell align="right" sx={{ color: "#99ccff" }}>
+                        Name
+                      </TableCell>
+                      <TableCell align="right" sx={{ color: "#99ccff" }}>
+                        Description
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {plugins.map((row, index) => (
+                      <TableRow
+                        key={index}
+                        sx={{
+                          "&:last-child td, &:last-child th": {
+                            border: 0,
+                          },
+                        }}
+                      >
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          padding="checkbox"
+                        >
+                          <Checkbox
+                            color="primary"
+                            inputProps={{
+                              "aria-label": "select all desserts",
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="right">{row.username}</TableCell>
+                        <TableCell align="right">{row.role}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </AccordionDetails>
+            </Accordion>
             <PrimaryButton
               variant="outlined"
               sx={{ width: "50%", mt: 2 }}
@@ -52,7 +213,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                   .catch((err: any) => alert(err));
               }}
             >
-              Add
+              Create Space
             </PrimaryButton>
           </ModalContent>
         </Box>
@@ -63,28 +224,16 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
 
 const modalStyle = {
   position: "absolute" as "absolute",
-  top: "35%",
-  left: "35%",
+  top: "25%",
+  left: "30%",
   transform: "translate(-50%, -50%)",
-  width: "25rem",
+  width: "40rem",
   bgcolor: "background.paper",
   border: "2px solid #000",
   boxShadow: 24,
   overflow: "auto",
   maxHeight: "calc(100% - 128px)",
 };
-
-const Heading = styled("div")(({ theme }) => ({
-  fontWeight: 500,
-  fontSize: 16,
-  color: theme.palette.text.secondary,
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  borderBottom: "1px solid #99ccff",
-  padding: 16,
-  paddingLeft: 32,
-}));
 
 const ModalContent = styled("div")(({ theme }) => ({
   display: "flex",

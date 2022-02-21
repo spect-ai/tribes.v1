@@ -18,13 +18,14 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #99ccff;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #5a6972;
+  background: #99ccff;
+  border-radius: 50px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #5a6972;
+  background: #99ccff;
 }

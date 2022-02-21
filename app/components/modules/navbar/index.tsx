@@ -9,6 +9,7 @@ import { getOrCreateUser } from "../../../adapters/moralis";
 import Notifications from "../notifications";
 import { NavbarButton } from "../../elements/styledComponents";
 import ProfileMenu from "../profileMenu";
+import Link from "next/link";
 type Props = {};
 
 const StyledNav = styled("nav")(({ theme }) => ({
@@ -33,9 +34,9 @@ const Navbar = (props: Props) => {
   return (
     <StyledNav>
       <Box sx={{ pt: 0, mx: 8 }}>
-        <a href="/">
+        {/* <Link href="/" passHref>
           <Image src={Logo} alt="logo" height="50" width="110" />
-        </a>
+        </Link> */}
       </Box>
       <Box sx={{ flex: "1 1 auto" }} />
       {isAuthenticated ? (

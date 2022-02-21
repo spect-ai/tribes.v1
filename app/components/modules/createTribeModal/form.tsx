@@ -3,9 +3,12 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { useMoralis } from "react-moralis";
-import { getUserSafes } from "../../../adapters/gnosis";
 import { createTribe, updateMembers } from "../../../adapters/moralis";
-import { FieldContainer, LightTooltip, PrimaryButton } from "../../elements/styledComponents";
+import {
+  FieldContainer,
+  LightTooltip,
+  PrimaryButton,
+} from "../../elements/styledComponents";
 import { chainTokenRegistry } from "../../../constants";
 import { getTokenOptions } from "../../../utils/utils";
 
@@ -37,12 +40,6 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
 
   const { Moralis, user } = useMoralis();
   const router = useRouter();
-
-  useEffect(() => {
-    getUserSafes(user?.get("ethAddress")).then((res) => {
-      setSafes(res.safes);
-    });
-  }, []);
 
   const onSubmit: SubmitHandler<ITribeFormInput> = async (values) => {
     console.log(values);
@@ -79,14 +76,20 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
     });
   };
   return (
-    <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "2rem" }}>
+    <form onSubmit={handleSubmit(onSubmit)} style={{ padding: "0rem 1rem" }}>
       <FieldContainer>
         <Controller
           name="name"
           control={control}
           render={({ field, fieldState }) => (
             <LightTooltip arrow placement="right" title={"Budget"}>
-              <TextField {...field} label="What's your tribe's name?" variant="standard" required fullWidth />
+              <TextField
+                {...field}
+                label="What's your tribe's name?"
+                variant="standard"
+                required
+                fullWidth
+              />
             </LightTooltip>
           )}
         />
@@ -97,7 +100,13 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
           control={control}
           render={({ field, fieldState }) => (
             <LightTooltip arrow placement="right" title={"Budget"}>
-              <TextField {...field} label="What's your tribe about?" variant="standard" fullWidth multiline />
+              <TextField
+                {...field}
+                label="What's your tribe about?"
+                variant="standard"
+                fullWidth
+                multiline
+              />
             </LightTooltip>
           )}
         />
@@ -152,7 +161,14 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
           name="member1"
           control={control}
           render={({ field, fieldState }) => (
-            <TextField {...field} label="Member 1" variant="standard" helperText={""} fullWidth multiline />
+            <TextField
+              {...field}
+              label="Member 1"
+              variant="standard"
+              helperText={""}
+              fullWidth
+              multiline
+            />
           )}
         />
       </FieldContainer>{" "}
@@ -161,7 +177,14 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
           name="member2"
           control={control}
           render={({ field, fieldState }) => (
-            <TextField {...field} label="Member 2" variant="standard" helperText={""} fullWidth multiline />
+            <TextField
+              {...field}
+              label="Member 2"
+              variant="standard"
+              helperText={""}
+              fullWidth
+              multiline
+            />
           )}
         />
       </FieldContainer>{" "}
@@ -178,7 +201,11 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
                 field.onChange(newValue);
               }}
               renderInput={(params) => (
-                <TextField {...params} variant="standard" label="Chain preference for rewards" />
+                <TextField
+                  {...params}
+                  variant="standard"
+                  label="Chain preference for rewards"
+                />
               )}
             />
           )}
@@ -196,7 +223,11 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
                 field.onChange(newValue);
               }}
               renderInput={(params) => (
-                <TextField {...params} variant="standard" label="Token preference for rewards" />
+                <TextField
+                  {...params}
+                  variant="standard"
+                  label="Token preference for rewards"
+                />
               )}
             />
           )}

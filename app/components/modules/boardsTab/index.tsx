@@ -6,6 +6,7 @@ import { useTribe } from "../../../../pages/tribe/[id]";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { getBoards } from "../../../adapters/moralis";
+import { BoardData } from "../../../types";
 
 type Props = {};
 
@@ -13,53 +14,34 @@ const Board = (props: Props) => {
   const [boards, setBoards] = useState([]);
   const router = useRouter();
   const { tribe } = useTribe();
-  const { Moralis } = useMoralis();
+  const { Moralis, isInitialized } = useMoralis();
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
   const [isLoading, setIsLoading] = useState(false);
-  useEffect(() => {
-    setIsLoading(true);
-    getBoards(Moralis, tribe.teamId)
-      .then((res: any) => {
-        console.log(res);
-        setBoards(res);
-        setIsLoading(false);
-      })
-      .catch((err: any) => alert(err));
-  }, []);
   return (
     <Container>
       <CreateBoard isOpen={isOpen} handleClose={handleClose} />
       <Grid container spacing={2}>
-        {!isLoading &&
-          boards.map((board: any, index) => (
-            <Grid item xs={3} key={index}>
-              <BoardButton
-                variant="contained"
-                onClick={() => {
-                  router.push(
-                    `/tribe/${tribe.teamId}/board/${board.objectId}`,
-                    undefined
-                  );
-                }}
-              >
-                <ButtonText>{board.name}</ButtonText>
-              </BoardButton>
-            </Grid>
-          ))}
-        {isLoading && (
-          <Skeleton
-            width={300}
-            height={128}
-            variant="rectangular"
-            animation="wave"
-            sx={{ mt: 2, borderRadius: "0.5rem" }}
-          />
-        )}
+        {tribe?.boards?.map((board: BoardData, index: number) => (
+          <Grid item xs={3} key={index}>
+            <BoardButton
+              variant="contained"
+              color="secondary"
+              onClick={() => {
+                router.push(
+                  `/tribe/${tribe.teamId}/board/${board._id}`,
+                  undefined
+                );
+              }}
+            >
+              <ButtonText>{board.name}</ButtonText>
+            </BoardButton>
+          </Grid>
+        ))}
 
         <Grid item xs={3}>
           <CreateBoardButton variant="outlined" onClick={() => setIsOpen(true)}>
-            <ButtonText>Create new board</ButtonText>
+            <ButtonText>Create new space</ButtonText>
             <AddCircleOutlineIcon sx={{ color: "#eaeaea" }} />
           </CreateBoardButton>
         </Grid>

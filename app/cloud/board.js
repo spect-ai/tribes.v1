@@ -57,6 +57,7 @@ Moralis.Cloud.define("initBoard", async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();
     const team = await getTribeByTeamId(request.params.teamId);
+    logger.info(JSON.stringify(team));
     if (isMember(request.user.id, team)) {
       var initColumns = ["To Do", "In Progress", "In Review", "Done"];
       var initBoardStatusList = ["Open", "In Progress", "Submitted", "Close"];
