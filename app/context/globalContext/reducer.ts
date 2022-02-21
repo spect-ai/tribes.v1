@@ -14,6 +14,10 @@ export type Action =
       contract: Contracts["distributorContract"];
     }
   | {
+      type: "SET_LOGO";
+      logo: State["logo"];
+    }
+  | {
       type: "END_ASYNC";
     };
 
@@ -36,6 +40,12 @@ export const reducer = (state: State, action: Action) => {
         ...state,
         loading: false,
         error: action.error,
+      };
+    }
+    case "SET_LOGO": {
+      return {
+        ...state,
+        logo: action.logo,
       };
     }
     case "SET_DISTRIBUTOR_CONTRACT": {

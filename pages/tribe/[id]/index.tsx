@@ -10,6 +10,7 @@ import {
 import { ResolveCallOptions } from "react-moralis/lib/hooks/internal/_useResolveAsyncCall";
 import { getTaskEpoch } from "../../../app/adapters/moralis";
 import TribeTemplate from "../../../app/components/templates/tribe";
+import { setNavbarLogo, useGlobal } from "../../../app/context/globalContext";
 import { Epoch, Task, Team } from "../../../app/types";
 
 interface Props {}
@@ -38,11 +39,12 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();
   const { id } = router.query;
   const context = useProviderTribe();
+  const { dispatch, state } = useGlobal();
   useEffect(() => {
     context.setLoading(true);
     context.getTeam({
       onSuccess: (res: any) => {
-        console.log(res);
+        setNavbarLogo(dispatch, res.logo);
         context.setTribe(res as Team);
         context.setLoading(false);
       },
@@ -51,7 +53,6 @@ const TribePage: NextPage<Props> = (props: Props) => {
       },
     });
   }, [id]);
-
   return (
     <>
       <Head>

@@ -27,7 +27,11 @@ import Link from "next/link";
 import { getBoards } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import Payment from "../payment";
-import { PrimaryButton, StyledTab, StyledTabs } from "../../elements/styledComponents";
+import {
+  PrimaryButton,
+  StyledTab,
+  StyledTabs,
+} from "../../elements/styledComponents";
 import CreateEpochModal from "../epoch/createEpochModal";
 
 type Props = {};
@@ -67,9 +71,15 @@ const Heading = (props: Props) => {
   return (
     <Container>
       <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
-        <List sx={{ maxWidth: "10rem", backgroundColor: "#00194A", height: "100%" }}>
+        <List
+          sx={{ maxWidth: "10rem", backgroundColor: "#00194A", height: "100%" }}
+        >
           {boards.map((board: any, index) => (
-            <Link href={`/tribe/${id}/board/${board.objectId}`} key={board.objectId} passHref>
+            <Link
+              href={`/tribe/${id}/board/${board.objectId}`}
+              key={board.objectId}
+              passHref
+            >
               <ListItemButton selected={board.objectId === bid}>
                 <ListItemText primary={board.name} />
               </ListItemButton>
@@ -109,14 +119,17 @@ const Heading = (props: Props) => {
         </MuiLink>
       </Breadcrumbs>
       <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-        <Avatar src="" sx={{ height: 35, width: 35 }} />
         <Typography variant="h6" sx={{ mx: 2 }}>
           {data.name}
         </Typography>
         <BoardSettings />
         <Payment />
         <Tooltip title="Switch Board">
-          <IconButton sx={{ mb: 0.5, p: 2.5 }} size="small" onClick={() => setIsOpen(true)}>
+          <IconButton
+            sx={{ mb: 0.5, p: 2.5 }}
+            size="small"
+            onClick={() => setIsOpen(true)}
+          >
             <StyledIcon className="fa-solid fa-arrow-right-arrow-left"></StyledIcon>
           </IconButton>
         </Tooltip>
@@ -134,7 +147,7 @@ const Heading = (props: Props) => {
         </Tooltip>
         <CreateEpochModal />
       </Box>
-      <Typography sx={{ ml: 11, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
+      <Typography sx={{ ml: 2, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
         {"This space is for project planning, discussions, and more."}
       </Typography>
       <StyledTabs value={tab} onChange={handleTabChange}>

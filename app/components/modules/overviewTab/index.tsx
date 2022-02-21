@@ -22,7 +22,6 @@ const Overview = () => {
       <Grid container>
         <Grid item xs={9}>
           <MainContainer>
-            <InputBase multiline value={tribe.description} readOnly />
             <Board />
           </MainContainer>
         </Grid>

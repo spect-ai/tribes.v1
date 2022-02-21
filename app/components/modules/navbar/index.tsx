@@ -10,6 +10,7 @@ import Notifications from "../notifications";
 import { NavbarButton } from "../../elements/styledComponents";
 import ProfileMenu from "../profileMenu";
 import Link from "next/link";
+import { useGlobal } from "../../../context/globalContext";
 type Props = {};
 
 const StyledNav = styled("nav")(({ theme }) => ({
@@ -31,12 +32,13 @@ const Navbar = (props: Props) => {
     user,
     Moralis,
   } = useMoralis();
+  const { state } = useGlobal();
   return (
     <StyledNav>
       <Box sx={{ pt: 0, mx: 8 }}>
-        {/* <Link href="/" passHref>
-          <Image src={Logo} alt="logo" height="50" width="110" />
-        </Link> */}
+        <Link href="/" passHref>
+          <Avatar src={state.logo} sx={{ ml: 2 }} />
+        </Link>
       </Box>
       <Box sx={{ flex: "1 1 auto" }} />
       {isAuthenticated ? (

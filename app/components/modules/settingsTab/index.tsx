@@ -86,7 +86,6 @@ const Settings = () => {
                   variant="outlined"
                   type="text"
                   size="small"
-                  multiline
                   minRows="3"
                   fullWidth
                   placeholder="Description"
