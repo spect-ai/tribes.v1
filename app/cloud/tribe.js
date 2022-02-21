@@ -1,11 +1,11 @@
 async function getCreatedTribe(
   tribe,
   teamId,
-  name
+  name,
   // description,
   // treasuryAddress,
   // savedOnChain,
-  // members, // List<string, string> => [{'ethAddress':0x....s34efg, 'role':admin/core/general}]
+  members // List<string, string> => [{'ethAddress':0x....s34efg, 'role':admin/core/general}]
   // organization,
   // organizationVerified,
   // openApplications,
@@ -15,20 +15,12 @@ async function getCreatedTribe(
 ) {
   tribe.set("teamId", teamId);
   tribe.set("name", name);
+  tribe.set("members", members);
   tribe.set("isPublic", false);
   return tribe;
 }
 
-async function getUpdatedTribeDetails(
-  tribe,
-  name,
-  description,
-  isPublic,
-  discord,
-  twitter,
-  github,
-  logo
-) {
+async function getUpdatedTribeDetails(tribe, name, description, isPublic, discord, twitter, github, logo) {
   tribe.set("name", name);
   tribe.set("description", description);
   tribe.set("isPublic", isPublic);
@@ -40,9 +32,7 @@ async function getUpdatedTribeDetails(
 }
 
 async function getLatestEpochForTribe(team, epochId, task_epoch = false) {
-  task_epoch
-    ? team.set("latestTaskEpoch", epochId)
-    : team.set("latestContributionEpoch", epochId);
+  task_epoch ? team.set("latestTaskEpoch", epochId) : team.set("latestContributionEpoch", epochId);
   return team;
 }
 
@@ -102,11 +92,11 @@ Moralis.Cloud.define("createTeam", async (request) => {
     team = await getCreatedTribe(
       team,
       teamId,
-      request.params.name
+      request.params.name,
       // request.params.description,
       // request.params.treasuryAddress,
       // (savedOnChain = false),
-      // (members = [{ userId: request.user.id, role: "admin" }]),
+      (members = [{ userId: request.user.id, role: "admin" }])
       // request.params.organization,
       // (organizationVerified = false),
       // request.params.openApplications,
@@ -167,15 +157,11 @@ Moralis.Cloud.define("updateMembers", async (request) => {
   try {
     var team = await getTribeByTeamId(request.params.teamId);
     if (hasAccess(request.user.id, team, (requiredAccess = "admin"))) {
-      var invitedMembers = request.params.members.filter(
-        (m) => m.updateType === "invite"
-      );
+      var invitedMembers = request.params.members.filter((m) => m.updateType === "invite");
       logger.info(`Invited members: ${JSON.stringify(invitedMembers)}`);
 
       var revokedMemberAddresses = [];
-      var revokedMembers = request.params.members.filter(
-        (m) => m.updateType === "revoke"
-      );
+      var revokedMembers = request.params.members.filter((m) => m.updateType === "revoke");
       revokedMembers.map((a) => revokedMemberAddresses.push(a.ethAddress));
       logger.info(`Revoked members: ${JSON.stringify(revokedMemberAddresses)}`);
 
@@ -187,9 +173,7 @@ Moralis.Cloud.define("updateMembers", async (request) => {
 
       return true;
     } else {
-      logger.info(
-        `User ${request.user.id} doesnt have access to update member roles`
-      );
+      logger.info(`User ${request.user.id} doesnt have access to update member roles`);
       return false;
     }
   } catch (err) {
@@ -205,9 +189,7 @@ Moralis.Cloud.define("checkMemberInTeam", async (request) => {
   }
   const members = team[0].members;
   if (members) {
-    let result = members.filter(
-      (member) => member.userId == request.params.userId
-    );
+    let result = members.filter((member) => member.userId == request.params.userId);
     if (result.length > 0) {
       return true;
     } else {
@@ -238,15 +220,11 @@ Moralis.Cloud.define("addMemberToTribe", async (request) => {
         return "invite accepted";
       }
     } catch (err) {
-      logger.error(
-        `Error while adding Member in team ${request.params.teamId}: ${err}`
-      );
+      logger.error(`Error while adding Member in team ${request.params.teamId}: ${err}`);
       return "Error while adding Member";
     }
   } else {
-    logger.error(
-      `Error while adding Member in team ${request.params.teamId}: invide not valid`
-    );
+    logger.error(`Error while adding Member in team ${request.params.teamId}: invide not valid`);
     return "Invite Not Valid";
   }
 });
