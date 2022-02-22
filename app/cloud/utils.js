@@ -2,8 +2,9 @@ function getStatusCode(status) {
   const reverseStatusMapping = {
     Open: 100,
     Assigned: 102,
-    "In progress": 105,
-    "In review": 200,
+    "In Progress": 105,
+    Submitted: 110,
+    "In Review": 200,
     Closed: 205,
     Paid: 300,
   };

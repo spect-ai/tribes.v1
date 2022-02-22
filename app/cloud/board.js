@@ -60,7 +60,7 @@ Moralis.Cloud.define("initBoard", async (request) => {
     logger.info(JSON.stringify(team));
     if (isMember(request.user.id, team)) {
       var initColumns = ["To Do", "In Progress", "In Review", "Done"];
-      var initBoardStatusList = ["Open", "In Progress", "Submitted", "Close"];
+      var initBoardStatusList = ["Open", "In Progress", "Submitted", "Closed"];
       var initStatusColors = ["#eaeaea", "#0061ff", "#2e5da9", "#5fe086"];
       var columnIds = [];
       var columnIdToColumnMap = {};
@@ -110,9 +110,7 @@ Moralis.Cloud.define("updateColumnName", async (request) => {
     board.set("columns", columns);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
   } catch (err) {
-    logger.error(
-      `Error while updating column name in board ${request.params.boardId}: ${err}`
-    );
+    logger.error(`Error while updating column name in board ${request.params.boardId}: ${err}`);
     return false;
   }
 });
@@ -131,17 +129,11 @@ Moralis.Cloud.define("updateColumnTasks", async (request) => {
     board.set("columns", columns);
     logger.info(`Updating column tasks ${JSON.stringify(columns)}`);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId
-    );
+    const boardObj = await getBoardObjWithTasksByObjectId(request.params.boardId);
     return boardObj[0];
   } catch (err) {
-    logger.error(
-      `Error while updating column name in board ${request.params.boardId}: ${err}`
-    );
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId
-    );
+    logger.error(`Error while updating column name in board ${request.params.boardId}: ${err}`);
+    const boardObj = await getBoardObjWithTasksByObjectId(request.params.boardId);
     return boardObj[0];
   }
 });
@@ -151,17 +143,11 @@ Moralis.Cloud.define("updateColumnOrder", async (request) => {
     const board = await getBoardByObjectId(request.params.boardId);
     board.set("columnOrder", request.params.newColumnOrder);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId
-    );
+    const boardObj = await getBoardObjWithTasksByObjectId(request.params.boardId);
     return boardObj[0];
   } catch (err) {
-    logger.error(
-      `Error while updating column order in board ${request.params.boardId}: ${err}`
-    );
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId
-    );
+    logger.error(`Error while updating column order in board ${request.params.boardId}: ${err}`);
+    const boardObj = await getBoardObjWithTasksByObjectId(request.params.boardId);
     return boardObj[0];
   }
 });
@@ -182,9 +168,7 @@ Moralis.Cloud.define("addColumn", async (request) => {
     const boardObj = await getBoardObjByObjectId(request.params.boardId);
     return boardObj[0];
   } catch (err) {
-    logger.error(
-      `Error while adding column order in board ${request.params.boardId}: ${err}`
-    );
+    logger.error(`Error while adding column order in board ${request.params.boardId}: ${err}`);
     const boardObj = await getBoardObjByObjectId(request.params.boardId);
     return boardObj[0];
   }
@@ -193,9 +177,7 @@ Moralis.Cloud.define("addColumn", async (request) => {
 Moralis.Cloud.define("removeColumn", async (request) => {
   try {
     const board = await getBoardByObjectId(request.params.boardId);
-    var columnOrder = board
-      .get("columnOrder")
-      .filter((id) => id !== request.params.columnId);
+    var columnOrder = board.get("columnOrder").filter((id) => id !== request.params.columnId);
     var columns = board.get("columns");
     delete columns[request.params.columnId];
     board.set("columnOrder", columnOrder);
@@ -204,9 +186,7 @@ Moralis.Cloud.define("removeColumn", async (request) => {
     const boardObj = await getBoardObjByObjectId(request.params.boardId);
     return boardObj[0];
   } catch (err) {
-    logger.error(
-      `Error while removing column order in board ${request.params.boardId}: ${err}`
-    );
+    logger.error(`Error while removing column order in board ${request.params.boardId}: ${err}`);
     const boardObj = await getBoardObjByObjectId(request.params.boardId);
     return boardObj[0];
   }
@@ -220,14 +200,10 @@ Moralis.Cloud.define("updateBoard", async (request) => {
     board.set("columns", request.params.columns);
     board.set("statusList", request.params.statusList);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId
-    );
+    const boardObj = await getBoardObjWithTasksByObjectId(request.params.boardId);
     return boardObj[0];
   } catch (err) {
-    logger.error(
-      `Error while updating board ${request.params.boardId}: ${err}`
-    );
+    logger.error(`Error while updating board ${request.params.boardId}: ${err}`);
     return false;
   }
 });
@@ -239,9 +215,7 @@ Moralis.Cloud.define("deleteBoard", async (request) => {
     board && (await board.destroy());
     return true;
   } catch (err) {
-    logger.error(
-      `Error while deleting board ${request.params.boardId}: ${err}`
-    );
+    logger.error(`Error while deleting board ${request.params.boardId}: ${err}`);
     return false;
   }
 });

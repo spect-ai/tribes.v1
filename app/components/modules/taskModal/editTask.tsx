@@ -26,10 +26,7 @@ import { Column, useBoard } from "../taskBoard";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import {
-  statusMapping,
-  currentStatusToFutureValidStatus,
-} from "../../../constants";
+import { statusMapping, currentStatusToFutureValidStatus } from "../../../constants";
 import { chainTokenRegistry, actionMap, monthMap } from "../../../constants";
 import { getTokenOptions } from "../../../utils/utils";
 import { distributeEther } from "../../../adapters/contract";
@@ -75,22 +72,14 @@ const converter = new Showdown.Converter({
   tasklists: true,
 });
 
-const EditTask = ({
-  task,
-  setTask,
-  handleClose,
-  submissionPR,
-  column,
-}: Props) => {
+const EditTask = ({ task, setTask, handleClose, submissionPR, column }: Props) => {
   // const router = useRouter();
   const { data, setData } = useBoard();
   const { Moralis, user } = useMoralis();
   const [loading, setLoading] = useState(false);
   const [chain, setChain] = useState<string | null>(task.chain);
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
-  const [selectedSubmisisonTab, setSelectedSubmissionTab] = useState<
-    "write" | "preview"
-  >("write");
+  const [selectedSubmisisonTab, setSelectedSubmissionTab] = useState<"write" | "preview">("write");
 
   const [assigned, setAssigned] = useState(false);
   const { state, dispatch } = useGlobal();
@@ -107,6 +96,7 @@ const EditTask = ({
     console.log(values);
     updateTask(Moralis, values, values.status, column.id)
       .then((res: any) => {
+        console.log(res);
         setData(res);
         //setTask(res.tasks[task.taskId]);
         setLoading(false);
@@ -182,9 +172,7 @@ const EditTask = ({
                     {...field}
                     selectedTab={selectedTab}
                     onTabChange={setSelectedTab}
-                    generateMarkdownPreview={(markdown) =>
-                      Promise.resolve(converter.makeHtml(markdown))
-                    }
+                    generateMarkdownPreview={(markdown) => Promise.resolve(converter.makeHtml(markdown))}
                     childProps={{
                       writeButton: {
                         tabIndex: -1,
@@ -211,9 +199,7 @@ const EditTask = ({
                       {...field}
                       selectedTab={selectedSubmisisonTab}
                       onTabChange={setSelectedSubmissionTab}
-                      generateMarkdownPreview={(markdown) =>
-                        Promise.resolve(converter.makeHtml(markdown))
-                      }
+                      generateMarkdownPreview={(markdown) => Promise.resolve(converter.makeHtml(markdown))}
                       childProps={{
                         writeButton: {
                           tabIndex: -1,
@@ -286,9 +272,7 @@ const EditTask = ({
                   src={
                     act.profilePicture
                       ? act.profilePicture._url
-                      : `https://www.gravatar.com/avatar/${getMD5String(
-                          act.username
-                        )}?d=identicon&s=32`
+                      : `https://www.gravatar.com/avatar/${getMD5String(act.username)}?d=identicon&s=32`
                   }
                 />
                 <ListItemText
@@ -320,20 +304,8 @@ const EditTask = ({
                       options={data.statusList}
                       getOptionLabel={(option) => option}
                       onChange={(e, data) => field.onChange(data)}
-                      readOnly={
-                        !(
-                          task.access.creator ||
-                          task.access.reviewer ||
-                          task.access.assignee
-                        )
-                      }
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      readOnly={!(task.access.creator || task.access.reviewer || task.access.assignee)}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -354,16 +326,12 @@ const EditTask = ({
                         {...field}
                         minDateTime={dayjs()}
                         onChange={field.onChange}
-                        readOnly={
-                          !(task.access.creator || task.access.reviewer)
-                        }
+                        readOnly={!(task.access.creator || task.access.reviewer)}
                         renderInput={(params) => (
                           <TextField
                             {...params}
                             fullWidth
-                            helperText={
-                              params.error && "Enter a date later than now"
-                            }
+                            helperText={params.error && "Enter a date later than now"}
                             size="small"
                           />
                         )}
@@ -391,13 +359,7 @@ const EditTask = ({
                       onChange={(e, data) => field.onChange(data)}
                       size="small"
                       readOnly={!(task.access.creator || task.access.reviewer)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -408,15 +370,11 @@ const EditTask = ({
                 Assignee
               </Divider>{" "}
               <FieldContainer>
-                {task.access.creator ||
-                task.access.reviewer ||
-                task.assignee.length ? (
+                {task.access.creator || task.access.reviewer || task.assignee.length ? (
                   <Controller
                     name="assignee"
                     control={control}
-                    defaultValue={
-                      task.assignee?.length > 0 ? task.assignee[0] : null
-                    }
+                    defaultValue={task.assignee?.length > 0 ? task.assignee[0] : null}
                     render={({ field }) => (
                       <Autocomplete
                         {...field}
@@ -424,13 +382,7 @@ const EditTask = ({
                         getOptionLabel={(option) => option.username}
                         onChange={(e, data) => field.onChange(data)}
                         readOnly={task.status !== 100}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            id="filled-hidden-label-normal"
-                            size="small"
-                          />
-                        )}
+                        renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                       />
                     )}
                   />
@@ -456,9 +408,7 @@ const EditTask = ({
                         .catch((err: any) => alert(err));
                     }}
                   >
-                    {assigned
-                      ? `Assigned to ${user?.get("username")}`
-                      : `Assign to me!`}
+                    {assigned ? `Assigned to ${user?.get("username")}` : `Assign to me!`}
                   </PrimaryButton>
                 )}
               </FieldContainer>
@@ -472,9 +422,7 @@ const EditTask = ({
                 <Controller
                   name="reviewer"
                   control={control}
-                  defaultValue={
-                    task.reviewer?.length > 0 ? task.reviewer[0] : null
-                  }
+                  defaultValue={task.reviewer?.length > 0 ? task.reviewer[0] : null}
                   render={({ field }) => (
                     <Autocomplete
                       {...field}
@@ -482,13 +430,7 @@ const EditTask = ({
                       getOptionLabel={(option) => option.username}
                       onChange={(e, data) => field.onChange(data)}
                       readOnly={!(task.access.creator || task.access.reviewer)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
+                      renderInput={(params) => <TextField {...params} id="filled-hidden-label-normal" size="small" />}
                     />
                   )}
                 />
@@ -514,9 +456,7 @@ const EditTask = ({
                         field.onChange(data);
                         setChain(data);
                       }}
-                      renderInput={(params) => (
-                        <TextField {...params} size="small" />
-                      )}
+                      renderInput={(params) => <TextField {...params} size="small" />}
                     />
                   )}
                 />
@@ -530,10 +470,7 @@ const EditTask = ({
                         <TextField
                           {...field}
                           id="filled-hidden-label-normal"
-                          helperText={
-                            fieldState.error?.type === "min" &&
-                            "Validation error"
-                          }
+                          helperText={fieldState.error?.type === "min" && "Validation error"}
                           type="number"
                           error={fieldState.error ? true : false}
                           InputProps={{
@@ -559,12 +496,7 @@ const EditTask = ({
                           onChange={(e, data) => field.onChange(data)}
                           readOnly={!task.access.creator}
                           renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              id="filled-hidden-label-normal"
-                              size="small"
-                              sx={{ mr: 1, mt: 1 }}
-                            />
+                            <TextField {...params} id="filled-hidden-label-normal" size="small" sx={{ mr: 1, mt: 1 }} />
                           )}
                         />
                       )}
@@ -595,13 +527,7 @@ const EditTask = ({
                     variant="contained"
                     color="primary"
                     endIcon={<MonetizationOnIcon />}
-                    onClick={() =>
-                      distributeEther(
-                        [task.assignee[0].ethAddress],
-                        [task.value],
-                        task.taskId
-                      )
-                    }
+                    onClick={() => distributeEther([task.assignee[0].ethAddress], [task.value], task.taskId)}
                     hidden={!task.access.creator}
                   >
                     Pay
