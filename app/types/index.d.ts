@@ -110,6 +110,7 @@ export interface Task {
     assignee: boolean;
   };
   issueLink?: string;
+  boardId: string;
 }
 
 export interface Contracts {

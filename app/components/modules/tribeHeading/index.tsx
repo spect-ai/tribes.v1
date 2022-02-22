@@ -93,6 +93,15 @@ const TribeHeading = (props: Props) => {
           </IconButton>
         </Tooltip>
         <CreateEpochModal />
+      </Box>
+      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+        <Typography
+          sx={{ ml: 6, fontSize: 14 }}
+          color="rgba(255, 255, 255, 0.5)"
+        >
+          {tribe.description}
+        </Typography>
+        <Box sx={{ mx: 2 }} />
         <StyledAnchor href={tribe.github} target="_blank">
           <i className="fab fa-github" />
         </StyledAnchor>
@@ -103,10 +112,6 @@ const TribeHeading = (props: Props) => {
           <i className="fab fa-twitter" />
         </StyledAnchor>
       </Box>
-      <Box sx={{ display: "flex", flexDirection: "row", ml: 6 }}></Box>
-      <Typography sx={{ ml: 6, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
-        {tribe.description}
-      </Typography>
       <StyledTabs value={tab} onChange={handleTabChange}>
         <StyledTab label="Overview" />
         <StyledTab label="Epochs" disabled />

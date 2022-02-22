@@ -62,25 +62,32 @@ Moralis.Cloud.define("getTask", async (request) => {
       // Get all board members so they can be displayed as options for reviewers and assignees
       const board = await getBoardObjByObjectId(task.boardId);
       var memberIds = [];
-      for (var boardMember of board[0].members) memberIds.push(boardMember.userId);
+      for (var boardMember of board[0].members)
+        memberIds.push(boardMember.userId);
       task.members = await getUserDetailsByUserIds(memberIds);
 
       // Get userId and usernames of all reviewers
       let reviewerIds = [];
       task.reviewer.filter((a) => reviewerIds.push(a.objectId));
-      task.reviewer = task.members.filter((a) => reviewerIds.includes(a.objectId));
+      task.reviewer = task.members.filter((a) =>
+        reviewerIds.includes(a.objectId)
+      );
 
       // Get userId and usernames of all assignees
       let assigneeIds = [];
       task.assignee.filter((a) => assigneeIds.push(a.objectId));
-      task.assignee = task.members.filter((a) => assigneeIds.includes(a.objectId));
+      task.assignee = task.members.filter((a) =>
+        assigneeIds.includes(a.objectId)
+      );
 
       // Get userId, usernames and profile picture of all the actors who have done some activity
       var userIdToMemberDetails = {};
-      for (var memberDetail of task.members) userIdToMemberDetails[memberDetail.objectId] = memberDetail;
+      for (var memberDetail of task.members)
+        userIdToMemberDetails[memberDetail.objectId] = memberDetail;
       for (activity of task.activity) {
         activity.username = userIdToMemberDetails[activity.actor].username;
-        activity.profilePicture = userIdToMemberDetails[activity.actor].profilePicture;
+        activity.profilePicture =
+          userIdToMemberDetails[activity.actor].profilePicture;
       }
 
       // Get access level of caller
@@ -93,7 +100,9 @@ Moralis.Cloud.define("getTask", async (request) => {
       return task;
     }
   } catch (err) {
-    logger.error(`Error while getting task from board ${request.params.taskId}: ${err}`);
+    logger.error(
+      `Error while getting task from board ${request.params.taskId}: ${err}`
+    );
     throw `Error while getting task from board ${request.params.taskId}: ${err}`;
   }
 });
@@ -114,7 +123,7 @@ Moralis.Cloud.define("addTask", async (request) => {
 
       var task = new Moralis.Object("Task");
       task.set("taskId", taskId);
-      task.set("status", 100);
+      // task.set("status", 100);
       task.set("token", "WMatic"); //TODO: remove hardcoded value
       task.set("chain", "Polygon"); //TODO: remove hardcoded value
       task.set("boardId", request.params.boardId);
@@ -135,15 +144,44 @@ Moralis.Cloud.define("addTask", async (request) => {
 
       await Moralis.Object.saveAll([task], { useMasterKey: true });
       await Moralis.Object.saveAll([board], { useMasterKey: true });
-      const boardObj = await getBoardObjWithTasksByObjectId(request.params.boardId);
+      const boardObj = await getBoardObjWithTasksByObjectId(
+        request.params.boardId
+      );
       return boardObj[0];
     } else {
       throw "User doesnt have access to create task";
     }
   } catch (err) {
-    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
-    const boardObj = await getBoardObjWithTasksByObjectId(request.params.boardId);
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
+    const boardObj = await getBoardObjWithTasksByObjectId(
+      request.params.boardId
+    );
     return boardObj[0];
+  }
+});
+
+Moralis.Cloud.define("updateTaskStatus", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    await handleStatusChange(
+      request.params.boardId,
+      request.params.taskId,
+      request.params.status,
+      request.params.columnId
+    );
+    logger.info(
+      `Handled status field for task with id ${JSON.stringify(
+        request.params.task?.taskId
+      )}`
+    );
+    const board = await getBoardObjWithTasksByObjectId(request.params.boardId);
+    return board[0];
+  } catch (err) {
+    logger.error(
+      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+    );
   }
 });
 
@@ -151,20 +189,41 @@ Moralis.Cloud.define("updateTask", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   var task = await getTaskByTaskId(request.params.task?.taskId);
   try {
-    if (task.get("status") !== getStatusCode(request.params.task.status)) {
-      task = await handleStatusChange(task, request.user.id, request.params.task.status, request.params.columnId);
-      logger.info(`Handled status field for task with id ${JSON.stringify(request.params.task?.taskId)}`);
+    // if (task.get("status") !== getStatusCode(request.params.task.status)) {
+    // task = await handleStatusChange(
+    //   task,
+    //   request.user.id,
+    //   request.params.task.status,
+    //   request.params.columnId
+    // );
+    // logger.info(
+    //   `Handled status field for task with id ${JSON.stringify(
+    //     request.params.task?.taskId
+    //   )}`
+    // );
 
-      if (!task) {
-        throw new Error("Error while updating task status");
-      }
-    }
+    // if (!task) {
+    //   throw new Error("Error while updating task status");
+    // }
+    // }
 
     task = handleTitleUpdate(task, request.user.id, request.params.task.title);
-    logger.info(`Handled title field for task with id ${JSON.stringify(request.params.task?.taskId)}`);
+    logger.info(
+      `Handled title field for task with id ${JSON.stringify(
+        request.params.task?.taskId
+      )}`
+    );
 
-    task = handleDescriptionUpdate(task, request.user.id, request.params.task.description);
-    logger.info(`Handled description field for task with id ${JSON.stringify(request.params.task?.taskId)}`);
+    task = handleDescriptionUpdate(
+      task,
+      request.user.id,
+      request.params.task.description
+    );
+    logger.info(
+      `Handled description field for task with id ${JSON.stringify(
+        request.params.task?.taskId
+      )}`
+    );
 
     task = handleRewardUpdate(
       task,
@@ -173,22 +232,62 @@ Moralis.Cloud.define("updateTask", async (request) => {
       request.params.task.token,
       request.params.task.chain
     );
-    logger.info(`Handled reward field for task with id ${JSON.stringify(request.params.task?.taskId)}`);
+    logger.info(
+      `Handled reward field for task with id ${JSON.stringify(
+        request.params.task?.taskId
+      )}`
+    );
 
     task = handleTagUpdate(task, request.user.id, request.params.task.tags);
-    logger.info(`Handled tag field for task with id ${JSON.stringify(request.params.task?.taskId)}`);
+    logger.info(
+      `Handled tag field for task with id ${JSON.stringify(
+        request.params.task?.taskId
+      )}`
+    );
 
-    task = handleDeadlineUpdate(task, request.user.id, request.params.task.deadline);
-    logger.info(`Handled deadline field for task with id ${JSON.stringify(request.params.task?.taskId)}`);
+    task = handleDeadlineUpdate(
+      task,
+      request.user.id,
+      request.params.task.deadline
+    );
+    logger.info(
+      `Handled deadline field for task with id ${JSON.stringify(
+        request.params.task?.taskId
+      )}`
+    );
 
-    task = handleAssigneeUpdate(task, request.user.id, request.params.task.assignee);
-    logger.info(`Handled assignee field for task with id ${JSON.stringify(request.params.task?.taskId)}`);
+    task = handleAssigneeUpdate(
+      task,
+      request.user.id,
+      request.params.task.assignee
+    );
+    logger.info(
+      `Handled assignee field for task with id ${JSON.stringify(
+        request.params.task?.taskId
+      )}`
+    );
 
-    task = handleReviewerUpdate(task, request.user.id, request.params.task.reviewer);
-    logger.info(`Handled reviewer field for task with id ${JSON.stringify(request.params.task?.taskId)}`);
+    task = handleReviewerUpdate(
+      task,
+      request.user.id,
+      request.params.task.reviewer
+    );
+    logger.info(
+      `Handled reviewer field for task with id ${JSON.stringify(
+        request.params.task?.taskId
+      )}`
+    );
 
-    task = handleSubmissionUpdate(task, request.user.id, request.params.task.submission);
-    logger.info(`Handled submission field for task with id ${JSON.stringify(request.params.task?.taskId)}`);
+    task = handleSubmissionUpdate(
+      task,
+      request.user.id,
+      request.params.task.submission
+    );
+    logger.info(
+      `Handled submission field for task with id ${JSON.stringify(
+        request.params.task?.taskId
+      )}`
+    );
 
     logger.info(`Updating task ${JSON.stringify(task)}`);
     await Moralis.Object.saveAll(task, { useMasterKey: true });
@@ -196,7 +295,9 @@ Moralis.Cloud.define("updateTask", async (request) => {
     const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
     return board[0];
   } catch (err) {
-    logger.error(`Error while updating task with task Id ${request.params.task?.taskId}: ${err}`);
+    logger.error(
+      `Error while updating task with task Id ${request.params.task?.taskId}: ${err}`
+    );
     const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
     return board[0];
   }
@@ -231,7 +332,11 @@ function handleRewardUpdate(task, userId, value, token, chain) {
 }
 
 function handleTagUpdate(task, userId, tags) {
-  if (isTaskCreator(task, userId) || isTaskReviewer(task, userId) || isTaskAssignee(task, userId)) {
+  if (
+    isTaskCreator(task, userId) ||
+    isTaskReviewer(task, userId) ||
+    isTaskAssignee(task, userId)
+  ) {
     task.set("tags", tags);
   }
   return task;
@@ -276,31 +381,34 @@ function handleSubmissionUpdate(task, userId, submission) {
 }
 
 function handleActivityUpdate(task, userId, action) {
-  task.set("activity", [{ actor: userId, action: action, timestamp: new Date() }, ...task.get("activity")]);
+  task.set("activity", [
+    { actor: userId, action: action, timestamp: new Date() },
+    ...task.get("activity"),
+  ]);
   return task;
 }
 
-async function handleStatusChange(task, userId, status, currentColumnId) {
+async function handleStatusChange(boardId, taskId, status, currentColumnId) {
   const logger = Moralis.Cloud.getLogger();
   try {
-    const board = await getBoardByObjectId(task.get("boardId"));
+    const board = await getBoardByObjectId(boardId);
     var columnsData = board.get("columns");
     const currentColumn = columnsData[currentColumnId];
-    const index = currentColumn.taskIds.indexOf(task.taskId);
-    logger.info(index);
-    logger.info(JSON.stringify(currentColumn));
+    const index = currentColumn.taskIds.indexOf(taskId);
+    logger.info(`index ${index}`);
+    logger.info(`current column ${JSON.stringify(currentColumn)}`);
     const startTaskIds = Array.from(currentColumn.taskIds); // copy
     startTaskIds.splice(index, 1);
-    logger.info(startTaskIds);
+    logger.info(`${startTaskIds} startTaskIds`);
     const newStart = {
       ...currentColumn,
       taskIds: startTaskIds,
     };
     const statusIndex = board.get("statusList").indexOf(status);
     const newColumn = columnsData[`column-${statusIndex}`]; // temporary solution, will break if we change column ids in the future
-    logger.info(JSON.stringify(newColumn));
+    logger.info(`new column ${JSON.stringify(newColumn)}`);
     const finishTaskIds = Array.from(newColumn.taskIds); // copy
-    finishTaskIds.splice(newColumn.taskIds.length, 0, task.get("taskId"));
+    finishTaskIds.splice(newColumn.taskIds.length, 0, taskId);
     const newFinish = {
       ...newColumn,
       taskIds: finishTaskIds,
@@ -311,12 +419,12 @@ async function handleStatusChange(task, userId, status, currentColumnId) {
       [newStart.id]: newStart,
       [newFinish.id]: newFinish,
     };
-    logger.info(JSON.stringify(columnsData));
+    logger.info(`columns data ${JSON.stringify(columnsData)}`);
     board.set("columns", columnsData);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
 
-    task.set("status", getStatusCode(status));
-    return task;
+    // task.set("status", getStatusCode(status));
+    // return task;
   } catch (err) {
     logger.error(err);
     return false;
@@ -353,21 +461,33 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
   logger.info(`tyasks2 ${JSON.stringify(paymentAmount)}`);
   for (var task of tasks) {
     if (task["objectId"]["chain"] === "Polygon") {
-      var user = await getUsernameProfilePicByUserId(task["objectId"]["assigneeId"][0]);
+      var user = await getUsernameProfilePicByUserId(
+        task["objectId"]["assigneeId"][0]
+      );
       polygonContributorOrder.push(user);
       polygonTokenOrder.push(task["objectId"]["token"]);
       polygonValueOrder.push(task["value"]);
     } else if (task["objectId"]["chain"] === "Ethereum") {
-      var user = await getUsernameProfilePicByUserId(task["objectId"]["assigneeId"][0]);
+      var user = await getUsernameProfilePicByUserId(
+        task["objectId"]["assigneeId"][0]
+      );
       ethereumContributorOrder.push(user);
       ethereumTokenOrder.push(task["objectId"]["token"]);
       ethereumValueOrder.push(task["value"]);
     }
   }
   if (polygonTokenOrder.length > 0)
-    paymentAmount["Polygon"] = [polygonTokenOrder, polygonContributorOrder, polygonValueOrder];
+    paymentAmount["Polygon"] = [
+      polygonTokenOrder,
+      polygonContributorOrder,
+      polygonValueOrder,
+    ];
   if (ethereumTokenOrder.length > 0)
-    paymentAmount["Ethereum"] = [ethereumTokenOrder, ethereumContributorOrder, ethereumValueOrder];
+    paymentAmount["Ethereum"] = [
+      ethereumTokenOrder,
+      ethereumContributorOrder,
+      ethereumValueOrder,
+    ];
 
   return paymentAmount;
 });
@@ -386,7 +506,9 @@ Moralis.Cloud.define("assignToMe", async (request) => {
       return board[0];
     }
   } catch (err) {
-    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
     return false;
   }
 });
@@ -394,14 +516,19 @@ Moralis.Cloud.define("assignToMe", async (request) => {
 Moralis.Cloud.define("closeTask", async (request) => {
   try {
     var task = await getTaskByTaskId(request.params.taskId);
-    if (isTaskCreator(task, request.user.id) || isTaskReviewer(task, request.user.id)) {
+    if (
+      isTaskCreator(task, request.user.id) ||
+      isTaskReviewer(task, request.user.id)
+    ) {
       task = handleStatusChange(task, request.user.id, "Closed");
       await Moralis.Object.saveAll(task, { useMasterKey: true });
       var board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
       return board[0];
     }
   } catch (err) {
-    logger.error(`Error while adding task in board ${request.params.boardId}: ${err}`);
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
     var board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
     return board[0];
   }
