@@ -67,6 +67,7 @@ Moralis.Cloud.define("getTask", async (request) => {
       task.members = await getUserDetailsByUserIds(memberIds);
 
       // Get userId and usernames of all reviewers
+      logger.info(`task.members ${JSON.stringify(task.members)}`);
       let reviewerIds = [];
       task.reviewer.filter((a) => reviewerIds.push(a.objectId));
       task.reviewer = task.members.filter((a) =>
@@ -442,7 +443,7 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
         objectId: {
           chain: "$chain",
           token: "$token",
-          assigneeId: "$assignee.userId",
+          assigneeId: "$assignee.objectId",
         },
         value: { $sum: "$value" },
       },

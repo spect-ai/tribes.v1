@@ -10,6 +10,7 @@ contract Distributor {
   event ethDistributed(address indexed sender, string indexed id);
   event tokensDistributed(address indexed sender, string indexed id);
   event tokenDistributed(address indexed sender, address indexed token,  string indexed id);
+  event tokensApproved(address indexed sender, ERC20[] tokens);
 
   function distributeEther(
     address[] memory recipients,
@@ -80,5 +81,30 @@ contract Distributor {
     }
 
     emit tokensDistributed(msg.sender, id);
+  }
+
+  function approveTokens(
+    ERC20[] memory tokens
+  ) external {
+    uint MAX_UINT = 2 ** 256 - 1;
+    for (uint256 i = 0; i < tokens.length; i++) {
+      tokens[i].approve(address(this), MAX_UINT);
+    }
+
+    emit tokensApproved(msg.sender, tokens);
+  }
+
+  function pendingApprovals(
+    ERC20[] memory tokens,
+    uint256[] memory values
+  ) external view returns (bool[] memory){
+    require(tokens.length == values.length, "APPROVE_LENGTH_MISMATCH");
+    bool[] memory approvalPending = new bool[](tokens.length);
+    for (uint256 i = 0; i < tokens.length; i++) {
+      if (tokens[i].allowance(msg.sender, address(this)) < values[i]){
+        approvalPending[i] = false;
+      }
+    }
+    return approvalPending;
   }
 }

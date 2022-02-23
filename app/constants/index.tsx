@@ -85,7 +85,15 @@ export const initialData = {
     "column-1": {
       id: "column-1",
       title: "Doing",
-      taskIds: ["task-2", "task-3", "task-4", "task-6", "task-7", "task-8", "task-9"],
+      taskIds: [
+        "task-2",
+        "task-3",
+        "task-4",
+        "task-6",
+        "task-7",
+        "task-8",
+        "task-9",
+      ],
     },
     "column-2": {
       id: "column-2",
@@ -112,8 +120,12 @@ export const monthMap = {
 };
 
 export const chainTokenRegistry = {
-  Ethereum: { Wmatic: "", Weth: "", USDC: "" },
-  Polygon: { Wmatic: "", Weth: "", USDC: "" },
+  Ethereum: { Wmatic: "", Weth: "", USDC: "" }, // rinkeby
+  Polygon: {
+    WMatic: "0x9c3c9283d3e44854697cd22d3faa240cfb032889",
+    Weth: "",
+    USDC: "",
+  }, // mumbai
 };
 
 export const distributorRegistry = {

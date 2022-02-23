@@ -1,13 +1,36 @@
-import { Box, Button, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Typography,
+  Grid,
+  IconButton,
+  Avatar,
+} from "@mui/material";
 import React, { useState } from "react";
+import { Heading, modalStyle, getNetworkImage, BatchPay } from ".";
+import { PrimaryButton } from "../../elements/styledComponents";
+import Image from "next/image";
+import CloseIcon from "@mui/icons-material/Close";
+import { approve } from "../../../adapters/contract";
 
 interface Props {
   handleClose: Function;
   setActiveStep: Function;
+  tokens: object;
+  tokenAddresses: object;
+  chain: string;
 }
 
-const ApproveModal = ({ handleClose, setActiveStep }: Props) => {
+const ApproveModal = ({
+  handleClose,
+  setActiveStep,
+  tokens,
+  tokenAddresses,
+  chain,
+}: Props) => {
   const [isLoading, setIsLoading] = useState(false);
+  console.log(`tokens`);
+  console.log(tokens);
 
   return (
     <React.Fragment>
@@ -18,9 +41,67 @@ const ApproveModal = ({ handleClose, setActiveStep }: Props) => {
           textAlign: "center",
         }}
       >
-        <Typography sx={{ my: 4, color: "#eaeaea" }}>
-          Please approve the batch pay method to distribute your tokens.
-        </Typography>
+        <>
+          <Box>
+            <Grid
+              container
+              spacing={0}
+              direction="column"
+              alignItems="center"
+              justifyContent="center"
+              style={{ minHeight: "10vh" }}
+            >
+              <Grid item xs={3}>
+                <Box style={{ display: "flex" }}>
+                  <Image
+                    src={getNetworkImage(chain) as any}
+                    alt="eth"
+                    height="26%"
+                    width="35%"
+                  />
+
+                  <Typography
+                    color="text.primary"
+                    variant="h5"
+                    marginBottom="10px"
+                    marginLeft="10px"
+                  >
+                    {chain} network
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+            {Object.keys(tokens).map((token: string, index: number) => (
+              <Grid
+                container
+                spacing={1}
+                key={index}
+                sx={{ display: "flex" }}
+                margin="8px"
+              >
+                <Grid item xs={8}>
+                  <Box sx={{ display: "flex" }}>
+                    <Avatar
+                      alt=""
+                      src={`https://www.gravatar.com/avatar/${`eewe`}?d=identicon&s=32`}
+                      sx={{ height: 30, width: 30 }}
+                    />
+                    <Typography color="text.primary" marginLeft="20px">
+                      {token}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={4}>
+                  <Typography color="text.primary" marginLeft="20px">
+                    {tokens[token]}
+                  </Typography>
+                </Grid>
+              </Grid>
+            ))}
+          </Box>
+
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}></Box>
+        </>
         <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
           <Button
             color="inherit"
@@ -35,21 +116,11 @@ const ApproveModal = ({ handleClose, setActiveStep }: Props) => {
           <Button
             onClick={() => {
               setIsLoading(true);
-
+              approve(Object.values(tokenAddresses), Object.values(tokens))
+                .then((res: any) => setActiveStep(1))
+                .catch((err: any) => alert(err));
               setIsLoading(false);
               setActiveStep(1);
-              /*
-              approve(contracts?.tokenContract, contracts?.userContract.address)
-                .then((res:amy) => {
-                  dispatch({
-                    type: "SET_ALLOWANCE",
-                    value: true,
-                  });
-                })
-                .catch((err:any) => {
-                  setLoading(false);
-                  alert(err.message);
-                });*/
             }}
             variant="outlined"
             id="bApprove"
