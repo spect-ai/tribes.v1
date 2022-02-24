@@ -185,35 +185,146 @@ Moralis.Cloud.define("updateTaskStatus", async (request) => {
   }
 });
 
-Moralis.Cloud.define("updateTask", async (request) => {
+Moralis.Cloud.define("updateTaskDeadline", async (request) => {
   const logger = Moralis.Cloud.getLogger();
-  var task = await getTaskByTaskId(request.params.task?.taskId);
+  var task = await getTaskByTaskId(request.params.taskId);
   try {
-    // if (task.get("status") !== getStatusCode(request.params.task.status)) {
-    // task = await handleStatusChange(
-    //   task,
-    //   request.user.id,
-    //   request.params.task.status,
-    //   request.params.columnId
-    // );
-    // logger.info(
-    //   `Handled status field for task with id ${JSON.stringify(
-    //     request.params.task?.taskId
-    //   )}`
-    // );
-
-    // if (!task) {
-    //   throw new Error("Error while updating task status");
-    // }
-    // }
-
-    task = handleTitleUpdate(task, request.user.id, request.params.task.title);
+    task = handleDeadlineUpdate(task, request.user.id, request.params.deadline);
     logger.info(
-      `Handled title field for task with id ${JSON.stringify(
+      `Handled deadline field for task with id ${JSON.stringify(
+        request.params.taskId
+      )}`
+    );
+    await Moralis.Object.saveAll(task, { useMasterKey: true });
+    logger.info(`Updated task ${JSON.stringify(task)}`);
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  } catch (err) {
+    logger.error(
+      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+    );
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  }
+});
+
+Moralis.Cloud.define("updateTaskLabels", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  var task = await getTaskByTaskId(request.params.taskId);
+  try {
+    task = handleTagUpdate(task, request.user.id, request.params.tags);
+    logger.info(
+      `Handled tag field for task with id ${JSON.stringify(
+        request.params.taskId
+      )}`
+    );
+    await Moralis.Object.saveAll(task, { useMasterKey: true });
+    logger.info(`Updated task ${JSON.stringify(task)}`);
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  } catch (err) {
+    logger.error(
+      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+    );
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  }
+});
+
+Moralis.Cloud.define("updateTaskMember", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  var task = await getTaskByTaskId(request.params.taskId);
+  try {
+    if (request.params.type === "assignee") {
+      task = handleAssigneeUpdate(task, request.user.id, request.params.member);
+      logger.info(
+        `Handled assignee field for task with id ${JSON.stringify(
+          request.params.taskId
+        )}`
+      );
+    }
+    if (request.params.type === "reviewer") {
+      task = handleReviewerUpdate(task, request.user.id, request.params.member);
+      logger.info(
+        `Handled reviewer field for task with id ${JSON.stringify(
+          request.params.taskId
+        )}`
+      );
+    }
+    await Moralis.Object.saveAll(task, { useMasterKey: true });
+    logger.info(`Updated task ${JSON.stringify(task)}`);
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  } catch (err) {
+    logger.error(
+      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+    );
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  }
+});
+
+Moralis.Cloud.define("updateTaskReward", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  var task = await getTaskByTaskId(request.params.taskId);
+  try {
+    task = handleRewardUpdate(
+      task,
+      request.user.id,
+      request.params.value,
+      request.params.token,
+      request.params.chain
+    );
+    logger.info(
+      `Handled reward field for task with id ${JSON.stringify(
+        request.params.taskId
+      )}`
+    );
+    await Moralis.Object.saveAll(task, { useMasterKey: true });
+    logger.info(`Updated task ${JSON.stringify(task)}`);
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  } catch (err) {
+    logger.error(
+      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+    );
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  }
+});
+
+Moralis.Cloud.define("updateTaskSubmission", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  var task = await getTaskByTaskId(request.params.taskId);
+  try {
+    task = handleSubmissionUpdate(
+      task,
+      request.user.id,
+      request.params.submissionLink,
+      request.params.submissionName
+    );
+    logger.info(
+      `Handled submission field for task with id ${JSON.stringify(
         request.params.task?.taskId
       )}`
     );
+    await Moralis.Object.saveAll(task, { useMasterKey: true });
+    logger.info(`Updated task ${JSON.stringify(task)}`);
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  } catch (err) {
+    logger.error(
+      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+    );
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  }
+});
 
+Moralis.Cloud.define("updateTaskDescription", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  var task = await getTaskByTaskId(request.params.taskId);
+  try {
     task = handleDescriptionUpdate(
       task,
       request.user.id,
@@ -224,79 +335,13 @@ Moralis.Cloud.define("updateTask", async (request) => {
         request.params.task?.taskId
       )}`
     );
-
-    task = handleRewardUpdate(
-      task,
-      request.user.id,
-      request.params.task.value,
-      request.params.task.token,
-      request.params.task.chain
-    );
-    logger.info(
-      `Handled reward field for task with id ${JSON.stringify(
-        request.params.task?.taskId
-      )}`
-    );
-
-    task = handleTagUpdate(task, request.user.id, request.params.task.tags);
-    logger.info(
-      `Handled tag field for task with id ${JSON.stringify(
-        request.params.task?.taskId
-      )}`
-    );
-
-    task = handleDeadlineUpdate(
-      task,
-      request.user.id,
-      request.params.task.deadline
-    );
-    logger.info(
-      `Handled deadline field for task with id ${JSON.stringify(
-        request.params.task?.taskId
-      )}`
-    );
-
-    task = handleAssigneeUpdate(
-      task,
-      request.user.id,
-      request.params.task.assignee
-    );
-    logger.info(
-      `Handled assignee field for task with id ${JSON.stringify(
-        request.params.task?.taskId
-      )}`
-    );
-
-    task = handleReviewerUpdate(
-      task,
-      request.user.id,
-      request.params.task.reviewer
-    );
-    logger.info(
-      `Handled reviewer field for task with id ${JSON.stringify(
-        request.params.task?.taskId
-      )}`
-    );
-
-    task = handleSubmissionUpdate(
-      task,
-      request.user.id,
-      request.params.task.submission
-    );
-    logger.info(
-      `Handled submission field for task with id ${JSON.stringify(
-        request.params.task?.taskId
-      )}`
-    );
-
-    logger.info(`Updating task ${JSON.stringify(task)}`);
     await Moralis.Object.saveAll(task, { useMasterKey: true });
     logger.info(`Updated task ${JSON.stringify(task)}`);
     const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
     return board[0];
   } catch (err) {
     logger.error(
-      `Error while updating task with task Id ${request.params.task?.taskId}: ${err}`
+      `Error while updating task with task Id ${request.params.taskId}: ${err}`
     );
     const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
     return board[0];
@@ -311,9 +356,9 @@ function handleTitleUpdate(task, userId, title) {
 }
 
 function handleDescriptionUpdate(task, userId, description) {
-  if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
-    task.set("description", description);
-  }
+  // if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
+  task.set("description", description);
+  // }
   return task;
 }
 
@@ -343,9 +388,9 @@ function handleTagUpdate(task, userId, tags) {
 }
 
 function handleDeadlineUpdate(task, userId, deadline) {
-  if (isTaskCreator(task, userId) && deadline) {
-    task.set("deadline", new Date(deadline));
-  }
+  // if (isTaskCreator(task, userId) && deadline) {
+  task.set("deadline", new Date(deadline));
+  // }
   return task;
 }
 
@@ -360,7 +405,6 @@ function isDifferentAssignee(assignees1, assignees2) {
 function handleAssigneeUpdate(task, userId, assignee) {
   if (assignee && isDifferentAssignee(task.get("assignee"), [assignee])) {
     task.set("assignee", [assignee]);
-    task = handleStatusChange(task, userId, "Assigned");
   }
   return task;
 }
@@ -372,11 +416,10 @@ function handleReviewerUpdate(task, userId, reviewer) {
   return task;
 }
 
-function handleSubmissionUpdate(task, userId, submission) {
-  if (isTaskAssignee(task, userId)) {
-    task.set("submission", submission);
-    task = handleStatusChange(task, userId, "In review");
-  }
+function handleSubmissionUpdate(task, userId, link, name) {
+  // if (isTaskAssignee(task, userId)) {
+  task.set("submission", { link: link, name: name });
+  // }
   return task;
 }
 

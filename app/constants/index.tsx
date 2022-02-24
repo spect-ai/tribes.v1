@@ -85,7 +85,15 @@ export const initialData = {
     "column-1": {
       id: "column-1",
       title: "Doing",
-      taskIds: ["task-2", "task-3", "task-4", "task-6", "task-7", "task-8", "task-9"],
+      taskIds: [
+        "task-2",
+        "task-3",
+        "task-4",
+        "task-6",
+        "task-7",
+        "task-8",
+        "task-9",
+      ],
     },
     "column-2": {
       id: "column-2",
@@ -181,4 +189,13 @@ export const amountData = {
       [10, 5],
     ],
   },
+};
+
+export const labelsMapping = {
+  Design: "#2e5da9",
+  Coding: "#f06292",
+  Testing: "#ffc107",
+  Deployment: "#ff9800",
+  Documentation: "#ff5722",
+  POC: "#66bb6a",
 };

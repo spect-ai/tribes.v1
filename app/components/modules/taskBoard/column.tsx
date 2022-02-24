@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { Button, InputBase, IconButton } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { Column, useBoard } from ".";
+import { useBoard } from ".";
 import TaskContainer from "./task";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -15,7 +15,7 @@ import CreateGithubTask from "./createGithubTask";
 import { useMoralis } from "react-moralis";
 import { updateColumnName } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
-import { Task } from "../../../types";
+import { Column, Task } from "../../../types";
 
 type Props = {
   tasks: Task[];

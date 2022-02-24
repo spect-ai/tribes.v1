@@ -17,13 +17,20 @@ export interface User {
   _created_at: any;
 }
 
+type Member = {
+  ethAddress: string;
+  objectId: string;
+  profilePicture: any;
+  username: string;
+};
+
 export interface Team {
   teamId: number;
   name: string;
   description: string;
   // treasuryAddress: string;
   // onchain: boolean;
-  members: { userId: string; role: string }[];
+  members: Member[];
   // organization: string;
   // organizationVerified: boolean;
   // openApplications: boolean;
@@ -84,11 +91,14 @@ export interface Task {
   taskId: string;
   title: string;
   description: any;
-  submission: any;
+  submission: {
+    link: string;
+    name: string;
+  };
   deadline: Date;
   tags: string[];
-  assignee: list;
-  reviewer: list;
+  assignee: Member[];
+  reviewer: Member[];
   creator: string;
   chain: "polygon" | "ethereum" | "bsc";
   value: number;
@@ -103,7 +113,7 @@ export interface Task {
     }
   ];
   status: number;
-  members: list;
+  members: Member[];
   access: {
     creator: boolean;
     reviewer: boolean;
