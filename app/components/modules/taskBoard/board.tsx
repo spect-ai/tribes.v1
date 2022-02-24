@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
-import { BoardData, useBoard } from ".";
+import { useBoard } from ".";
 import Column from "./column";
 import AddIcon from "@mui/icons-material/Add";
 import {
@@ -19,7 +19,7 @@ import {
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { reorder } from "../../../utils/utils";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { BoardData } from "../../../types";
 
 type Props = {
   expanded: boolean;

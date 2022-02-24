@@ -8,35 +8,46 @@ import {
   ListItemText,
   InputBase,
   IconButton,
+  Typography,
+  Tooltip,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import styled from "@emotion/styled";
 import Divider from "@mui/material/Divider";
-import { DateTimePicker, LocalizationProvider } from "@mui/lab";
-import dayjs from "dayjs";
-import DateAdapter from "@mui/lab/AdapterDayjs";
-import { FieldContainer, PrimaryButton } from "../../elements/styledComponents";
+import {
+  FieldContainer,
+  PrimaryButton,
+  TaskButton,
+} from "../../elements/styledComponents";
 import CloseIcon from "@mui/icons-material/Close";
-import { Column, Task } from "../../../types";
-import { getMD5String } from "../../../utils/utils";
+import { BoardData, Column, Task } from "../../../types";
+import { formatTime, getMD5String } from "../../../utils/utils";
 import {
   updateTask,
   assignToMe,
   closeTask,
   updateTaskStatus,
+  updateTaskDescription,
 } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useBoard } from "../taskBoard";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import { statusMapping } from "../../../constants";
+import { labelsMapping, statusMapping } from "../../../constants";
 import { chainTokenRegistry, actionMap, monthMap } from "../../../constants";
 import { getTokenOptions } from "../../../utils/utils";
 import { distributeEther } from "../../../adapters/contract";
 import { useGlobal } from "../../../context/globalContext";
 import DoneIcon from "@mui/icons-material/Done";
+import DatePopover from "./datePopover";
+import LabelPopover from "./labelPopover";
+import MemberPopover from "./memberPopover";
+import RewardPopover from "./rewardPopover";
+import SubmissionPopover from "./submissionPopover";
+import MovePopover from "./movePopover";
+import { LinkPreview } from "@dhaiwat10/react-link-preview";
 
 type Props = {
   task: Task;
@@ -45,30 +56,6 @@ type Props = {
   submissionPR: any;
   column: Column;
 };
-
-export interface IEditTask {
-  taskId: string;
-  title: string;
-  boardId: number;
-  description: string;
-  deadline: any;
-  source: string;
-  tags: string[];
-  assignee: {
-    userId: string;
-    username: string;
-  };
-  reviewer: {
-    userId: string;
-    username: string;
-  };
-  chain: string;
-  token: string;
-  value: number;
-  // status: string;
-  submission: string;
-}
-
 const converter = new Showdown.Converter({
   tables: true,
   simplifiedAutoLink: true,
@@ -83,91 +70,136 @@ const EditTask = ({
   submissionPR,
   column,
 }: Props) => {
-  // const router = useRouter();
   const { data, setData } = useBoard();
   const { Moralis, user } = useMoralis();
-  const [loading, setLoading] = useState(false);
-  const [chain, setChain] = useState<string | null>(task.chain);
-  const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
-  const [selectedSubmisisonTab, setSelectedSubmissionTab] = useState<
-    "write" | "preview"
-  >("write");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [assigned, setAssigned] = useState(false);
-  const { state, dispatch } = useGlobal();
-  const {
-    handleSubmit,
-    control,
-    formState: { isDirty },
-    setValue,
-  } = useForm<IEditTask>({});
-  const onSubmit: SubmitHandler<IEditTask> = async (values) => {
-    setLoading(true);
-    values.deadline = new Date(values.deadline).toUTCString();
-    values.taskId = task.taskId;
-    console.log(values);
-    updateTask(Moralis, values, column.id)
-      .then((res: any) => {
-        console.log(res);
-        setData(res);
-        //setTask(res.tasks[task.taskId]);
-        setLoading(false);
-        handleClose();
-      })
-      .catch((e: any) => {
-        alert(e);
-        console.log(e);
-        setLoading(false);
-      });
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [open, setOpen] = useState({} as any);
+  const [description, setDescription] = useState(task.description);
+  const handleClick =
+    (field: string) => (event: React.MouseEvent<HTMLButtonElement>) => {
+      setAnchorEl(event.currentTarget);
+      setOpen({ [field]: true });
+    };
+  const handleClosePopover = (field: string) => {
+    setOpen({ [field]: false });
   };
-
+  const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
+  const [title, setTitle] = useState(task.title);
   useEffect(() => {
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
     }
-    if (!task.access.assignee) {
-      setSelectedSubmissionTab("preview");
-    }
-    console.log(state);
+    console.log(task);
   }, []);
 
-  const save = async function* (data: any) {
-    // Promise that waits for "time" milliseconds
-    // Upload "data" to your server
-    // Use XMLHttpRequest.send to send a FormData object containing
-    // "data"
-    // Check this question: https://stackoverflow.com/questions/18055422/how-to-receive-php-image-data-over-copy-n-paste-javascript-with-xmlhttprequest
-
-    // yields the URL that should be inserted in the markdown
-    yield "https://picsum.photos/300";
-    // returns true meaning that the save was successful
-    return true;
-  };
   return (
-    <form onSubmit={handleSubmit(onSubmit)} style={{ width: "70rem" }}>
+    <Container>
       <TaskModalTitleContainer>
-        <Controller
-          name="title"
-          control={control}
-          defaultValue={task.title}
-          render={({ field }) => (
-            <InputBase
-              {...field}
-              placeholder="Add Title"
-              sx={{
-                fontSize: "20px",
-              }}
-              {...field}
-              fullWidth
-              readOnly={!(task.access.creator || task.access.reviewer)}
-            />
-          )}
+        <InputBase
+          placeholder="Add Title"
+          sx={{
+            fontSize: "20px",
+          }}
+          fullWidth
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         />
         <Box sx={{ flex: "1 1 auto" }} />
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>
+      <TaskModalInfoContainer>
+        {task.deadline && (
+          <Info>
+            <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
+              Due Date
+            </Typography>
+            <InnerInfo>
+              <Typography sx={{ fontSize: 14 }} color="primary">
+                {task.deadline?.getDate()}{" "}
+                {monthMap[task.deadline?.getMonth() as keyof typeof monthMap]}{" "}
+                {task.deadline && formatTime(task.deadline)}
+              </Typography>
+            </InnerInfo>
+          </Info>
+        )}
+        {task.tags && (
+          <Info>
+            <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
+              Labels
+            </Typography>
+            <InnerInfo>
+              {task.tags?.map((tag, index) => (
+                <LabelChip
+                  color={labelsMapping[tag as keyof typeof labelsMapping]}
+                  key={index}
+                >
+                  {tag}
+                </LabelChip>
+              ))}
+            </InnerInfo>
+          </Info>
+        )}
+        {task.reviewer.length && (
+          <Info>
+            <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
+              Reviewer
+            </Typography>
+            <InnerInfo>
+              <Tooltip title={task.reviewer[0]?.username}>
+                <Avatar
+                  sx={{ height: 28, width: 28 }}
+                  src={
+                    task.reviewer[0]?.profilePicture
+                      ? task.reviewer[0].profilePicture._url
+                      : `https://www.gravatar.com/avatar/${getMD5String(
+                          task.reviewer[0].objectId
+                        )}?d=identicon&s=32`
+                  }
+                />
+              </Tooltip>
+            </InnerInfo>
+          </Info>
+        )}
+
+        {task.assignee.length && (
+          <Info>
+            <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
+              Assignee
+            </Typography>
+
+            <InnerInfo>
+              <Tooltip title={task.assignee[0]?.username}>
+                <Avatar
+                  sx={{ height: 32, width: 32 }}
+                  src={
+                    task.assignee[0]?.profilePicture
+                      ? task.assignee[0].profilePicture._url
+                      : `https://www.gravatar.com/avatar/${getMD5String(
+                          task.assignee[0].objectId
+                        )}?d=identicon&s=32`
+                  }
+                />
+              </Tooltip>
+            </InnerInfo>
+          </Info>
+        )}
+        {task.value && (
+          <Info>
+            <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
+              Reward
+            </Typography>
+            <InnerInfo>
+              <Typography sx={{ fontSize: 14 }} color="primary">
+                {task.value} {task.token}
+              </Typography>
+            </InnerInfo>
+          </Info>
+        )}
+      </TaskModalInfoContainer>
       <Grid container spacing={0}>
         <Grid item xs={9}>
           <TaskModalBodyContainer>
@@ -175,108 +207,60 @@ const EditTask = ({
               Description
             </Divider>{" "}
             <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
-              <Controller
-                name="description"
-                control={control}
-                defaultValue={task.description}
-                render={({ field }) => (
-                  <ReactMde
-                    {...field}
-                    selectedTab={selectedTab}
-                    onTabChange={setSelectedTab}
-                    generateMarkdownPreview={(markdown) =>
-                      Promise.resolve(converter.makeHtml(markdown))
-                    }
-                    childProps={{
-                      writeButton: {
-                        tabIndex: -1,
-                      },
-                    }}
-                    readOnly={!(task.access.creator || task.access.reviewer)}
-                  />
-                )}
+              <ReactMde
+                value={description}
+                onChange={(value) => setDescription(value)}
+                selectedTab={selectedTab}
+                onTabChange={setSelectedTab}
+                generateMarkdownPreview={(markdown) =>
+                  Promise.resolve(converter.makeHtml(markdown))
+                }
+                childProps={{
+                  writeButton: {
+                    tabIndex: -1,
+                  },
+                }}
+                readOnly={!(task.access.creator || task.access.reviewer)}
               />
+              <PrimaryButton
+                variant="outlined"
+                sx={{ mt: 4 }}
+                loading={isLoading}
+                onClick={() => {
+                  setIsLoading(true);
+                  updateTaskDescription(Moralis, description, task.taskId).then(
+                    (res: BoardData) => {
+                      console.log(res);
+                      setData(res);
+                      setIsLoading(false);
+                    }
+                  );
+                }}
+              >
+                Save
+              </PrimaryButton>
             </Box>
           </TaskModalBodyContainer>
-          {task.status !== 100 && (
-            <TaskModalBodyContainer>
-              <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
+          {task.submission?.link && (
+            <ActivityContainer>
+              <Divider
+                textAlign="left"
+                color="text.secondary"
+                sx={{ mr: 3, mb: 1 }}
+              >
                 Submissions
               </Divider>{" "}
-              <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
-                <Controller
-                  name="submission"
-                  control={control}
-                  defaultValue={task.submission}
-                  render={({ field }) => (
-                    <ReactMde
-                      {...field}
-                      selectedTab={selectedSubmisisonTab}
-                      onTabChange={setSelectedSubmissionTab}
-                      generateMarkdownPreview={(markdown) =>
-                        Promise.resolve(converter.makeHtml(markdown))
-                      }
-                      childProps={{
-                        writeButton: {
-                          tabIndex: -1,
-                        },
-                      }}
-                      readOnly={!task.access.assignee}
-                    />
-                  )}
-                />
-              </Box>
-              {/* submissionPR ? (
-              <a href={submissionPR.html_url} target="_blank" rel="noreferrer" style={{ textDecoration: "none" }}>
-                <PrimaryButton
-                  startIcon={<GitHubIcon />}
-                  sx={{
-                    my: 1,
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box sx={{ mx: 1 }}>#{submissionPR.number}</Box>
-                  <Box sx={{ mx: 1 }}>{submissionPR.title}</Box>
-                  <Box sx={{ mx: 1 }}>
-                    <Chip
-                      color={
-                        submissionPR.state === "open" ? "#5fe086" : "#5a6972"
-                      }
-                    >
-                      {submissionPR.state}
-                    </Chip>
-                  </Box>
-                </PrimaryButton>
-              </a>
-            ) : (
-              <TextField
-                id="filled-hidden-label-normal"
-                helperText={
-                  "Automatically link this task with a Github Pull Request using the branch name above"
-                }
-                InputProps={{
-                  readOnly: true,
-                  endAdornment: (
-                    <IconButton
-                      onClick={() => {
-                        navigator.clipboard.writeText(
-                          `git checkout -b ${task.taskId}`
-                        );
-                      }}
-                    >
-                      <ContentCopyIcon />
-                    </IconButton>
-                  ),
-                }}
-                value={`git checkout -b ${task.taskId}`}
-                sx={{ my: 4, width: "50%" }}
-                fullWidth
+              <LinkPreview
+                url={task.submission.link}
+                width="40rem"
+                imageHeight={"0rem"}
+                backgroundColor={"transparent"}
+                primaryTextColor={"#eaeaea"}
+                borderColor="#5a6972"
               />
-              )*/}
-            </TaskModalBodyContainer>
+            </ActivityContainer>
           )}
+
           <ActivityContainer>
             <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
               Activity
@@ -309,276 +293,143 @@ const EditTask = ({
           <Box ml={2}>
             <TaskModalBodyContainer>
               <Divider textAlign="left" color="text.secondary">
-                Status
+                Add to Task
               </Divider>{" "}
-              <FieldContainer>
-                <Autocomplete
-                  options={data.statusList}
-                  getOptionLabel={(option) => option}
-                  defaultValue={column.status}
-                  onChange={(e, data) => {
-                    updateTaskStatus(
-                      Moralis,
-                      task.boardId,
-                      task.taskId,
-                      data || "",
-                      column.id
-                    ).then((res: any) => {
-                      console.log(res);
-                      setData(res);
-                    });
-                    // console.log(task);
-                  }}
-                  readOnly={
-                    !(
-                      task.access.creator ||
-                      task.access.reviewer ||
-                      task.access.assignee
-                    )
-                  }
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      id="filled-hidden-label-normal"
-                      size="small"
-                    />
-                  )}
-                />
-              </FieldContainer>
-            </TaskModalBodyContainer>
-            <TaskModalBodyContainer>
-              <Divider textAlign="left" color="text.secondary">
-                Due Date
-              </Divider>{" "}
-              <LocalizationProvider dateAdapter={DateAdapter}>
-                <FieldContainer>
-                  <Controller
-                    name="deadline"
-                    control={control}
-                    defaultValue={dayjs(task.deadline)}
-                    render={({ field }) => (
-                      <DateTimePicker
-                        {...field}
-                        minDateTime={dayjs()}
-                        onChange={field.onChange}
-                        readOnly={
-                          !(task.access.creator || task.access.reviewer)
-                        }
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            fullWidth
-                            helperText={
-                              params.error && "Enter a date later than now"
-                            }
-                            size="small"
-                          />
-                        )}
-                      />
-                    )}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  mt: 2,
+                  mx: 1,
+                }}
+              >
+                <TaskButton
+                  variant="outlined"
+                  color="primary"
+                  onClick={handleClick("date")}
+                >
+                  Due Date
+                </TaskButton>
+                {open["date"] && (
+                  <DatePopover
+                    open={open["date"]}
+                    anchorEl={anchorEl}
+                    handleClose={handleClosePopover}
+                    task={task}
                   />
-                </FieldContainer>
-              </LocalizationProvider>
-            </TaskModalBodyContainer>
-            <TaskModalBodyContainer>
-              <Divider textAlign="left" color="text.secondary">
-                Tags
-              </Divider>{" "}
-              <FieldContainer>
-                <Controller
-                  name="tags"
-                  control={control}
-                  defaultValue={task.tags || []}
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      freeSolo
-                      options={[]}
-                      multiple
-                      onChange={(e, data) => field.onChange(data)}
-                      size="small"
-                      readOnly={!(task.access.creator || task.access.reviewer)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
-                    />
-                  )}
-                />
-              </FieldContainer>
-            </TaskModalBodyContainer>
-            <TaskModalBodyContainer>
-              <Divider textAlign="left" color="text.secondary">
-                Assignee
-              </Divider>{" "}
-              <FieldContainer>
-                {task.access.creator ||
-                task.access.reviewer ||
-                task.assignee.length ? (
-                  <Controller
-                    name="assignee"
-                    control={control}
-                    defaultValue={
-                      task.assignee?.length > 0 ? task.assignee[0] : null
-                    }
-                    render={({ field }) => (
-                      <Autocomplete
-                        {...field}
-                        options={task.members} // Get options from members
-                        getOptionLabel={(option) => option.username}
-                        onChange={(e, data) => field.onChange(data)}
-                        readOnly={task.status !== 100}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            id="filled-hidden-label-normal"
-                            size="small"
-                          />
-                        )}
-                      />
-                    )}
-                  />
-                ) : (
-                  <PrimaryButton
-                    variant="contained"
-                    color="primary"
-                    onClick={() => {
-                      assignToMe(Moralis, task.taskId)
-                        .then((res: any) => {
-                          console.log(res);
-                          setValue(
-                            "assignee",
-                            {
-                              userId: user?.id || "",
-                              username: user?.get("username"),
-                            },
-                            { shouldDirty: true }
-                          );
-                          setAssigned(true);
-                          setData(res);
-                        })
-                        .catch((err: any) => alert(err));
-                    }}
-                  >
-                    {assigned
-                      ? `Assigned to ${user?.get("username")}`
-                      : `Assign to me!`}
-                  </PrimaryButton>
                 )}
-              </FieldContainer>
-            </TaskModalBodyContainer>
-
-            <TaskModalBodyContainer>
+                <TaskButton
+                  variant="outlined"
+                  color="primary"
+                  onClick={handleClick("label")}
+                >
+                  Labels
+                </TaskButton>
+                {open["label"] && (
+                  <LabelPopover
+                    open={open["label"]}
+                    anchorEl={anchorEl}
+                    handleClose={handleClosePopover}
+                    task={task}
+                  />
+                )}
+                <TaskButton
+                  variant="outlined"
+                  color="primary"
+                  onClick={handleClick("reviewer")}
+                >
+                  Reviewer
+                </TaskButton>
+                {open["reviewer"] && (
+                  <MemberPopover
+                    open={open["reviewer"]}
+                    anchorEl={anchorEl}
+                    handleClose={handleClosePopover}
+                    type="reviewer"
+                    task={task}
+                  />
+                )}
+                <TaskButton
+                  variant="outlined"
+                  color="primary"
+                  onClick={handleClick("assignee")}
+                >
+                  Assignee
+                </TaskButton>
+                {open["assignee"] && (
+                  <MemberPopover
+                    open={open["assignee"]}
+                    anchorEl={anchorEl}
+                    handleClose={handleClosePopover}
+                    type="assignee"
+                    task={task}
+                  />
+                )}
+                <TaskButton
+                  variant="outlined"
+                  color="primary"
+                  onClick={handleClick("reward")}
+                >
+                  Reward
+                </TaskButton>
+                {open["reward"] && (
+                  <RewardPopover
+                    open={open["reward"]}
+                    anchorEl={anchorEl}
+                    handleClose={handleClosePopover}
+                    task={task}
+                  />
+                )}
+                <TaskButton
+                  variant="outlined"
+                  color="primary"
+                  onClick={handleClick("submission")}
+                >
+                  Submission
+                </TaskButton>
+                {open["submission"] && (
+                  <SubmissionPopover
+                    open={open["submission"]}
+                    anchorEl={anchorEl}
+                    handleClose={handleClosePopover}
+                    task={task}
+                  />
+                )}
+              </Box>
               <Divider textAlign="left" color="text.secondary">
-                Reviewer
+                Actions
               </Divider>{" "}
-              <FieldContainer>
-                <Controller
-                  name="reviewer"
-                  control={control}
-                  defaultValue={
-                    task.reviewer?.length > 0 ? task.reviewer[0] : null
-                  }
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      options={task.members} // Get options from members
-                      getOptionLabel={(option) => option.username}
-                      onChange={(e, data) => field.onChange(data)}
-                      readOnly={!(task.access.creator || task.access.reviewer)}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          size="small"
-                        />
-                      )}
-                    />
-                  )}
-                />
-              </FieldContainer>
-            </TaskModalBodyContainer>
-
-            <TaskModalBodyContainer>
-              <Divider textAlign="left" color="text.secondary">
-                Reward
-              </Divider>{" "}
-              <FieldContainer>
-                <Controller
-                  name="chain"
-                  control={control}
-                  defaultValue={task.chain}
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      options={Object.keys(chainTokenRegistry)} // Get options from members
-                      getOptionLabel={(option) => option}
-                      readOnly={!task.access.creator}
-                      onChange={(e, data) => {
-                        field.onChange(data);
-                        setChain(data);
-                      }}
-                      renderInput={(params) => (
-                        <TextField {...params} size="small" />
-                      )}
-                    />
-                  )}
-                />
-                <Grid container spacing={0}>
-                  <Grid item xs={6}>
-                    <Controller
-                      name="value"
-                      control={control}
-                      defaultValue={task.value}
-                      render={({ field, fieldState }) => (
-                        <TextField
-                          {...field}
-                          id="filled-hidden-label-normal"
-                          helperText={
-                            fieldState.error?.type === "min" &&
-                            "Validation error"
-                          }
-                          type="number"
-                          error={fieldState.error ? true : false}
-                          InputProps={{
-                            readOnly: !task.access.creator,
-                          }}
-                          inputProps={{ min: 0, step: 1 }}
-                          size="small"
-                          sx={{ mr: 1, mt: 1 }}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Controller
-                      name="token"
-                      control={control}
-                      defaultValue={task.token}
-                      render={({ field }) => (
-                        <Autocomplete
-                          {...field}
-                          options={getTokenOptions(chain)} // Get options from members
-                          getOptionLabel={(option) => option}
-                          onChange={(e, data) => field.onChange(data)}
-                          readOnly={!task.access.creator}
-                          renderInput={(params) => (
-                            <TextField
-                              {...params}
-                              id="filled-hidden-label-normal"
-                              size="small"
-                              sx={{ mr: 1, mt: 1 }}
-                            />
-                          )}
-                        />
-                      )}
-                    />
-                  </Grid>
-                </Grid>
-              </FieldContainer>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  mt: 2,
+                  mx: 1,
+                }}
+              >
+                <TaskButton
+                  variant="outlined"
+                  color="primary"
+                  onClick={handleClick("move")}
+                >
+                  Move
+                </TaskButton>
+                {open["move"] && (
+                  <MovePopover
+                    open={open["move"]}
+                    anchorEl={anchorEl}
+                    handleClose={handleClosePopover}
+                    column={column}
+                    task={task}
+                  />
+                )}
+                <TaskButton variant="outlined" color="primary">
+                  Pay
+                </TaskButton>
+                <TaskButton variant="outlined" color="primary">
+                  Vote
+                </TaskButton>
+              </Box>
               {task.status === 200 && (
                 <FieldContainer>
                   <PrimaryButton
@@ -618,7 +469,7 @@ const EditTask = ({
             </TaskModalBodyContainer>
           </Box>
         </Grid>
-        <PrimaryButton
+        {/* <PrimaryButton
           variant="outlined"
           fullWidth
           sx={{ width: "30%" }}
@@ -627,9 +478,9 @@ const EditTask = ({
           disabled={!isDirty}
         >
           Save
-        </PrimaryButton>
+        </PrimaryButton> */}
       </Grid>
-    </form>
+    </Container>
   );
 };
 
@@ -652,18 +503,37 @@ const ActivityContainer = styled.div`
   overflow-y: auto;
 `;
 
-const Chip = styled.div<{ color: string }>`
-  padding: 0px 8px;
-  height: 20px;
-  font-size: 11px;
-  border-radius: 25px;
-  background-color: ${(props) => props.color};
-  color: #000;
-  display: inline-flex;
+const TaskModalInfoContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+const Info = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-right: 1rem;
+`;
+
+const InnerInfo = styled.div`
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: fit-content;
-  margin: 4px 4px 6px 0px;
+`;
+
+const LabelChip = styled.div`
+  background-color: ${(props: any) => props.color};
+  font-size: 14px;
+  font-weight: 600;
+  color: #eaeaea;
+  padding: 4px 6px;
+  border-radius: 4px;
+  margin-right: 4px;
+`;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 70rem;
+  height: 35rem;
 `;
 
 export default EditTask;

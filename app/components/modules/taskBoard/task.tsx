@@ -6,12 +6,12 @@ import DateRangeIcon from "@mui/icons-material/DateRange";
 import { Avatar } from "@mui/material";
 import TaskModal from "../taskModal";
 import {
+  labelsMapping,
   monthMap,
   statusColorMapping,
   statusMapping,
 } from "../../../constants";
-import { Task } from "../../../types";
-import { Column } from ".";
+import { Column, Task } from "../../../types";
 
 type Props = {
   task: Task;
@@ -42,6 +42,14 @@ const TaskContainer = ({ task, index, column }: Props) => {
             onClick={() => setIsOpen(true)}
           >
             <Container>
+              <LabelsContainer>
+                {task?.tags?.map((tag, index) => (
+                  <LabelColor
+                    color={labelsMapping[tag as keyof typeof labelsMapping]}
+                    key={index}
+                  />
+                ))}
+              </LabelsContainer>
               <Title>{task.title}</Title>
 
               <ChipContainer>
@@ -62,7 +70,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
                     }
                   </Chip>
                 )}
-                <Chip color={column.color}>{column.status}</Chip>
+                {/* <Chip color={column.color}>{column.status}</Chip> */}
               </ChipContainer>
             </Container>
           </TaskCard>
@@ -72,6 +80,21 @@ const TaskContainer = ({ task, index, column }: Props) => {
   );
 };
 
+const LabelsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  word-wrap: break-word;
+  margin-bottom: 1px;
+`;
+
+const LabelColor = styled.div<{ color: string }>`
+  width: 40px;
+  height: 6px;
+  border-radius: 10px;
+  margin-right: 5px;
+  border: 1px solid ${(props) => props.color};
+`;
+
 const ChipContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -80,7 +103,7 @@ const ChipContainer = styled.div`
 
 const Chip = styled.div<{ color: string }>`
   padding: 0px 8px;
-  height: 20px;
+  height: 18px;
   font-size: 11px;
   border-radius: 25px;
   background-color: ${(props) => props.color};
@@ -89,7 +112,7 @@ const Chip = styled.div<{ color: string }>`
   align-items: center;
   justify-content: center;
   width: fit-content;
-  margin: 4px 4px 6px 0px;
+  margin: 4px 4px 3px 0px;
   transition: color 2s ease-in-out;
 `;
 
@@ -101,7 +124,7 @@ const TaskCard = styled.div<{ isDragging: boolean }>`
   margin: 5px;
   border: ${(props) =>
     props.isDragging ? "0.1px solid #0061ff" : "0.1px solid transparent"};
-  padding: 5px;
+  padding: 0px 2px;
   border-radius: 5px;
   background-color: #0a2354;
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
@@ -120,15 +143,6 @@ const Container = styled.div`
 const Title = styled.div`
   font-size: 14px;
   word-wrap: break-word;
-`;
-
-const Text = styled.div`
-  font-size: 12px;
-  color: #99ccff;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-top: 2px;
 `;
 
 export default TaskContainer;

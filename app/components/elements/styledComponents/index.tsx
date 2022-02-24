@@ -17,6 +17,21 @@ export const PrimaryButton = styled(LoadingButton)<ButtonProps>(
   })
 );
 
+export const TaskButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
+  color: theme.palette.getContrastText(theme.palette.secondary.main),
+  textTransform: "none",
+  marginBottom: "6px",
+}));
+
+type BProps = {
+  buttonColor: string;
+};
+export const LabelChipButton = styled(LoadingButton)((props: BProps) => ({
+  backgroundColor: props.buttonColor,
+  textTransform: "none",
+  width: "12rem",
+}));
+
 export const FieldContainer = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",

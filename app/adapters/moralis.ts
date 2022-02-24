@@ -1,4 +1,4 @@
-import { Team, Epoch } from "../types/index";
+import { Team, Epoch, Member } from "../types/index";
 
 export function getOrCreateUser(Moralis: any) {
   return Moralis.Cloud.run("getOrCreateUser");
@@ -261,6 +261,82 @@ export function updateTask(Moralis: any, task: any, columnId: string) {
     columnId: columnId,
   };
   return Moralis.Cloud.run("updateTask", params);
+}
+
+export function updateTaskDeadline(
+  Moralis: any,
+  deadline: string,
+  taskId: string
+) {
+  const params = {
+    deadline: deadline,
+    taskId: taskId,
+  };
+  return Moralis.Cloud.run("updateTaskDeadline", params);
+}
+
+export function updateTaskLabels(Moralis: any, tags: string[], taskId: string) {
+  const params = {
+    tags: tags,
+    taskId: taskId,
+  };
+  return Moralis.Cloud.run("updateTaskLabels", params);
+}
+
+export function updateTaskMember(
+  Moralis: any,
+  member: Member,
+  type: string,
+  taskId: string
+) {
+  const params = {
+    member: member,
+    type: type,
+    taskId: taskId,
+  };
+  return Moralis.Cloud.run("updateTaskMember", params);
+}
+
+export function updateTaskReward(
+  Moralis: any,
+  chain: string,
+  token: string,
+  value: number,
+  taskId: string
+) {
+  const params = {
+    chain: chain,
+    token: token,
+    value: value,
+    taskId: taskId,
+  };
+  return Moralis.Cloud.run("updateTaskReward", params);
+}
+
+export function updateTaskSubmission(
+  Moralis: any,
+  link: string,
+  name: string,
+  taskId: string
+) {
+  const params = {
+    submissionLink: link,
+    submissionName: name,
+    taskId: taskId,
+  };
+  return Moralis.Cloud.run("updateTaskSubmission", params);
+}
+
+export function updateTaskDescription(
+  Moralis: any,
+  description: string,
+  taskId: string
+) {
+  const params = {
+    description: description,
+    taskId: taskId,
+  };
+  return Moralis.Cloud.run("updateTaskDescription", params);
 }
 
 export function updateTaskStatus(

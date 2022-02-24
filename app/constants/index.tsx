@@ -194,3 +194,12 @@ export const amountData = {
     ],
   },
 };
+
+export const labelsMapping = {
+  Design: "#2e5da9",
+  Coding: "#f06292",
+  Testing: "#ffc107",
+  Deployment: "#ff9800",
+  Documentation: "#ff5722",
+  POC: "#66bb6a",
+};

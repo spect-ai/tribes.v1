@@ -3,8 +3,9 @@ import { Button, Popover } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
 import { useMoralis } from "react-moralis";
-import { BoardData, useBoard } from ".";
+import { useBoard } from ".";
 import { removeColumn } from "../../../adapters/moralis";
+import { BoardData } from "../../../types";
 
 type Props = {
   open: boolean;

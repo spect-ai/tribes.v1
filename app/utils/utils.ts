@@ -80,3 +80,15 @@ export const reorder = (
 
   return result;
 };
+
+export function formatTime(date: Date) {
+  var hours = date.getHours();
+  var minutes = date.getMinutes();
+  var ampm = hours >= 12 ? "pm" : "am";
+  hours = hours % 12;
+  hours = hours ? hours : 12; // the hour '0' should be '12'
+  // @ts-ignore
+  minutes = ("0" + minutes).slice(-2);
+  var strTime = hours + ":" + minutes + " " + ampm;
+  return strTime;
+}
