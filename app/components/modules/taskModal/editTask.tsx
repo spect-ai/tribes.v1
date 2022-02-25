@@ -24,11 +24,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import { BoardData, Column, Task } from "../../../types";
 import { formatTime, getMD5String } from "../../../utils/utils";
 import {
-  updateTask,
   assignToMe,
   closeTask,
-  updateTaskStatus,
   updateTaskDescription,
+  updateTaskTitle,
 } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useBoard } from "../taskBoard";
@@ -105,6 +104,16 @@ const EditTask = ({
           fullWidth
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          onBlur={() => {
+            if (task.access.creator || task.access.reviewer) {
+              updateTaskTitle(Moralis, title, task.taskId).then(
+                (res: BoardData) => {
+                  setData(res);
+                }
+              );
+            }
+          }}
+          readOnly={!(task.access.creator || task.access.reviewer)}
         />
         <Box sx={{ flex: "1 1 auto" }} />
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
@@ -165,7 +174,7 @@ const EditTask = ({
           </Info>
         )}
 
-        {task.assignee.length && (
+        {task.assignee.length > 0 && (
           <Info>
             <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
               Assignee
@@ -222,23 +231,27 @@ const EditTask = ({
                 }}
                 readOnly={!(task.access.creator || task.access.reviewer)}
               />
-              <PrimaryButton
-                variant="outlined"
-                sx={{ mt: 4 }}
-                loading={isLoading}
-                onClick={() => {
-                  setIsLoading(true);
-                  updateTaskDescription(Moralis, description, task.taskId).then(
-                    (res: BoardData) => {
+              {(task.access.creator || task.access.reviewer) && (
+                <PrimaryButton
+                  variant="outlined"
+                  sx={{ mt: 4 }}
+                  loading={isLoading}
+                  onClick={() => {
+                    setIsLoading(true);
+                    updateTaskDescription(
+                      Moralis,
+                      description,
+                      task.taskId
+                    ).then((res: BoardData) => {
                       console.log(res);
                       setData(res);
                       setIsLoading(false);
-                    }
-                  );
-                }}
-              >
-                Save
-              </PrimaryButton>
+                    });
+                  }}
+                >
+                  Save
+                </PrimaryButton>
+              )}
             </Box>
           </TaskModalBodyContainer>
           {task.submission?.link && (
@@ -303,13 +316,17 @@ const EditTask = ({
                   mx: 1,
                 }}
               >
-                <TaskButton
-                  variant="outlined"
-                  color="primary"
-                  onClick={handleClick("date")}
-                >
-                  Due Date
-                </TaskButton>
+                {(task.access.reviewer ||
+                  task.access.creator ||
+                  task.access.assignee) && (
+                  <TaskButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleClick("date")}
+                  >
+                    Due Date
+                  </TaskButton>
+                )}
                 {open["date"] && (
                   <DatePopover
                     open={open["date"]}
@@ -333,13 +350,15 @@ const EditTask = ({
                     task={task}
                   />
                 )}
-                <TaskButton
-                  variant="outlined"
-                  color="primary"
-                  onClick={handleClick("reviewer")}
-                >
-                  Reviewer
-                </TaskButton>
+                {(task.access.reviewer || task.access.creator) && (
+                  <TaskButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleClick("reviewer")}
+                  >
+                    Reviewer
+                  </TaskButton>
+                )}
                 {open["reviewer"] && (
                   <MemberPopover
                     open={open["reviewer"]}
@@ -349,13 +368,15 @@ const EditTask = ({
                     task={task}
                   />
                 )}
-                <TaskButton
-                  variant="outlined"
-                  color="primary"
-                  onClick={handleClick("assignee")}
-                >
-                  Assignee
-                </TaskButton>
+                {(task.access.reviewer || task.access.creator) && (
+                  <TaskButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleClick("assignee")}
+                  >
+                    Assignee
+                  </TaskButton>
+                )}
                 {open["assignee"] && (
                   <MemberPopover
                     open={open["assignee"]}
@@ -365,13 +386,15 @@ const EditTask = ({
                     task={task}
                   />
                 )}
-                <TaskButton
-                  variant="outlined"
-                  color="primary"
-                  onClick={handleClick("reward")}
-                >
-                  Reward
-                </TaskButton>
+                {task.access.creator && (
+                  <TaskButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleClick("reward")}
+                  >
+                    Reward
+                  </TaskButton>
+                )}
                 {open["reward"] && (
                   <RewardPopover
                     open={open["reward"]}
@@ -380,13 +403,15 @@ const EditTask = ({
                     task={task}
                   />
                 )}
-                <TaskButton
-                  variant="outlined"
-                  color="primary"
-                  onClick={handleClick("submission")}
-                >
-                  Submission
-                </TaskButton>
+                {task.access.assignee && (
+                  <TaskButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleClick("submission")}
+                  >
+                    Submission
+                  </TaskButton>
+                )}
                 {open["submission"] && (
                   <SubmissionPopover
                     open={open["submission"]}
@@ -407,13 +432,17 @@ const EditTask = ({
                   mx: 1,
                 }}
               >
-                <TaskButton
-                  variant="outlined"
-                  color="primary"
-                  onClick={handleClick("move")}
-                >
-                  Move
-                </TaskButton>
+                {(task.access.creator ||
+                  task.access.reviewer ||
+                  task.access.assignee) && (
+                  <TaskButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={handleClick("move")}
+                  >
+                    Move
+                  </TaskButton>
+                )}
                 {open["move"] && (
                   <MovePopover
                     open={open["move"]}
@@ -423,12 +452,31 @@ const EditTask = ({
                     task={task}
                   />
                 )}
-                <TaskButton variant="outlined" color="primary">
-                  Pay
-                </TaskButton>
-                <TaskButton variant="outlined" color="primary">
-                  Vote
-                </TaskButton>
+                {task.access.creator && (
+                  <TaskButton variant="outlined" color="primary">
+                    Pay
+                  </TaskButton>
+                )}
+                {!task.access.creator && (
+                  <TaskButton variant="outlined" color="primary">
+                    Vote
+                  </TaskButton>
+                )}
+                {!task.assignee.length && (
+                  <TaskButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => {
+                      assignToMe(Moralis, task.taskId).then(
+                        (res: BoardData) => {
+                          setData(res);
+                        }
+                      );
+                    }}
+                  >
+                    Assign to me
+                  </TaskButton>
+                )}
               </Box>
               {task.status === 200 && (
                 <FieldContainer>

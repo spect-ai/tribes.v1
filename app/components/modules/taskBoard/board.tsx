@@ -154,8 +154,9 @@ const Board = ({ expanded, handleChange }: Props) => {
               sx={{
                 textTransform: "none",
                 height: "8%",
-                minWidth: "18rem",
-                margin: "1rem 2rem 1rem 0rem",
+                minWidth: "16rem",
+                borderRadius: "0.5rem",
+                margin: "0.3rem 2rem 1rem 0rem",
               }}
               onClick={() => {
                 setData({
@@ -192,7 +193,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   padding: 0 0.5rem;
-  height: 90vh;
+  height: 70vh;
   max-width: calc(100vw - 9rem);
   overflow-x: auto;
   overflow-y: hidden;

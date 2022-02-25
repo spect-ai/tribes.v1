@@ -101,17 +101,19 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       columnId={column.id}
                     />
                   </TaskTitleContainer>
-                  <Box sx={{ display: "flex", flexDirection: "row", mt: 0.5 }}>
+                  <Box sx={{ display: "flex", flexDirection: "row" }}>
                     <Button
                       sx={{
                         textTransform: "none",
                         color: "inherit",
                         textAlign: "left",
                         justifyContent: "flex-start",
+                        py: 0,
                       }}
                       startIcon={<AddIcon />}
                       onClick={() => setShowCreateTask(true)}
                       fullWidth
+                      size="small"
                     >
                       Add Task
                     </Button>
@@ -125,6 +127,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       startIcon={<GitHubIcon />}
                       onClick={() => setShowCreateGithubTask(true)}
                       fullWidth
+                      size="small"
                     >
                       Import Task
                     </Button>
@@ -166,14 +169,14 @@ const TaskTitleContainer = styled.div`
 `;
 
 const OuterContainer = styled.div`
-  margin: 1rem 1.2rem 1rem 0rem;
+  margin: 0.3rem 1rem 1rem 0rem;
 `;
 
 const TaskList = styled.div<{ isDragging: boolean }>`
   display: flex;
   flex-direction: column;
   height: fit-content;
-  padding: 1rem;
+  padding: 0.3rem 0.3rem;
   border-radius: 0.5rem;
   border: ${(props) =>
     props.isDragging ? "0.5px solid #0061ff" : "0.5px solid transparent"};
@@ -182,7 +185,7 @@ const TaskList = styled.div<{ isDragging: boolean }>`
   &:hover {
     border: 0.1px solid #3f3f3e;
   }
-  max-height: 80vh;
+  max-height: 60vh;
   overflow-y: auto;
   overflow-x: hidden;
   background-color: #00194a;

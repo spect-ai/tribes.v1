@@ -70,6 +70,9 @@ const TaskContainer = ({ task, index, column }: Props) => {
                     }
                   </Chip>
                 )}
+                {task.assignee.length > 0 && (
+                  <Chip color="#ce93d8">{task.assignee[0].username}</Chip>
+                )}
                 {/* <Chip color={column.color}>{column.status}</Chip> */}
               </ChipContainer>
             </Container>

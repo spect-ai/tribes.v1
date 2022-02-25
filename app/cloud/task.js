@@ -328,10 +328,33 @@ Moralis.Cloud.define("updateTaskDescription", async (request) => {
     task = handleDescriptionUpdate(
       task,
       request.user.id,
-      request.params.task.description
+      request.params.description
     );
     logger.info(
       `Handled description field for task with id ${JSON.stringify(
+        request.params.task?.taskId
+      )}`
+    );
+    await Moralis.Object.saveAll(task, { useMasterKey: true });
+    logger.info(`Updated task ${JSON.stringify(task)}`);
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  } catch (err) {
+    logger.error(
+      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+    );
+    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    return board[0];
+  }
+});
+
+Moralis.Cloud.define("updateTaskTitle", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  var task = await getTaskByTaskId(request.params.taskId);
+  try {
+    task = handleTitleUpdate(task, request.user.id, request.params.title);
+    logger.info(
+      `Handled title field for task with id ${JSON.stringify(
         request.params.task?.taskId
       )}`
     );
@@ -542,8 +565,11 @@ Moralis.Cloud.define("assignToMe", async (request) => {
     if (isMember(request.user.id, board)) {
       task = handleAssigneeUpdate(task, request.user.id, {
         objectId: request.user.id,
+        username: request.user.get("username"),
+        profilePicture: request.user.get("profilePicture"),
+        ethAddress: request.user.get("ethAddress"),
       });
-      task = handleStatusChange(task, request.user.id, "Assigned");
+      // task = handleStatusChange(task, request.user.id, "Assigned");
       await Moralis.Object.saveAll(task, { useMasterKey: true });
       board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
       return board[0];
