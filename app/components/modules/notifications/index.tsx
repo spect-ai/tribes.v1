@@ -69,7 +69,12 @@ export default function Notification() {
     <div>
       <Button
         onClick={handleClick}
-        style={{ width: "1px", height: "30px", borderRadius: "10%" }}
+        sx={{
+          width: "1px",
+          height: "30px",
+          borderRadius: "10%",
+          color: "#99ccff",
+        }}
       >
         {notifLeng > 0 ? (
           <i className="fa fa-bell fa-lg" />

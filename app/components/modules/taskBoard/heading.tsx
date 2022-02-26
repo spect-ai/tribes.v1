@@ -87,7 +87,7 @@ const Heading = (props: Props) => {
           ))}
         </List>
       </Drawer>
-      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 1 }}>
+      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 0 }}>
         <Link href={`/tribe/${id}`} passHref>
           <MuiLink
             color="inherit"
@@ -135,13 +135,13 @@ const Heading = (props: Props) => {
         </Tooltip>
         <Tooltip title="Refresh">
           <MuiLink href="">
-            <IconButton sx={{ mb: 0.5, p: 1.7 }} size="small">
+            <IconButton sx={{ mb: 0, p: 1.7 }} size="small">
               <RefreshIcon />
             </IconButton>
           </MuiLink>
         </Tooltip>
         <Tooltip title="Invite member">
-          <IconButton sx={{ mb: 0.5, p: 1.7 }} size="small">
+          <IconButton sx={{ mb: 0, p: 1.7 }} size="small">
             <PeopleOutlineIcon />
           </IconButton>
         </Tooltip>
