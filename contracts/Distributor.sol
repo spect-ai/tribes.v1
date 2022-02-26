@@ -55,7 +55,7 @@ contract Distributor {
     }
 
     for (uint256 i = 0; i < recipients.length; i++) {
-      IERC20(token).safeTransferFrom(msg.sender, recipients[i], values[i]);
+      IERC20(token).transferFrom(msg.sender, recipients[i], values[i]);
     }
 
     emit tokenDistributed(msg.sender, address(token), id);
@@ -78,7 +78,7 @@ contract Distributor {
     }
 
     for (uint256 i = 0; i < recipients.length; i++) {
-      IERC20(tokens[i]).safeTransferFrom(msg.sender, recipients[i], values[i]);
+      IERC20(tokens[i]).transferFrom(msg.sender, recipients[i], values[i]);
     }
 
     emit tokensDistributed(msg.sender, id);
@@ -103,6 +103,9 @@ contract Distributor {
     bool[] memory approvalPending = new bool[](tokens.length);
     for (uint256 i = 0; i < tokens.length; i++) {
       if (IERC20(tokens[i]).allowance(msg.sender, address(this)) < values[i]){
+        approvalPending[i] = true;
+      }
+      else{
         approvalPending[i] = false;
       }
     }

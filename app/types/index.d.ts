@@ -152,3 +152,21 @@ export interface BoardData {
   _id: string;
   _createdAt: string;
 }
+
+export type TokenInfo = {
+  address: string;
+  symbol: string;
+  name: string;
+};
+
+export type NetworkInfo = {
+  [tokenAddress: string]: TokenInfo;
+  distributorAddress: string;
+  name: string;
+  mainnet: boolean;
+  chainId: string;
+};
+
+export type Registry = {
+  [chainId: string]: NetworkInfo;
+};
