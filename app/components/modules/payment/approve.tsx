@@ -16,22 +16,21 @@ import { approve } from "../../../adapters/contract";
 interface Props {
   handleClose: Function;
   setActiveStep: Function;
-  tokens: object;
-  tokenAddresses: object;
+  tokenNames: string[];
+  tokenAddresses: string[];
+  tokenValues: number[];
   chain: string;
 }
 
 const ApproveModal = ({
   handleClose,
   setActiveStep,
-  tokens,
+  tokenNames,
   tokenAddresses,
+  tokenValues,
   chain,
 }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
-  console.log(`tokens`);
-  console.log(tokens);
-
   return (
     <React.Fragment>
       <Box
@@ -71,7 +70,7 @@ const ApproveModal = ({
                 </Box>
               </Grid>
             </Grid>
-            {Object.keys(tokens).map((token: string, index: number) => (
+            {tokenNames.map((name: string, index: number) => (
               <Grid
                 container
                 spacing={1}
@@ -87,13 +86,13 @@ const ApproveModal = ({
                       sx={{ height: 30, width: 30 }}
                     />
                     <Typography color="text.primary" marginLeft="20px">
-                      {token}
+                      {name}
                     </Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={4}>
                   <Typography color="text.primary" marginLeft="20px">
-                    {tokens[token]}
+                    {tokenValues[index]}
                   </Typography>
                 </Grid>
               </Grid>
@@ -116,11 +115,11 @@ const ApproveModal = ({
           <Button
             onClick={() => {
               setIsLoading(true);
-              approve(Object.values(tokenAddresses), Object.values(tokens))
+              approve(tokenAddresses)
                 .then((res: any) => setActiveStep(1))
                 .catch((err: any) => alert(err));
-              setIsLoading(false);
-              setActiveStep(1);
+              //setIsLoading(false);
+              //setActiveStep(1);
             }}
             variant="outlined"
             id="bApprove"

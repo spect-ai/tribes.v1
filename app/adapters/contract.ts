@@ -62,13 +62,36 @@ export function fromWei(val: any) {
   return ethers.utils.formatEther(val);
 }
 
-export async function approve(tokens: any, values: any) {
+export async function approve(tokens: any) {
   let contract = getContract();
-  /*
-  let overrides: any = {
-    value: ethers.utils.parseEther(totalValue.toString()),
-  };*/
 
-  const tx = await contract.approveTokens(tokens, values);
+  const tx = await contract.approveTokens(tokens);
+  return tx.wait();
+}
+
+export function getPendingApprovals(addresses: string[], values: number[]) {
+  let contract = getContract();
+  return contract.pendingApprovals(addresses, values);
+}
+
+export async function batchPayTokens(
+  tokenAddresses: string[],
+  recipients: string[],
+  values: number[]
+) {
+  let contract = getContract();
+  console.log(tokenAddresses);
+  console.log(recipients);
+  console.log(values);
+
+  var valuesInWei = values.map((v) => ethers.utils.parseEther(v.toString()));
+  console.log(valuesInWei);
+
+  const tx = await contract.distributeToken(
+    tokenAddresses[0],
+    recipients,
+    valuesInWei,
+    "1"
+  );
   return tx.wait();
 }

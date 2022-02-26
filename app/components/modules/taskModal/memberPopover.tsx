@@ -28,9 +28,10 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
     } else {
       setMember(task.reviewer[0]?.username);
     }
-    console.log(
-      task.members.filter((el) => el.username === "0xavp.eth")[0].username
-    );
+    console.log(task.members);
+    //console.log(
+    //  task.members.filter((el) => el.username === "0xavp.eth")[0].username
+    //);
   }, [task]);
 
   return (

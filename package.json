@@ -18,6 +18,7 @@
     "@nomiclabs/hardhat-ethers": "^2.0.4",
     "@nomiclabs/hardhat-waffle": "^2.0.2",
     "@octokit/rest": "^18.12.0",
+    "@openzeppelin/contracts": "^4.5.0",
     "@rari-capital/solmate": "^6.2.0",
     "@walletconnect/web3-provider": "^1.7.1",
     "@web3auth/web3auth": "^0.2.4",

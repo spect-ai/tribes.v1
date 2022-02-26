@@ -24,6 +24,7 @@ import Ethereum from "../../../images/ethereum-eth-logo.png";
 import Polygon from "../../../images/polygon-matic-logo.png";
 import Avalanche from "../../../images/avalanche-avax-logo.png";
 import { chainTokenRegistry } from "../../../constants";
+import { getPendingApprovals } from "../../../adapters/contract";
 
 interface Props {}
 export interface BatchPay {
@@ -38,30 +39,94 @@ export function getNetworkImage(network: string) {
   return img;
 }
 
-function getTokens(amounts: any, chain: string) {
-  var tokens = amounts[0];
-  var values = amounts[2];
-  var tokenValues = {};
-  var tokenAddresses = {};
+function getAggregateTokenValues(tokens: string[], values: number[]) {
+  var aggregateValues = {};
   for (var i = 0; i < tokens.length; i++) {
-    if (tokens[i] in tokenValues) {
-      tokenValues[tokens[i]] += values[i];
+    if (tokens[i] in aggregateValues) {
+      aggregateValues[tokens[i]] += values[i];
     } else {
-      tokenValues[tokens[i]] = values[i];
-      tokenAddresses[tokens[i]] = chainTokenRegistry[chain][tokens[i]];
+      aggregateValues[tokens[i]] = values[i];
     }
   }
 
-  return [tokenAddresses, tokenValues];
+  return [
+    Object.keys(aggregateValues) as string[],
+    Object.values(aggregateValues) as number[],
+  ];
+}
+
+function getTokenAddresses(tokens: string[], chain: string) {
+  var tokenAddresses = [];
+  console.log(tokens);
+  for (var i = 0; i < tokens.length; i++) {
+    tokenAddresses.push(chainTokenRegistry[chain][tokens[i]]);
+  }
+  return tokenAddresses;
+}
+
+function filterUnapprovedTokens(
+  isUnapproved: boolean[],
+  addresses: string[],
+  values: number[],
+  names: string[]
+) {
+  for (let i = 0; i < isUnapproved.length; i++) {
+    if (isUnapproved[i] === false) {
+      addresses.splice(i, 1);
+      values.splice(i, 1);
+      names.splice(i, 1);
+    }
+  }
+  return [addresses, values, names];
+}
+
+async function prepareForApproval(
+  chain: string,
+  amounts: any,
+  setTokenAddresses: any,
+  setTokenValues: any,
+  setTokenNames: any
+) {
+  var [tokenNames, tokenValues] = getAggregateTokenValues(
+    amounts[chain][0],
+    amounts[chain][2]
+  );
+  var tokenAddresses = getTokenAddresses(tokenNames as string[], chain);
+
+  getPendingApprovals(tokenAddresses, tokenValues as number[]).then(
+    (res: any) => {
+      console.log(res);
+      [tokenAddresses, tokenValues, tokenNames] = filterUnapprovedTokens(
+        res,
+        tokenAddresses,
+        tokenValues as number[],
+        tokenNames as string[]
+      );
+      console.log(tokenAddresses);
+
+      if (tokenAddresses.length > 0) {
+        setTokenAddresses(tokenAddresses);
+        setTokenValues(tokenValues);
+        setTokenNames(tokenNames);
+        console.log(`its true`);
+
+        return true;
+      }
+      console.log(`its false`);
+
+      return false;
+    }
+  );
 }
 
 const Payment = ({}: Props) => {
-  const [activeStep, setActiveStep] = useState(0);
+  const [activeStep, setActiveStep] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [polygonAmounts, setPolygonAmounts] = useState([] as any);
-  const [polygonTokens, setPolygonTokens] = useState({} as any);
-  const [polygonTokenAddresses, setPolygonTokenAddresses] = useState({} as any);
+  const [polygonTokenValues, setPolygonTokenValues] = useState([] as any);
+  const [polygonTokenAddresses, setPolygonTokenAddresses] = useState([] as any);
+  const [polygonTokenNames, setPolygonTokenNames] = useState([] as any);
 
   const [ethereumAmounts, setEthereumAmounts] = useState([] as any);
   const [ethereumTokens, setEthereumTokens] = useState({} as any);
@@ -76,6 +141,7 @@ const Payment = ({}: Props) => {
   );
 
   const [steps, setSteps] = useState([] as any);
+  const [validStepNumbers, setValidStepNumbers] = useState([] as any);
 
   const router = useRouter();
   const { id, bid } = router.query;
@@ -84,65 +150,13 @@ const Payment = ({}: Props) => {
   const handleClose = (event: any, reason: any) => {
     setIsOpen(false);
   };
-  const handleNextStep = () => setActiveStep(activeStep + 1);
-
-  useEffect(() => {
-    setIsLoading(true);
-    if (isInitialized && bid) {
-      getBatchPayAmount(Moralis, bid as string)
-        .then((res: any) => {
-          console.log(res);
-          var dynamicSteps = [];
-          if ("Polygon" in res) {
-            const [polygonTokenAddresses, polygonTokenValues] = getTokens(
-              res["Polygon"],
-              "Polygon"
-            );
-            console.log("adad");
-
-            setPolygonTokens(polygonTokenValues);
-            setPolygonTokenAddresses(polygonTokenAddresses);
-            dynamicSteps.push("Approve on Polygon");
-
-            setPolygonAmounts(res["Polygon"]);
-            dynamicSteps.push("Distribute on Polygon");
-            console.log("sdsdsd");
-          }
-
-          if ("Ethereum" in res) {
-            const [ethereumTokenAddresses, ethereumTokenValues] = getTokens(
-              res["Ethereum"],
-              "Ethereum"
-            );
-
-            setEthereumTokens(ethereumTokenValues);
-            setEthereumTokenAddresses(ethereumTokenAddresses);
-            dynamicSteps.push("Approve on Ethereum");
-
-            setEthereumAmounts(res["Ethereum"]);
-            dynamicSteps.push("Distribute on Ethereum");
-          }
-
-          if ("Avalanche" in res) {
-            const [avalancheTokenAddresses, avalancheTokenValues] = getTokens(
-              res["Avalanche"],
-              "Avalanche"
-            );
-
-            setAvalancheTokens(avalancheTokenValues);
-            setAvalancheTokenAddresses(avalancheTokenAddresses);
-            dynamicSteps.push("Approve on Avalanche");
-
-            setAvalancheAmounts(res["Avalanche"]);
-            dynamicSteps.push("Distribute on Avalanche");
-          }
-          setSteps(dynamicSteps);
-          setIsLoading(false);
-          setIsOpen(true);
-        })
-        .catch((err: any) => alert(err));
+  const handleNextStep = () => {
+    if (activeStep === validStepNumbers.length) {
+      setIsOpen(false);
+    } else {
+      setActiveStep(activeStep + 1);
     }
-  }, [isInitialized, bid]);
+  };
 
   return (
     <>
@@ -150,7 +164,37 @@ const Payment = ({}: Props) => {
         <IconButton
           sx={{ mb: 0.5, p: 2 }}
           size="small"
-          onClick={() => setIsOpen(true)}
+          onClick={() => {
+            setIsLoading(true);
+            const promises: Array<any> = [];
+            getBatchPayAmount(Moralis, bid as string).then((res: any) => {
+              console.log(res);
+              var dynamicSteps: string[] = [];
+              if ("Polygon" in res) {
+                promises.push(
+                  prepareForApproval(
+                    "Polygon",
+                    res,
+                    setPolygonTokenAddresses,
+                    setPolygonTokenValues,
+                    setPolygonTokenNames
+                  ).then((gottaApprove: any) => {
+                    if (gottaApprove) {
+                      dynamicSteps.push(`Approve on Polygon`);
+                      setValidStepNumbers([...validStepNumbers, 0]);
+                    }
+                  })
+                );
+                setPolygonAmounts(res["Polygon"]);
+                dynamicSteps.push("Distribute on Polygon");
+
+                setSteps(dynamicSteps);
+                setValidStepNumbers([...validStepNumbers, 1]);
+                setIsLoading(false);
+                setIsOpen(true);
+              }
+            });
+          }}
         >
           <PaidIcon fontSize="small" />
         </IconButton>
@@ -170,17 +214,25 @@ const Payment = ({}: Props) => {
               );
             })}
           </Stepper>
-          {activeStep === 0 && (
+          {activeStep === 0 && isOpen && (
             <ApproveModal
               handleClose={handleClose}
               setActiveStep={setActiveStep}
-              tokens={polygonTokens}
+              tokenNames={polygonTokenNames}
               tokenAddresses={polygonTokenAddresses}
+              tokenValues={polygonTokenValues}
               chain={"Polygon"}
             />
           )}
-          {activeStep === 1 && (
-            <BatchPay handleClose={handleClose} amounts={polygonAmounts} />
+          {activeStep === 1 && isOpen && !isLoading && (
+            <BatchPay
+              handleClose={handleClose}
+              contributors={polygonAmounts[1]}
+              tokenNames={polygonAmounts[0]}
+              tokenAddresses={getTokenAddresses(polygonAmounts[0], "Polygon")}
+              tokenValues={polygonAmounts[2]}
+              chain={"Polygon"}
+            />
           )}
         </Box>
       </Modal>

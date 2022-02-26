@@ -1,16 +1,17 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
 import "@rari-capital/solmate/src/utils/SafeTransferLib.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract Distributor {
-
-  using SafeTransferLib for ERC20;
+  using SafeERC20 for IERC20;
 
   event ethDistributed(address indexed sender, string indexed id);
   event tokensDistributed(address indexed sender, string indexed id);
   event tokenDistributed(address indexed sender, address indexed token,  string indexed id);
-  event tokensApproved(address indexed sender, ERC20[] tokens);
+  event tokensApproved(address indexed sender, address[] tokens);
 
   function distributeEther(
     address[] memory recipients,
@@ -39,7 +40,7 @@ contract Distributor {
   }
 
   function distributeToken(
-    ERC20 token,
+    address token,
     address[] memory recipients,
     uint256[] memory values,
     string memory id
@@ -54,14 +55,14 @@ contract Distributor {
     }
 
     for (uint256 i = 0; i < recipients.length; i++) {
-      token.safeTransferFrom(msg.sender, recipients[i], values[i]);
+      IERC20(token).safeTransferFrom(msg.sender, recipients[i], values[i]);
     }
 
     emit tokenDistributed(msg.sender, address(token), id);
   }
 
   function distributeTokens(
-    ERC20[] memory tokens,
+    address[] memory tokens,
     address[] memory recipients,
     uint256[] memory values,
     string memory id
@@ -77,31 +78,31 @@ contract Distributor {
     }
 
     for (uint256 i = 0; i < recipients.length; i++) {
-      tokens[i].safeTransferFrom(msg.sender, recipients[i], values[i]);
+      IERC20(tokens[i]).safeTransferFrom(msg.sender, recipients[i], values[i]);
     }
 
     emit tokensDistributed(msg.sender, id);
   }
 
   function approveTokens(
-    ERC20[] memory tokens
+    address[] memory tokens
   ) external {
     uint MAX_UINT = 2 ** 256 - 1;
     for (uint256 i = 0; i < tokens.length; i++) {
-      tokens[i].approve(address(this), MAX_UINT);
+      IERC20(tokens[i]).approve(address(this), MAX_UINT);
     }
 
     emit tokensApproved(msg.sender, tokens);
   }
 
   function pendingApprovals(
-    ERC20[] memory tokens,
+    address[] memory tokens,
     uint256[] memory values
   ) external view returns (bool[] memory){
     require(tokens.length == values.length, "APPROVE_LENGTH_MISMATCH");
     bool[] memory approvalPending = new bool[](tokens.length);
     for (uint256 i = 0; i < tokens.length; i++) {
-      if (tokens[i].allowance(msg.sender, address(this)) < values[i]){
+      if (IERC20(tokens[i]).allowance(msg.sender, address(this)) < values[i]){
         approvalPending[i] = false;
       }
     }

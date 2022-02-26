@@ -7,6 +7,7 @@ import {
   Tooltip,
   Avatar,
   Grid,
+  Button,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState, useEffect } from "react";
@@ -18,118 +19,133 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import { amountData } from "../../../constants";
 import Image from "next/image";
 import { Heading, modalStyle, getNetworkImage } from ".";
+import { batchPayTokens } from "../../../adapters/contract";
 
 type Props = {
   handleClose: Function;
-  amounts: any;
+  contributors: string[];
+  tokenNames: string[];
+  tokenAddresses: string[];
+  tokenValues: number[];
+  chain: string;
 };
 
-const BatchPay = ({ handleClose, amounts }: Props) => {
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+function getEthAddresses(contributors: any) {
+  return contributors.map((a: any) => a.ethAddress);
+}
 
+const BatchPay = ({
+  handleClose,
+  contributors,
+  tokenNames,
+  tokenAddresses,
+  tokenValues,
+  chain,
+}: Props) => {
+  const [isLoading, setIsLoading] = useState(false);
+  console.log(`contributors`);
+
+  console.log(contributors);
   return (
-    <>
-      <Grow timeout={500}>
-        <Box>
-          <Heading>
-            <div>Batch Pay</div>
-            <Box sx={{ flex: "1 1 auto" }} />
-            <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
-              <CloseIcon />
-            </IconButton>
-          </Heading>
-          <>
-            {Object.keys(amounts).map((chain, index) => (
-              <Box key={index}>
-                <Grid
-                  container
-                  spacing={1}
-                  key={index}
-                  sx={{ display: "flex" }}
-                  margin="8px"
-                >
-                  <Grid item xs={9}>
-                    <Box sx={{ display: "flex" }}>
-                      <Image
-                        src={getNetworkImage(chain) as any}
-                        alt="eth"
-                        height="26%"
-                        width="35%"
-                      />
+    <React.Fragment>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          textAlign: "center",
+        }}
+      >
+        <>
+          <Box>
+            <Grid
+              container
+              spacing={0}
+              direction="column"
+              alignItems="center"
+              justifyContent="center"
+              style={{ minHeight: "10vh" }}
+            >
+              <Grid item xs={3}>
+                <Box style={{ display: "flex" }}>
+                  <Image
+                    src={getNetworkImage(chain) as any}
+                    alt="eth"
+                    height="26%"
+                    width="35%"
+                  />
 
-                      <Typography
-                        color="text.primary"
-                        variant="h6"
-                        key={index}
-                        marginBottom="10px"
-                        marginLeft="10px"
-                      >
-                        {chain} network
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={3}>
-                    <PrimaryButton
-                      variant="outlined"
-                      sx={{ width: "30px", ml: "5px", flex: 1 }}
-                      onClick={() => setIsConfirmOpen(true)}
-                    >
-                      Pay
-                    </PrimaryButton>
-                  </Grid>
+                  <Typography
+                    color="text.primary"
+                    variant="h5"
+                    marginBottom="10px"
+                    marginLeft="10px"
+                  >
+                    {chain} network
+                  </Typography>
+                </Box>
+              </Grid>
+            </Grid>
+            {tokenAddresses.map((address: string, index: number) => (
+              <Grid
+                container
+                spacing={1}
+                key={index}
+                sx={{ display: "flex" }}
+                margin="8px"
+              >
+                <Grid item xs={8}>
+                  <Box sx={{ display: "flex" }}>
+                    <Avatar
+                      alt=""
+                      src={`https://www.gravatar.com/avatar/${`eewe`}?d=identicon&s=32`}
+                      sx={{ height: 30, width: 30 }}
+                    />
+                    <Typography color="text.primary" marginLeft="20px">
+                      {`contributors[index].username`}
+                    </Typography>
+                  </Box>
                 </Grid>
-                {amounts[chain as keyof typeof amounts][0].map(
-                  (token: string, index: number) => (
-                    <Grid
-                      container
-                      spacing={1}
-                      key={index}
-                      sx={{ display: "flex" }}
-                      margin="8px"
-                    >
-                      <Grid item xs={8}>
-                        <Box sx={{ display: "flex" }}>
-                          <Avatar
-                            alt=""
-                            src={
-                              amounts[chain as keyof typeof amounts][1][index]
-                                .profilePicture
-                                ? amounts[chain as keyof typeof amounts][1][
-                                    index
-                                  ].profilePicture._url
-                                : `https://www.gravatar.com/avatar/${
-                                    amounts[chain as keyof typeof amounts][1][
-                                      index
-                                    ].username
-                                  }?d=identicon&s=32`
-                            }
-                            sx={{ height: 30, width: 30 }}
-                          />
-                          <Typography color="text.primary" marginLeft="20px">
-                            {
-                              amounts[chain as keyof typeof amounts][1][index]
-                                .username
-                            }
-                          </Typography>
-                        </Box>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <Typography color="text.primary" marginLeft="20px">
-                          {amounts[chain as keyof typeof amounts][2][index]}{" "}
-                          {token}
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  )
-                )}
-              </Box>
+                <Grid item xs={4}>
+                  <Typography color="text.primary" marginLeft="20px">
+                    {tokenValues[index]} {tokenNames[index]}
+                  </Typography>
+                </Grid>
+              </Grid>
             ))}
+          </Box>
 
-            <Box sx={{ display: "flex", justifyContent: "flex-end" }}></Box>
-          </>
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}></Box>
+        </>
+        <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+          <Button
+            color="inherit"
+            variant="outlined"
+            onClick={() => handleClose()}
+            sx={{ mr: 1, color: "#f45151" }}
+            id="bCancel"
+          >
+            Cancel
+          </Button>
+          <Box sx={{ flex: "1 1 auto" }} />
+          <Button
+            onClick={() => {
+              setIsLoading(true);
+              batchPayTokens(
+                tokenAddresses,
+                getEthAddresses(contributors),
+                tokenValues
+              )
+                .then((res: any) => console.log(res))
+                .catch((err: any) => alert(err));
+            }}
+            variant="outlined"
+            id="bApprove"
+          >
+            Batch Pay
+          </Button>
         </Box>
-      </Grow>
-    </>
+      </Box>
+    </React.Fragment>
   );
 };
 
