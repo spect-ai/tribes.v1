@@ -16,7 +16,6 @@ import Board from "../boardsTab";
 
 const Overview = () => {
   const { tribe } = useTribe();
-
   return (
     <Wrapper>
       <Grid container>
@@ -37,12 +36,16 @@ const Overview = () => {
                 <Title>Contributors</Title>
                 <AvatarGroup max={4} sx={{ width: "fit-content" }}>
                   {tribe?.members?.map((member, idx) => (
-                    <Tooltip title={member.userId} key={idx}>
+                    <Tooltip title={member.username} key={idx}>
                       <Avatar
                         alt=""
-                        src={`https://www.gravatar.com/avatar/${getMD5String(
-                          member.userId
-                        )}?d=identicon&s=32`}
+                        src={
+                          member.profilePicture !== null
+                            ? member.profilePicture._url
+                            : `https://www.gravatar.com/avatar/${getMD5String(
+                                member.username
+                              )}?d=identicon&s=32`
+                        }
                       />
                     </Tooltip>
                   ))}
