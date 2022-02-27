@@ -67,17 +67,19 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
           loading={isLoading}
           onClick={() => {
             setIsLoading(true);
-            updateTaskMember(
-              Moralis,
-              task.members.filter((el) => el.username === member)[0],
-              type,
-              task.taskId
-            ).then((res: BoardData) => {
-              console.log(res);
-              setData(res);
-              setIsLoading(false);
-              handleClose(type);
-            });
+            console.log(`member`);
+            console.log(member);
+            const persons = member
+              ? []
+              : task.members.filter((el) => el.username === member);
+            updateTaskMember(Moralis, persons, type, task.taskId).then(
+              (res: BoardData) => {
+                console.log(res);
+                setData(res);
+                setIsLoading(false);
+                handleClose(type);
+              }
+            );
           }}
         >
           Save

@@ -285,7 +285,7 @@ export function updateTaskLabels(Moralis: any, tags: string[], taskId: string) {
 
 export function updateTaskMember(
   Moralis: any,
-  member: Member,
+  member: Member[],
   type: string,
   taskId: string
 ) {
@@ -360,6 +360,7 @@ export function updateTaskStatus(
     status: status,
     columnId: columnId,
   };
+  console.log(status);
   return Moralis.Cloud.run("updateTaskStatus", params);
 }
 

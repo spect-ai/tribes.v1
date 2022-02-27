@@ -435,7 +435,7 @@ function isDifferentAssignee(assignees1, assignees2) {
 }
 
 function handleAssigneeUpdate(task, userId, assignee) {
-  if (assignee && isDifferentAssignee(task.get("assignee"), [assignee])) {
+  if (assignee && isDifferentAssignee(task.get("assignee"), assignee)) {
     task.set("assignee", [assignee]);
   }
   return task;
@@ -443,7 +443,7 @@ function handleAssigneeUpdate(task, userId, assignee) {
 
 function handleReviewerUpdate(task, userId, reviewer) {
   if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
-    reviewer && task.set("reviewer", [reviewer]);
+    reviewer && task.set("reviewer", reviewer);
   }
   return task;
 }
@@ -561,7 +561,7 @@ Moralis.Cloud.define("assignToMe", async (request) => {
         profilePicture: request.user.get("profilePicture"),
         ethAddress: request.user.get("ethAddress"),
       });
-      // task = handleStatusChange(task, request.user.id, "Assigned");
+      task.set("status", 105);
       await Moralis.Object.saveAll(task, { useMasterKey: true });
       board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
       return board[0];
