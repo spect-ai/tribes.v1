@@ -16,7 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
 import { initBoard } from "../../../adapters/moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
@@ -24,6 +24,7 @@ import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { Member } from "../../../types";
 
 type Props = {
   isOpen: boolean;
@@ -51,12 +52,33 @@ const plugins = [
   createData("Meet", "Create meetings among your members"),
 ];
 
+interface SpaceMember {
+  [key: string]: Member;
+}
+
 const CreateBoard = ({ isOpen, handleClose }: Props) => {
   const { tribe } = useTribe();
   const { Moralis } = useMoralis();
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [isChecked, setIsChecked] = useState(
+    Array(tribe.members?.length).fill(false)
+  );
+
+  const toggleCheckboxValue = (index: number) => {
+    setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
+  };
+
+  const getMembers = () => {
+    var members = [];
+    for (let i = 0; i < tribe.members.length; i++) {
+      if (isChecked.at(i)) {
+        members.push(tribe.members.at(i));
+      }
+    }
+    return members;
+  };
   return (
     <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
       <Grow in={isOpen} timeout={500}>
@@ -100,6 +122,13 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                           inputProps={{
                             "aria-label": "select all desserts",
                           }}
+                          checked={isChecked.every((elem) => elem === true)}
+                          onChange={(e) => {
+                            setIsChecked(
+                              Array(tribe.members.length).fill(e.target.checked)
+                            );
+                            console.log(isChecked);
+                          }}
                         />
                       </TableCell>
                       <TableCell align="right" sx={{ color: "#99ccff" }}>
@@ -111,7 +140,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {rows.map((row, index) => (
+                    {tribe.members?.map((member, index) => (
                       <TableRow
                         key={index}
                         sx={{
@@ -130,17 +159,22 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                             inputProps={{
                               "aria-label": "select all desserts",
                             }}
+                            checked={isChecked.at(index)}
+                            onClick={() => {
+                              toggleCheckboxValue(index);
+                              console.log(isChecked);
+                            }}
                           />
                         </TableCell>
-                        <TableCell align="right">{row.username}</TableCell>
-                        <TableCell align="right">{row.role}</TableCell>
+                        <TableCell align="right">{member.username}</TableCell>
+                        <TableCell align="right">{member.role}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </AccordionDetails>
             </Accordion>
-            <Accordion disableGutters>
+            {/*<Accordion disableGutters>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"
@@ -193,15 +227,16 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                         <TableCell align="right">{row.role}</TableCell>
                       </TableRow>
                     ))}
-                  </TableBody>
+                          </TableBody>
                 </Table>
               </AccordionDetails>
-            </Accordion>
+            </Accordion>*/}
             <PrimaryButton
               variant="outlined"
               sx={{ width: "50%", mt: 2 }}
               onClick={() => {
-                initBoard(Moralis, name, tribe.teamId)
+                const members = getMembers();
+                initBoard(Moralis, name, members as Member[], tribe.teamId)
                   .then((res: any) => {
                     if (res) {
                       router.push(

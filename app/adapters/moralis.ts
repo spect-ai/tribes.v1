@@ -25,10 +25,17 @@ export function updateTribe(Moralis: any, team: Team, teamId: number) {
   return Moralis.Cloud.run("updateTeam", params);
 }
 
-export function initBoard(Moralis: any, name: string, teamId: number) {
+export function initBoard(
+  Moralis: any,
+  name: string,
+  members: Member[],
+  teamId: number
+) {
+  console.log(members);
   const params = {
     name: name,
     teamId: teamId,
+    members: members,
   };
   return Moralis.Cloud.run("initBoard", params);
 }

@@ -20,7 +20,16 @@ async function getCreatedTribe(
   return tribe;
 }
 
-async function getUpdatedTribeDetails(tribe, name, description, isPublic, discord, twitter, github, logo) {
+async function getUpdatedTribeDetails(
+  tribe,
+  name,
+  description,
+  isPublic,
+  discord,
+  twitter,
+  github,
+  logo
+) {
   tribe.set("name", name);
   tribe.set("description", description);
   tribe.set("isPublic", isPublic);
@@ -32,7 +41,9 @@ async function getUpdatedTribeDetails(tribe, name, description, isPublic, discor
 }
 
 async function getLatestEpochForTribe(team, epochId, task_epoch = false) {
-  task_epoch ? team.set("latestTaskEpoch", epochId) : team.set("latestContributionEpoch", epochId);
+  task_epoch
+    ? team.set("latestTaskEpoch", epochId)
+    : team.set("latestContributionEpoch", epochId);
   return team;
 }
 
@@ -66,6 +77,19 @@ async function getTribeObjByTeamId(teamId) {
 Moralis.Cloud.define("getTeam", async (request) => {
   const team = await getTribeObjByTeamId(request.params.teamId);
   if (team.length === 0) throw "Team not found";
+  logger.info(`members ${JSON.stringify(team[0].members)}`);
+  var userIds = team[0].members.map((a) => a.userId);
+  logger.info(`userIds ${JSON.stringify(userIds)}`);
+  var users = await getUserDetailsByUserIds(userIds);
+  var memberToRole = {};
+  for (var member of team[0].members) {
+    memberToRole[member.userId] = member.role;
+  }
+  for (var user of users) {
+    user["role"] = memberToRole[user.objectId];
+  }
+  logger.info(`user ${JSON.stringify(users)}`);
+  team[0].members = users;
   return team[0];
 });
 
@@ -157,11 +181,15 @@ Moralis.Cloud.define("updateMembers", async (request) => {
   try {
     var team = await getTribeByTeamId(request.params.teamId);
     if (hasAccess(request.user.id, team, (requiredAccess = "admin"))) {
-      var invitedMembers = request.params.members.filter((m) => m.updateType === "invite");
+      var invitedMembers = request.params.members.filter(
+        (m) => m.updateType === "invite"
+      );
       logger.info(`Invited members: ${JSON.stringify(invitedMembers)}`);
 
       var revokedMemberAddresses = [];
-      var revokedMembers = request.params.members.filter((m) => m.updateType === "revoke");
+      var revokedMembers = request.params.members.filter(
+        (m) => m.updateType === "revoke"
+      );
       revokedMembers.map((a) => revokedMemberAddresses.push(a.ethAddress));
       logger.info(`Revoked members: ${JSON.stringify(revokedMemberAddresses)}`);
 
@@ -173,7 +201,9 @@ Moralis.Cloud.define("updateMembers", async (request) => {
 
       return true;
     } else {
-      logger.info(`User ${request.user.id} doesnt have access to update member roles`);
+      logger.info(
+        `User ${request.user.id} doesnt have access to update member roles`
+      );
       return false;
     }
   } catch (err) {
@@ -189,7 +219,9 @@ Moralis.Cloud.define("checkMemberInTeam", async (request) => {
   }
   const members = team[0].members;
   if (members) {
-    let result = members.filter((member) => member.userId == request.params.userId);
+    let result = members.filter(
+      (member) => member.userId == request.params.userId
+    );
     if (result.length > 0) {
       return true;
     } else {
@@ -220,11 +252,15 @@ Moralis.Cloud.define("addMemberToTribe", async (request) => {
         return "invite accepted";
       }
     } catch (err) {
-      logger.error(`Error while adding Member in team ${request.params.teamId}: ${err}`);
+      logger.error(
+        `Error while adding Member in team ${request.params.teamId}: ${err}`
+      );
       return "Error while adding Member";
     }
   } else {
-    logger.error(`Error while adding Member in team ${request.params.teamId}: invide not valid`);
+    logger.error(
+      `Error while adding Member in team ${request.params.teamId}: invide not valid`
+    );
     return "Invite Not Valid";
   }
 });
