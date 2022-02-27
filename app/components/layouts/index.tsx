@@ -1,9 +1,13 @@
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "../modules/footer";
 import Navbar from "../modules/navbar";
 import Sidebar from "../modules/sidebar";
-
+import { useMoralis } from "react-moralis";
+import GlobalContextProvider, {
+  initContracts,
+  useGlobal,
+} from "../../context/globalContext";
 interface Props {
   children: React.ReactNode;
 }
@@ -33,6 +37,13 @@ const Main = styled.main`
 `;
 
 const Layout = ({ children }: Props) => {
+  const { Moralis } = useMoralis();
+  const { dispatch } = useGlobal();
+
+  useEffect(() => {
+    initContracts(dispatch);
+    //initRegistry(Moralis)
+  }, []);
   return (
     <OuterDiv>
       <Sidebar />

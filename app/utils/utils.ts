@@ -1,5 +1,6 @@
 import MD5 from "crypto-js/md5";
-import { chainTokenRegistry, monthMap } from "../constants";
+import { monthMap } from "../constants";
+import { Registry, Chain, Token } from "../types";
 
 export const smartTrim = (string: string, maxLength: number) => {
   if (!string) {
@@ -50,16 +51,6 @@ export function getMD5String(string: string) {
   return MD5(string).toString();
 }
 
-export function getTokenOptions(chain: any) {
-  var tokenOptions =
-    chain === "Ethereum"
-      ? Object.keys(chainTokenRegistry["Ethereum"])
-      : chain === "Polygon"
-      ? Object.keys(chainTokenRegistry["Polygon"])
-      : [];
-  return tokenOptions;
-}
-
 export function activityFormatter(status: number, date: Date, actor: string) {
   if (status === 100) {
     return `${smartTrim(actor, 8)} created this task on ${date.getDate()}  ${
@@ -91,4 +82,35 @@ export function formatTime(date: Date) {
   minutes = ("0" + minutes).slice(-2);
   var strTime = hours + ":" + minutes + " " + ampm;
   return strTime;
+}
+
+export function getFlattenedNetworks(registry: Registry) {
+  var networks: Array<Chain> = [];
+  console.log(`registry`);
+
+  console.log(registry);
+  for (var networkId of Object.keys(registry)) {
+    networks.push({
+      name: registry[networkId].name,
+      chainId: networkId,
+    } as Chain);
+  }
+  return networks;
+}
+
+export function getFlattenedTokens(registry: Registry, chainId: string) {
+  var tokens: Array<Token> = [];
+  for (var tokenAddress of registry[chainId].tokenAddresses) {
+    tokens.push({
+      address: tokenAddress,
+      symbol: registry[chainId].tokens[tokenAddress].symbol,
+    });
+  }
+  return tokens;
+}
+
+export function getFlattenedCurrencies(registry: Registry, chainId: string) {
+  var currencies = getFlattenedTokens(registry, chainId);
+  currencies = [...currencies, { symbol: registry[chainId].nativeCurrency }];
+  return currencies;
 }

@@ -87,6 +87,16 @@ export interface Epoch {
 //   _created_at: any;
 // }
 
+export interface Token {
+  address?: string;
+  symbol: string;
+}
+
+export interface Chain {
+  chainId: string;
+  name: string;
+}
+
 export interface Task {
   taskId: string;
   title: string;
@@ -100,9 +110,9 @@ export interface Task {
   assignee: Member[];
   reviewer: Member[];
   creator: string;
-  chain: "polygon" | "ethereum" | "bsc";
+  chain: Chain;
   value: number;
-  token: string;
+  token: Token;
   activity: [
     {
       actor: string;
@@ -160,11 +170,13 @@ export type TokenInfo = {
 };
 
 export type NetworkInfo = {
-  [tokenAddress: string]: TokenInfo;
-  distributorAddress: string;
+  tokenAddresses: string[];
+  distributorAddress?: string;
   name: string;
   mainnet: boolean;
   chainId: string;
+  nativeCurrency: string;
+  tokens: { [tokenAddress: string]: TokenInfo };
 };
 
 export type Registry = {

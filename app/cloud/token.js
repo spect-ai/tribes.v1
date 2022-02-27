@@ -13,28 +13,6 @@ Moralis.Cloud.define("addERC20Token", async (request) => {
   }
 });
 
-Moralis.Cloud.define("getTokens", async (request) => {
-  const logger = Moralis.Cloud.getLogger();
-  try {
-    const tokenQuery = new Moralis.Query("Addresses");
-    var tokens = await tokenQuery.find();
-    var chainTokenMap = {};
-    for (var token of tokens) {
-      if (!(token.get("chain") in chainTokenMap)) {
-        chainTokenMap[token.get("chain")] = {};
-      }
-      if (!(token.get("symbol") in chainTokenMap[token.get("chain")])) {
-        chainTokenMap[token.get("chain")][token.get("symbol")] =
-          token.get("address");
-      }
-    }
-    return chainTokenMap;
-  } catch (err) {
-    logger.error(`Error while get chain token map ${err}`);
-    return false;
-  }
-});
-
 Moralis.Cloud.define("getRegistry", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
@@ -58,16 +36,20 @@ Moralis.Cloud.define("getRegistry", async (request) => {
         name: network.name,
         mainnet: network.mainnet,
         chainId: network.chainId,
+        nativeCurrency: network.nativeCurrency,
+        tokenAddresses: [],
+        tokens: {},
       };
       for (var addr of network.addresses) {
         if (addr.type === "distributor") {
-          registry[network.chainId]["distributor"] = addr.address;
+          registry[network.chainId].distributorAddress = addr.address;
         } else if (addr.type === "erc20") {
-          registry[network.chainId][addr.address] = {
+          registry[network.chainId].tokens[addr.address] = {
             address: addr.address,
             name: addr.name,
             symbol: addr.symbol,
           };
+          registry[network.chainId].tokenAddresses.push(addr.address);
         }
       }
     }

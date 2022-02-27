@@ -3,6 +3,8 @@ import { State, initialState } from "./initalstate";
 import { Action, reducer } from "./reducer";
 import Moralis from "moralis/types";
 import { initializeMumbaiContracts } from "../../adapters/contract";
+import { getRegistry } from "../../adapters/moralis";
+import { Registry } from "../../types";
 
 declare global {
   interface Window {
@@ -38,6 +40,19 @@ const initContracts = async (dispatch: React.Dispatch<Action>) => {
   }
 };
 
+const initRegistry = async (dispatch: React.Dispatch<Action>, moralis: any) => {
+  getRegistry(moralis).then((res: Registry) => {
+    try {
+      dispatch({
+        type: "SET_REGISTRY",
+        registry: res,
+      });
+    } catch (error: any) {
+      dispatch({ type: "SET_ERROR", error });
+    }
+  });
+};
+
 const setNavbarLogo = async (
   dispatch: React.Dispatch<Action>,
   logo: string
@@ -63,4 +78,4 @@ const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
 const useGlobal = () => useContext(GlobalContext);
 
 export default GlobalContextProvider;
-export { useGlobal, initContracts, setNavbarLogo };
+export { useGlobal, initContracts, setNavbarLogo, initRegistry };

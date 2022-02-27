@@ -35,10 +35,8 @@ import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import { labelsMapping, statusMapping } from "../../../constants";
-import { chainTokenRegistry, actionMap, monthMap } from "../../../constants";
-import { getTokenOptions } from "../../../utils/utils";
+import { actionMap, monthMap } from "../../../constants";
 import { distributeEther } from "../../../adapters/contract";
-import { useGlobal } from "../../../context/globalContext";
 import DoneIcon from "@mui/icons-material/Done";
 import DatePopover from "./datePopover";
 import LabelPopover from "./labelPopover";
@@ -72,7 +70,6 @@ const EditTask = ({
   const { data, setData } = useBoard();
   const { Moralis, user } = useMoralis();
   const [isLoading, setIsLoading] = useState(false);
-
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState({} as any);
   const [description, setDescription] = useState(task.description);
@@ -203,7 +200,7 @@ const EditTask = ({
             </Typography>
             <InnerInfo>
               <Typography sx={{ fontSize: 14 }} color="primary">
-                {task.value} {task.token}
+                {task.value} {task.token.symbol}
               </Typography>
             </InnerInfo>
           </Info>

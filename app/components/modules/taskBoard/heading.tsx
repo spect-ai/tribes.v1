@@ -154,8 +154,8 @@ const Heading = (props: Props) => {
         <StyledTab label="Board" />
         <StyledTab label="Epoch" />
         <StyledTab label="Settings" />
-        <StyledTab label="Analytics" />
-        <StyledTab label="Meetings" disabled />
+        {/* <StyledTab label="Analytics" />
+        <StyledTab label="Meetings" disabled />*/}
       </StyledTabs>
     </Container>
   );

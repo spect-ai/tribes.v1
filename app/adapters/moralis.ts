@@ -1,4 +1,4 @@
-import { Team, Epoch, Member } from "../types/index";
+import { Team, Epoch, Member, Chain, Token } from "../types/index";
 
 export function getOrCreateUser(Moralis: any) {
   return Moralis.Cloud.run("getOrCreateUser");
@@ -299,8 +299,8 @@ export function updateTaskMember(
 
 export function updateTaskReward(
   Moralis: any,
-  chain: string,
-  token: string,
+  chain: Chain,
+  token: Token,
   value: number,
   taskId: string
 ) {
@@ -445,4 +445,8 @@ export function getBatchPayAmount(Moralis: any, boardId: string) {
     boardId: boardId,
   };
   return Moralis.Cloud.run("getBatchPayAmount", params);
+}
+
+export function getRegistry(Moralis: any) {
+  return Moralis.Cloud.run("getRegistry");
 }

@@ -18,6 +18,10 @@ export type Action =
       logo: State["logo"];
     }
   | {
+      type: "SET_REGISTRY";
+      registry: State["registry"];
+    }
+  | {
       type: "END_ASYNC";
     };
 
@@ -55,6 +59,12 @@ export const reducer = (state: State, action: Action) => {
           ...state.contracts,
           distributorContract: action.contract,
         },
+      };
+    }
+    case "SET_REGISTRY": {
+      return {
+        ...state,
+        registry: action.registry,
       };
     }
     default:

@@ -1,3 +1,5 @@
+import { Registry } from "../types";
+
 export const initialData = {
   tasks: {
     "task-0": {
@@ -119,20 +121,6 @@ export const monthMap = {
   11: "Dec",
 };
 
-export const chainTokenRegistry = {
-  Ethereum: { Wmatic: "", Weth: "", USDC: "" }, // rinkeby
-  Polygon: {
-    WMatic: "0x9c3c9283d3e44854697cd22d3faa240cfb032889",
-    Weth: "",
-    USDC: "",
-  }, // mumbai
-};
-
-export const distributorRegistry = {
-  Ethereum: "",
-  Polygon: "",
-};
-
 export const actionMap = {
   1: "Created",
   5: "Assigned",
@@ -202,4 +190,102 @@ export const labelsMapping = {
   Deployment: "#ff9800",
   Documentation: "#ff5722",
   POC: "#66bb6a",
+};
+
+export const registryTemp: Registry = {
+  "1": {
+    name: "ethereum",
+    mainnet: true,
+    chainId: "1",
+    nativeCurrency: "ETHER",
+    tokenAddresses: [],
+    tokens: {},
+  },
+  "4": {
+    name: "rinkeby",
+    mainnet: false,
+    chainId: "4",
+    nativeCurrency: "ETHER",
+    tokenAddresses: ["0xc778417E063141139Fce010982780140Aa0cD5Ab"],
+    tokens: {
+      "0xc778417E063141139Fce010982780140Aa0cD5Ab": {
+        address: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+        name: "Wrapped Ethereum",
+        symbol: "WETH",
+      },
+    },
+  },
+  "137": {
+    name: "polygon",
+    mainnet: true,
+    chainId: "137",
+    nativeCurrency: "MATIC",
+    tokenAddresses: ["0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270"],
+    tokens: {
+      "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270": {
+        address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+        name: "Wrapped Matic",
+        symbol: "WMATIC",
+      },
+    },
+  },
+  "43113": {
+    name: "fuji",
+    mainnet: false,
+    chainId: "43113",
+    nativeCurrency: "AVAX",
+    tokenAddresses: [
+      "0x08a978a0399465621e667C49CD54CC874DC064Eb",
+      "0xf672c3cDD3C143C05Aada34f50d4ad519558994F",
+    ],
+    tokens: {
+      "0x08a978a0399465621e667C49CD54CC874DC064Eb": {
+        address: "0x08a978a0399465621e667C49CD54CC874DC064Eb",
+        name: "Avalanche Tether",
+        symbol: "ausdt",
+      },
+      "0xf672c3cDD3C143C05Aada34f50d4ad519558994F": {
+        address: "0xf672c3cDD3C143C05Aada34f50d4ad519558994F",
+        name: "Avalanche Chainlink Token",
+        symbol: "alink",
+      },
+    },
+  },
+  "43114": {
+    name: "avalanche",
+    mainnet: true,
+    chainId: "43114",
+    nativeCurrency: "AVAX",
+    tokenAddresses: [],
+    tokens: {},
+  },
+  "80001": {
+    name: "mumbai",
+    mainnet: false,
+    chainId: "80001",
+    nativeCurrency: "MATIC",
+    tokenAddresses: [
+      "0x9c3c9283d3e44854697cd22d3faa240cfb032889",
+      "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
+      "0xBCbfC29df3e0044c4D755423aD00d9B49fE2E62c",
+    ],
+    tokens: {
+      "0x9c3c9283d3e44854697cd22d3faa240cfb032889": {
+        address: "0x9c3c9283d3e44854697cd22d3faa240cfb032889",
+        name: "Wrapped Matic",
+        symbol: "WMATIC",
+      },
+      "0x326C977E6efc84E512bB9C30f76E30c160eD06FB": {
+        address: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
+        name: "Chainlink Token",
+        symbol: "LINK",
+      },
+      "0xBCbfC29df3e0044c4D755423aD00d9B49fE2E62c": {
+        address: "0xBCbfC29df3e0044c4D755423aD00d9B49fE2E62c",
+        name: "Demo Spect",
+        symbol: "DSpect",
+      },
+    },
+    distributorAddress: "0x05588517bC463f607Dca0E09d1f73CDaa30cfF10",
+  },
 };

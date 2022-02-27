@@ -1,7 +1,8 @@
 import { Button, InputBase } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState } from "react";
-import { BoardData, useBoard } from ".";
+import { BoardData } from "../../../types";
+import { useBoard } from ".";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { CreateTaskContainer } from "./createTask";

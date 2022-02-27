@@ -126,9 +126,14 @@ Moralis.Cloud.define("addTask", async (request) => {
 
       var task = new Moralis.Object("Task");
       task.set("taskId", taskId);
-      // task.set("status", 100);
-      task.set("token", "WMatic"); //TODO: remove hardcoded value
-      task.set("chain", "Polygon"); //TODO: remove hardcoded value
+      task.set("token", {
+        address: "0x9c3c9283d3e44854697cd22d3faa240cfb032889",
+        symbol: "WMatic",
+      }); //TODO: remove hardcoded value
+      task.set("chain", {
+        chainId: 80001,
+        name: "mumbai",
+      }); //TODO: remove hardcoded value
       task.set("boardId", request.params.boardId);
       task.set("title", request.params.title);
       task.set("value", parseInt(request.params.value));
@@ -144,6 +149,7 @@ Moralis.Cloud.define("addTask", async (request) => {
         },
       ]);
       task.set("issueLink", request.params.issueLink);
+      task.set("status", 100);
 
       await Moralis.Object.saveAll([task], { useMasterKey: true });
       await Moralis.Object.saveAll([board], { useMasterKey: true });
@@ -509,8 +515,8 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
     {
       group: {
         objectId: {
-          chain: "$chain",
-          token: "$token",
+          chain: "$chain.chainId",
+          token: "$token.address",
           assigneeId: "$assignee.objectId",
         },
         value: { $sum: "$value" },
@@ -521,42 +527,25 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
   logger.info(`tyasks ${JSON.stringify(tasks)}`);
 
   var paymentAmount = {};
-  var polygonContributorOrder = [];
-  var polygonTokenOrder = [];
-  var polygonValueOrder = [];
-  var ethereumContributorOrder = [];
-  var ethereumTokenOrder = [];
-  var ethereumValueOrder = [];
   logger.info(`tyasks2 ${JSON.stringify(paymentAmount)}`);
   for (var task of tasks) {
-    if (task["objectId"]["chain"] === "Polygon") {
-      var user = await getUsernameProfilePicByUserId(
-        task["objectId"]["assigneeId"][0]
-      );
-      polygonContributorOrder.push(user);
-      polygonTokenOrder.push(task["objectId"]["token"]);
-      polygonValueOrder.push(task["value"]);
-    } else if (task["objectId"]["chain"] === "Ethereum") {
-      var user = await getUsernameProfilePicByUserId(
-        task["objectId"]["assigneeId"][0]
-      );
-      ethereumContributorOrder.push(user);
-      ethereumTokenOrder.push(task["objectId"]["token"]);
-      ethereumValueOrder.push(task["value"]);
+    if (!(task["objectId"]["chain"] in paymentAmount)) {
+      paymentAmount[task["objectId"]["chain"]] = {
+        tokenNames: [],
+        contributors: [],
+        tokenValues: [],
+      };
     }
+    var user = await getUsernameProfilePicByUserId(
+      task["objectId"]["assigneeId"][0]
+    );
+    paymentAmount[task["objectId"]["chain"]]["tokenNames"].push(
+      task["objectId"]["token"]
+    );
+    paymentAmount[task["objectId"]["chain"]]["contributors"].push(user);
+    paymentAmount[task["objectId"]["chain"]]["tokenValues"].push(task["value"]);
   }
-  if (polygonTokenOrder.length > 0)
-    paymentAmount["Polygon"] = [
-      polygonTokenOrder,
-      polygonContributorOrder,
-      polygonValueOrder,
-    ];
-  if (ethereumTokenOrder.length > 0)
-    paymentAmount["Ethereum"] = [
-      ethereumTokenOrder,
-      ethereumContributorOrder,
-      ethereumValueOrder,
-    ];
+  logger.info(`tasks ${JSON.stringify(tasks)}`);
 
   return paymentAmount;
 });
