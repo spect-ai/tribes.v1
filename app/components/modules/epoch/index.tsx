@@ -14,12 +14,18 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { PrimaryButton } from "../../elements/styledComponents";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
 import DownloadIcon from "@mui/icons-material/Download";
+import { getEpochs } from "../../../adapters/moralis";
+import { useMoralis } from "react-moralis";
+import { useRouter } from "next/router";
+import { Epoch } from "../../../types";
+import { monthMap } from "../../../constants";
+import { useBoard } from "../taskBoard";
 
 type Props = {
   expanded: boolean;
@@ -48,36 +54,27 @@ function createData(
   };
 }
 
-const rows = [
-  createData("epoch-Y2GQUvnCwM61-1", "Contributions", "19-02-2022", true, [
-    { name: "0xavp.eth", value: 6, votes: 8 },
-    { name: "chaks.eth", value: 2, votes: 5 },
-    { name: "ateet", value: 3, votes: 4 },
-    { name: "rishabh", value: 2, votes: 9 },
-  ]),
-  createData("epoch-Y2GQUvnCwM61-2", "Task valuation", "15-02-2022", false, [
-    { name: "Create board design", value: 4, votes: 6 },
-    { name: "Fix bug related to edit task", value: 2, votes: 4 },
-    { name: "Github Integration", value: 9, votes: 3 },
-    { name: "Discord Integration", value: 7, votes: 8 },
-    { name: "Fix issue#17", value: 1, votes: 1 },
-    { name: "Fix submissions field", value: 3, votes: 3 },
-  ]),
-  createData("epoch-Y2GQUvnCwM61-3", "Task valuation", "11-02-2022", false, [
-    { name: "Create board design", value: 4, votes: 6 },
-    { name: "Fix bug related to edit task", value: 2, votes: 4 },
-    { name: "Github Integration", value: 9, votes: 3 },
-    { name: "Fix submissions field", value: 3, votes: 3 },
-  ]),
-];
-
 const EpochList = ({ expanded, handleChange }: Props) => {
+  const { Moralis } = useMoralis();
+  const router = useRouter();
+  const { data, setData } = useBoard();
+  const bid = router.query.bid as string;
+  const [epochs, setEpochs] = useState([] as Epoch[]);
+  console.log(bid);
+  useEffect(() => {
+    getEpochs(Moralis, bid)
+      .then((res: any) => {
+        console.log(res);
+        setEpochs(res);
+      })
+      .catch((err: any) => alert(err));
+  }, []);
   return (
     <Container>
       <Accordion hidden>
         <AccordionSummary />
       </Accordion>
-      {rows.map((epoch, index) => (
+      {epochs.map((epoch, index) => (
         <Accordion
           disableGutters
           key={index}
@@ -98,13 +95,14 @@ const EpochList = ({ expanded, handleChange }: Props) => {
               }}
             >
               <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                {epoch.epochId}
+                {epoch.name}
               </Typography>
               <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                Started on {epoch.date}
+                Started on {monthMap[epoch.startTime.getMonth()]}{" "}
+                {epoch.startTime.getDate()}
               </Typography>
               <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                {epoch.epochType}
+                {epoch.type}
               </Typography>
               {epoch.active && <Chip label="Ongoing" color="primary" />}
             </Box>
@@ -117,20 +115,22 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                     <TableHead>
                       <TableRow>
                         <TableCell sx={{ color: "#99ccff" }}>
-                          {epoch.epochType === "Contributions"
+                          {epoch.type === "Contribution"
                             ? "Contributor"
                             : "Task"}
                         </TableCell>
                         <TableCell align="right" sx={{ color: "#99ccff" }}>
                           Votes Given
                         </TableCell>
-                        <TableCell align="right" sx={{ color: "#99ccff" }}>
-                          Value
-                        </TableCell>
+                        {data.access === "admin" && epoch.active === false && (
+                          <TableCell align="right" sx={{ color: "#99ccff" }}>
+                            Value
+                          </TableCell>
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {epoch.data.map((row, index) => (
+                      {epoch.members.map((member, index) => (
                         <TableRow
                           key={index}
                           sx={{
@@ -140,10 +140,17 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                           }}
                         >
                           <TableCell component="th" scope="row">
-                            {row.name}
+                            {data.memberDetails[member.objectId].username}
                           </TableCell>
-                          <TableCell align="right">{row.votes}</TableCell>
-                          <TableCell align="right">{row.value}</TableCell>
+                          <TableCell align="right">
+                            {epoch.votesGivenByCaller[member.objectId]}
+                          </TableCell>
+                          {data.access === "admin" &&
+                            epoch.active === false && (
+                              <TableCell align="right">
+                                {member.value}
+                              </TableCell>
+                            )}
                         </TableRow>
                       ))}
                     </TableBody>
@@ -175,7 +182,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                       Budget
                     </Typography>
                     <Typography sx={{ textAlign: "right" }}>
-                      100 WMatic
+                      {epoch.budget} WMatic
                     </Typography>
                   </InfoContainer>
                   {epoch.active ? (

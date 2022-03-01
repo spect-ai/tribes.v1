@@ -37,6 +37,14 @@ async function getUserDetailsByUserIds(userIds) {
   return await userQuery.aggregate(pipeline, { useMasterKey: true });
 }
 
+async function getUserIdToUserDetailsMapByUserIds(userIds) {
+  const userDetails = await getUserDetailsByUserIds(userIds);
+  var userDetailsMap = {};
+  for (var userDetail of userDetails)
+    userDetailsMap[userDetail.objectId] = userDetail;
+  return userDetailsMap;
+}
+
 async function getUsernameProfilePicByUserId(userId) {
   const userQuery = new Moralis.Query("User");
   const pipeline = [

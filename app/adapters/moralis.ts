@@ -139,19 +139,6 @@ export function getTask(Moralis: any, taskId: string) {
   return Moralis.Cloud.run("getTask", params);
 }
 
-export function startEpoch(Moralis: any, epoch: any) {
-  const params = {
-    startTime: epoch.startTime,
-    duration: epoch.duration,
-    members: epoch.members,
-    type: epoch.type,
-    strategy: epoch.strategy,
-    budget: epoch.budget,
-    teamId: epoch.teamId,
-  };
-  return Moralis.Cloud.run("startEpoch", params);
-}
-
 export function updateMembers(Moralis: any, updatePayload: any) {
   const params = {
     members: updatePayload.members,
@@ -457,4 +444,42 @@ export function getBatchPayAmount(Moralis: any, boardId: string) {
 
 export function getRegistry(Moralis: any) {
   return Moralis.Cloud.run("getRegistry");
+}
+
+export function startEpoch(
+  Moralis: any,
+  teamId: number,
+  spaceId: string,
+  name: string,
+  type: string,
+  duration: number,
+  strategy: string,
+  members: Member[],
+  budget: number,
+  token: Token,
+  chain: Chain
+) {
+  const durationInMilliseconds = duration * 86400000; // day => milliseconds
+  const params = {
+    teamId: teamId,
+    spaceId: spaceId,
+    name: name,
+    type: type,
+    startTime: Date.now(),
+    duration: durationInMilliseconds,
+    strategy: strategy,
+    members: members,
+    budget: budget,
+    token: token,
+    chain: chain,
+  };
+  return Moralis.Cloud.run("startEpoch", params);
+}
+
+export function getEpochs(Moralis: any, spaceId: string) {
+  const params = {
+    spaceId: spaceId,
+  };
+  console.log(params);
+  return Moralis.Cloud.run("getEpochs", params);
 }

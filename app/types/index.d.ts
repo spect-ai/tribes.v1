@@ -25,7 +25,7 @@ export type Member = {
   role: string;
   allocation: number;
   votesRemaining: number;
-  votesGiven: number;
+  votesGiven: Object<string, number>;
   votesReceived: number;
   value: number;
 };
@@ -69,6 +69,7 @@ export interface Epoch {
   active: boolean;
   tasks: List<Object<string, any>>;
   name: string;
+  votesGivenByCaller: Object<string, number>;
   _createdAt: object;
   _id: string;
   _updatedAt: object;

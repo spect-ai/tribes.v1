@@ -17,6 +17,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   checkboxClasses,
+  Grid,
 } from "@mui/material";
 import React, { useState } from "react";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
@@ -26,21 +27,36 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useBoard } from "../taskBoard";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useMoralis } from "react-moralis";
-import { Member } from "../../../types";
+import { Member, Chain, Registry, Task, Token } from "../../../types";
 import { startEpoch } from "../../../adapters/moralis";
+import {
+  getFlattenedNetworks,
+  getFlattenedTokens,
+  getFlattenedCurrencies,
+} from "../../../utils/utils";
+import { registryTemp } from "../../../constants";
 
 type Props = {};
 
 const CreateEpochModal = (props: Props) => {
   const { data } = useBoard();
   const { Moralis } = useMoralis();
-
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [duration, setDuration] = useState("");
   const [type, setType] = useState("");
   const [strategy, setStrategy] = useState("");
   const [budget, setBudget] = useState("");
+  const [chain, setChain] = useState({
+    chainId: "80001",
+    name: "mumbai",
+  } as Chain);
+  const [token, setToken] = useState(
+    registryTemp["80001"].tokens[
+      "0x9c3c9283d3e44854697cd22d3faa240cfb032889"
+    ] as Token
+  );
+
   const [isChecked, setIsChecked] = useState(
     Array(data.members?.length).fill(false)
   );
@@ -127,16 +143,64 @@ const CreateEpochModal = (props: Props) => {
                 sx={{ mb: 2 }}
                 placeholder="Duration (in days)"
               />
-              <TextField
-                id="filled-hidden-label-normal"
-                value={budget}
-                onChange={(event) => {
-                  setBudget(event.target.value);
-                }}
-                fullWidth
-                sx={{ mb: 2 }}
-                placeholder="Budget (in Preferred token)"
-              />
+              <Box sx={{ flex: "1 1 auto" }}>
+                <Grid container spacing={1}>
+                  <Grid item xs={4}>
+                    <TextField
+                      id="filled-hidden-label-normal"
+                      value={budget}
+                      onChange={(event) => {
+                        setBudget(event.target.value);
+                      }}
+                      sx={{ mb: 2 }}
+                      placeholder="Budget"
+                    />
+                  </Grid>{" "}
+                  <Grid item xs={4}>
+                    <Autocomplete
+                      options={getFlattenedCurrencies(
+                        registryTemp as Registry,
+                        chain.chainId
+                      )}
+                      getOptionLabel={(option) => option.symbol}
+                      value={token}
+                      onChange={(event, newValue) => {
+                        setToken(newValue as Token);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id="filled-hidden-label-normal"
+                          placeholder="Network Chain"
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Autocomplete
+                      options={getFlattenedNetworks(registryTemp as Registry)}
+                      getOptionLabel={(option) => option.name}
+                      value={chain}
+                      onChange={(event, newValue) => {
+                        setChain(newValue as Chain);
+                        let tokens = getFlattenedCurrencies(
+                          registryTemp as Registry,
+                          newValue?.chainId as string
+                        );
+                        if (tokens.length > 0) setToken(tokens[0]);
+                        else setToken({} as Token);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          id="filled-hidden-label-normal"
+                          placeholder="Network Chain"
+                        />
+                      )}
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
               <Autocomplete
                 options={["Quadratic voting"]}
                 //getOptionLabel={(option) => option.symbol}
@@ -249,13 +313,15 @@ const CreateEpochModal = (props: Props) => {
                   startEpoch(
                     Moralis,
                     data.teamId,
-                    data._id,
+                    data.objectId,
                     name,
                     type,
                     parseInt(duration),
                     strategy,
                     members as Member[],
-                    parseInt(budget)
+                    parseInt(budget),
+                    token,
+                    chain
                   )
                     .then((res: any) => {
                       handleClose();

@@ -92,7 +92,7 @@ const TribeHeading = (props: Props) => {
             <PeopleOutlineIcon />
           </IconButton>
         </Tooltip>
-        <CreateEpochModal />
+        {/* <CreateEpochModal /> */}
       </Box>
       <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
         <Typography
