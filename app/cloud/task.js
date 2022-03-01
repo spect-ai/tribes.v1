@@ -60,7 +60,7 @@ Moralis.Cloud.define("getTask", async (request) => {
       if (!task) throw `Task ${request.params.taskId} not found`;
 
       // Get all board members so they can be displayed as options for reviewers and assignees
-      const board = await getBoardObjByObjectId(task.boardId);
+      const board = await getBoardObjByObjectId(task.boardId, request.user.id);
       var memberIds = [];
       logger.info(`board ${JSON.stringify(board)}`);
 
@@ -154,7 +154,8 @@ Moralis.Cloud.define("addTask", async (request) => {
       await Moralis.Object.saveAll([task], { useMasterKey: true });
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       const boardObj = await getBoardObjWithTasksByObjectId(
-        request.params.boardId
+        request.params.boardId,
+        request.user.id
       );
       return boardObj[0];
     } else {
@@ -165,7 +166,8 @@ Moralis.Cloud.define("addTask", async (request) => {
       `Error while adding task in board ${request.params.boardId}: ${err}`
     );
     const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId
+      request.params.boardId,
+      request.user.id
     );
     return boardObj[0];
   }
@@ -185,7 +187,10 @@ Moralis.Cloud.define("updateTaskStatus", async (request) => {
         request.params.task?.taskId
       )}`
     );
-    const board = await getBoardObjWithTasksByObjectId(request.params.boardId);
+    const board = await getBoardObjWithTasksByObjectId(
+      request.params.boardId,
+      request.user.id
+    );
     return board[0];
   } catch (err) {
     logger.error(
@@ -206,13 +211,19 @@ Moralis.Cloud.define("updateTaskDeadline", async (request) => {
     );
     await Moralis.Object.saveAll(task, { useMasterKey: true });
     logger.info(`Updated task ${JSON.stringify(task)}`);
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   } catch (err) {
     logger.error(
       `Error while updating task with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   }
 });
@@ -229,13 +240,19 @@ Moralis.Cloud.define("updateTaskLabels", async (request) => {
     );
     await Moralis.Object.saveAll(task, { useMasterKey: true });
     logger.info(`Updated task ${JSON.stringify(task)}`);
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   } catch (err) {
     logger.error(
       `Error while updating task with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   }
 });
@@ -262,13 +279,19 @@ Moralis.Cloud.define("updateTaskMember", async (request) => {
     }
     await Moralis.Object.saveAll(task, { useMasterKey: true });
     logger.info(`Updated task ${JSON.stringify(task)}`);
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   } catch (err) {
     logger.error(
       `Error while updating task with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   }
 });
@@ -291,13 +314,19 @@ Moralis.Cloud.define("updateTaskReward", async (request) => {
     );
     await Moralis.Object.saveAll(task, { useMasterKey: true });
     logger.info(`Updated task ${JSON.stringify(task)}`);
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   } catch (err) {
     logger.error(
       `Error while updating task with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   }
 });
@@ -319,13 +348,19 @@ Moralis.Cloud.define("updateTaskSubmission", async (request) => {
     );
     await Moralis.Object.saveAll(task, { useMasterKey: true });
     logger.info(`Updated task ${JSON.stringify(task)}`);
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   } catch (err) {
     logger.error(
       `Error while updating task with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   }
 });
@@ -346,13 +381,19 @@ Moralis.Cloud.define("updateTaskDescription", async (request) => {
     );
     await Moralis.Object.saveAll(task, { useMasterKey: true });
     logger.info(`Updated task ${JSON.stringify(task)}`);
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   } catch (err) {
     logger.error(
       `Error while updating task with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   }
 });
@@ -369,13 +410,19 @@ Moralis.Cloud.define("updateTaskTitle", async (request) => {
     );
     await Moralis.Object.saveAll(task, { useMasterKey: true });
     logger.info(`Updated task ${JSON.stringify(task)}`);
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   } catch (err) {
     logger.error(
       `Error while updating task with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   }
 });
@@ -563,7 +610,10 @@ Moralis.Cloud.define("assignToMe", async (request) => {
       });
       task.set("status", 105);
       await Moralis.Object.saveAll(task, { useMasterKey: true });
-      board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+      board = await getBoardObjWithTasksByObjectId(
+        task.get("boardId"),
+        request.user.id
+      );
       return board[0];
     }
   } catch (err) {
@@ -583,14 +633,20 @@ Moralis.Cloud.define("closeTask", async (request) => {
     ) {
       task = handleStatusChange(task, request.user.id, "Closed");
       await Moralis.Object.saveAll(task, { useMasterKey: true });
-      var board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+      var board = await getBoardObjWithTasksByObjectId(
+        task.get("boardId"),
+        request.user.id
+      );
       return board[0];
     }
   } catch (err) {
     logger.error(
       `Error while adding task in board ${request.params.boardId}: ${err}`
     );
-    var board = await getBoardObjWithTasksByObjectId(task.get("boardId"));
+    var board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
     return board[0];
   }
 });

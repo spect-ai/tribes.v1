@@ -17,11 +17,17 @@ export interface User {
   _created_at: any;
 }
 
-type Member = {
+export type Member = {
   ethAddress: string;
   objectId: string;
   profilePicture: any;
   username: string;
+  role: string;
+  allocation: number;
+  votesRemaining: number;
+  votesGiven: number;
+  votesReceived: number;
+  value: number;
 };
 
 export interface Team {
@@ -50,18 +56,19 @@ export interface Team {
 }
 
 export interface Epoch {
-  startTime: object;
+  startTime: Date;
   duration: number;
   endTime: Date;
-  members: List<string>;
-  memberStats: List<Object<string, any>>;
+  members: Member[];
   type: string;
   strategy: string;
   budget: number;
   teamId: number;
+  spaceId: string;
   epochNumber: number;
   active: boolean;
-  tasks: Task[];
+  tasks: List<Object<string, any>>;
+  name: string;
   _createdAt: object;
   _id: string;
   _updatedAt: object;
@@ -159,6 +166,9 @@ export interface BoardData {
   createdAt: string;
   updatedAt: string;
   statusList: string[];
+  members: Member[];
+  memberDetails: Object<string, Member>;
+  access: string;
   _id: string;
   _createdAt: string;
 }

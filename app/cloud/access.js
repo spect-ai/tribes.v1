@@ -29,6 +29,15 @@ function isAdmin(userId, entity) {
   return false;
 }
 
+function getSpaceAccess(userId, entity) {
+  for (var member of entity.members) {
+    if (member["userId"] === userId) {
+      return member["role"];
+    }
+  }
+  return "none";
+}
+
 function isTaskCreator(task, userId) {
   return task.get("creator") === userId;
 }
