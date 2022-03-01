@@ -84,6 +84,17 @@ const CreateEpochModal = (props: Props) => {
     }
     return members;
   };
+
+  const getChoices = () => {
+    var choices = [];
+    console.log(data.members);
+    for (let i = 0; i < data.members.length; i++) {
+      if (isChecked.at(i)) {
+        choices.push(data.members[i].userId);
+      }
+    }
+    return choices;
+  };
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -311,6 +322,8 @@ const CreateEpochModal = (props: Props) => {
                 sx={{ width: "50%", mt: 2 }}
                 onClick={() => {
                   const members = getMembers();
+                  const choices = getChoices();
+
                   startEpoch(
                     Moralis,
                     data.teamId,
@@ -320,6 +333,7 @@ const CreateEpochModal = (props: Props) => {
                     parseInt(duration),
                     strategy,
                     members as Member[],
+                    choices,
                     parseInt(budget),
                     token,
                     chain

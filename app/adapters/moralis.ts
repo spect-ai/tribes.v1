@@ -455,6 +455,7 @@ export function startEpoch(
   duration: number,
   strategy: string,
   members: Member[],
+  choices: string[],
   budget: number,
   token: Token,
   chain: Chain
@@ -469,6 +470,7 @@ export function startEpoch(
     duration: durationInMilliseconds,
     strategy: strategy,
     members: members,
+    choices: choices,
     budget: budget,
     token: token,
     chain: chain,
@@ -480,6 +482,14 @@ export function getEpochs(Moralis: any, spaceId: string) {
   const params = {
     spaceId: spaceId,
   };
-  console.log(params);
   return Moralis.Cloud.run("getEpochs", params);
+}
+
+export function saveVotes(Moralis: any, epochId: string, votesGiven: object) {
+  console.log(votesGiven);
+  const params = {
+    epochId: epochId,
+    votesGiven: votesGiven,
+  };
+  return Moralis.Cloud.run("saveVotes", params);
 }

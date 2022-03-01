@@ -21,7 +21,7 @@ import { PrimaryButton } from "../../elements/styledComponents";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
 import DownloadIcon from "@mui/icons-material/Download";
-import { getEpochs } from "../../../adapters/moralis";
+import { getEpochs, saveVotes } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { Epoch } from "../../../types";
@@ -34,26 +34,6 @@ type Props = {
     panel: string
   ) => (event: React.SyntheticEvent, newExpanded: boolean) => void;
 };
-
-function createData(
-  epochId: string,
-  epochType: string,
-  date: string,
-  active: boolean,
-  data: {
-    name: string;
-    value: number;
-    votes: number;
-  }[]
-) {
-  return {
-    epochId,
-    epochType,
-    date,
-    active,
-    data,
-  };
-}
 
 type VotesGivenOneEpoch = {
   [key: string]: number;
@@ -86,6 +66,20 @@ const EpochList = ({ expanded, handleChange }: Props) => {
     temp[epochid][memberId] = value;
     setVotesGiven(temp);
   };
+
+  const handleVotesRemaining = (
+    epochid: string,
+    memberId: string,
+    newVoteVal: number
+  ) => {
+    var tempReceived = Object.assign({}, votesRemaining);
+    tempReceived[epochid] =
+      tempReceived[epochid] -
+      newVoteVal ** 2 +
+      votesGiven[epochid][memberId] ** 2;
+    setVotesRemaining(tempReceived);
+  };
+
   useEffect(() => {
     setIsLoading(true);
     getEpochs(Moralis, bid)
@@ -165,7 +159,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {epoch.members.map((member, index) => (
+                      {epoch.choices.map((choice, index) => (
                         <TableRow
                           key={index}
                           sx={{
@@ -175,22 +169,27 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                           }}
                         >
                           <TableCell component="th" scope="row">
-                            {data.memberDetails[member.objectId].username}
+                            {epoch.type === "Contribution"
+                              ? data.memberDetails[choice].username
+                              : epoch.taskDetails[choice].title}
                           </TableCell>
                           {epoch.active === true && !isLoading && (
                             <TableCell align="right">
                               <TextField
                                 id="filled-hidden-label-normal"
-                                value={
-                                  votesGiven[epoch.objectId][member.objectId]
-                                }
+                                value={votesGiven[epoch.objectId][choice]}
                                 type="number"
                                 placeholder="Value"
                                 size="small"
                                 onChange={(event) => {
+                                  handleVotesRemaining(
+                                    epoch.objectId,
+                                    choice,
+                                    parseInt(event.target.value)
+                                  );
                                   handleVotesGiven(
                                     epoch.objectId,
-                                    member.objectId,
+                                    choice,
                                     parseInt(event.target.value)
                                   );
                                 }}
@@ -200,7 +199,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                           {data.access === "admin" &&
                             epoch.active === false && (
                               <TableCell align="right">
-                                {member.value}
+                                {epoch.value[choice]}
                               </TableCell>
                             )}
                         </TableRow>
@@ -246,6 +245,15 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                         variant="outlined"
                         sx={{ mx: 4 }}
                         size="small"
+                        onClick={() => {
+                          saveVotes(
+                            Moralis,
+                            epoch.objectId,
+                            votesGiven[epoch.objectId]
+                          )
+                            .then((res: any) => console.log(res))
+                            .catch((err: any) => alert(err));
+                        }}
                       >
                         Save
                       </PrimaryButton>

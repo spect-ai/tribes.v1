@@ -31,6 +31,12 @@ export type Member = {
   value: number;
 };
 
+export type MemberStats = {
+  allocation: number;
+  votesRemaining: number;
+  votesGiven: Object<string, number>;
+};
+
 export interface Team {
   teamId: number;
   name: string;
@@ -60,14 +66,16 @@ export interface Epoch {
   startTime: Date;
   duration: number;
   endTime: Date;
-  members: Member[];
+  choices: [];
+  taskDetails: Object<string, Task>;
+  memberStats: Object<string, MemberStats>;
+  value: Object<string, number>;
   type: string;
   strategy: string;
   teamId: number;
   spaceId: string;
   epochNumber: number;
   active: boolean;
-  tasks: List<Object<string, any>>;
   name: string;
   votesGivenByCaller: Object<string, number>;
   votesRemaining: number;
