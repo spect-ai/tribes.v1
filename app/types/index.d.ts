@@ -20,6 +20,7 @@ export interface User {
 export type Member = {
   ethAddress: string;
   objectId: string;
+  userId: string; //TODO: Remove after chaing everything to objectId
   profilePicture: any;
   username: string;
   role: string;
@@ -62,7 +63,6 @@ export interface Epoch {
   members: Member[];
   type: string;
   strategy: string;
-  budget: number;
   teamId: number;
   spaceId: string;
   epochNumber: number;
@@ -70,6 +70,13 @@ export interface Epoch {
   tasks: List<Object<string, any>>;
   name: string;
   votesGivenByCaller: Object<string, number>;
+  votesRemaining: number;
+  votesAllocated: number;
+  votesReceived: number;
+  chain: Chain;
+  token: Token;
+  budget: number;
+  objectId: string;
   _createdAt: object;
   _id: string;
   _updatedAt: object;

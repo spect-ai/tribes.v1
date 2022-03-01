@@ -281,15 +281,16 @@ const CreateEpochModal = (props: Props) => {
                               }}
                             />
                           </TableCell>
-                          <TableCell align="right">{member.username}</TableCell>
+                          {isOpen && (
+                            <TableCell align="right">
+                              {data.memberDetails[member.userId].username}
+                            </TableCell>
+                          )}
                           <TableCell align="right">
                             <TextField
                               id="filled-hidden-label-normal"
                               value={allocations[index]}
                               onChange={(event) => {
-                                console.log(allocations);
-                                console.log(event.target.value);
-
                                 handleAllocation(
                                   index,
                                   parseInt(event.target.value)

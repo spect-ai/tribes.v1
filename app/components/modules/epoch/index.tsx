@@ -13,6 +13,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  TextField,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -54,21 +55,53 @@ function createData(
   };
 }
 
+type VotesGivenOneEpoch = {
+  [key: string]: number;
+};
+
+type VotesGivenAllEpochs = {
+  [key: string]: VotesGivenOneEpoch;
+};
+
+type VotesRemaining = {
+  [key: string]: number;
+};
+
 const EpochList = ({ expanded, handleChange }: Props) => {
   const { Moralis } = useMoralis();
   const router = useRouter();
   const { data, setData } = useBoard();
   const bid = router.query.bid as string;
   const [epochs, setEpochs] = useState([] as Epoch[]);
-  console.log(bid);
+  const [votesGiven, setVotesGiven] = useState({} as VotesGivenAllEpochs);
+  const [votesRemaining, setVotesRemaining] = useState({} as VotesRemaining);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleVotesGiven = (
+    epochid: string,
+    memberId: string,
+    value: number
+  ) => {
+    var temp = Object.assign({}, votesGiven);
+    temp[epochid][memberId] = value;
+    setVotesGiven(temp);
+  };
   useEffect(() => {
+    setIsLoading(true);
     getEpochs(Moralis, bid)
       .then((res: any) => {
         console.log(res);
         setEpochs(res);
+        for (var epoch of res) {
+          votesGiven[epoch.objectId] = epoch.votesGivenByCaller;
+          votesRemaining[epoch.objectId] = epoch.votesRemaining;
+        }
+
+        setIsLoading(false);
       })
       .catch((err: any) => alert(err));
   }, []);
+
   return (
     <Container>
       <Accordion hidden>
@@ -119,9 +152,11 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                             ? "Contributor"
                             : "Task"}
                         </TableCell>
-                        <TableCell align="right" sx={{ color: "#99ccff" }}>
-                          Votes Given
-                        </TableCell>
+                        {epoch.active === true && (
+                          <TableCell align="right" sx={{ color: "#99ccff" }}>
+                            Votes Given
+                          </TableCell>
+                        )}
                         {data.access === "admin" && epoch.active === false && (
                           <TableCell align="right" sx={{ color: "#99ccff" }}>
                             Value
@@ -142,9 +177,26 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                           <TableCell component="th" scope="row">
                             {data.memberDetails[member.objectId].username}
                           </TableCell>
-                          <TableCell align="right">
-                            {epoch.votesGivenByCaller[member.objectId]}
-                          </TableCell>
+                          {epoch.active === true && !isLoading && (
+                            <TableCell align="right">
+                              <TextField
+                                id="filled-hidden-label-normal"
+                                value={
+                                  votesGiven[epoch.objectId][member.objectId]
+                                }
+                                type="number"
+                                placeholder="Value"
+                                size="small"
+                                onChange={(event) => {
+                                  handleVotesGiven(
+                                    epoch.objectId,
+                                    member.objectId,
+                                    parseInt(event.target.value)
+                                  );
+                                }}
+                              />
+                            </TableCell>
+                          )}
                           {data.access === "admin" &&
                             epoch.active === false && (
                               <TableCell align="right">
@@ -167,9 +219,11 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                         fontSize: 14,
                       }}
                     >
-                      Votes left
+                      Votes remaining
                     </Typography>
-                    <Typography sx={{ textAlign: "right" }}>12</Typography>
+                    <Typography sx={{ textAlign: "right" }}>
+                      {votesRemaining[epoch.objectId]}
+                    </Typography>
                   </InfoContainer>
                   <InfoContainer>
                     <Typography
@@ -182,7 +236,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                       Budget
                     </Typography>
                     <Typography sx={{ textAlign: "right" }}>
-                      {epoch.budget} WMatic
+                      {epoch.budget} {epoch.token.symbol}
                     </Typography>
                   </InfoContainer>
                   {epoch.active ? (

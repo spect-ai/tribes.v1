@@ -56,15 +56,18 @@ const Heading = (props: Props) => {
   const handleClose = () => setIsOpen(false);
   const { Moralis, isInitialized } = useMoralis();
   const [boards, setBoards] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (isInitialized) {
+      setIsLoading(true);
       getBoards(Moralis, parseInt(id))
         .then((res: any) => {
           console.log(res);
           setBoards(res);
         })
         .catch((err: any) => alert(err));
+      setIsLoading(false);
     }
   }, [isInitialized, data.name]);
 

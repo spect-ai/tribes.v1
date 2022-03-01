@@ -1,10 +1,10 @@
-function getVotesGivenByCaller(epoch, callerId) {
+function getVoteStatsByCaller(epoch, callerId) {
   logger.info(`epoch ${JSON.stringify(epoch)}`);
   logger.info(`callerId ${callerId}`);
 
   for (member of epoch.members) {
     if (member.objectId === callerId) {
-      return member.votesGiven;
+      return member;
     }
   }
   return null;
@@ -21,7 +21,13 @@ async function getEpochsBySpaceId(spaceId, callerId) {
   const pipeline = [{ match: { spaceId: spaceId } }];
   var epochs = await epochQuery.aggregate(pipeline);
   for (var epoch of epochs) {
-    epoch.votesGivenByCaller = getVotesGivenByCaller(epoch, callerId);
+    var callerStats = getVoteStatsByCaller(epoch, callerId);
+    if (callerStats) {
+      epoch.votesGivenByCaller = callerStats.votesGiven;
+      epoch.votesAllocated = callerStats.votesAllocated;
+      epoch.votesRemaining = callerStats.votesRemaining;
+      epoch.votesReceived = callerStats.votesReceived;
+    }
   }
   return epochs;
 }
@@ -30,9 +36,16 @@ async function getEpochByObjectId(objectId, callerId) {
   const epochQuery = new Moralis.Query("Epoch");
   const pipeline = [{ match: { objectId: objectId } }];
   const epoch = await epochQuery.aggregate(pipeline);
-  epoch.votesGivenByCaller = getVotesGivenByCaller(epoch, callerId);
-  if (epoch.length > 0) return epoch[0];
-  else {
+  if (epoch.length > 0) {
+    var callerStats = getVoteStatsByCaller(epoch[0], callerId);
+    if (callerStats) {
+      epoch[0].votesGivenByCaller = callerStats.votesGiven;
+      epoch[0].votesAllocated = callerStats.votesAllocated;
+      epoch[0].votesRemaining = callerStats.votesRemaining;
+      epoch0[0].votesReceived = callerStats.votesReceived;
+    }
+    return epoch[0];
+  } else {
     logger.info("No epochs with given object id");
     return false;
   }
@@ -45,9 +58,9 @@ async function getEpochsAdminViewBySpaceId(spaceId, callerId) {
 }
 
 async function getEpochNonAdminViewByObjectId(spaceId, callerId) {
-  const epoch = getEpochsBySpaceId(spaceId, callerId);
+  const epoch = await getEpochsBySpaceId(spaceId, callerId);
 
-  return epochs;
+  return epoch;
 }
 
 function initializeEpochMembers(members) {
