@@ -114,3 +114,15 @@ export function getFlattenedCurrencies(registry: Registry, chainId: string) {
   currencies = [...currencies, { symbol: registry[chainId].nativeCurrency }];
   return currencies;
 }
+
+export function downloadCSV(content: Array<Array<any>>, filename: string) {
+  let csvContent =
+    "data:text/csv;charset=utf-8," + content.map((e) => e.join(",")).join("\n");
+  var encodedUri = encodeURI(csvContent);
+  var link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", `${filename}.csv`);
+  document.body.appendChild(link); // Required for FF
+
+  link.click();
+}

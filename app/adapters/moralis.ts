@@ -219,13 +219,6 @@ export function giftContributors(
   return Moralis.Cloud.run("giftContributors", params);
 }
 
-export function endEpoch(Moralis: any, epochId: string) {
-  const params = {
-    epochId: epochId,
-  };
-  return Moralis.Cloud.run("endEpoch", params);
-}
-
 export function createTasks(
   Moralis: any,
   epochId: string,
@@ -492,4 +485,11 @@ export function saveVotes(Moralis: any, epochId: string, votesGiven: object) {
     votesGiven: votesGiven,
   };
   return Moralis.Cloud.run("saveVotes", params);
+}
+
+export function endEpoch(Moralis: any, epochId: string) {
+  const params = {
+    epochId: epochId,
+  };
+  return Moralis.Cloud.run("endEpoch", params);
 }

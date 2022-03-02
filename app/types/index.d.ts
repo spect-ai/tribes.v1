@@ -24,7 +24,7 @@ export type Member = {
   profilePicture: any;
   username: string;
   role: string;
-  allocation: number;
+  votesAllocated: number;
   votesRemaining: number;
   votesGiven: Object<string, number>;
   votesReceived: number;
@@ -32,7 +32,7 @@ export type Member = {
 };
 
 export type MemberStats = {
-  allocation: number;
+  votesAllocated: number;
   votesRemaining: number;
   votesGiven: Object<string, number>;
 };
@@ -69,7 +69,8 @@ export interface Epoch {
   choices: [];
   taskDetails: Object<string, Task>;
   memberStats: Object<string, MemberStats>;
-  value: Object<string, number>;
+  values: Object<string, number>;
+  votes: Object<string, number>;
   type: string;
   strategy: string;
   teamId: number;
@@ -154,6 +155,7 @@ export interface Task {
   };
   issueLink?: string;
   boardId: string;
+  createdAt: string;
 }
 
 export interface Contracts {

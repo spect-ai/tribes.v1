@@ -21,12 +21,14 @@ import { PrimaryButton } from "../../elements/styledComponents";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
 import DownloadIcon from "@mui/icons-material/Download";
-import { getEpochs, saveVotes } from "../../../adapters/moralis";
+import PaidIcon from "@mui/icons-material/Paid";
+import { getEpochs, saveVotes, endEpoch } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { Epoch } from "../../../types";
 import { monthMap } from "../../../constants";
 import { useBoard } from "../taskBoard";
+import { downloadCSV } from "../../../utils/utils";
 
 type Props = {
   expanded: boolean;
@@ -62,7 +64,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
     memberId: string,
     value: number
   ) => {
-    var temp = Object.assign({}, votesGiven);
+    var temp = Object.assign({}, votesGiven); // Shallow copy
     temp[epochid][memberId] = value;
     setVotesGiven(temp);
   };
@@ -72,12 +74,63 @@ const EpochList = ({ expanded, handleChange }: Props) => {
     memberId: string,
     newVoteVal: number
   ) => {
-    var tempReceived = Object.assign({}, votesRemaining);
+    var tempReceived = Object.assign({}, votesRemaining); // Shallow copy
     tempReceived[epochid] =
       tempReceived[epochid] -
       newVoteVal ** 2 +
       votesGiven[epochid][memberId] ** 2;
     setVotesRemaining(tempReceived);
+  };
+
+  const handleEpochUpdateAfterSave = (index: number, newEpoch: Epoch) => {
+    var temp = epochs.filter(() => true); // Shallow copy
+    temp[index] = newEpoch;
+    setEpochs(temp);
+  };
+
+  const handleExport = (epoch: Epoch) => {
+    if (epoch.type === "Contribution") {
+      var rows = [
+        ["username", "address", "allocation", "given", "received", "reward"],
+      ];
+      for (var choice of epoch.choices) {
+        rows.push([
+          data.memberDetails[choice].username,
+          data.memberDetails[choice].ethAddress,
+          epoch.memberStats[choice].votesAllocated,
+          Object.values(epoch.memberStats[choice].votesGiven).reduce(
+            (a, b) => (a as number) + (b as number)
+          ),
+          epoch.votes[choice],
+          epoch.values[choice],
+        ]);
+      }
+      downloadCSV(rows, `${epoch.name}_${epoch.type}_${epoch.startTime}`);
+    } else if (epoch.type === "Task") {
+      var rows = [
+        [
+          "id",
+          "title",
+          "description",
+          "created by",
+          "created on",
+          "received",
+          "reward",
+        ],
+      ];
+      for (var choice of epoch.choices) {
+        rows.push([
+          choice,
+          epoch.taskDetails[choice].title,
+          epoch.taskDetails[choice].description,
+          epoch.taskDetails[choice].creator,
+          epoch.taskDetails[choice].createdAt,
+          epoch.votes[choice],
+          epoch.values[choice],
+        ]);
+      }
+      downloadCSV(rows, `${epoch.name}_${epoch.type}_${epoch.startTime}`);
+    }
   };
 
   useEffect(() => {
@@ -196,12 +249,14 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                               />
                             </TableCell>
                           )}
-                          {data.access === "admin" &&
-                            epoch.active === false && (
-                              <TableCell align="right">
-                                {epoch.value[choice]}
-                              </TableCell>
-                            )}
+                          {data.access === "admin" && epoch.active === false && (
+                            <TableCell align="right">
+                              {choice in epoch.values && epoch.values[choice]
+                                ? epoch.values[choice].toFixed(2)
+                                : 0}{" "}
+                              {epoch.token.symbol}
+                            </TableCell>
+                          )}
                         </TableRow>
                       ))}
                     </TableBody>
@@ -210,6 +265,22 @@ const EpochList = ({ expanded, handleChange }: Props) => {
               </Grid>
               <Grid item xs={4}>
                 <DetailContainer>
+                  {epoch.active && (
+                    <InfoContainer>
+                      <Typography
+                        sx={{
+                          color: "#99ccff",
+                          textAlign: "right",
+                          fontSize: 14,
+                        }}
+                      >
+                        Votes remaining
+                      </Typography>
+                      <Typography sx={{ textAlign: "right" }}>
+                        {votesRemaining[epoch.objectId]}
+                      </Typography>
+                    </InfoContainer>
+                  )}
                   <InfoContainer>
                     <Typography
                       sx={{
@@ -218,21 +289,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                         fontSize: 14,
                       }}
                     >
-                      Votes remaining
-                    </Typography>
-                    <Typography sx={{ textAlign: "right" }}>
-                      {votesRemaining[epoch.objectId]}
-                    </Typography>
-                  </InfoContainer>
-                  <InfoContainer>
-                    <Typography
-                      sx={{
-                        color: "#99ccff",
-                        textAlign: "right",
-                        fontSize: 14,
-                      }}
-                    >
-                      Budget
+                      Total Budget
                     </Typography>
                     <Typography sx={{ textAlign: "right" }}>
                       {epoch.budget} {epoch.token.symbol}
@@ -261,16 +318,49 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                         endIcon={<CloseIcon />}
                         variant="outlined"
                         size="small"
+                        onClick={() => {
+                          console.log(`hshsh`);
+                          endEpoch(Moralis, epoch.objectId)
+                            .then((res: any) => {
+                              console.log(res);
+                              handleEpochUpdateAfterSave(index, res);
+                            })
+                            .catch((err: any) => alert(err));
+                        }}
                       >
                         End Epoch
                       </PrimaryButton>
                     </ButtonContainer>
                   ) : (
                     <ButtonContainer>
+                      {epoch.type === "Contribution" ? (
+                        <PrimaryButton
+                          endIcon={<PaidIcon />}
+                          variant="outlined"
+                          sx={{ mx: 4 }}
+                          size="small"
+                          onClick={() => {}}
+                        >
+                          Payout countributors
+                        </PrimaryButton>
+                      ) : (
+                        <PrimaryButton
+                          endIcon={<PaidIcon />}
+                          variant="outlined"
+                          sx={{ mx: 4 }}
+                          size="small"
+                          onClick={() => {}}
+                        >
+                          Set task rewards
+                        </PrimaryButton>
+                      )}
                       <PrimaryButton
                         endIcon={<DownloadIcon />}
                         variant="outlined"
                         size="small"
+                        onClick={() => {
+                          handleExport(epoch);
+                        }}
                       >
                         Export to csv
                       </PrimaryButton>

@@ -28,6 +28,11 @@ async function getEpochByObjectId(objectId, callerId) {
   const epochQuery = new Moralis.Query("Epoch");
   const pipeline = [{ match: { objectId: objectId } }];
   const epoch = await epochQuery.aggregate(pipeline);
+  if (callerId in epoch[0].memberStats) {
+    epoch[0].votesGivenByCaller = epoch[0].memberStats[callerId].votesGiven;
+    epoch[0].votesAllocated = epoch[0].memberStats[callerId].votesAllocated;
+    epoch[0].votesRemaining = epoch[0].memberStats[callerId].votesRemaining;
+  }
   if (epoch.length > 0) {
     return epoch[0];
   } else {
@@ -59,8 +64,8 @@ function initializeEpochMembers(members, choices) {
     epochMembers[member.userId] = {
       objectId: member.userId,
       votesGiven: memberIdsToVotesGiven,
-      votesRemaining: member.allocation,
-      votesAllocated: member.allocation,
+      votesRemaining: member.votesAllocated,
+      votesAllocated: member.votesAllocated,
     };
   }
   logger.info(`epochMembers ${JSON.stringify(members)}`);
@@ -105,8 +110,31 @@ Moralis.Cloud.define("endEpoch", async (request) => {
   try {
     var epoch = await getEpochParseObjByObjectId(request.params.epochId);
     epoch.set("active", false);
+    var votes = {};
+    var values = {};
+    const memberStats = epoch.get("memberStats");
+    var totalVotes = 0;
+    for (var memberId of Object.keys(memberStats)) {
+      for (var choice of Object.keys(memberStats[memberId].votesGiven)) {
+        if (!(choice in votes)) {
+          votes[choice] = 0;
+        }
+        logger.info(
+          `qwertt ${JSON.stringify(memberStats[memberId].votesGiven)}`
+        );
+        logger.info(choice);
+        votes[choice] += memberStats[memberId].votesGiven[choice];
+        totalVotes += memberStats[memberId].votesGiven[choice];
+      }
+    }
+    for (var choice of epoch.get("choices")) {
+      values[choice] = (votes[choice] * epoch.get("budget")) / totalVotes;
+    }
+    epoch.set("values", values);
+    epoch.set("votes", votes);
+
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
-    return await getEpochsBySpaceId(request.params.spaceId, request.user.id);
+    return await getEpochByObjectId(request.params.epochId, request.user.id);
   } catch (err) {
     logger.error(`Error while creating board ${err}`);
     throw `${err}`;
@@ -139,7 +167,7 @@ Moralis.Cloud.define("saveVotes", async (request) => {
     var memberStats = epoch.get("memberStats");
     if (
       request.user.id in memberStats &&
-      totalVotesGiven < memberStats[request.user.id].votesAllocated
+      totalVotesGiven <= memberStats[request.user.id].votesAllocated
     ) {
       logger.info(`memberStats ${JSON.stringify(memberStats)}`);
 

@@ -78,7 +78,7 @@ const CreateEpochModal = (props: Props) => {
     var members = [];
     for (let i = 0; i < data.members.length; i++) {
       if (isChecked.at(i)) {
-        data.members[i]["allocation"] = allocations.at(i);
+        data.members[i]["votesAllocated"] = allocations.at(i);
         members.push(data.members.at(i));
       }
     }
