@@ -56,7 +56,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
                 {task.value && (
                   <Chip color="#99ccff">
                     <MonetizationOnIcon sx={{ fontSize: 12 }} />
-                    {task.value} {task.token.symbol}
+                    {/* {task.value} {task.token.symbol} */}
                   </Chip>
                 )}
                 {task.deadline && (

@@ -7,43 +7,27 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import Image from "next/image";
-import React from "react";
-import Logo from "../../../images/logo2.svg";
+import Link from "next/link";
+import React, { useEffect, useState } from "react";
+import { useMoralis } from "react-moralis";
+import { getMyTeams } from "../../../adapters/moralis";
+import { getMD5String } from "../../../utils/utils";
 import CreateTribeModal from "../createTribeModal";
 
 type Props = {};
 
-// const SidebarDiv = styled("div")(({ theme }) => ({
-//   minHeight: "100vh",
-//   width: "6rem",
-//   paddingTop: "10rem",
-//   alignItems: "center",
-//   display: "flex",
-//   flexDirection: "column",
-//   backgroundColor: "#00194A",
-//   position: "fixed", /* Fixed Sidebar (stay in place on scroll) */
-//   z-index: 1, /* Stay on top */
-// }));
-
-const SidebarContainer = styled.div`
-  minheight: 100vh;
-  display: flex;
-  flex-direction: column;
-  width: 4.5rem;
-  padding-top: 10rem;
-  align-items: center;
-  background-color: #00194a;
-  z-index: 1; /* Stay on top */
-`;
-
-// const SidebarAvatar = styled(Avatar)(({ theme }) => ({
-//   width: "3rem",
-//   height: "3rem",
-//   objectFit: "cover",
-// }));
-
 const Sidebar = (props: Props) => {
+  const { Moralis, isInitialized } = useMoralis();
+  const [myTeams, setMyTeams] = useState([] as any[]);
+  useEffect(() => {
+    if (isInitialized) {
+      getMyTeams(Moralis).then((res: any) => {
+        console.log(res);
+        setMyTeams(res);
+      });
+    }
+  }, [isInitialized]);
+
   return (
     <SidebarContainer>
       <Box
@@ -57,14 +41,37 @@ const Sidebar = (props: Props) => {
           zIndex: 1,
         }}
       >
-        <Avatar
-          alt="Username"
-          sx={{ width: "3rem", height: "3rem", objectFit: "cover" }}
-        />
+        {myTeams.map((team: any, index: number) => (
+          <Link key={index} href={`/tribe/${team.get("teamId")}`} passHref>
+            <Avatar
+              alt="Username"
+              sx={{ width: "3rem", height: "3rem", objectFit: "cover", my: 1 }}
+              src={
+                team.get("logo") ||
+                `https://www.gravatar.com/avatar/${getMD5String(
+                  team.id
+                )}?d=identicon&s=32`
+              }
+            />
+          </Link>
+        ))}
         <CreateTribeModal />
       </Box>
     </SidebarContainer>
   );
 };
+
+const SidebarContainer = styled.div`
+  minheight: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 4.5rem;
+  margin-top: -8rem;
+  padding-top: 4rem;
+  align-items: center;
+  justify-content: center;
+  background-color: #00194a;
+  z-index: 1; /* Stay on top */
+`;
 
 export default Sidebar;

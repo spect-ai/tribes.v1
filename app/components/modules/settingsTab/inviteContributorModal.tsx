@@ -21,9 +21,9 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
   const { getTeam, setTribe } = useTribe();
   const [state, setState] = useState({
     open: false,
-    text: '',
-    severity: 'success'
-  })
+    text: "",
+    severity: "success",
+  });
 
   const { open, text, severity } = state;
   const {
@@ -33,114 +33,136 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
   } = useForm<ModalFormInput>();
 
   const onSubmit: SubmitHandler<ModalFormInput> = async (value) => {
-    sendInvitations(Moralis, String(value.address), Number(id), String(user?.id))
-        .then((res: any[]) => {
-          console.log(sendInvitations, res)
-          if(res)
-          {
-            setState({ ...state, text: 'Invite Sent', open: true });
-          }
-          else
-          {
-            setState({ severity: 'error', text: 'Invite Not Sent', open: true });
-          }
-        })
-        .catch((ex: any) => {
-          console.log('sendInvitations', ex)
-          setState({ severity: 'error', text: 'Error', open: true });
-        });
-    
+    sendInvitations(
+      Moralis,
+      String(value.address),
+      Number(id),
+      String(user?.id)
+    )
+      .then((res: any[]) => {
+        console.log(sendInvitations, res);
+        if (res) {
+          setState({ ...state, text: "Invite Sent", open: true });
+        } else {
+          setState({ severity: "error", text: "Invite Not Sent", open: true });
+        }
+      })
+      .catch((ex: any) => {
+        console.log("sendInvitations", ex);
+        setState({ severity: "error", text: "Error", open: true });
+      });
+
     setTimeout(function () {
-        setIsOpen(false);
-        }, 2000);
+      setIsOpen(false);
+    }, 2000);
   };
 
   const onCopyTextAdmin: SubmitHandler<ModalFormInput> = async (value) => {
-    if (navigator && navigator.clipboard && navigator.clipboard.writeText)
-    {
-      setState({ ...state, text: 'Copied To Clipboard', open: true });
-      const link = value.inviteLinkAdmin
+    if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+      setState({ ...state, text: "Copied To Clipboard", open: true });
+      const link = value.inviteLinkAdmin;
       return navigator.clipboard.writeText(link);
+    } else {
+      setState({
+        severity: "error",
+        text: "The Clipboard API is not available, Can't copy text",
+        open: true,
+      });
+      return Promise.reject("The Clipboard API is not available.");
     }
-    else
-    {
-      setState({ severity: 'error', text: "The Clipboard API is not available, Can't copy text", open: true });
-      return Promise.reject('The Clipboard API is not available.');
-    }
-    
-  }
+  };
 
   const onCopyTextMember: SubmitHandler<ModalFormInput> = async (value) => {
-    if (navigator && navigator.clipboard && navigator.clipboard.writeText)
-    {
-      setState({ ...state, text: 'Copied To Clipboard', open: true });
-      const link = value.inviteLinkMember
+    if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+      setState({ ...state, text: "Copied To Clipboard", open: true });
+      const link = value.inviteLinkMember;
       return navigator.clipboard.writeText(link);
+    } else {
+      setState({
+        severity: "error",
+        text: "The Clipboard API is not available, Can't copy text",
+        open: true,
+      });
+      return Promise.reject("The Clipboard API is not available.");
     }
-    else
-    {
-      setState({ severity: 'error', text: "The Clipboard API is not available, Can't copy text", open: true });
-      return Promise.reject('The Clipboard API is not available.');
-    }
-    
-  }
+  };
 
   const handleClose = () => {
     setState({ ...state, open: false });
   };
 
   const encryptData = (type: string) => {
-    const unencrypted = [{
-      id: id,
-      type: type,
-      userId: user?.id
-    }]
-    console.log('userId',user?.id)
-    let ciphertext = CryptoJS.AES.encrypt(JSON.stringify(unencrypted), String(process.env.ENCRYPTION_SECRET_KEY)).toString();
-    ciphertext = ciphertext.toString().replaceAll('+','_mumbai_').replaceAll('/','_tribes_').replaceAll('=','_spect_');
-    const link =`localhost:3000/tribe/invite/${ciphertext}`
+    const unencrypted = [
+      {
+        id: id,
+        type: type,
+        userId: user?.id,
+      },
+    ];
+    console.log("userId", user?.id);
+    let ciphertext = CryptoJS.AES.encrypt(
+      JSON.stringify(unencrypted),
+      String(process.env.ENCRYPTION_SECRET_KEY)
+    ).toString();
+    ciphertext = ciphertext
+      .toString()
+      .replaceAll("+", "_mumbai_")
+      .replaceAll("/", "_tribes_")
+      .replaceAll("=", "_spect_");
+    const link = `localhost:3000/tribe/invite/${ciphertext}`;
     return link;
-  }
-  
+  };
+
   return (
     <>
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <Wrapper>
-        <FormItem>
-          <FormLabel
-            id="demo-row-radio-buttons-group-label"
-            style={{
-              fontSize: "11px",
-              color: "#91909D",
-              textTransform: "uppercase",
-              fontWeight: "bold",
-            }}
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <Wrapper>
+          <FormItem>
+            <FormLabel
+              id="demo-row-radio-buttons-group-label"
+              style={{
+                fontSize: "11px",
+                color: "#91909D",
+                textTransform: "uppercase",
+                fontWeight: "bold",
+              }}
+            >
+              Address
+            </FormLabel>
+            <Controller
+              name="address"
+              control={control}
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  variant="outlined"
+                  type="text"
+                  size="medium"
+                  fullWidth
+                  placeholder="Wallet Address"
+                />
+              )}
+            />
+          </FormItem>
+          <PrimaryButton
+            type="submit"
+            variant="outlined"
+            fullWidth
+            style={{ marginTop: "10px" }}
           >
-            Address
-          </FormLabel>
-          <Controller
-            name="address"
-            control={control}
-            render={({ field, fieldState }) => (
-              <TextField
-                {...field}
-                variant="outlined"
-                type="text"
-                size="medium"
-                fullWidth
-                placeholder="Wallet Address"
-              />
-            )}
-          />
-        </FormItem>
-        <PrimaryButton type="submit" variant="outlined" fullWidth style={{marginTop: '10px'}}>
-          Invite Contributor
-        </PrimaryButton>
-      </Wrapper>
-    </form>
-    <Divider variant="middle" style={{marginTop: '1rem', marginBottom: '1rem', color: '#fff'}}> OR </Divider>
-    <form onSubmit={handleSubmit(onCopyTextAdmin)}>
-      <Wrapper>
+            Invite Contributor
+          </PrimaryButton>
+        </Wrapper>
+      </form>
+      <Divider
+        variant="middle"
+        style={{ marginTop: "1rem", marginBottom: "1rem", color: "#fff" }}
+      >
+        {" "}
+        OR{" "}
+      </Divider>
+      <form onSubmit={handleSubmit(onCopyTextAdmin)}>
+        <Wrapper>
           <FormItem>
             <FormLabel
               id="demo-row-radio-buttons-group-label"
@@ -156,7 +178,7 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
             <Controller
               name="inviteLinkAdmin"
               control={control}
-              defaultValue={encryptData('admin')}
+              defaultValue={encryptData("admin")}
               render={({ field, fieldState }) => (
                 <TextField
                   {...field}
@@ -171,69 +193,93 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
               )}
             />
           </FormItem>
-          <PrimaryButton type="submit" variant="outlined" fullWidth style={{marginTop: '10px'}}>
+          <PrimaryButton
+            type="submit"
+            variant="outlined"
+            fullWidth
+            style={{ marginTop: "10px" }}
+          >
             Invite Link As Admin
           </PrimaryButton>
         </Wrapper>
         <Snackbar
           autoHideDuration={2000}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
           open={open}
           onClose={handleClose}
         >
-          <Alert onClose={handleClose} severity={String(severity)} sx={{ width: '100%' }}>
+          <Alert
+            onClose={handleClose}
+            severity={severity as any}
+            sx={{ width: "100%" }}
+          >
             {text}
           </Alert>
         </Snackbar>
       </form>
-      <Divider variant="middle" style={{marginTop: '1rem', marginBottom: '1rem', color: '#fff'}}> OR </Divider>
+      <Divider
+        variant="middle"
+        style={{ marginTop: "1rem", marginBottom: "1rem", color: "#fff" }}
+      >
+        {" "}
+        OR{" "}
+      </Divider>
       <form onSubmit={handleSubmit(onCopyTextMember)}>
         <Wrapper>
-            <FormItem>
-              <FormLabel
-                id="demo-row-radio-buttons-group-label"
-                style={{
-                  fontSize: "11px",
-                  color: "#91909D",
-                  textTransform: "uppercase",
-                  fontWeight: "bold",
-                }}
-              >
-                Invite as Member
-              </FormLabel>
-              <Controller
-                name="inviteLinkMember"
-                control={control}
-                defaultValue={encryptData('member')}
-                render={({ field, fieldState }) => (
-                  <TextField
-                    {...field}
-                    variant="outlined"
-                    type="text"
-                    size="medium"
-                    fullWidth
-                    disabled
-                    // defaultValue={`localhost:3000/tribe/invite/${id}`}
-                    // value={`localhost:3000/tribe/invite/${id}`}
-                  />
-                )}
-              />
-            </FormItem>
-            <PrimaryButton type="submit" variant="outlined" fullWidth style={{marginTop: '10px'}}>
-              Invite Link As Member
-            </PrimaryButton>
-          </Wrapper>
-          <Snackbar
-            autoHideDuration={2000}
-            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-            open={open}
-            onClose={handleClose}
+          <FormItem>
+            <FormLabel
+              id="demo-row-radio-buttons-group-label"
+              style={{
+                fontSize: "11px",
+                color: "#91909D",
+                textTransform: "uppercase",
+                fontWeight: "bold",
+              }}
+            >
+              Invite as Member
+            </FormLabel>
+            <Controller
+              name="inviteLinkMember"
+              control={control}
+              defaultValue={encryptData("member")}
+              render={({ field, fieldState }) => (
+                <TextField
+                  {...field}
+                  variant="outlined"
+                  type="text"
+                  size="medium"
+                  fullWidth
+                  disabled
+                  // defaultValue={`localhost:3000/tribe/invite/${id}`}
+                  // value={`localhost:3000/tribe/invite/${id}`}
+                />
+              )}
+            />
+          </FormItem>
+          <PrimaryButton
+            type="submit"
+            variant="outlined"
+            fullWidth
+            style={{ marginTop: "10px" }}
           >
-            <Alert onClose={handleClose} severity={String(severity)} sx={{ width: '100%' }}>
-              {text}
-            </Alert>
-          </Snackbar>
-        </form>
+            Invite Link As Member
+          </PrimaryButton>
+        </Wrapper>
+        <Snackbar
+          autoHideDuration={2000}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          open={open}
+          onClose={handleClose}
+        >
+          <Alert
+            onClose={handleClose}
+            severity={severity as any}
+            sx={{ width: "100%" }}
+          >
+            {text}
+          </Alert>
+        </Snackbar>
+      </form>
     </>
   );
 };
@@ -254,4 +300,4 @@ const ButtonContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-`
+`;

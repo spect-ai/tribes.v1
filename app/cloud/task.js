@@ -87,11 +87,11 @@ Moralis.Cloud.define("getTask", async (request) => {
       var userIdToMemberDetails = {};
       for (var memberDetail of task.members)
         userIdToMemberDetails[memberDetail.objectId] = memberDetail;
-      for (activity of task.activity) {
-        activity.username = userIdToMemberDetails[activity.actor].username;
-        activity.profilePicture =
-          userIdToMemberDetails[activity.actor].profilePicture;
-      }
+      // for (activity of task.activity) {
+      //   activity.username = userIdToMemberDetails[activity.actor].username;
+      //   activity.profilePicture =
+      //     userIdToMemberDetails[activity.actor].profilePicture;
+      // }
 
       // Get access level of caller
       logger.info(`task ${JSON.stringify(task)}`);

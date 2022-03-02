@@ -10,6 +10,8 @@ import { BoardData, Task } from "../../../types";
 import Board from "./board";
 import EpochList from "../epoch";
 import Analytics from "../analytics";
+import { setNavbarLogo, useGlobal } from "../../../context/globalContext";
+import { getMD5String } from "../../../utils/utils";
 
 type Props = {};
 
@@ -27,6 +29,7 @@ const TaskBoard = (props: Props) => {
   const router = useRouter();
   const { Moralis, isInitialized } = useMoralis();
   const [isLoading, setIsLoading] = useState(true);
+  const { dispatch } = useGlobal();
   const [panelExpanded, setPanelExpanded] = useState<string | false>("board");
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
@@ -43,6 +46,13 @@ const TaskBoard = (props: Props) => {
       getBoard(Moralis, bid as string)
         .then((res: any) => {
           console.log(res);
+          setNavbarLogo(
+            dispatch,
+            res.team[0].logo ||
+              `https://www.gravatar.com/avatar/${getMD5String(
+                res._id
+              )}?d=identicon&s=32`
+          );
           context.setData(res);
           setIsLoading(false);
         })

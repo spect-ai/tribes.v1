@@ -12,6 +12,7 @@ import { getTaskEpoch } from "../../../app/adapters/moralis";
 import TribeTemplate from "../../../app/components/templates/tribe";
 import { setNavbarLogo, useGlobal } from "../../../app/context/globalContext";
 import { Epoch, Task, Team } from "../../../app/types";
+import { getMD5String } from "../../../app/utils/utils";
 
 interface Props {}
 
@@ -39,12 +40,19 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();
   const { id } = router.query;
   const context = useProviderTribe();
-  const { dispatch, state } = useGlobal();
+  const { dispatch } = useGlobal();
   useEffect(() => {
     context.setLoading(true);
     context.getTeam({
       onSuccess: (res: any) => {
-        setNavbarLogo(dispatch, res.logo);
+        console.log(res);
+        setNavbarLogo(
+          dispatch,
+          res.logo ||
+            `https://www.gravatar.com/avatar/${getMD5String(
+              res._id
+            )}?d=identicon&s=32`
+        );
         context.setTribe(res as Team);
         context.setLoading(false);
       },

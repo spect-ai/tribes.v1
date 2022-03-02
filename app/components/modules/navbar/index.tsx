@@ -1,10 +1,7 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 import { Avatar, Box, ButtonProps, styled, Typography } from "@mui/material";
-import Image from "next/image";
 import React from "react";
 import { useMoralis } from "react-moralis";
-import Logo from "../../../images/tribesLogo.png";
-import { smartTrim } from "../../../utils/utils";
 import { getOrCreateUser } from "../../../adapters/moralis";
 import Notifications from "../notifications";
 import { NavbarButton } from "../../elements/styledComponents";
@@ -18,7 +15,7 @@ const StyledNav = styled("nav")(({ theme }) => ({
   flexDirection: "row",
   justifyContent: "space-between",
   alignItems: "center",
-  height: "4.2rem",
+  height: "4rem",
   width: "100%",
   paddingTop: "0.4rem",
 }));
@@ -37,7 +34,7 @@ const Navbar = (props: Props) => {
     <StyledNav>
       <Box sx={{ pt: 0, mx: 8 }}>
         <Link href="/" passHref>
-          <Avatar src={state.logo} sx={{ ml: 2 }} />
+          <Avatar src={state.logo} />
         </Link>
       </Box>
       <Box sx={{ flex: "1 1 auto" }} />

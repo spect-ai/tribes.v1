@@ -102,8 +102,10 @@ Moralis.Cloud.define("getPublicTeams", async (request) => {
 Moralis.Cloud.define("getMyTeams", async (request) => {
   const userInfoQuery = new Moralis.Query("UserInfo");
   userInfoQuery.equalTo("userId", request.user.id);
-  const userInfo = await userInfoQuery.find();
-  return userInfo.get("tribes");
+  const userInfo = await userInfoQuery.first();
+  const teamQuery = new Moralis.Query("Team");
+  teamQuery.containedIn("teamId", userInfo.get("tribes"));
+  return await teamQuery.find();
 });
 
 Moralis.Cloud.define("createTeam", async (request) => {

@@ -53,7 +53,7 @@ const Board = (props: Props) => {
 const Container = styled("div")(({ theme }) => ({
   display: "flex",
   width: "100%",
-  marginTop: 16,
+  marginTop: 8,
 }));
 
 const CreateBoardButton = styled(Button)(({ theme }) => ({
