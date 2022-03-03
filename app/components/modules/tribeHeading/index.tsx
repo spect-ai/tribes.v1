@@ -33,19 +33,9 @@ import {
 } from "../../elements/styledComponents";
 import CreateEpochModal from "../epoch/createEpochModal";
 import { useTribe } from "../../../../pages/tribe/[id]";
+import InviteContributorModal from "../settingsTab/inviteContributorModal";
 
 type Props = {};
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 4px;
-`;
-
-const StyledIcon = styled.div`
-  font-size: 16px;
-  color: #eaeaea;
-`;
 
 const TribeHeading = (props: Props) => {
   const { tab, handleTabChange, tribe } = useTribe();
@@ -54,28 +44,11 @@ const TribeHeading = (props: Props) => {
   const bid = router.query.bid as string;
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
-  const { Moralis, isInitialized } = useMoralis();
-  const [boards, setBoards] = useState([]);
+  const [boards] = useState([]);
 
   return (
     <Container>
-      <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
-        <List
-          sx={{ maxWidth: "10rem", backgroundColor: "#00194A", height: "100%" }}
-        >
-          {boards.map((board: any, index) => (
-            <Link
-              href={`/tribe/${id}/board/${board.objectId}`}
-              key={board.objectId}
-              passHref
-            >
-              <ListItemButton selected={board.objectId === bid}>
-                <ListItemText primary={board.name} />
-              </ListItemButton>
-            </Link>
-          ))}
-        </List>
-      </Drawer>
+      {isOpen && <InviteContributorModal setIsOpen={setIsOpen} />}
       <Box
         sx={{
           display: "flex",
@@ -84,37 +57,53 @@ const TribeHeading = (props: Props) => {
           ml: 4,
         }}
       >
-        <Typography variant="h6" sx={{ mx: 2 }}>
-          {tribe.name}
-        </Typography>
+        <Typography variant="h6">{tribe.name}</Typography>
         <Tooltip title="Invite member">
-          <IconButton sx={{ mb: 0.5, p: 1.7 }} size="small">
+          <IconButton
+            sx={{ mb: 0.5, p: 1.7, ml: 2 }}
+            size="small"
+            onClick={() => setIsOpen(true)}
+          >
             <PeopleOutlineIcon />
           </IconButton>
         </Tooltip>
-        {/* <CreateEpochModal /> */}
       </Box>
-      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-        <Typography
-          sx={{ ml: 6, fontSize: 14 }}
-          color="rgba(255, 255, 255, 0.5)"
-        >
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          ml: 4,
+        }}
+      >
+        <Typography sx={{ fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
           {tribe.description}
         </Typography>
-        <Box sx={{ mx: 2 }} />
-        <StyledAnchor href={tribe.github} target="_blank">
-          <i className="fab fa-github" />
-        </StyledAnchor>
-        <StyledAnchor href={tribe.discord} target="_blank">
-          <i className="fab fa-discord"></i>
-        </StyledAnchor>
-        <StyledAnchor href={tribe.twitter} target="_blank">
-          <i className="fab fa-twitter" />
-        </StyledAnchor>
+      </Box>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          ml: 4,
+        }}
+      >
+        {tribe.github && (
+          <StyledAnchor href={tribe.github} target="_blank">
+            <i className="fab fa-github" />
+          </StyledAnchor>
+        )}
+        {tribe.discord && (
+          <StyledAnchor href={tribe.discord} target="_blank">
+            <i className="fab fa-discord"></i>
+          </StyledAnchor>
+        )}
+        {tribe.twitter && (
+          <StyledAnchor href={tribe.twitter} target="_blank">
+            <i className="fab fa-twitter" />
+          </StyledAnchor>
+        )}
       </Box>
       <StyledTabs value={tab} onChange={handleTabChange}>
         <StyledTab label="Overview" />
-        <StyledTab label="Epochs" disabled />
         <StyledTab label="Settings" />
       </StyledTabs>
     </Container>
@@ -123,12 +112,17 @@ const TribeHeading = (props: Props) => {
 
 const StyledAnchor = MUIStyled("a")(({ theme }) => ({
   color: "rgb(90, 105, 114,0.6)",
-  marginRight: "1rem",
+  marginRight: "0.8rem",
   fontSize: "1.2rem",
   transition: "0.3s ease-in-out",
   "&:hover": {
     color: "rgb(90, 105, 114,1)",
   },
 }));
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
 
 export default TribeHeading;

@@ -288,3 +288,6 @@ export const registryTemp: Registry = {
     distributorAddress: "0x05588517bC463f607Dca0E09d1f73CDaa30cfF10",
   },
 };
+
+export const tribesLogo =
+  "https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM";

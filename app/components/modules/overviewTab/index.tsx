@@ -1,13 +1,5 @@
 import React from "react";
-import {
-  Box,
-  Typography,
-  AvatarGroup,
-  Avatar,
-  Tooltip,
-  Grid,
-  InputBase,
-} from "@mui/material";
+import { Box, AvatarGroup, Avatar, Tooltip, Grid } from "@mui/material";
 import styled from "@emotion/styled";
 import { muiTheme } from "../../../constants/muiTheme";
 import { useTribe } from "../../../../pages/tribe/[id]";
@@ -40,7 +32,7 @@ const Overview = () => {
                       <Avatar
                         alt=""
                         src={
-                          member.profilePicture !== null
+                          member.profilePicture?._url !== null
                             ? member.profilePicture._url
                             : `https://www.gravatar.com/avatar/${getMD5String(
                                 member.username
@@ -66,7 +58,7 @@ const Wrapper = styled.div`
   & > div {
     width: 100%;
     display: flex;
-    padding: 0rem 2rem;
+    padding: 0rem 1rem;
   }
 `;
 

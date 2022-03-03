@@ -6,7 +6,17 @@ async function getBoardByObjectId(objectId) {
 
 async function getBoardObjByObjectId(objectId, callerId) {
   const boardQuery = new Moralis.Query("Board");
-  const pipeline = [{ match: { objectId: objectId } }];
+  const pipeline = [
+    { match: { objectId: objectId } },
+    {
+      lookup: {
+        from: "Team",
+        localField: "teamId",
+        foreignField: "teamId",
+        as: "team",
+      },
+    },
+  ];
 
   var board = await boardQuery.aggregate(pipeline);
 

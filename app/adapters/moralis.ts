@@ -493,3 +493,7 @@ export function endEpoch(Moralis: any, epochId: string) {
   };
   return Moralis.Cloud.run("endEpoch", params);
 }
+
+export function getMyTeams(Moralis: any) {
+  return Moralis.Cloud.run("getMyTeams");
+}

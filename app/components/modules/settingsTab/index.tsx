@@ -89,7 +89,7 @@ const Settings = () => {
                   minRows="3"
                   fullWidth
                   placeholder="Description"
-                  label="Description"
+                  label={tribe.description ? "Description" : ""}
                 />
               )}
             />
@@ -97,14 +97,14 @@ const Settings = () => {
           <FormItem>
             <FormLabel
               id="demo-row-radio-buttons-group-label"
-              sx={{ fontSize: 14 }}
+              sx={{ fontSize: 14, mr: 2 }}
             >
               Make public
             </FormLabel>
             <Controller
               name="isPublic"
               control={control}
-              render={({ field, fieldState }) => (
+              render={({ field }) => (
                 <Switch
                   {...field}
                   color="info"
@@ -125,6 +125,7 @@ const Settings = () => {
                 display: "flex",
                 alignItems: "flex-end",
                 marginBottom: "10px",
+                mt: 2,
               }}
             >
               <div style={{ color: "#5a6972", marginRight: "12px" }}>

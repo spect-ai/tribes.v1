@@ -19,6 +19,8 @@ import { useEffect, useState } from "react";
 import { getPublicTeams } from "../app/adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { Team } from "../app/types";
+import { setNavbarLogo, useGlobal } from "../app/context/globalContext";
+import { tribesLogo } from "../app/constants";
 
 type Props = {
   image: string;
@@ -33,9 +35,11 @@ const Home: NextPage = () => {
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
+  const { dispatch } = useGlobal();
   const { Moralis, isInitialized } = useMoralis();
   useEffect(() => {
     if (isInitialized) {
+      setNavbarLogo(dispatch, tribesLogo);
       getPublicTeams(Moralis).then((res: any) => {
         setTribes(res);
         console.log(res);
@@ -52,7 +56,7 @@ const Home: NextPage = () => {
     >
       <StyledTabs value={tab} onChange={handleTabChange} centered>
         <StyledTab label="Explore Tribes" />
-        <StyledTab label="Explore Gigs" />
+        {/* <StyledTab label="Explore Gigs (coming soon)" disabled /> */}
       </StyledTabs>
       <Box
         sx={{
