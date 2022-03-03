@@ -2,20 +2,13 @@ async function getCreatedTribe(
   tribe,
   teamId,
   name,
-  // description,
-  // treasuryAddress,
-  // savedOnChain,
-  members // List<string, string> => [{'ethAddress':0x....s34efg, 'role':admin/core/general}]
-  // organization,
-  // organizationVerified,
-  // openApplications,
-  // applicationRequirements,
-  // preferredChain,
-  // preferredToken
+  members, // List - [objectId]
+  roles // Object - {"userId":"role"}
 ) {
   tribe.set("teamId", teamId);
   tribe.set("name", name);
   tribe.set("members", members);
+  tribe.set("roles", roles);
   tribe.set("isPublic", false);
   return tribe;
 }
@@ -77,19 +70,10 @@ async function getTribeObjByTeamId(teamId) {
 Moralis.Cloud.define("getTeam", async (request) => {
   const team = await getTribeObjByTeamId(request.params.teamId);
   if (team.length === 0) throw "Team not found";
-  logger.info(`members ${JSON.stringify(team[0].members)}`);
-  var userIds = team[0].members.map((a) => a.userId);
-  logger.info(`userIds ${JSON.stringify(userIds)}`);
-  var users = await getUserDetailsByUserIds(userIds);
-  var memberToRole = {};
-  for (var member of team[0].members) {
-    memberToRole[member.userId] = member.role;
-  }
-  for (var user of users) {
-    user["role"] = memberToRole[user.objectId];
-  }
-  logger.info(`user ${JSON.stringify(users)}`);
-  team[0].members = users;
+  team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
+    team[0].members
+  );
+
   return team[0];
 });
 
@@ -115,20 +99,14 @@ Moralis.Cloud.define("createTeam", async (request) => {
     const tribeCount = await getTribeCount();
     const teamId = tribeCount + 1;
     // Initialize tribe data
+    var roles = {};
+    roles[request.user.id] = "admin";
     team = await getCreatedTribe(
       team,
       teamId,
       request.params.name,
-      // request.params.description,
-      // request.params.treasuryAddress,
-      // (savedOnChain = false),
-      (members = [{ userId: request.user.id, role: "admin" }])
-      // request.params.organization,
-      // (organizationVerified = false),
-      // request.params.openApplications,
-      // request.params.applicationRequirements,
-      // request.params.preferredChain,
-      // request.params.preferredToken
+      (members = [request.user.id]),
+      roles
     );
 
     // Add tribe to tribe creator's user info
@@ -221,9 +199,7 @@ Moralis.Cloud.define("checkMemberInTeam", async (request) => {
   }
   const members = team[0].members;
   if (members) {
-    let result = members.filter(
-      (member) => member.userId == request.params.userId
-    );
+    let result = members.filter((member) => member == request.params.userId);
     if (result.length > 0) {
       return true;
     } else {

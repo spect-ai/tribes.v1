@@ -43,7 +43,9 @@ export interface Team {
   description: string;
   // treasuryAddress: string;
   // onchain: boolean;
-  members: Member[];
+  members: Array<string>;
+  memberDetails: Object<string, Member>;
+  roles: Object<string, string>;
   // organization: string;
   // organizationVerified: boolean;
   // openApplications: boolean;

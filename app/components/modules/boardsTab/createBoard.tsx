@@ -166,8 +166,12 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                             }}
                           />
                         </TableCell>
-                        <TableCell align="right">{member.username}</TableCell>
-                        <TableCell align="right">{member.role}</TableCell>
+                        <TableCell align="right">
+                          {tribe.memberDetails[member].username}
+                        </TableCell>
+                        <TableCell align="right">
+                          {tribe.roles[member]}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -236,7 +240,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               sx={{ width: "50%", mt: 2 }}
               onClick={() => {
                 const members = getMembers();
-                initBoard(Moralis, name, members as Member[], tribe.teamId)
+                initBoard(Moralis, name, members as Array<string>, tribe.teamId)
                   .then((res: any) => {
                     if (res) {
                       router.push(

@@ -61,8 +61,8 @@ function initializeEpochMembers(members, choices) {
     memberIdsToVotesGiven[choice] = 0;
   }
   for (var member of members) {
-    epochMembers[member.userId] = {
-      objectId: member.userId,
+    epochMembers[member] = {
+      objectId: member,
       votesGiven: memberIdsToVotesGiven,
       votesRemaining: member.votesAllocated,
       votesAllocated: member.votesAllocated,

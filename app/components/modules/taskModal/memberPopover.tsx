@@ -22,6 +22,9 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
   const { data, setData } = useBoard();
+  console.log(data);
+
+  console.log(`data`);
   useEffect(() => {
     if (type === "assignee") {
       setMember(task.assignee[0]);
@@ -46,7 +49,7 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
     >
       <PopoverContainer>
         <Autocomplete
-          options={task.members} // Get options from members
+          options={data.members} // Get options from members
           value={member as any}
           getOptionLabel={(option) => data.memberDetails[option].username}
           onChange={(event, newValue) => {

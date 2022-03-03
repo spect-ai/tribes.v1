@@ -61,11 +61,7 @@ Moralis.Cloud.define("getTask", async (request) => {
 
       // Get all board members so they can be displayed as options for reviewers and assignees
       const board = await getBoardObjByObjectId(task.boardId, request.user.id);
-      var memberIds = [];
-
-      for (var boardMember of board[0].members)
-        memberIds.push(boardMember.userId);
-      task.members = memberIds;
+      logger.info(`board ${JSON.stringify(board)}`);
 
       // Get access level of caller
       const access = getFieldLevelAccess(task, request.user.id);

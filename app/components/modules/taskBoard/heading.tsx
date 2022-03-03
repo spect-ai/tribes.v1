@@ -150,9 +150,9 @@ const Heading = (props: Props) => {
         </Tooltip>
         <CreateEpochModal />
       </Box>
-      <Typography sx={{ ml: 2, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
+      {/*<Typography sx={{ ml: 2, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
         {"This space is for project planning, discussions, and more."}
-      </Typography>
+        </Typography>*/}
       <StyledTabs value={tab} onChange={handleTabChange}>
         <StyledTab label="Board" />
         <StyledTab label="Epoch" />

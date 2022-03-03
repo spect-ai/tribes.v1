@@ -59,7 +59,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
                 {task.value && (
                   <Chip color="#99ccff">
                     <MonetizationOnIcon sx={{ fontSize: 12 }} />
-                    {/* {task.value} {task.token.symbol} */}
+                    {task.value} {task.token.symbol}
                   </Chip>
                 )}
                 {task.deadline && (
@@ -74,7 +74,9 @@ const TaskContainer = ({ task, index, column }: Props) => {
                   </Chip>
                 )}
                 {task.assignee.length > 0 && (
-                  <Chip color="#ce93d8">{task.assignee[0]}</Chip>
+                  <Chip color="#ce93d8">
+                    {data.memberDetails[task.assignee[0]].username}
+                  </Chip>
                 )}
                 {/* <Chip color={column.color}>{column.status}</Chip> */}
               </ChipContainer>

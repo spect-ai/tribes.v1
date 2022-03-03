@@ -28,7 +28,7 @@ export function updateTribe(Moralis: any, team: Team, teamId: number) {
 export function initBoard(
   Moralis: any,
   name: string,
-  members: Member[],
+  members: Array<string>,
   teamId: number
 ) {
   console.log(members);

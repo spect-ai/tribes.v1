@@ -27,15 +27,19 @@ const Overview = () => {
               >
                 <Title>Contributors</Title>
                 <AvatarGroup max={4} sx={{ width: "fit-content" }}>
-                  {tribe?.members?.map((member, idx) => (
-                    <Tooltip title={member.username} key={idx}>
+                  {tribe?.members?.map((memberId, idx) => (
+                    <Tooltip
+                      title={tribe.memberDetails[memberId].username}
+                      key={idx}
+                    >
                       <Avatar
                         alt=""
                         src={
-                          member.profilePicture?._url !== null
-                            ? member.profilePicture._url
+                          tribe.memberDetails[memberId].profilePicture?._url !==
+                          null
+                            ? tribe.memberDetails[memberId].profilePicture._url
                             : `https://www.gravatar.com/avatar/${getMD5String(
-                                member.username
+                                tribe.memberDetails[memberId].username
                               )}?d=identicon&s=32`
                         }
                       />
