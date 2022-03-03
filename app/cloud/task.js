@@ -311,6 +311,7 @@ Moralis.Cloud.define("updateTaskSubmission", async (request) => {
       request.params.submissionName
     );
     handleActivityUpdate(task, request.user.id, 200);
+    task.set("status", 200);
     logger.info(
       `Handled submission field for task with id ${JSON.stringify(
         request.params.task?.taskId

@@ -34,9 +34,9 @@ import { useBoard } from "../taskBoard";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import { labelsMapping, statusMapping } from "../../../constants";
+import { labelsMapping, registryTemp, statusMapping } from "../../../constants";
 import { actionMap, monthMap } from "../../../constants";
-import { distributeEther } from "../../../adapters/contract";
+import { distributeEther, batchPayTokens } from "../../../adapters/contract";
 import DoneIcon from "@mui/icons-material/Done";
 import DatePopover from "./datePopover";
 import LabelPopover from "./labelPopover";
@@ -69,6 +69,7 @@ const EditTask = ({
 }: Props) => {
   const { data, setData } = useBoard();
   const { Moralis, user } = useMoralis();
+  console.log(Moralis.User);
   const [isLoading, setIsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState({} as any);
@@ -449,16 +450,34 @@ const EditTask = ({
                     task={task}
                   />
                 )}
-                {task.access.creator && (
-                  <TaskButton variant="outlined" color="primary">
+                {data.roles[user?.id] === "admin" && task.status === 205 && (
+                  <TaskButton
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => {
+                      task.token.symbol ===
+                      registryTemp[task.chain.chainId].nativeCurrency
+                        ? distributeEther(
+                            [data.memberDetails[task.assignee[0]].ethAddress],
+                            [task.value],
+                            task.taskId
+                          )
+                        : batchPayTokens(
+                            [task.token.address as string],
+                            [data.memberDetails[task.assignee[0]].ethAddress],
+                            [task.value],
+                            task.taskId
+                          );
+                    }}
+                  >
                     Pay
                   </TaskButton>
                 )}
-                {!task.access.creator && (
+                {/*!task.access.creator && (
                   <TaskButton variant="outlined" color="primary">
                     Vote
                   </TaskButton>
-                )}
+                )*/}
                 {!task.assignee.length && (
                   <TaskButton
                     variant="outlined"
@@ -475,7 +494,7 @@ const EditTask = ({
                   </TaskButton>
                 )}
               </Box>
-              {task.status === 200 && (
+              {/*task.status === 200 && (
                 <FieldContainer>
                   <PrimaryButton
                     variant="contained"
@@ -491,8 +510,8 @@ const EditTask = ({
                     Close
                   </PrimaryButton>
                 </FieldContainer>
-              )}
-              {task.status === 205 && (
+                  )*/}
+              {/*task.status === 205 && (
                 <FieldContainer>
                   <PrimaryButton
                     variant="contained"
@@ -500,7 +519,7 @@ const EditTask = ({
                     endIcon={<MonetizationOnIcon />}
                     onClick={() =>
                       distributeEther(
-                        [task.assignee[0].ethAddress],
+                        [data.memberDetails[task.assignee[0]].ethAddress],
                         [task.value],
                         task.taskId
                       )
@@ -510,7 +529,7 @@ const EditTask = ({
                     Pay
                   </PrimaryButton>
                 </FieldContainer>
-              )}
+                  )*/}
             </TaskModalBodyContainer>
           </Box>
         </Grid>

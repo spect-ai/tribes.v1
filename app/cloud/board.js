@@ -109,6 +109,7 @@ Moralis.Cloud.define("initBoard", async (request) => {
 
       // TODO: Make this customizable
       board.set("members", request.params.members);
+      board.set("roles", request.params.roles);
 
       logger.error(`Creating new board ${JSON.stringify(board)}`);
 

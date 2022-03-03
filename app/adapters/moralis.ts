@@ -29,6 +29,7 @@ export function initBoard(
   Moralis: any,
   name: string,
   members: Array<string>,
+  roles: object,
   teamId: number
 ) {
   console.log(members);
@@ -36,6 +37,7 @@ export function initBoard(
     name: name,
     teamId: teamId,
     members: members,
+    roles: roles,
   };
   return Moralis.Cloud.run("initBoard", params);
 }

@@ -84,7 +84,8 @@ export function getPendingApprovals(addresses: string[], values: number[]) {
 export async function batchPayTokens(
   tokenAddresses: string[],
   recipients: string[],
-  values: number[]
+  values: number[],
+  taskIds: string
 ) {
   let contract = getContract();
 
@@ -100,7 +101,7 @@ export async function batchPayTokens(
     tokenAddresses,
     recipients,
     valuesInWei,
-    "1"
+    taskIds
   );
   console.log(`done`);
   return tx.wait();

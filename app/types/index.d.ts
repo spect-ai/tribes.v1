@@ -189,6 +189,7 @@ export interface BoardData {
   members: Member[];
   memberDetails: Object<string, Member>;
   access: string;
+  roles: Object<string, string>;
   _id: string;
   _createdAt: string;
 }

@@ -70,14 +70,17 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
     setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
   };
 
-  const getMembers = () => {
+  const getMembersAndRoles = () => {
     var members = [];
+    var roles = {};
     for (let i = 0; i < tribe.members.length; i++) {
       if (isChecked.at(i)) {
-        members.push(tribe.members.at(i));
+        const memberId = tribe.members.at(i);
+        members.push(memberId);
+        roles[memberId] = tribe.roles[tribe.members.at(i)];
       }
     }
-    return members;
+    return [members, roles];
   };
   return (
     <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
@@ -239,8 +242,14 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               variant="outlined"
               sx={{ width: "50%", mt: 2 }}
               onClick={() => {
-                const members = getMembers();
-                initBoard(Moralis, name, members as Array<string>, tribe.teamId)
+                const [members, roles] = getMembersAndRoles();
+                initBoard(
+                  Moralis,
+                  name,
+                  members as Array<string>,
+                  roles,
+                  tribe.teamId
+                )
                   .then((res: any) => {
                     if (res) {
                       router.push(
