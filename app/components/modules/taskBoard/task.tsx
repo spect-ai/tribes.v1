@@ -12,6 +12,7 @@ import {
   statusMapping,
 } from "../../../constants";
 import { Column, Task } from "../../../types";
+import { useBoard } from "../taskBoard";
 
 type Props = {
   task: Task;
@@ -22,6 +23,8 @@ type Props = {
 const TaskContainer = ({ task, index, column }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
+  const { data, setData } = useBoard();
+
   return (
     <>
       {isOpen && (
@@ -71,7 +74,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
                   </Chip>
                 )}
                 {task.assignee.length > 0 && (
-                  <Chip color="#ce93d8">{task.assignee[0].username}</Chip>
+                  <Chip color="#ce93d8">{task.assignee[0]}</Chip>
                 )}
                 {/* <Chip color={column.color}>{column.status}</Chip> */}
               </ChipContainer>

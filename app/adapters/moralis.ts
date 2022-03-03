@@ -272,7 +272,7 @@ export function updateTaskLabels(Moralis: any, tags: string[], taskId: string) {
 
 export function updateTaskMember(
   Moralis: any,
-  member: Member[],
+  member: string,
   type: string,
   taskId: string
 ) {

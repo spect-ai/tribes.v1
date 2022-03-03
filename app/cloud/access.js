@@ -43,8 +43,8 @@ function isTaskCreator(task, userId) {
 }
 
 function isTaskAssignee(task, userId) {
-  for (var assignee of task.get("assignee")) {
-    if (userId === assignee.objectId) {
+  for (var assigneeId of task.get("assignee")) {
+    if (userId === assigneeId) {
       return true;
     }
   }
@@ -52,8 +52,8 @@ function isTaskAssignee(task, userId) {
 }
 
 function isTaskReviewer(task, userId) {
-  for (var reviewer of task.get("reviewer")) {
-    if (userId === reviewer.objectId) {
+  for (var reviewerId of task.get("reviewer")) {
+    if (userId === reviewerId) {
       return true;
     }
   }
@@ -65,9 +65,8 @@ function isTaskCreatorFromTaskObj(task, userId) {
 }
 
 function isTaskAssigneeFromTaskObj(task, userId) {
-  for (var assignee of task.assignee) {
-    logger.info(`assignee ${JSON.stringify(assignee)}`);
-    if (userId === assignee.objectId) {
+  for (var assigneeId of task.assignee) {
+    if (userId === assigneeId) {
       return true;
     }
   }
@@ -75,8 +74,8 @@ function isTaskAssigneeFromTaskObj(task, userId) {
 }
 
 function isTaskReviewerFromTaskObj(task, userId) {
-  for (var reviewer of task.reviewer) {
-    if (userId === reviewer.objectId) {
+  for (var reviewerId of task.reviewer) {
+    if (userId === reviewerId) {
       return true;
     }
   }

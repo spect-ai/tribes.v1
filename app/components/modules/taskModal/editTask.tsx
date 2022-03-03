@@ -155,14 +155,14 @@ const EditTask = ({
               Reviewer
             </Typography>
             <InnerInfo>
-              <Tooltip title={task.reviewer[0]?.username}>
+              <Tooltip title={data.memberDetails[task.reviewer[0]].username}>
                 <Avatar
                   sx={{ height: 28, width: 28 }}
                   src={
-                    task.reviewer[0]?.profilePicture
-                      ? task.reviewer[0].profilePicture._url
+                    data.memberDetails[task.reviewer[0]].profilePicture
+                      ? data.memberDetails[task.reviewer[0]].profilePicture._url
                       : `https://www.gravatar.com/avatar/${getMD5String(
-                          task.reviewer[0].objectId
+                          task.reviewer[0]
                         )}?d=identicon&s=32`
                   }
                 />
@@ -178,14 +178,14 @@ const EditTask = ({
             </Typography>
 
             <InnerInfo>
-              <Tooltip title={task.assignee[0]?.username}>
+              <Tooltip title={data.memberDetails[task.assignee[0]]?.username}>
                 <Avatar
                   sx={{ height: 32, width: 32 }}
                   src={
-                    task.assignee[0]?.profilePicture
-                      ? task.assignee[0].profilePicture._url
+                    data.memberDetails[task.assignee[0]].profilePicture
+                      ? data.memberDetails[task.assignee[0]].profilePicture._url
                       : `https://www.gravatar.com/avatar/${getMD5String(
-                          task.assignee[0].objectId
+                          task.assignee[0]
                         )}?d=identicon&s=32`
                   }
                 />
@@ -275,24 +275,24 @@ const EditTask = ({
             <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
               Activity
             </Divider>{" "}
-            {task.activity?.map((act: any) => (
-              <ListItem key={`${act.timestamp}`}>
+            {task.activity.reverse()?.map((activity: any) => (
+              <ListItem key={`${activity.timestamp}`}>
                 <Avatar
                   sx={{ width: 24, height: 24, mr: 2 }}
                   src={
-                    act.profilePicture
-                      ? act.profilePicture._url
+                    data.memberDetails[activity.actor].profilePicture
+                      ? data.memberDetails[activity.actor].profilePicture._url
                       : `https://www.gravatar.com/avatar/${getMD5String(
-                          act.username
+                          data.memberDetails[activity.actor].username
                         )}?d=identicon&s=32`
                   }
                 />
                 <ListItemText
-                  primary={`${act.username} set status to "${
-                    statusMapping[act.action as keyof typeof statusMapping]
-                  }" on ${act.timestamp.getDate()}  ${
+                  primary={`${data.memberDetails[activity.actor].username} ${
+                    actionMap[activity.action as keyof typeof actionMap]
+                  } on ${activity.timestamp.getDate()}  ${
                     // @ts-ignore
-                    monthMap[act.timestamp.getMonth() as number]
+                    monthMap[activity.timestamp.getMonth() as number]
                   }`}
                 />
               </ListItem>
@@ -464,11 +464,11 @@ const EditTask = ({
                     variant="outlined"
                     color="primary"
                     onClick={() => {
-                      assignToMe(Moralis, task.taskId).then(
-                        (res: BoardData) => {
+                      assignToMe(Moralis, task.taskId)
+                        .then((res: BoardData) => {
                           setData(res);
-                        }
-                      );
+                        })
+                        .catch((err: any) => alert(err));
                     }}
                   >
                     Assign to me

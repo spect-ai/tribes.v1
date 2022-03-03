@@ -17,16 +17,11 @@ function MyApp({ Component, pageProps }: AppProps) {
   let theme = createTheme(muiTheme);
   const router = useRouter();
   const url = `localhost:3000/${router.route}`;
-  const { dispatch } = useGlobal();
-  useEffect(() => {
-    initContracts(dispatch);
-  }, []);
 
   return (
     <MoralisProvider
       appId={process.env.MORALIS_APPLICATION_ID || ""}
       serverUrl={process.env.MORALIS_SERVER_ID || ""}
-      initializeOnMount={true}
     >
       <ThemeProvider theme={theme}>
         <GlobalContextProvider>

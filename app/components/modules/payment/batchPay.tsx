@@ -20,32 +20,20 @@ import { amountData } from "../../../constants";
 import Image from "next/image";
 import { Heading, modalStyle, getNetworkImage } from ".";
 import { batchPayTokens } from "../../../adapters/contract";
+import { BatchPayInfo } from ".";
 
 type Props = {
   handleClose: Function;
-  contributors: string[];
-  tokenNames: string[];
-  tokenAddresses: string[];
-  tokenValues: number[];
   chain: string;
+  batchPayInfo: BatchPayInfo;
 };
 
 function getEthAddresses(contributors: any) {
   return contributors.map((a: any) => a.ethAddress);
 }
 
-const BatchPay = ({
-  handleClose,
-  contributors,
-  tokenNames,
-  tokenAddresses,
-  tokenValues,
-  chain,
-}: Props) => {
+const BatchPay = ({ handleClose, chain, batchPayInfo }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
-  console.log(`contributors`);
-
-  console.log(contributors);
   return (
     <React.Fragment>
       <Box
@@ -85,33 +73,36 @@ const BatchPay = ({
                 </Box>
               </Grid>
             </Grid>
-            {tokenAddresses.map((address: string, index: number) => (
-              <Grid
-                container
-                spacing={1}
-                key={index}
-                sx={{ display: "flex" }}
-                margin="8px"
-              >
-                <Grid item xs={8}>
-                  <Box sx={{ display: "flex" }}>
-                    <Avatar
-                      alt=""
-                      src={`https://www.gravatar.com/avatar/${`eewe`}?d=identicon&s=32`}
-                      sx={{ height: 30, width: 30 }}
-                    />
+            {batchPayInfo.tokenAddresses.map(
+              (address: string, index: number) => (
+                <Grid
+                  container
+                  spacing={1}
+                  key={index}
+                  sx={{ display: "flex" }}
+                  margin="8px"
+                >
+                  <Grid item xs={8}>
+                    <Box sx={{ display: "flex" }}>
+                      <Avatar
+                        alt=""
+                        src={`https://www.gravatar.com/avatar/${`eewe`}?d=identicon&s=32`}
+                        sx={{ height: 30, width: 30 }}
+                      />
+                      <Typography color="text.primary" marginLeft="20px">
+                        {batchPayInfo.contributors[index].username}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={4}>
                     <Typography color="text.primary" marginLeft="20px">
-                      {`contributors[index].username`}
+                      {batchPayInfo.tokenValues[index]}{" "}
+                      {batchPayInfo.tokenNames[index]}
                     </Typography>
-                  </Box>
+                  </Grid>
                 </Grid>
-                <Grid item xs={4}>
-                  <Typography color="text.primary" marginLeft="20px">
-                    {tokenValues[index]} {tokenNames[index]}
-                  </Typography>
-                </Grid>
-              </Grid>
-            ))}
+              )
+            )}
           </Box>
 
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}></Box>
@@ -131,9 +122,9 @@ const BatchPay = ({
             onClick={() => {
               setIsLoading(true);
               batchPayTokens(
-                tokenAddresses,
-                getEthAddresses(contributors),
-                tokenValues
+                batchPayInfo.tokenAddresses,
+                getEthAddresses(batchPayInfo.contributors),
+                batchPayInfo.tokenValues
               )
                 .then((res: any) => console.log(res))
                 .catch((err: any) => alert(err));

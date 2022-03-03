@@ -131,8 +131,8 @@ export interface Task {
   };
   deadline: Date;
   tags: string[];
-  assignee: Member[];
-  reviewer: Member[];
+  assignee: Array<string>;
+  reviewer: Array<string>;
   creator: string;
   chain: Chain;
   value: number;

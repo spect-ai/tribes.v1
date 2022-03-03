@@ -122,12 +122,11 @@ export const monthMap = {
 };
 
 export const actionMap = {
-  1: "Created",
-  5: "Assigned",
-  7: "Work started",
-  10: "Work submitted",
-  15: "Closed",
-  20: "Paid out",
+  100: "opened task",
+  105: "assigned task",
+  200: "submitted work",
+  205: "cloesed task",
+  300: "paid contributor",
 };
 
 export const statusMapping = {

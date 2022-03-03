@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 
+import ERC20 from "../contracts/mumbai/erc20.json";
 import distributorABI from "../contracts/mumbai/distributor.json";
 import distributorAddress from "../contracts/mumbai/distributor-address.json";
 import { Epoch, Task } from "../types";
@@ -23,6 +24,11 @@ function getContract() {
     distributorABI.abi,
     provider.getSigner()
   );
+}
+
+function getERC20Contract(address: string) {
+  const provider = new ethers.providers.Web3Provider((window as any).ethereum);
+  return new ethers.Contract(address, ERC20.abi, provider.getSigner());
 }
 
 export async function distributeEther(
@@ -62,11 +68,12 @@ export function fromWei(val: any) {
   return ethers.utils.formatEther(val);
 }
 
-export async function approve(tokens: any) {
-  let contract = getContract();
-
-  const tx = await contract.approveTokens(tokens);
-  return tx.wait();
+export function approve(address: string) {
+  let contract = getERC20Contract(address);
+  return contract.approve(
+    distributorAddress.Distributor,
+    ethers.constants.MaxInt256
+  );
 }
 
 export function getPendingApprovals(addresses: string[], values: number[]) {
@@ -80,18 +87,21 @@ export async function batchPayTokens(
   values: number[]
 ) {
   let contract = getContract();
-  console.log(tokenAddresses);
+
+  console.log(tokenAddresses[0]);
   console.log(recipients);
   console.log(values);
 
   var valuesInWei = values.map((v) => ethers.utils.parseEther(v.toString()));
   console.log(valuesInWei);
+  console.log(contract);
 
-  const tx = await contract.distributeToken(
-    tokenAddresses[0],
+  const tx = await contract.distributeTokens(
+    tokenAddresses,
     recipients,
     valuesInWei,
     "1"
   );
+  console.log(`done`);
   return tx.wait();
 }

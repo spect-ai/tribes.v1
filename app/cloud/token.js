@@ -5,8 +5,8 @@ Moralis.Cloud.define("addERC20Token", async (request) => {
     token.set("type", "erc20");
     token.set("address", request.params.address);
     token.set("chainId", request.params.chainId);
-    token.set("symbol", "symbol");
-    token.set("name", "name");
+    token.set("symbol", request.params.symbol);
+    token.set("name", request.params.name);
   } catch (err) {
     logger.error(`Error while adding erc20 token ${err}`);
     return false;

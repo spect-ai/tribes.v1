@@ -24,9 +24,9 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
   const { data, setData } = useBoard();
   useEffect(() => {
     if (type === "assignee") {
-      setMember(task.assignee[0]?.username);
+      setMember(task.assignee[0]);
     } else {
-      setMember(task.reviewer[0]?.username);
+      setMember(task.reviewer[0]);
     }
     console.log(task.members);
     //console.log(
@@ -46,8 +46,9 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
     >
       <PopoverContainer>
         <Autocomplete
-          options={task.members.map((member) => member.username)} // Get options from members
+          options={task.members} // Get options from members
           value={member as any}
+          getOptionLabel={(option) => data.memberDetails[option].username}
           onChange={(event, newValue) => {
             setMember(newValue as string);
           }}
@@ -67,12 +68,8 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
           loading={isLoading}
           onClick={() => {
             setIsLoading(true);
-            console.log(`member`);
-            console.log(member);
-            const persons = member
-              ? []
-              : task.members.filter((el) => el.username === member);
-            updateTaskMember(Moralis, persons, type, task.taskId).then(
+            // we store array of assignee and reviewer to be able to handle multiple assignees and reviewers later
+            updateTaskMember(Moralis, member, type, task.taskId).then(
               (res: BoardData) => {
                 console.log(res);
                 setData(res);

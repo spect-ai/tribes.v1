@@ -23,19 +23,46 @@ import { useRouter } from "next/router";
 import Ethereum from "../../../images/ethereum-eth-logo.png";
 import Polygon from "../../../images/polygon-matic-logo.png";
 import Avalanche from "../../../images/avalanche-avax-logo.png";
-import { chainTokenRegistry } from "../../../constants";
 import { getPendingApprovals } from "../../../adapters/contract";
+import { useGlobal } from "../../../context/globalContext";
+import { Registry } from "../../../types";
 
 interface Props {}
-export interface BatchPay {
-  chain: {
-    [key: string]: any;
-  };
+
+export interface Contributor {
+  ethAddress: string;
+  username: string;
+  profilePicture: object;
+  objectId: string;
+}
+
+export interface BatchPayInfo {
+  contributors: Array<Contributor>;
+  tokenNames: Array<string>;
+  tokenAddresses: Array<string>;
+  tokenValues: Array<number>;
+}
+
+export interface ApprovalInfo {
+  uniqueTokenAddresses: Array<string>;
+  aggregatedTokenValues: Array<number>;
+  uniqueTokenNames: Array<string>;
+}
+
+export interface BatchPayMetadata {
+  [key: string]: BatchPayInfo;
+}
+export interface ApprovalMetadata {
+  [key: string]: ApprovalInfo;
 }
 
 export function getNetworkImage(network: string) {
   var img =
-    network === "Ethereum" ? Ethereum : network === "Polygon" ? Polygon : null;
+    network === "Ethereum"
+      ? Ethereum
+      : network === activeChain
+      ? Polygon
+      : null;
   return img;
 }
 
@@ -55,94 +82,80 @@ function getAggregateTokenValues(tokens: string[], values: number[]) {
   ];
 }
 
-function getTokenAddresses(tokens: string[], chain: string) {
+function getTokenAddresses(
+  chain: string,
+  tokenNames: string[],
+  chainTokenMap: Registry
+) {
   var tokenAddresses = [];
-  console.log(tokens);
-  for (var i = 0; i < tokens.length; i++) {
-    tokenAddresses.push(chainTokenRegistry[chain][tokens[i]]);
+  console.log(tokenNames);
+  for (var i = 0; i < tokenNames.length; i++) {
+    tokenAddresses.push(chainTokenMap[chain][tokenNames[i]]);
   }
   return tokenAddresses;
-}
-
-function filterUnapprovedTokens(
-  isUnapproved: boolean[],
-  addresses: string[],
-  values: number[],
-  names: string[]
-) {
-  for (let i = 0; i < isUnapproved.length; i++) {
-    if (isUnapproved[i] === false) {
-      addresses.splice(i, 1);
-      values.splice(i, 1);
-      names.splice(i, 1);
-    }
-  }
-  return [addresses, values, names];
 }
 
 async function prepareForApproval(
   chain: string,
   amounts: any,
-  setTokenAddresses: any,
-  setTokenValues: any,
-  setTokenNames: any
+  chainTokenMap: Registry
 ) {
   var [tokenNames, tokenValues] = getAggregateTokenValues(
-    amounts[chain][0],
-    amounts[chain][2]
+    amounts[chain]["tokenNames"],
+    amounts[chain]["tokenValues"]
   );
-  var tokenAddresses = getTokenAddresses(tokenNames as string[], chain);
+  var tokenAddresses = getTokenAddresses(
+    chain,
+    tokenNames as string[],
+    chainTokenMap
+  );
+  const isPendingApproval = await getPendingApprovals(
+    tokenAddresses,
+    tokenValues as number[]
+  );
 
-  getPendingApprovals(tokenAddresses, tokenValues as number[]).then(
-    (res: any) => {
-      console.log(res);
-      [tokenAddresses, tokenValues, tokenNames] = filterUnapprovedTokens(
-        res,
-        tokenAddresses,
-        tokenValues as number[],
-        tokenNames as string[]
-      );
-      console.log(tokenAddresses);
-
-      if (tokenAddresses.length > 0) {
-        setTokenAddresses(tokenAddresses);
-        setTokenValues(tokenValues);
-        setTokenNames(tokenNames);
-        console.log(`its true`);
-
-        return true;
-      }
-      console.log(`its false`);
-
-      return false;
+  // Filter already approved tokens
+  for (let i = 0; i < isPendingApproval.length; i++) {
+    if (isPendingApproval[i] === false) {
+      tokenAddresses.splice(i, 1);
+      tokenValues.splice(i, 1);
+      tokenNames.splice(i, 1);
     }
-  );
+  }
+  return [tokenAddresses, tokenValues, tokenNames];
 }
 
+const validSteps = [
+  "Approve on Mumbai",
+  "Distribute on Mumbai",
+  "Approve on Fuji",
+  "Distribute on Fuji",
+  "Approve on Rinkeby",
+  "Distribute on Rinkeby",
+  "Approve on Polygon",
+  "Distribute on Polygon",
+  "Approve on Avalanche",
+  "Distribute on Avalanche",
+  "Approve on Ethereum",
+  "Distribute on Ethereum",
+];
+
 const Payment = ({}: Props) => {
-  const [activeStep, setActiveStep] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [polygonAmounts, setPolygonAmounts] = useState([] as any);
-  const [polygonTokenValues, setPolygonTokenValues] = useState([] as any);
-  const [polygonTokenAddresses, setPolygonTokenAddresses] = useState([] as any);
-  const [polygonTokenNames, setPolygonTokenNames] = useState([] as any);
-
-  const [ethereumAmounts, setEthereumAmounts] = useState([] as any);
-  const [ethereumTokens, setEthereumTokens] = useState({} as any);
-  const [ethereumTokenAddresses, setEthereumTokenAddresses] = useState(
-    {} as any
+  const [batchPayMetadata, setBatchPayMetadata] = useState(
+    {} as BatchPayMetadata
   );
-
-  const [avalancheAmounts, setAvalancheAmounts] = useState([] as any);
-  const [avalancheTokens, setAvalancheTokens] = useState({} as any);
-  const [avalancheTokenAddresses, setAvalancheTokenAddresses] = useState(
-    {} as any
+  const [approvalMetadata, setApprovalMetadata] = useState(
+    {} as ApprovalMetadata
   );
-
+  const [activeChain, setActiveChain] = useState("");
   const [steps, setSteps] = useState([] as any);
+  const [activeStep, setActiveStep] = useState(0);
   const [validStepNumbers, setValidStepNumbers] = useState([] as any);
-
+  const {
+    state: { registry },
+  } = useGlobal();
   const router = useRouter();
   const { id, bid } = router.query;
   const { Moralis, isInitialized } = useMoralis();
@@ -166,33 +179,37 @@ const Payment = ({}: Props) => {
           size="small"
           onClick={() => {
             setIsLoading(true);
+            console.log(registry);
             const promises: Array<any> = [];
             getBatchPayAmount(Moralis, bid as string).then((res: any) => {
-              console.log(res);
               var dynamicSteps: string[] = [];
-              if ("Polygon" in res) {
-                promises.push(
-                  prepareForApproval(
-                    "Polygon",
-                    res,
-                    setPolygonTokenAddresses,
-                    setPolygonTokenValues,
-                    setPolygonTokenNames
-                  ).then((gottaApprove: any) => {
-                    if (gottaApprove) {
-                      dynamicSteps.push(`Approve on Polygon`);
-                      setValidStepNumbers([...validStepNumbers, 0]);
+              for (var chain of Object.keys(res)) {
+                if (activeChain === chain) {
+                  prepareForApproval(chain, res, registry as Registry).then(
+                    (tokenInfo: Array<Array<any>>) => {
+                      // Return true if approval required, otherwise false
+                      if (tokenInfo[0].length > 0) {
+                        const approvalData = {
+                          chain: {
+                            uniqueTokenAddresses: tokenInfo[0],
+                            aggregatedTokenValues: tokenInfo[1],
+                            uniqueTokenNames: tokenInfo[2],
+                          },
+                        };
+                        setApprovalMetadata(approvalData);
+                        dynamicSteps.push(`Approve on ${chain}`);
+                        setValidStepNumbers([...validStepNumbers, 0]);
+                      }
                     }
-                  })
-                );
-                setPolygonAmounts(res["Polygon"]);
-                dynamicSteps.push("Distribute on Polygon");
-
-                setSteps(dynamicSteps);
+                  );
+                }
+                setBatchPayMetadata(res as BatchPayMetadata);
+                dynamicSteps.push(`Distribute on ${chain}`);
                 setValidStepNumbers([...validStepNumbers, 1]);
-                setIsLoading(false);
-                setIsOpen(true);
               }
+              setSteps(dynamicSteps);
+              setIsLoading(false);
+              setIsOpen(true);
             });
           }}
         >
@@ -214,24 +231,27 @@ const Payment = ({}: Props) => {
               );
             })}
           </Stepper>
-          {activeStep === 0 && isOpen && (
+
+          {validStepNumbers[activeStep] === 0 && isOpen && !isLoading && (
             <ApproveModal
               handleClose={handleClose}
               setActiveStep={setActiveStep}
-              tokenNames={polygonTokenNames}
-              tokenAddresses={polygonTokenAddresses}
-              tokenValues={polygonTokenValues}
-              chain={"Polygon"}
+              approvalInfo={approvalMetadata[activeChain]}
+              chain={activeChain}
             />
           )}
-          {activeStep === 1 && isOpen && !isLoading && (
+
+          {validStepNumbers[activeStep] === 1 && isOpen && !isLoading && (
             <BatchPay
               handleClose={handleClose}
-              contributors={polygonAmounts[1]}
-              tokenNames={polygonAmounts[0]}
-              tokenAddresses={getTokenAddresses(polygonAmounts[0], "Polygon")}
-              tokenValues={polygonAmounts[2]}
-              chain={"Polygon"}
+              batchPayInfo={Object.assign(batchPayMetadata[activeChain], {
+                tokenAddresses: getTokenAddresses(
+                  activeChain,
+                  batchPayMetadata[activeChain].tokenNames,
+                  registry as Registry
+                ),
+              })}
+              chain={activeChain}
             />
           )}
         </Box>
