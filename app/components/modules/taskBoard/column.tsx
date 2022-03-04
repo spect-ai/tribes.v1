@@ -100,35 +100,39 @@ const Column = ({ tasks, id, column, index }: Props) => {
                     />
                   </TaskTitleContainer>
                   <Box sx={{ display: "flex", flexDirection: "row" }}>
-                    <Button
-                      sx={{
-                        textTransform: "none",
-                        color: "inherit",
-                        textAlign: "left",
-                        justifyContent: "flex-start",
-                        py: 0,
-                      }}
-                      startIcon={<AddIcon />}
-                      onClick={() => setShowCreateTask(true)}
-                      fullWidth
-                      size="small"
-                    >
-                      Add Task
-                    </Button>
-                    <Button
-                      sx={{
-                        textTransform: "none",
-                        color: "inherit",
-                        textAlign: "left",
-                        justifyContent: "flex-start",
-                      }}
-                      startIcon={<GitHubIcon />}
-                      onClick={() => setShowCreateGithubTask(true)}
-                      fullWidth
-                      size="small"
-                    >
-                      Import Task
-                    </Button>
+                    {column.title !== "Done" && (
+                      <>
+                        <Button
+                          sx={{
+                            textTransform: "none",
+                            color: "inherit",
+                            textAlign: "left",
+                            justifyContent: "flex-start",
+                            py: 0,
+                          }}
+                          startIcon={<AddIcon />}
+                          onClick={() => setShowCreateTask(true)}
+                          fullWidth
+                          size="small"
+                        >
+                          Add Task
+                        </Button>
+                        <Button
+                          sx={{
+                            textTransform: "none",
+                            color: "inherit",
+                            textAlign: "left",
+                            justifyContent: "flex-start",
+                          }}
+                          startIcon={<GitHubIcon />}
+                          onClick={() => setShowCreateGithubTask(true)}
+                          fullWidth
+                          size="small"
+                        >
+                          Import Task
+                        </Button>
+                      </>
+                    )}
                   </Box>
                   {tasks?.map((task, index) => (
                     <TaskContainer

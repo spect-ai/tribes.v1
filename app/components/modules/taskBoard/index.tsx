@@ -10,7 +10,11 @@ import { BoardData, Task } from "../../../types";
 import Board from "./board";
 import EpochList from "../epoch";
 import Analytics from "../analytics";
-import { setNavbarLogo, useGlobal } from "../../../context/globalContext";
+import {
+  setNavbarLogo,
+  setNavbarTitle,
+  useGlobal,
+} from "../../../context/globalContext";
 import { getMD5String } from "../../../utils/utils";
 
 type Props = {};
@@ -45,6 +49,7 @@ const TaskBoard = (props: Props) => {
     if (isInitialized && bid) {
       getBoard(Moralis, bid as string)
         .then((res: any) => {
+          console.log(res);
           setNavbarLogo(
             dispatch,
             res.team[0].logo ||
@@ -52,6 +57,7 @@ const TaskBoard = (props: Props) => {
                 res._id
               )}?d=identicon&s=32`
           );
+          setNavbarTitle(dispatch, res.team[0].name);
           context.setData(res);
           setIsLoading(false);
         })

@@ -10,7 +10,11 @@ import {
 import { ResolveCallOptions } from "react-moralis/lib/hooks/internal/_useResolveAsyncCall";
 import { getTaskEpoch } from "../../../app/adapters/moralis";
 import TribeTemplate from "../../../app/components/templates/tribe";
-import { setNavbarLogo, useGlobal } from "../../../app/context/globalContext";
+import {
+  setNavbarLogo,
+  setNavbarTitle,
+  useGlobal,
+} from "../../../app/context/globalContext";
 import { Epoch, Task, Team } from "../../../app/types";
 import { getMD5String } from "../../../app/utils/utils";
 
@@ -57,6 +61,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
               res._id
             )}?d=identicon&s=32`
         );
+        setNavbarTitle(dispatch, res.name);
         setTribe(res as Team);
         setLoading(false);
       },
@@ -68,9 +73,9 @@ const TribePage: NextPage<Props> = (props: Props) => {
   return (
     <>
       <Head>
-        <title>Spect.network Tribe</title>
-        <meta name="description" content={`Decentralized gig economy`} />
-        <link rel="icon" href="public/logo2.svg" />
+        <title>Spect.Tribes</title>
+        <meta name="description" content="Manage DAO with ease" />
+        <link rel="icon" href="/logo2.svg" />
       </Head>
       <TribeContext.Provider value={context}>
         <TribeTemplate />

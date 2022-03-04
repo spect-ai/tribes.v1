@@ -47,25 +47,26 @@ const TribeHeading = (props: Props) => {
           ml: 4,
         }}
       >
-        <Typography variant="h6">{tribe.name}</Typography>
-        <Tooltip title="Invite member">
-          <IconButton
-            sx={{ mb: 0.5, p: 1.7, mx: 2 }}
-            size="small"
-            onClick={() => {
-              navigator.clipboard.writeText(window.location.href).then(
-                function () {
-                  notify("Link copied to clipboard");
-                },
-                function (err) {
-                  notify("Error copying link");
-                }
-              );
-            }}
-          >
-            <PeopleOutlineIcon />
-          </IconButton>
-        </Tooltip>
+        {/* <Typography variant="h6">{tribe.name}</Typography> */}
+        <PrimaryButton
+          sx={{ mb: 0.5, px: 5, width: "10%" }}
+          size="small"
+          variant="outlined"
+          fullWidth
+          endIcon={<PeopleOutlineIcon />}
+          onClick={() => {
+            navigator.clipboard.writeText(window.location.href).then(
+              function () {
+                notify("Link copied to clipboard");
+              },
+              function (err) {
+                notify("Error copying link");
+              }
+            );
+          }}
+        >
+          Invite
+        </PrimaryButton>
         {!(user && tribe.members.includes(user?.id)) && (
           <PrimaryButton
             variant="outlined"
@@ -86,17 +87,6 @@ const TribeHeading = (props: Props) => {
             Join Tribe
           </PrimaryButton>
         )}
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          ml: 4,
-        }}
-      >
-        <Typography sx={{ fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
-          {tribe.description}
-        </Typography>
       </Box>
       <Box
         sx={{
@@ -122,7 +112,7 @@ const TribeHeading = (props: Props) => {
         )}
       </Box>
       <StyledTabs value={tab} onChange={handleTabChange}>
-        <StyledTab label="Spaces" />
+        <StyledTab label="Overview" />
         <StyledTab
           label="Settings"
           disabled={user ? tribe.roles[user?.id] !== "admin" : true}

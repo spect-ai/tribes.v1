@@ -32,10 +32,21 @@ const Navbar = (props: Props) => {
   const { state } = useGlobal();
   return (
     <StyledNav>
-      <Box sx={{ pt: 0, mx: 8 }}>
+      <Box
+        sx={{
+          pt: 0,
+          mx: 8,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
         <Link href="/" passHref>
           <Avatar src={state.logo} />
         </Link>
+        <Typography sx={{ mx: 2 }} variant="h6">
+          {state.title}
+        </Typography>
       </Box>
       <Box sx={{ flex: "1 1 auto" }} />
       {isAuthenticated ? (

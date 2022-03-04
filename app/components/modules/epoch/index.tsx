@@ -140,6 +140,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
     getEpochs(Moralis, bid)
       .then((res: any) => {
         setEpochs(res);
+        console.log(res);
         for (var epoch of res) {
           votesGiven[epoch.objectId] = epoch.votesGivenByCaller;
           votesRemaining[epoch.objectId] = epoch.votesRemaining;
@@ -202,12 +203,10 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                             ? "Contributor"
                             : "Task"}
                         </TableCell>
-                        {epoch.active === true && (
-                          <TableCell align="right" sx={{ color: "#99ccff" }}>
-                            Votes Given
-                          </TableCell>
-                        )}
-                        {epoch.active === false &&
+                        <TableCell align="right" sx={{ color: "#99ccff" }}>
+                          Votes Given
+                        </TableCell>
+                        {/* {epoch.active === false &&
                           (data.access === "admin" ? (
                             <TableCell align="right" sx={{ color: "#99ccff" }}>
                               Value
@@ -216,7 +215,12 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                             <TableCell align="right" sx={{ color: "#99ccff" }}>
                               Votes Given
                             </TableCell>
-                          ))}
+                          ))} */}
+                        {epoch.active === false && (
+                          <TableCell align="right" sx={{ color: "#99ccff" }}>
+                            Value
+                          </TableCell>
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -234,14 +238,18 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                               ? data.memberDetails[choice].username
                               : epoch.taskDetails[choice].title}
                           </TableCell>
-                          {epoch.active === true && !isLoading && (
+                          {!isLoading && (
                             <TableCell align="right">
                               <TextField
                                 id="filled-hidden-label-normal"
                                 value={votesGiven[epoch.objectId][choice]}
                                 type="number"
                                 placeholder="Value"
+                                inputProps={{
+                                  readOnly: !epoch.active,
+                                }}
                                 size="small"
+                                sx={{ width: "30%" }}
                                 onChange={(event) => {
                                   handleVotesRemaining(
                                     epoch.objectId,
@@ -257,7 +265,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                               />
                             </TableCell>
                           )}
-                          {data.access === "admin" && epoch.active === false && (
+                          {epoch.active === false && (
                             <TableCell align="right">
                               {choice in epoch.values && epoch.values[choice]
                                 ? epoch.values[choice].toFixed(2)
@@ -327,22 +335,22 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                       >
                         Save
                       </PrimaryButton>
-                      {data.access === "admin" && (
-                        <PrimaryButton
-                          endIcon={<CloseIcon />}
-                          variant="outlined"
-                          size="small"
-                          onClick={() => {
-                            endEpoch(Moralis, epoch.objectId)
-                              .then((res: any) => {
-                                handleEpochUpdateAfterSave(index, res);
-                              })
-                              .catch((err: any) => alert(err));
-                          }}
-                        >
-                          End Epoch
-                        </PrimaryButton>
-                      )}
+                      {/* {data.access === "admin" && ( */}
+                      <PrimaryButton
+                        endIcon={<CloseIcon />}
+                        variant="outlined"
+                        size="small"
+                        onClick={() => {
+                          endEpoch(Moralis, epoch.objectId)
+                            .then((res: any) => {
+                              handleEpochUpdateAfterSave(index, res);
+                            })
+                            .catch((err: any) => alert(err));
+                        }}
+                      >
+                        End Epoch
+                      </PrimaryButton>
+                      {/* )} */}
                     </ButtonContainer>
                   ) : (
                     <ButtonContainer>

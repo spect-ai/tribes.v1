@@ -65,6 +65,20 @@ const setNavbarLogo = async (
   }
 };
 
+const setNavbarTitle = async (
+  dispatch: React.Dispatch<Action>,
+  title: string
+) => {
+  try {
+    dispatch({
+      type: "SET_TITLE",
+      title: title,
+    });
+  } catch (error: any) {
+    dispatch({ type: "SET_ERROR", error });
+  }
+};
+
 const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const value = { state, dispatch };
@@ -76,4 +90,10 @@ const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
 const useGlobal = () => useContext(GlobalContext);
 
 export default GlobalContextProvider;
-export { useGlobal, initContracts, setNavbarLogo, initRegistry };
+export {
+  useGlobal,
+  initContracts,
+  setNavbarLogo,
+  setNavbarTitle,
+  initRegistry,
+};

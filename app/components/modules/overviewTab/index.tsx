@@ -1,5 +1,12 @@
 import React from "react";
-import { Box, AvatarGroup, Avatar, Tooltip, Grid } from "@mui/material";
+import {
+  Box,
+  AvatarGroup,
+  Avatar,
+  Tooltip,
+  Grid,
+  Typography,
+} from "@mui/material";
 import styled from "@emotion/styled";
 import { muiTheme } from "../../../constants/muiTheme";
 import { useTribe } from "../../../../pages/tribe/[id]";
@@ -13,6 +20,20 @@ const Overview = () => {
       <Grid container>
         <Grid item xs={9}>
           <MainContainer>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                mt: 2,
+              }}
+            >
+              <Typography
+                sx={{ fontSize: 16 }}
+                color="rgba(255, 255, 255, 0.6)"
+              >
+                {tribe.description}
+              </Typography>
+            </Box>
             <Board />
           </MainContainer>
         </Grid>
