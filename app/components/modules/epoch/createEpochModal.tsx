@@ -78,8 +78,11 @@ const CreateEpochModal = (props: Props) => {
     var members = [];
     for (let i = 0; i < data.members.length; i++) {
       if (isChecked.at(i)) {
-        data.members[i]["votesAllocated"] = allocations.at(i);
-        members.push(data.members.at(i));
+        var member = {
+          objectId: data.members[i],
+          votesAllocated: allocations.at(i),
+        };
+        members.push(member);
       }
     }
     return members;
@@ -90,7 +93,7 @@ const CreateEpochModal = (props: Props) => {
     console.log(data.members);
     for (let i = 0; i < data.members.length; i++) {
       if (isChecked.at(i)) {
-        choices.push(data.members[i].userId);
+        choices.push(data.members[i]);
       }
     }
     return choices;
@@ -294,7 +297,7 @@ const CreateEpochModal = (props: Props) => {
                           </TableCell>
                           {isOpen && (
                             <TableCell align="right">
-                              {data.memberDetails[member.userId].username}
+                              {data.memberDetails[member].username}
                             </TableCell>
                           )}
                           <TableCell align="right">

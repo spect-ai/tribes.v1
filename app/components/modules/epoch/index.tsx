@@ -204,11 +204,16 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                             Votes Given
                           </TableCell>
                         )}
-                        {data.access === "admin" && epoch.active === false && (
-                          <TableCell align="right" sx={{ color: "#99ccff" }}>
-                            Value
-                          </TableCell>
-                        )}
+                        {epoch.active === false &&
+                          (data.access === "admin" ? (
+                            <TableCell align="right" sx={{ color: "#99ccff" }}>
+                              Value
+                            </TableCell>
+                          ) : (
+                            <TableCell align="right" sx={{ color: "#99ccff" }}>
+                              Votes Given
+                            </TableCell>
+                          ))}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -314,22 +319,24 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                       >
                         Save
                       </PrimaryButton>
-                      <PrimaryButton
-                        endIcon={<CloseIcon />}
-                        variant="outlined"
-                        size="small"
-                        onClick={() => {
-                          console.log(`hshsh`);
-                          endEpoch(Moralis, epoch.objectId)
-                            .then((res: any) => {
-                              console.log(res);
-                              handleEpochUpdateAfterSave(index, res);
-                            })
-                            .catch((err: any) => alert(err));
-                        }}
-                      >
-                        End Epoch
-                      </PrimaryButton>
+                      {data.access === "admin" && (
+                        <PrimaryButton
+                          endIcon={<CloseIcon />}
+                          variant="outlined"
+                          size="small"
+                          onClick={() => {
+                            console.log(`hshsh`);
+                            endEpoch(Moralis, epoch.objectId)
+                              .then((res: any) => {
+                                console.log(res);
+                                handleEpochUpdateAfterSave(index, res);
+                              })
+                              .catch((err: any) => alert(err));
+                          }}
+                        >
+                          End Epoch
+                        </PrimaryButton>
+                      )}
                     </ButtonContainer>
                   ) : (
                     <ButtonContainer>

@@ -186,7 +186,7 @@ export interface BoardData {
   createdAt: string;
   updatedAt: string;
   statusList: string[];
-  members: Member[];
+  members: string[];
   memberDetails: Object<string, Member>;
   access: string;
   roles: Object<string, string>;

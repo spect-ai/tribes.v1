@@ -69,7 +69,6 @@ const EditTask = ({
 }: Props) => {
   const { data, setData } = useBoard();
   const { Moralis, user } = useMoralis();
-  console.log(Moralis.User);
   const [isLoading, setIsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState({} as any);

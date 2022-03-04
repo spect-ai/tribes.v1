@@ -61,8 +61,10 @@ function initializeEpochMembers(members, choices) {
     memberIdsToVotesGiven[choice] = 0;
   }
   for (var member of members) {
-    epochMembers[member] = {
-      objectId: member,
+    logger.info(`member ${JSON.stringify(member)}`);
+
+    epochMembers[member.objectId] = {
+      objectId: member.objectId,
       votesGiven: memberIdsToVotesGiven,
       votesRemaining: member.votesAllocated,
       votesAllocated: member.votesAllocated,
@@ -74,6 +76,8 @@ function initializeEpochMembers(members, choices) {
 
 Moralis.Cloud.define("startEpoch", async (request) => {
   try {
+    if (request.params.members.length === 0)
+      throw "Cant create epoch with no members";
     const endTime =
       parseInt(request.params.startTime) + parseInt(request.params.duration);
     const epochCount = await getEpochCountByTeamId(request.params.teamId);
