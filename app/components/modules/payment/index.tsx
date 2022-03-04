@@ -88,7 +88,6 @@ function getTokenAddresses(
   chainTokenMap: Registry
 ) {
   var tokenAddresses = [];
-  console.log(tokenNames);
   for (var i = 0; i < tokenNames.length; i++) {
     tokenAddresses.push(chainTokenMap[chain][tokenNames[i]]);
   }
@@ -179,7 +178,6 @@ const Payment = ({}: Props) => {
           size="small"
           onClick={() => {
             setIsLoading(true);
-            console.log(registry);
             const promises: Array<any> = [];
             getBatchPayAmount(Moralis, bid as string).then((res: any) => {
               var dynamicSteps: string[] = [];

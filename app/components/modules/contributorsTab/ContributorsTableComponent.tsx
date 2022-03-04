@@ -17,7 +17,6 @@ const ContributorsTableComponent = ({ tribe }: Props) => {
   useEffect(() => {}, []);
 
   const { user } = useMoralis();
-  console.log(tribe);
   return (
     <TableContainer>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -31,7 +30,10 @@ const ContributorsTableComponent = ({ tribe }: Props) => {
         </TableHead>
         <TableBody>
           {tribe.members?.map((row: any) => (
-            <TableRow key={row.userId} sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
+            <TableRow
+              key={row.userId}
+              sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+            >
               <TableCell component="th" scope="row">
                 {row.userId}
               </TableCell>

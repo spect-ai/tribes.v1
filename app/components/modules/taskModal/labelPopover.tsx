@@ -61,7 +61,6 @@ const LabelPopover = ({ open, anchorEl, handleClose, task }: Props) => {
             setIsLoading(true);
             updateTaskLabels(Moralis, labels, task.taskId).then(
               (res: BoardData) => {
-                console.log(res);
                 setData(res);
                 setIsLoading(false);
                 handleClose("label");

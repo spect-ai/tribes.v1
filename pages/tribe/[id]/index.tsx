@@ -30,6 +30,8 @@ interface TribeContextType {
   getTeam: Function;
   loading: boolean;
   setLoading: (loading: boolean) => void;
+  isMember: boolean;
+  setIsMember: (isMember: boolean) => void;
 }
 
 export const TribeContext = createContext<TribeContextType>(
@@ -40,10 +42,12 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();
   const { id } = router.query;
   const context = useProviderTribe();
+  const { setLoading, getTeam, setTribe, isMember } = context;
   const { dispatch } = useGlobal();
   useEffect(() => {
-    context.setLoading(true);
-    context.getTeam({
+    setLoading(true);
+    console.log("useEffect tribe");
+    getTeam({
       onSuccess: (res: any) => {
         console.log(res);
         setNavbarLogo(
@@ -53,14 +57,14 @@ const TribePage: NextPage<Props> = (props: Props) => {
               res._id
             )}?d=identicon&s=32`
         );
-        context.setTribe(res as Team);
-        context.setLoading(false);
+        setTribe(res as Team);
+        setLoading(false);
       },
       params: {
         teamId: id,
       },
     });
-  }, [id]);
+  }, [id, isMember]);
   return (
     <>
       <Head>
@@ -77,14 +81,12 @@ const TribePage: NextPage<Props> = (props: Props) => {
 
 function useProviderTribe() {
   const [tab, setTab] = useState(0);
-
   const [tribe, setTribe] = useState({} as Team);
-  const [loading, setLoading] = useState(false);
-
+  const [loading, setLoading] = useState(true);
+  const [isMember, setIsMember] = useState(false);
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
-
   const { fetch: getTeam } = useMoralisCloudFunction(
     "getTeam",
     {
@@ -101,6 +103,8 @@ function useProviderTribe() {
     getTeam,
     loading,
     setLoading,
+    isMember,
+    setIsMember,
   };
 }
 

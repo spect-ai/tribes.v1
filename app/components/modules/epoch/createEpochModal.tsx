@@ -90,7 +90,6 @@ const CreateEpochModal = (props: Props) => {
 
   const getChoices = () => {
     var choices = [];
-    console.log(data.members);
     for (let i = 0; i < data.members.length; i++) {
       if (isChecked.at(i)) {
         choices.push(data.members[i]);
@@ -256,7 +255,7 @@ const CreateEpochModal = (props: Props) => {
                                   e.target.checked
                                 )
                               );
-                              console.log(isChecked);
+                              isChecked;
                             }}
                           />
                         </TableCell>
@@ -291,7 +290,6 @@ const CreateEpochModal = (props: Props) => {
                               checked={isChecked.at(index)}
                               onClick={() => {
                                 toggleCheckboxValue(index);
-                                console.log(isChecked);
                               }}
                             />
                           </TableCell>

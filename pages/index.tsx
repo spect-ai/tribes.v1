@@ -25,7 +25,7 @@ import { tribesLogo } from "../app/constants";
 type Props = {
   image: string;
   title: string;
-  members: string;
+  members: number;
   teamId: number;
 };
 
@@ -74,7 +74,7 @@ const Home: NextPage = () => {
               <DAOCards
                 image={tribe.logo}
                 title={tribe.name}
-                members="3"
+                members={tribe.members.length}
                 teamId={tribe.teamId}
               />
             </Grid>

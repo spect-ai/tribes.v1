@@ -23,7 +23,6 @@ type Props = {
 
 const ProfileSettings = ({ isOpen, handleClose }: Props) => {
   const { Moralis, user } = useMoralis();
-  console.log(user?.get("ethAddress"));
 
   const [userName, setuserName] = useState(user?.get("username"));
   const [userEmail, setuserEmail] = useState(user?.get("email"));

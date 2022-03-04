@@ -26,7 +26,6 @@ const TaskModal = ({ isOpen, handleClose, taskId, column }: Props) => {
     setLoading(true);
     getTask(Moralis, taskId)
       .then((task: Task) => {
-        console.log(task);
         setTask(task);
         const octokit = new Octokit();
         setLoading(false);

@@ -63,7 +63,6 @@ const Heading = (props: Props) => {
       setIsLoading(true);
       getBoards(Moralis, parseInt(id))
         .then((res: any) => {
-          console.log(res);
           setBoards(res);
         })
         .catch((err: any) => alert(err));
@@ -143,11 +142,11 @@ const Heading = (props: Props) => {
             </IconButton>
           </MuiLink>
         </Tooltip>
-        <Tooltip title="Invite member">
+        {/* <Tooltip title="Invite member">
           <IconButton sx={{ mb: 0, p: 1.7 }} size="small">
             <PeopleOutlineIcon />
           </IconButton>
-        </Tooltip>
+        </Tooltip> */}
         <CreateEpochModal />
       </Box>
       {/*<Typography sx={{ ml: 2, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
@@ -156,9 +155,6 @@ const Heading = (props: Props) => {
       <StyledTabs value={tab} onChange={handleTabChange}>
         <StyledTab label="Board" />
         <StyledTab label="Epoch" />
-        <StyledTab label="Settings" />
-        {/* <StyledTab label="Analytics" />
-        <StyledTab label="Meetings" disabled />*/}
       </StyledTabs>
     </Container>
   );

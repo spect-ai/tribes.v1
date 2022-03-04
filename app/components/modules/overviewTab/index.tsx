@@ -26,7 +26,7 @@ const Overview = () => {
                 }}
               >
                 <Title>Contributors</Title>
-                <AvatarGroup max={4} sx={{ width: "fit-content" }}>
+                <AvatarGroup max={6} sx={{ width: "fit-content" }}>
                   {tribe?.members?.map((memberId, idx) => (
                     <Tooltip
                       title={tribe.memberDetails[memberId].username}
@@ -35,11 +35,10 @@ const Overview = () => {
                       <Avatar
                         alt=""
                         src={
-                          tribe.memberDetails[memberId].profilePicture?._url !==
-                          null
+                          tribe.memberDetails[memberId].profilePicture
                             ? tribe.memberDetails[memberId].profilePicture._url
                             : `https://www.gravatar.com/avatar/${getMD5String(
-                                tribe.memberDetails[memberId].username
+                                memberId
                               )}?d=identicon&s=32`
                         }
                       />

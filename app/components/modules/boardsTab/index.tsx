@@ -1,4 +1,4 @@
-import { Button, Grid, Skeleton, styled } from "@mui/material";
+import { Button, Grid, Skeleton, styled, Typography } from "@mui/material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { useState, useEffect } from "react";
 import CreateBoard from "./createBoard";
@@ -11,16 +11,18 @@ import { BoardData } from "../../../types";
 type Props = {};
 
 const Board = (props: Props) => {
-  const [boards, setBoards] = useState([]);
   const router = useRouter();
-  const { tribe } = useTribe();
-  const { Moralis, isInitialized } = useMoralis();
+  const { tribe, isMember } = useTribe();
+  const { user } = useMoralis();
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
-  const [isLoading, setIsLoading] = useState(false);
   return (
     <Container>
       <CreateBoard isOpen={isOpen} handleClose={handleClose} />
+      {!tribe?.boards?.length &&
+        !(user && tribe.members.includes(user?.id)) && (
+          <Typography variant="h6">No spaces created</Typography>
+        )}
       <Grid container spacing={2}>
         {tribe?.boards?.map((board: BoardData, index: number) => (
           <Grid item xs={3} key={index}>
@@ -40,10 +42,16 @@ const Board = (props: Props) => {
         ))}
 
         <Grid item xs={3}>
-          <CreateBoardButton variant="outlined" onClick={() => setIsOpen(true)}>
-            <ButtonText>Create new space</ButtonText>
-            <AddCircleOutlineIcon sx={{ color: "#eaeaea" }} />
-          </CreateBoardButton>
+          {user && tribe.members.includes(user?.id) && (
+            <CreateBoardButton
+              variant="outlined"
+              disabled={tribe.roles[user?.id] !== "admin"}
+              onClick={() => setIsOpen(true)}
+            >
+              <ButtonText>Create new space</ButtonText>
+              <AddCircleOutlineIcon sx={{ color: "#eaeaea" }} />
+            </CreateBoardButton>
+          )}
         </Grid>
       </Grid>
     </Container>

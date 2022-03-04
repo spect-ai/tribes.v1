@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import Column from "./column";
-import { Fade } from "@mui/material";
+import { Fade, Grow } from "@mui/material";
 import { useRouter } from "next/router";
 import { getBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
@@ -45,7 +45,6 @@ const TaskBoard = (props: Props) => {
     if (isInitialized && bid) {
       getBoard(Moralis, bid as string)
         .then((res: any) => {
-          console.log(res);
           setNavbarLogo(
             dispatch,
             res.team[0].logo ||
@@ -69,16 +68,24 @@ const TaskBoard = (props: Props) => {
         <BoardContext.Provider value={context}>
           <Heading />
           {tab === 0 && (
-            <Board
-              expanded={panelExpanded === "board"}
-              handleChange={handleChange}
-            />
+            <Grow in={tab === 0} timeout={500}>
+              <div>
+                <Board
+                  expanded={panelExpanded === "board"}
+                  handleChange={handleChange}
+                />
+              </div>
+            </Grow>
           )}
           {tab === 1 && (
-            <EpochList
-              expanded={panelExpanded === "epoch"}
-              handleChange={handleChange}
-            />
+            <Grow in={tab === 1} timeout={500}>
+              <div>
+                <EpochList
+                  expanded={panelExpanded === "epoch"}
+                  handleChange={handleChange}
+                />
+              </div>
+            </Grow>
           )}
           {tab === 3 && <Analytics />}
         </BoardContext.Provider>

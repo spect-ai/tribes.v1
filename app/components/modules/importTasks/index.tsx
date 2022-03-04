@@ -66,7 +66,6 @@ const ImportTasks = ({ setIsOpen }: Props) => {
   });
 
   const onSubmit: SubmitHandler<IImportTasksInput> = async (values) => {
-    console.log(values);
     const splitValues = values.repo.split("/");
     setRepo(values.repo);
     octokit.rest.issues
@@ -76,7 +75,6 @@ const ImportTasks = ({ setIsOpen }: Props) => {
         labels: values.labels.toString(),
       })
       .then(({ data }) => {
-        console.log(data);
         const issues = data.map((issue) => {
           return {
             title: issue.title,

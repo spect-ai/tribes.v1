@@ -29,6 +29,8 @@ import { Epoch } from "../../../types";
 import { monthMap } from "../../../constants";
 import { useBoard } from "../taskBoard";
 import { downloadCSV } from "../../../utils/utils";
+import { notify } from "../settingsTab";
+import { Toaster } from "react-hot-toast";
 
 type Props = {
   expanded: boolean;
@@ -137,7 +139,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
     setIsLoading(true);
     getEpochs(Moralis, bid)
       .then((res: any) => {
-        console.log(res);
         setEpochs(res);
         for (var epoch of res) {
           votesGiven[epoch.objectId] = epoch.votesGivenByCaller;
@@ -151,6 +152,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
 
   return (
     <Container>
+      <Toaster />
       <Accordion hidden>
         <AccordionSummary />
       </Accordion>
@@ -178,7 +180,8 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                 {epoch.name}
               </Typography>
               <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                Started on {monthMap[epoch.startTime.getMonth()]}{" "}
+                Started on{" "}
+                {monthMap[epoch.startTime.getMonth() as keyof typeof monthMap]}{" "}
                 {epoch.startTime.getDate()}
               </Typography>
               <Typography sx={{ width: "30%", flexShrink: 0 }}>
@@ -304,16 +307,21 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                     <ButtonContainer>
                       <PrimaryButton
                         endIcon={<SaveIcon />}
+                        loading={isLoading}
                         variant="outlined"
                         sx={{ mx: 4 }}
                         size="small"
                         onClick={() => {
+                          setIsLoading(true);
                           saveVotes(
                             Moralis,
                             epoch.objectId,
                             votesGiven[epoch.objectId]
                           )
-                            .then((res: any) => console.log(res))
+                            .then((res: any) => {
+                              setIsLoading(false);
+                              notify("Votes saved!");
+                            })
                             .catch((err: any) => alert(err));
                         }}
                       >
@@ -325,10 +333,8 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                           variant="outlined"
                           size="small"
                           onClick={() => {
-                            console.log(`hshsh`);
                             endEpoch(Moralis, epoch.objectId)
                               .then((res: any) => {
-                                console.log(res);
                                 handleEpochUpdateAfterSave(index, res);
                               })
                               .catch((err: any) => alert(err));

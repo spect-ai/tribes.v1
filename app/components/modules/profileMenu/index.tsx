@@ -19,6 +19,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
 import ProfileSettings from "../profileSettings";
 import { makeStyles } from "@mui/styles";
+import { useRouter } from "next/router";
 
 type Props = {};
 const NavbarAvatar = styled(Avatar)(({ theme }) => ({
@@ -40,6 +41,8 @@ const ProfileMenu = (props: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleSettingsClose = () => setIsOpen(false);
   const open = Boolean(anchorEl);
+
+  const router = useRouter();
   const classes = useStyles();
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -60,7 +63,7 @@ const ProfileMenu = (props: Props) => {
           src={
             user?.get("profilePicture")?._url ||
             `https://www.gravatar.com/avatar/${getMD5String(
-              user?.get("username")
+              user?.id || ""
             )}?d=identicon&s=32`
           }
         />
@@ -94,7 +97,14 @@ const ProfileMenu = (props: Props) => {
             <ListItemText>Profile Settings</ListItemText>
           </MenuItem>
           <Divider />
-          <MenuItem dense sx={{ px: 3, py: 0 }} onClick={() => logout()}>
+          <MenuItem
+            dense
+            sx={{ px: 3, py: 0 }}
+            onClick={() => {
+              logout();
+              router.push("/");
+            }}
+          >
             <ListItemIcon>
               <LogoutIcon />
             </ListItemIcon>

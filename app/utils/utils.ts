@@ -86,9 +86,7 @@ export function formatTime(date: Date) {
 
 export function getFlattenedNetworks(registry: Registry) {
   var networks: Array<Chain> = [];
-  console.log(`registry`);
 
-  console.log(registry);
   for (var networkId of Object.keys(registry)) {
     networks.push({
       name: registry[networkId].name,

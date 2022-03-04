@@ -44,11 +44,9 @@ const Column = ({ tasks, id, column, index }: Props) => {
 
   function updateColumn() {
     if (currentColumnTitle !== columnTitle) {
-      console.log(`upating column title`);
       updateColumnName(Moralis, bid as string, id, columnTitle).then(
         (res: any) => {
           setCurrentColumnTitle(columnTitle);
-          console.log(res);
         }
       );
     }

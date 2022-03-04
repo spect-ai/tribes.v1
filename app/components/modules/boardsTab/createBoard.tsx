@@ -63,7 +63,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isChecked, setIsChecked] = useState(
-    Array(tribe.members?.length).fill(false)
+    Array(tribe.members?.length).fill(true)
   );
 
   const toggleCheckboxValue = (index: number) => {
@@ -77,6 +77,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
       if (isChecked.at(i)) {
         const memberId = tribe.members.at(i);
         members.push(memberId);
+        // @ts-ignore
         roles[memberId] = tribe.roles[tribe.members.at(i)];
       }
     }
@@ -122,15 +123,11 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                     <TableRow>
                       <TableCell padding="checkbox">
                         <Checkbox
-                          inputProps={{
-                            "aria-label": "select all desserts",
-                          }}
                           checked={isChecked.every((elem) => elem === true)}
                           onChange={(e) => {
                             setIsChecked(
                               Array(tribe.members.length).fill(e.target.checked)
                             );
-                            console.log(isChecked);
                           }}
                         />
                       </TableCell>
@@ -165,7 +162,6 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                             checked={isChecked.at(index)}
                             onClick={() => {
                               toggleCheckboxValue(index);
-                              console.log(isChecked);
                             }}
                           />
                         </TableCell>

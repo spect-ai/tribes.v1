@@ -62,7 +62,6 @@ const Navbar = (props: Props) => {
                 // chainId: Moralis.Chains.POLYGON_MAINNET,
               })
                 .then((res) => {
-                  console.log(res);
                   getOrCreateUser(Moralis).then((res: any) => console.log(res));
                 })
                 .catch((err) => console.log(err))

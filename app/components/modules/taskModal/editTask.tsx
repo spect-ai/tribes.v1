@@ -87,7 +87,6 @@ const EditTask = ({
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
     }
-    console.log(task);
   }, []);
 
   return (
@@ -240,7 +239,6 @@ const EditTask = ({
                       description,
                       task.taskId
                     ).then((res: BoardData) => {
-                      console.log(res);
                       setData(res);
                       setIsLoading(false);
                     });

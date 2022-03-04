@@ -28,14 +28,12 @@ const initContracts = async (dispatch: React.Dispatch<Action>) => {
 
     // }
     const { distributorContract } = initializeMumbaiContracts();
-    console.log(distributorContract);
     dispatch({
       type: "SET_DISTRIBUTOR_CONTRACT",
       contract: distributorContract,
     });
     dispatch({ type: "END_ASYNC" });
   } catch (error: any) {
-    console.log(error);
     dispatch({ type: "SET_ERROR", error });
   }
 };

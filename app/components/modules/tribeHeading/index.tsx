@@ -1,29 +1,19 @@
 import styled from "@emotion/styled";
 import {
-  Avatar,
   Box,
-  Breadcrumbs,
-  Drawer,
   IconButton,
-  List,
-  Link as MuiLink,
-  ListItemText,
   Tooltip,
   Typography,
-  ListItemButton,
   styled as MUIStyled,
-  Tabs,
-  Tab,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import BoardSettings from "../boardSettings";
-import GroupsIcon from "@mui/icons-material/Groups";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
-import Link from "next/link";
-import { getBoards } from "../../../adapters/moralis";
+import {
+  checkMemberInTeam,
+  getBoards,
+  joinTribe,
+} from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 // import BatchPay from "../batchPay";
 import {
@@ -31,24 +21,24 @@ import {
   StyledTab,
   StyledTabs,
 } from "../../elements/styledComponents";
-import CreateEpochModal from "../epoch/createEpochModal";
 import { useTribe } from "../../../../pages/tribe/[id]";
-import InviteContributorModal from "../settingsTab/inviteContributorModal";
+import { notify } from "../settingsTab";
+import { Toaster } from "react-hot-toast";
 
 type Props = {};
 
 const TribeHeading = (props: Props) => {
-  const { tab, handleTabChange, tribe } = useTribe();
+  const { tab, handleTabChange, tribe, isMember, setIsMember, loading } =
+    useTribe();
   const router = useRouter();
   const id = router.query.id as string;
-  const bid = router.query.bid as string;
-  const [isOpen, setIsOpen] = useState(false);
-  const handleClose = () => setIsOpen(false);
-  const [boards] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { Moralis, isInitialized, user, isAuthenticated, authenticate } =
+    useMoralis();
 
   return (
     <Container>
-      {isOpen && <InviteContributorModal setIsOpen={setIsOpen} />}
+      <Toaster />
       <Box
         sx={{
           display: "flex",
@@ -60,13 +50,42 @@ const TribeHeading = (props: Props) => {
         <Typography variant="h6">{tribe.name}</Typography>
         <Tooltip title="Invite member">
           <IconButton
-            sx={{ mb: 0.5, p: 1.7, ml: 2 }}
+            sx={{ mb: 0.5, p: 1.7, mx: 2 }}
             size="small"
-            onClick={() => setIsOpen(true)}
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href).then(
+                function () {
+                  notify("Link copied to clipboard");
+                },
+                function (err) {
+                  notify("Error copying link");
+                }
+              );
+            }}
           >
             <PeopleOutlineIcon />
           </IconButton>
         </Tooltip>
+        {!(user && tribe.members.includes(user?.id)) && (
+          <PrimaryButton
+            variant="outlined"
+            loading={isLoading}
+            onClick={async () => {
+              if (!isAuthenticated) {
+                await authenticate();
+              }
+              setIsLoading(true);
+              joinTribe(Moralis, parseInt(id)).then((res: boolean) => {
+                setIsMember(res);
+                if (res) {
+                  notify("Joined Tribe Successfully!");
+                }
+              });
+            }}
+          >
+            Join Tribe
+          </PrimaryButton>
+        )}
       </Box>
       <Box
         sx={{
@@ -103,8 +122,11 @@ const TribeHeading = (props: Props) => {
         )}
       </Box>
       <StyledTabs value={tab} onChange={handleTabChange}>
-        <StyledTab label="Overview" />
-        <StyledTab label="Settings" />
+        <StyledTab label="Spaces" />
+        <StyledTab
+          label="Settings"
+          disabled={user ? tribe.roles[user?.id] !== "admin" : true}
+        />
       </StyledTabs>
     </Container>
   );

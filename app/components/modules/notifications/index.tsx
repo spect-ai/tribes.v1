@@ -48,7 +48,6 @@ export default function Notification() {
     setLoading(true);
     acceptInvitations(Moralis, ethAddress, teamId)
       .then((res: any[]) => {
-        console.log("ressssAccepted", res);
         setTimeout(function () {
           setLoading(false);
         }, 2000);

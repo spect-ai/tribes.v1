@@ -244,7 +244,6 @@ export function getTaskEpoch(Moralis: any, epochId: string) {
 }
 
 export function updateTask(Moralis: any, task: any, columnId: string) {
-  console.log(task);
   const params = {
     task: task,
     columnId: columnId,
@@ -349,7 +348,6 @@ export function updateTaskStatus(
     status: status,
     columnId: columnId,
   };
-  console.log(status);
   return Moralis.Cloud.run("updateTaskStatus", params);
 }
 
@@ -382,7 +380,7 @@ export function voteOnTasks(
 export function checkMemberInTeam(
   Moralis: any,
   teamId: number,
-  userId: string
+  userId: string | undefined
 ) {
   const params = {
     teamId: teamId,
@@ -427,7 +425,6 @@ export function addMemberToTribe(
     userType: userType,
     adminId: adminId,
   };
-  console.log("params", params);
   return Moralis.Cloud.run("addMemberToTribe", params);
 }
 export function getBatchPayAmount(Moralis: any, boardId: string) {
@@ -481,7 +478,6 @@ export function getEpochs(Moralis: any, spaceId: string) {
 }
 
 export function saveVotes(Moralis: any, epochId: string, votesGiven: object) {
-  console.log(votesGiven);
   const params = {
     epochId: epochId,
     votesGiven: votesGiven,
@@ -498,4 +494,11 @@ export function endEpoch(Moralis: any, epochId: string) {
 
 export function getMyTeams(Moralis: any) {
   return Moralis.Cloud.run("getMyTeams");
+}
+
+export function joinTribe(Moralis: any, teamId: number) {
+  const params = {
+    teamId: teamId,
+  };
+  return Moralis.Cloud.run("joinTribe", params);
 }

@@ -40,7 +40,6 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
       String(user?.id)
     )
       .then((res: any[]) => {
-        console.log(sendInvitations, res);
         if (res) {
           setState({ ...state, text: "Invite Sent", open: true });
         } else {
@@ -48,7 +47,6 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
         }
       })
       .catch((ex: any) => {
-        console.log("sendInvitations", ex);
         setState({ severity: "error", text: "Error", open: true });
       });
 
@@ -99,7 +97,6 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
         userId: user?.id,
       },
     ];
-    console.log("userId", user?.id);
     let ciphertext = CryptoJS.AES.encrypt(
       JSON.stringify(unencrypted),
       String(process.env.ENCRYPTION_SECRET_KEY)

@@ -112,7 +112,6 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
               parseFloat(value),
               task.taskId
             ).then((res: BoardData) => {
-              console.log(res);
               setData(res);
               setIsLoading(false);
               handleClose("reward");

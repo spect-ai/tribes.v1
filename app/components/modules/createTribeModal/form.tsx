@@ -42,7 +42,6 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
   const router = useRouter();
 
   const onSubmit: SubmitHandler<ITribeFormInput> = async (values) => {
-    console.log(values);
     createTribe(Moralis, {
       name: values.name,
       description: values.description,
@@ -50,8 +49,6 @@ const CreateTribeForm = ({ setIsOpen }: Props) => {
       preferredToken: values.preferredToken,
       preferredChain: values.preferredChain,
     }).then((res: any) => {
-      console.log(res);
-
       updateMembers(Moralis, {
         teamId: res.get("teamId"),
         members: [

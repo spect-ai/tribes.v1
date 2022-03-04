@@ -64,7 +64,6 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
                 issue_number: parseInt(splitValues[6]),
               })
               .then(({ data }) => {
-                console.log(data);
                 addTask(
                   Moralis,
                   bid as string,
