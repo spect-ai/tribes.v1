@@ -360,7 +360,11 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                         <PrimaryButton
                           endIcon={<PaidIcon />}
                           variant="outlined"
-                          sx={{ mx: 4 }}
+                          sx={{
+                            mx: 4,
+                            pt: 1,
+                            borderRadius: 1,
+                          }}
                           size="small"
                           onClick={() => {}}
                         >
@@ -370,7 +374,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                         <PrimaryButton
                           endIcon={<PaidIcon />}
                           variant="outlined"
-                          sx={{ mx: 4 }}
+                          sx={{ mx: 4, borderRadius: 1 }}
                           size="small"
                           onClick={() => {}}
                         >
@@ -381,6 +385,10 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                         endIcon={<DownloadIcon />}
                         variant="outlined"
                         size="small"
+                        sx={{
+                          pt: 1,
+                          borderRadius: 1,
+                        }}
                         onClick={() => {
                           handleExport(epoch);
                         }}

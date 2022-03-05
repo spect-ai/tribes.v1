@@ -79,11 +79,21 @@ const ApproveModal = ({
                   container
                   spacing={1}
                   key={index}
-                  sx={{ display: "flex" }}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
                   margin="8px"
                 >
                   <Grid item xs={6}>
-                    <Box sx={{ display: "flex" }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        alignItems: "center",
+                      }}
+                    >
                       <Avatar
                         alt=""
                         src={`https://www.gravatar.com/avatar/${`eewe`}?d=identicon&s=32`}
@@ -100,7 +110,9 @@ const ApproveModal = ({
                     </Typography>
                   </Grid>
                   <Grid item xs={3}>
-                    <Button
+                    <PrimaryButton
+                      loading={isLoading}
+                      sx={{ borderRadius: "3px" }}
                       onClick={() => {
                         setIsLoading(true);
                         approve(approvalInfo.uniqueTokenAddresses[index])
@@ -108,13 +120,16 @@ const ApproveModal = ({
                             setActiveStep(1);
                             setIsLoading(false);
                           })
-                          .catch((err: any) => alert(err));
+                          .catch((err: any) => {
+                            setIsLoading(false);
+                            alert(err.message);
+                          });
                       }}
                       variant="outlined"
                       id="bApprove"
                     >
                       Approve
-                    </Button>
+                    </PrimaryButton>
                   </Grid>
                 </Grid>
               )

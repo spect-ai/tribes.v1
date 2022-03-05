@@ -150,7 +150,9 @@ const BatchPay = ({
               Cancel
             </Button>
             <Box sx={{ flex: "1 1 auto" }} />
-            <Button
+            <PrimaryButton
+              loading={isLoading}
+              sx={{ borderRadius: "3px" }}
               onClick={() => {
                 setIsLoading(true);
                 batchPayTokens(
@@ -169,17 +171,17 @@ const BatchPay = ({
                         console.log(res);
                         setData(res);
                       })
-                      .catch((err: any) => alert(err));
+                      .catch((err: any) => console.log(err));
                     setIsLoading(false);
                     handleClose();
                   })
-                  .catch((err: any) => alert(err));
+                  .catch((err: any) => console.log(err));
               }}
               variant="outlined"
               id="bApprove"
             >
               Batch Pay
-            </Button>
+            </PrimaryButton>
           </Box>
         }
       </Box>

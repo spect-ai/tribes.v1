@@ -89,7 +89,7 @@ const Heading = (props: Props) => {
           ))}
         </List>
       </Drawer>
-      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 0 }}>
+      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 0, ml: 2 }}>
         <Link href={`/tribe/${id}`} passHref>
           <MuiLink
             color="inherit"

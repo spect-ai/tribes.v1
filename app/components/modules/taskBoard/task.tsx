@@ -46,7 +46,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
                   />
                 ))}
               </LabelsContainer>
-              {task.status === 300 && <Chip color="#006400">{"Paid"}</Chip>}
+
               <Title>{task.title}</Title>
 
               <ChipContainer>
@@ -72,6 +72,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
                     {data.memberDetails[task.assignee[0]].username}
                   </Chip>
                 )}
+                {task.status === 300 && <Chip color="#66bb6a">{"Paid"}</Chip>}
                 {/* <Chip color={column.color}>{column.status}</Chip> */}
               </ChipContainer>
             </Container>

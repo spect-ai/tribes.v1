@@ -68,12 +68,13 @@ export function fromWei(val: any) {
   return ethers.utils.formatEther(val);
 }
 
-export function approve(address: string) {
+export async function approve(address: string) {
   let contract = getERC20Contract(address);
-  return contract.approve(
+  let tx = await contract.approve(
     distributorAddress.Distributor,
     ethers.constants.MaxInt256
   );
+  return tx.wait();
 }
 
 export function getPendingApprovals(addresses: string[], values: number[]) {
