@@ -4,6 +4,11 @@ async function getTaskByTaskId(taskId) {
   return await taskQuery.first();
 }
 
+async function getTasksByTaskIds(taskIds) {
+  const taskQuery = new Moralis.Query("Task");
+  taskQuery.containedIn("taskId", taskIds);
+  return await taskQuery.find();
+}
 async function getTaskObjByTaskId(taskId) {
   const taskQuery = new Moralis.Query("Task");
   const pipeline = [{ match: { taskId: taskId } }, { limit: 1 }];
@@ -563,19 +568,43 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
   var aggregatedTokenValues = {};
 
   for (var task of tasks) {
-    res.contributors.push(task.objectId.assigneeId[0]);
-    res.tokenAddresses.push(task.objectId.tokenAddress);
-    res.tokenValues.push(task.value);
+    if (task.objectId.assigneeId.length > 0) {
+      res.contributors.push(task.objectId.assigneeId[0]);
+      res.tokenAddresses.push(task.objectId.tokenAddress);
+      res.tokenValues.push(task.value);
 
-    if (!(task.objectId.tokenAddress in aggregatedTokenValues)) {
-      aggregatedTokenValues[task.objectId.tokenAddress] = 0;
+      if (!(task.objectId.tokenAddress in aggregatedTokenValues)) {
+        aggregatedTokenValues[task.objectId.tokenAddress] = 0;
+      }
+      aggregatedTokenValues[task.objectId.tokenAddress] += task.value;
     }
-    aggregatedTokenValues[task.objectId.tokenAddress] += task.value;
   }
 
   res.uniqueTokenAddresses = Object.keys(aggregatedTokenValues);
   res.aggregatedTokenValues = Object.values(aggregatedTokenValues);
 
+  var taskIdQuery = new Moralis.Query("Task");
+  const pipelineIdQuery = [
+    {
+      match: {
+        boardId: request.params.boardId,
+        status: 205,
+        value: { $gt: 0 },
+        $expr: {
+          $eq: ["$chain.chainId", request.params.chainId],
+        },
+      },
+    },
+    {
+      project: {
+        taskId: 1,
+      },
+    },
+  ];
+  const taskIds = await taskIdQuery.aggregate(pipelineIdQuery);
+  logger.info(`taskIds ${JSON.stringify(taskIds)}`);
+
+  res.taskIds = taskIds.map((a) => a.taskId);
   logger.info(`res ${JSON.stringify(res)}`);
 
   return res;
@@ -619,6 +648,32 @@ Moralis.Cloud.define("closeTask", async (request) => {
       );
       return board[0];
     }
+  } catch (err) {
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
+    var board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
+    return board[0];
+  }
+});
+
+Moralis.Cloud.define("completePayment", async (request) => {
+  try {
+    var tasks = await getTasksByTaskIds(request.params.taskIds);
+    logger.info(`task ${JSON.stringify(task)}`);
+
+    for (var task of tasks) {
+      task.set("status", 300);
+    }
+    await Moralis.Object.saveAll(tasks, { useMasterKey: true });
+    var board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
+    return board[0];
   } catch (err) {
     logger.error(
       `Error while adding task in board ${request.params.boardId}: ${err}`

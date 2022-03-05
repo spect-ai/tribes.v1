@@ -36,6 +36,7 @@ export interface BatchPayInfo {
   tokenValues: Array<number>;
   aggregatedTokenValues: Array<number>;
   uniqueTokenAddresses: Array<string>;
+  taskIds: Array<string>;
 }
 
 export function getNetworkImage(network: string) {
@@ -113,6 +114,7 @@ const Payment = ({}: Props) => {
               batchPayInfo.contributors = res.contributors;
               batchPayInfo.tokenAddresses = res.tokenAddresses;
               batchPayInfo.tokenValues = res.tokenValues;
+              batchPayInfo.taskIds = res.taskIds;
 
               var dynamicSteps: string[] = [];
               console.log(res);

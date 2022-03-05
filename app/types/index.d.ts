@@ -136,9 +136,9 @@ export interface Task {
   assignee: Array<string>;
   reviewer: Array<string>;
   creator: string;
-  chain: string;
+  chain: Object<string, string>;
   value: number;
-  token: string;
+  token: Object<string, string>;
   activity: [
     {
       actor: string;

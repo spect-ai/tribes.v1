@@ -13,7 +13,7 @@ import { Box } from "@mui/system";
 import React, { useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { PrimaryButton } from "../../elements/styledComponents";
-import { getBatchPayAmount } from "../../../adapters/moralis";
+import { getBatchPayAmount, completePayment } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { amountData, registryTemp } from "../../../constants";
@@ -24,6 +24,7 @@ import { BatchPayInfo } from ".";
 import { useBoard } from "../taskBoard";
 import { capitalizeFirstLetter } from "../../../utils/utils";
 import { Member } from "../../../types";
+import { useMoralis } from "react-moralis";
 
 type Props = {
   handleClose: Function;
@@ -47,8 +48,9 @@ const BatchPay = ({
   neworkImage,
 }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { data } = useBoard();
-  console.log(batchPayInfo);
+  const { data, setData } = useBoard();
+  const { Moralis, isInitialized } = useMoralis();
+
   return (
     <React.Fragment>
       <Box
@@ -103,14 +105,14 @@ const BatchPay = ({
                         alt=""
                         src={
                           data.memberDetails[batchPayInfo.contributors[index]]
-                            .profilePicture
+                            ?.profilePicture
                             ? data.memberDetails[
                                 batchPayInfo.contributors[index]
                               ].profilePicture._url
                             : `https://www.gravatar.com/avatar/${
                                 data.memberDetails[
                                   batchPayInfo.contributors[index]
-                                ].username
+                                ]?.username
                               }?d=identicon&s=32`
                         }
                         sx={{ height: 30, width: 30 }}
@@ -118,7 +120,7 @@ const BatchPay = ({
                       <Typography color="text.primary" marginLeft="20px">
                         {
                           data.memberDetails[batchPayInfo.contributors[index]]
-                            .username
+                            ?.username
                         }
                       </Typography>
                     </Box>
@@ -162,6 +164,12 @@ const BatchPay = ({
                 )
                   .then((res: any) => {
                     console.log(res);
+                    completePayment(Moralis, batchPayInfo.taskIds)
+                      .then((res: any) => {
+                        console.log(res);
+                        setData(res);
+                      })
+                      .catch((err: any) => alert(err));
                     setIsLoading(false);
                     handleClose();
                   })

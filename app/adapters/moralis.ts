@@ -507,3 +507,11 @@ export function joinTribe(Moralis: any, teamId: number) {
   };
   return Moralis.Cloud.run("joinTribe", params);
 }
+
+export function completePayment(Moralis: any, taskIds: string[]) {
+  const params = {
+    taskIds: taskIds,
+  };
+  console.log(taskIds);
+  return Moralis.Cloud.run("completePayment", params);
+}

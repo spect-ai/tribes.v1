@@ -19,7 +19,7 @@ type Props = {
   index: number;
   column: Column;
 };
-
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 const TaskContainer = ({ task, index, column }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
@@ -53,6 +53,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
                   />
                 ))}
               </LabelsContainer>
+              {task.status === 300 && <Chip color="#006400">{"Paid"}</Chip>}
               <Title>{task.title}</Title>
 
               <ChipContainer>
