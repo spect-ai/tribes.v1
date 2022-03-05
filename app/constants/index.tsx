@@ -199,6 +199,7 @@ export const registryTemp: Registry = {
     nativeCurrency: "ETHER",
     tokenAddresses: [],
     tokens: {},
+    pictureUrl: "",
   },
   "4": {
     name: "rinkeby",
@@ -211,8 +212,10 @@ export const registryTemp: Registry = {
         address: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
         name: "Wrapped Ethereum",
         symbol: "WETH",
+        pictureUrl: "",
       },
     },
+    pictureUrl: "",
   },
   "137": {
     name: "polygon",
@@ -225,8 +228,12 @@ export const registryTemp: Registry = {
         address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
         name: "Wrapped Matic",
         symbol: "WMATIC",
+        pictureUrl:
+          "https://ipfs.moralis.io:2053/ipfs/QmRNqgazYuxUa5WdddFPftTWiP3KwzBMgV9Z19QWnLMETc",
       },
     },
+    pictureUrl:
+      "https://ipfs.moralis.io:2053/ipfs/QmRNqgazYuxUa5WdddFPftTWiP3KwzBMgV9Z19QWnLMETc",
   },
   "43113": {
     name: "fuji",
@@ -242,13 +249,16 @@ export const registryTemp: Registry = {
         address: "0x08a978a0399465621e667C49CD54CC874DC064Eb",
         name: "Avalanche Tether",
         symbol: "ausdt",
+        pictureUrl: "",
       },
       "0xf672c3cDD3C143C05Aada34f50d4ad519558994F": {
         address: "0xf672c3cDD3C143C05Aada34f50d4ad519558994F",
         name: "Avalanche Chainlink Token",
         symbol: "alink",
+        pictureUrl: "",
       },
     },
+    pictureUrl: "",
   },
   "43114": {
     name: "avalanche",
@@ -257,6 +267,7 @@ export const registryTemp: Registry = {
     nativeCurrency: "AVAX",
     tokenAddresses: [],
     tokens: {},
+    pictureUrl: "",
   },
   "80001": {
     name: "mumbai",
@@ -273,19 +284,25 @@ export const registryTemp: Registry = {
         address: "0x9c3c9283d3e44854697cd22d3faa240cfb032889",
         name: "Wrapped Matic",
         symbol: "WMATIC",
+        pictureUrl:
+          "https://ipfs.moralis.io:2053/ipfs/QmRNqgazYuxUa5WdddFPftTWiP3KwzBMgV9Z19QWnLMETc",
       },
       "0x326C977E6efc84E512bB9C30f76E30c160eD06FB": {
         address: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
         name: "Chainlink Token",
         symbol: "LINK",
+        pictureUrl: "",
       },
       "0xBCbfC29df3e0044c4D755423aD00d9B49fE2E62c": {
         address: "0xBCbfC29df3e0044c4D755423aD00d9B49fE2E62c",
         name: "Demo Spect",
         symbol: "DSpect",
+        pictureUrl: "",
       },
     },
     distributorAddress: "0x05588517bC463f607Dca0E09d1f73CDaa30cfF10",
+    pictureUrl:
+      "https://ipfs.moralis.io:2053/ipfs/QmRNqgazYuxUa5WdddFPftTWiP3KwzBMgV9Z19QWnLMETc",
   },
 };
 

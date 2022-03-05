@@ -7,7 +7,10 @@ const nextConfig = {
     GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
     CHOKIDAR_USEPOLLING: process.env.CHOKIDAR_USEPOLLING,
-    INVITE_ENCRYPTION_SECRET_KEY: process.env.INVITE_ENCRYPTION_SECRET_KEY
+    INVITE_ENCRYPTION_SECRET_KEY: process.env.INVITE_ENCRYPTION_SECRET_KEY,
+  },
+  images: {
+    domains: ["ipfs.moralis.io"],
   },
 };
 

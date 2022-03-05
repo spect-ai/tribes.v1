@@ -546,23 +546,32 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
   const tasks = await taskQuery.aggregate(pipeline);
   logger.info(`tyasks ${JSON.stringify(tasks)}`);
 
-  var paymentAmount = {};
-  logger.info(`tyasks2 ${JSON.stringify(paymentAmount)}`);
-  for (var task of tasks) {
-    if (!(task["objectId"] in paymentAmount)) {
-      paymentAmount = {
-        tokenAddresses: [],
-        contributors: [],
-        tokenValues: [],
-      };
-    }
-    paymentAmount["tokenAddresses"].push(task["objectId"]["tokenAddress"]);
-    paymentAmount["contributors"].push(task["objectId"]["assigneeId"][0]);
-    paymentAmount["tokenValues"].push(task["value"]);
-  }
-  logger.info(`tasks ${JSON.stringify(tasks)}`);
+  var res = {
+    contributors: [],
+    tokenAddresses: [],
+    tokenValues: [],
+    uniqueTokenAddresses: [],
+    aggregatedTokenValues: [],
+  };
+  var aggregatedTokenValues = {};
 
-  return paymentAmount;
+  for (var task of tasks) {
+    res.contributors.push(task.objectId.assigneeId[0]);
+    res.tokenAddresses.push(task.objectId.tokenAddress);
+    res.tokenValues.push(task.value);
+
+    if (!(task.objectId.tokenAddress in aggregatedTokenValues)) {
+      aggregatedTokenValues[task.objectId.tokenAddress] = 0;
+    }
+    aggregatedTokenValues[task.objectId.tokenAddress] += task.value;
+  }
+
+  res.uniqueTokenAddresses = Object.keys(aggregatedTokenValues);
+  res.aggregatedTokenValues = Object.values(aggregatedTokenValues);
+
+  logger.info(`res ${JSON.stringify(res)}`);
+
+  return res;
 });
 
 Moralis.Cloud.define("assignToMe", async (request) => {

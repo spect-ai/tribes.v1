@@ -12,20 +12,24 @@ import { PrimaryButton } from "../../elements/styledComponents";
 import Image from "next/image";
 import CloseIcon from "@mui/icons-material/Close";
 import { approve } from "../../../adapters/contract";
-import { ApprovalInfo } from ".";
+import { BatchPayInfo } from ".";
+import { registryTemp } from "../../../constants";
+import { capitalizeFirstLetter } from "../../../utils/utils";
 
 interface Props {
   handleClose: Function;
   setActiveStep: Function;
-  chain: string;
-  approvalInfo: ApprovalInfo;
+  chainId: string;
+  approvalInfo: BatchPayInfo;
+  neworkImage: any;
 }
 
 const ApproveModal = ({
   handleClose,
   setActiveStep,
-  chain,
+  chainId,
   approvalInfo,
+  neworkImage,
 }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   return (
@@ -49,12 +53,14 @@ const ApproveModal = ({
             >
               <Grid item xs={3}>
                 <Box style={{ display: "flex" }}>
-                  <Image
-                    src={getNetworkImage(chain) as any}
-                    alt="eth"
-                    height="26%"
-                    width="35%"
-                  />
+                  {neworkImage && (
+                    <Image
+                      src={neworkImage}
+                      alt="eth"
+                      height="26%"
+                      width="35%"
+                    />
+                  )}
 
                   <Typography
                     color="text.primary"
@@ -62,12 +68,12 @@ const ApproveModal = ({
                     marginBottom="10px"
                     marginLeft="10px"
                   >
-                    {chain} network
+                    {capitalizeFirstLetter(registryTemp[chainId].name)} Network
                   </Typography>
                 </Box>
               </Grid>
             </Grid>
-            {approvalInfo.uniqueTokenNames.map(
+            {approvalInfo.uniqueTokenAddresses.map(
               (name: string, index: number) => (
                 <Grid
                   container
@@ -84,7 +90,7 @@ const ApproveModal = ({
                         sx={{ height: 30, width: 30 }}
                       />
                       <Typography color="text.primary" marginLeft="20px">
-                        {name}
+                        {registryTemp[chainId].tokens[name].symbol}
                       </Typography>
                     </Box>
                   </Grid>
@@ -98,10 +104,11 @@ const ApproveModal = ({
                       onClick={() => {
                         setIsLoading(true);
                         approve(approvalInfo.uniqueTokenAddresses[index])
-                          .then((res: any) => setActiveStep(1))
+                          .then((res: any) => {
+                            setActiveStep(1);
+                            setIsLoading(false);
+                          })
                           .catch((err: any) => alert(err));
-                        setIsLoading(false);
-                        //setActiveStep(1);
                       }}
                       variant="outlined"
                       id="bApprove"

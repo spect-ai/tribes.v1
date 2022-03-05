@@ -30,96 +30,50 @@ import { registryTemp } from "../../../constants";
 
 interface Props {}
 
-export interface Contributor {
-  ethAddress: string;
-  username: string;
-  profilePicture: object;
-  objectId: string;
-}
-
 export interface BatchPayInfo {
-  contributors: Array<Contributor>;
+  contributors: Array<string>;
   tokenAddresses: Array<string>;
   tokenValues: Array<number>;
-}
-
-export interface ApprovalInfo {
-  uniqueTokenAddresses: Array<string>;
   aggregatedTokenValues: Array<number>;
-  uniqueTokenNames: Array<string>;
+  uniqueTokenAddresses: Array<string>;
 }
 
 export function getNetworkImage(network: string) {
   var img =
-    network === "Ethereum" ? Ethereum : network === "Polygon" ? Polygon : null;
+    network in ["1", "4"]
+      ? Ethereum
+      : network in ["137", "80001"]
+      ? Polygon
+      : network in ["43113", "43114"]
+      ? Avalanche
+      : null;
   return img;
 }
 
-function getAggregateTokenValues(tokenAddresses: string[], values: number[]) {
-  var aggregateValues = {};
-  for (var i = 0; i < tokenAddresses.length; i++) {
-    if (tokenAddresses[i] in aggregateValues) {
-      aggregateValues[tokenAddresses[i]] += values[i];
-    } else {
-      aggregateValues[tokenAddresses[i]] = values[i];
-    }
-  }
-
-  return [
-    Object.keys(aggregateValues) as string[],
-    Object.values(aggregateValues) as number[],
-  ];
-}
-
-async function prepareForApproval(
-  amounts: any,
-  registry: Registry,
-  networkId: string
+async function getRequiredApprovals(
+  uniqueTokenAddresses: string[],
+  aggregatedTokenValues: number[]
 ) {
-  var [tokenAddresses, tokenValues] = getAggregateTokenValues(
-    amounts["tokenAddresses"],
-    amounts["tokenValues"]
-  );
-  const isPendingApproval = await getPendingApprovals(
-    tokenAddresses as string[],
-    tokenValues as number[]
+  const isApprovalRequired = await getPendingApprovals(
+    uniqueTokenAddresses as string[],
+    aggregatedTokenValues as number[]
   );
 
-  // Filter already approved tokens
-  var tokenNames = tokenAddresses.map(
-    (a) => registry[networkId].tokens[a].symbol
-  );
-  for (let i = 0; i < isPendingApproval.length; i++) {
-    if (isPendingApproval[i] === false) {
-      tokenAddresses.splice(i, 1);
-      tokenValues.splice(i, 1);
-      tokenNames.splice(i, 1);
+  var tokenAddresses = [];
+  var tokenValues = [];
+  for (let i = 0; i < uniqueTokenAddresses.length; i++) {
+    if (isApprovalRequired[i]) {
+      tokenAddresses.push(uniqueTokenAddresses[i]);
+      tokenValues.push(aggregatedTokenValues[i]);
     }
   }
-  return [tokenAddresses, tokenValues, tokenNames];
+  return { tokenAddresses: tokenAddresses, tokenValues: tokenValues };
 }
-
-const validSteps = [
-  "Approve on Mumbai",
-  "Distribute on Mumbai",
-  "Approve on Fuji",
-  "Distribute on Fuji",
-  "Approve on Rinkeby",
-  "Distribute on Rinkeby",
-  "Approve on Polygon",
-  "Distribute on Polygon",
-  "Approve on Avalanche",
-  "Distribute on Avalanche",
-  "Approve on Ethereum",
-  "Distribute on Ethereum",
-];
 
 const Payment = ({}: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [batchPayMetadata, setBatchPayMetadata] = useState({} as BatchPayInfo);
-  const [approvalMetadata, setApprovalMetadata] = useState({} as ApprovalInfo);
-  const [activeChain, setActiveChain] = useState("");
   const [steps, setSteps] = useState([] as any);
   const [activeStep, setActiveStep] = useState(0);
   const [validStepNumbers, setValidStepNumbers] = useState([] as any);
@@ -154,40 +108,44 @@ const Payment = ({}: Props) => {
               Moralis,
               bid as string,
               window.ethereum.networkVersion
-            ).then((res: any) => {
+            ).then((res: BatchPayInfo) => {
+              var batchPayInfo = {} as BatchPayInfo;
+              batchPayInfo.contributors = res.contributors;
+              batchPayInfo.tokenAddresses = res.tokenAddresses;
+              batchPayInfo.tokenValues = res.tokenValues;
+
               var dynamicSteps: string[] = [];
               console.log(res);
-              prepareForApproval(
-                res,
-                registryTemp as Registry,
-                window.ethereum.networkVersion
-              ).then((approvalInfo: Array<Array<any>>) => {
-                // Return true if approval required, otherwise false
-                console.log(approvalInfo);
-                if (approvalInfo[0].length > 0) {
-                  const approvalData = {
-                    uniqueTokenAddresses: approvalInfo[0],
-                    aggregatedTokenValues: approvalInfo[1],
-                    uniqueTokenNames: approvalInfo[2],
-                  };
-                  setApprovalMetadata(approvalData);
+              getRequiredApprovals(
+                res.uniqueTokenAddresses,
+                res.aggregatedTokenValues
+              ).then((pendingApprovals: any) => {
+                console.log(`pendingApprovals`);
+
+                console.log(pendingApprovals);
+                if (pendingApprovals.tokenAddresses.length > 0) {
+                  batchPayInfo.aggregatedTokenValues =
+                    pendingApprovals.tokenValues;
+                  batchPayInfo.uniqueTokenAddresses =
+                    pendingApprovals.tokenAddresses;
                   dynamicSteps.push(
                     `Approve on ${
                       registryTemp[window.ethereum.networkVersion].name
                     }`
                   );
+                  setActiveStep(0);
                 } else {
                   setActiveStep(1);
                 }
-                setBatchPayMetadata(res as BatchPayInfo);
                 dynamicSteps.push(
                   `Distribute on ${
                     registryTemp[window.ethereum.networkVersion].name
                   }`
                 );
+                setBatchPayMetadata(batchPayInfo);
+                setSteps(dynamicSteps);
                 setIsLoading(false);
                 setIsOpen(true);
-                setSteps(dynamicSteps);
               });
             });
           }}
@@ -214,22 +172,17 @@ const Payment = ({}: Props) => {
             <ApproveModal
               handleClose={handleClose}
               setActiveStep={setActiveStep}
-              approvalInfo={approvalMetadata}
-              chain={activeChain}
+              approvalInfo={batchPayMetadata}
+              chainId={window.ethereum.networkVersion}
+              neworkImage={getNetworkImage(window.ethereum.networkVersion)}
             />
           )}
           {activeStep === 1 && isOpen && !isLoading && (
             <BatchPay
               handleClose={handleClose}
-              chain={activeChain}
+              chainId={window.ethereum.networkVersion}
               batchPayInfo={batchPayMetadata}
-            />
-          )}
-          {activeStep === 2 && isOpen && !isLoading && (
-            <BatchPay
-              handleClose={handleClose}
-              chain={activeChain}
-              batchPayInfo={batchPayMetadata}
+              neworkImage={getNetworkImage(window.ethereum.networkVersion)}
             />
           )}
         </Box>

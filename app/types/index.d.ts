@@ -198,6 +198,7 @@ export type TokenInfo = {
   address: string;
   symbol: string;
   name: string;
+  pictureUrl: string;
 };
 
 export type NetworkInfo = {
@@ -207,6 +208,7 @@ export type NetworkInfo = {
   mainnet: boolean;
   chainId: string;
   nativeCurrency: string;
+  pictureUrl: string;
   tokens: { [tokenAddress: string]: TokenInfo };
 };
 
