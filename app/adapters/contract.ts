@@ -89,14 +89,7 @@ export async function batchPayTokens(
 ) {
   let contract = getContract();
 
-  console.log(tokenAddresses[0]);
-  console.log(recipients);
-  console.log(values);
-
   var valuesInWei = values.map((v) => ethers.utils.parseEther(v.toString()));
-  console.log(valuesInWei);
-  console.log(contract);
-
   const tx = await contract.distributeTokens(
     tokenAddresses,
     recipients,

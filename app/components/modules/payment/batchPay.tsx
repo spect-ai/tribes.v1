@@ -16,11 +16,12 @@ import { PrimaryButton } from "../../elements/styledComponents";
 import { getBatchPayAmount } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { amountData } from "../../../constants";
+import { amountData, registryTemp } from "../../../constants";
 import Image from "next/image";
 import { Heading, modalStyle, getNetworkImage } from ".";
 import { batchPayTokens } from "../../../adapters/contract";
 import { BatchPayInfo } from ".";
+import { useBoard } from "../taskBoard";
 
 type Props = {
   handleClose: Function;
@@ -28,12 +29,14 @@ type Props = {
   batchPayInfo: BatchPayInfo;
 };
 
-function getEthAddresses(contributors: any) {
-  return contributors.map((a: any) => a.ethAddress);
+function getEthAddresses(contributors: any, memberDetails: object) {
+  return contributors.map((a: any) => memberDetails[a].ethAddress);
 }
 
 const BatchPay = ({ handleClose, chain, batchPayInfo }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { data } = useBoard();
+  console.log(batchPayInfo);
   return (
     <React.Fragment>
       <Box
@@ -73,6 +76,7 @@ const BatchPay = ({ handleClose, chain, batchPayInfo }: Props) => {
                 </Box>
               </Grid>
             </Grid>
+            /*
             {batchPayInfo.tokenAddresses.map(
               (address: string, index: number) => (
                 <Grid
@@ -97,12 +101,17 @@ const BatchPay = ({ handleClose, chain, batchPayInfo }: Props) => {
                   <Grid item xs={4}>
                     <Typography color="text.primary" marginLeft="20px">
                       {batchPayInfo.tokenValues[index]}{" "}
-                      {batchPayInfo.tokenNames[index]}
+                      {
+                        registryTemp[window.ethereum.networkVersion].tokens[
+                          address
+                        ]
+                      }
                     </Typography>
                   </Grid>
                 </Grid>
               )
             )}
+            */
           </Box>
 
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}></Box>
@@ -123,8 +132,9 @@ const BatchPay = ({ handleClose, chain, batchPayInfo }: Props) => {
               setIsLoading(true);
               batchPayTokens(
                 batchPayInfo.tokenAddresses,
-                getEthAddresses(batchPayInfo.contributors),
-                batchPayInfo.tokenValues
+                getEthAddresses(batchPayInfo.contributors, data.memberDetails),
+                batchPayInfo.tokenValues,
+                "123"
               )
                 .then((res: any) => console.log(res))
                 .catch((err: any) => alert(err));

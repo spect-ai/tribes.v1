@@ -430,9 +430,14 @@ export function addMemberToTribe(
   console.log("params", params);
   return Moralis.Cloud.run("addMemberToTribe", params);
 }
-export function getBatchPayAmount(Moralis: any, boardId: string) {
+export function getBatchPayAmount(
+  Moralis: any,
+  boardId: string,
+  chainId: string
+) {
   const params = {
     boardId: boardId,
+    chainId: chainId,
   };
   return Moralis.Cloud.run("getBatchPayAmount", params);
 }

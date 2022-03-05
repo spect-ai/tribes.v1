@@ -26,6 +26,7 @@ import Avalanche from "../../../images/avalanche-avax-logo.png";
 import { getPendingApprovals } from "../../../adapters/contract";
 import { useGlobal } from "../../../context/globalContext";
 import { Registry } from "../../../types";
+import { registryTemp } from "../../../constants";
 
 interface Props {}
 
@@ -38,7 +39,6 @@ export interface Contributor {
 
 export interface BatchPayInfo {
   contributors: Array<Contributor>;
-  tokenNames: Array<string>;
   tokenAddresses: Array<string>;
   tokenValues: Array<number>;
 }
@@ -49,30 +49,19 @@ export interface ApprovalInfo {
   uniqueTokenNames: Array<string>;
 }
 
-export interface BatchPayMetadata {
-  [key: string]: BatchPayInfo;
-}
-export interface ApprovalMetadata {
-  [key: string]: ApprovalInfo;
-}
-
 export function getNetworkImage(network: string) {
   var img =
-    network === "Ethereum"
-      ? Ethereum
-      : network === activeChain
-      ? Polygon
-      : null;
+    network === "Ethereum" ? Ethereum : network === "Polygon" ? Polygon : null;
   return img;
 }
 
-function getAggregateTokenValues(tokens: string[], values: number[]) {
+function getAggregateTokenValues(tokenAddresses: string[], values: number[]) {
   var aggregateValues = {};
-  for (var i = 0; i < tokens.length; i++) {
-    if (tokens[i] in aggregateValues) {
-      aggregateValues[tokens[i]] += values[i];
+  for (var i = 0; i < tokenAddresses.length; i++) {
+    if (tokenAddresses[i] in aggregateValues) {
+      aggregateValues[tokenAddresses[i]] += values[i];
     } else {
-      aggregateValues[tokens[i]] = values[i];
+      aggregateValues[tokenAddresses[i]] = values[i];
     }
   }
 
@@ -82,39 +71,24 @@ function getAggregateTokenValues(tokens: string[], values: number[]) {
   ];
 }
 
-function getTokenAddresses(
-  chain: string,
-  tokenNames: string[],
-  chainTokenMap: Registry
-) {
-  var tokenAddresses = [];
-  console.log(tokenNames);
-  for (var i = 0; i < tokenNames.length; i++) {
-    tokenAddresses.push(chainTokenMap[chain][tokenNames[i]]);
-  }
-  return tokenAddresses;
-}
-
 async function prepareForApproval(
-  chain: string,
   amounts: any,
-  chainTokenMap: Registry
+  registry: Registry,
+  networkId: string
 ) {
-  var [tokenNames, tokenValues] = getAggregateTokenValues(
-    amounts[chain]["tokenNames"],
-    amounts[chain]["tokenValues"]
-  );
-  var tokenAddresses = getTokenAddresses(
-    chain,
-    tokenNames as string[],
-    chainTokenMap
+  var [tokenAddresses, tokenValues] = getAggregateTokenValues(
+    amounts["tokenAddresses"],
+    amounts["tokenValues"]
   );
   const isPendingApproval = await getPendingApprovals(
-    tokenAddresses,
+    tokenAddresses as string[],
     tokenValues as number[]
   );
 
   // Filter already approved tokens
+  var tokenNames = tokenAddresses.map(
+    (a) => registry[networkId].tokens[a].symbol
+  );
   for (let i = 0; i < isPendingApproval.length; i++) {
     if (isPendingApproval[i] === false) {
       tokenAddresses.splice(i, 1);
@@ -143,12 +117,8 @@ const validSteps = [
 const Payment = ({}: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [batchPayMetadata, setBatchPayMetadata] = useState(
-    {} as BatchPayMetadata
-  );
-  const [approvalMetadata, setApprovalMetadata] = useState(
-    {} as ApprovalMetadata
-  );
+  const [batchPayMetadata, setBatchPayMetadata] = useState({} as BatchPayInfo);
+  const [approvalMetadata, setApprovalMetadata] = useState({} as ApprovalInfo);
   const [activeChain, setActiveChain] = useState("");
   const [steps, setSteps] = useState([] as any);
   const [activeStep, setActiveStep] = useState(0);
@@ -180,36 +150,45 @@ const Payment = ({}: Props) => {
           onClick={() => {
             setIsLoading(true);
             console.log(registry);
-            const promises: Array<any> = [];
-            getBatchPayAmount(Moralis, bid as string).then((res: any) => {
+            getBatchPayAmount(
+              Moralis,
+              bid as string,
+              window.ethereum.networkVersion
+            ).then((res: any) => {
               var dynamicSteps: string[] = [];
-              for (var chain of Object.keys(res)) {
-                if (activeChain === chain) {
-                  prepareForApproval(chain, res, registry as Registry).then(
-                    (tokenInfo: Array<Array<any>>) => {
-                      // Return true if approval required, otherwise false
-                      if (tokenInfo[0].length > 0) {
-                        const approvalData = {
-                          chain: {
-                            uniqueTokenAddresses: tokenInfo[0],
-                            aggregatedTokenValues: tokenInfo[1],
-                            uniqueTokenNames: tokenInfo[2],
-                          },
-                        };
-                        setApprovalMetadata(approvalData);
-                        dynamicSteps.push(`Approve on ${chain}`);
-                        setValidStepNumbers([...validStepNumbers, 0]);
-                      }
-                    }
+              console.log(res);
+              prepareForApproval(
+                res,
+                registryTemp as Registry,
+                window.ethereum.networkVersion
+              ).then((approvalInfo: Array<Array<any>>) => {
+                // Return true if approval required, otherwise false
+                console.log(approvalInfo);
+                if (approvalInfo[0].length > 0) {
+                  const approvalData = {
+                    uniqueTokenAddresses: approvalInfo[0],
+                    aggregatedTokenValues: approvalInfo[1],
+                    uniqueTokenNames: approvalInfo[2],
+                  };
+                  setApprovalMetadata(approvalData);
+                  dynamicSteps.push(
+                    `Approve on ${
+                      registryTemp[window.ethereum.networkVersion].name
+                    }`
                   );
+                } else {
+                  setActiveStep(1);
                 }
-                setBatchPayMetadata(res as BatchPayMetadata);
-                dynamicSteps.push(`Distribute on ${chain}`);
-                setValidStepNumbers([...validStepNumbers, 1]);
-              }
-              setSteps(dynamicSteps);
-              setIsLoading(false);
-              setIsOpen(true);
+                setBatchPayMetadata(res as BatchPayInfo);
+                dynamicSteps.push(
+                  `Distribute on ${
+                    registryTemp[window.ethereum.networkVersion].name
+                  }`
+                );
+                setIsLoading(false);
+                setIsOpen(true);
+                setSteps(dynamicSteps);
+              });
             });
           }}
         >
@@ -231,27 +210,26 @@ const Payment = ({}: Props) => {
               );
             })}
           </Stepper>
-
-          {validStepNumbers[activeStep] === 0 && isOpen && !isLoading && (
+          {activeStep === 0 && isOpen && !isLoading && (
             <ApproveModal
               handleClose={handleClose}
               setActiveStep={setActiveStep}
-              approvalInfo={approvalMetadata[activeChain]}
+              approvalInfo={approvalMetadata}
               chain={activeChain}
             />
           )}
-
-          {validStepNumbers[activeStep] === 1 && isOpen && !isLoading && (
+          {activeStep === 1 && isOpen && !isLoading && (
             <BatchPay
               handleClose={handleClose}
-              batchPayInfo={Object.assign(batchPayMetadata[activeChain], {
-                tokenAddresses: getTokenAddresses(
-                  activeChain,
-                  batchPayMetadata[activeChain].tokenNames,
-                  registry as Registry
-                ),
-              })}
               chain={activeChain}
+              batchPayInfo={batchPayMetadata}
+            />
+          )}
+          {activeStep === 2 && isOpen && !isLoading && (
+            <BatchPay
+              handleClose={handleClose}
+              chain={activeChain}
+              batchPayInfo={batchPayMetadata}
             />
           )}
         </Box>

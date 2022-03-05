@@ -319,24 +319,22 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                       >
                         Save
                       </PrimaryButton>
-                      {data.access === "admin" && (
-                        <PrimaryButton
-                          endIcon={<CloseIcon />}
-                          variant="outlined"
-                          size="small"
-                          onClick={() => {
-                            console.log(`hshsh`);
-                            endEpoch(Moralis, epoch.objectId)
-                              .then((res: any) => {
-                                console.log(res);
-                                handleEpochUpdateAfterSave(index, res);
-                              })
-                              .catch((err: any) => alert(err));
-                          }}
-                        >
-                          End Epoch
-                        </PrimaryButton>
-                      )}
+                      <PrimaryButton
+                        endIcon={<CloseIcon />}
+                        variant="outlined"
+                        size="small"
+                        onClick={() => {
+                          console.log(`hshsh`);
+                          endEpoch(Moralis, epoch.objectId)
+                            .then((res: any) => {
+                              console.log(res);
+                              handleEpochUpdateAfterSave(index, res);
+                            })
+                            .catch((err: any) => alert(err));
+                        }}
+                      >
+                        End Epoch
+                      </PrimaryButton>
                     </ButtonContainer>
                   ) : (
                     <ButtonContainer>

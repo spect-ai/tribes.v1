@@ -99,7 +99,7 @@ Moralis.Cloud.define("addTask", async (request) => {
         symbol: "WMatic",
       }); //TODO: remove hardcoded value
       task.set("chain", {
-        chainId: 80001,
+        chainId: "80001",
         name: "mumbai",
       }); //TODO: remove hardcoded value
       task.set("boardId", request.params.boardId);
@@ -523,15 +523,21 @@ async function handleStatusChange(boardId, taskId, status, currentColumnId) {
 Moralis.Cloud.define("getBatchPayAmount", async (request) => {
   const taskQuery = new Moralis.Query("Task");
   const pipeline = [
-    { match: { boardId: request.params.boardId } },
-    { match: { status: 205 } },
-    { match: { value: { $gt: 0 } } },
+    {
+      match: {
+        boardId: request.params.boardId,
+        status: 205,
+        value: { $gt: 0 },
+        $expr: {
+          $eq: ["$chain.chainId", request.params.chainId],
+        },
+      },
+    },
     {
       group: {
         objectId: {
-          chain: "$chain.chainId",
-          token: "$token.address",
-          assigneeId: "$assignee.objectId",
+          tokenAddress: "$token.address",
+          assigneeId: "$assignee",
         },
         value: { $sum: "$value" },
       },
@@ -543,21 +549,16 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
   var paymentAmount = {};
   logger.info(`tyasks2 ${JSON.stringify(paymentAmount)}`);
   for (var task of tasks) {
-    if (!(task["objectId"]["chain"] in paymentAmount)) {
-      paymentAmount[task["objectId"]["chain"]] = {
-        tokenNames: [],
+    if (!(task["objectId"] in paymentAmount)) {
+      paymentAmount = {
+        tokenAddresses: [],
         contributors: [],
         tokenValues: [],
       };
     }
-    var user = await getUsernameProfilePicByUserId(
-      task["objectId"]["assigneeId"][0]
-    );
-    paymentAmount[task["objectId"]["chain"]]["tokenNames"].push(
-      task["objectId"]["token"]
-    );
-    paymentAmount[task["objectId"]["chain"]]["contributors"].push(user);
-    paymentAmount[task["objectId"]["chain"]]["tokenValues"].push(task["value"]);
+    paymentAmount["tokenAddresses"].push(task["objectId"]["tokenAddress"]);
+    paymentAmount["contributors"].push(task["objectId"]["assigneeId"][0]);
+    paymentAmount["tokenValues"].push(task["value"]);
   }
   logger.info(`tasks ${JSON.stringify(tasks)}`);
 
