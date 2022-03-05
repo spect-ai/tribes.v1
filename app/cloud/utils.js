@@ -24,3 +24,12 @@ function areEqualArrays(array1, array2) {
 
   return false;
 }
+
+async function isValidToken(tokenAddress, chainId) {
+  var addressQuery = new Moralis.Query("Addresses");
+  addressQuery.equalTo("address", tokenAddress);
+  addressQuery.equalTo("chainId", chainId);
+  addressQuery.equalTo("type", "erc20");
+  const token = await addressQuery.first();
+  return token ? true : false;
+}

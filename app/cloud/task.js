@@ -274,7 +274,8 @@ Moralis.Cloud.define("updateTaskReward", async (request) => {
       request.user.id,
       request.params.value,
       request.params.token,
-      request.params.chain.name
+      request.params.chain,
+      false
     );
     logger.info(
       `Handled reward field for task with id ${JSON.stringify(
@@ -413,16 +414,22 @@ function handleDescriptionUpdate(task, userId, description) {
   return task;
 }
 
-function handleRewardUpdate(task, userId, value, token, chain) {
-  if (
-    isTaskCreator(task, userId) &&
-    value > 0 &&
-    ["wmatic", "weth", "usdc"].includes(token.toLowerCase()) &&
-    ["polygon", "ethereum"].includes(chain.toLowerCase())
-  ) {
-    task.set("value", parseFloat(value));
-    task.set("token", token);
-    task.set("chain", chain);
+function handleRewardUpdate(task, userId, value, token, chain, currencyFlag) {
+  if (currencyFlag) {
+    if (isTaskCreator(task, userId) && value > 0) {
+      task.set("value", parseFloat(value));
+      task.set("nativeCurrencyPayment", true);
+    }
+  } else {
+    if (
+      isTaskCreator(task, userId) &&
+      value > 0 &&
+      isValidToken(token.address, chain.chainId)
+    ) {
+      task.set("value", parseFloat(value));
+      task.set("token", token);
+      task.set("chain", chain);
+    }
   }
   return task;
 }

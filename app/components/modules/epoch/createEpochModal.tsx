@@ -263,7 +263,7 @@ const CreateEpochModal = (props: Props) => {
                           Username
                         </TableCell>
                         <TableCell align="right" sx={{ color: "#99ccff" }}>
-                          Allocation
+                          Voting Allocation
                         </TableCell>
                       </TableRow>
                     </TableHead>
