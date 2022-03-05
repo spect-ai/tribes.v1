@@ -108,7 +108,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                             color: "inherit",
                             textAlign: "left",
                             justifyContent: "flex-start",
-                            py: 0,
+                            ml: 1,
                           }}
                           startIcon={<AddIcon />}
                           onClick={() => setShowCreateTask(true)}
@@ -123,6 +123,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                             color: "inherit",
                             textAlign: "left",
                             justifyContent: "flex-start",
+                            mr: 1,
                           }}
                           startIcon={<GitHubIcon />}
                           onClick={() => setShowCreateGithubTask(true)}

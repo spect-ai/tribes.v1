@@ -335,18 +335,26 @@ export function updateTaskTitle(Moralis: any, title: string, taskId: string) {
   return Moralis.Cloud.run("updateTaskTitle", params);
 }
 
-export function updateTaskStatus(
+export function updateTaskColumn(
   Moralis: any,
   boardId: string,
   taskId: string,
-  status: string,
-  columnId: string
+  sourceId: string,
+  destinationId: string
 ) {
   const params = {
     boardId: boardId,
     taskId: taskId,
+    sourceId: sourceId,
+    destinationId: destinationId,
+  };
+  return Moralis.Cloud.run("updateTaskColumn", params);
+}
+
+export function updateTaskStatus(Moralis: any, taskId: string, status: number) {
+  const params = {
+    taskId: taskId,
     status: status,
-    columnId: columnId,
   };
   return Moralis.Cloud.run("updateTaskStatus", params);
 }

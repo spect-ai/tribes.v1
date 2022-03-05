@@ -3,14 +3,8 @@ import React, { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import DateRangeIcon from "@mui/icons-material/DateRange";
-import { Avatar } from "@mui/material";
 import TaskModal from "../taskModal";
-import {
-  labelsMapping,
-  monthMap,
-  statusColorMapping,
-  statusMapping,
-} from "../../../constants";
+import { labelsMapping, monthMap } from "../../../constants";
 import { Column, Task } from "../../../types";
 import { useBoard } from "../taskBoard";
 
@@ -19,7 +13,6 @@ type Props = {
   index: number;
   column: Column;
 };
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 const TaskContainer = ({ task, index, column }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
@@ -107,7 +100,7 @@ const LabelColor = styled.div<{ color: string }>`
 const ChipContainer = styled.div`
   display: flex;
   flex-direction: row;
-  transition: 2s ease-in-out;
+  flex-wrap: wrap;
 `;
 
 const Chip = styled.div<{ color: string }>`

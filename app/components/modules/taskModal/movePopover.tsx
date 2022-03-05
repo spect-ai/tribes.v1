@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { Autocomplete, Popover, TextField } from "@mui/material";
 import React, { useState } from "react";
 import { useMoralis } from "react-moralis";
-import { updateTaskStatus } from "../../../adapters/moralis";
+import { updateTaskColumn, updateTaskStatus } from "../../../adapters/moralis";
 import { BoardData, Column, Task } from "../../../types";
 import {
   LabelChipButton,
@@ -56,14 +56,22 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
           sx={{ mt: 4 }}
           onClick={() => {
             setIsLoading(true);
-            updateTaskStatus(
+            updateTaskColumn(
               Moralis,
               task.boardId,
               task.taskId,
-              status,
-              column.id
+              column.id,
+              Object.values(data.columns).filter(
+                (col: Column) => col.title === status
+              )[0]?.id
             ).then((res: BoardData) => {
               setData(res);
+              if (status === "Done") {
+                updateTaskStatus(Moralis, task.taskId, 205).then((res: any) => {
+                  console.log("updateTaskStatus", res);
+                  setData(res as BoardData);
+                });
+              }
               setIsLoading(false);
               handleClose("move");
             });

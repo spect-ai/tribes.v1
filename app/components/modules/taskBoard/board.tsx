@@ -15,6 +15,7 @@ import {
   addColumn,
   updateColumnOrder,
   updateColumnTasks,
+  updateTaskStatus,
 } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
@@ -123,6 +124,12 @@ const Board = ({ expanded, handleChange }: Props) => {
         newFinish
       ).then((res: any) => {
         setData(res as BoardData);
+        if (newFinish.id === "column-3") {
+          updateTaskStatus(Moralis, draggableId, 205).then((res: any) => {
+            console.log("updateTaskStatus", res);
+            setData(res as BoardData);
+          });
+        }
       });
     }
   };

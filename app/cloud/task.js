@@ -146,17 +146,17 @@ Moralis.Cloud.define("addTask", async (request) => {
   }
 });
 
-Moralis.Cloud.define("updateTaskStatus", async (request) => {
+Moralis.Cloud.define("updateTaskColumn", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
-    await handleStatusChange(
+    await handleColumnChange(
       request.params.boardId,
       request.params.taskId,
-      request.params.status,
-      request.params.columnId
+      request.params.sourceId,
+      request.params.destinationId
     );
     logger.info(
-      `Handled status field for task with id ${JSON.stringify(
+      `Handled column field for task with id ${JSON.stringify(
         request.params.task?.taskId
       )}`
     );
@@ -405,6 +405,44 @@ Moralis.Cloud.define("updateTaskTitle", async (request) => {
   }
 });
 
+Moralis.Cloud.define("updateTaskStatus", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  var task = await getTaskByTaskId(request.params.taskId);
+  try {
+    task = handleStatusUpdate(task, request.user.id, request.params.status);
+    logger.info(
+      `Handled status field for task with id ${JSON.stringify(
+        request.params.taskId
+      )}`
+    );
+    await Moralis.Object.saveAll(task, { useMasterKey: true });
+    logger.info(`Updated task ${JSON.stringify(task)}`);
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
+    return board[0];
+  } catch (err) {
+    logger.error(
+      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+    );
+    const board = await getBoardObjWithTasksByObjectId(
+      task.get("boardId"),
+      request.user.id
+    );
+    return board[0];
+  }
+});
+
+function handleStatusUpdate(task, userId, status) {
+  if (task.get("status") === status) {
+    return task;
+  }
+  handleActivityUpdate(task, userId, status);
+  task.set("status", status);
+  return task;
+}
+
 function handleTitleUpdate(task, userId, title) {
   if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
     title.length && task.set("title", title);
@@ -461,6 +499,8 @@ function handleAssigneeUpdate(task, callerId, assigneeId) {
   if (assigneeId) {
     // && isDifferentAssignee(task.get("assignee"), assignee))
     task.set("assignee", [assigneeId]);
+  } else {
+    task.set("assignee", []);
   }
   return task;
 }
@@ -489,36 +529,37 @@ function handleActivityUpdate(task, userId, action) {
   return task;
 }
 
-async function handleStatusChange(boardId, taskId, status, currentColumnId) {
+async function handleColumnChange(boardId, taskId, sourceId, destinationId) {
   const logger = Moralis.Cloud.getLogger();
   try {
+    logger.info(
+      `Handling column change for task ${boardId} ${taskId} ${sourceId} ${destinationId}`
+    );
     const board = await getBoardByObjectId(boardId);
     var columnsData = board.get("columns");
-    const currentColumn = columnsData[currentColumnId];
+    const currentColumn = columnsData[sourceId];
     const index = currentColumn.taskIds.indexOf(taskId);
-    logger.info(`index ${index}`);
     logger.info(`current column ${JSON.stringify(currentColumn)}`);
     const startTaskIds = Array.from(currentColumn.taskIds); // copy
     startTaskIds.splice(index, 1);
     logger.info(`${startTaskIds} startTaskIds`);
-    const newStart = {
+    const newSource = {
       ...currentColumn,
       taskIds: startTaskIds,
     };
-    const statusIndex = board.get("statusList").indexOf(status);
-    const newColumn = columnsData[`column-${statusIndex}`]; // temporary solution, will break if we change column ids in the future
+    const newColumn = columnsData[destinationId];
     logger.info(`new column ${JSON.stringify(newColumn)}`);
     const finishTaskIds = Array.from(newColumn.taskIds); // copy
     finishTaskIds.splice(newColumn.taskIds.length, 0, taskId);
-    const newFinish = {
+    const newDestination = {
       ...newColumn,
       taskIds: finishTaskIds,
     };
 
     columnsData = {
       ...columnsData,
-      [newStart.id]: newStart,
-      [newFinish.id]: newFinish,
+      [newSource.id]: newSource,
+      [newDestination.id]: newDestination,
     };
     logger.info(`columns data ${JSON.stringify(columnsData)}`);
     board.set("columns", columnsData);
@@ -527,7 +568,7 @@ async function handleStatusChange(boardId, taskId, status, currentColumnId) {
     // task.set("status", getStatusCode(status));
     // return task;
   } catch (err) {
-    logger.error(err);
+    logger.error(`Error while updating task with task Id ${taskId}: ${err}`);
     return false;
   }
 }

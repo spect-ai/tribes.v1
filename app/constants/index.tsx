@@ -125,7 +125,7 @@ export const actionMap = {
   100: "opened task",
   105: "assigned task",
   200: "submitted work",
-  205: "cloesed task",
+  205: "closed task",
   300: "paid contributor",
 };
 
@@ -307,4 +307,4 @@ export const registryTemp: Registry = {
 };
 
 export const tribesLogo =
-  "https://ipfs.moralis.io:2053/ipfs/QmdXGuyqPEqrN5oNttic6wN19NQmJxJ3h1NpRpxbECNQAF";
+  "https://ipfs.moralis.io:2053/ipfs/QmRnbkmvYthsi6bXpZ5j14yZyfuxgVD3SaokXNRrBRsyQw";

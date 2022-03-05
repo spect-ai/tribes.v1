@@ -192,6 +192,7 @@ export interface BoardData {
   roles: Object<string, string>;
   _id: string;
   _createdAt: string;
+  team: Team[];
 }
 
 export type TokenInfo = {

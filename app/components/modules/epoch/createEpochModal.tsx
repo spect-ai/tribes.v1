@@ -58,7 +58,7 @@ const CreateEpochModal = (props: Props) => {
   );
 
   const [isChecked, setIsChecked] = useState(
-    Array(data.members?.length).fill(false)
+    Array(data.members?.length).fill(true)
   );
   const [allocations, setAllocations] = useState(
     Array(data.members?.length).fill(100)
@@ -310,6 +310,7 @@ const CreateEpochModal = (props: Props) => {
                               }}
                               size="small"
                               type="number"
+                              sx={{ width: "50%" }}
                             />
                           </TableCell>
                         </TableRow>

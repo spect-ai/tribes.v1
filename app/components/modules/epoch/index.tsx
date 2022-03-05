@@ -52,7 +52,7 @@ type VotesRemaining = {
 };
 
 const EpochList = ({ expanded, handleChange }: Props) => {
-  const { Moralis } = useMoralis();
+  const { Moralis, user } = useMoralis();
   const router = useRouter();
   const { data, setData } = useBoard();
   const bid = router.query.bid as string;
@@ -224,57 +224,59 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {epoch.choices.map((choice, index) => (
-                        <TableRow
-                          key={index}
-                          sx={{
-                            "&:last-child td, &:last-child th": {
-                              border: 0,
-                            },
-                          }}
-                        >
-                          <TableCell component="th" scope="row">
-                            {epoch.type === "Contribution"
-                              ? data.memberDetails[choice].username
-                              : epoch.taskDetails[choice].title}
-                          </TableCell>
-                          {!isLoading && (
-                            <TableCell align="right">
-                              <TextField
-                                id="filled-hidden-label-normal"
-                                value={votesGiven[epoch.objectId][choice]}
-                                type="number"
-                                placeholder="Value"
-                                inputProps={{
-                                  readOnly: !epoch.active,
-                                }}
-                                size="small"
-                                sx={{ width: "30%" }}
-                                onChange={(event) => {
-                                  handleVotesRemaining(
-                                    epoch.objectId,
-                                    choice,
-                                    parseInt(event.target.value)
-                                  );
-                                  handleVotesGiven(
-                                    epoch.objectId,
-                                    choice,
-                                    parseInt(event.target.value)
-                                  );
-                                }}
-                              />
+                      {epoch.choices
+                        .filter((ele: string) => ele !== user?.id)
+                        .map((choice, index) => (
+                          <TableRow
+                            key={index}
+                            sx={{
+                              "&:last-child td, &:last-child th": {
+                                border: 0,
+                              },
+                            }}
+                          >
+                            <TableCell component="th" scope="row">
+                              {epoch.type === "Contribution"
+                                ? data.memberDetails[choice].username
+                                : epoch.taskDetails[choice].title}
                             </TableCell>
-                          )}
-                          {epoch.active === false && (
-                            <TableCell align="right">
-                              {choice in epoch.values && epoch.values[choice]
-                                ? epoch.values[choice].toFixed(2)
-                                : 0}{" "}
-                              {epoch.token.symbol}
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      ))}
+                            {!isLoading && (
+                              <TableCell align="right">
+                                <TextField
+                                  id="filled-hidden-label-normal"
+                                  value={votesGiven[epoch.objectId][choice]}
+                                  type="number"
+                                  placeholder="Value"
+                                  inputProps={{
+                                    readOnly: !epoch.active,
+                                  }}
+                                  size="small"
+                                  sx={{ width: "30%" }}
+                                  onChange={(event) => {
+                                    handleVotesRemaining(
+                                      epoch.objectId,
+                                      choice,
+                                      parseInt(event.target.value)
+                                    );
+                                    handleVotesGiven(
+                                      epoch.objectId,
+                                      choice,
+                                      parseInt(event.target.value)
+                                    );
+                                  }}
+                                />
+                              </TableCell>
+                            )}
+                            {epoch.active === false && (
+                              <TableCell align="right">
+                                {choice in epoch.values && epoch.values[choice]
+                                  ? epoch.values[choice].toFixed(2)
+                                  : 0}{" "}
+                                {epoch.token.symbol}
+                              </TableCell>
+                            )}
+                          </TableRow>
+                        ))}
                     </TableBody>
                   </Table>
                 </TableContainer>

@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import Column from "./column";
 import { Fade, Grow } from "@mui/material";
 import { useRouter } from "next/router";
 import { getBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import Heading from "./heading";
 import SkeletonLoader from "./skeletonLoader";
-import { BoardData, Task } from "../../../types";
+import { BoardData, Column, Task } from "../../../types";
 import Board from "./board";
 import EpochList from "../epoch";
 import Analytics from "../analytics";
@@ -48,8 +47,13 @@ const TaskBoard = (props: Props) => {
 
     if (isInitialized && bid) {
       getBoard(Moralis, bid as string)
-        .then((res: any) => {
+        .then((res: BoardData) => {
           console.log(res);
+          console.log(
+            Object.values(res.columns).filter(
+              (col: Column) => col.title === "Done"
+            )[0].id
+          );
           setNavbarLogo(
             dispatch,
             res.team[0].logo ||

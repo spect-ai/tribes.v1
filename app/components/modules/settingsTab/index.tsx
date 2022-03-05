@@ -224,11 +224,13 @@ const Settings = () => {
               type="file"
               onChange={async (e) => {
                 const file = e.target.files && e.target.files[0];
+                console.log(file);
                 if (file) {
                   const moralisFile = new Moralis.File(file.name, file);
                   const res = (await moralisFile.saveIPFS()) as any;
                   setValue("logo", res._ipfs);
                   setLogo(res._ipfs);
+                  console.log(res._ipfs);
                 }
               }}
             />

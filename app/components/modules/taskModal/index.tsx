@@ -1,5 +1,4 @@
 import { Box, Fade, Modal } from "@mui/material";
-import { Octokit } from "@octokit/rest";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { getTask } from "../../../adapters/moralis";
