@@ -78,7 +78,8 @@ export function approve(address: string) {
 
 export function getPendingApprovals(addresses: string[], values: number[]) {
   let contract = getContract();
-  return contract.pendingApprovals(addresses, values);
+  var valuesInWei = values.map((v) => ethers.utils.parseEther(v.toString()));
+  return contract.pendingApprovals(addresses, valuesInWei);
 }
 
 export async function batchPayTokens(
