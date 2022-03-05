@@ -32,7 +32,6 @@ const CreateTribeModal = (props: Props) => {
   const onSubmit = () => {
     setIsLoading(true);
     createTribe(Moralis, name).then((res: any) => {
-      console.log(res);
       setIsLoading(false);
       handleClose();
       router.push({

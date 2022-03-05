@@ -24,7 +24,6 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
   const { Moralis } = useMoralis();
   const { data, setData } = useBoard();
   const [status, setStatus] = useState(column.title);
-  console.log(data);
   return (
     <Popover
       open={open}
@@ -64,7 +63,6 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
               status,
               column.id
             ).then((res: BoardData) => {
-              console.log(res);
               setData(res);
               setIsLoading(false);
               handleClose("move");

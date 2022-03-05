@@ -10,7 +10,11 @@ import {
 import { ResolveCallOptions } from "react-moralis/lib/hooks/internal/_useResolveAsyncCall";
 import { getTaskEpoch } from "../../../app/adapters/moralis";
 import TribeTemplate from "../../../app/components/templates/tribe";
-import { setNavbarLogo, useGlobal } from "../../../app/context/globalContext";
+import {
+  setNavbarLogo,
+  setNavbarTitle,
+  useGlobal,
+} from "../../../app/context/globalContext";
 import { Epoch, Task, Team } from "../../../app/types";
 import { getMD5String } from "../../../app/utils/utils";
 
@@ -30,6 +34,8 @@ interface TribeContextType {
   getTeam: Function;
   loading: boolean;
   setLoading: (loading: boolean) => void;
+  isMember: boolean;
+  setIsMember: (isMember: boolean) => void;
 }
 
 export const TribeContext = createContext<TribeContextType>(
@@ -40,10 +46,12 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();
   const { id } = router.query;
   const context = useProviderTribe();
+  const { setLoading, getTeam, setTribe, isMember } = context;
   const { dispatch } = useGlobal();
   useEffect(() => {
-    context.setLoading(true);
-    context.getTeam({
+    setLoading(true);
+    console.log("useEffect tribe");
+    getTeam({
       onSuccess: (res: any) => {
         console.log(res);
         setNavbarLogo(
@@ -53,20 +61,21 @@ const TribePage: NextPage<Props> = (props: Props) => {
               res._id
             )}?d=identicon&s=32`
         );
-        context.setTribe(res as Team);
-        context.setLoading(false);
+        setNavbarTitle(dispatch, res.name);
+        setTribe(res as Team);
+        setLoading(false);
       },
       params: {
         teamId: id,
       },
     });
-  }, [id]);
+  }, [id, isMember]);
   return (
     <>
       <Head>
-        <title>Spect.network Tribe</title>
-        <meta name="description" content={`Decentralized gig economy`} />
-        <link rel="icon" href="public/logo2.svg" />
+        <title>Spect.Tribes</title>
+        <meta name="description" content="Manage DAO with ease" />
+        <link rel="icon" href="/logo2.svg" />
       </Head>
       <TribeContext.Provider value={context}>
         <TribeTemplate />
@@ -77,14 +86,12 @@ const TribePage: NextPage<Props> = (props: Props) => {
 
 function useProviderTribe() {
   const [tab, setTab] = useState(0);
-
   const [tribe, setTribe] = useState({} as Team);
-  const [loading, setLoading] = useState(false);
-
+  const [loading, setLoading] = useState(true);
+  const [isMember, setIsMember] = useState(false);
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
-
   const { fetch: getTeam } = useMoralisCloudFunction(
     "getTeam",
     {
@@ -101,6 +108,8 @@ function useProviderTribe() {
     getTeam,
     loading,
     setLoading,
+    isMember,
+    setIsMember,
   };
 }
 

@@ -17,16 +17,17 @@ import CreateTribeModal from "../createTribeModal";
 type Props = {};
 
 const Sidebar = (props: Props) => {
-  const { Moralis, isInitialized } = useMoralis();
+  const { Moralis, isInitialized, isAuthenticated } = useMoralis();
   const [myTeams, setMyTeams] = useState([] as any[]);
   useEffect(() => {
-    if (isInitialized) {
+    if (isInitialized && isAuthenticated) {
       getMyTeams(Moralis).then((res: any) => {
-        console.log(res);
         setMyTeams(res);
       });
+    } else {
+      setMyTeams([]);
     }
-  }, [isInitialized]);
+  }, [isInitialized, isAuthenticated]);
 
   return (
     <SidebarContainer>
@@ -41,18 +42,21 @@ const Sidebar = (props: Props) => {
           zIndex: 1,
         }}
       >
-        {myTeams.map((team: any, index: number) => (
+        {myTeams?.map((team: any, index: number) => (
           <Link key={index} href={`/tribe/${team.get("teamId")}`} passHref>
-            <Avatar
-              alt="Username"
-              sx={{ width: "3rem", height: "3rem", objectFit: "cover", my: 1 }}
-              src={
-                team.get("logo") ||
-                `https://www.gravatar.com/avatar/${getMD5String(
-                  team.id
-                )}?d=identicon&s=32`
-              }
-            />
+            <Button sx={{ p: 0 }}>
+              <Avatar
+                sx={{
+                  width: "3rem",
+                  height: "3rem",
+                  objectFit: "cover",
+                  my: 1,
+                }}
+                src={team.get("logo")}
+              >
+                {team.get("name")[0]}
+              </Avatar>
+            </Button>
           </Link>
         ))}
         <CreateTribeModal />

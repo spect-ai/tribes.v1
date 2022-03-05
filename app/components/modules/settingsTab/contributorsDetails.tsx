@@ -31,7 +31,6 @@ const ContributorsDetails = ({ address, role }: any) => {
   } = useForm<ModalFormInput>();
   const handleClose = () => setOpenModal(false);
   const onSubmit: SubmitHandler<ModalFormInput> = async (values) => {
-    console.log(values);
     setOpenModal(false);
   };
   return (

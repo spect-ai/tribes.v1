@@ -73,7 +73,6 @@ const ColorPicker = ({
       },
     });
     setColor(color.hex);
-    console.log(columnData);
   };
   return (
     <div style={styles.container}>

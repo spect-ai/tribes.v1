@@ -87,7 +87,6 @@ const EditTask = ({
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
     }
-    console.log(task);
   }, []);
 
   return (
@@ -157,7 +156,7 @@ const EditTask = ({
             <InnerInfo>
               <Tooltip title={data.memberDetails[task.reviewer[0]].username}>
                 <Avatar
-                  sx={{ height: 28, width: 28 }}
+                  sx={{ height: 32, width: 32 }}
                   src={
                     data.memberDetails[task.reviewer[0]].profilePicture
                       ? data.memberDetails[task.reviewer[0]].profilePicture._url
@@ -240,7 +239,6 @@ const EditTask = ({
                       description,
                       task.taskId
                     ).then((res: BoardData) => {
-                      console.log(res);
                       setData(res);
                       setIsLoading(false);
                     });
@@ -275,7 +273,7 @@ const EditTask = ({
             <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
               Activity
             </Divider>{" "}
-            {task.activity.reverse()?.map((activity: any) => (
+            {task.activity.map((activity: any) => (
               <ListItem key={`${activity.timestamp}`}>
                 <Avatar
                   sx={{ width: 24, height: 24, mr: 2 }}

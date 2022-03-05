@@ -53,10 +53,8 @@ const SubmissionPopover = ({ open, anchorEl, handleClose, task }: Props) => {
           loading={isLoading}
           onClick={() => {
             setIsLoading(true);
-            console.log(link, name);
             updateTaskSubmission(Moralis, link, name, task.taskId).then(
               (res: BoardData) => {
-                console.log(res);
                 setData(res);
                 setIsLoading(false);
                 handleClose("submission");

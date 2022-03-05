@@ -290,4 +290,4 @@ export const registryTemp: Registry = {
 };
 
 export const tribesLogo =
-  "https://ipfs.moralis.io:2053/ipfs/QmXwQkaegqMCH3J3HYvHVkSjRJP83dLpzQxAuu9UGYQKEM";
+  "https://ipfs.moralis.io:2053/ipfs/QmdXGuyqPEqrN5oNttic6wN19NQmJxJ3h1NpRpxbECNQAF";

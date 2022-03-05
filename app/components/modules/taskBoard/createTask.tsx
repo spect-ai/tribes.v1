@@ -2,13 +2,14 @@ import styled from "@emotion/styled";
 import { Button, InputBase } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState } from "react";
-import { BoardData, useBoard } from ".";
+import { useBoard } from ".";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { addTask } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { resolve } from "path/win32";
+import { BoardData } from "../../../types";
 
 type Props = {
   setShowCreateTask: (showCreateTask: boolean) => void;
@@ -82,7 +83,6 @@ const CreateTask = ({ setShowCreateTask, columnId }: Props) => {
                 alert("Error");
                 return;
               }
-              console.log(res);
               setData(res as BoardData);
               setNewTaskValue("");
               setNewTaskTitle("");

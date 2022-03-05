@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import Column from "./column";
-import { Fade } from "@mui/material";
+import { Fade, Grow } from "@mui/material";
 import { useRouter } from "next/router";
 import { getBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
@@ -10,7 +10,11 @@ import { BoardData, Task } from "../../../types";
 import Board from "./board";
 import EpochList from "../epoch";
 import Analytics from "../analytics";
-import { setNavbarLogo, useGlobal } from "../../../context/globalContext";
+import {
+  setNavbarLogo,
+  setNavbarTitle,
+  useGlobal,
+} from "../../../context/globalContext";
 import { getMD5String } from "../../../utils/utils";
 
 type Props = {};
@@ -53,6 +57,7 @@ const TaskBoard = (props: Props) => {
                 res._id
               )}?d=identicon&s=32`
           );
+          setNavbarTitle(dispatch, res.team[0].name);
           context.setData(res);
           setIsLoading(false);
         })
@@ -69,16 +74,24 @@ const TaskBoard = (props: Props) => {
         <BoardContext.Provider value={context}>
           <Heading />
           {tab === 0 && (
-            <Board
-              expanded={panelExpanded === "board"}
-              handleChange={handleChange}
-            />
+            <Grow in={tab === 0} timeout={500}>
+              <div>
+                <Board
+                  expanded={panelExpanded === "board"}
+                  handleChange={handleChange}
+                />
+              </div>
+            </Grow>
           )}
           {tab === 1 && (
-            <EpochList
-              expanded={panelExpanded === "epoch"}
-              handleChange={handleChange}
-            />
+            <Grow in={tab === 1} timeout={500}>
+              <div>
+                <EpochList
+                  expanded={panelExpanded === "epoch"}
+                  handleChange={handleChange}
+                />
+              </div>
+            </Grow>
           )}
           {tab === 3 && <Analytics />}
         </BoardContext.Provider>

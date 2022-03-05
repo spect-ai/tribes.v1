@@ -18,6 +18,13 @@ export interface SettingFormInput {
   logo: string;
 }
 
+export const notify = (text: string) =>
+  toast.success(text, {
+    duration: 4000,
+    position: "top-right",
+    style: { fontSize: "1rem" },
+  });
+
 const Settings = () => {
   const { tribe, setTribe } = useTribe();
   const { Moralis } = useMoralis();
@@ -44,13 +51,6 @@ const Settings = () => {
       notify("Save Complete!");
     });
   };
-
-  const notify = (text: string) =>
-    toast.success(text, {
-      duration: 4000,
-      position: "top-right",
-      style: { fontSize: "1rem" },
-    });
 
   return (
     <MainContainer>
@@ -227,7 +227,6 @@ const Settings = () => {
                 if (file) {
                   const moralisFile = new Moralis.File(file.name, file);
                   const res = (await moralisFile.saveIPFS()) as any;
-                  console.log(res);
                   setValue("logo", res._ipfs);
                   setLogo(res._ipfs);
                 }

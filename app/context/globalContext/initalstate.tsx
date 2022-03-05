@@ -7,6 +7,7 @@ export interface State {
   contracts?: Contracts;
   logo?: string;
   registry?: Registry;
+  title?: string;
 }
 
 export const initialState: State = {

@@ -29,6 +29,8 @@ import { Epoch } from "../../../types";
 import { monthMap } from "../../../constants";
 import { useBoard } from "../taskBoard";
 import { downloadCSV } from "../../../utils/utils";
+import { notify } from "../settingsTab";
+import { Toaster } from "react-hot-toast";
 
 type Props = {
   expanded: boolean;
@@ -137,8 +139,8 @@ const EpochList = ({ expanded, handleChange }: Props) => {
     setIsLoading(true);
     getEpochs(Moralis, bid)
       .then((res: any) => {
-        console.log(res);
         setEpochs(res);
+        console.log(res);
         for (var epoch of res) {
           votesGiven[epoch.objectId] = epoch.votesGivenByCaller;
           votesRemaining[epoch.objectId] = epoch.votesRemaining;
@@ -151,6 +153,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
 
   return (
     <Container>
+      <Toaster />
       <Accordion hidden>
         <AccordionSummary />
       </Accordion>
@@ -178,7 +181,8 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                 {epoch.name}
               </Typography>
               <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                Started on {monthMap[epoch.startTime.getMonth()]}{" "}
+                Started on{" "}
+                {monthMap[epoch.startTime.getMonth() as keyof typeof monthMap]}{" "}
                 {epoch.startTime.getDate()}
               </Typography>
               <Typography sx={{ width: "30%", flexShrink: 0 }}>
@@ -199,12 +203,10 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                             ? "Contributor"
                             : "Task"}
                         </TableCell>
-                        {epoch.active === true && (
-                          <TableCell align="right" sx={{ color: "#99ccff" }}>
-                            Votes Given
-                          </TableCell>
-                        )}
-                        {epoch.active === false &&
+                        <TableCell align="right" sx={{ color: "#99ccff" }}>
+                          Votes Given
+                        </TableCell>
+                        {/* {epoch.active === false &&
                           (data.access === "admin" ? (
                             <TableCell align="right" sx={{ color: "#99ccff" }}>
                               Value
@@ -213,7 +215,12 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                             <TableCell align="right" sx={{ color: "#99ccff" }}>
                               Votes Given
                             </TableCell>
-                          ))}
+                          ))} */}
+                        {epoch.active === false && (
+                          <TableCell align="right" sx={{ color: "#99ccff" }}>
+                            Value
+                          </TableCell>
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -231,14 +238,18 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                               ? data.memberDetails[choice].username
                               : epoch.taskDetails[choice].title}
                           </TableCell>
-                          {epoch.active === true && !isLoading && (
+                          {!isLoading && (
                             <TableCell align="right">
                               <TextField
                                 id="filled-hidden-label-normal"
                                 value={votesGiven[epoch.objectId][choice]}
                                 type="number"
                                 placeholder="Value"
+                                inputProps={{
+                                  readOnly: !epoch.active,
+                                }}
                                 size="small"
+                                sx={{ width: "30%" }}
                                 onChange={(event) => {
                                   handleVotesRemaining(
                                     epoch.objectId,
@@ -254,7 +265,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                               />
                             </TableCell>
                           )}
-                          {data.access === "admin" && epoch.active === false && (
+                          {epoch.active === false && (
                             <TableCell align="right">
                               {choice in epoch.values && epoch.values[choice]
                                 ? epoch.values[choice].toFixed(2)
@@ -304,30 +315,34 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                     <ButtonContainer>
                       <PrimaryButton
                         endIcon={<SaveIcon />}
+                        loading={isLoading}
                         variant="outlined"
                         sx={{ mx: 4 }}
                         size="small"
                         onClick={() => {
+                          setIsLoading(true);
                           saveVotes(
                             Moralis,
                             epoch.objectId,
                             votesGiven[epoch.objectId]
                           )
-                            .then((res: any) => console.log(res))
+                            .then((res: any) => {
+                              setIsLoading(false);
+                              notify("Votes saved!");
+                            })
                             .catch((err: any) => alert(err));
                         }}
                       >
                         Save
                       </PrimaryButton>
+                      {/* {data.access === "admin" && ( */}
                       <PrimaryButton
                         endIcon={<CloseIcon />}
                         variant="outlined"
                         size="small"
                         onClick={() => {
-                          console.log(`hshsh`);
                           endEpoch(Moralis, epoch.objectId)
                             .then((res: any) => {
-                              console.log(res);
                               handleEpochUpdateAfterSave(index, res);
                             })
                             .catch((err: any) => alert(err));
@@ -335,6 +350,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                       >
                         End Epoch
                       </PrimaryButton>
+                      {/* )} */}
                     </ButtonContainer>
                   ) : (
                     <ButtonContainer>

@@ -18,6 +18,10 @@ export type Action =
       logo: State["logo"];
     }
   | {
+      type: "SET_TITLE";
+      title: State["title"];
+    }
+  | {
       type: "SET_REGISTRY";
       registry: State["registry"];
     }
@@ -50,6 +54,12 @@ export const reducer = (state: State, action: Action) => {
       return {
         ...state,
         logo: action.logo,
+      };
+    }
+    case "SET_TITLE": {
+      return {
+        ...state,
+        title: action.title,
       };
     }
     case "SET_DISTRIBUTOR_CONTRACT": {

@@ -67,7 +67,6 @@ const DatePopover = ({ open, anchorEl, handleClose, task }: Props) => {
               new Date(date).toUTCString(),
               task.taskId
             ).then((res: BoardData) => {
-              console.log(res);
               setData(res);
               setIsLoading(false);
               handleClose("date");

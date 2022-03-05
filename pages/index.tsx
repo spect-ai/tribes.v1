@@ -19,13 +19,18 @@ import { useEffect, useState } from "react";
 import { getPublicTeams } from "../app/adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { Team } from "../app/types";
-import { setNavbarLogo, useGlobal } from "../app/context/globalContext";
+import {
+  setNavbarLogo,
+  setNavbarTitle,
+  useGlobal,
+} from "../app/context/globalContext";
 import { tribesLogo } from "../app/constants";
+import Head from "next/head";
 
 type Props = {
   image: string;
   title: string;
-  members: string;
+  members: number;
   teamId: number;
 };
 
@@ -40,6 +45,7 @@ const Home: NextPage = () => {
   useEffect(() => {
     if (isInitialized) {
       setNavbarLogo(dispatch, tribesLogo);
+      setNavbarTitle(dispatch, "");
       getPublicTeams(Moralis).then((res: any) => {
         setTribes(res);
         console.log(res);
@@ -47,41 +53,49 @@ const Home: NextPage = () => {
     }
   }, [isInitialized]);
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-      }}
-    >
-      <StyledTabs value={tab} onChange={handleTabChange} centered>
-        <StyledTab label="Explore Tribes" />
-        {/* <StyledTab label="Explore Gigs (coming soon)" disabled /> */}
-      </StyledTabs>
+    <>
+      <Head>
+        <title>Spect.Tribes</title>
+        <meta name="description" content="Manage DAO with ease" />
+        <link rel="icon" href="/logo2.svg" />
+      </Head>
+
       <Box
         sx={{
           display: "flex",
-          flexDirection: "row",
-          alignItems: "start",
-          paddingLeft: 2,
-          paddingRight: 2,
-          mt: 4,
+          flexDirection: "column",
+          justifyContent: "center",
         }}
       >
-        <Grid container spacing={2} columns={15}>
-          {tribes.map((tribe: Team, index: number) => (
-            <Grid item xs={3} key={index}>
-              <DAOCards
-                image={tribe.logo}
-                title={tribe.name}
-                members="3"
-                teamId={tribe.teamId}
-              />
-            </Grid>
-          ))}
-        </Grid>
+        <StyledTabs value={tab} onChange={handleTabChange} centered>
+          <StyledTab label="Explore Tribes" />
+          {/* <StyledTab label="Explore Gigs (coming soon)" disabled /> */}
+        </StyledTabs>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "start",
+            paddingLeft: 2,
+            paddingRight: 2,
+            mt: 4,
+          }}
+        >
+          <Grid container spacing={2} columns={15}>
+            {tribes.map((tribe: Team, index: number) => (
+              <Grid item xs={3} key={index}>
+                <DAOCards
+                  image={tribe.logo}
+                  title={tribe.name}
+                  members={tribe.members.length}
+                  teamId={tribe.teamId}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
       </Box>
-    </Box>
+    </>
   );
 };
 

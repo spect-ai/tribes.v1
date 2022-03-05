@@ -2,11 +2,17 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Checkbox,
   Grid,
   Grow,
   IconButton,
   Modal,
   styled,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
   TextField,
   Tooltip,
   Typography,
@@ -15,12 +21,12 @@ import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { PrimaryButton } from "../../elements/styledComponents";
-import { updateBoard } from "../../../adapters/moralis";
+import { getTeam, updateBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useBoard } from "../taskBoard";
-import { BoardData } from "../../../types";
+import { BoardData, Team } from "../../../types";
 import ConfirmModal from "./confirmModal";
 import ColorPicker from "../../elements/colorPicker";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -33,6 +39,7 @@ const BoardSettings = (props: Props) => {
   const { Moralis } = useMoralis();
   const [name, setName] = useState(data.name);
   const [isOpen, setIsOpen] = useState(false);
+  const [tribe, setTribe] = useState<Team>({} as Team);
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -42,8 +49,18 @@ const BoardSettings = (props: Props) => {
     setIsConfirmOpen(false);
   };
   const [columnData, setColumnData] = useState(data.columns);
+  const [isChecked, setIsChecked] = useState(
+    Array(tribe.members?.length).fill(true)
+  );
+  const toggleCheckboxValue = (index: number) => {
+    setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
+  };
+
   useEffect(() => {
     setColumnData(data.columns);
+    getTeam(Moralis, data.teamId).then((res: Team) => {
+      setTribe(res);
+    });
   }, [data]);
 
   return (
@@ -71,7 +88,7 @@ const BoardSettings = (props: Props) => {
               </IconButton>
             </Heading>
             <ModalContent>
-              <Accordion>
+              <Accordion disableGutters>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
@@ -90,75 +107,77 @@ const BoardSettings = (props: Props) => {
                   ></TextField>
                 </AccordionDetails>
               </Accordion>
-              <Accordion>
+              <Accordion disableGutters>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
                   id="panel1a-header"
                 >
-                  <Typography>Column status mapping</Typography>
+                  Members
                 </AccordionSummary>
-
                 <AccordionDetails>
-                  <Box sx={{ mt: 4 }}>
-                    {Object.entries(data.columns).map(
-                      ([key, column], index) => (
-                        <Grid container spacing={1} key={index} sx={{ my: 2 }}>
-                          <Grid item xs={2}>
-                            <ColorPicker
-                              defaultColor={column.color}
-                              setColumnData={setColumnData}
-                              columnData={columnData}
-                              columnId={key}
-                            />
-                          </Grid>
-                          <Grid
-                            item
-                            xs={5}
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              justifyContent: "center",
+                  <Table aria-label="simple table" size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={isChecked.every((elem) => elem === true)}
+                            onChange={(e) => {
+                              setIsChecked(
+                                Array(tribe.members.length).fill(
+                                  e.target.checked
+                                )
+                              );
                             }}
+                          />
+                        </TableCell>
+                        <TableCell align="right" sx={{ color: "#99ccff" }}>
+                          Username
+                        </TableCell>
+                        <TableCell align="right" sx={{ color: "#99ccff" }}>
+                          Role
+                        </TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {tribe.members?.map((member, index) => (
+                        <TableRow
+                          key={index}
+                          sx={{
+                            "&:last-child td, &:last-child th": {
+                              border: 0,
+                            },
+                          }}
+                        >
+                          <TableCell
+                            component="th"
+                            scope="row"
+                            padding="checkbox"
                           >
-                            <TextField
-                              value={columnData[key].title}
-                              onChange={(e) => {
-                                setColumnData({
-                                  ...columnData,
-                                  [key]: {
-                                    ...columnData[key],
-                                    title: e.target.value,
-                                  },
-                                });
+                            <Checkbox
+                              color="primary"
+                              inputProps={{
+                                "aria-label": "select all desserts",
                               }}
-                              fullWidth
-                              label="Column Name"
-                            />
-                          </Grid>
-                          <Grid item xs={5}>
-                            <TextField
-                              value={columnData[key].status}
-                              onChange={(e) => {
-                                setColumnData({
-                                  ...columnData,
-                                  [key]: {
-                                    ...columnData[key],
-                                    status: e.target.value,
-                                  },
-                                });
+                              checked={isChecked.at(index)}
+                              onClick={() => {
+                                toggleCheckboxValue(index);
                               }}
-                              fullWidth
-                              label="Status Linked"
                             />
-                          </Grid>
-                        </Grid>
-                      )
-                    )}
-                  </Box>
+                          </TableCell>
+                          <TableCell align="right">
+                            {tribe.memberDetails[member].username}
+                          </TableCell>
+                          <TableCell align="right">
+                            {tribe.roles[member]}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </AccordionDetails>
               </Accordion>
-              <Accordion>
+              <Accordion disableGutters>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
@@ -200,7 +219,6 @@ const BoardSettings = (props: Props) => {
                   loading={isLoading}
                   onClick={() => {
                     setIsLoading(true);
-                    console.log(columnData);
                     updateBoard(
                       Moralis,
                       data.objectId,
@@ -208,7 +226,6 @@ const BoardSettings = (props: Props) => {
                       columnData,
                       Object.values(columnData).map((c) => c.status)
                     ).then((res: any) => {
-                      console.log(res);
                       setData(res as BoardData);
                       setIsLoading(false);
                       handleClose();
@@ -223,7 +240,7 @@ const BoardSettings = (props: Props) => {
                   color="error"
                   onClick={() => setIsConfirmOpen(true)}
                 >
-                  Delete Board
+                  Delete Space
                 </PrimaryButton>
               </Box>
             </ModalContent>

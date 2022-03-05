@@ -22,16 +22,13 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
   const { data, setData } = useBoard();
-  console.log(data);
 
-  console.log(`data`);
   useEffect(() => {
     if (type === "assignee") {
       setMember(task.assignee[0]);
     } else {
       setMember(task.reviewer[0]);
     }
-    console.log(task.members);
     //console.log(
     //  task.members.filter((el) => el.username === "0xavp.eth")[0].username
     //);
@@ -74,7 +71,6 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
             // we store array of assignee and reviewer to be able to handle multiple assignees and reviewers later
             updateTaskMember(Moralis, member, type, task.taskId).then(
               (res: BoardData) => {
-                console.log(res);
                 setData(res);
                 setIsLoading(false);
                 handleClose(type);

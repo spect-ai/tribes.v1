@@ -104,7 +104,7 @@ Moralis.Cloud.define("addTask", async (request) => {
       }); //TODO: remove hardcoded value
       task.set("boardId", request.params.boardId);
       task.set("title", request.params.title);
-      task.set("value", parseInt(request.params.value));
+      task.set("value", parseFloat(request.params.value));
       task.set("creator", request.user.id);
       task.set("reviewer", [request.user.id]);
       task.set("assignee", []);
@@ -274,7 +274,7 @@ Moralis.Cloud.define("updateTaskReward", async (request) => {
       request.user.id,
       request.params.value,
       request.params.token,
-      request.params.chain
+      request.params.chain.name
     );
     logger.info(
       `Handled reward field for task with id ${JSON.stringify(
@@ -420,7 +420,7 @@ function handleRewardUpdate(task, userId, value, token, chain) {
     ["wmatic", "weth", "usdc"].includes(token.toLowerCase()) &&
     ["polygon", "ethereum"].includes(chain.toLowerCase())
   ) {
-    task.set("value", parseInt(value));
+    task.set("value", parseFloat(value));
     task.set("token", token);
     task.set("chain", chain);
   }
