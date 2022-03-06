@@ -1,25 +1,12 @@
-import {
-  Grow,
-  IconButton,
-  Modal,
-  styled,
-  Typography,
-  Tooltip,
-  Avatar,
-  Grid,
-  Button,
-} from "@mui/material";
+import { Typography, Avatar, Grid, Button } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState, useEffect } from "react";
-import CloseIcon from "@mui/icons-material/Close";
 import { PrimaryButton } from "../../elements/styledComponents";
 import {
   completeEpochPayment,
   completePayment,
 } from "../../../adapters/moralis";
-import { useRouter } from "next/router";
-import SettingsIcon from "@mui/icons-material/Settings";
-import { amountData, registryTemp } from "../../../constants";
+import { registryTemp } from "../../../constants";
 import Image from "next/image";
 import { batchPayTokens } from "../../../adapters/contract";
 import { BatchPayInfo } from ".";
@@ -27,6 +14,8 @@ import { useBoard } from "../taskBoard";
 import { capitalizeFirstLetter } from "../../../utils/utils";
 import { Member } from "../../../types";
 import { useMoralis } from "react-moralis";
+import { notify } from "../settingsTab";
+import { Toaster } from "react-hot-toast";
 
 type Props = {
   handleClose: Function;
@@ -49,6 +38,7 @@ const BatchPay = ({ handleClose, chainId, batchPayInfo }: Props) => {
 
   return (
     <React.Fragment>
+      <Toaster />
       <Box
         sx={{
           display: "flex",
@@ -168,20 +158,30 @@ const BatchPay = ({ handleClose, chainId, batchPayInfo }: Props) => {
                           console.log(res);
                           setData(res);
                         })
-                        .catch((err: any) => alert(err));
+                        .catch((err: any) => {
+                          alert(err.message);
+                          setIsLoading(false);
+                        });
                     } else if (batchPayInfo.type === "epoch") {
                       completeEpochPayment(Moralis, batchPayInfo.epochId)
                         .then((res: any) => {
                           console.log(res);
                           const temp = Object.assign(data, res);
                           setData(temp);
+                          notify("Payment completed!");
                         })
-                        .catch((err: any) => alert(err));
+                        .catch((err: any) => {
+                          alert(err.message);
+                          setIsLoading(false);
+                        });
                     }
                     setIsLoading(false);
                     handleClose();
                   })
-                  .catch((err: any) => console.log(err));
+                  .catch((err: any) => {
+                    alert(err.message);
+                    setIsLoading(false);
+                  });
               }}
               variant="outlined"
               id="bApprove"
@@ -194,11 +194,5 @@ const BatchPay = ({ handleClose, chainId, batchPayInfo }: Props) => {
     </React.Fragment>
   );
 };
-
-const ModalContent = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: 32,
-}));
 
 export default BatchPay;

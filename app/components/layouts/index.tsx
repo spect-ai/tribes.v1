@@ -50,7 +50,7 @@ const Layout = ({ children }: Props) => {
       <InnerDiv>
         <Navbar />
         <Main>{children}</Main>
-        <Footer />
+        {/* <Footer /> */}
       </InnerDiv>
     </OuterDiv>
   );

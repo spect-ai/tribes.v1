@@ -7,6 +7,7 @@ import {
   Modal,
   TextField,
   Tooltip,
+  Typography,
 } from "@mui/material";
 import React, { useState } from "react";
 import { PrimaryButton } from "../../elements/styledComponents";
@@ -32,7 +33,7 @@ const ProfileSettings = ({ isOpen, handleClose }: Props) => {
       <Grow in={isOpen} timeout={500}>
         <Box sx={modalStyle}>
           <Heading>
-            <div>Profile</div>
+            <Typography sx={{ color: "#99ccff" }}>Profile</Typography>
             <Box sx={{ flex: "1 1 auto" }} />
             <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
               <CloseIcon />
@@ -69,7 +70,9 @@ const ProfileSettings = ({ isOpen, handleClose }: Props) => {
               />
               <label htmlFor="contained-button-file">
                 {/*// @ts-ignore */}
-                <PrimaryButton component="span">Edit</PrimaryButton>
+                <PrimaryButton component="span" sx={{ borderRadius: 1 }}>
+                  Edit
+                </PrimaryButton>
               </label>
             </FieldContainer>
             <FieldContainer>
@@ -77,9 +80,9 @@ const ProfileSettings = ({ isOpen, handleClose }: Props) => {
                 value={userName}
                 onChange={(e) => setuserName(e.target.value)}
                 fullWidth
-                label="Username"
                 placeholder="Username"
-              ></TextField>
+                size="small"
+              />
             </FieldContainer>
             <FieldContainer>
               <TextField
@@ -87,12 +90,12 @@ const ProfileSettings = ({ isOpen, handleClose }: Props) => {
                 value={userEmail}
                 onChange={(e) => setuserEmail(e.target.value)}
                 fullWidth
-                label="Email"
-              ></TextField>
+                size="small"
+              />
             </FieldContainer>
             <PrimaryButton
               variant="outlined"
-              sx={{ width: "50%", mt: 2 }}
+              sx={{ width: "50%", mt: 2, borderRadius: 1 }}
               loading={isLoading}
               onClick={() => {
                 setIsLoading(true);
@@ -117,7 +120,7 @@ const ProfileSettings = ({ isOpen, handleClose }: Props) => {
 
 const modalStyle = {
   position: "absolute" as "absolute",
-  top: "35%",
+  top: "15%",
   left: "35%",
   transform: "translate(-50%, -50%)",
   width: "25rem",
@@ -136,7 +139,7 @@ const Heading = styled.div`
   flex-direction: row;
   align-items: center;
   border-bottom: 1px solid #5a6972;
-  padding: 32px 16px 16px 16px;
+  padding: 16px;
 `;
 const ModalContent = styled.div`
   display: flex;

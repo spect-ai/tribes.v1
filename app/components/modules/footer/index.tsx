@@ -8,8 +8,7 @@ const FooterDiv = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   width: "100%",
-  paddingBottom: "1rem",
-  marginTop: "0.5rem",
+  paddingBottom: "0.5rem",
 }));
 
 const FooterItem = styled(Button)(({ theme }) => ({

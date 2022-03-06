@@ -1,11 +1,5 @@
 import styled from "@emotion/styled";
-import {
-  Box,
-  IconButton,
-  Tooltip,
-  Typography,
-  styled as MUIStyled,
-} from "@mui/material";
+import { Box, styled as MUIStyled } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
@@ -49,10 +43,8 @@ const TribeHeading = (props: Props) => {
       >
         {/* <Typography variant="h6">{tribe.name}</Typography> */}
         <PrimaryButton
-          sx={{ mb: 0.5, px: 5, width: "10%" }}
-          size="small"
+          sx={{ borderRadius: 1, mr: 4 }}
           variant="outlined"
-          fullWidth
           endIcon={<PeopleOutlineIcon />}
           onClick={() => {
             navigator.clipboard.writeText(window.location.href).then(
@@ -71,6 +63,7 @@ const TribeHeading = (props: Props) => {
           <PrimaryButton
             variant="outlined"
             loading={isLoading}
+            sx={{ borderRadius: 1 }}
             onClick={async () => {
               if (!isAuthenticated) {
                 await authenticate();

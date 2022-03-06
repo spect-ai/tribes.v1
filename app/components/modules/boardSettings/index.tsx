@@ -103,7 +103,6 @@ const BoardSettings = (props: Props) => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     fullWidth
-                    label="Board Name"
                   ></TextField>
                 </AccordionDetails>
               </Accordion>
@@ -215,7 +214,7 @@ const BoardSettings = (props: Props) => {
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <PrimaryButton
                   variant="outlined"
-                  sx={{ width: "50%", mt: 2, mr: 1 }}
+                  sx={{ width: "50%", mt: 2, mr: 4, borderRadius: 1 }}
                   loading={isLoading}
                   onClick={() => {
                     setIsLoading(true);
@@ -236,7 +235,7 @@ const BoardSettings = (props: Props) => {
                 </PrimaryButton>
                 <PrimaryButton
                   variant="outlined"
-                  sx={{ width: "50%", mt: 2 }}
+                  sx={{ width: "50%", mt: 2, borderRadius: 1 }}
                   color="error"
                   onClick={() => setIsConfirmOpen(true)}
                 >

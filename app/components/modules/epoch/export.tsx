@@ -64,9 +64,7 @@ const CsvExport = ({ epoch }: Props) => {
     <PrimaryButton
       endIcon={<DownloadIcon />}
       variant="outlined"
-      size="small"
       sx={{
-        pt: 1,
         borderRadius: 1,
       }}
       onClick={() => {

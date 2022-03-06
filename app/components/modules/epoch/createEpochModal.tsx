@@ -16,7 +16,6 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  checkboxClasses,
   Grid,
 } from "@mui/material";
 import React, { useState } from "react";
@@ -31,7 +30,6 @@ import { Member, Chain, Registry, Task, Token, Epoch } from "../../../types";
 import { startEpoch } from "../../../adapters/moralis";
 import {
   getFlattenedNetworks,
-  getFlattenedTokens,
   getFlattenedCurrencies,
 } from "../../../utils/utils";
 import { registryTemp } from "../../../constants";
@@ -39,7 +37,7 @@ import { registryTemp } from "../../../constants";
 type Props = {};
 
 const CreateEpochModal = (props: Props) => {
-  const { data, setData } = useBoard();
+  const { data, setData, handleTabChange } = useBoard();
   const { Moralis } = useMoralis();
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
@@ -120,7 +118,7 @@ const CreateEpochModal = (props: Props) => {
         <Grow in={isOpen} timeout={500}>
           <Box sx={modalStyle}>
             <ModalHeading>
-              <Typography color="primary">Start Epoch</Typography>
+              <Typography sx={{ color: "#99ccff" }}>Start Epoch</Typography>
               <Box sx={{ flex: "1 1 auto" }} />
               <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
                 <CloseIcon />
@@ -133,6 +131,7 @@ const CreateEpochModal = (props: Props) => {
                 onChange={(e) => setName(e.target.value)}
                 fullWidth
                 sx={{ mb: 2 }}
+                size="small"
               />
               <Autocomplete
                 options={["Task", "Contribution"]}
@@ -148,6 +147,7 @@ const CreateEpochModal = (props: Props) => {
                     fullWidth
                     sx={{ mb: 2 }}
                     placeholder="Epoch Type"
+                    size="small"
                   />
                 )}
               />
@@ -160,6 +160,8 @@ const CreateEpochModal = (props: Props) => {
                 fullWidth
                 sx={{ mb: 2 }}
                 placeholder="Duration (in days)"
+                type={"number"}
+                size="small"
               />
               <Box sx={{ flex: "1 1 auto" }}>
                 <Grid container spacing={1}>
@@ -172,6 +174,8 @@ const CreateEpochModal = (props: Props) => {
                       }}
                       sx={{ mb: 2 }}
                       placeholder="Budget"
+                      type={"number"}
+                      size="small"
                     />
                   </Grid>{" "}
                   <Grid item xs={4}>
@@ -190,6 +194,7 @@ const CreateEpochModal = (props: Props) => {
                           {...params}
                           id="filled-hidden-label-normal"
                           placeholder="Network Chain"
+                          size="small"
                         />
                       )}
                     />
@@ -213,6 +218,7 @@ const CreateEpochModal = (props: Props) => {
                           {...params}
                           id="filled-hidden-label-normal"
                           placeholder="Network Chain"
+                          size="small"
                         />
                       )}
                     />
@@ -233,6 +239,7 @@ const CreateEpochModal = (props: Props) => {
                     fullWidth
                     sx={{ mb: 2 }}
                     placeholder="Strategy"
+                    size="small"
                   />
                 )}
               />
@@ -326,7 +333,7 @@ const CreateEpochModal = (props: Props) => {
               </Accordion>
               <PrimaryButton
                 variant="outlined"
-                sx={{ width: "50%", mt: 2 }}
+                sx={{ width: "50%", mt: 2, borderRadius: 1 }}
                 onClick={() => {
                   const members = getMembers();
                   const choices = getChoices();
@@ -348,6 +355,7 @@ const CreateEpochModal = (props: Props) => {
                     .then((res: any) => {
                       handleClose();
                       handleNewEpochAddition(res);
+                      handleTabChange({} as any, 1);
                     })
                     .catch((err: any) => alert(err));
                 }}
@@ -367,7 +375,7 @@ const modalStyle = {
   top: "10%",
   left: "25%",
   transform: "translate(-50%, -50%)",
-  width: "50rem",
+  width: "35rem",
   bgcolor: "background.paper",
   border: "2px solid #000",
   boxShadow: 24,

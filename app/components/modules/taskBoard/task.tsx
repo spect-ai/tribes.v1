@@ -7,6 +7,8 @@ import TaskModal from "../taskModal";
 import { labelsMapping, monthMap } from "../../../constants";
 import { Column, Task } from "../../../types";
 import { useBoard } from "../taskBoard";
+import PriceCheckIcon from "@mui/icons-material/PriceCheck";
+import CreditScoreIcon from "@mui/icons-material/CreditScore";
 
 type Props = {
   task: Task;
@@ -72,8 +74,11 @@ const TaskContainer = ({ task, index, column }: Props) => {
                     {data.memberDetails[task.assignee[0]].username}
                   </Chip>
                 )}
-                {task.status === 300 && <Chip color="#66bb6a">{"Paid"}</Chip>}
-                {/* <Chip color={column.color}>{column.status}</Chip> */}
+                {task.status === 300 && (
+                  <Chip color="#66bb6a">
+                    <CreditScoreIcon sx={{ fontSize: 16 }} /> Paid
+                  </Chip>
+                )}
               </ChipContainer>
             </Container>
           </TaskCard>

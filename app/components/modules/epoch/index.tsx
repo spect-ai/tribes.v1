@@ -20,7 +20,6 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { PrimaryButton } from "../../elements/styledComponents";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
-import DownloadIcon from "@mui/icons-material/Download";
 import PaidIcon from "@mui/icons-material/Paid";
 import { getEpochs, saveVotes, endEpoch } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
@@ -209,6 +208,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                       readOnly: !epoch.active,
                                     }}
                                     size="small"
+                                    error={votesRemaining[epoch.objectId] < 0}
                                     sx={{ width: "30%" }}
                                     onChange={(event) => {
                                       handleVotesRemaining(
@@ -278,7 +278,8 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                         endIcon={<SaveIcon />}
                         loading={isLoading}
                         variant="outlined"
-                        sx={{ mx: 4 }}
+                        disabled={votesRemaining[epoch.objectId] < 0}
+                        sx={{ mx: 4, borderRadius: 1 }}
                         size="small"
                         onClick={() => {
                           setIsLoading(true);
@@ -301,10 +302,15 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                         endIcon={<CloseIcon />}
                         variant="outlined"
                         size="small"
+                        sx={{ borderRadius: 1 }}
+                        loading={isLoading}
                         onClick={() => {
+                          setIsLoading(true);
                           endEpoch(Moralis, epoch.objectId)
                             .then((res: any) => {
                               handleEpochUpdateAfterSave(index, res);
+                              setIsLoading(false);
+                              notify("Epoch Ended!");
                             })
                             .catch((err: any) => alert(err));
                         }}

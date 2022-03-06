@@ -68,7 +68,7 @@ const ColumnSettingsPopover = ({
         >
           Delete
         </Button>
-        <Button
+        {/* <Button
           color="inherit"
           fullWidth
           sx={{ textTransform: "none" }}
@@ -84,7 +84,7 @@ const ColumnSettingsPopover = ({
           disabled
         >
           Start Epoch
-        </Button>
+        </Button> */}
       </Container>
     </Popover>
   );

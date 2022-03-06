@@ -1,17 +1,9 @@
 import styled from "@emotion/styled";
-import {
-  Avatar,
-  Box,
-  Button,
-  IconButton,
-  Tooltip,
-  Typography,
-} from "@mui/material";
+import { Avatar, Box, Button } from "@mui/material";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { getMyTeams } from "../../../adapters/moralis";
-import { getMD5String } from "../../../utils/utils";
 import CreateTribeModal from "../createTribeModal";
 
 type Props = {};
@@ -70,7 +62,7 @@ const SidebarContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 4.5rem;
-  margin-top: -8rem;
+  margin-top: -14rem;
   padding-top: 4rem;
   align-items: center;
   justify-content: center;

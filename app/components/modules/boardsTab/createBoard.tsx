@@ -37,21 +37,6 @@ function createData(username: string, role: string) {
     role,
   };
 }
-
-const rows = [
-  createData("0xavp.eth", "Chief"),
-  createData("chaks.eth", "Chief"),
-  createData("ateet", "Member"),
-  createData("rishab", "Member"),
-];
-
-const plugins = [
-  createData("Organize", "Organize tasks using a kanban style board"),
-  createData("Value", "Value tasks using epochs"),
-  createData("Analyze", "Analyze statistics of your space using charts"),
-  createData("Meet", "Create meetings among your members"),
-];
-
 interface SpaceMember {
   [key: string]: Member;
 }
@@ -62,6 +47,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(
     Array(tribe.members?.length).fill(true)
   );
@@ -88,7 +74,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
       <Grow in={isOpen} timeout={500}>
         <Box sx={modalStyle}>
           <ModalHeading>
-            <Typography color="primary">Create Space</Typography>
+            <Typography sx={{ color: "#99ccff" }}>Create Space</Typography>
             <Box sx={{ flex: "1 1 auto" }} />
             <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
               <CloseIcon />
@@ -235,10 +221,12 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               </AccordionDetails>
             </Accordion>*/}
             <PrimaryButton
+              loading={isLoading}
               variant="outlined"
-              sx={{ width: "50%", mt: 2 }}
+              sx={{ width: "50%", mt: 2, borderRadius: 1 }}
               onClick={() => {
                 const [members, roles] = getMembersAndRoles();
+                setIsLoading(true);
                 initBoard(
                   Moralis,
                   name,
@@ -253,6 +241,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                         undefined
                       );
                     }
+                    setIsLoading(false);
                   })
                   .catch((err: any) => alert(err));
               }}

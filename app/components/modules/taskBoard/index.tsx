@@ -14,7 +14,6 @@ import {
   setNavbarTitle,
   useGlobal,
 } from "../../../context/globalContext";
-import { getMD5String } from "../../../utils/utils";
 
 type Props = {};
 

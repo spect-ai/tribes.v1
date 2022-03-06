@@ -7,6 +7,7 @@ import { Epoch } from "../../../types";
 import { registryTemp } from "../../../constants";
 import PaymentModal, { BatchPayInfo } from "../payment";
 import { getRequiredApprovals } from "../payment/batchPayIcon";
+import DownloadIcon from "@mui/icons-material/Download";
 
 type Props = {
   epoch: Epoch;
@@ -22,13 +23,13 @@ const PayoutButton = ({ epoch }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Container>
+    <>
       <PrimaryButton
         endIcon={<PaidIcon />}
         variant="outlined"
+        loading={isLoading}
         sx={{
           mx: 4,
-          pt: 1,
           borderRadius: 1,
         }}
         size="small"
@@ -85,9 +86,8 @@ const PayoutButton = ({ epoch }: Props) => {
           activeModalStep={activeStep}
         />
       )}
-    </Container>
+    </>
   );
 };
 
-const Container = styled.div``;
 export default PayoutButton;
