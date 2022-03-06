@@ -54,13 +54,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
     getTeam({
       onSuccess: (res: any) => {
         console.log(res);
-        setNavbarLogo(
-          dispatch,
-          res.logo ||
-            `https://www.gravatar.com/avatar/${getMD5String(
-              res._id
-            )}?d=identicon&s=32`
-        );
+        setNavbarLogo(dispatch, res.logo);
         setNavbarTitle(dispatch, res.name);
         setTribe(res as Team);
         setLoading(false);

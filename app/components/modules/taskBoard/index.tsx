@@ -54,13 +54,7 @@ const TaskBoard = (props: Props) => {
               (col: Column) => col.title === "Done"
             )[0].id
           );
-          setNavbarLogo(
-            dispatch,
-            res.team[0].logo ||
-              `https://www.gravatar.com/avatar/${getMD5String(
-                res._id
-              )}?d=identicon&s=32`
-          );
+          setNavbarLogo(dispatch, res.team[0].logo);
           setNavbarTitle(dispatch, res.team[0].name);
           context.setData(res);
           setIsLoading(false);

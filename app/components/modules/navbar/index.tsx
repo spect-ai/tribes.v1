@@ -42,7 +42,9 @@ const Navbar = (props: Props) => {
         }}
       >
         <Link href="/" passHref>
-          <Avatar src={state.logo} sx={{ objectFit: "cover", width: 45 }} />
+          <Avatar src={state.logo} sx={{ objectFit: "cover", width: 45 }}>
+            {state.title?.charAt(0)}
+          </Avatar>
         </Link>
         <Typography sx={{ mx: 2 }} variant="h6">
           {state.title}
