@@ -12,7 +12,7 @@ import PaymentModal, { BatchPayInfo } from ".";
 
 interface Props {}
 
-async function getRequiredApprovals(
+export async function getRequiredApprovals(
   uniqueTokenAddresses: string[],
   aggregatedTokenValues: number[]
 ) {

@@ -31,6 +31,9 @@ import { useBoard } from "../taskBoard";
 import { downloadCSV } from "../../../utils/utils";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
+import { getRequiredApprovals } from "../payment/batchPayIcon";
+import { registryTemp } from "../../../constants";
+import PaymentModal, { BatchPayInfo } from "../payment";
 
 type Props = {
   expanded: boolean;
@@ -60,6 +63,10 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   const [votesGiven, setVotesGiven] = useState({} as VotesGivenAllEpochs);
   const [votesRemaining, setVotesRemaining] = useState({} as VotesRemaining);
   const [isLoading, setIsLoading] = useState(false);
+  const [steps, setSteps] = useState([] as string[]);
+  const [activeStep, setActiveStep] = useState(0);
+  const [batchPayMetadata, setBatchPayMetadata] = useState({} as BatchPayInfo);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleVotesGiven = (
     epochid: string,
@@ -366,7 +373,57 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                             borderRadius: 1,
                           }}
                           size="small"
-                          onClick={() => {}}
+                          onClick={() => {
+                            var dynamicSteps: string[] = [];
+                            var batchPayInfo = {} as BatchPayInfo;
+                            setIsLoading(true);
+                            getRequiredApprovals(
+                              [epoch.token.address as string],
+                              [epoch.budget]
+                            ).then((pendingApprovals: any) => {
+                              console.log(pendingApprovals);
+                              if (pendingApprovals.tokenAddresses.length > 0) {
+                                batchPayInfo.aggregatedTokenValues =
+                                  pendingApprovals.tokenValues;
+                                batchPayInfo.uniqueTokenAddresses =
+                                  pendingApprovals.tokenAddresses;
+                                dynamicSteps.push(
+                                  `Approve on ${
+                                    registryTemp[window.ethereum.networkVersion]
+                                      .name
+                                  }`
+                                );
+                                setActiveStep(0);
+                              } else {
+                                setActiveStep(1);
+                              }
+                              dynamicSteps.push(
+                                `Distribute on ${
+                                  registryTemp[window.ethereum.networkVersion]
+                                    .name
+                                }`
+                              );
+
+                              batchPayInfo.tokenValues = Object.values(
+                                epoch.values
+                              );
+                              batchPayInfo.contributors = Object.keys(
+                                epoch.values
+                              );
+                              batchPayInfo.tokenAddresses = Array(
+                                batchPayInfo.contributors.length
+                              ).fill(epoch.token.address);
+
+                              console.log(batchPayInfo);
+                              console.log(dynamicSteps);
+                              console.log(activeStep);
+
+                              setBatchPayMetadata(batchPayInfo);
+                              setSteps(dynamicSteps);
+                              setIsOpen(true);
+                              setIsLoading(false);
+                            });
+                          }}
                         >
                           Payout countributors
                         </PrimaryButton>
@@ -403,6 +460,14 @@ const EpochList = ({ expanded, handleChange }: Props) => {
           </AccordionDetails>
         </Accordion>
       ))}
+      {!isLoading && (
+        <PaymentModal
+          isModalOpen={isOpen}
+          batchPayMetadata={batchPayMetadata}
+          modalSteps={steps}
+          activeModalStep={activeStep}
+        />
+      )}
     </Container>
   );
 };

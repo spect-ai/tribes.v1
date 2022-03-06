@@ -89,9 +89,13 @@ export async function batchPayTokens(
   values: number[],
   taskIds: string
 ) {
-  let contract = getContract();
-
+  [tokenAddresses, recipients, values] = filterInvalidValues(
+    tokenAddresses,
+    recipients,
+    values
+  );
   var valuesInWei = values.map((v) => ethers.utils.parseEther(v.toString()));
+  let contract = getContract();
   const tx = await contract.distributeTokens(
     tokenAddresses,
     recipients,
@@ -100,4 +104,28 @@ export async function batchPayTokens(
   );
   console.log(`done`);
   return tx.wait();
+}
+
+function filterInvalidValues(
+  tokenAddresses: string[],
+  recipients: string[],
+  values: number[]
+) {
+  var filteredTokenAddresses = [];
+  var filteredRecipients = [];
+  var filteredValues = [];
+
+  for (let i = 0; i < values.length; i++) {
+    if (values[i] > 0) {
+      filteredValues.push(values[i]);
+      filteredRecipients.push(recipients[i]);
+      filteredTokenAddresses.push(tokenAddresses[i]);
+    }
+  }
+
+  return [
+    filteredTokenAddresses as string[],
+    filteredRecipients as string[],
+    filteredValues as number[],
+  ];
 }
