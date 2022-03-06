@@ -39,7 +39,7 @@ import { registryTemp } from "../../../constants";
 type Props = {};
 
 const CreateEpochModal = (props: Props) => {
-  const { data } = useBoard();
+  const { data, setData } = useBoard();
   const { Moralis } = useMoralis();
   const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
@@ -74,7 +74,10 @@ const CreateEpochModal = (props: Props) => {
     );
   };
 
-  const handleNewEpochAddition = (epoch: Epoch) => {};
+  const handleNewEpochAddition = (epochs: Epoch[]) => {
+    const temp = Object.assign(data, { epochs: epochs });
+    setData(temp);
+  };
 
   const getMembers = () => {
     var members = [];

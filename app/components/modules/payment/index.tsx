@@ -29,6 +29,8 @@ export interface BatchPayInfo {
   aggregatedTokenValues: Array<number>;
   uniqueTokenAddresses: Array<string>;
   taskIds: Array<string>;
+  epochId: string;
+  type: string;
 }
 
 const PaymentModal = ({

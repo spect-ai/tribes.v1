@@ -31,9 +31,10 @@ import { useBoard } from "../taskBoard";
 import { downloadCSV } from "../../../utils/utils";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
-import { getRequiredApprovals } from "../payment/batchPayIcon";
 import { registryTemp } from "../../../constants";
 import PaymentModal, { BatchPayInfo } from "../payment";
+import CsvExport from "./export";
+import PayoutButton from "./payout";
 
 type Props = {
   expanded: boolean;
@@ -59,7 +60,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   const router = useRouter();
   const { data, setData } = useBoard();
   const bid = router.query.bid as string;
-  const [epochs, setEpochs] = useState([] as Epoch[]);
   const [votesGiven, setVotesGiven] = useState({} as VotesGivenAllEpochs);
   const [votesRemaining, setVotesRemaining] = useState({} as VotesRemaining);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,7 +67,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   const [activeStep, setActiveStep] = useState(0);
   const [batchPayMetadata, setBatchPayMetadata] = useState({} as BatchPayInfo);
   const [isOpen, setIsOpen] = useState(false);
-
+  console.log(votesGiven);
   const handleVotesGiven = (
     epochid: string,
     memberId: string,
@@ -92,67 +92,25 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   };
 
   const handleEpochUpdateAfterSave = (index: number, newEpoch: Epoch) => {
-    var temp = epochs.filter(() => true); // Shallow copy
-    temp[index] = newEpoch;
-    setEpochs(temp);
-  };
-
-  const handleExport = (epoch: Epoch) => {
-    if (epoch.type === "Contribution") {
-      var rows = [
-        ["username", "address", "allocation", "given", "received", "reward"],
-      ];
-      for (var choice of epoch.choices) {
-        rows.push([
-          data.memberDetails[choice].username,
-          data.memberDetails[choice].ethAddress,
-          epoch.memberStats[choice].votesAllocated,
-          Object.values(epoch.memberStats[choice].votesGiven).reduce(
-            (a, b) => (a as number) + (b as number)
-          ),
-          epoch.votes[choice],
-          epoch.values[choice],
-        ]);
-      }
-      downloadCSV(rows, `${epoch.name}_${epoch.type}_${epoch.startTime}`);
-    } else if (epoch.type === "Task") {
-      var rows = [
-        [
-          "id",
-          "title",
-          "description",
-          "created by",
-          "created on",
-          "received",
-          "reward",
-        ],
-      ];
-      for (var choice of epoch.choices) {
-        rows.push([
-          choice,
-          epoch.taskDetails[choice].title,
-          epoch.taskDetails[choice].description,
-          epoch.taskDetails[choice].creator,
-          epoch.taskDetails[choice].createdAt,
-          epoch.votes[choice],
-          epoch.values[choice],
-        ]);
-      }
-      downloadCSV(rows, `${epoch.name}_${epoch.type}_${epoch.startTime}`);
-    }
+    const temp = Object.assign({}, data);
+    temp.epochs[index] = newEpoch;
+    setData(temp);
   };
 
   useEffect(() => {
     setIsLoading(true);
     getEpochs(Moralis, bid)
       .then((res: any) => {
-        setEpochs(res);
         console.log(res);
+        setData(Object.assign(data, { epochs: res }));
+        var votesGivenByCaller = {} as VotesGivenAllEpochs;
+        var votesRemainingByCaller = {} as VotesRemaining;
         for (var epoch of res) {
-          votesGiven[epoch.objectId] = epoch.votesGivenByCaller;
-          votesRemaining[epoch.objectId] = epoch.votesRemaining;
+          votesGivenByCaller[epoch.objectId] = epoch.votesGivenByCaller;
+          votesRemainingByCaller[epoch.objectId] = epoch.votesRemaining;
         }
-
+        setVotesGiven(votesGivenByCaller);
+        setVotesRemaining(votesRemainingByCaller);
         setIsLoading(false);
       })
       .catch((err: any) => alert(err));
@@ -164,7 +122,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
       <Accordion hidden>
         <AccordionSummary />
       </Accordion>
-      {epochs.map((epoch, index) => (
+      {data.epochs?.map((epoch, index) => (
         <Accordion
           disableGutters
           key={index}
@@ -213,16 +171,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                         <TableCell align="right" sx={{ color: "#99ccff" }}>
                           Votes Given
                         </TableCell>
-                        {/* {epoch.active === false &&
-                          (data.access === "admin" ? (
-                            <TableCell align="right" sx={{ color: "#99ccff" }}>
-                              Value
-                            </TableCell>
-                          ) : (
-                            <TableCell align="right" sx={{ color: "#99ccff" }}>
-                              Votes Given
-                            </TableCell>
-                          ))} */}
                         {epoch.active === false && (
                           <TableCell align="right" sx={{ color: "#99ccff" }}>
                             Value
@@ -249,29 +197,33 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                             </TableCell>
                             {!isLoading && (
                               <TableCell align="right">
-                                <TextField
-                                  id="filled-hidden-label-normal"
-                                  value={votesGiven[epoch.objectId][choice]}
-                                  type="number"
-                                  placeholder="Value"
-                                  inputProps={{
-                                    readOnly: !epoch.active,
-                                  }}
-                                  size="small"
-                                  sx={{ width: "30%" }}
-                                  onChange={(event) => {
-                                    handleVotesRemaining(
-                                      epoch.objectId,
-                                      choice,
-                                      parseInt(event.target.value)
-                                    );
-                                    handleVotesGiven(
-                                      epoch.objectId,
-                                      choice,
-                                      parseInt(event.target.value)
-                                    );
-                                  }}
-                                />
+                                {Object.keys(votesGiven).includes(
+                                  epoch.objectId
+                                ) && (
+                                  <TextField
+                                    id="filled-hidden-label-normal"
+                                    value={votesGiven[epoch.objectId][choice]}
+                                    type="number"
+                                    placeholder="Value"
+                                    inputProps={{
+                                      readOnly: !epoch.active,
+                                    }}
+                                    size="small"
+                                    sx={{ width: "30%" }}
+                                    onChange={(event) => {
+                                      handleVotesRemaining(
+                                        epoch.objectId,
+                                        choice,
+                                        parseInt(event.target.value)
+                                      );
+                                      handleVotesGiven(
+                                        epoch.objectId,
+                                        choice,
+                                        parseInt(event.target.value)
+                                      );
+                                    }}
+                                  />
+                                )}
                               </TableCell>
                             )}
                             {epoch.active === false && (
@@ -364,69 +316,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                   ) : (
                     <ButtonContainer>
                       {epoch.type === "Contribution" ? (
-                        <PrimaryButton
-                          endIcon={<PaidIcon />}
-                          variant="outlined"
-                          sx={{
-                            mx: 4,
-                            pt: 1,
-                            borderRadius: 1,
-                          }}
-                          size="small"
-                          onClick={() => {
-                            var dynamicSteps: string[] = [];
-                            var batchPayInfo = {} as BatchPayInfo;
-                            setIsLoading(true);
-                            getRequiredApprovals(
-                              [epoch.token.address as string],
-                              [epoch.budget]
-                            ).then((pendingApprovals: any) => {
-                              console.log(pendingApprovals);
-                              if (pendingApprovals.tokenAddresses.length > 0) {
-                                batchPayInfo.aggregatedTokenValues =
-                                  pendingApprovals.tokenValues;
-                                batchPayInfo.uniqueTokenAddresses =
-                                  pendingApprovals.tokenAddresses;
-                                dynamicSteps.push(
-                                  `Approve on ${
-                                    registryTemp[window.ethereum.networkVersion]
-                                      .name
-                                  }`
-                                );
-                                setActiveStep(0);
-                              } else {
-                                setActiveStep(1);
-                              }
-                              dynamicSteps.push(
-                                `Distribute on ${
-                                  registryTemp[window.ethereum.networkVersion]
-                                    .name
-                                }`
-                              );
-
-                              batchPayInfo.tokenValues = Object.values(
-                                epoch.values
-                              );
-                              batchPayInfo.contributors = Object.keys(
-                                epoch.values
-                              );
-                              batchPayInfo.tokenAddresses = Array(
-                                batchPayInfo.contributors.length
-                              ).fill(epoch.token.address);
-
-                              console.log(batchPayInfo);
-                              console.log(dynamicSteps);
-                              console.log(activeStep);
-
-                              setBatchPayMetadata(batchPayInfo);
-                              setSteps(dynamicSteps);
-                              setIsOpen(true);
-                              setIsLoading(false);
-                            });
-                          }}
-                        >
-                          Payout countributors
-                        </PrimaryButton>
+                        <PayoutButton epoch={epoch} />
                       ) : (
                         <PrimaryButton
                           endIcon={<PaidIcon />}
@@ -438,20 +328,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                           Set task rewards
                         </PrimaryButton>
                       )}
-                      <PrimaryButton
-                        endIcon={<DownloadIcon />}
-                        variant="outlined"
-                        size="small"
-                        sx={{
-                          pt: 1,
-                          borderRadius: 1,
-                        }}
-                        onClick={() => {
-                          handleExport(epoch);
-                        }}
-                      >
-                        Export to csv
-                      </PrimaryButton>
+                      <CsvExport epoch={epoch} />
                     </ButtonContainer>
                   )}
                 </DetailContainer>
@@ -460,14 +337,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
           </AccordionDetails>
         </Accordion>
       ))}
-      {!isLoading && (
-        <PaymentModal
-          isModalOpen={isOpen}
-          batchPayMetadata={batchPayMetadata}
-          modalSteps={steps}
-          activeModalStep={activeStep}
-        />
-      )}
     </Container>
   );
 };

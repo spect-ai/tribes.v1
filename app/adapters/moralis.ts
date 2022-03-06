@@ -523,3 +523,10 @@ export function completePayment(Moralis: any, taskIds: string[]) {
   console.log(taskIds);
   return Moralis.Cloud.run("completePayment", params);
 }
+
+export function completeEpochPayment(Moralis: any, epochId: string) {
+  const params = {
+    epochId: epochId,
+  };
+  return Moralis.Cloud.run("completeEpochPayment", params);
+}

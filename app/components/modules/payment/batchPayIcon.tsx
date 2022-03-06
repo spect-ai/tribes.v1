@@ -65,7 +65,7 @@ const Payment = ({}: Props) => {
               batchPayInfo.tokenAddresses = res.tokenAddresses;
               batchPayInfo.tokenValues = res.tokenValues;
               batchPayInfo.taskIds = res.taskIds;
-
+              batchPayInfo.type = "task";
               var dynamicSteps: string[] = [];
               console.log(res);
               getRequiredApprovals(

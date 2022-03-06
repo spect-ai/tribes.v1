@@ -13,7 +13,10 @@ import { Box } from "@mui/system";
 import React, { useState, useEffect } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import { PrimaryButton } from "../../elements/styledComponents";
-import { getBatchPayAmount, completePayment } from "../../../adapters/moralis";
+import {
+  completeEpochPayment,
+  completePayment,
+} from "../../../adapters/moralis";
 import { useRouter } from "next/router";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { amountData, registryTemp } from "../../../constants";
@@ -120,7 +123,7 @@ const BatchPay = ({ handleClose, chainId, batchPayInfo }: Props) => {
                   </Grid>
                   <Grid item xs={4}>
                     <Typography color="text.primary" marginLeft="20px">
-                      {batchPayInfo.tokenValues[index]}{" "}
+                      {batchPayInfo.tokenValues[index]?.toFixed(2)}{" "}
                       {registryTemp[chainId].tokens[address].symbol}
                     </Typography>
                   </Grid>
@@ -159,12 +162,22 @@ const BatchPay = ({ handleClose, chainId, batchPayInfo }: Props) => {
                 )
                   .then((res: any) => {
                     console.log(res);
-                    completePayment(Moralis, batchPayInfo.taskIds)
-                      .then((res: any) => {
-                        console.log(res);
-                        setData(res);
-                      })
-                      .catch((err: any) => console.log(err));
+                    if (batchPayInfo.type === "task") {
+                      completePayment(Moralis, batchPayInfo.taskIds)
+                        .then((res: any) => {
+                          console.log(res);
+                          setData(res);
+                        })
+                        .catch((err: any) => alert(err));
+                    } else if (batchPayInfo.type === "epoch") {
+                      completeEpochPayment(Moralis, batchPayInfo.epochId)
+                        .then((res: any) => {
+                          console.log(res);
+                          const temp = Object.assign(data, res);
+                          setData(temp);
+                        })
+                        .catch((err: any) => alert(err));
+                    }
                     setIsLoading(false);
                     handleClose();
                   })

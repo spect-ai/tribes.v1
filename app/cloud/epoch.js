@@ -102,6 +102,8 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     epoch.set("chain", request.params.chain);
     epoch.set("epochNumber", epochCount + 1);
     epoch.set("active", true);
+    epoch.set("paid", false);
+
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return await getEpochsBySpaceId(request.params.spaceId, request.user.id);
   } catch (err) {
@@ -178,7 +180,8 @@ Moralis.Cloud.define("saveVotes", async (request) => {
       memberStats[request.user.id].votesGiven = request.params.votesGiven;
       logger.info(`memberStats ${JSON.stringify(memberStats)}`);
 
-      memberStats[request.user.id].votesRemaining -= totalVotesGiven;
+      memberStats[request.user.id].votesRemaining =
+        memberStats[request.user.id].votesAllocated - totalVotesGiven;
     } else throw "Votes given overshoots votes allocated";
 
     epoch.set("memberStats", memberStats);
@@ -189,6 +192,18 @@ Moralis.Cloud.define("saveVotes", async (request) => {
   } catch (err) {
     logger.error(`Error while saving votes ${err}`);
     throw `Error while saving votes ${err}`;
+  }
+});
+
+Moralis.Cloud.define("completeEpochPayment", async (request) => {
+  try {
+    const epoch = await getEpochParseObjByObjectId(request.params.epochId);
+    epoch.set("paid", true);
+    await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+    return await getEpochsBySpaceId(request.params.spaceId, request.user.id);
+  } catch (err) {
+    logger.error(`Error while getting epochs ${err}`);
+    throw `${err}`;
   }
 });
 
