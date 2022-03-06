@@ -199,7 +199,8 @@ export const registryTemp: Registry = {
     nativeCurrency: "ETHER",
     tokenAddresses: [],
     tokens: {},
-    pictureUrl: "",
+    pictureUrl:
+      "https://ipfs.moralis.io:2053/ipfs/QmXaeURdHVszjDuGCwM7DauTjaASfm8qBZYzETM5ehq7MD",
   },
   "4": {
     name: "rinkeby",
@@ -212,10 +213,12 @@ export const registryTemp: Registry = {
         address: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
         name: "Wrapped Ethereum",
         symbol: "WETH",
-        pictureUrl: "",
+        pictureUrl:
+          "https://ipfs.moralis.io:2053/ipfs/QmXaeURdHVszjDuGCwM7DauTjaASfm8qBZYzETM5ehq7MD",
       },
     },
-    pictureUrl: "",
+    pictureUrl:
+      "https://ipfs.moralis.io:2053/ipfs/QmXaeURdHVszjDuGCwM7DauTjaASfm8qBZYzETM5ehq7MD",
   },
   "137": {
     name: "polygon",
@@ -258,7 +261,8 @@ export const registryTemp: Registry = {
         pictureUrl: "",
       },
     },
-    pictureUrl: "",
+    pictureUrl:
+      "https://ipfs.moralis.io:2053/ipfs/QmRALA5qvQBRwWre8ofuhCbr3wxVmPS3kGetRR9uJqbqqe",
   },
   "43114": {
     name: "avalanche",
@@ -267,7 +271,8 @@ export const registryTemp: Registry = {
     nativeCurrency: "AVAX",
     tokenAddresses: [],
     tokens: {},
-    pictureUrl: "",
+    pictureUrl:
+      "https://ipfs.moralis.io:2053/ipfs/QmRALA5qvQBRwWre8ofuhCbr3wxVmPS3kGetRR9uJqbqqe",
   },
   "80001": {
     name: "mumbai",
@@ -291,7 +296,8 @@ export const registryTemp: Registry = {
         address: "0x326C977E6efc84E512bB9C30f76E30c160eD06FB",
         name: "Chainlink Token",
         symbol: "LINK",
-        pictureUrl: "",
+        pictureUrl:
+          "https://ipfs.moralis.io:2053/ipfs/QmUdtBEt4zaex8NYA5St9iSdnq6JKtJw2ArHpyr49W4XuL",
       },
       "0xBCbfC29df3e0044c4D755423aD00d9B49fE2E62c": {
         address: "0xBCbfC29df3e0044c4D755423aD00d9B49fE2E62c",

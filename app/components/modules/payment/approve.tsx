@@ -7,7 +7,6 @@ import {
   Avatar,
 } from "@mui/material";
 import React, { useState } from "react";
-import { Heading, modalStyle, getNetworkImage } from ".";
 import { PrimaryButton } from "../../elements/styledComponents";
 import Image from "next/image";
 import CloseIcon from "@mui/icons-material/Close";
@@ -21,7 +20,6 @@ interface Props {
   setActiveStep: Function;
   chainId: string;
   approvalInfo: BatchPayInfo;
-  neworkImage: any;
 }
 
 const ApproveModal = ({
@@ -29,9 +27,32 @@ const ApproveModal = ({
   setActiveStep,
   chainId,
   approvalInfo,
-  neworkImage,
 }: Props) => {
-  const [isLoading, setIsLoading] = useState(false);
+  console.log(approvalInfo);
+  const [isLoading, setIsLoading] = useState(
+    Array(approvalInfo.uniqueTokenAddresses?.length).fill(false)
+  );
+  const [isApproved, setIsApproved] = useState(
+    Array(approvalInfo.uniqueTokenAddresses?.length).fill(false)
+  );
+
+  const toggleIsLoading = (index: number) => {
+    setIsLoading(isLoading.map((v, i) => (i === index ? !v : v)));
+  };
+
+  const handleApproval = (index: number) => {
+    const temp = isApproved.filter(() => true);
+    temp[index] = true;
+    setIsApproved(temp);
+
+    return hasApprvoedAll(temp);
+  };
+
+  const hasApprvoedAll = (approved: boolean[]) => {
+    const pendingApprovals = approved.filter((a) => a === false);
+    return pendingApprovals.length > 0 ? false : true;
+  };
+
   return (
     <React.Fragment>
       <Box
@@ -53,14 +74,12 @@ const ApproveModal = ({
             >
               <Grid item xs={3}>
                 <Box style={{ display: "flex" }}>
-                  {neworkImage && (
-                    <Image
-                      src={neworkImage}
-                      alt="eth"
-                      height="26%"
-                      width="35%"
-                    />
-                  )}
+                  <Image
+                    src={registryTemp[chainId].pictureUrl}
+                    alt="networkImg"
+                    height="26%"
+                    width="35%"
+                  />
 
                   <Typography
                     color="text.primary"
@@ -74,7 +93,7 @@ const ApproveModal = ({
               </Grid>
             </Grid>
             {approvalInfo.uniqueTokenAddresses.map(
-              (name: string, index: number) => (
+              (address: string, index: number) => (
                 <Grid
                   container
                   spacing={1}
@@ -95,12 +114,18 @@ const ApproveModal = ({
                       }}
                     >
                       <Avatar
-                        alt=""
-                        src={`https://www.gravatar.com/avatar/${`eewe`}?d=identicon&s=32`}
-                        sx={{ height: 30, width: 30 }}
-                      />
+                        sx={{
+                          width: "2rem",
+                          height: "2rem",
+                          objectFit: "cover",
+                          my: 1,
+                        }}
+                        src={registryTemp[chainId].tokens[address].pictureUrl}
+                      >
+                        {registryTemp[chainId].tokens[address].symbol[0]}
+                      </Avatar>
                       <Typography color="text.primary" marginLeft="20px">
-                        {registryTemp[chainId].tokens[name].symbol}
+                        {registryTemp[chainId].tokens[address].symbol}
                       </Typography>
                     </Box>
                   </Grid>
@@ -110,26 +135,38 @@ const ApproveModal = ({
                     </Typography>
                   </Grid>
                   <Grid item xs={3}>
-                    <PrimaryButton
-                      loading={isLoading}
-                      sx={{ borderRadius: "3px" }}
-                      onClick={() => {
-                        setIsLoading(true);
-                        approve(approvalInfo.uniqueTokenAddresses[index])
-                          .then((res: any) => {
-                            setActiveStep(1);
-                            setIsLoading(false);
-                          })
-                          .catch((err: any) => {
-                            setIsLoading(false);
-                            alert(err.message);
-                          });
-                      }}
-                      variant="outlined"
-                      id="bApprove"
-                    >
-                      Approve
-                    </PrimaryButton>
+                    {isApproved[index] ? (
+                      <PrimaryButton
+                        sx={{ borderRadius: "3px" }}
+                        disabled
+                        variant="outlined"
+                        id="bApprove"
+                      >
+                        Approved
+                      </PrimaryButton>
+                    ) : (
+                      <PrimaryButton
+                        loading={isLoading[index]}
+                        sx={{ borderRadius: "3px" }}
+                        onClick={() => {
+                          toggleIsLoading(index);
+                          approve(approvalInfo.uniqueTokenAddresses[index])
+                            .then((res: any) => {
+                              toggleIsLoading(index);
+                              const hasApprvoedAll = handleApproval(index);
+                              if (hasApprvoedAll) setActiveStep(1);
+                            })
+                            .catch((err: any) => {
+                              toggleIsLoading(index);
+                              alert(err.message);
+                            });
+                        }}
+                        variant="outlined"
+                        id="bApprove"
+                      >
+                        Approve
+                      </PrimaryButton>
+                    )}
                   </Grid>
                 </Grid>
               )

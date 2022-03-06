@@ -18,7 +18,6 @@ import { useRouter } from "next/router";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { amountData, registryTemp } from "../../../constants";
 import Image from "next/image";
-import { Heading, modalStyle, getNetworkImage } from ".";
 import { batchPayTokens } from "../../../adapters/contract";
 import { BatchPayInfo } from ".";
 import { useBoard } from "../taskBoard";
@@ -30,7 +29,6 @@ type Props = {
   handleClose: Function;
   chainId: string;
   batchPayInfo: BatchPayInfo;
-  neworkImage: any;
 };
 
 type MemberDetails = {
@@ -41,12 +39,7 @@ function getEthAddresses(contributors: any, memberDetails: MemberDetails) {
   return contributors.map((a: string) => memberDetails[a].ethAddress);
 }
 
-const BatchPay = ({
-  handleClose,
-  chainId,
-  batchPayInfo,
-  neworkImage,
-}: Props) => {
+const BatchPay = ({ handleClose, chainId, batchPayInfo }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { data, setData } = useBoard();
   const { Moralis, isInitialized } = useMoralis();

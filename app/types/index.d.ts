@@ -41,17 +41,9 @@ export interface Team {
   teamId: number;
   name: string;
   description: string;
-  // treasuryAddress: string;
-  // onchain: boolean;
   members: Array<string>;
   memberDetails: Object<string, Member>;
   roles: Object<string, string>;
-  // organization: string;
-  // organizationVerified: boolean;
-  // openApplications: boolean;
-  // applicationRequirements: boolean;
-  // latestContributionEpoch: string;
-  // latestTaskEpoch: string;
   isPublic: boolean;
   discord: string;
   twitter: string;
@@ -93,25 +85,6 @@ export interface Epoch {
   _updatedAt: object;
   _created_at: any;
 }
-
-// export interface Task {
-//   epochId: number;
-//   title: string;
-//   // id: string;
-//   paid: boolean;
-//   issueNumber: number;
-//   issueLink: string;
-//   onchain: boolean;
-//   source: string;
-//   value: number;
-//   votes: number;
-//   status: number;
-//   assignee: string;
-//   _createdAt: object;
-//   _id: string;
-//   _updatedAt: object;
-//   _created_at: any;
-// }
 
 export interface Token {
   address?: string;
@@ -190,6 +163,7 @@ export interface BoardData {
   memberDetails: Object<string, Member>;
   access: string;
   roles: Object<string, string>;
+  epochs: Epoch[];
   _id: string;
   _createdAt: string;
   team: Team[];

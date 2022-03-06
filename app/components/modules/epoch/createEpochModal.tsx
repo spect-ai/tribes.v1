@@ -27,7 +27,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useBoard } from "../taskBoard";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useMoralis } from "react-moralis";
-import { Member, Chain, Registry, Task, Token } from "../../../types";
+import { Member, Chain, Registry, Task, Token, Epoch } from "../../../types";
 import { startEpoch } from "../../../adapters/moralis";
 import {
   getFlattenedNetworks,
@@ -73,6 +73,8 @@ const CreateEpochModal = (props: Props) => {
       allocations.map((v, i) => (i === index ? value : allocations[i]))
     );
   };
+
+  const handleNewEpochAddition = (epoch: Epoch) => {};
 
   const getMembers = () => {
     var members = [];
@@ -342,6 +344,7 @@ const CreateEpochModal = (props: Props) => {
                   )
                     .then((res: any) => {
                       handleClose();
+                      handleNewEpochAddition(res);
                     })
                     .catch((err: any) => alert(err));
                 }}

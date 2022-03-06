@@ -26,7 +26,7 @@ import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import Link from "next/link";
 import { getBoards } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import Payment from "../payment";
+import Payment from "../payment/batchPayIcon";
 import {
   PrimaryButton,
   StyledTab,
