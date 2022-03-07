@@ -32,7 +32,7 @@ function getEthAddresses(contributors: any, memberDetails: MemberDetails) {
   return contributors.map((a: string) => memberDetails[a].ethAddress);
 }
 
-const BatchPay = ({
+const BatchPayCurrency = ({
   handleNextStep,
   handleClose,
   chainId,
@@ -67,8 +67,7 @@ const BatchPay = ({
         setIsLoading(false);
       });
   };
-
-  const handleStatusUpdate = (event: any, reason: any) => {};
+  console.log(`here`);
   return (
     <React.Fragment>
       <Toaster />
@@ -111,7 +110,7 @@ const BatchPay = ({
                 </Box>
               </Grid>
             </Grid>
-            {batchPayInfo.contributors.map(
+            {batchPayInfo.currencyContributors.map(
               (contributor: string, index: number) => (
                 <Grid
                   container
@@ -139,12 +138,8 @@ const BatchPay = ({
                   </Grid>
                   <Grid item xs={4}>
                     <Typography color="text.primary" marginLeft="20px">
-                      {batchPayInfo.tokenValues[index]?.toFixed(2)}{" "}
-                      {
-                        registryTemp[chainId].tokens[
-                          batchPayInfo.tokenAddresses[index]
-                        ].symbol
-                      }
+                      {batchPayInfo.currencyValues[index]?.toFixed(2)}{" "}
+                      {registryTemp[chainId].nativeCurrency}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -171,13 +166,12 @@ const BatchPay = ({
               sx={{ borderRadius: "3px" }}
               onClick={() => {
                 setIsLoading(true);
-                batchPayTokens(
-                  batchPayInfo.tokenAddresses,
+                distributeEther(
                   getEthAddresses(
-                    batchPayInfo.contributors,
+                    batchPayInfo.currencyContributors,
                     data.memberDetails
                   ),
-                  batchPayInfo.tokenValues,
+                  batchPayInfo.currencyValues,
                   "123",
                   window.ethereum.networkVersion
                 )
@@ -185,7 +179,7 @@ const BatchPay = ({
                     console.log(res);
                     if (batchPayInfo.type === "task") {
                       handleTaskStatusUpdate(
-                        batchPayInfo.taskIdsWithTokenPayment
+                        batchPayInfo.taskIdsWithCurrencyPayment
                       );
                     } else if (batchPayInfo.type === "epoch") {
                       handleEpochStatusUpdate(batchPayInfo.epochId);
@@ -210,4 +204,4 @@ const BatchPay = ({
   );
 };
 
-export default BatchPay;
+export default BatchPayCurrency;

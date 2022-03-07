@@ -9,16 +9,19 @@ import { useGlobal } from "../../../context/globalContext";
 import { Registry } from "../../../types";
 import { registryTemp } from "../../../constants";
 import PaymentModal, { BatchPayInfo } from ".";
+import { capitalizeFirstLetter } from "../../../utils/utils";
 
 interface Props {}
 
 export async function getRequiredApprovals(
   uniqueTokenAddresses: string[],
-  aggregatedTokenValues: number[]
+  aggregatedTokenValues: number[],
+  chainId: string
 ) {
   const isApprovalRequired = await getPendingApprovals(
     uniqueTokenAddresses as string[],
-    aggregatedTokenValues as number[]
+    aggregatedTokenValues as number[],
+    chainId
   );
 
   var tokenAddresses = [];
@@ -38,6 +41,8 @@ const Payment = ({}: Props) => {
   const [batchPayMetadata, setBatchPayMetadata] = useState({} as BatchPayInfo);
   const [steps, setSteps] = useState([] as any);
   const [activeStep, setActiveStep] = useState(0);
+  const [maxActiveStep, setMaxActiveStep] = useState(0);
+
   const [validStepNumbers, setValidStepNumbers] = useState([] as any);
   const {
     state: { registry },
@@ -55,22 +60,31 @@ const Payment = ({}: Props) => {
           onClick={() => {
             setIsLoading(true);
             console.log(registry);
+            console.log(window.ethereum.networkVersion);
             getBatchPayAmount(
               Moralis,
               bid as string,
               window.ethereum.networkVersion
             ).then((res: BatchPayInfo) => {
               var batchPayInfo = {} as BatchPayInfo;
+              batchPayInfo.currencyContributors = res.currencyContributors;
+              batchPayInfo.currencyValues = res.currencyValues;
               batchPayInfo.contributors = res.contributors;
               batchPayInfo.tokenAddresses = res.tokenAddresses;
               batchPayInfo.tokenValues = res.tokenValues;
-              batchPayInfo.taskIds = res.taskIds;
+              batchPayInfo.taskIdsWithTokenPayment =
+                res.taskIdsWithTokenPayment;
+              batchPayInfo.taskIdsWithCurrencyPayment =
+                res.taskIdsWithCurrencyPayment;
+
               batchPayInfo.type = "task";
               var dynamicSteps: string[] = [];
+              var activeStep: number;
               console.log(res);
               getRequiredApprovals(
                 res.uniqueTokenAddresses,
-                res.aggregatedTokenValues
+                res.aggregatedTokenValues,
+                window.ethereum.networkVersion
               ).then((pendingApprovals: any) => {
                 if (pendingApprovals.tokenAddresses.length > 0) {
                   batchPayInfo.aggregatedTokenValues =
@@ -78,19 +92,37 @@ const Payment = ({}: Props) => {
                   batchPayInfo.uniqueTokenAddresses =
                     pendingApprovals.tokenAddresses;
                   dynamicSteps.push(
-                    `Approve on ${
+                    `Approve tokens on ${capitalizeFirstLetter(
                       registryTemp[window.ethereum.networkVersion].name
-                    }`
+                    )}`
                   );
-                  setActiveStep(0);
-                } else {
-                  setActiveStep(1);
+                  activeStep = 0;
+                  setMaxActiveStep(0);
                 }
-                dynamicSteps.push(
-                  `Distribute on ${
-                    registryTemp[window.ethereum.networkVersion].name
-                  }`
-                );
+
+                if (batchPayInfo.tokenAddresses.length > 0) {
+                  dynamicSteps.push(
+                    `Distribute tokens on ${capitalizeFirstLetter(
+                      registryTemp[window.ethereum.networkVersion].name
+                    )}`
+                  );
+                  activeStep = activeStep === 0 ? activeStep : 1;
+                  setMaxActiveStep(1);
+                }
+                if (batchPayInfo.currencyContributors.length > 0) {
+                  dynamicSteps.push(
+                    `Distribute ${
+                      registryTemp[window.ethereum.networkVersion]
+                        .nativeCurrency
+                    } on ${capitalizeFirstLetter(
+                      registryTemp[window.ethereum.networkVersion].name
+                    )}`
+                  );
+                  activeStep =
+                    activeStep === 0 || activeStep === 1 ? activeStep : 2;
+                  setMaxActiveStep(2);
+                }
+                setActiveStep(activeStep);
                 setBatchPayMetadata(batchPayInfo);
                 setSteps(dynamicSteps);
                 setIsOpen(true);
@@ -108,6 +140,7 @@ const Payment = ({}: Props) => {
           batchPayMetadata={batchPayMetadata}
           modalSteps={steps}
           activeModalStep={activeStep}
+          maxModalActiveStep={maxActiveStep}
         />
       )}
     </>

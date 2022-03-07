@@ -16,6 +16,7 @@ import { registryTemp } from "../../../constants";
 import { capitalizeFirstLetter } from "../../../utils/utils";
 
 interface Props {
+  handleNextStep: Function;
   handleClose: Function;
   setActiveStep: Function;
   chainId: string;
@@ -23,6 +24,7 @@ interface Props {
 }
 
 const ApproveModal = ({
+  handleNextStep,
   handleClose,
   setActiveStep,
   chainId,
@@ -74,11 +76,14 @@ const ApproveModal = ({
             >
               <Grid item xs={3}>
                 <Box style={{ display: "flex" }}>
-                  <Image
+                  <Avatar
                     src={registryTemp[chainId].pictureUrl}
-                    alt="networkImg"
-                    height="26%"
-                    width="35%"
+                    sx={{
+                      width: "2rem",
+                      height: "2rem",
+                      objectFit: "cover",
+                      my: 1,
+                    }}
                   />
 
                   <Typography
@@ -150,11 +155,14 @@ const ApproveModal = ({
                         sx={{ borderRadius: "3px" }}
                         onClick={() => {
                           toggleIsLoading(index);
-                          approve(approvalInfo.uniqueTokenAddresses[index])
+                          approve(
+                            window.ethereum.networkVersion,
+                            approvalInfo.uniqueTokenAddresses[index]
+                          )
                             .then((res: any) => {
                               toggleIsLoading(index);
                               const hasApprvoedAll = handleApproval(index);
-                              if (hasApprvoedAll) setActiveStep(1);
+                              if (hasApprvoedAll) handleNextStep();
                             })
                             .catch((err: any) => {
                               toggleIsLoading(index);

@@ -217,6 +217,7 @@ export const registryTemp: Registry = {
           "https://ipfs.moralis.io:2053/ipfs/QmXaeURdHVszjDuGCwM7DauTjaASfm8qBZYzETM5ehq7MD",
       },
     },
+    distributorAddress: "0xD620b76e0dE2A776449E2969Bf8B725ECDA5b66e",
     pictureUrl:
       "https://ipfs.moralis.io:2053/ipfs/QmXaeURdHVszjDuGCwM7DauTjaASfm8qBZYzETM5ehq7MD",
   },
@@ -252,15 +253,18 @@ export const registryTemp: Registry = {
         address: "0x08a978a0399465621e667C49CD54CC874DC064Eb",
         name: "Avalanche Tether",
         symbol: "ausdt",
-        pictureUrl: "",
+        pictureUrl:
+          "https://ipfs.moralis.io:2053/ipfs/QmdUshyLUMRgwy6Wirj6r3dwQsUddmrG2tVVfPXN8XfCjd",
       },
       "0xf672c3cDD3C143C05Aada34f50d4ad519558994F": {
         address: "0xf672c3cDD3C143C05Aada34f50d4ad519558994F",
         name: "Avalanche Chainlink Token",
         symbol: "alink",
-        pictureUrl: "",
+        pictureUrl:
+          "https://ipfs.moralis.io:2053/ipfs/QmUdtBEt4zaex8NYA5St9iSdnq6JKtJw2ArHpyr49W4XuL",
       },
     },
+    distributorAddress: "0xD620b76e0dE2A776449E2969Bf8B725ECDA5b66e",
     pictureUrl:
       "https://ipfs.moralis.io:2053/ipfs/QmRALA5qvQBRwWre8ofuhCbr3wxVmPS3kGetRR9uJqbqqe",
   },

@@ -292,11 +292,17 @@ export function updateTaskReward(
   value: number,
   taskId: string
 ) {
+  if (token.hasOwnProperty("address")) var nativeCurrencyPayment = false;
+  else var nativeCurrencyPayment = true;
+  console.log(`nativeCurrencyPayment`);
+
+  console.log(nativeCurrencyPayment);
   const params = {
     chain: chain,
     token: token,
     value: value,
     taskId: taskId,
+    nativeCurrencyPayment: nativeCurrencyPayment,
   };
   return Moralis.Cloud.run("updateTaskReward", params);
 }

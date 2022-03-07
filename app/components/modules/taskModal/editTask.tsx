@@ -457,13 +457,15 @@ const EditTask = ({
                         ? distributeEther(
                             [data.memberDetails[task.assignee[0]].ethAddress],
                             [task.value],
-                            task.taskId
+                            task.taskId,
+                            window.ethereum.networkVersion
                           )
                         : batchPayTokens(
                             [task.token.address as string],
                             [data.memberDetails[task.assignee[0]].ethAddress],
                             [task.value],
-                            task.taskId
+                            task.taskId,
+                            window.ethereum.networkVersion
                           );
                     }}
                   >
@@ -491,55 +493,9 @@ const EditTask = ({
                   </TaskButton>
                 )}
               </Box>
-              {/*task.status === 200 && (
-                <FieldContainer>
-                  <PrimaryButton
-                    variant="contained"
-                    color="primary"
-                    endIcon={<DoneIcon />}
-                    onClick={() =>
-                      closeTask(Moralis, task.taskId).then((res: any) => {
-                        setData(res);
-                      })
-                    }
-                    hidden={!task.access.creator}
-                  >
-                    Close
-                  </PrimaryButton>
-                </FieldContainer>
-                  )*/}
-              {/*task.status === 205 && (
-                <FieldContainer>
-                  <PrimaryButton
-                    variant="contained"
-                    color="primary"
-                    endIcon={<MonetizationOnIcon />}
-                    onClick={() =>
-                      distributeEther(
-                        [data.memberDetails[task.assignee[0]].ethAddress],
-                        [task.value],
-                        task.taskId
-                      )
-                    }
-                    hidden={!task.access.creator}
-                  >
-                    Pay
-                  </PrimaryButton>
-                </FieldContainer>
-                  )*/}
             </TaskModalBodyContainer>
           </Box>
         </Grid>
-        {/* <PrimaryButton
-          variant="outlined"
-          fullWidth
-          sx={{ width: "30%" }}
-          type="submit"
-          loading={loading}
-          disabled={!isDirty}
-        >
-          Save
-        </PrimaryButton> */}
       </Grid>
     </Container>
   );

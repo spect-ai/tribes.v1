@@ -280,7 +280,7 @@ Moralis.Cloud.define("updateTaskReward", async (request) => {
       request.params.value,
       request.params.token,
       request.params.chain,
-      false
+      request.params.nativeCurrencyPayment
     );
     logger.info(
       `Handled reward field for task with id ${JSON.stringify(
@@ -461,6 +461,8 @@ function handleRewardUpdate(task, userId, value, token, chain, currencyFlag) {
   if (currencyFlag) {
     if (isTaskCreator(task, userId) && value > 0) {
       task.set("value", parseFloat(value));
+      task.set("token", token);
+      task.set("chain", chain);
       task.set("nativeCurrencyPayment", true);
     }
   } else {
@@ -472,6 +474,7 @@ function handleRewardUpdate(task, userId, value, token, chain, currencyFlag) {
       task.set("value", parseFloat(value));
       task.set("token", token);
       task.set("chain", chain);
+      task.set("nativeCurrencyPayment", false);
     }
   }
   return task;
@@ -573,16 +576,17 @@ async function handleColumnChange(boardId, taskId, sourceId, destinationId) {
   }
 }
 
-Moralis.Cloud.define("getBatchPayAmount", async (request) => {
+async function getTokenRewardAmounts(chainId, boardId) {
   const taskQuery = new Moralis.Query("Task");
   const pipeline = [
     {
       match: {
-        boardId: request.params.boardId,
+        boardId: boardId,
         status: 205,
         value: { $gt: 0 },
+        nativeCurrencyPayment: { $ne: true },
         $expr: {
-          $eq: ["$chain.chainId", request.params.chainId],
+          $eq: ["$chain.chainId", chainId],
         },
       },
     },
@@ -596,43 +600,48 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
       },
     },
   ];
-  const tasks = await taskQuery.aggregate(pipeline);
-  logger.info(`tyasks ${JSON.stringify(tasks)}`);
+  const tokenRewardAmounts = await taskQuery.aggregate(pipeline);
+  return tokenRewardAmounts;
+}
 
-  var res = {
-    contributors: [],
-    tokenAddresses: [],
-    tokenValues: [],
-    uniqueTokenAddresses: [],
-    aggregatedTokenValues: [],
-  };
-  var aggregatedTokenValues = {};
+async function getCurrencyRewardAmounts(chainId, boardId) {
+  const taskQuery = new Moralis.Query("Task");
+  const pipeline = [
+    {
+      match: {
+        boardId: boardId,
+        status: 205,
+        value: { $gt: 0 },
+        nativeCurrencyPayment: { $eq: true },
+        $expr: {
+          $eq: ["$chain.chainId", chainId],
+        },
+      },
+    },
+    {
+      group: {
+        objectId: {
+          assigneeId: "$assignee",
+        },
+        value: { $sum: "$value" },
+      },
+    },
+  ];
+  const currecyRewardAmounts = await taskQuery.aggregate(pipeline);
+  return currecyRewardAmounts;
+}
 
-  for (var task of tasks) {
-    if (task.objectId.assigneeId.length > 0) {
-      res.contributors.push(task.objectId.assigneeId[0]);
-      res.tokenAddresses.push(task.objectId.tokenAddress);
-      res.tokenValues.push(task.value);
-
-      if (!(task.objectId.tokenAddress in aggregatedTokenValues)) {
-        aggregatedTokenValues[task.objectId.tokenAddress] = 0;
-      }
-      aggregatedTokenValues[task.objectId.tokenAddress] += task.value;
-    }
-  }
-
-  res.uniqueTokenAddresses = Object.keys(aggregatedTokenValues);
-  res.aggregatedTokenValues = Object.values(aggregatedTokenValues);
-
+async function getTaskIdsWithPendingTokenPayments(chainId, boardId) {
   var taskIdQuery = new Moralis.Query("Task");
   const pipelineIdQuery = [
     {
       match: {
-        boardId: request.params.boardId,
+        boardId: boardId,
         status: 205,
+        nativeCurrencyPayment: { $ne: true },
         value: { $gt: 0 },
         $expr: {
-          $eq: ["$chain.chainId", request.params.chainId],
+          $eq: ["$chain.chainId", chainId],
         },
       },
     },
@@ -644,8 +653,94 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
   ];
   const taskIds = await taskIdQuery.aggregate(pipelineIdQuery);
   logger.info(`taskIds ${JSON.stringify(taskIds)}`);
+  return taskIds.map((a) => a.taskId);
+}
 
-  res.taskIds = taskIds.map((a) => a.taskId);
+async function getTaskIdsWithPendingCurrencyPayments(chainId, boardId) {
+  var taskIdQuery = new Moralis.Query("Task");
+  const pipelineIdQuery = [
+    {
+      match: {
+        boardId: boardId,
+        status: 205,
+        nativeCurrencyPayment: { $eq: true },
+        value: { $gt: 0 },
+        $expr: {
+          $eq: ["$chain.chainId", chainId],
+        },
+      },
+    },
+    {
+      project: {
+        taskId: 1,
+      },
+    },
+  ];
+  const taskIds = await taskIdQuery.aggregate(pipelineIdQuery);
+  logger.info(`taskIds ${JSON.stringify(taskIds)}`);
+  return taskIds.map((a) => a.taskId);
+}
+
+Moralis.Cloud.define("getBatchPayAmount", async (request) => {
+  var res = {
+    contributors: [],
+    tokenAddresses: [],
+    tokenValues: [],
+    uniqueTokenAddresses: [],
+    aggregatedTokenValues: [],
+    currencyContributors: [],
+    currencyValues: [],
+    taskIdsWithTokenPayment: [],
+    taskIdsWithCurrencyPayment: [],
+  };
+
+  // Get task Ids pending payment
+  res.taskIdsWithTokenPayment = await getTaskIdsWithPendingTokenPayments(
+    request.params.chainId,
+    request.params.boardId
+  );
+  res.taskIdsWithCurrencyPayment = await getTaskIdsWithPendingCurrencyPayments(
+    request.params.chainId,
+    request.params.boardId
+  );
+
+  // Get and process token rewards
+  const tokenRewardAmounts = await getTokenRewardAmounts(
+    request.params.chainId,
+    request.params.boardId
+  );
+  var aggregatedTokenValues = {};
+
+  for (var rewardAmount of tokenRewardAmounts) {
+    if (rewardAmount.objectId.assigneeId.length > 0) {
+      res.contributors.push(rewardAmount.objectId.assigneeId[0]);
+      res.tokenAddresses.push(rewardAmount.objectId.tokenAddress);
+      res.tokenValues.push(rewardAmount.value);
+
+      if (!(rewardAmount.objectId.tokenAddress in aggregatedTokenValues)) {
+        aggregatedTokenValues[rewardAmount.objectId.tokenAddress] = 0;
+      }
+      aggregatedTokenValues[rewardAmount.objectId.tokenAddress] +=
+        rewardAmount.value;
+    }
+  }
+
+  res.uniqueTokenAddresses = Object.keys(aggregatedTokenValues);
+  res.aggregatedTokenValues = Object.values(aggregatedTokenValues);
+
+  // Get and process currency rewards
+  const currencyRewardAmounts = await getCurrencyRewardAmounts(
+    request.params.chainId,
+    request.params.boardId
+  );
+
+  for (var rewardAmount of currencyRewardAmounts) {
+    if (rewardAmount.objectId.assigneeId.length > 0) {
+      res.currencyContributors.push(rewardAmount.objectId.assigneeId[0]);
+      res.currencyValues.push(rewardAmount.value);
+    }
+  }
+
   logger.info(`res ${JSON.stringify(res)}`);
 
   return res;

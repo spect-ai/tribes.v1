@@ -4,6 +4,7 @@ import ERC20 from "../contracts/mumbai/erc20.json";
 import distributorABI from "../contracts/mumbai/distributor.json";
 import distributorAddress from "../contracts/mumbai/distributor-address.json";
 import { Epoch, Task } from "../types";
+import { registryTemp } from "../constants";
 
 export function initializeMumbaiContracts() {
   const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -17,10 +18,10 @@ export function initializeMumbaiContracts() {
   };
 }
 
-function getContract() {
+function getDistributorContract(chainId: string) {
   const provider = new ethers.providers.Web3Provider((window as any).ethereum);
   return new ethers.Contract(
-    distributorAddress.Distributor,
+    registryTemp[chainId].distributorAddress as string,
     distributorABI.abi,
     provider.getSigner()
   );
@@ -34,9 +35,10 @@ function getERC20Contract(address: string) {
 export async function distributeEther(
   contributors: any,
   values: any,
-  taskId: string
+  taskId: string,
+  chainId: string
 ) {
-  let contract = getContract();
+  let contract = getDistributorContract(chainId);
   var valuesInWei = [];
   var totalValue = 0;
   for (var val of values) {
@@ -68,17 +70,22 @@ export function fromWei(val: any) {
   return ethers.utils.formatEther(val);
 }
 
-export async function approve(address: string) {
+export async function approve(chainId: string, address: string) {
   let contract = getERC20Contract(address);
   let tx = await contract.approve(
-    distributorAddress.Distributor,
+    registryTemp[chainId].distributorAddress,
     ethers.constants.MaxInt256
   );
   return tx.wait();
 }
 
-export function getPendingApprovals(addresses: string[], values: number[]) {
-  let contract = getContract();
+export function getPendingApprovals(
+  addresses: string[],
+  values: number[],
+  chainId: string
+) {
+  console.log(`chainId ${chainId}`);
+  let contract = getDistributorContract(chainId);
   var valuesInWei = values.map((v) => ethers.utils.parseEther(v.toString()));
   return contract.pendingApprovals(addresses, valuesInWei);
 }
@@ -87,7 +94,8 @@ export async function batchPayTokens(
   tokenAddresses: string[],
   recipients: string[],
   values: number[],
-  taskIds: string
+  taskIds: string,
+  chainId: string
 ) {
   [tokenAddresses, recipients, values] = filterInvalidValues(
     tokenAddresses,
@@ -95,7 +103,7 @@ export async function batchPayTokens(
     values
   );
   var valuesInWei = values.map((v) => ethers.utils.parseEther(v.toString()));
-  let contract = getContract();
+  let contract = getDistributorContract(chainId);
   const tx = await contract.distributeTokens(
     tokenAddresses,
     recipients,

@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import ApproveModal from "./approve";
 import BatchPay from "./batchPay";
+import BatchPayCurrency from "./batchPayCurrency";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { useGlobal } from "../../../context/globalContext";
@@ -20,15 +21,19 @@ interface Props {
   batchPayMetadata: BatchPayInfo;
   modalSteps: string[];
   activeModalStep: number;
+  maxModalActiveStep: number;
 }
 
 export interface BatchPayInfo {
+  currencyContributors: Array<string>;
+  currencyValues: Array<number>;
   contributors: Array<string>;
   tokenAddresses: Array<string>;
   tokenValues: Array<number>;
   aggregatedTokenValues: Array<number>;
   uniqueTokenAddresses: Array<string>;
-  taskIds: Array<string>;
+  taskIdsWithTokenPayment: Array<string>;
+  taskIdsWithCurrencyPayment: Array<string>;
   epochId: string;
   type: string;
 }
@@ -38,10 +43,13 @@ const PaymentModal = ({
   batchPayMetadata,
   modalSteps,
   activeModalStep,
+  maxModalActiveStep,
 }: Props) => {
   const [isOpen, setIsOpen] = useState(isModalOpen);
   const [steps, setSteps] = useState(modalSteps);
   const [activeStep, setActiveStep] = useState(activeModalStep);
+  const [maxActiveStep, setMaxActiveStep] = useState(maxModalActiveStep);
+
   const {
     state: { registry },
   } = useGlobal();
@@ -50,7 +58,7 @@ const PaymentModal = ({
     setIsOpen(false);
   };
   const handleNextStep = () => {
-    if (activeStep === steps.length) {
+    if (activeStep === maxActiveStep) {
       setIsOpen(false);
     } else {
       setActiveStep(activeStep + 1);
@@ -75,6 +83,7 @@ const PaymentModal = ({
         {activeStep === 0 && isOpen && (
           <ApproveModal
             handleClose={handleClose}
+            handleNextStep={handleNextStep}
             setActiveStep={setActiveStep}
             approvalInfo={batchPayMetadata}
             chainId={window.ethereum.networkVersion}
@@ -83,6 +92,15 @@ const PaymentModal = ({
         {activeStep === 1 && isOpen && (
           <BatchPay
             handleClose={handleClose}
+            handleNextStep={handleNextStep}
+            chainId={window.ethereum.networkVersion}
+            batchPayInfo={batchPayMetadata}
+          />
+        )}
+        {activeStep === 2 && isOpen && (
+          <BatchPayCurrency
+            handleClose={handleClose}
+            handleNextStep={handleNextStep}
             chainId={window.ethereum.networkVersion}
             batchPayInfo={batchPayMetadata}
           />
