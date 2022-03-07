@@ -153,6 +153,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                 {epoch.type}
               </Typography>
               {epoch.active && <Chip label="Ongoing" color="primary" />}
+              {epoch.paid && <Chip label="Paid" color="success" />}
             </Box>
           </AccordionSummary>
           <AccordionDetails sx={{ backgroundColor: "#000f29" }}>
@@ -178,64 +179,115 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {epoch.choices
-                        .filter((ele: string) => ele !== user?.id)
-                        .map((choice, index) => (
-                          <TableRow
-                            key={index}
-                            sx={{
-                              "&:last-child td, &:last-child th": {
-                                border: 0,
-                              },
-                            }}
-                          >
-                            <TableCell component="th" scope="row">
-                              {epoch.type === "Contribution"
-                                ? data.memberDetails[choice].username
-                                : epoch.taskDetails[choice].title}
-                            </TableCell>
-                            {!isLoading && (
-                              <TableCell align="right">
-                                {Object.keys(votesGiven).includes(
-                                  epoch.objectId
-                                ) && (
-                                  <TextField
-                                    id="filled-hidden-label-normal"
-                                    value={votesGiven[epoch.objectId][choice]}
-                                    type="number"
-                                    placeholder="Value"
-                                    inputProps={{
-                                      readOnly: !epoch.active,
-                                    }}
-                                    size="small"
-                                    error={votesRemaining[epoch.objectId] < 0}
-                                    sx={{ width: "30%" }}
-                                    onChange={(event) => {
-                                      handleVotesRemaining(
-                                        epoch.objectId,
-                                        choice,
-                                        parseInt(event.target.value)
-                                      );
-                                      handleVotesGiven(
-                                        epoch.objectId,
-                                        choice,
-                                        parseInt(event.target.value)
-                                      );
-                                    }}
-                                  />
+                      {epoch.active
+                        ? epoch.choices
+                            .filter((ele: string) => ele !== user?.id)
+                            .map((choice, index) => (
+                              <TableRow
+                                key={index}
+                                sx={{
+                                  "&:last-child td, &:last-child th": {
+                                    border: 0,
+                                  },
+                                }}
+                              >
+                                <TableCell component="th" scope="row">
+                                  {epoch.type === "Contribution"
+                                    ? data.memberDetails[choice].username
+                                    : epoch.taskDetails[choice].title}
+                                </TableCell>
+                                {!isLoading && (
+                                  <TableCell align="right">
+                                    {Object.keys(votesGiven).includes(
+                                      epoch.objectId
+                                    ) && (
+                                      <TextField
+                                        id="filled-hidden-label-normal"
+                                        value={
+                                          votesGiven[epoch.objectId][choice]
+                                        }
+                                        type="number"
+                                        placeholder="Value"
+                                        inputProps={{
+                                          readOnly: !epoch.active,
+                                        }}
+                                        size="small"
+                                        error={
+                                          votesRemaining[epoch.objectId] < 0
+                                        }
+                                        sx={{ width: "30%" }}
+                                        onChange={(event) => {
+                                          handleVotesRemaining(
+                                            epoch.objectId,
+                                            choice,
+                                            parseInt(event.target.value)
+                                          );
+                                          handleVotesGiven(
+                                            epoch.objectId,
+                                            choice,
+                                            parseInt(event.target.value)
+                                          );
+                                        }}
+                                      />
+                                    )}
+                                  </TableCell>
                                 )}
+                              </TableRow>
+                            ))
+                        : epoch.choices.map((choice, index) => (
+                            <TableRow
+                              key={index}
+                              sx={{
+                                "&:last-child td, &:last-child th": {
+                                  border: 0,
+                                },
+                              }}
+                            >
+                              <TableCell component="th" scope="row">
+                                {epoch.type === "Contribution"
+                                  ? data.memberDetails[choice].username
+                                  : epoch.taskDetails[choice].title}
                               </TableCell>
-                            )}
-                            {epoch.active === false && (
+                              {!isLoading && (
+                                <TableCell align="right">
+                                  {Object.keys(votesGiven).includes(
+                                    epoch.objectId
+                                  ) && (
+                                    <TextField
+                                      id="filled-hidden-label-normal"
+                                      value={votesGiven[epoch.objectId][choice]}
+                                      type="number"
+                                      placeholder="Value"
+                                      inputProps={{
+                                        readOnly: !epoch.active,
+                                      }}
+                                      size="small"
+                                      error={votesRemaining[epoch.objectId] < 0}
+                                      sx={{ width: "30%" }}
+                                      onChange={(event) => {
+                                        handleVotesRemaining(
+                                          epoch.objectId,
+                                          choice,
+                                          parseInt(event.target.value)
+                                        );
+                                        handleVotesGiven(
+                                          epoch.objectId,
+                                          choice,
+                                          parseInt(event.target.value)
+                                        );
+                                      }}
+                                    />
+                                  )}
+                                </TableCell>
+                              )}
                               <TableCell align="right">
                                 {choice in epoch.values && epoch.values[choice]
                                   ? epoch.values[choice].toFixed(2)
                                   : 0}{" "}
                                 {epoch.token.symbol}
                               </TableCell>
-                            )}
-                          </TableRow>
-                        ))}
+                            </TableRow>
+                          ))}
                     </TableBody>
                   </Table>
                 </TableContainer>

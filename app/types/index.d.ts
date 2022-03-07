@@ -81,6 +81,7 @@ export interface Epoch {
   budget: number;
   objectId: string;
   nativeCurrencyPayment: boolean;
+  paid: boolean;
   _createdAt: object;
   _id: string;
   _updatedAt: object;

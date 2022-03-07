@@ -21,7 +21,7 @@ async function getEpochsBySpaceId(spaceId, callerId) {
       epoch.votesRemaining = epoch.memberStats[callerId].votesRemaining;
     }
   }
-  return epochs;
+  return epochs.reverse();
 }
 
 async function getEpochByObjectId(objectId, callerId) {
