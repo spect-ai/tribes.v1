@@ -41,7 +41,6 @@ const BatchPayCurrency = ({
   const [isLoading, setIsLoading] = useState(false);
   const { data, setData } = useBoard();
   const { Moralis, isInitialized } = useMoralis();
-
   const handleTaskStatusUpdate = (taskIds: string[]) => {
     completePayment(Moralis, taskIds)
       .then((res: any) => {

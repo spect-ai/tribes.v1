@@ -45,11 +45,16 @@ const PaymentModal = ({
   activeModalStep,
   maxModalActiveStep,
 }: Props) => {
+  console.log(activeModalStep);
+  console.log(maxModalActiveStep);
+  console.log(isModalOpen);
+  console.log(modalSteps);
+  console.log(batchPayMetadata);
+
   const [isOpen, setIsOpen] = useState(isModalOpen);
   const [steps, setSteps] = useState(modalSteps);
   const [activeStep, setActiveStep] = useState(activeModalStep);
   const [maxActiveStep, setMaxActiveStep] = useState(maxModalActiveStep);
-
   const {
     state: { registry },
   } = useGlobal();

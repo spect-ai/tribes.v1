@@ -8,6 +8,7 @@ import { registryTemp } from "../../../constants";
 import PaymentModal, { BatchPayInfo } from "../payment";
 import { getRequiredApprovals } from "../payment/batchPayIcon";
 import DownloadIcon from "@mui/icons-material/Download";
+import { capitalizeFirstLetter } from "../../../utils/utils";
 
 type Props = {
   epoch: Epoch;
@@ -21,6 +22,7 @@ const PayoutButton = ({ epoch }: Props) => {
   const [activeStep, setActiveStep] = useState(0);
   const [batchPayMetadata, setBatchPayMetadata] = useState({} as BatchPayInfo);
   const [isOpen, setIsOpen] = useState(false);
+  const [maxActiveStep, setMaxActiveStep] = useState(0);
 
   return (
     <>
@@ -36,44 +38,67 @@ const PayoutButton = ({ epoch }: Props) => {
         onClick={() => {
           var dynamicSteps: string[] = [];
           var batchPayInfo = {} as BatchPayInfo;
+          batchPayInfo.type = "epoch";
+          batchPayInfo.epochId = epoch.objectId;
           setIsLoading(true);
-          getRequiredApprovals(
-            [epoch.token.address as string],
-            [epoch.budget]
-          ).then((pendingApprovals: any) => {
-            console.log(pendingApprovals);
-            if (pendingApprovals.tokenAddresses.length > 0) {
-              batchPayInfo.aggregatedTokenValues = pendingApprovals.tokenValues;
-              batchPayInfo.uniqueTokenAddresses =
-                pendingApprovals.tokenAddresses;
+
+          if (!epoch.nativeCurrencyPayment) {
+            var currStep: number;
+            console.log(`jadjsdsd`);
+            getRequiredApprovals(
+              [epoch.token.address as string],
+              [epoch.budget],
+              window.ethereum.networkVersion
+            ).then((pendingApprovals: any) => {
+              console.log(pendingApprovals);
+              if (pendingApprovals.tokenAddresses.length > 0) {
+                batchPayInfo.aggregatedTokenValues =
+                  pendingApprovals.tokenValues;
+                batchPayInfo.uniqueTokenAddresses =
+                  pendingApprovals.tokenAddresses;
+                dynamicSteps.push(
+                  `Approve tokens on ${capitalizeFirstLetter(
+                    registryTemp[window.ethereum.networkVersion].name
+                  )}`
+                );
+                setActiveStep(0);
+              } else {
+                setActiveStep(1);
+              }
+              batchPayInfo.tokenValues = Object.values(epoch.values);
+              batchPayInfo.contributors = Object.keys(epoch.values);
+              batchPayInfo.tokenAddresses = Array(
+                batchPayInfo.contributors.length
+              ).fill(epoch.token.address);
               dynamicSteps.push(
-                `Approve on ${
+                `Distribute tokens on ${capitalizeFirstLetter(
                   registryTemp[window.ethereum.networkVersion].name
-                }`
+                )}`
               );
-              setActiveStep(0);
-            } else {
-              setActiveStep(1);
-            }
+              setMaxActiveStep(1);
+
+              setBatchPayMetadata(batchPayInfo);
+              setSteps(dynamicSteps);
+              setIsOpen(true);
+              setIsLoading(false);
+            });
+          } else {
+            batchPayInfo.currencyValues = Object.values(epoch.values);
+            batchPayInfo.currencyContributors = Object.keys(epoch.values);
             dynamicSteps.push(
-              `Distribute on ${
+              `Distribute ${
+                registryTemp[window.ethereum.networkVersion].nativeCurrency
+              } on ${capitalizeFirstLetter(
                 registryTemp[window.ethereum.networkVersion].name
-              }`
+              )}`
             );
-
-            batchPayInfo.tokenValues = Object.values(epoch.values);
-            batchPayInfo.contributors = Object.keys(epoch.values);
-            batchPayInfo.tokenAddresses = Array(
-              batchPayInfo.contributors.length
-            ).fill(epoch.token.address);
-            batchPayInfo.type = "epoch";
-            batchPayInfo.epochId = epoch.objectId;
-
+            setActiveStep(2);
+            setMaxActiveStep(2);
             setBatchPayMetadata(batchPayInfo);
             setSteps(dynamicSteps);
             setIsOpen(true);
             setIsLoading(false);
-          });
+          }
         }}
       >
         Payout countributors
@@ -84,6 +109,7 @@ const PayoutButton = ({ epoch }: Props) => {
           batchPayMetadata={batchPayMetadata}
           modalSteps={steps}
           activeModalStep={activeStep}
+          maxModalActiveStep={maxActiveStep}
         />
       )}
     </>

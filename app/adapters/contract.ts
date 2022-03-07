@@ -85,6 +85,9 @@ export function getPendingApprovals(
   chainId: string
 ) {
   console.log(`chainId ${chainId}`);
+  console.log(addresses);
+  console.log(values);
+
   let contract = getDistributorContract(chainId);
   var valuesInWei = values.map((v) => ethers.utils.parseEther(v.toString()));
   return contract.pendingApprovals(addresses, valuesInWei);

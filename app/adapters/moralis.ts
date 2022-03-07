@@ -294,9 +294,7 @@ export function updateTaskReward(
 ) {
   if (token.hasOwnProperty("address")) var nativeCurrencyPayment = false;
   else var nativeCurrencyPayment = true;
-  console.log(`nativeCurrencyPayment`);
 
-  console.log(nativeCurrencyPayment);
   const params = {
     chain: chain,
     token: token,
@@ -472,6 +470,9 @@ export function startEpoch(
   chain: Chain
 ) {
   const durationInMilliseconds = duration * 86400000; // day => milliseconds
+  if (token.hasOwnProperty("address")) var nativeCurrencyPayment = false;
+  else var nativeCurrencyPayment = true;
+
   const params = {
     teamId: teamId,
     spaceId: spaceId,
@@ -485,6 +486,7 @@ export function startEpoch(
     budget: budget,
     token: token,
     chain: chain,
+    nativeCurrencyPayment: nativeCurrencyPayment,
   };
   return Moralis.Cloud.run("startEpoch", params);
 }

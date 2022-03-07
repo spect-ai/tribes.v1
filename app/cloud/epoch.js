@@ -103,6 +103,7 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     epoch.set("epochNumber", epochCount + 1);
     epoch.set("active", true);
     epoch.set("paid", false);
+    epoch.set("nativeCurrencyPayment", request.params.nativeCurrencyPayment);
 
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return await getEpochsBySpaceId(request.params.spaceId, request.user.id);
