@@ -16,7 +16,7 @@ const CsvExport = ({ epoch }: Props) => {
   const bid = router.query.bid as string;
 
   const handleExport = (epoch: Epoch) => {
-    if (epoch.type === "Contribution") {
+    if (epoch.type === "Member") {
       var rows = [
         ["username", "address", "allocation", "given", "received", "reward"],
       ];

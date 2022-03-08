@@ -34,6 +34,12 @@ import { registryTemp } from "../../../constants";
 import PaymentModal, { BatchPayInfo } from "../payment";
 import CsvExport from "./export";
 import PayoutButton from "./payout";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CancelIcon from "@mui/icons-material/Cancel";
+import ToggleButton from "@mui/material/ToggleButton";
+import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import { updateTaskColumn, updateTaskStatus } from "../../../adapters/moralis";
+import { BoardData, Column, Task } from "../../../types";
 
 type Props = {
   expanded: boolean;
@@ -57,7 +63,7 @@ type VotesRemaining = {
 const EpochList = ({ expanded, handleChange }: Props) => {
   const { Moralis, user } = useMoralis();
   const router = useRouter();
-  const { data, setData } = useBoard();
+  const { data, setData, handleTabChange } = useBoard();
   const bid = router.query.bid as string;
   const [votesGiven, setVotesGiven] = useState({} as VotesGivenAllEpochs);
   const [votesRemaining, setVotesRemaining] = useState({} as VotesRemaining);
@@ -69,11 +75,11 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   console.log(votesGiven);
   const handleVotesGiven = (
     epochid: string,
-    memberId: string,
+    choiceId: string,
     value: number
   ) => {
     var temp = Object.assign({}, votesGiven); // Shallow copy
-    temp[epochid][memberId] = value;
+    temp[epochid][choiceId] = value;
     setVotesGiven(temp);
   };
 
@@ -101,10 +107,18 @@ const EpochList = ({ expanded, handleChange }: Props) => {
     getEpochs(Moralis, bid)
       .then((res: any) => {
         console.log(res);
-        setData(Object.assign(data, { epochs: res }));
+        setData(
+          Object.assign(data, {
+            epochs: res.epochs,
+            taskDetails: res.taskDetails,
+          })
+        );
+        console.log(`data`);
+
+        console.log(data);
         var votesGivenByCaller = {} as VotesGivenAllEpochs;
         var votesRemainingByCaller = {} as VotesRemaining;
-        for (var epoch of res) {
+        for (var epoch of res.epochs) {
           votesGivenByCaller[epoch.objectId] = epoch.votesGivenByCaller;
           votesRemainingByCaller[epoch.objectId] = epoch.votesRemaining;
         }
@@ -112,7 +126,10 @@ const EpochList = ({ expanded, handleChange }: Props) => {
         setVotesRemaining(votesRemainingByCaller);
         setIsLoading(false);
       })
-      .catch((err: any) => alert(err));
+      .catch((err: any) => {
+        console.log("hehe");
+        alert(err);
+      });
   }, []);
 
   return (
@@ -164,16 +181,33 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                     <TableHead>
                       <TableRow>
                         <TableCell sx={{ color: "#99ccff" }}>
-                          {epoch.type === "Contribution"
-                            ? "Contributor"
-                            : "Task"}
+                          {epoch.type === "Member" ? "Member" : "Card"}
                         </TableCell>
-                        <TableCell align="right" sx={{ color: "#99ccff" }}>
-                          Votes Given
-                        </TableCell>
-                        {epoch.active === false && (
+                        {epoch.strategy === "Quadratic voting" && (
                           <TableCell align="right" sx={{ color: "#99ccff" }}>
-                            Value
+                            Votes Given
+                          </TableCell>
+                        )}
+
+                        {epoch.active === false &&
+                          epoch.strategy === "Quadratic voting" && (
+                            <TableCell align="right" sx={{ color: "#99ccff" }}>
+                              Value
+                            </TableCell>
+                          )}
+                        {epoch.strategy === "Pass/No Pass" && epoch.active && (
+                          <TableCell align="right" sx={{ color: "#99ccff" }}>
+                            Pass / No Pass
+                          </TableCell>
+                        )}
+                        {epoch.strategy === "Pass/No Pass" && !epoch.active && (
+                          <TableCell align="right" sx={{ color: "#99ccff" }}>
+                            Pass Votes
+                          </TableCell>
+                        )}
+                        {epoch.strategy === "Pass/No Pass" && !epoch.active && (
+                          <TableCell align="right" sx={{ color: "#99ccff" }}>
+                            No Pass Votes
                           </TableCell>
                         )}
                       </TableRow>
@@ -192,11 +226,114 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                 }}
                               >
                                 <TableCell component="th" scope="row">
-                                  {epoch.type === "Contribution"
+                                  {epoch.type === "Member"
                                     ? data.memberDetails[choice].username
-                                    : epoch.taskDetails[choice].title}
+                                    : data.taskDetails[choice].title}
                                 </TableCell>
-                                {!isLoading && (
+                                {!isLoading &&
+                                  epoch.strategy === "Quadratic voting" && (
+                                    <TableCell align="right">
+                                      {Object.keys(votesGiven).includes(
+                                        epoch.objectId
+                                      ) && (
+                                        <TextField
+                                          id="filled-hidden-label-normal"
+                                          value={
+                                            votesGiven[epoch.objectId][choice]
+                                          }
+                                          type="number"
+                                          placeholder="Value"
+                                          inputProps={{
+                                            readOnly: !epoch.active,
+                                          }}
+                                          size="small"
+                                          error={
+                                            votesRemaining[epoch.objectId] < 0
+                                          }
+                                          sx={{ width: "30%" }}
+                                          onChange={(event) => {
+                                            handleVotesRemaining(
+                                              epoch.objectId,
+                                              choice,
+                                              parseInt(event.target.value)
+                                            );
+                                            handleVotesGiven(
+                                              epoch.objectId,
+                                              choice,
+                                              parseInt(event.target.value)
+                                            );
+                                          }}
+                                        />
+                                      )}
+                                    </TableCell>
+                                  )}
+                                {!isLoading &&
+                                  epoch.strategy === "Pass/No Pass" &&
+                                  Object.keys(votesGiven).includes(
+                                    epoch.objectId
+                                  ) && (
+                                    <TableCell align="right">
+                                      <PrimaryButton
+                                        endIcon={<CheckCircleIcon />}
+                                        loading={isLoading}
+                                        sx={{
+                                          color:
+                                            votesGiven[epoch.objectId][
+                                              choice
+                                            ] === 1
+                                              ? "#66bb6a"
+                                              : "primary.main",
+                                        }}
+                                        size="medium"
+                                        onClick={() => {
+                                          handleVotesGiven(
+                                            epoch.objectId,
+                                            choice,
+                                            1
+                                          );
+                                        }}
+                                      />
+
+                                      <PrimaryButton
+                                        endIcon={<CancelIcon />}
+                                        loading={isLoading}
+                                        sx={{
+                                          color:
+                                            votesGiven[epoch.objectId][
+                                              choice
+                                            ] === -1
+                                              ? "#f44336"
+                                              : "primary.main",
+                                        }}
+                                        size="medium"
+                                        onClick={() => {
+                                          handleVotesGiven(
+                                            epoch.objectId,
+                                            choice,
+                                            -1
+                                          );
+                                        }}
+                                      />
+                                    </TableCell>
+                                  )}
+                              </TableRow>
+                            ))
+                        : epoch.choices.map((choice, index) => (
+                            <TableRow
+                              key={index}
+                              sx={{
+                                "&:last-child td, &:last-child th": {
+                                  border: 0,
+                                },
+                              }}
+                            >
+                              <TableCell component="th" scope="row">
+                                {epoch.type === "Member"
+                                  ? data.memberDetails[choice].username
+                                  : data.taskDetails[choice].title}
+                              </TableCell>
+                              {!isLoading &&
+                                epoch.strategy === "Quadratic voting" && (
                                   <TableCell align="right">
                                     {Object.keys(votesGiven).includes(
                                       epoch.objectId
@@ -232,60 +369,32 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                     )}
                                   </TableCell>
                                 )}
-                              </TableRow>
-                            ))
-                        : epoch.choices.map((choice, index) => (
-                            <TableRow
-                              key={index}
-                              sx={{
-                                "&:last-child td, &:last-child th": {
-                                  border: 0,
-                                },
-                              }}
-                            >
-                              <TableCell component="th" scope="row">
-                                {epoch.type === "Contribution"
-                                  ? data.memberDetails[choice].username
-                                  : epoch.taskDetails[choice].title}
-                              </TableCell>
-                              {!isLoading && (
+
+                              {epoch.strategy === "Quadratic voting" && (
                                 <TableCell align="right">
-                                  {Object.keys(votesGiven).includes(
-                                    epoch.objectId
-                                  ) && (
-                                    <TextField
-                                      id="filled-hidden-label-normal"
-                                      value={votesGiven[epoch.objectId][choice]}
-                                      type="number"
-                                      placeholder="Value"
-                                      inputProps={{
-                                        readOnly: !epoch.active,
-                                      }}
-                                      size="small"
-                                      error={votesRemaining[epoch.objectId] < 0}
-                                      sx={{ width: "30%" }}
-                                      onChange={(event) => {
-                                        handleVotesRemaining(
-                                          epoch.objectId,
-                                          choice,
-                                          parseInt(event.target.value)
-                                        );
-                                        handleVotesGiven(
-                                          epoch.objectId,
-                                          choice,
-                                          parseInt(event.target.value)
-                                        );
-                                      }}
-                                    />
-                                  )}
+                                  {choice in epoch.values &&
+                                  epoch.values[choice]
+                                    ? epoch.values[choice].toFixed(2)
+                                    : 0}{" "}
+                                  {epoch.token.symbol}
                                 </TableCell>
                               )}
-                              <TableCell align="right">
-                                {choice in epoch.values && epoch.values[choice]
-                                  ? epoch.values[choice].toFixed(2)
-                                  : 0}{" "}
-                                {epoch.token.symbol}
-                              </TableCell>
+                              {epoch.strategy === "Pass/No Pass" && (
+                                <TableCell align="right">
+                                  {choice in epoch.votesFor &&
+                                  epoch.votesFor[choice]
+                                    ? epoch.votesFor[choice]
+                                    : 0}{" "}
+                                </TableCell>
+                              )}
+                              {epoch.strategy === "Pass/No Pass" && (
+                                <TableCell align="right">
+                                  {choice in epoch.votesAgainst &&
+                                  epoch.votesAgainst[choice]
+                                    ? epoch.votesAgainst[choice]
+                                    : 0}{" "}
+                                </TableCell>
+                              )}
                             </TableRow>
                           ))}
                     </TableBody>
@@ -294,7 +403,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
               </Grid>
               <Grid item xs={4}>
                 <DetailContainer>
-                  {epoch.active && (
+                  {epoch.active && epoch.type === "Member" && (
                     <InfoContainer>
                       <Typography
                         sx={{
@@ -310,20 +419,22 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                       </Typography>
                     </InfoContainer>
                   )}
-                  <InfoContainer>
-                    <Typography
-                      sx={{
-                        color: "#99ccff",
-                        textAlign: "right",
-                        fontSize: 14,
-                      }}
-                    >
-                      Total Budget
-                    </Typography>
-                    <Typography sx={{ textAlign: "right" }}>
-                      {epoch.budget} {epoch.token.symbol}
-                    </Typography>
-                  </InfoContainer>
+                  {epoch.budget && epoch.budget > 0 && (
+                    <InfoContainer>
+                      <Typography
+                        sx={{
+                          color: "#99ccff",
+                          textAlign: "right",
+                          fontSize: 14,
+                        }}
+                      >
+                        Total Budget
+                      </Typography>
+                      <Typography sx={{ textAlign: "right" }}>
+                        {epoch.budget} {epoch.token.symbol}
+                      </Typography>
+                    </InfoContainer>
+                  )}
                   {epoch.active ? (
                     <ButtonContainer>
                       <PrimaryButton
@@ -373,7 +484,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                     </ButtonContainer>
                   ) : (
                     <ButtonContainer>
-                      {epoch.type === "Contribution" ? (
+                      {epoch.type === "Member" ? (
                         <PayoutButton epoch={epoch} />
                       ) : (
                         <PrimaryButton
@@ -381,9 +492,28 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                           variant="outlined"
                           sx={{ mx: 4, borderRadius: 1 }}
                           size="small"
-                          onClick={() => {}}
+                          onClick={() => {
+                            setIsLoading(true);
+                            for (var choice of epoch.choices) {
+                              if (
+                                epoch.votesFor[choice] >
+                                epoch.votesAgainst[choice]
+                              ) {
+                                updateTaskColumn(
+                                  Moralis,
+                                  epoch.spaceId,
+                                  choice,
+                                  data.columnOrder[0],
+                                  data.columnOrder[1]
+                                ).then((res: BoardData) => {
+                                  setData(res);
+                                  setIsLoading(false);
+                                });
+                              }
+                            }
+                          }}
                         >
-                          Set task rewards
+                          Move cards
                         </PrimaryButton>
                       )}
                       <CsvExport epoch={epoch} />

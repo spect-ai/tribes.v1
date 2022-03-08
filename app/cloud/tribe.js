@@ -33,13 +33,6 @@ async function getUpdatedTribeDetails(
   return tribe;
 }
 
-async function getLatestEpochForTribe(team, epochId, task_epoch = false) {
-  task_epoch
-    ? team.set("latestTaskEpoch", epochId)
-    : team.set("latestContributionEpoch", epochId);
-  return team;
-}
-
 async function getTribeCount() {
   const tribeQuery = new Moralis.Query("Team");
   return await tribeQuery.count();

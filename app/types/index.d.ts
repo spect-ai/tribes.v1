@@ -82,6 +82,8 @@ export interface Epoch {
   objectId: string;
   nativeCurrencyPayment: boolean;
   paid: boolean;
+  votesFor: Object<string, number>;
+  votesAgainst: Object<string, number>;
   _createdAt: object;
   _id: string;
   _updatedAt: object;
@@ -163,6 +165,7 @@ export interface BoardData {
   statusList: string[];
   members: string[];
   memberDetails: Object<string, Member>;
+  taskDetails: Object<string, Task>;
   access: string;
   roles: Object<string, string>;
   epochs: Epoch[];

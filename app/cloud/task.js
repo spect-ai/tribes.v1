@@ -9,6 +9,13 @@ async function getTasksByTaskIds(taskIds) {
   taskQuery.containedIn("taskId", taskIds);
   return await taskQuery.find();
 }
+async function getTaskObjsByTaskIds(taskIds) {
+  const taskQuery = new Moralis.Query("Task");
+  const pipeline = [{ match: { taskId: { $in: taskIds } } }];
+  const tasks = await taskQuery.aggregate(pipeline);
+  return tasks;
+}
+
 async function getTaskObjByTaskId(taskId) {
   const taskQuery = new Moralis.Query("Task");
   const pipeline = [{ match: { taskId: taskId } }, { limit: 1 }];
@@ -100,12 +107,12 @@ Moralis.Cloud.define("addTask", async (request) => {
       var task = new Moralis.Object("Task");
       task.set("taskId", taskId);
       task.set("token", {
-        address: "0x9c3c9283d3e44854697cd22d3faa240cfb032889",
-        symbol: "WMatic",
+        address: "0x08a978a0399465621e667C49CD54CC874DC064Eb",
+        symbol: "ausdt",
       }); //TODO: remove hardcoded value
       task.set("chain", {
-        chainId: "80001",
-        name: "mumbai",
+        chainId: "43113",
+        name: "fuji",
       }); //TODO: remove hardcoded value
       task.set("boardId", request.params.boardId);
       task.set("title", request.params.title);

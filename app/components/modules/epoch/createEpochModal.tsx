@@ -45,6 +45,11 @@ const CreateEpochModal = (props: Props) => {
   const [type, setType] = useState("");
   const [strategy, setStrategy] = useState("");
   const [budget, setBudget] = useState("");
+  const [column, setColumn] = useState(data.columnOrder[0]);
+  const [tasks, setTasks] = useState(
+    data.columns[data.columnOrder[0]].taskIds as string[]
+  );
+
   const [chain, setChain] = useState({
     chainId: "80001",
     name: "mumbai",
@@ -72,8 +77,11 @@ const CreateEpochModal = (props: Props) => {
     );
   };
 
-  const handleNewEpochAddition = (epochs: Epoch[]) => {
-    const temp = Object.assign(data, { epochs: epochs });
+  const handleNewEpochAddition = (res: any) => {
+    const temp = Object.assign({}, data);
+    temp.epochs = res.epochs;
+    temp.taskDetails = res.taskDetails;
+
     setData(temp);
   };
 
@@ -92,12 +100,17 @@ const CreateEpochModal = (props: Props) => {
   };
 
   const getChoices = () => {
-    var choices = [];
-    for (let i = 0; i < data.members.length; i++) {
-      if (isChecked.at(i)) {
-        choices.push(data.members[i]);
+    var choices = [] as string[];
+    if (type === "Member") {
+      for (let i = 0; i < data.members.length; i++) {
+        if (isChecked.at(i)) {
+          choices.push(data.members[i]);
+        }
       }
+    } else if (type === "Card") {
+      choices = tasks;
     }
+
     return choices;
   };
   const handleClose = () => {
@@ -134,7 +147,7 @@ const CreateEpochModal = (props: Props) => {
                 size="small"
               />
               <Autocomplete
-                options={["Task", "Contribution"]}
+                options={["Card", "Member"]}
                 //getOptionLabel={(option) => option.symbol}
                 value={type}
                 onChange={(event, newValue) => {
@@ -163,70 +176,12 @@ const CreateEpochModal = (props: Props) => {
                 type={"number"}
                 size="small"
               />
-              <Box sx={{ flex: "1 1 auto" }}>
-                <Grid container spacing={1}>
-                  <Grid item xs={4}>
-                    <TextField
-                      id="filled-hidden-label-normal"
-                      value={budget}
-                      onChange={(event) => {
-                        setBudget(event.target.value);
-                      }}
-                      sx={{ mb: 2 }}
-                      placeholder="Budget"
-                      type={"number"}
-                      size="small"
-                    />
-                  </Grid>{" "}
-                  <Grid item xs={4}>
-                    <Autocomplete
-                      options={getFlattenedCurrencies(
-                        registryTemp as Registry,
-                        chain.chainId
-                      )}
-                      getOptionLabel={(option) => option.symbol}
-                      value={token}
-                      onChange={(event, newValue) => {
-                        setToken(newValue as Token);
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          placeholder="Network Chain"
-                          size="small"
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Autocomplete
-                      options={getFlattenedNetworks(registryTemp as Registry)}
-                      getOptionLabel={(option) => option.name}
-                      value={chain}
-                      onChange={(event, newValue) => {
-                        setChain(newValue as Chain);
-                        let tokens = getFlattenedCurrencies(
-                          registryTemp as Registry,
-                          newValue?.chainId as string
-                        );
-                        if (tokens.length > 0) setToken(tokens[0]);
-                        else setToken({} as Token);
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          placeholder="Network Chain"
-                          size="small"
-                        />
-                      )}
-                    />
-                  </Grid>
-                </Grid>
-              </Box>
               <Autocomplete
-                options={["Quadratic voting"]}
+                options={
+                  type === "Member"
+                    ? ["Quadratic voting"]
+                    : ["Quadratic voting", "Pass/No Pass"]
+                }
                 //getOptionLabel={(option) => option.symbol}
                 value={strategy}
                 onChange={(event, newValue) => {
@@ -243,6 +198,71 @@ const CreateEpochModal = (props: Props) => {
                   />
                 )}
               />
+              {strategy === "Quadratic voting" && (
+                <Box sx={{ flex: "1 1 auto" }}>
+                  <Grid container spacing={1}>
+                    <Grid item xs={4}>
+                      <TextField
+                        id="filled-hidden-label-normal"
+                        value={budget}
+                        onChange={(event) => {
+                          setBudget(event.target.value);
+                        }}
+                        sx={{ mb: 2 }}
+                        placeholder="Budget"
+                        type={"number"}
+                        size="small"
+                      />
+                    </Grid>{" "}
+                    <Grid item xs={4}>
+                      <Autocomplete
+                        options={getFlattenedCurrencies(
+                          registryTemp as Registry,
+                          chain.chainId
+                        )}
+                        getOptionLabel={(option) => option.symbol}
+                        value={token}
+                        onChange={(event, newValue) => {
+                          setToken(newValue as Token);
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            id="filled-hidden-label-normal"
+                            placeholder="Network Chain"
+                            size="small"
+                          />
+                        )}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <Autocomplete
+                        options={getFlattenedNetworks(registryTemp as Registry)}
+                        getOptionLabel={(option) => option.name}
+                        value={chain}
+                        onChange={(event, newValue) => {
+                          setChain(newValue as Chain);
+                          let tokens = getFlattenedCurrencies(
+                            registryTemp as Registry,
+                            newValue?.chainId as string
+                          );
+                          if (tokens.length > 0) setToken(tokens[0]);
+                          else setToken({} as Token);
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            id="filled-hidden-label-normal"
+                            placeholder="Network Chain"
+                            size="small"
+                          />
+                        )}
+                      />
+                    </Grid>
+                  </Grid>
+                </Box>
+              )}
+
               <Accordion disableGutters>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
@@ -274,9 +294,15 @@ const CreateEpochModal = (props: Props) => {
                         <TableCell align="right" sx={{ color: "#99ccff" }}>
                           Username
                         </TableCell>
-                        <TableCell align="right" sx={{ color: "#99ccff" }}>
-                          Voting Allocation
-                        </TableCell>
+                        {strategy === "Quadratic voting" ? (
+                          <TableCell align="right" sx={{ color: "#99ccff" }}>
+                            Voting Allocation
+                          </TableCell>
+                        ) : (
+                          <TableCell align="right" sx={{ color: "#99ccff" }}>
+                            Voting Weight
+                          </TableCell>
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -331,6 +357,27 @@ const CreateEpochModal = (props: Props) => {
                   </Table>
                 </AccordionDetails>
               </Accordion>
+              {type === "Card" && (
+                <Autocomplete
+                  options={data.columnOrder}
+                  getOptionLabel={(option) => data.columns[option]?.title}
+                  value={column}
+                  onChange={(event, newValue) => {
+                    setColumn(newValue as string);
+                    setTasks(data.columns[newValue as string]?.taskIds);
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      id="filled-hidden-label-normal"
+                      fullWidth
+                      sx={{ mb: 2, mt: 2 }}
+                      placeholder="Import task from column"
+                      size="small"
+                    />
+                  )}
+                />
+              )}
               <PrimaryButton
                 variant="outlined"
                 sx={{ width: "50%", mt: 2, borderRadius: 1 }}
@@ -354,6 +401,7 @@ const CreateEpochModal = (props: Props) => {
                   )
                     .then((res: any) => {
                       handleClose();
+                      console.log(res);
                       handleNewEpochAddition(res);
                       handleTabChange({} as any, 1);
                     })
