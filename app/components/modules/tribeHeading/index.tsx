@@ -27,8 +27,7 @@ const TribeHeading = (props: Props) => {
   const router = useRouter();
   const id = router.query.id as string;
   const [isLoading, setIsLoading] = useState(false);
-  const { Moralis, isInitialized, user, isAuthenticated, authenticate } =
-    useMoralis();
+  const { Moralis, user, isAuthenticated, authenticate } = useMoralis();
 
   return (
     <Container>
@@ -63,6 +62,7 @@ const TribeHeading = (props: Props) => {
           <PrimaryButton
             variant="outlined"
             loading={isLoading}
+            disabled={!isAuthenticated}
             sx={{ borderRadius: 1 }}
             onClick={async () => {
               if (!isAuthenticated) {

@@ -12,8 +12,8 @@ type Props = {};
 
 const Board = (props: Props) => {
   const router = useRouter();
-  const { tribe, isMember } = useTribe();
-  const { user } = useMoralis();
+  const { tribe } = useTribe();
+  const { user, isAuthenticated } = useMoralis();
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
   return (
@@ -29,6 +29,7 @@ const Board = (props: Props) => {
             <BoardButton
               variant="contained"
               color="secondary"
+              disabled={!isAuthenticated}
               onClick={() => {
                 router.push(
                   `/tribe/${tribe.teamId}/board/${board._id}`,
