@@ -47,18 +47,15 @@ const TaskBoard = (props: Props) => {
     if (isInitialized && bid) {
       getBoard(Moralis, bid as string)
         .then((res: BoardData) => {
-          console.log(res);
-          console.log(
-            Object.values(res.columns).filter(
-              (col: Column) => col.title === "Done"
-            )[0].id
-          );
           setNavbarLogo(dispatch, res.team[0].logo);
           setNavbarTitle(dispatch, res.team[0].name);
           context.setData(res);
           setIsLoading(false);
         })
-        .catch((err: any) => alert(err));
+        .catch((err: any) => {
+          console.log(err);
+          alert(err);
+        });
     }
   }, [isInitialized, bid]);
 

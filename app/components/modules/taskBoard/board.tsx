@@ -32,6 +32,7 @@ type Props = {
 const Board = ({ expanded, handleChange }: Props) => {
   const { data, setData } = useBoard();
   const router = useRouter();
+  console.log(data);
 
   const { Moralis, isInitialized } = useMoralis();
   const [isLoading, setIsLoading] = useState(true);
@@ -166,25 +167,23 @@ const Board = ({ expanded, handleChange }: Props) => {
                 margin: "0.3rem 2rem 1rem 0rem",
               }}
               onClick={() => {
+                const newColumnId = Object.keys(data.columns).length;
                 setData({
                   ...data,
                   columns: {
                     ...data.columns,
-                    [`column-${data.columnOrder.length}`]: {
-                      id: `column-${data.columnOrder.length}`,
+                    [`column-${newColumnId}`]: {
+                      id: `column-${newColumnId}`,
                       title: "",
                       taskIds: [],
                       status: "",
                       color: "",
                     },
                   },
-                  columnOrder: [
-                    ...data.columnOrder,
-                    `column-${data.columnOrder.length}`,
-                  ],
+                  columnOrder: [...data.columnOrder, `column-${newColumnId}`],
                 });
-                addColumn(Moralis, bid as string).then((res: any) =>
-                  console.log(res)
+                addColumn(Moralis, bid as string).then((res: BoardData) =>
+                  setData(res)
                 );
               }}
             >

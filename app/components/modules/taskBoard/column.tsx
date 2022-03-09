@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Button, InputBase, IconButton } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { useBoard } from ".";
 import TaskContainer from "./task";
@@ -15,7 +15,7 @@ import CreateGithubTask from "./createGithubTask";
 import { useMoralis } from "react-moralis";
 import { updateColumnName } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
-import { Column, Task } from "../../../types";
+import { BoardData, Column, Task } from "../../../types";
 
 type Props = {
   tasks: Task[];
@@ -27,6 +27,7 @@ type Props = {
 const Column = ({ tasks, id, column, index }: Props) => {
   const { Moralis } = useMoralis();
   const router = useRouter();
+  const { setData } = useBoard();
   const { bid } = router.query;
 
   const [showCreateTask, setShowCreateTask] = useState(false);
@@ -45,8 +46,9 @@ const Column = ({ tasks, id, column, index }: Props) => {
   function updateColumn() {
     if (currentColumnTitle !== columnTitle) {
       updateColumnName(Moralis, bid as string, id, columnTitle).then(
-        (res: any) => {
-          setCurrentColumnTitle(columnTitle);
+        (res: BoardData) => {
+          console.log(res);
+          setData(res);
         }
       );
     }
@@ -59,14 +61,14 @@ const Column = ({ tasks, id, column, index }: Props) => {
           <Container
             {...provided.draggableProps}
             {...provided.dragHandleProps}
+            isDragging={snapshot.isDragging}
             ref={provided.innerRef}
           >
             <Droppable droppableId={id} type="task">
               {(provided) => (
-                <TaskList
+                <TaskListContainer
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  isDragging={snapshot.isDragging}
                 >
                   <TaskTitleContainer>
                     <InputBase
@@ -77,12 +79,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       }}
                       value={columnTitle}
                       onChange={(e) => setColumnTitle(e.target.value)}
-                      onMouseDown={(e) => {
-                        updateColumn();
-                      }}
-                      onMouseLeave={(e) => {
-                        updateColumn();
-                      }}
+                      onBlur={updateColumn}
                     />
                     <Box sx={{ flex: "1 1 auto" }} />
                     <IconButton
@@ -111,7 +108,18 @@ const Column = ({ tasks, id, column, index }: Props) => {
                             ml: 1,
                           }}
                           startIcon={<AddIcon />}
-                          onClick={() => setShowCreateTask(true)}
+                          onClick={() => {
+                            setShowCreateTask(true);
+                            setTimeout(() => {
+                              document
+                                .getElementById("taskCancelButton")
+                                ?.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "end",
+                                  inline: "nearest",
+                                });
+                            }, 10);
+                          }}
                           fullWidth
                           size="small"
                         >
@@ -135,28 +143,30 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       </>
                     )}
                   </Box>
-                  {tasks?.map((task, index) => (
-                    <TaskContainer
-                      key={task.taskId}
-                      task={task}
-                      index={index}
-                      column={column}
-                    />
-                  ))}
-                  {provided.placeholder}
-                  {showCreateTask && (
+                  <TaskList>
+                    {tasks?.map((task, index) => (
+                      <TaskContainer
+                        key={task.taskId}
+                        task={task}
+                        index={index}
+                        column={column}
+                      />
+                    ))}
+                    {provided.placeholder}
                     <CreateTask
+                      showCreateTask={showCreateTask}
                       setShowCreateTask={setShowCreateTask}
                       columnId={id}
                     />
-                  )}
-                  {showCreateGithubTask && (
-                    <CreateGithubTask
-                      setShowCreateTask={setShowCreateGithubTask}
-                      columnId={id}
-                    />
-                  )}
-                </TaskList>
+
+                    {showCreateGithubTask && (
+                      <CreateGithubTask
+                        setShowCreateTask={setShowCreateGithubTask}
+                        columnId={id}
+                      />
+                    )}
+                  </TaskList>
+                </TaskListContainer>
               )}
             </Droppable>
           </Container>
@@ -169,35 +179,39 @@ const Column = ({ tasks, id, column, index }: Props) => {
 const TaskTitleContainer = styled.div`
   display: flex;
   flex-direction: row;
+  padding: 0.2rem;
 `;
 
 const OuterContainer = styled.div`
   margin: 0.3rem 1rem 1rem 0rem;
 `;
 
-const TaskList = styled.div<{ isDragging: boolean }>`
+const TaskList = styled.div`
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
   height: fit-content;
-  padding: 0.3rem 0.3rem;
-  border-radius: 0.5rem;
+  max-height: 60vh;
+`;
+
+const TaskListContainer = styled.div`
+  box-shadow: 0 10px 30px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  background-color: #00194a;
+  border-radius: 0.3rem;
+`;
+
+const Container = styled.div<{ isDragging: boolean }>`
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.3rem;
   border: ${(props) =>
     props.isDragging ? "0.5px solid #0061ff" : "0.5px solid transparent"};
-  transition: 0.5s ease-in-out;
-  box-shadow: 0 10px 30px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   &:hover {
     border: 0.1px solid #3f3f3e;
   }
-  max-height: 60vh;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background-color: #00194a;
   min-width: 16rem;
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
+  transition: 0.5s ease-in-out;
 `;
 
 export default Column;

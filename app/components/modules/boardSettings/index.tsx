@@ -2,6 +2,7 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
+  Autocomplete,
   Checkbox,
   Grid,
   Grow,
@@ -26,11 +27,16 @@ import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useBoard } from "../taskBoard";
-import { BoardData, Team } from "../../../types";
+import { BoardData, Chain, Registry, Team, Token } from "../../../types";
 import ConfirmModal from "./confirmModal";
 import ColorPicker from "../../elements/colorPicker";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import GitHubIcon from "@mui/icons-material/GitHub";
+import {
+  getFlattenedCurrencies,
+  getFlattenedNetworks,
+} from "../../../utils/utils";
+import { registryTemp } from "../../../constants";
 
 type Props = {};
 
@@ -40,6 +46,8 @@ const BoardSettings = (props: Props) => {
   const [name, setName] = useState(data.name);
   const [isOpen, setIsOpen] = useState(false);
   const [tribe, setTribe] = useState<Team>({} as Team);
+  const [token, setToken] = useState("");
+  const [chain, setChain] = useState("");
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -105,6 +113,63 @@ const BoardSettings = (props: Props) => {
                     fullWidth
                   ></TextField>
                 </AccordionDetails>
+              </Accordion>
+              <Accordion disableGutters>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls="panel1a-content"
+                  id="panel1a-header"
+                >
+                  <Typography>Payment</Typography>
+                </AccordionSummary>
+
+                {/* <AccordionDetails>
+                  <Autocomplete
+                    options={getFlattenedNetworks(registryTemp as Registry)}
+                    getOptionLabel={(option) => option.name}
+                    value={chain}
+                    onChange={(event, newValue) => {
+                      setChain(newValue as Chain);
+                      let tokens = getFlattenedCurrencies(
+                        registryTemp as Registry,
+                        newValue?.chainId as string
+                      );
+                      if (tokens.length > 0) setToken(tokens[0]);
+                      else setToken({} as Token);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        id="filled-hidden-label-normal"
+                        size="small"
+                        fullWidth
+                        sx={{ mb: 4 }}
+                        placeholder="Network Chain"
+                      />
+                    )}
+                  />
+                  <Autocomplete
+                    options={getFlattenedCurrencies(
+                      registryTemp as Registry,
+                      chain.chainId
+                    )}
+                    getOptionLabel={(option) => option.symbol}
+                    value={token}
+                    onChange={(event, newValue) => {
+                      setToken(newValue as Token);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        id="filled-hidden-label-normal"
+                        size="small"
+                        fullWidth
+                        sx={{ mb: 4 }}
+                        placeholder="Network Chain"
+                      />
+                    )}
+                  />
+                </AccordionDetails> */}
               </Accordion>
               <Accordion disableGutters>
                 <AccordionSummary

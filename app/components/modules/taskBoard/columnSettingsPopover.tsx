@@ -47,19 +47,15 @@ const ColumnSettingsPopover = ({
           sx={{ textTransform: "none" }}
           size="small"
           onClick={() => {
-            const columnsArray = Object.entries(data.columns);
-
             setData({
               ...data,
-              columns: Object.fromEntries(
-                columnsArray.filter((column) => column[0] !== columnId)
-              ),
               columnOrder: data.columnOrder.filter((id) => id !== columnId),
             });
-
             removeColumn(Moralis, bid as string, columnId)
               .then((res: BoardData) => {
                 setData(res);
+                console.log(res.columns);
+                handleClose();
               })
               .catch((err: any) => {
                 console.log(err);

@@ -317,6 +317,7 @@ const EditTask = ({
                   <TaskButton
                     variant="outlined"
                     color="primary"
+                    disabled={column.status === "Closed"}
                     onClick={handleClick("date")}
                   >
                     Due Date
@@ -334,6 +335,7 @@ const EditTask = ({
                   variant="outlined"
                   color="primary"
                   onClick={handleClick("label")}
+                  disabled={column.status === "Closed"}
                 >
                   Labels
                 </TaskButton>
@@ -350,6 +352,7 @@ const EditTask = ({
                     variant="outlined"
                     color="primary"
                     onClick={handleClick("reviewer")}
+                    disabled={column.status === "Closed"}
                   >
                     Reviewer
                   </TaskButton>
@@ -368,6 +371,7 @@ const EditTask = ({
                     variant="outlined"
                     color="primary"
                     onClick={handleClick("assignee")}
+                    disabled={column.status === "Closed"}
                   >
                     Assignee
                   </TaskButton>

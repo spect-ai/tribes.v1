@@ -120,7 +120,7 @@ const CreateEpochModal = (props: Props) => {
     <>
       <Tooltip title="Start Epoch">
         <IconButton
-          sx={{ mb: 0.5, p: 1.7 }}
+          sx={{ p: 1.7 }}
           size="small"
           onClick={() => setIsOpen(true)}
         >

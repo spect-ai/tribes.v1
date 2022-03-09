@@ -67,6 +67,7 @@ const Payment = ({}: Props) => {
               window.ethereum.networkVersion
             ).then((res: BatchPayInfo) => {
               var batchPayInfo = {} as BatchPayInfo;
+              console.log(res);
               batchPayInfo.currencyContributors = res.currencyContributors;
               batchPayInfo.currencyValues = res.currencyValues;
               batchPayInfo.contributors = res.contributors;
