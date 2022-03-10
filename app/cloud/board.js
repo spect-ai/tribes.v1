@@ -261,12 +261,11 @@ Moralis.Cloud.define("removeColumn", async (request) => {
 });
 
 Moralis.Cloud.define("updateBoard", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
   try {
-    const logger = Moralis.Cloud.getLogger();
     const board = await getBoardByObjectId(request.params.boardId);
     board.set("name", request.params.name);
-    board.set("columns", request.params.columns);
-    board.set("statusList", request.params.statusList);
+    board.set("defaultPayment", request.params.defaultPayment);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
     const boardObj = await getBoardObjWithTasksByObjectId(
       request.params.boardId,
@@ -282,8 +281,8 @@ Moralis.Cloud.define("updateBoard", async (request) => {
 });
 
 Moralis.Cloud.define("deleteBoard", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
   try {
-    const logger = Moralis.Cloud.getLogger();
     const board = await getBoardByObjectId(request.params.boardId);
     board && (await board.destroy());
     return true;

@@ -172,6 +172,10 @@ export interface BoardData {
   _id: string;
   _createdAt: string;
   team: Team[];
+  defaultPayment: {
+    token: Token;
+    chain: Chain;
+  };
 }
 
 export type TokenInfo = {

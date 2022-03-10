@@ -405,14 +405,16 @@ export function updateBoard(
   Moralis: any,
   boardId: string,
   name: string,
-  columns: any,
-  statusList: string[]
+  chain: Chain,
+  token: Token
 ) {
   const params = {
     boardId: boardId,
     name: name,
-    columns: columns,
-    statusList: statusList,
+    defaultPayment: {
+      chain: chain,
+      token: token,
+    },
   };
   return Moralis.Cloud.run("updateBoard", params);
 }

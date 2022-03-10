@@ -24,14 +24,11 @@ import CloseIcon from "@mui/icons-material/Close";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { getTeam, updateBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import { useRouter } from "next/router";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useBoard } from "../taskBoard";
 import { BoardData, Chain, Registry, Team, Token } from "../../../types";
 import ConfirmModal from "./confirmModal";
-import ColorPicker from "../../elements/colorPicker";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import GitHubIcon from "@mui/icons-material/GitHub";
 import {
   getFlattenedCurrencies,
   getFlattenedNetworks,
@@ -46,8 +43,14 @@ const BoardSettings = (props: Props) => {
   const [name, setName] = useState(data.name);
   const [isOpen, setIsOpen] = useState(false);
   const [tribe, setTribe] = useState<Team>({} as Team);
-  const [token, setToken] = useState("");
-  const [chain, setChain] = useState("");
+  const [chain, setChain] = useState<Chain>({
+    chainId: "137",
+    name: "polygon",
+  } as Chain);
+  const [tokenAddress, setTokenAddress] = useState(
+    data.defaultPayment.token.address
+  );
+  const [tokenName, setTokenName] = useState(data.defaultPayment.token.symbol);
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -69,6 +72,7 @@ const BoardSettings = (props: Props) => {
     getTeam(Moralis, data.teamId).then((res: Team) => {
       setTribe(res);
     });
+    console.log(getFlattenedNetworks(registryTemp as Registry));
   }, [data]);
 
   return (
@@ -115,61 +119,46 @@ const BoardSettings = (props: Props) => {
                 </AccordionDetails>
               </Accordion>
               <Accordion disableGutters>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography>Payment</Typography>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography>Default Payment</Typography>
                 </AccordionSummary>
 
-                {/* <AccordionDetails>
+                <AccordionDetails>
                   <Autocomplete
                     options={getFlattenedNetworks(registryTemp as Registry)}
                     getOptionLabel={(option) => option.name}
                     value={chain}
                     onChange={(event, newValue) => {
                       setChain(newValue as Chain);
-                      let tokens = getFlattenedCurrencies(
-                        registryTemp as Registry,
-                        newValue?.chainId as string
-                      );
-                      if (tokens.length > 0) setToken(tokens[0]);
-                      else setToken({} as Token);
                     }}
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        id="filled-hidden-label-normal"
                         size="small"
                         fullWidth
                         sx={{ mb: 4 }}
-                        placeholder="Network Chain"
+                        label="Network Chain"
                       />
                     )}
                   />
-                  <Autocomplete
-                    options={getFlattenedCurrencies(
-                      registryTemp as Registry,
-                      chain.chainId
-                    )}
-                    getOptionLabel={(option) => option.symbol}
-                    value={token}
-                    onChange={(event, newValue) => {
-                      setToken(newValue as Token);
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        id="filled-hidden-label-normal"
-                        size="small"
-                        fullWidth
-                        sx={{ mb: 4 }}
-                        placeholder="Network Chain"
-                      />
-                    )}
-                  />
-                </AccordionDetails> */}
+                  <Box sx={{ display: "flex" }}>
+                    <TextField
+                      size="small"
+                      fullWidth
+                      sx={{ mr: 4 }}
+                      label="Token Address"
+                      value={tokenAddress}
+                      onChange={(e) => setTokenAddress(e.target.value)}
+                    />
+                    <TextField
+                      size="small"
+                      sx={{ mb: 4, width: "45%" }}
+                      label="Name"
+                      value={tokenName}
+                      onChange={(e) => setTokenName(e.target.value)}
+                    />
+                  </Box>
+                </AccordionDetails>
               </Accordion>
               <Accordion disableGutters>
                 <AccordionSummary
@@ -283,13 +272,11 @@ const BoardSettings = (props: Props) => {
                   loading={isLoading}
                   onClick={() => {
                     setIsLoading(true);
-                    updateBoard(
-                      Moralis,
-                      data.objectId,
-                      name,
-                      columnData,
-                      Object.values(columnData).map((c) => c.status)
-                    ).then((res: any) => {
+                    updateBoard(Moralis, data.objectId, name, chain, {
+                      address: tokenAddress,
+                      symbol: tokenName,
+                    }).then((res: any) => {
+                      console.log(res);
                       setData(res as BoardData);
                       setIsLoading(false);
                       handleClose();

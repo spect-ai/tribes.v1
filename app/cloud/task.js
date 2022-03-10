@@ -103,17 +103,18 @@ Moralis.Cloud.define("addTask", async (request) => {
       var taskIds = columns[request.params.columnId].taskIds;
       columns[request.params.columnId].taskIds = taskIds.concat([taskId]);
       board.set("columns", columns);
-
+      const defaultPayment = board.get("defaultPayment");
       var task = new Moralis.Object("Task");
       task.set("taskId", taskId);
       task.set("token", {
-        address: "0x08a978a0399465621e667C49CD54CC874DC064Eb",
-        symbol: "ausdt",
-      }); //TODO: remove hardcoded value
+        address: defaultPayment.token.address || "0x0",
+        symbol:
+          defaultPayment.token.symbol || defaultPayment.chain.name || "polygon",
+      });
       task.set("chain", {
-        chainId: "43113",
-        name: "fuji",
-      }); //TODO: remove hardcoded value
+        chainId: defaultPayment.chain.id || "137",
+        name: defaultPayment.chain.name || "polygon",
+      });
       task.set("boardId", request.params.boardId);
       task.set("title", request.params.title);
       task.set("value", parseFloat(request.params.value));
