@@ -28,6 +28,7 @@ import {
   closeTask,
   updateTaskDescription,
   updateTaskTitle,
+  completePayment,
 } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useBoard } from "../taskBoard";
@@ -83,6 +84,18 @@ const EditTask = ({
   };
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
   const [title, setTitle] = useState(task.title);
+
+  const handleTaskStatusUpdate = (taskIds: string[]) => {
+    completePayment(Moralis, taskIds)
+      .then((res: any) => {
+        console.log(res);
+        setData(res);
+      })
+      .catch((err: any) => {
+        alert(err.message);
+        setIsLoading(false);
+      });
+  };
   useEffect(() => {
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
@@ -464,13 +477,24 @@ const EditTask = ({
                             task.taskId,
                             window.ethereum.networkVersion
                           )
+                            .then((res: any) => {
+                              console.log(res);
+                              handleTaskStatusUpdate([task.taskId]);
+                              handleClose();
+                            })
+                            .catch((err: any) => alert(err))
                         : batchPayTokens(
                             [task.token.address as string],
                             [data.memberDetails[task.assignee[0]].ethAddress],
                             [task.value],
                             task.taskId,
                             window.ethereum.networkVersion
-                          );
+                          )
+                            .then((res: any) => {
+                              handleTaskStatusUpdate([task.taskId]);
+                              handleClose();
+                            })
+                            .catch((err: any) => alert(err));
                     }}
                   >
                     Pay
