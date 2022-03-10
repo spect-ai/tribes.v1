@@ -43,14 +43,17 @@ const BoardSettings = (props: Props) => {
   const [name, setName] = useState(data.name);
   const [isOpen, setIsOpen] = useState(false);
   const [tribe, setTribe] = useState<Team>({} as Team);
-  const [chain, setChain] = useState<Chain>({
-    chainId: "137",
-    name: "polygon",
-  } as Chain);
-  const [tokenAddress, setTokenAddress] = useState(
-    data.defaultPayment.token.address
+  const [chain, setChain] = useState<Chain>(
+    data.defaultPayment?.chain || { chainId: "137", name: "polygon" }
   );
-  const [tokenName, setTokenName] = useState(data.defaultPayment.token.symbol);
+  const [tokenAddress, setTokenAddress] = useState(
+    data.defaultPayment?.token?.address || "0x0"
+  );
+  const [tokenName, setTokenName] = useState(
+    data.defaultPayment?.token?.symbol ||
+      data.defaultPayment?.chain.name ||
+      "polygon"
+  );
   const handleClose = () => {
     setIsOpen(false);
   };
