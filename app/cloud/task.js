@@ -107,13 +107,15 @@ Moralis.Cloud.define("addTask", async (request) => {
       var task = new Moralis.Object("Task");
       task.set("taskId", taskId);
       task.set("token", {
-        address: defaultPayment.token.address || "0x0",
+        address: defaultPayment?.token?.address || "0x0",
         symbol:
-          defaultPayment.token.symbol || defaultPayment.chain.name || "polygon",
+          defaultPayment?.token?.symbol ||
+          defaultPayment?.chain?.name ||
+          "polygon",
       });
       task.set("chain", {
-        chainId: defaultPayment.chain.id || "137",
-        name: defaultPayment.chain.name || "polygon",
+        chainId: defaultPayment?.chain?.id || "137",
+        name: defaultPayment?.chain?.name || "polygon",
       });
       task.set("boardId", request.params.boardId);
       task.set("title", request.params.title);
