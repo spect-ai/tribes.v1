@@ -123,7 +123,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                           fullWidth
                           size="small"
                         >
-                          Add Task
+                          Add Card
                         </Button>
                         <Button
                           sx={{
@@ -138,7 +138,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                           fullWidth
                           size="small"
                         >
-                          Import Task
+                          Import Card
                         </Button>
                       </>
                     )}
