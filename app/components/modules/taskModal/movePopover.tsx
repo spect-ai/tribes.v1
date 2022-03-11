@@ -10,6 +10,7 @@ import {
 } from "../../elements/styledComponents";
 import { useBoard } from "../taskBoard";
 import { PopoverContainer } from "./datePopover";
+import { notify } from "../settingsTab";
 
 type Props = {
   open: boolean;
@@ -64,17 +65,23 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
               Object.values(data.columns).filter(
                 (col: Column) => col.title === status
               )[0]?.id
-            ).then((res: BoardData) => {
-              setData(res);
-              if (status === "Done") {
-                updateTaskStatus(Moralis, task.taskId, 205).then((res: any) => {
-                  console.log("updateTaskStatus", res);
-                  setData(res as BoardData);
-                });
-              }
-              setIsLoading(false);
-              handleClose("move");
-            });
+            )
+              .then((res: BoardData) => {
+                setData(res);
+                if (status === "Done") {
+                  updateTaskStatus(Moralis, task.taskId, 205).then(
+                    (res: any) => {
+                      console.log("updateTaskStatus", res);
+                      setData(res as BoardData);
+                    }
+                  );
+                }
+                setIsLoading(false);
+                handleClose("move");
+              })
+              .catch((err: any) => {
+                notify(err); // Lets use toastify to show this
+              });
           }}
         >
           Save

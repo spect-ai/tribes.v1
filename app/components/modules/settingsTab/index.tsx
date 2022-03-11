@@ -25,6 +25,13 @@ export const notify = (text: string) =>
     style: { fontSize: "1rem" },
   });
 
+export const notifyError = (text: string) =>
+  toast.error(text, {
+    duration: 4000,
+    position: "top-right",
+    style: { fontSize: "1rem" },
+  });
+
 const Settings = () => {
   const { tribe, setTribe } = useTribe();
   const { Moralis } = useMoralis();

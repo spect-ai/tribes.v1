@@ -318,23 +318,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                           size="small"
                           onClick={() => {
                             setIsLoading(true);
-                            for (var choice of epoch.choices) {
-                              if (
-                                epoch.votesFor[choice] >
-                                epoch.votesAgainst[choice]
-                              ) {
-                                updateTaskColumn(
-                                  Moralis,
-                                  epoch.spaceId,
-                                  choice,
-                                  data.columnOrder[0],
-                                  data.columnOrder[1]
-                                ).then((res: BoardData) => {
-                                  setData(res);
-                                  setIsLoading(false);
-                                });
-                              }
-                            }
                           }}
                         >
                           Move cards

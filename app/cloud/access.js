@@ -19,6 +19,35 @@ function isMember(userId, entity) {
   return true;
 }
 
+function canCreateTask(userId, columnId, boardObj) {}
+
+function canMoveTask(
+  callerId,
+  task,
+  sourceColumnId,
+  destinationColumnId,
+  board
+) {
+  if (
+    isTaskCreator(task, callerId) ||
+    isTaskReviewer(board, callerId) ||
+    (isTaskAssignee(board, callerId) && destinationColumnId !== "column-3")
+  ) {
+    logger.info(`something too`);
+    return true;
+  } else return isAdmin(callerId, board);
+}
+
+function isAdminFromObj(userId, entity) {
+  const members = entity.members;
+  for (var member of members) {
+    if (member.objectId === userId) {
+      return member.objectId === "admin";
+    }
+  }
+  return false;
+}
+
 function isAdmin(userId, entity) {
   const members = entity.get("members");
   for (var member of members) {

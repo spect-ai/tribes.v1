@@ -95,7 +95,6 @@ Moralis.Cloud.define("addTask", async (request) => {
 
   const board = await getBoardByObjectId(request.params.boardId);
   try {
-    const team = await getTribeByTeamId(board.get("teamId"));
     if (isMember(request.user.id, board)) {
       var columns = board.get("columns");
       const numTasks = await getTaskCountInBoard(request.params.boardId);
@@ -111,7 +110,7 @@ Moralis.Cloud.define("addTask", async (request) => {
         symbol:
           defaultPayment?.token?.symbol ||
           defaultPayment?.chain?.name ||
-          "polygon",
+          "wmatic",
       });
       task.set("chain", {
         chainId: defaultPayment?.chain?.id || "137",
@@ -427,20 +426,20 @@ Moralis.Cloud.define("updateTaskStatus", async (request) => {
     );
     await Moralis.Object.saveAll(task, { useMasterKey: true });
     logger.info(`Updated task ${JSON.stringify(task)}`);
-    const board = await getBoardObjWithTasksByObjectId(
+    const boardObj = await getBoardObjWithTasksByObjectId(
       task.get("boardId"),
       request.user.id
     );
-    return board[0];
+    return boardObj[0];
   } catch (err) {
     logger.error(
       `Error while updating task with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(
+    boardObj = await getBoardObjWithTasksByObjectId(
       task.get("boardId"),
       request.user.id
     );
-    return board[0];
+    return boardObj[0];
   }
 });
 
@@ -461,15 +460,15 @@ function handleTitleUpdate(task, userId, title) {
 }
 
 function handleDescriptionUpdate(task, userId, description) {
-  // if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
-  task.set("description", description);
-  // }
+  if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
+    task.set("description", description);
+  }
   return task;
 }
 
 function handleRewardUpdate(task, userId, value, token, chain, currencyFlag) {
   if (currencyFlag) {
-    if (isTaskCreator(task, userId) && value > 0) {
+    if (isTaskCreator(task, userId) && value >= 0) {
       task.set("value", parseFloat(value));
       task.set("token", token);
       task.set("chain", chain);
@@ -478,7 +477,7 @@ function handleRewardUpdate(task, userId, value, token, chain, currencyFlag) {
   } else {
     if (
       isTaskCreator(task, userId) &&
-      value > 0 &&
+      value >= 0 &&
       isValidToken(token.address, chain.chainId)
     ) {
       task.set("value", parseFloat(value));
@@ -491,26 +490,19 @@ function handleRewardUpdate(task, userId, value, token, chain, currencyFlag) {
 }
 
 function handleTagUpdate(task, userId, tags) {
-  if (
-    isTaskCreator(task, userId) ||
-    isTaskReviewer(task, userId) ||
-    isTaskAssignee(task, userId)
-  ) {
+  if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
     task.set("tags", tags);
   }
   return task;
 }
 
 function handleDeadlineUpdate(task, userId, deadline) {
-  // if (isTaskCreator(task, userId) && deadline) {
   task.set("deadline", new Date(deadline));
-  // }
   return task;
 }
 
 function handleAssigneeUpdate(task, callerId, assigneeId) {
   if (assigneeId) {
-    // && isDifferentAssignee(task.get("assignee"), assignee))
     task.set("assignee", [assigneeId]);
   } else {
     task.set("assignee", []);
@@ -549,6 +541,9 @@ async function handleColumnChange(boardId, taskId, sourceId, destinationId) {
       `Handling column change for task ${boardId} ${taskId} ${sourceId} ${destinationId}`
     );
     const board = await getBoardByObjectId(boardId);
+    const task = await getTaskByTaskId(taskId);
+    if (!canMoveTask(request.user.id, task, sourceId, destinationId, board))
+      throw "Unfortunately you dont have the right access to move task";
     var columnsData = board.get("columns");
     const currentColumn = columnsData[sourceId];
     const index = currentColumn.taskIds.indexOf(taskId);
@@ -577,12 +572,8 @@ async function handleColumnChange(boardId, taskId, sourceId, destinationId) {
     logger.info(`columns data ${JSON.stringify(columnsData)}`);
     board.set("columns", columnsData);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-
-    // task.set("status", getStatusCode(status));
-    // return task;
   } catch (err) {
-    logger.error(`Error while updating task with task Id ${taskId}: ${err}`);
-    return false;
+    throw `${err}`;
   }
 }
 
