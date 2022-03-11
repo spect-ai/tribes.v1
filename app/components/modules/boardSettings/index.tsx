@@ -3,17 +3,11 @@ import {
   AccordionDetails,
   AccordionSummary,
   Autocomplete,
-  Checkbox,
   Grid,
   Grow,
   IconButton,
   Modal,
   styled,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
   TextField,
   Tooltip,
   Typography,
@@ -62,22 +56,6 @@ const BoardSettings = (props: Props) => {
   const handleConfirmClose = () => {
     setIsConfirmOpen(false);
   };
-  const [columnData, setColumnData] = useState(data.columns);
-  const [isChecked, setIsChecked] = useState(
-    Array(tribe.members?.length).fill(true)
-  );
-  const toggleCheckboxValue = (index: number) => {
-    setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
-  };
-
-  useEffect(() => {
-    setColumnData(data.columns);
-    getTeam(Moralis, data.teamId).then((res: Team) => {
-      setTribe(res);
-    });
-    console.log(getFlattenedNetworks(registryTemp as Registry));
-  }, [data]);
-
   return (
     <>
       <Tooltip title="Settings">
@@ -161,76 +139,6 @@ const BoardSettings = (props: Props) => {
                       onChange={(e) => setTokenName(e.target.value)}
                     />
                   </Box>
-                </AccordionDetails>
-              </Accordion>
-              <Accordion disableGutters>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  Members
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Table aria-label="simple table" size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            checked={isChecked.every((elem) => elem === true)}
-                            onChange={(e) => {
-                              setIsChecked(
-                                Array(tribe.members.length).fill(
-                                  e.target.checked
-                                )
-                              );
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell align="right" sx={{ color: "#99ccff" }}>
-                          Username
-                        </TableCell>
-                        <TableCell align="right" sx={{ color: "#99ccff" }}>
-                          Role
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {tribe.members?.map((member, index) => (
-                        <TableRow
-                          key={index}
-                          sx={{
-                            "&:last-child td, &:last-child th": {
-                              border: 0,
-                            },
-                          }}
-                        >
-                          <TableCell
-                            component="th"
-                            scope="row"
-                            padding="checkbox"
-                          >
-                            <Checkbox
-                              color="primary"
-                              inputProps={{
-                                "aria-label": "select all desserts",
-                              }}
-                              checked={isChecked.at(index)}
-                              onClick={() => {
-                                toggleCheckboxValue(index);
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell align="right">
-                            {tribe.memberDetails[member].username}
-                          </TableCell>
-                          <TableCell align="right">
-                            {tribe.roles[member]}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
                 </AccordionDetails>
               </Accordion>
               <Accordion disableGutters>

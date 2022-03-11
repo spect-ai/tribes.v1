@@ -9,6 +9,7 @@ import { Column, Task } from "../../../types";
 import { useBoard } from "../taskBoard";
 import PriceCheckIcon from "@mui/icons-material/PriceCheck";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
+import { useMoralis } from "react-moralis";
 
 type Props = {
   task: Task;
@@ -19,7 +20,6 @@ const TaskContainer = ({ task, index, column }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
   const { data, setData } = useBoard();
-
   return (
     <>
       {isOpen && (
@@ -30,7 +30,13 @@ const TaskContainer = ({ task, index, column }: Props) => {
           column={column}
         />
       )}
-      <Draggable draggableId={task.taskId} index={index}>
+      <Draggable
+        draggableId={task.taskId}
+        index={index}
+        isDragDisabled={
+          !(task.access.assignee || task.access.creator || task.access.reviewer)
+        }
+      >
         {(provided, snapshot) => (
           <TaskCard
             {...provided.draggableProps}

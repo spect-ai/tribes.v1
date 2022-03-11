@@ -1,9 +1,7 @@
 import {
-  Autocomplete,
   Box,
   ListItem,
   Grid,
-  TextField,
   Avatar,
   ListItemText,
   InputBase,
@@ -12,7 +10,6 @@ import {
   Tooltip,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import styled from "@emotion/styled";
 import Divider from "@mui/material/Divider";
 import {
@@ -25,7 +22,6 @@ import { BoardData, Column, Task } from "../../../types";
 import { formatTime, getMD5String } from "../../../utils/utils";
 import {
   assignToMe,
-  closeTask,
   updateTaskDescription,
   updateTaskTitle,
   completePayment,
@@ -34,11 +30,9 @@ import { useMoralis } from "react-moralis";
 import { useBoard } from "../taskBoard";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
-import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import { labelsMapping, registryTemp, statusMapping } from "../../../constants";
+import { labelsMapping, registryTemp } from "../../../constants";
 import { actionMap, monthMap } from "../../../constants";
 import { distributeEther, batchPayTokens } from "../../../adapters/contract";
-import DoneIcon from "@mui/icons-material/Done";
 import DatePopover from "./datePopover";
 import LabelPopover from "./labelPopover";
 import MemberPopover from "./memberPopover";
@@ -61,13 +55,7 @@ const converter = new Showdown.Converter({
   tasklists: true,
 });
 
-const EditTask = ({
-  task,
-  setTask,
-  handleClose,
-  submissionPR,
-  column,
-}: Props) => {
+const EditTask = ({ task, handleClose, column }: Props) => {
   const { data, setData } = useBoard();
   const { Moralis, user } = useMoralis();
   const [isLoading, setIsLoading] = useState(false);
@@ -97,6 +85,7 @@ const EditTask = ({
       });
   };
   useEffect(() => {
+    console.log(task.access);
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
     }

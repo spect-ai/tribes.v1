@@ -164,10 +164,14 @@ export interface BoardData {
   updatedAt: string;
   statusList: string[];
   members: string[];
-  memberDetails: Object<string, Member>;
+  memberDetails: {
+    [key: string]: Member;
+  };
   taskDetails: Object<string, Task>;
   access: string;
-  roles: Object<string, string>;
+  roles: {
+    [key: string]: string;
+  };
   epochs: Epoch[];
   _id: string;
   _createdAt: string;

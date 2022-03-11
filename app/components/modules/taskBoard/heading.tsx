@@ -155,6 +155,7 @@ const Heading = (props: Props) => {
       <StyledTabs value={tab} onChange={handleTabChange}>
         <StyledTab label="Board" />
         <StyledTab label="Epoch" />
+        <StyledTab label="Members" />
       </StyledTabs>
     </Container>
   );

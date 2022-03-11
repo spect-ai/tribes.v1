@@ -25,9 +25,9 @@ type Props = {
 };
 
 const Column = ({ tasks, id, column, index }: Props) => {
-  const { Moralis } = useMoralis();
+  const { Moralis, user } = useMoralis();
   const router = useRouter();
-  const { setData } = useBoard();
+  const { data, setData } = useBoard();
   const { bid } = router.query;
 
   const [showCreateTask, setShowCreateTask] = useState(false);
@@ -56,7 +56,11 @@ const Column = ({ tasks, id, column, index }: Props) => {
 
   return (
     <OuterContainer>
-      <Draggable draggableId={id} index={index}>
+      <Draggable
+        draggableId={id}
+        index={index}
+        isDragDisabled={data.roles[user?.id as string] !== "admin"}
+      >
         {(provided, snapshot) => (
           <Container
             {...provided.draggableProps}
@@ -80,6 +84,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       value={columnTitle}
                       onChange={(e) => setColumnTitle(e.target.value)}
                       onBlur={updateColumn}
+                      readOnly={data.roles[user?.id as string] !== "admin"}
                     />
                     <Box sx={{ flex: "1 1 auto" }} />
                     <IconButton

@@ -33,6 +33,8 @@ async function getBoardObjWithTasksByObjectId(objectId, callerId) {
     var tasks = await getTaskObjByBoardId(objectId);
     var boardTasks = {};
     for (var task of tasks) {
+      const access = getFieldLevelAccess(task, callerId);
+      task.access = access;
       boardTasks[task.taskId] = task;
     }
     board[0].tasks = boardTasks;
@@ -294,10 +296,16 @@ Moralis.Cloud.define("deleteBoard", async (request) => {
   }
 });
 
-Moralis.Cloud.define("addBoardMembers", async (request) => {
+Moralis.Cloud.define("updateBoardMembers", async (request) => {
   const boardQuery = new Moralis.Query("Board");
   boardQuery.equalTo("objectId", request.params.boardId);
   const board = await boardQuery.first();
-  board.set("members", board.get("members").concat(request.params.members));
+  board.set("members", request.params.members);
+  board.set("roles", request.params.roles);
   await Moralis.Object.saveAll([board], { useMasterKey: true });
+  const boardObj = await getBoardObjWithTasksByObjectId(
+    request.params.boardId,
+    request.user.id
+  );
+  return boardObj[0];
 });

@@ -14,6 +14,7 @@ import {
   setNavbarTitle,
   useGlobal,
 } from "../../../context/globalContext";
+import Members from "../members";
 
 type Props = {};
 
@@ -87,7 +88,13 @@ const TaskBoard = (props: Props) => {
               </div>
             </Grow>
           )}
-          {tab === 3 && <Analytics />}
+          {tab === 2 && (
+            <Grow in={tab === 2} timeout={500}>
+              <div>
+                <Members />
+              </div>
+            </Grow>
+          )}
         </BoardContext.Provider>
       </div>
     </Fade>

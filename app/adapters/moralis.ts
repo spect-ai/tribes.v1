@@ -540,3 +540,17 @@ export function completeEpochPayment(Moralis: any, epochId: string) {
   };
   return Moralis.Cloud.run("completeEpochPayment", params);
 }
+
+export function updateBoardMembers(
+  Moralis: any,
+  boardId: string,
+  members: string[],
+  roles: { [key: string]: string }
+) {
+  const params = {
+    boardId: boardId,
+    members: members,
+    roles: roles,
+  };
+  return Moralis.Cloud.run("updateBoardMembers", params);
+}
