@@ -32,10 +32,7 @@ type Props = {
 const Board = ({ expanded, handleChange }: Props) => {
   const { data, setData } = useBoard();
   const router = useRouter();
-  console.log(data);
-
-  const { Moralis, isInitialized } = useMoralis();
-  const [isLoading, setIsLoading] = useState(true);
+  const { Moralis, user } = useMoralis();
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId, type } = result;
@@ -166,6 +163,7 @@ const Board = ({ expanded, handleChange }: Props) => {
                 borderRadius: "0.5rem",
                 margin: "0.3rem 2rem 1rem 0rem",
               }}
+              disabled={data.roles[user?.id as string] !== "admin"}
               onClick={() => {
                 const newColumnId = Object.keys(data.columns).length;
                 setData({

@@ -49,6 +49,16 @@ async function getBoardObjByTeamId(teamId) {
   return await boardQuery.aggregate(pipeline);
 }
 
+function joinSpaceAsMember(space, userId) {
+  const members = space.get("members");
+  const roles = space.get("roles");
+  members.push(userId);
+  roles[userId] = "member";
+  space.set("members", members);
+  space.set("roles", roles);
+  return space;
+}
+
 function getBoardObjFromBoardParseObj(board) {
   return {
     objectId: board.id,
@@ -96,7 +106,6 @@ Moralis.Cloud.define("initBoard", async (request) => {
     if (isMember(request.user.id, team)) {
       var initColumns = ["To Do", "In Progress", "In Review", "Done"];
       var initBoardStatusList = ["Open", "In Progress", "Submitted", "Closed"];
-      var initStatusColors = ["#eaeaea", "#0061ff", "#2e5da9", "#5fe086"];
       var columnIds = [];
       var columnIdToColumnMap = {};
 
@@ -108,7 +117,6 @@ Moralis.Cloud.define("initBoard", async (request) => {
           title: initColumns[i],
           taskIds: [],
           status: initBoardStatusList[i],
-          color: initStatusColors[i],
         };
         logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
       }
@@ -122,6 +130,7 @@ Moralis.Cloud.define("initBoard", async (request) => {
       // TODO: Make this customizable
       board.set("members", request.params.members);
       board.set("roles", request.params.roles);
+      board.set("tokenGating", request.params.tokenGating);
 
       logger.error(`Creating new board ${JSON.stringify(board)}`);
 
@@ -264,6 +273,7 @@ Moralis.Cloud.define("updateBoard", async (request) => {
     const board = await getBoardByObjectId(request.params.boardId);
     board.set("name", request.params.name);
     board.set("defaultPayment", request.params.defaultPayment);
+    board.set("tokenGating", request.params.tokenGating);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
     const boardObj = await getBoardObjWithTasksByObjectId(
       request.params.boardId,
@@ -307,8 +317,63 @@ Moralis.Cloud.define("updateBoardMembers", async (request) => {
     return boardObj[0];
   } catch (err) {
     logger.error(
-      `Error while updating board members ${request.params.boardId}: ${err}`
+      `Error while updating board members on board id ${request.params.boardId}: ${err}`
     );
-    throw `Error while updating board members ${request.params.boardId}: ${err}`;
+    throw `Error while updating board members ${err}`;
+  }
+});
+
+Moralis.Cloud.define("joinSpace", async (request) => {
+  try {
+    const boardQuery = new Moralis.Query("Board");
+    boardQuery.equalTo("objectId", request.params.boardId);
+    let board = await boardQuery.first();
+    if (board.get("members").indexOf(request.user.id) !== -1) {
+      return false; // replace with throw maybe?
+    }
+    if (
+      !(
+        board.get("tokenGating").tokenAddress &&
+        board.get("tokenGating").tokenLimit > 0
+      )
+    ) {
+      return false; // replace with throw maybe?
+    }
+    let tribe = await getTribeByTeamId(board.get("teamId")); // need to change to objectid
+    const options = {
+      chain: board.get("tokenGating").chain.name,
+      address: request.user.get("ethAddress"),
+    };
+    const balances = await Moralis.Web3API.account.getTokenBalances(options);
+    const token = balances.filter(
+      (b) =>
+        b.token_address.toLowerCase() ===
+        board.get("tokenGating").tokenAddress.toLowerCase()
+    );
+    logger.info(`token ${JSON.stringify(token)}`);
+    const web3 = Moralis.web3ByChain("0x1");
+    if (
+      token[0] &&
+      web3.utils.fromWei(token[0].balance.toString()) >=
+        board.get("tokenGating").tokenLimit
+    ) {
+      if (tribe.get("members").indexOf(request.user.id) === -1) {
+        tribe = joinTribeAsMember(tribe, request.user.id);
+      }
+      board = joinSpaceAsMember(board, request.user.id);
+      await Moralis.Object.saveAll([tribe, board], { useMasterKey: true });
+      const boardObj = await getBoardObjWithTasksByObjectId(
+        request.params.boardId,
+        request.user.id
+      );
+      return boardObj[0];
+    } else {
+      throw "Not enough balance to join this space";
+    }
+  } catch (err) {
+    logger.error(
+      `Error while joining space with space id ${request.params.boardId} : ${err}`
+    );
+    throw `Error while joining space ${err}`;
   }
 });

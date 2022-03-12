@@ -12,11 +12,7 @@ import {
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import Divider from "@mui/material/Divider";
-import {
-  FieldContainer,
-  PrimaryButton,
-  TaskButton,
-} from "../../elements/styledComponents";
+import { PrimaryButton, TaskButton } from "../../elements/styledComponents";
 import CloseIcon from "@mui/icons-material/Close";
 import { BoardData, Column, Task } from "../../../types";
 import { formatTime, getMD5String } from "../../../utils/utils";
@@ -25,6 +21,7 @@ import {
   updateTaskDescription,
   updateTaskTitle,
   completePayment,
+  archiveTask,
 } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useBoard } from "../taskBoard";
@@ -40,6 +37,18 @@ import RewardPopover from "./rewardPopover";
 import SubmissionPopover from "./submissionPopover";
 import MovePopover from "./movePopover";
 import { LinkPreview } from "@dhaiwat10/react-link-preview";
+
+import EventIcon from "@mui/icons-material/Event";
+import LabelIcon from "@mui/icons-material/Label";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
+import PaidIcon from "@mui/icons-material/Paid";
+import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
+import HailIcon from "@mui/icons-material/Hail";
+import DeleteIcon from "@mui/icons-material/Delete";
+import PublishIcon from "@mui/icons-material/Publish";
+import { notify } from "../settingsTab";
+import { Toaster } from "react-hot-toast";
 
 type Props = {
   task: Task;
@@ -70,6 +79,10 @@ const EditTask = ({ task, handleClose, column }: Props) => {
   const handleClosePopover = (field: string) => {
     setOpen({ [field]: false });
   };
+  const isSpaceMember = () => {
+    return data.members.indexOf(user?.id as string) !== -1;
+  };
+
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
   const [title, setTitle] = useState(task.title);
 
@@ -93,6 +106,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
 
   return (
     <Container>
+      <Toaster />
       <TaskModalTitleContainer>
         <InputBase
           placeholder="Add Title"
@@ -321,6 +335,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     color="primary"
                     disabled={column.status === "Closed"}
                     onClick={handleClick("date")}
+                    endIcon={<EventIcon />}
                   >
                     Due Date
                   </TaskButton>
@@ -337,7 +352,8 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                   variant="outlined"
                   color="primary"
                   onClick={handleClick("label")}
-                  disabled={column.status === "Closed"}
+                  disabled={!isSpaceMember() || column.status === "Closed"}
+                  endIcon={<LabelIcon />}
                 >
                   Labels
                 </TaskButton>
@@ -355,6 +371,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     color="primary"
                     onClick={handleClick("reviewer")}
                     disabled={column.status === "Closed"}
+                    endIcon={<VisibilityIcon />}
                   >
                     Reviewer
                   </TaskButton>
@@ -374,6 +391,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     color="primary"
                     onClick={handleClick("assignee")}
                     disabled={column.status === "Closed"}
+                    endIcon={<AssignmentIndIcon />}
                   >
                     Assignee
                   </TaskButton>
@@ -392,6 +410,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     variant="outlined"
                     color="primary"
                     onClick={handleClick("reward")}
+                    endIcon={<PaidIcon />}
                   >
                     Reward
                   </TaskButton>
@@ -409,6 +428,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     variant="outlined"
                     color="primary"
                     onClick={handleClick("submission")}
+                    endIcon={<PublishIcon />}
                   >
                     Submission
                   </TaskButton>
@@ -440,6 +460,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     variant="outlined"
                     color="primary"
                     onClick={handleClick("move")}
+                    endIcon={<ArrowCircleRightIcon />}
                   >
                     Move
                   </TaskButton>
@@ -453,42 +474,44 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     task={task}
                   />
                 )}
-                {data.roles[user?.id] === "admin" && task.status === 205 && (
-                  <TaskButton
-                    variant="outlined"
-                    color="primary"
-                    onClick={() => {
-                      task.token.symbol ===
-                      registryTemp[task.chain.chainId].nativeCurrency
-                        ? distributeEther(
-                            [data.memberDetails[task.assignee[0]].ethAddress],
-                            [task.value],
-                            task.taskId,
-                            window.ethereum.networkVersion
-                          )
-                            .then((res: any) => {
-                              console.log(res);
-                              handleTaskStatusUpdate([task.taskId]);
-                              handleClose();
-                            })
-                            .catch((err: any) => alert(err))
-                        : batchPayTokens(
-                            [task.token.address as string],
-                            [data.memberDetails[task.assignee[0]].ethAddress],
-                            [task.value],
-                            task.taskId,
-                            window.ethereum.networkVersion
-                          )
-                            .then((res: any) => {
-                              handleTaskStatusUpdate([task.taskId]);
-                              handleClose();
-                            })
-                            .catch((err: any) => alert(err));
-                    }}
-                  >
-                    Pay
-                  </TaskButton>
-                )}
+                {data.roles[user?.id as string] === "admin" &&
+                  task.status === 205 && (
+                    <TaskButton
+                      variant="outlined"
+                      color="primary"
+                      endIcon={<PaidIcon />}
+                      onClick={() => {
+                        task.token.symbol ===
+                        registryTemp[task.chain.chainId].nativeCurrency
+                          ? distributeEther(
+                              [data.memberDetails[task.assignee[0]].ethAddress],
+                              [task.value],
+                              task.taskId,
+                              window.ethereum.networkVersion
+                            )
+                              .then((res: any) => {
+                                console.log(res);
+                                handleTaskStatusUpdate([task.taskId]);
+                                handleClose();
+                              })
+                              .catch((err: any) => alert(err))
+                          : batchPayTokens(
+                              [task.token.address as string],
+                              [data.memberDetails[task.assignee[0]].ethAddress],
+                              [task.value],
+                              task.taskId,
+                              window.ethereum.networkVersion
+                            )
+                              .then((res: any) => {
+                                handleTaskStatusUpdate([task.taskId]);
+                                handleClose();
+                              })
+                              .catch((err: any) => alert(err));
+                      }}
+                    >
+                      Pay
+                    </TaskButton>
+                  )}
                 {/*!task.access.creator && (
                   <TaskButton variant="outlined" color="primary">
                     Vote
@@ -498,6 +521,8 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                   <TaskButton
                     variant="outlined"
                     color="primary"
+                    disabled={!isSpaceMember()}
+                    endIcon={<HailIcon />}
                     onClick={() => {
                       assignToMe(Moralis, task.taskId)
                         .then((res: BoardData) => {
@@ -507,6 +532,24 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     }}
                   >
                     Assign to me
+                  </TaskButton>
+                )}
+                {data.roles[user?.id as string] === "admin" && (
+                  <TaskButton
+                    variant="outlined"
+                    color="error"
+                    endIcon={<DeleteIcon />}
+                    onClick={() => {
+                      archiveTask(Moralis, task.taskId).then(
+                        (res: BoardData) => {
+                          setData(res);
+                          notify("Task archived successfully", "success");
+                          handleClose();
+                        }
+                      );
+                    }}
+                  >
+                    Archive
                   </TaskButton>
                 )}
               </Box>

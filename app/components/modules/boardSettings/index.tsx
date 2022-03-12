@@ -36,7 +36,6 @@ const BoardSettings = (props: Props) => {
   const { Moralis } = useMoralis();
   const [name, setName] = useState(data.name);
   const [isOpen, setIsOpen] = useState(false);
-  const [tribe, setTribe] = useState<Team>({} as Team);
   const [chain, setChain] = useState<Chain>(
     data.defaultPayment?.chain || { chainId: "137", name: "polygon" }
   );
@@ -47,6 +46,15 @@ const BoardSettings = (props: Props) => {
     data.defaultPayment?.token?.symbol ||
       data.defaultPayment?.chain.name ||
       "polygon"
+  );
+  const [tokenGatechain, setTokenGateChain] = useState(
+    data.tokenGating.chain as Chain
+  );
+  const [tokenGateAddress, setTokenGateAddress] = useState(
+    data.tokenGating.tokenAddress
+  );
+  const [tokenGateLimit, setTokenGateLLimit] = useState(
+    data.tokenGating.tokenLimit
   );
   const handleClose = () => {
     setIsOpen(false);
@@ -109,6 +117,7 @@ const BoardSettings = (props: Props) => {
                     options={getFlattenedNetworks(registryTemp as Registry)}
                     getOptionLabel={(option) => option.name}
                     value={chain}
+                    disableClearable
                     onChange={(event, newValue) => {
                       setChain(newValue as Chain);
                     }}
@@ -129,14 +138,75 @@ const BoardSettings = (props: Props) => {
                       sx={{ mr: 4 }}
                       label="Token Address"
                       value={tokenAddress}
-                      onChange={(e) => setTokenAddress(e.target.value)}
+                      onChange={async (e) => {
+                        setTokenAddress(e.target.value);
+                        if (e.target.value.length === 42) {
+                          const options = {
+                            chain: chain.name,
+                            addresses: e.target.value,
+                          };
+                          const token =
+                            await Moralis.Web3API.token.getTokenMetadata(
+                              options as any
+                            );
+                          setTokenName(token[0].symbol);
+                        }
+                      }}
                     />
                     <TextField
                       size="small"
                       sx={{ mb: 4, width: "45%" }}
                       label="Name"
                       value={tokenName}
-                      onChange={(e) => setTokenName(e.target.value)}
+                      InputProps={{ readOnly: true }}
+                    />
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+              <Accordion disableGutters>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  Token Gating
+                </AccordionSummary>
+                <AccordionDetails>
+                  <Typography>
+                    Enable token gating to allow addresses with the token limit
+                    to automatically join space without any prior permission
+                  </Typography>
+                  <Autocomplete
+                    options={getFlattenedNetworks(registryTemp as Registry)}
+                    getOptionLabel={(option) => option.name}
+                    value={tokenGatechain}
+                    disableClearable
+                    onChange={(event, newValue) => {
+                      setTokenGateChain(newValue as Chain);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        size="small"
+                        fullWidth
+                        sx={{ my: 4 }}
+                      />
+                    )}
+                  />
+                  <Box sx={{ display: "flex" }}>
+                    <TextField
+                      fullWidth
+                      placeholder="Token Address"
+                      size="small"
+                      value={tokenGateAddress}
+                      onChange={(e) => setTokenGateAddress(e.target.value)}
+                    />
+                    <TextField
+                      sx={{ width: "25%", ml: 2 }}
+                      placeholder="Limit"
+                      type={"number"}
+                      size="small"
+                      inputProps={{ min: 1 }}
+                      value={tokenGateLimit}
+                      onChange={(e) =>
+                        setTokenGateLLimit(Number(e.target.value))
+                      }
                     />
                   </Box>
                 </AccordionDetails>
@@ -183,10 +253,21 @@ const BoardSettings = (props: Props) => {
                   loading={isLoading}
                   onClick={() => {
                     setIsLoading(true);
-                    updateBoard(Moralis, data.objectId, name, chain, {
-                      address: tokenAddress,
-                      symbol: tokenName,
-                    }).then((res: any) => {
+                    updateBoard(
+                      Moralis,
+                      data.objectId,
+                      name,
+                      chain,
+                      {
+                        address: tokenAddress,
+                        symbol: tokenName,
+                      },
+                      {
+                        chain: tokenGatechain,
+                        tokenAddress: tokenGateAddress,
+                        tokenLimit: tokenGateLimit,
+                      }
+                    ).then((res: any) => {
                       console.log(res);
                       setData(res as BoardData);
                       setIsLoading(false);

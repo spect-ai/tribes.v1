@@ -53,7 +53,6 @@ const Column = ({ tasks, id, column, index }: Props) => {
       );
     }
   }
-
   return (
     <OuterContainer>
       <Draggable
@@ -91,6 +90,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       sx={{ mb: 0.5, p: 1 }}
                       size="small"
                       onClick={handleClick}
+                      disabled={data.roles[user?.id as string] !== "admin"}
                     >
                       <SettingsIcon fontSize="small" />
                     </IconButton>
@@ -127,6 +127,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                           }}
                           fullWidth
                           size="small"
+                          disabled={data.roles[user?.id as string] !== "admin"}
                         >
                           Add Card
                         </Button>
@@ -142,6 +143,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                           onClick={() => setShowCreateGithubTask(true)}
                           fullWidth
                           size="small"
+                          disabled={data.roles[user?.id as string] !== "admin"}
                         >
                           Import Card
                         </Button>
@@ -149,14 +151,17 @@ const Column = ({ tasks, id, column, index }: Props) => {
                     )}
                   </Box>
                   <TaskList>
-                    {tasks?.map((task, index) => (
-                      <TaskContainer
-                        key={task.taskId}
-                        task={task}
-                        index={index}
-                        column={column}
-                      />
-                    ))}
+                    {tasks?.map((task, index) => {
+                      if (task)
+                        return (
+                          <TaskContainer
+                            key={task?.taskId}
+                            task={task}
+                            index={index}
+                            column={column}
+                          />
+                        );
+                    })}
                     {provided.placeholder}
                     <CreateTask
                       showCreateTask={showCreateTask}

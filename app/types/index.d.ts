@@ -176,10 +176,8 @@ export interface BoardData {
   _id: string;
   _createdAt: string;
   team: Team[];
-  defaultPayment: {
-    token: Token;
-    chain: Chain;
-  };
+  defaultPayment: DefaultPayment;
+  tokenGating: TokenGate;
 }
 
 export type TokenInfo = {
@@ -202,4 +200,15 @@ export type NetworkInfo = {
 
 export type Registry = {
   [chainId: string]: NetworkInfo;
+};
+
+export type TokenGate = {
+  chain: Chain;
+  tokenAddress: string;
+  tokenLimit: number;
+};
+
+export type DefaultPayment = {
+  chain: Chain;
+  token: Token;
 };
