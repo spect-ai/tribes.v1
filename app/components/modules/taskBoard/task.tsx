@@ -10,6 +10,7 @@ import { useBoard } from "../taskBoard";
 import PriceCheckIcon from "@mui/icons-material/PriceCheck";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import { useMoralis } from "react-moralis";
+import { smartTrim } from "../../../utils/utils";
 
 type Props = {
   task: Task;
@@ -77,7 +78,10 @@ const TaskContainer = ({ task, index, column }: Props) => {
                 )}
                 {task.assignee.length > 0 && (
                   <Chip color="#ce93d8">
-                    {data.memberDetails[task.assignee[0]].username}
+                    {smartTrim(
+                      data.memberDetails[task.assignee[0]].username,
+                      8
+                    )}
                   </Chip>
                 )}
                 {task.status === 300 && (

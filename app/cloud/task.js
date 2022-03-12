@@ -26,7 +26,12 @@ async function getTaskObjByTaskId(taskId) {
 async function getTaskObjByBoardId(boardId) {
   const taskQuery = new Moralis.Query("Task");
   const pipeline = [
-    { match: { boardId: boardId } },
+    {
+      match: {
+        boardId: boardId,
+        status: { $ne: 400 },
+      },
+    },
     {
       project: {
         description: 0,
@@ -778,8 +783,7 @@ Moralis.Cloud.define("closeTask", async (request) => {
       isTaskCreator(task, request.user.id) ||
       isTaskReviewer(task, request.user.id)
     ) {
-      task = handleStatusChange(task, request.user.id, "Closed");
-      task = handleActivityUpdate(task, request.user.id, 205);
+      task = handleStatusUpdate(task, request.user.id, 205);
       task.set("status", 205);
       await Moralis.Object.saveAll(task, { useMasterKey: true });
       var board = await getBoardObjWithTasksByObjectId(
@@ -824,4 +828,15 @@ Moralis.Cloud.define("completePayment", async (request) => {
     );
     return board[0];
   }
+});
+
+Moralis.Cloud.define("archiveTask", async (request) => {
+  var task = await getTaskByTaskId(request.params.taskId);
+  task = handleStatusUpdate(task, request.user.id, 400);
+  await Moralis.Object.saveAll(task, { useMasterKey: true });
+  var board = await getBoardObjWithTasksByObjectId(
+    task.get("boardId"),
+    request.user.id
+  );
+  return board[0];
 });

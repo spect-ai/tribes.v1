@@ -1,6 +1,5 @@
 import styled from "@emotion/styled";
 import {
-  Avatar,
   Box,
   Breadcrumbs,
   Drawer,
@@ -11,9 +10,6 @@ import {
   Tooltip,
   Typography,
   ListItemButton,
-  styled as MUIStyled,
-  Tabs,
-  Tab,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
@@ -24,7 +20,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import Link from "next/link";
-import { getBoards } from "../../../adapters/moralis";
+import { getBoards, joinSpace } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import Payment from "../payment/batchPayIcon";
 import {
@@ -33,6 +29,9 @@ import {
   StyledTabs,
 } from "../../elements/styledComponents";
 import CreateEpochModal from "../epoch/createEpochModal";
+import { ethers } from "ethers";
+import { notify } from "../settingsTab";
+import { Toaster } from "react-hot-toast";
 
 type Props = {};
 
@@ -48,30 +47,29 @@ const StyledIcon = styled.div`
 `;
 
 const Heading = (props: Props) => {
-  const { data, tab, handleTabChange } = useBoard();
+  const { data, setData, tab, handleTabChange } = useBoard();
   const router = useRouter();
   const id = router.query.id as string;
   const bid = router.query.bid as string;
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
-  const { Moralis, isInitialized } = useMoralis();
+  const { Moralis, isInitialized, user } = useMoralis();
   const [boards, setBoards] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingJoinSpace, setIsLoadingJoinSpace] = useState(false);
 
   useEffect(() => {
     if (isInitialized) {
-      setIsLoading(true);
       getBoards(Moralis, parseInt(id))
         .then((res: any) => {
           setBoards(res);
         })
         .catch((err: any) => alert(err));
-      setIsLoading(false);
     }
   }, [isInitialized, data.name]);
 
   return (
     <Container>
+      <Toaster />
       <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
         <List
           sx={{ maxWidth: "10rem", backgroundColor: "#00194A", height: "100%" }}
@@ -102,7 +100,7 @@ const Heading = (props: Props) => {
             }}
           >
             <GroupsIcon sx={{ fontSize: 14 }} />
-            Tribe
+            {data.team[0].name}
           </MuiLink>
         </Link>
         <MuiLink
@@ -124,8 +122,8 @@ const Heading = (props: Props) => {
         <Typography variant="h6" sx={{ mx: 2 }}>
           {data.name}
         </Typography>
-        <BoardSettings />
-        <Payment />
+        {data.roles[user?.id as string] === "admin" && <BoardSettings />}
+        {data.roles[user?.id as string] === "admin" && <Payment />}
         <Tooltip title="Switch Board">
           <IconButton
             sx={{ mb: 0.5, p: 2.5 }}
@@ -142,16 +140,42 @@ const Heading = (props: Props) => {
             </IconButton>
           </MuiLink>
         </Tooltip>
+        {data.members.indexOf(user?.id as string) === -1 &&
+          data.tokenGating.tokenLimit > 0 && (
+            <Tooltip title="You can join space if you have enough tokens">
+              <PrimaryButton
+                variant="outlined"
+                sx={{ borderRadius: 1, mx: 4 }}
+                loading={isLoadingJoinSpace}
+                onClick={async () => {
+                  setIsLoadingJoinSpace(true);
+                  joinSpace(Moralis, bid)
+                    .then((res: any) => {
+                      console.log(res);
+                      setIsLoadingJoinSpace(false);
+                      setData(res);
+                      notify("Joined Space Succesfully");
+                    })
+                    .catch((err: any) => {
+                      setIsLoadingJoinSpace(false);
+                      notify(err.message, "error");
+                    });
+                }}
+              >
+                Join Space
+              </PrimaryButton>
+            </Tooltip>
+          )}
         {/* <Tooltip title="Invite member">
           <IconButton sx={{ mb: 0, p: 1.7 }} size="small">
             <PeopleOutlineIcon />
           </IconButton>
         </Tooltip> */}
-        <CreateEpochModal />
+        {data.roles[user?.id as string] === "admin" && <CreateEpochModal />}
       </Box>
-      {/*<Typography sx={{ ml: 2, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
-        {"This space is for project planning, discussions, and more."}
-        </Typography>*/}
+      {/* <Typography sx={{ ml: 2, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
+        {data.description}
+      </Typography> */}
       <StyledTabs value={tab} onChange={handleTabChange}>
         <StyledTab label="Board" />
         <StyledTab label="Epoch" />

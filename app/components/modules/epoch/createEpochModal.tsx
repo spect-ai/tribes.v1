@@ -33,6 +33,8 @@ import {
   getFlattenedCurrencies,
 } from "../../../utils/utils";
 import { registryTemp } from "../../../constants";
+import { notify } from "../settingsTab";
+import { Toaster } from "react-hot-toast";
 
 type Props = {};
 
@@ -116,8 +118,13 @@ const CreateEpochModal = (props: Props) => {
   const handleClose = () => {
     setIsOpen(false);
   };
+
+  const validateFields = () => {
+    return name !== "" && duration !== "" && type !== "" && strategy !== "";
+  };
   return (
     <>
+      <Toaster />
       <Tooltip title="Start Epoch">
         <IconButton
           sx={{ p: 1.7 }}
@@ -173,6 +180,11 @@ const CreateEpochModal = (props: Props) => {
                 fullWidth
                 sx={{ mb: 2 }}
                 placeholder="Duration (in days)"
+                InputProps={{
+                  inputProps: {
+                    min: 1,
+                  },
+                }}
                 type={"number"}
                 size="small"
               />
@@ -183,6 +195,7 @@ const CreateEpochModal = (props: Props) => {
                     : ["Quadratic voting", "Pass/No Pass"]
                 }
                 //getOptionLabel={(option) => option.symbol}
+                disableClearable
                 value={strategy}
                 onChange={(event, newValue) => {
                   setStrategy(newValue as string);
@@ -362,6 +375,7 @@ const CreateEpochModal = (props: Props) => {
                   options={data.columnOrder}
                   getOptionLabel={(option) => data.columns[option]?.title}
                   value={column}
+                  disableClearable
                   onChange={(event, newValue) => {
                     setColumn(newValue as string);
                     setTasks(data.columns[newValue as string]?.taskIds);
@@ -382,9 +396,12 @@ const CreateEpochModal = (props: Props) => {
                 variant="outlined"
                 sx={{ width: "50%", mt: 2, borderRadius: 1 }}
                 onClick={() => {
+                  if (!validateFields()) {
+                    notify("Please fill all the fields", "error");
+                    return;
+                  }
                   const members = getMembers();
                   const choices = getChoices();
-
                   startEpoch(
                     Moralis,
                     data.teamId,
@@ -421,7 +438,7 @@ const CreateEpochModal = (props: Props) => {
 const modalStyle = {
   position: "absolute" as "absolute",
   top: "10%",
-  left: "25%",
+  left: "30%",
   transform: "translate(-50%, -50%)",
   width: "35rem",
   bgcolor: "background.paper",

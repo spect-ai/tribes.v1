@@ -60,6 +60,16 @@ async function getTribeObjByTeamId(teamId) {
   return await teamQuery.aggregate(pipeline);
 }
 
+function joinTribeAsMember(tribe, userId) {
+  const members = tribe.get("members");
+  const roles = tribe.get("roles");
+  members.push(userId);
+  roles[userId] = "member";
+  tribe.set("members", members);
+  tribe.set("roles", roles);
+  return tribe;
+}
+
 Moralis.Cloud.define("getTeam", async (request) => {
   const team = await getTribeObjByTeamId(request.params.teamId);
   if (team.length === 0) throw "Team not found";

@@ -19,6 +19,8 @@ import { BoardData, Team } from "../../../types";
 import { useBoard } from "../taskBoard";
 import styled from "@emotion/styled";
 import { PrimaryButton } from "../../elements/styledComponents";
+import { Toaster } from "react-hot-toast";
+import { notify } from "../settingsTab";
 
 type Props = {};
 
@@ -52,6 +54,10 @@ const Members = (props: Props) => {
   }, []);
 
   const onSave = () => {
+    if (!Object.values(roles).includes("admin")) {
+      notify("You must have at least one admin", "error");
+      return;
+    }
     setIsLoading(true);
     const members = tribe.members.filter((member: string, index: number) => {
       return isChecked[index];
@@ -60,6 +66,7 @@ const Members = (props: Props) => {
       .then((res: BoardData) => {
         setIsLoading(false);
         setData(res);
+        notify("Members updated successfully");
       })
       .catch((err: any) => {
         console.log(err);
@@ -69,6 +76,7 @@ const Members = (props: Props) => {
 
   return (
     <Container>
+      <Toaster />
       <Table aria-label="simple table" size="small">
         <TableHead>
           <TableRow>
@@ -121,7 +129,12 @@ const Members = (props: Props) => {
                 <Select
                   value={roles[member] || "member"}
                   fullWidth
-                  sx={{ width: "30%" }}
+                  size="small"
+                  sx={{
+                    width: "30%",
+                    fontSize: 12,
+                    textAlign: "center",
+                  }}
                   disabled={data.roles[user?.id as string] !== "admin"}
                   onChange={(e) => {
                     setRoles({ ...roles, [member]: e.target.value });

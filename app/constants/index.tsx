@@ -144,6 +144,7 @@ export const reverseStatusMapping = {
   "In review": 200,
   Closed: 205,
   Paid: 300,
+  Archived: 400,
 };
 
 export const currentStatusToFutureValidStatus = {
@@ -152,6 +153,7 @@ export const currentStatusToFutureValidStatus = {
   105: ["In progress", "Open", "Assigned", "In review"],
   200: ["In review", "In progress"],
   205: ["Closed"],
+  400: ["Archived"],
 };
 
 export const statusColorMapping = {
@@ -161,6 +163,7 @@ export const statusColorMapping = {
   200: "#2e5da9",
   205: "#5fe086",
   300: "#5fe086",
+  400: "red",
 };
 
 export const amountData = {

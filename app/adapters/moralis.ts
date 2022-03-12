@@ -1,4 +1,4 @@
-import { Team, Epoch, Member, Chain, Token } from "../types/index";
+import { Team, Epoch, Member, Chain, Token, TokenGate } from "../types/index";
 
 export function getOrCreateUser(Moralis: any) {
   return Moralis.Cloud.run("getOrCreateUser");
@@ -30,7 +30,12 @@ export function initBoard(
   name: string,
   members: Array<string>,
   roles: object,
-  teamId: number
+  teamId: number,
+  tokenGating: {
+    chain: Chain;
+    tokenAddress: string;
+    tokenLimit: number;
+  }
 ) {
   console.log(members);
   const params = {
@@ -38,6 +43,7 @@ export function initBoard(
     teamId: teamId,
     members: members,
     roles: roles,
+    tokenGating: tokenGating,
   };
   return Moralis.Cloud.run("initBoard", params);
 }
@@ -406,7 +412,8 @@ export function updateBoard(
   boardId: string,
   name: string,
   chain: Chain,
-  token: Token
+  token: Token,
+  tokenGating: TokenGate
 ) {
   const params = {
     boardId: boardId,
@@ -415,6 +422,7 @@ export function updateBoard(
       chain: chain,
       token: token,
     },
+    tokenGating: tokenGating,
   };
   return Moralis.Cloud.run("updateBoard", params);
 }
@@ -553,4 +561,18 @@ export function updateBoardMembers(
     roles: roles,
   };
   return Moralis.Cloud.run("updateBoardMembers", params);
+}
+
+export function archiveTask(Moralis: any, taskId: string) {
+  const params = {
+    taskId: taskId,
+  };
+  return Moralis.Cloud.run("archiveTask", params);
+}
+
+export function joinSpace(Moralis: any, boardId: string) {
+  const params = {
+    boardId: boardId,
+  };
+  return Moralis.Cloud.run("joinSpace", params);
 }

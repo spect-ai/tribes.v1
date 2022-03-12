@@ -1,15 +1,10 @@
 import styled from "@emotion/styled";
 import { Box, styled as MUIStyled } from "@mui/material";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
-import {
-  checkMemberInTeam,
-  getBoards,
-  joinTribe,
-} from "../../../adapters/moralis";
+import { joinTribe } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-// import BatchPay from "../batchPay";
 import {
   PrimaryButton,
   StyledTab,
