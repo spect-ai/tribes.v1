@@ -65,10 +65,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   const [votesGiven, setVotesGiven] = useState({} as VotesGivenAllEpochs);
   const [votesRemaining, setVotesRemaining] = useState({} as VotesRemaining);
   const [isLoading, setIsLoading] = useState(false);
-  const [steps, setSteps] = useState([] as string[]);
-  const [activeStep, setActiveStep] = useState(0);
-  const [batchPayMetadata, setBatchPayMetadata] = useState({} as BatchPayInfo);
-  const [isOpen, setIsOpen] = useState(false);
 
   const handleVotesGiven = (
     epochid: string,

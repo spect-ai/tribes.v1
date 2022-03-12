@@ -9,19 +9,24 @@ import {
 import { registryTemp } from "../../../constants";
 import Image from "next/image";
 import { batchPayTokens, distributeEther } from "../../../adapters/contract";
-import { BatchPayInfo } from ".";
 import { useBoard } from "../taskBoard";
 import { capitalizeFirstLetter } from "../../../utils/utils";
 import { Member } from "../../../types";
 import { useMoralis } from "react-moralis";
-import { notify } from "../settingsTab";
+import { notify, notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 
 type Props = {
   handleNextStep: Function;
   handleClose: Function;
   chainId: string;
-  batchPayInfo: BatchPayInfo;
+  currencyDistributionInfo: CurrencyDistributionInfo;
+  handleStatusUpdate: Function;
+};
+
+export type CurrencyDistributionInfo = {
+  contributors: Array<string>;
+  values: Array<number>;
 };
 
 type MemberDetails = {
@@ -36,40 +41,15 @@ const BatchPayCurrency = ({
   handleNextStep,
   handleClose,
   chainId,
-  batchPayInfo,
+  currencyDistributionInfo,
+  handleStatusUpdate,
 }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { data, setData } = useBoard();
   const { Moralis, isInitialized } = useMoralis();
-  const handleTaskStatusUpdate = (taskIds: string[]) => {
-    completePayment(Moralis, taskIds)
-      .then((res: any) => {
-        console.log(res);
-        setData(res);
-      })
-      .catch((err: any) => {
-        alert(err.message);
-        setIsLoading(false);
-      });
-  };
-
-  const handleEpochStatusUpdate = (epochId: string) => {
-    completeEpochPayment(Moralis, epochId)
-      .then((res: any) => {
-        console.log(res);
-        const temp = Object.assign(data, res);
-        setData(temp);
-        notify("Payment completed!");
-      })
-      .catch((err: any) => {
-        alert(err.message);
-        setIsLoading(false);
-      });
-  };
   console.log(`here`);
   return (
     <React.Fragment>
-      <Toaster />
       <Box
         sx={{
           display: "flex",
@@ -109,7 +89,7 @@ const BatchPayCurrency = ({
                 </Box>
               </Grid>
             </Grid>
-            {batchPayInfo.currencyContributors.map(
+            {currencyDistributionInfo.contributors.map(
               (contributor: string, index: number) => (
                 <Grid
                   container
@@ -137,7 +117,7 @@ const BatchPayCurrency = ({
                   </Grid>
                   <Grid item xs={4}>
                     <Typography color="text.primary" marginLeft="20px">
-                      {batchPayInfo.currencyValues[index]?.toFixed(2)}{" "}
+                      {currencyDistributionInfo.values[index]?.toFixed(2)}{" "}
                       {registryTemp[chainId].nativeCurrency}
                     </Typography>
                   </Grid>
@@ -167,27 +147,23 @@ const BatchPayCurrency = ({
                 setIsLoading(true);
                 distributeEther(
                   getEthAddresses(
-                    batchPayInfo.currencyContributors,
+                    currencyDistributionInfo.contributors,
                     data.memberDetails
                   ),
-                  batchPayInfo.currencyValues,
+                  currencyDistributionInfo.values,
                   "123",
                   window.ethereum.networkVersion
                 )
                   .then((res: any) => {
-                    console.log(res);
-                    if (batchPayInfo.type === "task") {
-                      handleTaskStatusUpdate(
-                        batchPayInfo.taskIdsWithCurrencyPayment
-                      );
-                    } else if (batchPayInfo.type === "epoch") {
-                      handleEpochStatusUpdate(batchPayInfo.epochId);
-                    }
-                    setIsLoading(false);
-                    handleNextStep();
+                    const promises: Array<any> = [];
+                    promises.push(handleStatusUpdate("currency"));
+                    Promise.all(promises).then(() => {
+                      setIsLoading(false);
+                      handleNextStep();
+                    });
                   })
                   .catch((err: any) => {
-                    alert(err.message);
+                    notifyError(err.data.message);
                     setIsLoading(false);
                   });
               }}

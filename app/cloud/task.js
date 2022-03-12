@@ -107,13 +107,10 @@ Moralis.Cloud.define("addTask", async (request) => {
       task.set("taskId", taskId);
       task.set("token", {
         address: defaultPayment?.token?.address || "0x0",
-        symbol:
-          defaultPayment?.token?.symbol ||
-          defaultPayment?.chain?.name ||
-          "wmatic",
+        symbol: defaultPayment?.token?.symbol,
       });
       task.set("chain", {
-        chainId: defaultPayment?.chain?.id || "137",
+        chainId: defaultPayment?.chain?.chainId || "137",
         name: defaultPayment?.chain?.name || "polygon",
       });
       task.set("boardId", request.params.boardId);
@@ -700,6 +697,9 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
     request.params.chainId,
     request.params.boardId
   );
+  logger.info(
+    `res.taskIdsWithTokenPayment ${JSON.stringify(res.taskIdsWithTokenPayment)}`
+  );
   res.taskIdsWithCurrencyPayment = await getTaskIdsWithPendingCurrencyPayments(
     request.params.chainId,
     request.params.boardId
@@ -710,6 +710,8 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
     request.params.chainId,
     request.params.boardId
   );
+  logger.info(`tokenRewardAmounts ${JSON.stringify(tokenRewardAmounts)}`);
+
   var aggregatedTokenValues = {};
 
   for (var rewardAmount of tokenRewardAmounts) {
@@ -725,6 +727,7 @@ Moralis.Cloud.define("getBatchPayAmount", async (request) => {
         rewardAmount.value;
     }
   }
+  logger.info(`aggregatedTokenValues ${JSON.stringify(aggregatedTokenValues)}`);
 
   res.uniqueTokenAddresses = Object.keys(aggregatedTokenValues);
   res.aggregatedTokenValues = Object.values(aggregatedTokenValues);

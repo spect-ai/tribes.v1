@@ -9,7 +9,6 @@ import {
 import { registryTemp } from "../../../constants";
 import Image from "next/image";
 import { batchPayTokens, distributeEther } from "../../../adapters/contract";
-import { BatchPayInfo } from ".";
 import { useBoard } from "../taskBoard";
 import { capitalizeFirstLetter } from "../../../utils/utils";
 import { Member } from "../../../types";
@@ -21,7 +20,14 @@ type Props = {
   handleNextStep: Function;
   handleClose: Function;
   chainId: string;
-  batchPayInfo: BatchPayInfo;
+  tokenDistributionInfo: TokenDistributionInfo;
+  handleStatusUpdate: Function;
+};
+
+export type TokenDistributionInfo = {
+  contributors: Array<string>;
+  tokenAddresses: Array<string>;
+  tokenValues: Array<number>;
 };
 
 type MemberDetails = {
@@ -36,39 +42,13 @@ const BatchPay = ({
   handleNextStep,
   handleClose,
   chainId,
-  batchPayInfo,
+  tokenDistributionInfo,
+  handleStatusUpdate,
 }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { data, setData } = useBoard();
   const { Moralis, isInitialized } = useMoralis();
 
-  const handleTaskStatusUpdate = (taskIds: string[]) => {
-    completePayment(Moralis, taskIds)
-      .then((res: any) => {
-        console.log(res);
-        setData(res);
-      })
-      .catch((err: any) => {
-        alert(err.message);
-        setIsLoading(false);
-      });
-  };
-
-  const handleEpochStatusUpdate = (epochId: string) => {
-    completeEpochPayment(Moralis, epochId)
-      .then((res: any) => {
-        console.log(res);
-        const temp = Object.assign(data, res);
-        setData(temp);
-        notify("Payment completed!");
-      })
-      .catch((err: any) => {
-        alert(err.message);
-        setIsLoading(false);
-      });
-  };
-
-  const handleStatusUpdate = (event: any, reason: any) => {};
   return (
     <React.Fragment>
       <Toaster />
@@ -111,7 +91,7 @@ const BatchPay = ({
                 </Box>
               </Grid>
             </Grid>
-            {batchPayInfo.contributors.map(
+            {tokenDistributionInfo.contributors.map(
               (contributor: string, index: number) => (
                 <Grid
                   container
@@ -139,10 +119,10 @@ const BatchPay = ({
                   </Grid>
                   <Grid item xs={4}>
                     <Typography color="text.primary" marginLeft="20px">
-                      {batchPayInfo.tokenValues[index]?.toFixed(2)}{" "}
+                      {tokenDistributionInfo.tokenValues[index]?.toFixed(2)}{" "}
                       {
                         registryTemp[chainId].tokens[
-                          batchPayInfo.tokenAddresses[index]
+                          tokenDistributionInfo.tokenAddresses[index]
                         ].symbol
                       }
                     </Typography>
@@ -172,26 +152,22 @@ const BatchPay = ({
               onClick={() => {
                 setIsLoading(true);
                 batchPayTokens(
-                  batchPayInfo.tokenAddresses,
+                  tokenDistributionInfo.tokenAddresses,
                   getEthAddresses(
-                    batchPayInfo.contributors,
+                    tokenDistributionInfo.contributors,
                     data.memberDetails
                   ),
-                  batchPayInfo.tokenValues,
+                  tokenDistributionInfo.tokenValues,
                   "123",
                   window.ethereum.networkVersion
                 )
                   .then((res: any) => {
-                    console.log(res);
-                    if (batchPayInfo.type === "task") {
-                      handleTaskStatusUpdate(
-                        batchPayInfo.taskIdsWithTokenPayment
-                      );
-                    } else if (batchPayInfo.type === "epoch") {
-                      handleEpochStatusUpdate(batchPayInfo.epochId);
-                    }
-                    setIsLoading(false);
-                    handleNextStep();
+                    const promises: Array<any> = [];
+                    promises.push(handleStatusUpdate("token"));
+                    Promise.all(promises).then(() => {
+                      setIsLoading(false);
+                      handleNextStep();
+                    });
                   })
                   .catch((err: any) => {
                     alert(err.message);

@@ -8,10 +8,31 @@ import { getPendingApprovals } from "../../../adapters/contract";
 import { useGlobal } from "../../../context/globalContext";
 import { Registry } from "../../../types";
 import { registryTemp } from "../../../constants";
-import PaymentModal, { BatchPayInfo } from ".";
+import PaymentModal from ".";
+import { TokenDistributionInfo } from "./batchPay";
+import { ApprovalInfo } from "./approve";
+import { CurrencyDistributionInfo } from "./batchPayCurrency";
+import { completePayment } from "../../../adapters/moralis";
 import { capitalizeFirstLetter } from "../../../utils/utils";
+import { notifyError } from "../settingsTab";
+import { useBoard } from "../taskBoard";
+import { Toaster } from "react-hot-toast";
 
 interface Props {}
+
+interface BatchPayResponse {
+  currencyContributors: Array<string>;
+  currencyValues: Array<number>;
+  contributors: Array<string>;
+  tokenAddresses: Array<string>;
+  tokenValues: Array<number>;
+  aggregatedTokenValues: Array<number>;
+  uniqueTokenAddresses: Array<string>;
+  taskIdsWithTokenPayment: Array<string>;
+  taskIdsWithCurrencyPayment: Array<string>;
+  epochId: string;
+  type: string;
+}
 
 export async function getRequiredApprovals(
   uniqueTokenAddresses: string[],
@@ -38,12 +59,24 @@ export async function getRequiredApprovals(
 const Payment = ({}: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [batchPayMetadata, setBatchPayMetadata] = useState({} as BatchPayInfo);
-  const [steps, setSteps] = useState([] as any);
-  const [activeStep, setActiveStep] = useState(0);
-  const [maxActiveStep, setMaxActiveStep] = useState(0);
+  const [tokenDistributionInfo, setTokenDistributionInfo] = useState(
+    {} as TokenDistributionInfo
+  );
+  const [approvalInfo, setApprovalInfo] = useState({} as ApprovalInfo);
+  const [currencyDistributionInfo, setCurrencyDistributionInfo] = useState(
+    {} as CurrencyDistributionInfo
+  );
+  const [taskIdsWithTokenPayment, setTaskIdsWithTokenPayment] = useState(
+    [] as string[]
+  );
+  const [taskIdsWithCurencyPayment, setTaskIdsWithCurencyPayment] = useState(
+    [] as string[]
+  );
+  const { data, setData } = useBoard();
 
-  const [validStepNumbers, setValidStepNumbers] = useState([] as any);
+  const [steps, setSteps] = useState([] as string[]);
+  const [activeStep, setActiveStep] = useState(-1);
+  const [maxActiveStep, setMaxActiveStep] = useState(-1);
   const {
     state: { registry },
   } = useGlobal();
@@ -51,85 +84,153 @@ const Payment = ({}: Props) => {
   const { id, bid } = router.query;
   const { Moralis, isInitialized } = useMoralis();
 
+  const handleApprovalInfoUpdate = (
+    uniqueTokenAddresses: string[],
+    aggregatedTokenValues: number[]
+  ) => {
+    if (uniqueTokenAddresses.length > 0) {
+      setApprovalInfo({
+        uniqueTokenAddresses: uniqueTokenAddresses,
+        aggregatedTokenValues: aggregatedTokenValues,
+      });
+    }
+  };
+  const handleTokenDistributionInfoUpdate = (
+    contributors: string[],
+    tokenAddresses: string[],
+    tokenValues: number[]
+  ) => {
+    if (contributors.length > 0) {
+      setTokenDistributionInfo({
+        contributors: contributors,
+        tokenAddresses: tokenAddresses,
+        tokenValues: tokenValues,
+      });
+    }
+  };
+
+  const handleCurrencyDistributionInfoUpdate = (
+    contributors: string[],
+    values: number[]
+  ) => {
+    if (contributors.length > 0) {
+      setCurrencyDistributionInfo({
+        contributors: contributors,
+        values: values,
+      });
+    }
+  };
+  const handleStatusUpdate = (paymentType: string) => {
+    if (paymentType === "currency") {
+      completePayment(Moralis, taskIdsWithCurencyPayment)
+        .then((res: any) => {
+          setData(res);
+        })
+        .catch((err: any) => {
+          notifyError(err);
+        });
+    } else if (paymentType === "token") {
+      completePayment(Moralis, taskIdsWithTokenPayment)
+        .then((res: any) => {
+          setData(res);
+        })
+        .catch((err: any) => {
+          notifyError(err);
+        });
+    }
+  };
+
+  const handleSteps = (
+    hasApproval: boolean,
+    hasTokenDistribution: boolean,
+    hasCurrencyDistribution: boolean
+  ) => {
+    var dynamicSteps: string[] = [];
+    var newActiveStep = -1;
+    if (hasApproval) {
+      dynamicSteps.push(
+        `Approve tokens on ${capitalizeFirstLetter(
+          registryTemp[window.ethereum.networkVersion].name
+        )}`
+      );
+      newActiveStep = 0;
+      setMaxActiveStep(0);
+    }
+    if (hasTokenDistribution) {
+      dynamicSteps.push(
+        `Distribute tokens on ${capitalizeFirstLetter(
+          registryTemp[window.ethereum.networkVersion].name
+        )}`
+      );
+      newActiveStep = newActiveStep === 0 ? newActiveStep : 1;
+      setMaxActiveStep(1);
+    }
+    if (hasCurrencyDistribution) {
+      dynamicSteps.push(
+        `Distribute currency on ${capitalizeFirstLetter(
+          registryTemp[window.ethereum.networkVersion].name
+        )}`
+      );
+      newActiveStep =
+        newActiveStep === 0 || newActiveStep === 1 ? newActiveStep : 2;
+      setMaxActiveStep(2);
+    }
+    setSteps(dynamicSteps);
+    setActiveStep(newActiveStep);
+  };
+
   return (
     <>
+      <Toaster />
       <Tooltip title="Batch Pay">
         <IconButton
           sx={{ mb: 0.5, p: 2 }}
           size="small"
           onClick={() => {
             setIsLoading(true);
-            console.log(registry);
-            console.log(window.ethereum.networkVersion);
             getBatchPayAmount(
               Moralis,
               bid as string,
               window.ethereum.networkVersion
-            ).then((res: BatchPayInfo) => {
-              var batchPayInfo = {} as BatchPayInfo;
-              console.log(res);
-              batchPayInfo.currencyContributors = res.currencyContributors;
-              batchPayInfo.currencyValues = res.currencyValues;
-              batchPayInfo.contributors = res.contributors;
-              batchPayInfo.tokenAddresses = res.tokenAddresses;
-              batchPayInfo.tokenValues = res.tokenValues;
-              batchPayInfo.taskIdsWithTokenPayment =
-                res.taskIdsWithTokenPayment;
-              batchPayInfo.taskIdsWithCurrencyPayment =
-                res.taskIdsWithCurrencyPayment;
+            )
+              .then((res: BatchPayResponse) => {
+                setTaskIdsWithCurencyPayment(res.taskIdsWithCurrencyPayment);
+                setTaskIdsWithTokenPayment(res.taskIdsWithTokenPayment);
+                var hasApproval = false;
+                getRequiredApprovals(
+                  res.uniqueTokenAddresses,
+                  res.aggregatedTokenValues,
+                  window.ethereum.networkVersion
+                )
+                  .then((pendingApprovals: any) => {
+                    if (pendingApprovals.tokenAddresses.length > 0) {
+                      handleApprovalInfoUpdate(
+                        pendingApprovals.tokenValues,
+                        pendingApprovals.tokenAddresses
+                      );
+                      hasApproval = true;
+                    }
+                    handleTokenDistributionInfoUpdate(
+                      res.contributors,
+                      res.tokenAddresses,
+                      res.tokenValues
+                    );
 
-              batchPayInfo.type = "task";
-              var dynamicSteps: string[] = [];
-              var activeStep: number;
-              console.log(res);
-              getRequiredApprovals(
-                res.uniqueTokenAddresses,
-                res.aggregatedTokenValues,
-                window.ethereum.networkVersion
-              ).then((pendingApprovals: any) => {
-                if (pendingApprovals.tokenAddresses.length > 0) {
-                  batchPayInfo.aggregatedTokenValues =
-                    pendingApprovals.tokenValues;
-                  batchPayInfo.uniqueTokenAddresses =
-                    pendingApprovals.tokenAddresses;
-                  dynamicSteps.push(
-                    `Approve tokens on ${capitalizeFirstLetter(
-                      registryTemp[window.ethereum.networkVersion].name
-                    )}`
-                  );
-                  activeStep = 0;
-                  setMaxActiveStep(0);
-                }
-
-                if (batchPayInfo.tokenAddresses.length > 0) {
-                  dynamicSteps.push(
-                    `Distribute tokens on ${capitalizeFirstLetter(
-                      registryTemp[window.ethereum.networkVersion].name
-                    )}`
-                  );
-                  activeStep = activeStep === 0 ? activeStep : 1;
-                  setMaxActiveStep(1);
-                }
-                if (batchPayInfo.currencyContributors.length > 0) {
-                  dynamicSteps.push(
-                    `Distribute ${
-                      registryTemp[window.ethereum.networkVersion]
-                        .nativeCurrency
-                    } on ${capitalizeFirstLetter(
-                      registryTemp[window.ethereum.networkVersion].name
-                    )}`
-                  );
-                  activeStep =
-                    activeStep === 0 || activeStep === 1 ? activeStep : 2;
-                  setMaxActiveStep(2);
-                }
-                setActiveStep(activeStep);
-                setBatchPayMetadata(batchPayInfo);
-                setSteps(dynamicSteps);
-                setIsOpen(true);
-                setIsLoading(false);
-              });
-            });
+                    handleCurrencyDistributionInfoUpdate(
+                      res.currencyContributors,
+                      res.currencyValues
+                    );
+                    handleSteps(
+                      hasApproval,
+                      res.contributors.length > 0,
+                      res.currencyContributors.length > 0
+                    );
+                    setIsOpen(true);
+                    setIsLoading(false);
+                  })
+                  .catch((err: any) => notifyError(err));
+              })
+              .catch((err: any) => notifyError(err));
           }}
         >
           <PaidIcon fontSize="small" />
@@ -138,10 +239,13 @@ const Payment = ({}: Props) => {
       {!isLoading && (
         <PaymentModal
           isModalOpen={isOpen}
-          batchPayMetadata={batchPayMetadata}
+          tokenDistributionInfo={tokenDistributionInfo}
+          currencyDistributionInfo={currencyDistributionInfo}
+          approvalInfo={approvalInfo}
           modalSteps={steps}
           activeModalStep={activeStep}
           maxModalActiveStep={maxActiveStep}
+          handleStatusUpdate={handleStatusUpdate}
         />
       )}
     </>

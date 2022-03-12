@@ -8,9 +8,9 @@ import {
   StepLabel,
   styled,
 } from "@mui/material";
-import ApproveModal from "./approve";
-import BatchPay from "./batchPay";
-import BatchPayCurrency from "./batchPayCurrency";
+import ApproveModal, { ApprovalInfo } from "./approve";
+import BatchPay, { TokenDistributionInfo } from "./batchPay";
+import BatchPayCurrency, { CurrencyDistributionInfo } from "./batchPayCurrency";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { useGlobal } from "../../../context/globalContext";
@@ -18,20 +18,16 @@ import { registryTemp } from "../../../constants";
 
 interface Props {
   isModalOpen: boolean;
-  batchPayMetadata: BatchPayInfo;
+  tokenDistributionInfo: TokenDistributionInfo;
+  currencyDistributionInfo: CurrencyDistributionInfo;
+  approvalInfo: ApprovalInfo;
   modalSteps: string[];
   activeModalStep: number;
   maxModalActiveStep: number;
+  handleStatusUpdate: Function;
 }
 
 export interface BatchPayInfo {
-  currencyContributors: Array<string>;
-  currencyValues: Array<number>;
-  contributors: Array<string>;
-  tokenAddresses: Array<string>;
-  tokenValues: Array<number>;
-  aggregatedTokenValues: Array<number>;
-  uniqueTokenAddresses: Array<string>;
   taskIdsWithTokenPayment: Array<string>;
   taskIdsWithCurrencyPayment: Array<string>;
   epochId: string;
@@ -40,13 +36,20 @@ export interface BatchPayInfo {
 
 const PaymentModal = ({
   isModalOpen,
-  batchPayMetadata,
+  tokenDistributionInfo,
+  currencyDistributionInfo,
+  approvalInfo,
   modalSteps,
   activeModalStep,
   maxModalActiveStep,
+  handleStatusUpdate,
 }: Props) => {
+  console.log(isModalOpen);
+
   const [isOpen, setIsOpen] = useState(isModalOpen);
+  console.log(isOpen);
   const [steps, setSteps] = useState(modalSteps);
+  console.log(steps);
   const [activeStep, setActiveStep] = useState(activeModalStep);
   const [maxActiveStep, setMaxActiveStep] = useState(maxModalActiveStep);
   const {
@@ -84,7 +87,7 @@ const PaymentModal = ({
             handleClose={handleClose}
             handleNextStep={handleNextStep}
             setActiveStep={setActiveStep}
-            approvalInfo={batchPayMetadata}
+            approvalInfo={approvalInfo}
             chainId={window.ethereum.networkVersion}
           />
         )}
@@ -93,7 +96,8 @@ const PaymentModal = ({
             handleClose={handleClose}
             handleNextStep={handleNextStep}
             chainId={window.ethereum.networkVersion}
-            batchPayInfo={batchPayMetadata}
+            tokenDistributionInfo={tokenDistributionInfo}
+            handleStatusUpdate={handleStatusUpdate}
           />
         )}
         {activeStep === 2 && isOpen && (
@@ -101,7 +105,8 @@ const PaymentModal = ({
             handleClose={handleClose}
             handleNextStep={handleNextStep}
             chainId={window.ethereum.networkVersion}
-            batchPayInfo={batchPayMetadata}
+            currencyDistributionInfo={currencyDistributionInfo}
+            handleStatusUpdate={handleStatusUpdate}
           />
         )}
       </Box>

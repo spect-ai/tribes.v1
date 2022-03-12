@@ -105,6 +105,8 @@ const ForAgainstVoting = ({
                     endIcon={<CheckCircleIcon />}
                     loading={loading}
                     sx={{
+                      pl: 8,
+
                       color:
                         votesGiven[choiceId] === 1 ? "#66bb6a" : "primary.main",
                     }}
@@ -113,11 +115,15 @@ const ForAgainstVoting = ({
                       handleVotesGiven(epochId, choiceId, 1);
                     }}
                   />
-
+                </TableCell>
+              )}
+              {active && (
+                <TableCell align="right">
                   <PrimaryButton
                     endIcon={<CancelIcon />}
                     loading={loading}
                     sx={{
+                      pl: 4,
                       color:
                         votesGiven[choiceId] === -1
                           ? "#f44336"
@@ -127,9 +133,10 @@ const ForAgainstVoting = ({
                     onClick={() => {
                       handleVotesGiven(epochId, choiceId, -1);
                     }}
-                  />
+                  />{" "}
                 </TableCell>
               )}
+
               {!active && (
                 <TableCell align="right">
                   {choiceId in votesFor && votesFor[choiceId]

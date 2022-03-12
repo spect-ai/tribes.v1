@@ -20,8 +20,13 @@ interface Props {
   handleClose: Function;
   setActiveStep: Function;
   chainId: string;
-  approvalInfo: BatchPayInfo;
+  approvalInfo: ApprovalInfo;
 }
+
+export type ApprovalInfo = {
+  uniqueTokenAddresses: Array<string>;
+  aggregatedTokenValues: Array<number>;
+};
 
 const ApproveModal = ({
   handleNextStep,
@@ -30,7 +35,6 @@ const ApproveModal = ({
   chainId,
   approvalInfo,
 }: Props) => {
-  console.log(approvalInfo);
   const [isLoading, setIsLoading] = useState(
     Array(approvalInfo.uniqueTokenAddresses?.length).fill(false)
   );
