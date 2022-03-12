@@ -14,6 +14,8 @@ import {
   TableRow,
   TextField,
   Typography,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState, useEffect } from "react";
@@ -51,23 +53,21 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   const [isChecked, setIsChecked] = useState(
     Array(tribe.members?.length).fill(true)
   );
+  const [roles, setRoles] = useState(tribe.roles as { [key: string]: string });
 
   const toggleCheckboxValue = (index: number) => {
     setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
   };
 
-  const getMembersAndRoles = () => {
+  const getMembers = () => {
     var members = [];
-    var roles = {};
     for (let i = 0; i < tribe.members.length; i++) {
       if (isChecked.at(i)) {
         const memberId = tribe.members.at(i);
         members.push(memberId);
-        // @ts-ignore
-        roles[memberId] = tribe.roles[tribe.members.at(i)];
       }
     }
-    return [members, roles];
+    return members;
   };
   return (
     <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
@@ -155,7 +155,17 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                           {tribe.memberDetails[member].username}
                         </TableCell>
                         <TableCell align="right">
-                          {tribe.roles[member]}
+                          <Select
+                            value={roles[member] || "member"}
+                            fullWidth
+                            sx={{ width: "50%" }}
+                            onChange={(e) => {
+                              setRoles({ ...roles, [member]: e.target.value });
+                            }}
+                          >
+                            <MenuItem value={"member"}>Member</MenuItem>
+                            <MenuItem value={"admin"}>Admin</MenuItem>
+                          </Select>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -225,7 +235,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               variant="outlined"
               sx={{ width: "50%", mt: 2, borderRadius: 1 }}
               onClick={() => {
-                const [members, roles] = getMembersAndRoles();
+                const members = getMembers();
                 setIsLoading(true);
                 initBoard(
                   Moralis,
