@@ -86,7 +86,7 @@ Moralis.Cloud.define("getTask", async (request) => {
     logger.error(
       `Error while getting task from board ${request.params.taskId}: ${err}`
     );
-    throw `Error while getting task from board ${request.params.taskId}: ${err}`;
+    throw `Error while getting task ${err}`;
   }
 });
 
@@ -144,11 +144,7 @@ Moralis.Cloud.define("addTask", async (request) => {
     logger.error(
       `Error while adding task in board ${request.params.boardId}: ${err}`
     );
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId,
-      request.user.id
-    );
-    return boardObj[0];
+    throw `Error while adding task ${err}`;
   }
 });
 
@@ -173,8 +169,9 @@ Moralis.Cloud.define("updateTaskColumn", async (request) => {
     return board[0];
   } catch (err) {
     logger.error(
-      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+      `Error while updating task column with task Id ${request.params.taskId}: ${err}`
     );
+    throw `Error while updating task column ${err}`;
   }
 });
 
@@ -197,13 +194,9 @@ Moralis.Cloud.define("updateTaskDeadline", async (request) => {
     return board[0];
   } catch (err) {
     logger.error(
-      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+      `Error while updating task deadline with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(
-      task.get("boardId"),
-      request.user.id
-    );
-    return board[0];
+    throw `Error while updating task deadline ${err}`;
   }
 });
 
@@ -226,13 +219,9 @@ Moralis.Cloud.define("updateTaskLabels", async (request) => {
     return board[0];
   } catch (err) {
     logger.error(
-      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+      `Error while updating task label with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(
-      task.get("boardId"),
-      request.user.id
-    );
-    return board[0];
+    throw `Error while updating task label ${err}`;
   }
 });
 
@@ -266,13 +255,9 @@ Moralis.Cloud.define("updateTaskMember", async (request) => {
     return board[0];
   } catch (err) {
     logger.error(
-      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+      `Error while updating task members with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(
-      task.get("boardId"),
-      request.user.id
-    );
-    return board[0];
+    throw `Error while updating task members ${err}`;
   }
 });
 
@@ -302,13 +287,9 @@ Moralis.Cloud.define("updateTaskReward", async (request) => {
     return board[0];
   } catch (err) {
     logger.error(
-      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+      `Error while updating task reward with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(
-      task.get("boardId"),
-      request.user.id
-    );
-    return board[0];
+    throw `Error while updating task reward ${err}`;
   }
 });
 
@@ -339,13 +320,9 @@ Moralis.Cloud.define("updateTaskSubmission", async (request) => {
     return board[0];
   } catch (err) {
     logger.error(
-      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+      `Error while updating task submission with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(
-      task.get("boardId"),
-      request.user.id
-    );
-    return board[0];
+    throw `Error while updating task submission ${err}`;
   }
 });
 
@@ -372,13 +349,9 @@ Moralis.Cloud.define("updateTaskDescription", async (request) => {
     return board[0];
   } catch (err) {
     logger.error(
-      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+      `Error while updating task description with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(
-      task.get("boardId"),
-      request.user.id
-    );
-    return board[0];
+    throw `Error while updating task description ${err}`;
   }
 });
 
@@ -401,13 +374,9 @@ Moralis.Cloud.define("updateTaskTitle", async (request) => {
     return board[0];
   } catch (err) {
     logger.error(
-      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+      `Error while updating task title with task Id ${request.params.taskId}: ${err}`
     );
-    const board = await getBoardObjWithTasksByObjectId(
-      task.get("boardId"),
-      request.user.id
-    );
-    return board[0];
+    throw `Error while updating task title ${err}`;
   }
 });
 
@@ -430,13 +399,9 @@ Moralis.Cloud.define("updateTaskStatus", async (request) => {
     return boardObj[0];
   } catch (err) {
     logger.error(
-      `Error while updating task with task Id ${request.params.taskId}: ${err}`
+      `Error while updating task status with task Id ${request.params.taskId}: ${err}`
     );
-    boardObj = await getBoardObjWithTasksByObjectId(
-      task.get("boardId"),
-      request.user.id
-    );
-    return boardObj[0];
+    throw `Error while updating task status ${err}`;
   }
 });
 
@@ -680,74 +645,86 @@ async function getTaskIdsWithPendingCurrencyPayments(chainId, boardId) {
 }
 
 Moralis.Cloud.define("getBatchPayAmount", async (request) => {
-  var res = {
-    contributors: [],
-    tokenAddresses: [],
-    tokenValues: [],
-    uniqueTokenAddresses: [],
-    aggregatedTokenValues: [],
-    currencyContributors: [],
-    currencyValues: [],
-    taskIdsWithTokenPayment: [],
-    taskIdsWithCurrencyPayment: [],
-  };
+  try {
+    var res = {
+      contributors: [],
+      tokenAddresses: [],
+      tokenValues: [],
+      uniqueTokenAddresses: [],
+      aggregatedTokenValues: [],
+      currencyContributors: [],
+      currencyValues: [],
+      taskIdsWithTokenPayment: [],
+      taskIdsWithCurrencyPayment: [],
+    };
 
-  // Get task Ids pending payment
-  res.taskIdsWithTokenPayment = await getTaskIdsWithPendingTokenPayments(
-    request.params.chainId,
-    request.params.boardId
-  );
-  logger.info(
-    `res.taskIdsWithTokenPayment ${JSON.stringify(res.taskIdsWithTokenPayment)}`
-  );
-  res.taskIdsWithCurrencyPayment = await getTaskIdsWithPendingCurrencyPayments(
-    request.params.chainId,
-    request.params.boardId
-  );
+    // Get task Ids pending payment
+    res.taskIdsWithTokenPayment = await getTaskIdsWithPendingTokenPayments(
+      request.params.chainId,
+      request.params.boardId
+    );
+    logger.info(
+      `res.taskIdsWithTokenPayment ${JSON.stringify(
+        res.taskIdsWithTokenPayment
+      )}`
+    );
+    res.taskIdsWithCurrencyPayment =
+      await getTaskIdsWithPendingCurrencyPayments(
+        request.params.chainId,
+        request.params.boardId
+      );
 
-  // Get and process token rewards
-  const tokenRewardAmounts = await getTokenRewardAmounts(
-    request.params.chainId,
-    request.params.boardId
-  );
-  logger.info(`tokenRewardAmounts ${JSON.stringify(tokenRewardAmounts)}`);
+    // Get and process token rewards
+    const tokenRewardAmounts = await getTokenRewardAmounts(
+      request.params.chainId,
+      request.params.boardId
+    );
+    logger.info(`tokenRewardAmounts ${JSON.stringify(tokenRewardAmounts)}`);
 
-  var aggregatedTokenValues = {};
+    var aggregatedTokenValues = {};
 
-  for (var rewardAmount of tokenRewardAmounts) {
-    if (rewardAmount.objectId.assigneeId.length > 0) {
-      res.contributors.push(rewardAmount.objectId.assigneeId[0]);
-      res.tokenAddresses.push(rewardAmount.objectId.tokenAddress);
-      res.tokenValues.push(rewardAmount.value);
+    for (var rewardAmount of tokenRewardAmounts) {
+      if (rewardAmount.objectId.assigneeId.length > 0) {
+        res.contributors.push(rewardAmount.objectId.assigneeId[0]);
+        res.tokenAddresses.push(rewardAmount.objectId.tokenAddress);
+        res.tokenValues.push(rewardAmount.value);
 
-      if (!(rewardAmount.objectId.tokenAddress in aggregatedTokenValues)) {
-        aggregatedTokenValues[rewardAmount.objectId.tokenAddress] = 0;
+        if (!(rewardAmount.objectId.tokenAddress in aggregatedTokenValues)) {
+          aggregatedTokenValues[rewardAmount.objectId.tokenAddress] = 0;
+        }
+        aggregatedTokenValues[rewardAmount.objectId.tokenAddress] +=
+          rewardAmount.value;
       }
-      aggregatedTokenValues[rewardAmount.objectId.tokenAddress] +=
-        rewardAmount.value;
     }
-  }
-  logger.info(`aggregatedTokenValues ${JSON.stringify(aggregatedTokenValues)}`);
+    logger.info(
+      `aggregatedTokenValues ${JSON.stringify(aggregatedTokenValues)}`
+    );
 
-  res.uniqueTokenAddresses = Object.keys(aggregatedTokenValues);
-  res.aggregatedTokenValues = Object.values(aggregatedTokenValues);
+    res.uniqueTokenAddresses = Object.keys(aggregatedTokenValues);
+    res.aggregatedTokenValues = Object.values(aggregatedTokenValues);
 
-  // Get and process currency rewards
-  const currencyRewardAmounts = await getCurrencyRewardAmounts(
-    request.params.chainId,
-    request.params.boardId
-  );
+    // Get and process currency rewards
+    const currencyRewardAmounts = await getCurrencyRewardAmounts(
+      request.params.chainId,
+      request.params.boardId
+    );
 
-  for (var rewardAmount of currencyRewardAmounts) {
-    if (rewardAmount.objectId.assigneeId.length > 0) {
-      res.currencyContributors.push(rewardAmount.objectId.assigneeId[0]);
-      res.currencyValues.push(rewardAmount.value);
+    for (var rewardAmount of currencyRewardAmounts) {
+      if (rewardAmount.objectId.assigneeId.length > 0) {
+        res.currencyContributors.push(rewardAmount.objectId.assigneeId[0]);
+        res.currencyValues.push(rewardAmount.value);
+      }
     }
+
+    logger.info(`res ${JSON.stringify(res)}`);
+
+    return res;
+  } catch (err) {
+    logger.info(
+      `Error while getting batch pay amounts for board ${request.params.boardId}: ${err}`
+    );
+    throw `Error while getting batch pay amounts ${err}`;
   }
-
-  logger.info(`res ${JSON.stringify(res)}`);
-
-  return res;
 });
 
 Moralis.Cloud.define("assignToMe", async (request) => {
@@ -767,7 +744,7 @@ Moralis.Cloud.define("assignToMe", async (request) => {
     }
   } catch (err) {
     logger.error(`Error while assigning task ${request.params.taskId}: ${err}`);
-    return false;
+    throw `Error while assigning task ${err}`;
   }
 });
 
@@ -792,11 +769,7 @@ Moralis.Cloud.define("closeTask", async (request) => {
     logger.error(
       `Error while adding task in board ${request.params.boardId}: ${err}`
     );
-    var board = await getBoardObjWithTasksByObjectId(
-      task.get("boardId"),
-      request.user.id
-    );
-    return board[0];
+    throw `Error while closing task ${err}`;
   }
 });
 
@@ -818,10 +791,6 @@ Moralis.Cloud.define("completePayment", async (request) => {
     logger.error(
       `Error while adding task in board ${request.params.boardId}: ${err}`
     );
-    var board = await getBoardObjWithTasksByObjectId(
-      task.get("boardId"),
-      request.user.id
-    );
-    return board[0];
+    throw `Error while completing payment ${err}`;
   }
 });

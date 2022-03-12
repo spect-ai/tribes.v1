@@ -96,8 +96,10 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return await getEpochs(request.params.spaceId, request.user.id);
   } catch (err) {
-    logger.error(`Error while starting epoch ${err}`);
-    throw `${err}`;
+    logger.error(
+      `Error while starting epoch with name ${request.params.name}: ${err}`
+    );
+    throw `Error while starting epoch: ${err}`;
   }
 });
 
@@ -169,8 +171,8 @@ Moralis.Cloud.define("endEpoch", async (request) => {
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return await getEpochByObjectId(request.params.epochId, request.user.id);
   } catch (err) {
-    logger.error(`Error while creating board ${err}`);
-    throw `${err}`;
+    logger.error(`Error while ending epoch ${request.params.epochId}: ${err}`);
+    throw `Error while ending epoch ${request.params.epochId}: ${err}`;
   }
 });
 
@@ -198,8 +200,8 @@ async function getEpochs(spaceId, userId) {
     logger.info(`mappedTaskDetails ${JSON.stringify(mappedTaskDetails)}`);
     return { epochs: epochs, taskDetails: mappedTaskDetails };
   } catch (err) {
-    logger.error(`Error while getting epochs ${err}`);
-    throw `${err}`;
+    logger.error(`Error while getting epochs for space ${spaceId}: ${err}`);
+    throw `Error while getting epochs ${err}`;
   }
 }
 
@@ -251,7 +253,9 @@ Moralis.Cloud.define("saveVotes", async (request) => {
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return epoch;
   } catch (err) {
-    logger.error(`Error while saving votes ${err}`);
+    logger.error(
+      `Error while saving votes for epoch ${request.params.epochId}: ${err}`
+    );
     throw `Error while saving votes ${err}`;
   }
 });
@@ -263,8 +267,10 @@ Moralis.Cloud.define("completeEpochPayment", async (request) => {
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return await getEpochs(request.params.spaceId, request.user.id);
   } catch (err) {
-    logger.error(`Error while getting epochs ${err}`);
-    throw `${err}`;
+    logger.error(
+      `Error while completing epoch payment for epoch ${request.params.epochId}: ${err}`
+    );
+    throw `Error while completing epoch payment ${err}`;
   }
 });
 

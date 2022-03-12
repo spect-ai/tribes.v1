@@ -8,8 +8,10 @@ Moralis.Cloud.define("addERC20Token", async (request) => {
     token.set("symbol", request.params.symbol);
     token.set("name", request.params.name);
   } catch (err) {
-    logger.error(`Error while adding erc20 token ${err}`);
-    return false;
+    logger.error(
+      `Error while adding erc20 token with address ${request.params.address}: ${err}`
+    );
+    throw `Error while adding erc20 token ${err}`;
   }
 });
 
@@ -57,7 +59,7 @@ Moralis.Cloud.define("getRegistry", async (request) => {
 
     return registry;
   } catch (err) {
-    logger.error(`Error while get chain token map ${err}`);
-    return false;
+    logger.error(`Error while getting registry ${err}`);
+    throw `Error while getting registry ${err}`;
   }
 });

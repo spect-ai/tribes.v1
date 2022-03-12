@@ -169,8 +169,7 @@ Moralis.Cloud.define("getMyInvites", async (request) => {
     invitationQuery.equalTo("active", true);
     return await invitationQuery.find();
   } catch (err) {
-    logger.error(`Error whilte creating team ${err}`);
-    return false;
+    throw `${err}`;
   }
 });
 
@@ -213,12 +212,10 @@ Moralis.Cloud.define("acceptInvite", async (request) => {
 
       return true;
     } else {
-      logger.info(`Not invited to this team`);
-      return false;
+      throw `Not invited to team`;
     }
   } catch (err) {
-    logger.error(`Error whilte creating team ${err}`);
-    return false;
+    throw `${err}`;
   }
 });
 
@@ -234,7 +231,6 @@ Moralis.Cloud.define("sendInvite", async (request) => {
     await invite(members, request.params.teamId, request.params.invitedBy);
     return true;
   } catch (err) {
-    logger.error(`Error whilte creating team ${err}`);
-    return false;
+    throw `${err}`;
   }
 });

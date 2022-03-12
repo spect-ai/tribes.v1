@@ -11,5 +11,8 @@ Moralis.Cloud.define("getGithubToken", async (request) => {
     },
   })
     .then((httpResponse) => httpResponse.text)
-    .catch((error) => logger.info(error));
+    .catch((error) => {
+      logger.info(error);
+      throw `Error while getting Github token ${error}`;
+    });
 });

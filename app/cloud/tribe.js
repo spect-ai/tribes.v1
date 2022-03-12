@@ -61,29 +61,48 @@ async function getTribeObjByTeamId(teamId) {
 }
 
 Moralis.Cloud.define("getTeam", async (request) => {
-  const team = await getTribeObjByTeamId(request.params.teamId);
-  if (team.length === 0) throw "Team not found";
-  team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
-    team[0].members
-  );
+  try {
+    const team = await getTribeObjByTeamId(request.params.teamId);
+    if (team.length === 0) throw "Team not found";
+    team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
+      team[0].members
+    );
 
-  return team[0];
+    return team[0];
+  } catch (err) {
+    logger.error(
+      `Error while getting tribe with team id ${request.params.teamId}: ${err}`
+    );
+    throw `Error while getting tribe ${err}`;
+  }
 });
 
 Moralis.Cloud.define("getPublicTeams", async (request) => {
-  const teamQuery = new Moralis.Query("Team");
-  const pipeline = [{ match: { isPublic: true } }];
-  return await teamQuery.aggregate(pipeline);
+  try {
+    const teamQuery = new Moralis.Query("Team");
+    const pipeline = [{ match: { isPublic: true } }];
+    return await teamQuery.aggregate(pipeline);
+  } catch (err) {
+    logger.error(`Error while getting public tribes: ${err}`);
+    throw `Error while getting public tribes ${err}`;
+  }
 });
 
 Moralis.Cloud.define("getMyTeams", async (request) => {
-  const userInfoQuery = new Moralis.Query("UserInfo");
-  userInfoQuery.equalTo("userId", request.user.id);
-  const userInfo = await userInfoQuery.first();
-  if (userInfo) {
-    const teamQuery = new Moralis.Query("Team");
-    teamQuery.containedIn("teamId", userInfo.get("tribes"));
-    return await teamQuery.find();
+  try {
+    const userInfoQuery = new Moralis.Query("UserInfo");
+    userInfoQuery.equalTo("userId", request.user.id);
+    const userInfo = await userInfoQuery.first();
+    if (userInfo) {
+      const teamQuery = new Moralis.Query("Team");
+      teamQuery.containedIn("teamId", userInfo.get("tribes"));
+      return await teamQuery.find();
+    }
+  } catch (err) {
+    logger.error(
+      `Error while getting tribes of user ${request.user.id}: ${err}`
+    );
+    throw `Error while getting tribes of user ${err}`;
   }
 });
 
@@ -113,8 +132,10 @@ Moralis.Cloud.define("createTeam", async (request) => {
 
     return team;
   } catch (err) {
-    logger.error(`Error while creating team ${err}`);
-    return false;
+    logger.error(
+      `Error while creating tribe with name ${request.params.name} ${err}`
+    );
+    throw `Error while creating tribe ${err}`;
   }
 });
 
@@ -144,8 +165,10 @@ Moralis.Cloud.define("updateTeam", async (request) => {
     );
     return team[0];
   } catch (err) {
-    logger.error(`Error while updating team ${err}`);
-    return false;
+    logger.error(
+      `Error while updating tribe with id ${request.params.teamId}: ${err}`
+    );
+    throw `Error while updating tribe ${err}`;
   }
 });
 
