@@ -135,7 +135,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
         setIsLoading(false);
       })
       .catch((err: any) => {
-        notifyError(`Sorry! There was an error while getting your epochs.`);
+        notifyError(`Sorry! There was an error while getting epochs.`);
         setIsLoading(false);
       });
   }, []);

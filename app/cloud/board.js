@@ -77,7 +77,7 @@ Moralis.Cloud.define("getBoard", async (request) => {
   try {
     const boardObj = await getBoardObjWithTasksByObjectId(
       request.params.boardId,
-      request.user.id
+      request.user?.id
     );
     logger.info(`boardobj ${JSON.stringify(boardObj)}`);
     if (boardObj.length === 0) throw "Board not found";
