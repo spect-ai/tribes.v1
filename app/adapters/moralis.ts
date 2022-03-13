@@ -11,7 +11,7 @@ export function createTribe(Moralis: any, name: string) {
   return Moralis.Cloud.run("createTeam", params);
 }
 
-export function updateTribe(Moralis: any, team: Team, teamId: number) {
+export function updateTribe(Moralis: any, team: Team, teamId: string) {
   const params = {
     teamId: teamId,
     name: team.name,
@@ -30,7 +30,7 @@ export function initBoard(
   name: string,
   members: Array<string>,
   roles: object,
-  teamId: number,
+  teamId: string,
   tokenGating: {
     chain: Chain;
     tokenAddress: string;
@@ -48,7 +48,7 @@ export function initBoard(
   return Moralis.Cloud.run("initBoard", params);
 }
 
-export function getBoards(Moralis: any, teamId: number) {
+export function getBoards(Moralis: any, teamId: string) {
   const params = {
     teamId: teamId,
   };
@@ -155,7 +155,7 @@ export function updateMembers(Moralis: any, updatePayload: any) {
   return Moralis.Cloud.run("updateMembers", params);
 }
 
-export function getTeam(Moralis: any, teamId: number) {
+export function getTeam(Moralis: any, teamId: string) {
   const params = {
     teamId: teamId,
   };
@@ -190,7 +190,7 @@ export function getInvitations(Moralis: any, ethAddress: string) {
 export function acceptInvitations(
   Moralis: any,
   ethAddress: string,
-  teamId: number
+  teamId: string
 ) {
   const params = {
     ethAddress: ethAddress,
@@ -202,7 +202,7 @@ export function acceptInvitations(
 export function sendInvitations(
   Moralis: any,
   ethAddress: string,
-  teamId: number,
+  teamId: string,
   userId: string
 ) {
   const params = {
@@ -397,7 +397,7 @@ export function voteOnTasks(
 
 export function checkMemberInTeam(
   Moralis: any,
-  teamId: number,
+  teamId: string,
   userId: string | undefined
 ) {
   const params = {
@@ -436,7 +436,7 @@ export function deleteBoard(Moralis: any, boardId: string) {
 
 export function addMemberToTribe(
   Moralis: any,
-  teamId: number,
+  teamId: string,
   userId: string,
   userType: string,
   adminId: string
@@ -467,7 +467,7 @@ export function getRegistry(Moralis: any) {
 
 export function startEpoch(
   Moralis: any,
-  teamId: number,
+  teamId: string,
   spaceId: string,
   name: string,
   type: string,
@@ -527,7 +527,7 @@ export function getMyTeams(Moralis: any) {
   return Moralis.Cloud.run("getMyTeams");
 }
 
-export function joinTribe(Moralis: any, teamId: number) {
+export function joinTribe(Moralis: any, teamId: string) {
   const params = {
     teamId: teamId,
   };

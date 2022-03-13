@@ -59,7 +59,7 @@ const Heading = (props: Props) => {
 
   useEffect(() => {
     if (isInitialized) {
-      getBoards(Moralis, parseInt(id))
+      getBoards(Moralis, id)
         .then((res: any) => {
           setBoards(res);
         })

@@ -64,7 +64,7 @@ const TribeHeading = (props: Props) => {
                 await authenticate();
               }
               setIsLoading(true);
-              joinTribe(Moralis, parseInt(id)).then((res: boolean) => {
+              joinTribe(Moralis, id).then((res: boolean) => {
                 setIsMember(res);
                 if (res) {
                   notify("Joined Tribe Successfully!");

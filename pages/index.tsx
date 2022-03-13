@@ -31,7 +31,7 @@ type Props = {
   image: string;
   title: string;
   members: number;
-  teamId: number;
+  teamId: string;
 };
 
 const Home: NextPage = () => {

@@ -46,7 +46,7 @@ async function getBoardObjWithTasksByObjectId(objectId, callerId) {
 
 async function getBoardObjByTeamId(teamId) {
   const boardQuery = new Moralis.Query("Board");
-  const pipeline = [{ match: { teamId: parseInt(teamId) } }];
+  const pipeline = [{ match: { teamId: teamId } }];
   return await boardQuery.aggregate(pipeline);
 }
 
@@ -124,7 +124,7 @@ Moralis.Cloud.define("initBoard", async (request) => {
       }
       var board = new Moralis.Object("Board");
       board.set("name", request.params.name);
-      board.set("teamId", parseInt(request.params.teamId));
+      board.set("teamId", request.params.teamId);
       board.set("columns", columnIdToColumnMap);
       board.set("columnOrder", columnIds);
       board.set("statusList", initBoardStatusList);

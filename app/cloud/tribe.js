@@ -40,14 +40,14 @@ async function getTribeCount() {
 
 async function getTribeByTeamId(teamId) {
   const teamQuery = new Moralis.Query("Team");
-  teamQuery.equalTo("teamId", parseInt(teamId));
+  teamQuery.equalTo("teamId", teamId);
   return await teamQuery.first();
 }
 
 async function getTribeObjByTeamId(teamId) {
   const teamQuery = new Moralis.Query("Team");
   const pipeline = [
-    { match: { teamId: parseInt(teamId) } },
+    { match: { teamId: teamId } },
     {
       lookup: {
         from: "Board",
@@ -119,8 +119,9 @@ Moralis.Cloud.define("createTeam", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     var team = new Moralis.Object("Team");
-    const tribeCount = await getTribeCount();
-    const teamId = tribeCount + 1;
+    const teamId = crypto.randomUUID();
+    logger.info(teamId);
+
     // Initialize tribe data
     var roles = {};
     roles[request.user.id] = "admin";

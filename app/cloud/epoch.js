@@ -75,7 +75,7 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     );
 
     var epoch = new Moralis.Object("Epoch");
-    epoch.set("teamId", parseInt(request.params.teamId));
+    epoch.set("teamId", request.params.teamId);
     epoch.set("name", request.params.name);
     epoch.set("choices", request.params.choices);
     epoch.set("spaceId", request.params.spaceId);

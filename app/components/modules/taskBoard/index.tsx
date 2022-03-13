@@ -50,6 +50,8 @@ const TaskBoard = (props: Props) => {
     if (isInitialized && bid) {
       getBoard(Moralis, bid as string)
         .then((res: BoardData) => {
+          console.log(`res`);
+
           console.log(res);
           setNavbarLogo(dispatch, res.team[0].logo);
           setNavbarTitle(dispatch, res.team[0].name);

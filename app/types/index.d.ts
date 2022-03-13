@@ -38,7 +38,7 @@ export type MemberStats = {
 };
 
 export interface Team {
-  teamId: number;
+  teamId: string;
   name: string;
   description: string;
   members: Array<string>;
@@ -67,7 +67,7 @@ export interface Epoch {
   votes: Object<string, number>;
   type: string;
   strategy: string;
-  teamId: number;
+  teamId: string;
   spaceId: string;
   epochNumber: number;
   active: boolean;
@@ -159,7 +159,7 @@ export interface BoardData {
     [key: string]: Column;
   };
   columnOrder: string[];
-  teamId: number;
+  teamId: string;
   createdAt: string;
   updatedAt: string;
   statusList: string[];

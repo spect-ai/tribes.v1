@@ -36,7 +36,7 @@ const InviteContributorModal = ({ setIsOpen }: any) => {
     sendInvitations(
       Moralis,
       String(value.address),
-      Number(id),
+      id as string,
       String(user?.id)
     )
       .then((res: any[]) => {
