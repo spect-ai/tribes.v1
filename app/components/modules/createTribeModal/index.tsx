@@ -16,6 +16,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
 import { createTribe } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
+import { notifyError } from "../settingsTab";
 
 type Props = {};
 
@@ -31,13 +32,18 @@ const CreateTribeModal = (props: Props) => {
 
   const onSubmit = () => {
     setIsLoading(true);
-    createTribe(Moralis, name).then((res: any) => {
-      setIsLoading(false);
-      handleClose();
-      router.push({
-        pathname: `/tribe/${res.get("teamId")}`,
+    createTribe(Moralis, name)
+      .then((res: any) => {
+        setIsLoading(false);
+        handleClose();
+        router.push({
+          pathname: `/tribe/${res.get("teamId")}`,
+        });
+      })
+      .catch((err: any) => {
+        notifyError(`Sorry! There was an error while creating tribe.`);
+        setIsLoading(false);
       });
-    });
   };
 
   return (

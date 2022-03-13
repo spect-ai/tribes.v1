@@ -33,6 +33,7 @@ type Props = {};
 
 const BoardSettings = (props: Props) => {
   const { data, setData } = useBoard();
+  console.log(data);
   const { Moralis } = useMoralis();
   const [name, setName] = useState(data.name);
   const [isOpen, setIsOpen] = useState(false);
@@ -48,13 +49,13 @@ const BoardSettings = (props: Props) => {
       "polygon"
   );
   const [tokenGatechain, setTokenGateChain] = useState(
-    data.tokenGating.chain as Chain
+    data.tokenGating?.chain as Chain
   );
   const [tokenGateAddress, setTokenGateAddress] = useState(
-    data.tokenGating.tokenAddress
+    data.tokenGating?.tokenAddress
   );
   const [tokenGateLimit, setTokenGateLLimit] = useState(
-    data.tokenGating.tokenLimit
+    data.tokenGating?.tokenLimit
   );
   const handleClose = () => {
     setIsOpen(false);

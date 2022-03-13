@@ -61,11 +61,15 @@ const Settings = () => {
 
   const onSubmit: SubmitHandler<SettingFormInput> = async (values) => {
     setIsLoading(true);
-    updateTribe(Moralis, values as any, tribe.teamId).then((res: any) => {
-      setTribe(res);
-      setIsLoading(false);
-      notify("Save Complete!");
-    });
+    updateTribe(Moralis, values as any, tribe.teamId)
+      .then((res: any) => {
+        setTribe(res);
+        setIsLoading(false);
+        notify("Updated Tribe!");
+      })
+      .catch((err: any) =>
+        notifyError("Sorry! There was an error while updating tribe.")
+      );
   };
 
   return (

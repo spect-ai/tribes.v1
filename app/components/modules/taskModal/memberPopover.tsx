@@ -8,6 +8,7 @@ import { BoardData, Task } from "../../../types";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { useBoard } from "../taskBoard";
 import { PopoverContainer } from "./datePopover";
+import { notifyError } from "../settingsTab";
 
 type Props = {
   open: boolean;
@@ -69,13 +70,17 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
           onClick={() => {
             setIsLoading(true);
             // we store array of assignee and reviewer to be able to handle multiple assignees and reviewers later
-            updateTaskMember(Moralis, member, type, task.taskId).then(
-              (res: BoardData) => {
+            updateTaskMember(Moralis, member, type, task.taskId)
+              .then((res: BoardData) => {
                 setData(res);
                 setIsLoading(false);
                 handleClose(type);
-              }
-            );
+              })
+              .catch((err: any) => {
+                notifyError(
+                  `Sorry! There was an error while updating ${type}.`
+                );
+              });
           }}
         >
           Save

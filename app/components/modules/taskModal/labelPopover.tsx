@@ -11,6 +11,7 @@ import {
 } from "../../elements/styledComponents";
 import { useBoard } from "../taskBoard";
 import { PopoverContainer } from "./datePopover";
+import { notifyError } from "../settingsTab";
 
 type Props = {
   open: boolean;
@@ -59,13 +60,17 @@ const LabelPopover = ({ open, anchorEl, handleClose, task }: Props) => {
           loading={isLoading}
           onClick={() => {
             setIsLoading(true);
-            updateTaskLabels(Moralis, labels, task.taskId).then(
-              (res: BoardData) => {
+            updateTaskLabels(Moralis, labels, task.taskId)
+              .then((res: BoardData) => {
                 setData(res);
                 setIsLoading(false);
                 handleClose("label");
-              }
-            );
+              })
+              .catch((err: any) => {
+                notifyError(
+                  "Sorry! There was an error while updating task labels."
+                );
+              });
           }}
         >
           Save

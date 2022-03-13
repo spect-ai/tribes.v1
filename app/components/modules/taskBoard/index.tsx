@@ -15,6 +15,8 @@ import {
   useGlobal,
 } from "../../../context/globalContext";
 import Members from "../members";
+import { notifyError } from "../settingsTab";
+import { Toaster } from "react-hot-toast";
 
 type Props = {};
 
@@ -55,8 +57,7 @@ const TaskBoard = (props: Props) => {
           setIsLoading(false);
         })
         .catch((err: any) => {
-          console.log(err);
-          alert(err);
+          notifyError("Sorry! There was an error while getting space.");
         });
     }
   }, [isInitialized, bid]);

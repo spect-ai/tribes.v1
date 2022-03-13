@@ -21,6 +21,7 @@ import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { reorder } from "../../../utils/utils";
 import { BoardData } from "../../../types";
+import { notify, notifyError } from "../settingsTab";
 
 type Props = {
   expanded: boolean;
@@ -51,15 +52,21 @@ const Board = ({ expanded, handleChange }: Props) => {
         source.index,
         destination.index
       );
+      const tempData = Object.assign({}, data);
       setData({
         ...data,
         columnOrder: newColumnOrder,
       });
-      updateColumnOrder(Moralis, bid as string, newColumnOrder).then(
-        (res: any) => {
+      updateColumnOrder(Moralis, bid as string, newColumnOrder)
+        .then((res: any) => {
           setData(res as BoardData);
-        }
-      );
+        })
+        .catch((err: any) => {
+          setData(tempData);
+          notifyError(
+            "Sorry! There was an error while changing the column order."
+          );
+        });
       return;
     }
 
@@ -68,7 +75,7 @@ const Board = ({ expanded, handleChange }: Props) => {
 
     if (start === finish) {
       const newList = reorder(start.taskIds, source.index, destination.index);
-
+      const tempData = Object.assign({}, data);
       setData({
         ...data,
         columns: {
@@ -86,9 +93,14 @@ const Board = ({ expanded, handleChange }: Props) => {
         result.source.droppableId,
         newList,
         newList
-      ).then((res: any) => {
-        setData(res as BoardData);
-      });
+      )
+        .then((res: any) => {
+          setData(res as BoardData);
+        })
+        .catch((err: any) => {
+          setData(tempData);
+          notifyError("Sorry! There was an error while moving tasks.");
+        });
     } else {
       const startTaskIds = Array.from(start.taskIds); // copy
       startTaskIds.splice(source.index, 1);
@@ -103,7 +115,7 @@ const Board = ({ expanded, handleChange }: Props) => {
         ...finish,
         taskIds: finishTaskIds,
       };
-
+      const tempData = Object.assign({}, data);
       setData({
         ...data,
         columns: {
@@ -120,15 +132,20 @@ const Board = ({ expanded, handleChange }: Props) => {
         newFinish.id,
         newStart,
         newFinish
-      ).then((res: any) => {
-        setData(res as BoardData);
-        if (newFinish.id === "column-3") {
-          updateTaskStatus(Moralis, draggableId, 205).then((res: any) => {
-            console.log("updateTaskStatus", res);
-            setData(res as BoardData);
-          });
-        }
-      });
+      )
+        .then((res: any) => {
+          setData(res as BoardData);
+          if (newFinish.id === "column-3") {
+            updateTaskStatus(Moralis, draggableId, 205).then((res: any) => {
+              console.log("updateTaskStatus", res);
+              setData(res as BoardData);
+            });
+          }
+        })
+        .catch((err: any) => {
+          setData(tempData);
+          notifyError("Sorry! There was an error while moving tasks.");
+        });
     }
   };
 
@@ -166,6 +183,7 @@ const Board = ({ expanded, handleChange }: Props) => {
               disabled={data.roles[user?.id as string] !== "admin"}
               onClick={() => {
                 const newColumnId = Object.keys(data.columns).length;
+                const tempData = Object.assign({}, data);
                 setData({
                   ...data,
                   columns: {
@@ -180,9 +198,14 @@ const Board = ({ expanded, handleChange }: Props) => {
                   },
                   columnOrder: [...data.columnOrder, `column-${newColumnId}`],
                 });
-                addColumn(Moralis, bid as string).then((res: BoardData) =>
-                  setData(res)
-                );
+                addColumn(Moralis, bid as string)
+                  .then((res: BoardData) => setData(res))
+                  .catch((err: any) => {
+                    setData(tempData);
+                    notifyError(
+                      "Sorry! There was an error while adding column"
+                    );
+                  });
               }}
             >
               Add new column

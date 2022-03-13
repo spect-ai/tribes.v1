@@ -122,7 +122,9 @@ const PayoutButton = ({ epoch }: Props) => {
         setData(temp);
       })
       .catch((err: any) => {
-        notifyError(err.message);
+        notifyError(
+          `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`
+        );
       });
   };
   return (

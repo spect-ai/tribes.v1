@@ -30,7 +30,7 @@ import {
 } from "../../elements/styledComponents";
 import CreateEpochModal from "../epoch/createEpochModal";
 import { ethers } from "ethers";
-import { notify } from "../settingsTab";
+import { notify, notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 
 type Props = {};
@@ -63,7 +63,9 @@ const Heading = (props: Props) => {
         .then((res: any) => {
           setBoards(res);
         })
-        .catch((err: any) => alert(err));
+        .catch((err: any) =>
+          notifyError("Sorry! There was an error while getting your spaces")
+        );
     }
   }, [isInitialized, data.name]);
 

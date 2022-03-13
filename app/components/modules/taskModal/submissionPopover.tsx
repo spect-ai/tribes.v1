@@ -7,6 +7,7 @@ import { BoardData, Task } from "../../../types";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { useBoard } from "../taskBoard";
 import { PopoverContainer } from "./datePopover";
+import { notifyError } from "../settingsTab";
 
 type Props = {
   open: boolean;
@@ -53,13 +54,17 @@ const SubmissionPopover = ({ open, anchorEl, handleClose, task }: Props) => {
           loading={isLoading}
           onClick={() => {
             setIsLoading(true);
-            updateTaskSubmission(Moralis, link, name, task.taskId).then(
-              (res: BoardData) => {
+            updateTaskSubmission(Moralis, link, name, task.taskId)
+              .then((res: BoardData) => {
                 setData(res);
                 setIsLoading(false);
                 handleClose("submission");
-              }
-            );
+              })
+              .catch((err: any) => {
+                notifyError(
+                  "Sorry! There was an error while submitting to task."
+                );
+              });
           }}
         >
           Save

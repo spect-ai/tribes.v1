@@ -19,17 +19,18 @@ async function getBoardObjByObjectId(objectId, callerId) {
   ];
 
   var board = await boardQuery.aggregate(pipeline);
+  if (board.length === 0) throw "Board doesnt exist";
   var memberDetails = await getUserIdToUserDetailsMapByUserIds(
     board[0].members
   );
   board[0].memberDetails = memberDetails;
-  board[0].access = getSpaceAccess(callerId, board[0]);
+  if (callerId) board[0].access = getSpaceAccess(callerId, board[0]);
   return board;
 }
 
 async function getBoardObjWithTasksByObjectId(objectId, callerId) {
   var board = await getBoardObjByObjectId(objectId, callerId);
-  if (board) {
+  if (board.length > 0) {
     var tasks = await getTaskObjByBoardId(objectId);
     var boardTasks = {};
     for (var task of tasks) {
@@ -78,6 +79,7 @@ Moralis.Cloud.define("getBoard", async (request) => {
       request.params.boardId,
       request.user.id
     );
+    logger.info(`boardobj ${JSON.stringify(boardObj)}`);
     if (boardObj.length === 0) throw "Board not found";
     boardObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
       boardObj[0].members

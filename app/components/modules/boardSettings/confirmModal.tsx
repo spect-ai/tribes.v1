@@ -15,6 +15,7 @@ import { useRouter } from "next/router";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useBoard } from "../taskBoard";
 import { deleteBoard } from "../../../adapters/moralis";
+import { notifyError } from "../settingsTab";
 
 type Props = {
   isOpen: boolean;
@@ -52,15 +53,18 @@ const ConfirmModal = ({ isOpen, handleClose }: Props) => {
                   loading={isLoading}
                   onClick={() => {
                     setIsLoading(true);
-                    deleteBoard(Moralis, data.objectId).then((res: any) => {
-                      if (res) {
+                    deleteBoard(Moralis, data.objectId)
+                      .then((res: any) => {
                         handleClose();
                         router.push(`/tribe/${id}`);
-                      } else {
-                        alert("Error");
-                      }
-                      setIsLoading(false);
-                    });
+                        setIsLoading(false);
+                      })
+                      .catch((err: any) => {
+                        notifyError(
+                          `Sorry! There was an error while deleting board.`
+                        );
+                        setIsLoading(false);
+                      });
                   }}
                 >
                   Delete Board

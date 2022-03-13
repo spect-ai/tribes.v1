@@ -11,6 +11,7 @@ import {
 import { useBoard } from "../taskBoard";
 import { PopoverContainer } from "./datePopover";
 import { notify } from "../settingsTab";
+import { notifyError } from "../settingsTab";
 
 type Props = {
   open: boolean;
@@ -69,12 +70,16 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
               .then((res: BoardData) => {
                 setData(res);
                 if (status === "Done") {
-                  updateTaskStatus(Moralis, task.taskId, 205).then(
-                    (res: any) => {
+                  updateTaskStatus(Moralis, task.taskId, 205)
+                    .then((res: any) => {
                       console.log("updateTaskStatus", res);
                       setData(res as BoardData);
-                    }
-                  );
+                    })
+                    .catch((err: any) => {
+                      notifyError(
+                        "Sorry! There was an error while moving task."
+                      );
+                    });
                 }
                 setIsLoading(false);
                 handleClose("move");

@@ -6,6 +6,7 @@ import { useMoralis } from "react-moralis";
 import { useBoard } from ".";
 import { removeColumn } from "../../../adapters/moralis";
 import { BoardData } from "../../../types";
+import { notifyError } from "../settingsTab";
 
 type Props = {
   open: boolean;
@@ -47,6 +48,7 @@ const ColumnSettingsPopover = ({
           sx={{ textTransform: "none" }}
           size="small"
           onClick={() => {
+            const tempData = Object.assign({}, data);
             setData({
               ...data,
               columnOrder: data.columnOrder.filter((id) => id !== columnId),
@@ -59,6 +61,8 @@ const ColumnSettingsPopover = ({
               })
               .catch((err: any) => {
                 console.log(err);
+                setData(tempData);
+                notifyError("Sorry! There was an error while removing column.");
               });
           }}
         >

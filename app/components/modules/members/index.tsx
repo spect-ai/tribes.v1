@@ -20,7 +20,7 @@ import { useBoard } from "../taskBoard";
 import styled from "@emotion/styled";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { Toaster } from "react-hot-toast";
-import { notify } from "../settingsTab";
+import { notify, notifyError } from "../settingsTab";
 
 type Props = {};
 
@@ -35,22 +35,23 @@ const Members = (props: Props) => {
     setIsChecked(isChecked?.map((v, i) => (i === index ? !v : v)));
   };
   useEffect(() => {
-    getTeam(Moralis, data.teamId).then((res: Team) => {
-      setTribe(res);
-      const membersArray = res.members.map((member: string) => {
-        return data.members.indexOf(member) !== -1;
+    getTeam(Moralis, data.teamId)
+      .then((res: Team) => {
+        setTribe(res);
+        const membersArray = res.members.map((member: string) => {
+          return data.members.indexOf(member) !== -1;
+        });
+        let roles = {};
+        res.members.map((member: string) => {
+          // @ts-ignore
+          roles[member] = data.roles[member] || "member";
+        });
+        setRoles(roles);
+        setIsChecked(membersArray);
+      })
+      .catch((err: any) => {
+        notifyError(`Sorry! There was an error while loading members.`);
       });
-      let roles = {};
-      res.members.map((member: string) => {
-        // @ts-ignore
-        roles[member] = data.roles[member] || "member";
-      });
-      console.log(roles);
-      setRoles(roles);
-      setIsChecked(membersArray);
-      console.log(data.roles);
-      console.log(data.members);
-    });
   }, []);
 
   const onSave = () => {
@@ -70,6 +71,7 @@ const Members = (props: Props) => {
       })
       .catch((err: any) => {
         console.log(err);
+        notifyError("Sorry! There was an error while updating members.");
         setIsLoading(false);
       });
   };

@@ -27,7 +27,7 @@ import { useRouter } from "next/router";
 import { Epoch } from "../../../types";
 import { monthMap } from "../../../constants";
 import { useBoard } from "../taskBoard";
-import { notify } from "../settingsTab";
+import { notify, notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { registryTemp } from "../../../constants";
 import PaymentModal, { BatchPayInfo } from "../payment";
@@ -124,9 +124,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
             taskDetails: res.taskDetails,
           })
         );
-        console.log(`data`);
-
-        console.log(data);
         var votesGivenByCaller = {} as VotesGivenAllEpochs;
         var votesRemainingByCaller = {} as VotesRemaining;
         for (var epoch of res.epochs) {
@@ -138,8 +135,8 @@ const EpochList = ({ expanded, handleChange }: Props) => {
         setIsLoading(false);
       })
       .catch((err: any) => {
-        console.log("hehe");
-        alert(err);
+        notifyError(`Sorry! There was an error while getting your epochs.`);
+        setIsLoading(false);
       });
   }, []);
 
@@ -295,7 +292,12 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                               setIsLoading(false);
                               notify("Epoch Ended!");
                             })
-                            .catch((err: any) => alert(err));
+                            .catch((err: any) => {
+                              notifyError(
+                                `Sorry! There was an error while ending the epoch.`
+                              );
+                              setIsLoading(false);
+                            });
                         }}
                       >
                         End Epoch

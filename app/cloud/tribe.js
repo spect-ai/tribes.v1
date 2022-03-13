@@ -77,7 +77,6 @@ Moralis.Cloud.define("getTeam", async (request) => {
     team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
       team[0].members
     );
-
     return team[0];
   } catch (err) {
     logger.error(

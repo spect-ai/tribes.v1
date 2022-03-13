@@ -16,6 +16,7 @@ import { useMoralis } from "react-moralis";
 import { updateColumnName } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
 import { BoardData, Column, Task } from "../../../types";
+import { notifyError } from "../settingsTab";
 
 type Props = {
   tasks: Task[];
@@ -45,12 +46,14 @@ const Column = ({ tasks, id, column, index }: Props) => {
 
   function updateColumn() {
     if (currentColumnTitle !== columnTitle) {
-      updateColumnName(Moralis, bid as string, id, columnTitle).then(
-        (res: BoardData) => {
+      updateColumnName(Moralis, bid as string, id, columnTitle)
+        .then((res: BoardData) => {
           console.log(res);
           setData(res);
-        }
-      );
+        })
+        .catch((err: any) => {
+          notifyError("Sorry! There was an error while updating column name");
+        });
     }
   }
   return (

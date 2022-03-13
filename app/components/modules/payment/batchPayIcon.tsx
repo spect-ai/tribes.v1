@@ -127,7 +127,9 @@ const Payment = ({}: Props) => {
           setData(res);
         })
         .catch((err: any) => {
-          notifyError(err);
+          notifyError(
+            `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`
+          );
         });
     } else if (paymentType === "token") {
       completePayment(Moralis, taskIdsWithTokenPayment)
@@ -135,7 +137,9 @@ const Payment = ({}: Props) => {
           setData(res);
         })
         .catch((err: any) => {
-          notifyError(err);
+          notifyError(
+            `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`
+          );
         });
     }
   };

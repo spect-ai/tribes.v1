@@ -47,7 +47,7 @@ import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import HailIcon from "@mui/icons-material/Hail";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PublishIcon from "@mui/icons-material/Publish";
-import { notify } from "../settingsTab";
+import { notify, notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 
 type Props = {
@@ -93,7 +93,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
         setData(res);
       })
       .catch((err: any) => {
-        alert(err.message);
+        notifyError(
+          "Sorry! There was an error while updating task status to paid. However, the payment has gone through."
+        );
         setIsLoading(false);
       });
   };
@@ -118,11 +120,15 @@ const EditTask = ({ task, handleClose, column }: Props) => {
           onChange={(e) => setTitle(e.target.value)}
           onBlur={() => {
             if (task.access.creator || task.access.reviewer) {
-              updateTaskTitle(Moralis, title, task.taskId).then(
-                (res: BoardData) => {
+              updateTaskTitle(Moralis, title, task.taskId)
+                .then((res: BoardData) => {
                   setData(res);
-                }
-              );
+                })
+                .catch((err: any) => {
+                  notifyError(
+                    "Sorry! There was an error while updating task title."
+                  );
+                });
             }
           }}
           readOnly={!(task.access.creator || task.access.reviewer)}
@@ -524,11 +530,16 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     disabled={!isSpaceMember()}
                     endIcon={<HailIcon />}
                     onClick={() => {
+                      // Can we improve the experience here by the greedy approach?
                       assignToMe(Moralis, task.taskId)
                         .then((res: BoardData) => {
                           setData(res);
                         })
-                        .catch((err: any) => alert(err));
+                        .catch((err: any) => {
+                          notifyError(
+                            "Sorry! There was an error while assigning task."
+                          );
+                        });
                     }}
                   >
                     Assign to me
@@ -540,13 +551,17 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     color="error"
                     endIcon={<DeleteIcon />}
                     onClick={() => {
-                      archiveTask(Moralis, task.taskId).then(
-                        (res: BoardData) => {
+                      archiveTask(Moralis, task.taskId)
+                        .then((res: BoardData) => {
                           setData(res);
                           notify("Task archived successfully", "success");
                           handleClose();
-                        }
-                      );
+                        })
+                        .catch((err: any) => {
+                          notifyError(
+                            "Sorry! There was an error while archiving task."
+                          );
+                        });
                     }}
                   >
                     Archive
