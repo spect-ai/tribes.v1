@@ -6,14 +6,7 @@ import {
   Box,
   Chip,
   Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Typography,
-  TextField,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -37,6 +30,7 @@ import { updateTaskColumn, updateTaskStatus } from "../../../adapters/moralis";
 import { BoardData, Column, Task } from "../../../types";
 import NumericVoting, { Details } from "./numericVoting";
 import ForAgainstVoting from "./forAgainstVoting";
+import ZeroEpochs from "./zeroEpochs";
 
 type Props = {
   expanded: boolean;
@@ -146,190 +140,198 @@ const EpochList = ({ expanded, handleChange }: Props) => {
       <Accordion hidden>
         <AccordionSummary />
       </Accordion>
-      {data.epochs?.map((epoch, index) => (
-        <Accordion
-          disableGutters
-          key={index}
-          sx={{ border: "2px solid #00194A" }}
-        >
-          <AccordionSummary
-            aria-controls="panel1d-content"
-            id="panel1d-header"
-            expandIcon={<ExpandMoreIcon />}
-            sx={{ backgroundColor: "#00194A" }}
+      {data.epochs?.length === 0 ? (
+        <ZeroEpochs />
+      ) : (
+        data.epochs?.map((epoch, index) => (
+          <Accordion
+            disableGutters
+            key={index}
+            sx={{ border: "2px solid #00194A" }}
           >
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                width: "100%",
-              }}
+            <AccordionSummary
+              aria-controls="panel1d-content"
+              id="panel1d-header"
+              expandIcon={<ExpandMoreIcon />}
+              sx={{ backgroundColor: "#00194A" }}
             >
-              <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                {epoch.name}
-              </Typography>
-              <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                Started on{" "}
-                {monthMap[epoch.startTime.getMonth() as keyof typeof monthMap]}{" "}
-                {epoch.startTime.getDate()}
-              </Typography>
-              <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                {epoch.type}
-              </Typography>
-              {epoch.active && <Chip label="Ongoing" color="primary" />}
-              {epoch.paid && <Chip label="Paid" color="success" />}
-            </Box>
-          </AccordionSummary>
-          <AccordionDetails sx={{ backgroundColor: "#000f29" }}>
-            <Grid container>
-              <Grid item xs={8}>
-                {!isLoading &&
-                  epoch.strategy === "Quadratic voting" &&
-                  Object.keys(votesGiven).includes(epoch.objectId) && (
-                    <NumericVoting
-                      epochId={epoch.objectId}
-                      type={epoch.type}
-                      active={epoch.active}
-                      details={getDetails(epoch.choices, epoch.type)}
-                      choices={getChoices(epoch.choices, epoch.active)}
-                      votesGiven={votesGiven[epoch.objectId]}
-                      handleVotesGiven={handleVotesGiven}
-                      votesRemaining={votesRemaining[epoch.objectId]}
-                      handleVotesRemaining={handleVotesRemaining}
-                      values={epoch.values}
-                      tokenSymbol={epoch.token.symbol}
-                    />
-                  )}
-                {!isLoading &&
-                  epoch.strategy === "Pass/No Pass" &&
-                  Object.keys(votesGiven).includes(epoch.objectId) && (
-                    <ForAgainstVoting
-                      epochId={epoch.objectId}
-                      type={epoch.type}
-                      active={epoch.active}
-                      details={getDetails(epoch.choices, epoch.type)}
-                      choices={getChoices(epoch.choices, epoch.active)}
-                      votesGiven={votesGiven[epoch.objectId]}
-                      handleVotesGiven={handleVotesGiven}
-                      votesAgainst={epoch.votesAgainst}
-                      votesFor={epoch.votesFor}
-                      isLoading={isLoading}
-                    />
-                  )}
-              </Grid>
-              <Grid item xs={4}>
-                <DetailContainer>
-                  {epoch.active && epoch.type === "Member" && (
-                    <InfoContainer>
-                      <Typography
-                        sx={{
-                          color: "#99ccff",
-                          textAlign: "right",
-                          fontSize: 14,
-                        }}
-                      >
-                        Votes remaining
-                      </Typography>
-                      <Typography sx={{ textAlign: "right" }}>
-                        {votesRemaining[epoch.objectId]}
-                      </Typography>
-                    </InfoContainer>
-                  )}
-                  {epoch.budget && epoch.budget > 0 && (
-                    <InfoContainer>
-                      <Typography
-                        sx={{
-                          color: "#99ccff",
-                          textAlign: "right",
-                          fontSize: 14,
-                        }}
-                      >
-                        Total Budget
-                      </Typography>
-                      <Typography sx={{ textAlign: "right" }}>
-                        {epoch.budget} {epoch.token.symbol}
-                      </Typography>
-                    </InfoContainer>
-                  )}
-                  {epoch.active ? (
-                    <ButtonContainer>
-                      <PrimaryButton
-                        endIcon={<SaveIcon />}
-                        loading={isLoading}
-                        variant="outlined"
-                        disabled={votesRemaining[epoch.objectId] < 0}
-                        sx={{ mx: 4, borderRadius: 1 }}
-                        size="small"
-                        onClick={() => {
-                          setIsLoading(true);
-                          saveVotes(
-                            Moralis,
-                            epoch.objectId,
-                            votesGiven[epoch.objectId]
-                          )
-                            .then((res: any) => {
-                              setIsLoading(false);
-                              notify("Votes saved!");
-                            })
-                            .catch((err: any) => alert(err));
-                        }}
-                      >
-                        Save
-                      </PrimaryButton>
-                      {/* {data.access === "admin" && ( */}
-                      <PrimaryButton
-                        endIcon={<CloseIcon />}
-                        variant="outlined"
-                        size="small"
-                        sx={{ borderRadius: 1 }}
-                        loading={isLoading}
-                        onClick={() => {
-                          setIsLoading(true);
-                          endEpoch(Moralis, epoch.objectId)
-                            .then((res: any) => {
-                              handleEpochUpdateAfterSave(index, res);
-                              setIsLoading(false);
-                              notify("Epoch Ended!");
-                            })
-                            .catch((err: any) => {
-                              notifyError(
-                                `Sorry! There was an error while ending the epoch.`
-                              );
-                              setIsLoading(false);
-                            });
-                        }}
-                      >
-                        End Epoch
-                      </PrimaryButton>
-                      {/* )} */}
-                    </ButtonContainer>
-                  ) : (
-                    <ButtonContainer>
-                      {epoch.type === "Member" ? (
-                        <PayoutButton epoch={epoch} />
-                      ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  width: "100%",
+                }}
+              >
+                <Typography sx={{ width: "30%", flexShrink: 0 }}>
+                  {epoch.name}
+                </Typography>
+                <Typography sx={{ width: "30%", flexShrink: 0 }}>
+                  Started on{" "}
+                  {
+                    monthMap[
+                      epoch.startTime.getMonth() as keyof typeof monthMap
+                    ]
+                  }{" "}
+                  {epoch.startTime.getDate()}
+                </Typography>
+                <Typography sx={{ width: "30%", flexShrink: 0 }}>
+                  {epoch.type}
+                </Typography>
+                {epoch.active && <Chip label="Ongoing" color="primary" />}
+                {epoch.paid && <Chip label="Paid" color="success" />}
+              </Box>
+            </AccordionSummary>
+            <AccordionDetails sx={{ backgroundColor: "#000f29" }}>
+              <Grid container>
+                <Grid item xs={8}>
+                  {!isLoading &&
+                    epoch.strategy === "Quadratic voting" &&
+                    Object.keys(votesGiven).includes(epoch.objectId) && (
+                      <NumericVoting
+                        epochId={epoch.objectId}
+                        type={epoch.type}
+                        active={epoch.active}
+                        details={getDetails(epoch.choices, epoch.type)}
+                        choices={getChoices(epoch.choices, epoch.active)}
+                        votesGiven={votesGiven[epoch.objectId]}
+                        handleVotesGiven={handleVotesGiven}
+                        votesRemaining={votesRemaining[epoch.objectId]}
+                        handleVotesRemaining={handleVotesRemaining}
+                        values={epoch.values}
+                        tokenSymbol={epoch.token.symbol}
+                      />
+                    )}
+                  {!isLoading &&
+                    epoch.strategy === "Pass/No Pass" &&
+                    Object.keys(votesGiven).includes(epoch.objectId) && (
+                      <ForAgainstVoting
+                        epochId={epoch.objectId}
+                        type={epoch.type}
+                        active={epoch.active}
+                        details={getDetails(epoch.choices, epoch.type)}
+                        choices={getChoices(epoch.choices, epoch.active)}
+                        votesGiven={votesGiven[epoch.objectId]}
+                        handleVotesGiven={handleVotesGiven}
+                        votesAgainst={epoch.votesAgainst}
+                        votesFor={epoch.votesFor}
+                        isLoading={isLoading}
+                      />
+                    )}
+                </Grid>
+                <Grid item xs={4}>
+                  <DetailContainer>
+                    {epoch.active && epoch.type === "Member" && (
+                      <InfoContainer>
+                        <Typography
+                          sx={{
+                            color: "#99ccff",
+                            textAlign: "right",
+                            fontSize: 14,
+                          }}
+                        >
+                          Votes remaining
+                        </Typography>
+                        <Typography sx={{ textAlign: "right" }}>
+                          {votesRemaining[epoch.objectId]}
+                        </Typography>
+                      </InfoContainer>
+                    )}
+                    {epoch.budget && epoch.budget > 0 && (
+                      <InfoContainer>
+                        <Typography
+                          sx={{
+                            color: "#99ccff",
+                            textAlign: "right",
+                            fontSize: 14,
+                          }}
+                        >
+                          Total Budget
+                        </Typography>
+                        <Typography sx={{ textAlign: "right" }}>
+                          {epoch.budget} {epoch.token.symbol}
+                        </Typography>
+                      </InfoContainer>
+                    )}
+                    {epoch.active ? (
+                      <ButtonContainer>
                         <PrimaryButton
-                          endIcon={<PaidIcon />}
+                          endIcon={<SaveIcon />}
+                          loading={isLoading}
                           variant="outlined"
+                          disabled={votesRemaining[epoch.objectId] < 0}
                           sx={{ mx: 4, borderRadius: 1 }}
                           size="small"
                           onClick={() => {
                             setIsLoading(true);
+                            saveVotes(
+                              Moralis,
+                              epoch.objectId,
+                              votesGiven[epoch.objectId]
+                            )
+                              .then((res: any) => {
+                                setIsLoading(false);
+                                notify("Votes saved!");
+                              })
+                              .catch((err: any) => alert(err));
                           }}
                         >
-                          Move cards
+                          Save
                         </PrimaryButton>
-                      )}
-                      <CsvExport epoch={epoch} />
-                    </ButtonContainer>
-                  )}
-                </DetailContainer>
+                        {/* {data.access === "admin" && ( */}
+                        <PrimaryButton
+                          endIcon={<CloseIcon />}
+                          variant="outlined"
+                          size="small"
+                          sx={{ borderRadius: 1 }}
+                          loading={isLoading}
+                          onClick={() => {
+                            setIsLoading(true);
+                            endEpoch(Moralis, epoch.objectId)
+                              .then((res: any) => {
+                                handleEpochUpdateAfterSave(index, res);
+                                setIsLoading(false);
+                                notify("Epoch Ended!");
+                              })
+                              .catch((err: any) => {
+                                notifyError(
+                                  `Sorry! There was an error while ending the epoch.`
+                                );
+                                setIsLoading(false);
+                              });
+                          }}
+                        >
+                          End Epoch
+                        </PrimaryButton>
+                        {/* )} */}
+                      </ButtonContainer>
+                    ) : (
+                      <ButtonContainer>
+                        {epoch.type === "Member" ? (
+                          <PayoutButton epoch={epoch} />
+                        ) : (
+                          <PrimaryButton
+                            endIcon={<PaidIcon />}
+                            variant="outlined"
+                            sx={{ mx: 4, borderRadius: 1 }}
+                            size="small"
+                            onClick={() => {
+                              setIsLoading(true);
+                            }}
+                          >
+                            Move cards
+                          </PrimaryButton>
+                        )}
+                        <CsvExport epoch={epoch} />
+                      </ButtonContainer>
+                    )}
+                  </DetailContainer>
+                </Grid>
               </Grid>
-            </Grid>
-          </AccordionDetails>
-        </Accordion>
-      ))}
+            </AccordionDetails>
+          </Accordion>
+        ))
+      )}
     </Container>
   );
 };

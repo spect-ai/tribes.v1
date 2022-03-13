@@ -19,7 +19,6 @@ import {
   Grid,
 } from "@mui/material";
 import React, { useState } from "react";
-import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
 import { Box } from "@mui/system";
 import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
 import CloseIcon from "@mui/icons-material/Close";
@@ -36,12 +35,14 @@ import { registryTemp } from "../../../constants";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 
-type Props = {};
+type Props = {
+  isOpen: boolean;
+  setIsOpen: Function;
+};
 
-const CreateEpochModal = (props: Props) => {
+const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
   const { data, setData, handleTabChange } = useBoard();
   const { Moralis } = useMoralis();
-  const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState("");
   const [duration, setDuration] = useState("");
   const [type, setType] = useState("");
@@ -125,15 +126,7 @@ const CreateEpochModal = (props: Props) => {
   return (
     <>
       <Toaster />
-      <Tooltip title="Start Epoch">
-        <IconButton
-          sx={{ p: 1.7 }}
-          size="small"
-          onClick={() => setIsOpen(true)}
-        >
-          <PlayCircleFilledWhiteIcon />
-        </IconButton>
-      </Tooltip>
+
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
           <Box sx={modalStyle}>

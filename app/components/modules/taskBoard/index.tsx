@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { Fade, Grow } from "@mui/material";
+import { Fade, Grow, TextField } from "@mui/material";
 import { useRouter } from "next/router";
 import { getBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
@@ -17,6 +17,7 @@ import {
 import Members from "../members";
 import { notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
+import NoAccess from "../epoch/noAccess";
 
 type Props = {};
 
@@ -32,7 +33,7 @@ const BoardContext = createContext<BoardContextType>({} as BoardContextType);
 const TaskBoard = (props: Props) => {
   const context = useProviderBoard();
   const router = useRouter();
-  const { Moralis, isInitialized } = useMoralis();
+  const { Moralis, isInitialized, user } = useMoralis();
   const [isLoading, setIsLoading] = useState(true);
   const { dispatch } = useGlobal();
   const [panelExpanded, setPanelExpanded] = useState<string | false>("board");
@@ -85,10 +86,14 @@ const TaskBoard = (props: Props) => {
           {tab === 1 && (
             <Grow in={tab === 1} timeout={500}>
               <div>
-                <EpochList
-                  expanded={panelExpanded === "epoch"}
-                  handleChange={handleChange}
-                />
+                {user && user?.id in context.data.roles ? (
+                  <EpochList
+                    expanded={panelExpanded === "epoch"}
+                    handleChange={handleChange}
+                  />
+                ) : (
+                  <NoAccess />
+                )}
               </div>
             </Grow>
           )}

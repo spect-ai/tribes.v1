@@ -29,7 +29,7 @@ import {
   StyledTabs,
 } from "../../elements/styledComponents";
 import CreateEpochModal from "../epoch/createEpochModal";
-import { ethers } from "ethers";
+import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
 import { notify, notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 
@@ -52,6 +52,7 @@ const Heading = (props: Props) => {
   const id = router.query.id as string;
   const bid = router.query.bid as string;
   const [isOpen, setIsOpen] = useState(false);
+  const [isEpochModalOpen, setIsEpochModalOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
   const { Moralis, isInitialized, user } = useMoralis();
   const [boards, setBoards] = useState([]);
@@ -173,7 +174,21 @@ const Heading = (props: Props) => {
             <PeopleOutlineIcon />
           </IconButton>
         </Tooltip> */}
-        {data.roles[user?.id as string] === "admin" && <CreateEpochModal />}
+        {data.roles[user?.id as string] === "admin" && (
+          <Tooltip title="Start Epoch">
+            <IconButton
+              sx={{ p: 1.7 }}
+              size="small"
+              onClick={() => setIsEpochModalOpen(true)}
+            >
+              <PlayCircleFilledWhiteIcon />
+            </IconButton>
+          </Tooltip>
+        )}
+        <CreateEpochModal
+          isOpen={isEpochModalOpen}
+          setIsOpen={setIsEpochModalOpen}
+        />
       </Box>
       {/* <Typography sx={{ ml: 2, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
         {data.description}
