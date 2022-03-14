@@ -11,6 +11,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  useTheme,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
@@ -31,6 +32,8 @@ const Members = (props: Props) => {
   const { Moralis, user } = useMoralis();
   const [isChecked, setIsChecked] = useState([] as boolean[]);
   const [roles, setRoles] = useState({} as { [key: string]: string });
+  const { palette } = useTheme();
+
   const toggleCheckboxValue = (index: number) => {
     setIsChecked(isChecked?.map((v, i) => (i === index ? !v : v)));
   };
@@ -93,10 +96,10 @@ const Members = (props: Props) => {
                 }}
               />
             </TableCell>
-            <TableCell align="right" sx={{ color: "#99ccff" }}>
+            <TableCell align="right" sx={{ color: palette.text.secondary }}>
               Username
             </TableCell>
-            <TableCell align="right" sx={{ color: "#99ccff" }}>
+            <TableCell align="right" sx={{ color: palette.text.secondary }}>
               Role
             </TableCell>
           </TableRow>

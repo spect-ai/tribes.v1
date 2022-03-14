@@ -5,16 +5,12 @@ import { useRouter } from "next/router";
 import Layout from "../app/components/layouts";
 import "../app/styles/globals.css";
 import "../app/styles/mde.css";
-import { muiTheme } from "../app/constants/muiTheme";
+import { classicDark, warmPurple } from "../app/constants/muiTheme";
 import { createTheme, ThemeProvider } from "@mui/material";
-import { useEffect } from "react";
-import GlobalContextProvider, {
-  initContracts,
-  useGlobal,
-} from "../app/context/globalContext";
+import GlobalContextProvider from "../app/context/globalContext";
 
 function MyApp({ Component, pageProps }: AppProps) {
-  let theme = createTheme(muiTheme);
+  // let theme = createTheme(classicDark);
   const router = useRouter();
   const url = `localhost:3000/${router.route}`;
 
@@ -23,17 +19,15 @@ function MyApp({ Component, pageProps }: AppProps) {
       appId={process.env.MORALIS_APPLICATION_ID || ""}
       serverUrl={process.env.MORALIS_SERVER_ID || ""}
     >
-      <ThemeProvider theme={theme}>
-        <GlobalContextProvider>
-          <Script
-            src="https://kit.fontawesome.com/65590ff3eb.js"
-            crossOrigin="anonymous"
-          />
-          <Layout>
-            <Component {...pageProps} canonical={url} key={url} />
-          </Layout>
-        </GlobalContextProvider>
-      </ThemeProvider>
+      <GlobalContextProvider>
+        <Script
+          src="https://kit.fontawesome.com/65590ff3eb.js"
+          crossOrigin="anonymous"
+        />
+        <Layout>
+          <Component {...pageProps} canonical={url} key={url} />
+        </Layout>
+      </GlobalContextProvider>
     </MoralisProvider>
   );
 }

@@ -1,5 +1,10 @@
 import styled from "@emotion/styled";
-import { Box, styled as MUIStyled } from "@mui/material";
+import {
+  Box,
+  Breadcrumbs,
+  styled as MUIStyled,
+  Link as MuiLink,
+} from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
@@ -13,6 +18,7 @@ import {
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
+import Link from "next/link";
 
 type Props = {};
 
@@ -27,6 +33,36 @@ const TribeHeading = (props: Props) => {
   return (
     <Container>
       <Toaster />
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          ml: 4,
+        }}
+      >
+        {tribe.github && (
+          <StyledAnchor href={tribe.github} target="_blank">
+            <i className="fab fa-github" />
+          </StyledAnchor>
+        )}
+        {tribe.discord && (
+          <StyledAnchor href={tribe.discord} target="_blank">
+            <i className="fab fa-discord"></i>
+          </StyledAnchor>
+        )}
+        {tribe.twitter && (
+          <StyledAnchor href={tribe.twitter} target="_blank">
+            <i className="fab fa-twitter" />
+          </StyledAnchor>
+        )}
+      </Box>
+      <StyledTabs value={tab} onChange={handleTabChange} centered>
+        <StyledTab label="Overview" />
+        <StyledTab
+          label="Settings"
+          disabled={user ? tribe.roles[user?.id] !== "admin" : true}
+        />
+      </StyledTabs>
       <Box
         sx={{
           display: "flex",
@@ -76,36 +112,6 @@ const TribeHeading = (props: Props) => {
           </PrimaryButton>
         )}
       </Box>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          ml: 4,
-        }}
-      >
-        {tribe.github && (
-          <StyledAnchor href={tribe.github} target="_blank">
-            <i className="fab fa-github" />
-          </StyledAnchor>
-        )}
-        {tribe.discord && (
-          <StyledAnchor href={tribe.discord} target="_blank">
-            <i className="fab fa-discord"></i>
-          </StyledAnchor>
-        )}
-        {tribe.twitter && (
-          <StyledAnchor href={tribe.twitter} target="_blank">
-            <i className="fab fa-twitter" />
-          </StyledAnchor>
-        )}
-      </Box>
-      <StyledTabs value={tab} onChange={handleTabChange}>
-        <StyledTab label="Overview" />
-        <StyledTab
-          label="Settings"
-          disabled={user ? tribe.roles[user?.id] !== "admin" : true}
-        />
-      </StyledTabs>
     </Container>
   );
 };

@@ -6,7 +6,9 @@ import {
   ButtonBase,
   Collapse,
   IconButton,
+  Palette,
   Typography,
+  useTheme,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
@@ -19,6 +21,10 @@ import PaidIcon from "@mui/icons-material/Paid";
 import { smartTrim } from "../../../utils/utils";
 import { useBoard } from "../taskBoard";
 import { Team } from "../../../types";
+import { useRouter } from "next/router";
+import PaletteIcon from "@mui/icons-material/Palette";
+import BallotIcon from "@mui/icons-material/Ballot";
+import ThemePopover from "../themePopover";
 
 type Props = {};
 
@@ -26,58 +32,99 @@ const Sidebar = (props: Props) => {
   const { Moralis, isInitialized, isAuthenticated, user } = useMoralis();
   const [myTeams, setMyTeams] = useState([] as any[]);
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const [tribe, setTribe] = useState({} as Team);
+  const [tribe, setTribe] = useState<Team>({} as Team);
   const { data } = useBoard();
+  const router = useRouter();
+  const { id } = router.query;
 
   const onMouseHover = () => setIsCollapsed(false);
   const onMouseLeave = () => setIsCollapsed(true);
 
+  const { palette } = useTheme();
+
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [open, setOpen] = useState({} as any);
+
+  const handleClick =
+    (field: string) => (event: React.MouseEvent<HTMLButtonElement>) => {
+      setAnchorEl(event.currentTarget);
+      setOpen({ [field]: true });
+    };
+  const handleClosePopover = (field: string) => {
+    setOpen({ [field]: false });
+  };
+
   useEffect(() => {
-    // if (isInitialized && isAuthenticated) {
-    // } else {
-    // }
+    if (isInitialized && isAuthenticated) {
+      getTeam(Moralis, id as string).then((res: Team) => {
+        setTribe(res);
+      });
+    }
   }, [isInitialized, isAuthenticated]);
 
   return (
-    <SidebarContainer onMouseEnter={onMouseHover} onMouseLeave={onMouseLeave}>
+    <SidebarContainer
+      onMouseEnter={onMouseHover}
+      onMouseLeave={onMouseLeave}
+      palette={palette}
+    >
       <Collapse orientation="horizontal" in={!isCollapsed} collapsedSize={50}>
         <SidebarContent>
           <Actions>
-            <SidebarButton sx={{ mt: 2 }}>
+            <SidebarButton sx={{ mt: 2 }} color="inherit">
               <Avatar
                 variant="rounded"
                 sx={{ p: 0, m: 0, width: 32, height: 32 }}
+                src={tribe?.logo}
               >
-                A
+                {tribe?.name && tribe.name[0]}
               </Avatar>
               <AvatarText>
-                <Typography sx={{ fontSize: 14 }}>{}</Typography>
-                <Typography sx={{ fontSize: 10, color: "#5a6972" }}>
-                  12 Members
+                <Typography sx={{ fontSize: 15 }}>{tribe?.name}</Typography>
+                <Typography sx={{ fontSize: 12, color: palette.primary.light }}>
+                  {tribe?.members?.length} members
                 </Typography>
               </AvatarText>
             </SidebarButton>
-
-            <SidebarButton>
-              <NotificationIcon />
-              <ButtonText>Notification</ButtonText>
-            </SidebarButton>
-            <SidebarButton>
-              <SettingsIcon />
-              <ButtonText>Settings</ButtonText>
-            </SidebarButton>
-            <SidebarButton>
-              <PlayCircleFilledWhiteIcon />
-              <ButtonText>Start Epoch</ButtonText>
-            </SidebarButton>
-            <SidebarButton>
-              <PaidIcon />
-              <ButtonText>Batch Pay</ButtonText>
-            </SidebarButton>
+            <Box sx={{ mt: 12, display: "flex", flexDirection: "column" }}>
+              <SidebarButton color="inherit">
+                <NotificationIcon />
+                <ButtonText>Notification</ButtonText>
+              </SidebarButton>
+              <SidebarButton color="inherit">
+                <SettingsIcon />
+                <ButtonText>Settings</ButtonText>
+              </SidebarButton>
+              <SidebarButton color="inherit">
+                <PlayCircleFilledWhiteIcon />
+                <ButtonText>Start Epoch</ButtonText>
+              </SidebarButton>
+              <SidebarButton color="inherit">
+                <PaidIcon />
+                <ButtonText>Batch Pay</ButtonText>
+              </SidebarButton>
+              <SidebarButton color="inherit" onClick={handleClick("theme")}>
+                <PaletteIcon />
+                <ButtonText>Theme</ButtonText>
+              </SidebarButton>
+              <ThemePopover
+                open={open["theme"]}
+                anchorEl={anchorEl}
+                handleClose={handleClosePopover}
+                type="theme"
+              />
+              <SidebarButton color="inherit">
+                <BallotIcon />
+                <ButtonText>Spaces</ButtonText>
+              </SidebarButton>
+            </Box>
+            <Box
+              sx={{ mt: 12, display: "flex", flexDirection: "column" }}
+            ></Box>
           </Actions>
           <Box sx={{ flex: "1 1 auto" }} />
           <Profile>
-            <SidebarButton sx={{ mt: 2 }}>
+            <SidebarButton sx={{ mt: 2 }} color="inherit">
               <Avatar
                 variant="rounded"
                 sx={{ p: 0, m: 0, width: 32, height: 32 }}
@@ -86,10 +133,10 @@ const Sidebar = (props: Props) => {
                 {user?.get("username")[0]}
               </Avatar>
               <AvatarText>
-                <Typography sx={{ fontSize: 14 }}>
+                <Typography sx={{ fontSize: 15 }}>
                   {user?.get("username")}
                 </Typography>
-                <Typography sx={{ fontSize: 10, color: "#5a6972" }}>
+                <Typography sx={{ fontSize: 12, color: palette.primary.light }}>
                   {smartTrim(user?.get("ethAddress"), 10)}
                 </Typography>
               </AvatarText>
@@ -101,8 +148,8 @@ const Sidebar = (props: Props) => {
   );
 };
 
-const SidebarContainer = styled.div`
-  background-color: #00194a;
+const SidebarContainer = styled.div<{ palette: Palette }>`
+  background-color: ${(props) => props.palette.primary.main};
   transition: 0.5s;
 `;
 

@@ -1,3 +1,5 @@
+import styled from "@emotion/styled";
+import { createTheme, ThemeProvider, useTheme } from "@mui/material";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -10,14 +12,16 @@ import {
 import { ResolveCallOptions } from "react-moralis/lib/hooks/internal/_useResolveAsyncCall";
 import { getTaskEpoch } from "../../../app/adapters/moralis";
 import Navbar from "../../../app/components/modules/navbar";
+import Sidebar from "../../../app/components/modules/sidebar";
 import TribeTemplate from "../../../app/components/templates/tribe";
+import { muiTheme } from "../../../app/constants/muiTheme";
 import {
   setNavbarLogo,
   setNavbarTitle,
   useGlobal,
 } from "../../../app/context/globalContext";
-import { Epoch, Task, Team } from "../../../app/types";
-import { getMD5String } from "../../../app/utils/utils";
+import { Team } from "../../../app/types";
+import { PageContainer } from "./board/[bid]";
 
 interface Props {}
 
@@ -54,7 +58,6 @@ const TribePage: NextPage<Props> = (props: Props) => {
   console.log("reg:", state.registry);
   useEffect(() => {
     setLoading(true);
-    console.log("useEffect tribe");
     getTeam({
       onSuccess: (res: any) => {
         console.log(res);
@@ -75,10 +78,14 @@ const TribePage: NextPage<Props> = (props: Props) => {
         <meta name="description" content="Manage DAO with ease" />
         <link rel="icon" href="/logo2.svg" />
       </Head>
-      <TribeContext.Provider value={context}>
-        <Navbar />
-        <TribeTemplate />
-      </TribeContext.Provider>
+      <ThemeProvider theme={theme}>
+        <TribeContext.Provider value={context}>
+          <PageContainer palette={palette}>
+            <Sidebar />
+            <TribeTemplate />
+          </PageContainer>
+        </TribeContext.Provider>
+      </ThemeProvider>
     </>
   );
 };

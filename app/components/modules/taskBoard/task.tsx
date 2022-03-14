@@ -11,6 +11,7 @@ import PriceCheckIcon from "@mui/icons-material/PriceCheck";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import { useMoralis } from "react-moralis";
 import { smartTrim } from "../../../utils/utils";
+import { Palette, useTheme } from "@mui/material";
 
 type Props = {
   task: Task;
@@ -21,7 +22,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
   const { data, setData } = useBoard();
-  const { user } = useMoralis();
+  const { palette } = useTheme();
   return (
     <>
       {isOpen && (
@@ -40,6 +41,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
             ref={provided.innerRef}
             isDragging={snapshot.isDragging}
             onClick={() => setIsOpen(true)}
+            palette={palette}
           >
             <Container>
               <LabelsContainer>
@@ -51,7 +53,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
                 ))}
               </LabelsContainer>
 
-              <Title>{task.title}</Title>
+              <Title palette={palette}>{task.title}</Title>
 
               <ChipContainer>
                 {task.value && (
@@ -129,17 +131,19 @@ const Chip = styled.div<{ color: string }>`
   transition: color 2s ease-in-out;
 `;
 
-const TaskCard = styled.div<{ isDragging: boolean }>`
+const TaskCard = styled.div<{ isDragging: boolean; palette: Palette }>`
   display: flex;
   flex-direction: column;
   height: fit-content;
   width: 16rem;
   margin: 5px;
   border: ${(props) =>
-    props.isDragging ? "0.1px solid #0061ff" : "0.1px solid transparent"};
+    props.isDragging
+      ? `0.1px solid ${props.palette.text.secondary}`
+      : "0.1px solid transparent"};
   padding: 0px 2px;
   border-radius: 5px;
-  background-color: #0a2354;
+  background-color: ${(props) => props.palette.primary.dark};
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   transition: border 0.3s ease-in-out;
   &:hover {
@@ -153,9 +157,10 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-const Title = styled.div`
+const Title = styled.div<{ palette: Palette }>`
   font-size: 14px;
   word-wrap: break-word;
+  color: ${(props) => props.palette.text.primary};
 `;
 
 export default TaskContainer;

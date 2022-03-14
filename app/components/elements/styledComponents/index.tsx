@@ -8,6 +8,7 @@ import {
   Tooltip,
   tooltipClasses,
   TooltipProps,
+  withTheme,
 } from "@mui/material";
 
 export const PrimaryButton = styled(LoadingButton)<ButtonProps>(
@@ -87,7 +88,7 @@ export const StyledTabs = styled((props: StyledTabsProps) => (
     {...props}
     TabIndicatorProps={{ children: <span className="MuiTabs-indicatorSpan" /> }}
   />
-))({
+))(({ theme }) => ({
   "& .MuiTabs-indicator": {
     display: "flex",
     justifyContent: "center",
@@ -96,9 +97,9 @@ export const StyledTabs = styled((props: StyledTabsProps) => (
   "& .MuiTabs-indicatorSpan": {
     maxWidth: 40,
     width: "100%",
-    backgroundColor: "#99ccff",
+    backgroundColor: theme.palette.primary.light,
   },
-});
+}));
 
 export const StyledTab = styled((props: StyledTabProps) => (
   <Tab disableRipple {...props} />
@@ -109,7 +110,7 @@ export const StyledTab = styled((props: StyledTabProps) => (
   marginRight: theme.spacing(1),
   color: "rgba(255, 255, 255, 0.6)",
   "&.Mui-selected": {
-    color: theme.palette.text.secondary,
+    color: theme.palette.text.primary,
   },
   "&.Mui-focusVisible": {
     backgroundColor: "rgba(100, 95, 228, 0.32)",

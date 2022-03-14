@@ -183,11 +183,10 @@ const Board = ({ expanded, handleChange }: Props) => {
             {provided.placeholder}
             <Button
               variant="contained"
-              color="secondary"
               startIcon={<AddIcon />}
               sx={{
                 textTransform: "none",
-                height: "8%",
+                height: "5%",
                 minWidth: "16rem",
                 borderRadius: 1,
                 margin: "0.3rem 2rem 1rem 0rem",
@@ -232,7 +231,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   padding: 0 0.5rem;
-  height: 90vh;
+  height: 88vh;
   max-width: calc(100vw - 9rem);
   overflow-x: auto;
   overflow-y: hidden;

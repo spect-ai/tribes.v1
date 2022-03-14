@@ -46,6 +46,7 @@ const TabContainer = styled.div`
 const OuterDiv = styled.div`
   margin-left: 1rem;
   margin-right: 1rem;
+  width: 100%;
 `;
 
 export default TribeTemplate;

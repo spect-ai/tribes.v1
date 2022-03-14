@@ -1,5 +1,11 @@
 import styled from "@emotion/styled";
-import { Button, InputBase, IconButton } from "@mui/material";
+import {
+  Button,
+  InputBase,
+  IconButton,
+  useTheme,
+  Palette,
+} from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
 import { useBoard } from ".";
@@ -43,6 +49,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
     setAnchorEl(null);
   };
   const open = Boolean(anchorEl);
+  const { palette } = useTheme();
 
   function updateColumn() {
     if (currentColumnTitle !== columnTitle) {
@@ -75,6 +82,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                 <TaskListContainer
                   {...provided.droppableProps}
                   ref={provided.innerRef}
+                  palette={palette}
                 >
                   <TaskTitleContainer>
                     <InputBase
@@ -113,10 +121,10 @@ const Column = ({ tasks, id, column, index }: Props) => {
                         <Button
                           sx={{
                             textTransform: "none",
-                            color: "inherit",
                             textAlign: "left",
                             justifyContent: "flex-start",
                             ml: 1,
+                            color: palette.text.primary,
                           }}
                           startIcon={<AddIcon />}
                           onClick={() => {
@@ -140,10 +148,10 @@ const Column = ({ tasks, id, column, index }: Props) => {
                         <Button
                           sx={{
                             textTransform: "none",
-                            color: "inherit",
                             textAlign: "left",
                             justifyContent: "flex-start",
                             mr: 1,
+                            color: palette.text.primary,
                           }}
                           startIcon={<GitHubIcon />}
                           onClick={() => setShowCreateGithubTask(true)}
@@ -211,9 +219,9 @@ const TaskList = styled.div`
   max-height: 60vh;
 `;
 
-const TaskListContainer = styled.div`
+const TaskListContainer = styled.div<{ palette: Palette }>`
   box-shadow: 0 10px 30px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  background-color: #00194a;
+  background-color: ${(props) => props.palette.primary.main};
   border-radius: 0.3rem;
 `;
 
