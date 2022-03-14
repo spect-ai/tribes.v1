@@ -10,32 +10,32 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
-import { getMyTeams } from "../../../adapters/moralis";
+import { getMyTeams, getTeam } from "../../../adapters/moralis";
 import { SidebarButton } from "../../elements/styledComponents";
 import NotificationIcon from "@mui/icons-material/Notifications";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PaidIcon from "@mui/icons-material/Paid";
 import { smartTrim } from "../../../utils/utils";
+import { useBoard } from "../taskBoard";
+import { Team } from "../../../types";
 
 type Props = {};
 
 const Sidebar = (props: Props) => {
-  const { Moralis, isInitialized, isAuthenticated } = useMoralis();
+  const { Moralis, isInitialized, isAuthenticated, user } = useMoralis();
   const [myTeams, setMyTeams] = useState([] as any[]);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [tribe, setTribe] = useState({} as Team);
+  const { data } = useBoard();
 
   const onMouseHover = () => setIsCollapsed(false);
   const onMouseLeave = () => setIsCollapsed(true);
 
   useEffect(() => {
-    if (isInitialized && isAuthenticated) {
-      getMyTeams(Moralis).then((res: any) => {
-        setMyTeams(res);
-      });
-    } else {
-      setMyTeams([]);
-    }
+    // if (isInitialized && isAuthenticated) {
+    // } else {
+    // }
   }, [isInitialized, isAuthenticated]);
 
   return (
@@ -51,7 +51,7 @@ const Sidebar = (props: Props) => {
                 A
               </Avatar>
               <AvatarText>
-                <Typography sx={{ fontSize: 14 }}>Avp test tribe 1</Typography>
+                <Typography sx={{ fontSize: 14 }}>{}</Typography>
                 <Typography sx={{ fontSize: 10, color: "#5a6972" }}>
                   12 Members
                 </Typography>
@@ -81,13 +81,16 @@ const Sidebar = (props: Props) => {
               <Avatar
                 variant="rounded"
                 sx={{ p: 0, m: 0, width: 32, height: 32 }}
+                src={user?.get("profilePicture")._url}
               >
-                A
+                {user?.get("username")[0]}
               </Avatar>
               <AvatarText>
-                <Typography sx={{ fontSize: 14 }}>0xavp.eth</Typography>
+                <Typography sx={{ fontSize: 14 }}>
+                  {user?.get("username")}
+                </Typography>
                 <Typography sx={{ fontSize: 10, color: "#5a6972" }}>
-                  {smartTrim("0x6304CE63F2EBf8C0Cc76b60d34Cc52a84aBB6057", 10)}
+                  {smartTrim(user?.get("ethAddress"), 10)}
                 </Typography>
               </AvatarText>
             </SidebarButton>
@@ -99,9 +102,6 @@ const Sidebar = (props: Props) => {
 };
 
 const SidebarContainer = styled.div`
-  minheight: 100vh;
-  display: flex;
-  flex-direction: column;
   background-color: #00194a;
   transition: 0.5s;
 `;
@@ -113,6 +113,7 @@ const SidebarContent = styled.div`
 const Actions = styled.div`
   display: flex;
   flex-direction: column;
+  min-height: 89vh;
 `;
 
 const Profile = styled.div`
@@ -125,7 +126,7 @@ const Profile = styled.div`
 const ButtonText = styled.div`
   overflow: hidden;
   height: 20px;
-  width: 100%;
+  width: 86%;
   transition: 0.5s;
   text-transform: none;
 `;

@@ -232,7 +232,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   padding: 0 0.5rem;
-  height: 70vh;
+  height: 90vh;
   max-width: calc(100vw - 9rem);
   overflow-x: auto;
   overflow-y: hidden;
