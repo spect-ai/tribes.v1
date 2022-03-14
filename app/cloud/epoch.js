@@ -56,6 +56,7 @@ function initializeEpochMembers(members, choices) {
       votesGiven: memberIdsToVotesGiven,
       votesRemaining: member.votesAllocated,
       votesAllocated: member.votesAllocated,
+      weightAllocated: member.votesAllocated,
     };
   }
   logger.info(`epochMembers ${JSON.stringify(members)}`);
@@ -66,6 +67,8 @@ Moralis.Cloud.define("startEpoch", async (request) => {
   try {
     if (request.params.members.length === 0)
       throw "Cant create epoch with no members";
+    if (request.params.choices.length < 2)
+      throw "Cant create epoch with less than 2 choices";
     const endTime =
       parseInt(request.params.startTime) + parseInt(request.params.duration);
     const epochCount = await getEpochCountByTeamId(request.params.teamId);
@@ -85,6 +88,7 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     epoch.set("memberStats", initMembersStats); // list
     epoch.set("type", request.params.type);
     epoch.set("strategy", request.params.strategy);
+    epoch.set("passThreshold", parseInt(request.params.passThreshold));
     epoch.set("budget", parseInt(request.params.budget));
     epoch.set("token", request.params.token);
     epoch.set("chain", request.params.chain);
@@ -132,13 +136,10 @@ function calculatePassNoPassVotes(memberStats) {
       if (!(choice in votesAgainst)) {
         votesAgainst[choice] = 0;
       }
-      logger.info(`votesFor ${JSON.stringify(votesFor)}`);
-      logger.info(`votesAgainst ${JSON.stringify(votesAgainst)}`);
-
       if (memberStats[memberId].votesGiven[choice] === -1) {
-        votesAgainst[choice] += 1;
+        votesAgainst[choice] += 1 * memberStats[memberId].weightAllocated;
       } else if (memberStats[memberId].votesGiven[choice] === 1) {
-        votesFor[choice] += 1;
+        votesFor[choice] += 1 * memberStats[memberId].weightAllocated;
       }
     }
   }
@@ -271,6 +272,51 @@ Moralis.Cloud.define("completeEpochPayment", async (request) => {
       `Error while completing epoch payment for epoch ${request.params.epochId}: ${err}`
     );
     throw `Error while completing epoch payment ${err}`;
+  }
+});
+
+Moralis.Cloud.define("moveCardsAfterEpoch", async (request) => {
+  try {
+    const epoch = await getEpochParseObjByObjectId(request.params.epochId);
+    logger.info(`spaceId ${epoch.get("spaceId")}`);
+
+    if (epoch.get("type") === "Card") {
+      for (var cardId of epoch.get("choices")) {
+        if (
+          (epoch.get("votesFor")[cardId] * 100) /
+            (epoch.get("votesFor")[cardId] +
+              epoch.get("votesAgainst")[cardId]) >=
+          epoch.get("passThreshold")
+        ) {
+          await handleColumnChange(
+            epoch.get("spaceId"),
+            cardId,
+            epoch.get("sourceColumnId"),
+            request.params.passColumnId,
+            request.user.id
+          );
+        } else {
+          await handleColumnChange(
+            epoch.get("spaceId"),
+            cardId,
+            epoch.get("sourceColumnId"),
+            request.params.noPassColumnId,
+            request.user.id
+          );
+        }
+      }
+    }
+    const board = await getBoardObjWithTasksByObjectId(
+      epoch.get("spaceId"),
+      request.user.id
+    );
+    logger.info(`hahaha`);
+    return board[0];
+  } catch (err) {
+    logger.error(
+      `Error while moving cards after epoch ${request.params.epochId}: ${err}`
+    );
+    throw `Error while moving cards after epoch ${err}`;
   }
 });
 

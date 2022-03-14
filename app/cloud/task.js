@@ -160,7 +160,8 @@ Moralis.Cloud.define("updateTaskColumn", async (request) => {
       request.params.boardId,
       request.params.taskId,
       request.params.sourceId,
-      request.params.destinationId
+      request.params.destinationId,
+      request.user.id
     );
     logger.info(
       `Handled column field for task with id ${JSON.stringify(
@@ -501,7 +502,13 @@ function handleActivityUpdate(task, userId, action) {
   return task;
 }
 
-async function handleColumnChange(boardId, taskId, sourceId, destinationId) {
+async function handleColumnChange(
+  boardId,
+  taskId,
+  sourceId,
+  destinationId,
+  callerId
+) {
   const logger = Moralis.Cloud.getLogger();
   try {
     logger.info(
@@ -509,7 +516,7 @@ async function handleColumnChange(boardId, taskId, sourceId, destinationId) {
     );
     const board = await getBoardByObjectId(boardId);
     const task = await getTaskByTaskId(taskId);
-    if (!canMoveTask(request.user.id, task, sourceId, destinationId, board))
+    if (!canMoveTask(callerId, task, sourceId, destinationId, board))
       throw "Unfortunately you dont have the right access to move task";
     var columnsData = board.get("columns");
     const currentColumn = columnsData[sourceId];

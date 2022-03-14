@@ -34,6 +34,7 @@ import {
 import { registryTemp } from "../../../constants";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
+import CreateEpochTaskList from "./createEpochTaskList";
 
 type Props = {
   isOpen: boolean;
@@ -48,9 +49,13 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
   const [type, setType] = useState("");
   const [strategy, setStrategy] = useState("");
   const [budget, setBudget] = useState("");
-  const [column, setColumn] = useState(data.columnOrder[0]);
-  const [tasks, setTasks] = useState(
+  const [passThreshold, setPassThreshold] = useState("");
+  const [cardColumn, setCardColumn] = useState(data.columnOrder[0]);
+  const [cards, setCards] = useState(
     data.columns[data.columnOrder[0]].taskIds as string[]
+  );
+  const [isCardChecked, setIsCardChecked] = useState(
+    Array(data.columns[data.columnOrder[0]].taskIds.length).fill(true)
   );
 
   const [chain, setChain] = useState({
@@ -69,11 +74,9 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
   const [allocations, setAllocations] = useState(
     Array(data.members?.length).fill(100)
   );
-
   const toggleCheckboxValue = (index: number) => {
     setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
   };
-
   const handleAllocation = (index: number, value: number) => {
     setAllocations(
       allocations.map((v, i) => (i === index ? value : allocations[i]))
@@ -102,18 +105,23 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
     return members;
   };
 
-  const getChoices = () => {
+  const getMemberChoices = () => {
     var choices = [] as string[];
-    if (type === "Member") {
-      for (let i = 0; i < data.members.length; i++) {
-        if (isChecked.at(i)) {
-          choices.push(data.members[i]);
-        }
+    for (let i = 0; i < data.members.length; i++) {
+      if (isChecked.at(i)) {
+        choices.push(data.members[i]);
       }
-    } else if (type === "Card") {
-      choices = tasks;
     }
+    return choices;
+  };
 
+  const getCardChoices = () => {
+    var choices = [] as string[];
+    for (let i = 0; i < cards.length; i++) {
+      if (isChecked.at(i)) {
+        choices.push(cards[i]);
+      }
+    }
     return choices;
   };
   const handleClose = () => {
@@ -152,6 +160,7 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
                 value={type}
                 onChange={(event, newValue) => {
                   setType(newValue as string);
+                  if (newValue === "Member") setStrategy("Quadratic voting");
                 }}
                 renderInput={(params) => (
                   <TextField
@@ -203,6 +212,17 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
                     size="small"
                   />
                 )}
+              />
+              <TextField
+                id="filled-hidden-label-normal"
+                value={passThreshold}
+                onChange={(event) => {
+                  setPassThreshold(event.target.value);
+                }}
+                sx={{ mb: 2 }}
+                placeholder="Pass Threshold (%)"
+                type={"number"}
+                size="small"
               />
               {strategy === "Quadratic voting" && (
                 <Box sx={{ flex: "1 1 auto" }}>
@@ -363,28 +383,18 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
                   </Table>
                 </AccordionDetails>
               </Accordion>
+
               {type === "Card" && (
-                <Autocomplete
-                  options={data.columnOrder}
-                  getOptionLabel={(option) => data.columns[option]?.title}
-                  value={column}
-                  disableClearable
-                  onChange={(event, newValue) => {
-                    setColumn(newValue as string);
-                    setTasks(data.columns[newValue as string]?.taskIds);
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      id="filled-hidden-label-normal"
-                      fullWidth
-                      sx={{ mb: 2, mt: 2 }}
-                      placeholder="Import task from column"
-                      size="small"
-                    />
-                  )}
+                <CreateEpochTaskList
+                  setCards={setCards}
+                  setCardColumn={setCardColumn}
+                  cards={cards}
+                  cardColumn={cardColumn}
+                  isCardChecked={isCardChecked}
+                  setIsCardChecked={setIsCardChecked}
                 />
               )}
+
               <PrimaryButton
                 variant="outlined"
                 sx={{ width: "50%", mt: 2, borderRadius: 1 }}
@@ -394,7 +404,8 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
                     return;
                   }
                   const members = getMembers();
-                  const choices = getChoices();
+                  const choices =
+                    type === "Member" ? getMemberChoices() : getCardChoices();
                   startEpoch(
                     Moralis,
                     data.teamId,
@@ -407,7 +418,8 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
                     choices,
                     parseInt(budget),
                     token,
-                    chain
+                    chain,
+                    parseInt(passThreshold)
                   )
                     .then((res: any) => {
                       handleClose();

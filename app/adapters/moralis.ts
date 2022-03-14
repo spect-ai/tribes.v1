@@ -477,7 +477,8 @@ export function startEpoch(
   choices: string[],
   budget: number,
   token: Token,
-  chain: Chain
+  chain: Chain,
+  passThreshold: number
 ) {
   const durationInMilliseconds = duration * 86400000; // day => milliseconds
   if (token.hasOwnProperty("address")) var nativeCurrencyPayment = false;
@@ -497,6 +498,7 @@ export function startEpoch(
     token: token,
     chain: chain,
     nativeCurrencyPayment: nativeCurrencyPayment,
+    passThreshold: passThreshold,
   };
   return Moralis.Cloud.run("startEpoch", params);
 }
@@ -575,4 +577,18 @@ export function joinSpace(Moralis: any, boardId: string) {
     boardId: boardId,
   };
   return Moralis.Cloud.run("joinSpace", params);
+}
+
+export function moveCards(
+  Moralis: any,
+  epochId: string,
+  passColumnId: string,
+  noPassColumnId: string
+) {
+  const params = {
+    epochId: epochId,
+    passColumnId: passColumnId,
+    noPassColumnId: noPassColumnId,
+  };
+  return Moralis.Cloud.run("moveCardsAfterEpoch", params);
 }

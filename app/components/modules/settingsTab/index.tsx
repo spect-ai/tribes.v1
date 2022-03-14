@@ -22,13 +22,13 @@ export const notify = (text: string, type?: string) => {
   if (type === "error") {
     toast.error(text, {
       duration: 4000,
-      position: "top-right",
+      position: "top-center",
       style: { fontSize: "1rem" },
     });
   } else {
     toast.success(text, {
       duration: 4000,
-      position: "top-right",
+      position: "top-center",
       style: { fontSize: "1rem" },
     });
   }
@@ -37,7 +37,7 @@ export const notify = (text: string, type?: string) => {
 export const notifyError = (text: string) =>
   toast.error(text, {
     duration: 4000,
-    position: "top-right",
+    position: "top-center",
     style: { fontSize: "1rem" },
   });
 

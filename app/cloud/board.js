@@ -40,7 +40,6 @@ async function getBoardObjWithTasksByObjectId(objectId, callerId) {
     }
     board[0].tasks = boardTasks;
   }
-
   return board;
 }
 

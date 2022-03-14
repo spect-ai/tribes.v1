@@ -65,7 +65,7 @@ const Heading = (props: Props) => {
           setBoards(res);
         })
         .catch((err: any) =>
-          notifyError("Sorry! There was an error while getting your spaces")
+          notifyError("Sorry! There was an error while getting your space")
         );
     }
   }, [isInitialized, data.name]);

@@ -35,6 +35,7 @@ type Props = {
   isLoading: boolean;
   votesFor: Votes;
   votesAgainst: Votes;
+  canVote: boolean;
 };
 
 type VotesGivenOneEpoch = {
@@ -52,9 +53,11 @@ const ForAgainstVoting = ({
   votesFor,
   votesAgainst,
   isLoading,
+  canVote,
 }: Props) => {
   console.log(votesGiven);
   const [loading, setLoading] = useState(isLoading);
+
   return (
     <TableContainer>
       <Table aria-label="simple table" size="small">
@@ -106,14 +109,16 @@ const ForAgainstVoting = ({
                     loading={loading}
                     sx={{
                       pl: 8,
-
                       color:
-                        votesGiven[choiceId] === 1 ? "#66bb6a" : "primary.main",
+                        canVote && votesGiven[choiceId] === 1
+                          ? "#66bb6a"
+                          : "primary.main",
                     }}
                     size="medium"
                     onClick={() => {
                       handleVotesGiven(epochId, choiceId, 1);
                     }}
+                    disabled={!canVote}
                   />
                 </TableCell>
               )}
@@ -125,7 +130,7 @@ const ForAgainstVoting = ({
                     sx={{
                       pl: 4,
                       color:
-                        votesGiven[choiceId] === -1
+                        canVote && votesGiven[choiceId] === -1
                           ? "#f44336"
                           : "primary.main",
                     }}
@@ -133,6 +138,7 @@ const ForAgainstVoting = ({
                     onClick={() => {
                       handleVotesGiven(epochId, choiceId, -1);
                     }}
+                    disabled={!canVote}
                   />{" "}
                 </TableCell>
               )}
