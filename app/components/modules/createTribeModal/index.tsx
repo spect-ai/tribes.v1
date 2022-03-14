@@ -83,7 +83,7 @@ const CreateTribeModal = (props: Props) => {
               />
               <PrimaryButton
                 variant="outlined"
-                sx={{ width: "60%", mt: 2 }}
+                sx={{ width: "60%", mt: 2, borderRadius: 1 }}
                 onClick={onSubmit}
                 loading={isLoading}
               >
@@ -99,7 +99,7 @@ const CreateTribeModal = (props: Props) => {
 
 const modalStyle = {
   position: "absolute" as "absolute",
-  top: "30%",
+  top: "20%",
   left: "35%",
   transform: "translate(-50%, -50%)",
   width: "25rem",

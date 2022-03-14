@@ -189,7 +189,7 @@ const Board = ({ expanded, handleChange }: Props) => {
                 textTransform: "none",
                 height: "8%",
                 minWidth: "16rem",
-                borderRadius: "0.5rem",
+                borderRadius: 1,
                 margin: "0.3rem 2rem 1rem 0rem",
               }}
               disabled={data.roles[user?.id as string] !== "admin"}

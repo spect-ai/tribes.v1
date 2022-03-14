@@ -1,5 +1,6 @@
 import { LoadingButton } from "@mui/lab";
 import {
+  Button,
   ButtonProps,
   styled,
   Tab,
@@ -60,6 +61,13 @@ export const NavbarButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
   border: "1px solid #99ccff",
   width: "155px",
   height: "35px",
+}));
+
+export const SidebarButton = styled(Button)<ButtonProps>(({ theme }) => ({
+  color: theme.palette.getContrastText("#000f29"),
+  pt: 2,
+  margin: 0,
+  minWidth: 0,
 }));
 
 interface StyledTabProps {

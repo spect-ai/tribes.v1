@@ -26,6 +26,7 @@ import {
 } from "../app/context/globalContext";
 import { tribesLogo } from "../app/constants";
 import Head from "next/head";
+import Navbar from "../app/components/modules/navbar";
 
 type Props = {
   image: string;
@@ -59,7 +60,7 @@ const Home: NextPage = () => {
         <meta name="description" content="Manage DAO with ease" />
         <link rel="icon" href="/logo2.svg" />
       </Head>
-
+      <Navbar />
       <Box
         sx={{
           display: "flex",

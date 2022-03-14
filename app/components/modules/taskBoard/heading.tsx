@@ -105,7 +105,6 @@ const Heading = (props: Props) => {
               fontSize: 14,
             }}
           >
-            <GroupsIcon sx={{ fontSize: 14 }} />
             {data.team[0].name}
           </MuiLink>
         </Link>
@@ -120,11 +119,10 @@ const Heading = (props: Props) => {
           }}
           href=""
         >
-          <DashboardIcon sx={{ fontSize: 12 }} />
           {data.name}
         </MuiLink>
       </Breadcrumbs>
-      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+      <Box sx={{ display: "none", flexDirection: "row", alignItems: "center" }}>
         <Typography variant="h6" sx={{ mx: 2 }}>
           {data.name}
         </Typography>
@@ -198,7 +196,7 @@ const Heading = (props: Props) => {
       {/* <Typography sx={{ ml: 2, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
         {data.description}
       </Typography> */}
-      <StyledTabs value={tab} onChange={handleTabChange}>
+      <StyledTabs value={tab} onChange={handleTabChange} centered>
         <StyledTab label="Board" />
         <StyledTab label="Epoch" />
         <StyledTab label="Members" />

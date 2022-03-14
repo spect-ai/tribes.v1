@@ -1,16 +1,33 @@
 import styled from "@emotion/styled";
-import { Avatar, Box, Button } from "@mui/material";
-import Link from "next/link";
+import {
+  Avatar,
+  Box,
+  Button,
+  ButtonBase,
+  Collapse,
+  IconButton,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { getMyTeams } from "../../../adapters/moralis";
-import CreateTribeModal from "../createTribeModal";
+import { SidebarButton } from "../../elements/styledComponents";
+import NotificationIcon from "@mui/icons-material/Notifications";
+import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
+import SettingsIcon from "@mui/icons-material/Settings";
+import PaidIcon from "@mui/icons-material/Paid";
+import { smartTrim } from "../../../utils/utils";
 
 type Props = {};
 
 const Sidebar = (props: Props) => {
   const { Moralis, isInitialized, isAuthenticated } = useMoralis();
   const [myTeams, setMyTeams] = useState([] as any[]);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
+  const onMouseHover = () => setIsCollapsed(false);
+  const onMouseLeave = () => setIsCollapsed(true);
+
   useEffect(() => {
     if (isInitialized && isAuthenticated) {
       getMyTeams(Moralis).then((res: any) => {
@@ -22,37 +39,61 @@ const Sidebar = (props: Props) => {
   }, [isInitialized, isAuthenticated]);
 
   return (
-    <SidebarContainer>
-      <Box
-        sx={{
-          px: 2,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          position: "fixed",
-          zIndex: 1,
-        }}
-      >
-        {myTeams?.map((team: any, index: number) => (
-          <Link key={index} href={`/tribe/${team.get("teamId")}`} passHref>
-            <Button sx={{ p: 0 }}>
+    <SidebarContainer onMouseEnter={onMouseHover} onMouseLeave={onMouseLeave}>
+      <Collapse orientation="horizontal" in={!isCollapsed} collapsedSize={50}>
+        <SidebarContent>
+          <Actions>
+            <SidebarButton sx={{ mt: 2 }}>
               <Avatar
-                sx={{
-                  width: "3rem",
-                  height: "3rem",
-                  objectFit: "cover",
-                  my: 1,
-                }}
-                src={team.get("logo")}
+                variant="rounded"
+                sx={{ p: 0, m: 0, width: 32, height: 32 }}
               >
-                {team.get("name")[0]}
+                A
               </Avatar>
-            </Button>
-          </Link>
-        ))}
-        <CreateTribeModal />
-      </Box>
+              <AvatarText>
+                <Typography sx={{ fontSize: 14 }}>Avp test tribe 1</Typography>
+                <Typography sx={{ fontSize: 10, color: "#5a6972" }}>
+                  12 Members
+                </Typography>
+              </AvatarText>
+            </SidebarButton>
+
+            <SidebarButton>
+              <NotificationIcon />
+              <ButtonText>Notification</ButtonText>
+            </SidebarButton>
+            <SidebarButton>
+              <SettingsIcon />
+              <ButtonText>Settings</ButtonText>
+            </SidebarButton>
+            <SidebarButton>
+              <PlayCircleFilledWhiteIcon />
+              <ButtonText>Start Epoch</ButtonText>
+            </SidebarButton>
+            <SidebarButton>
+              <PaidIcon />
+              <ButtonText>Batch Pay</ButtonText>
+            </SidebarButton>
+          </Actions>
+          <Box sx={{ flex: "1 1 auto" }} />
+          <Profile>
+            <SidebarButton sx={{ mt: 2 }}>
+              <Avatar
+                variant="rounded"
+                sx={{ p: 0, m: 0, width: 32, height: 32 }}
+              >
+                A
+              </Avatar>
+              <AvatarText>
+                <Typography sx={{ fontSize: 14 }}>0xavp.eth</Typography>
+                <Typography sx={{ fontSize: 10, color: "#5a6972" }}>
+                  {smartTrim("0x6304CE63F2EBf8C0Cc76b60d34Cc52a84aBB6057", 10)}
+                </Typography>
+              </AvatarText>
+            </SidebarButton>
+          </Profile>
+        </SidebarContent>
+      </Collapse>
     </SidebarContainer>
   );
 };
@@ -61,13 +102,42 @@ const SidebarContainer = styled.div`
   minheight: 100vh;
   display: flex;
   flex-direction: column;
-  width: 4.5rem;
-  margin-top: -14rem;
-  padding-top: 4rem;
-  align-items: center;
-  justify-content: center;
   background-color: #00194a;
-  z-index: 1; /* Stay on top */
+  transition: 0.5s;
+`;
+
+const SidebarContent = styled.div`
+  min-width: 250px;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const Profile = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid #5a6972;
+  margin-bottom: 1rem;
+`;
+
+const ButtonText = styled.div`
+  overflow: hidden;
+  height: 20px;
+  width: 100%;
+  transition: 0.5s;
+  text-transform: none;
+`;
+
+const AvatarText = styled.div`
+  overflow: hidden;
+  height: 40px;
+  width: 100%;
+  transition: 0.5s;
+  text-transform: none;
+  display: flex;
+  flex-direction: column;
 `;
 
 export default Sidebar;

@@ -9,6 +9,7 @@ import {
 } from "react-moralis";
 import { ResolveCallOptions } from "react-moralis/lib/hooks/internal/_useResolveAsyncCall";
 import { getTaskEpoch } from "../../../app/adapters/moralis";
+import Navbar from "../../../app/components/modules/navbar";
 import TribeTemplate from "../../../app/components/templates/tribe";
 import {
   setNavbarLogo,
@@ -75,6 +76,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
         <link rel="icon" href="/logo2.svg" />
       </Head>
       <TribeContext.Provider value={context}>
+        <Navbar />
         <TribeTemplate />
       </TribeContext.Provider>
     </>
