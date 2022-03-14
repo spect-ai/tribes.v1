@@ -100,6 +100,7 @@ export async function batchPayTokens(
   taskIds: string,
   chainId: string
 ) {
+  // @ts-ignore
   [tokenAddresses, recipients, values] = filterInvalidValues(
     tokenAddresses,
     recipients,
