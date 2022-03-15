@@ -63,16 +63,30 @@ async function getUsernameProfilePicByUserId(userId) {
   else return null;
 }
 
+async function getUserCount() {
+  const userQuery = new Moralis.Query("User");
+  return await userQuery.count({ useMasterKey: true });
+}
+
+Moralis.Cloud.define("getUserCount", async (request) => {
+  return await getUserCount();
+});
+
 Moralis.Cloud.define("getOrCreateUser", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     var userInfo = await getUserByUserId(request.user.id);
     if (!userInfo) {
+      var userCount = await getUserCount();
       userInfo = new Moralis.Object("UserInfo");
       userInfo = await getCreatedUser(userInfo, request.user.id);
-      await Moralis.Object.saveAll([userInfo], { useMasterKey: true });
+
+      request.user.set("username", `fren${userCount}`);
+      await Moralis.Object.saveAll([userInfo, request.user], {
+        useMasterKey: true,
+      });
     }
-    return userInfo;
+    return request.user;
   } catch (err) {
     logger.error(`Error while creating team ${err}`);
     return false;

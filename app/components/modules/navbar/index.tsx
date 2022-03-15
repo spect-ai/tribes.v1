@@ -1,9 +1,8 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
 import { Avatar, Box, ButtonProps, styled, Typography } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { getOrCreateUser } from "../../../adapters/moralis";
-import Notifications from "../notifications";
 import { NavbarButton } from "../../elements/styledComponents";
 import ProfileMenu from "../profileMenu";
 import Link from "next/link";
@@ -28,8 +27,10 @@ const Navbar = (props: Props) => {
     logout,
     user,
     Moralis,
+    setUserData,
   } = useMoralis();
   const { state } = useGlobal();
+  const [isLoading, setIsLoading] = useState(false);
   return (
     <StyledNav>
       <Box
@@ -56,7 +57,8 @@ const Navbar = (props: Props) => {
           <NavbarButton
             variant="outlined"
             loading={isAuthenticating}
-            onClick={() =>
+            onClick={() => {
+              setIsLoading(true);
               authenticate({
                 // provider: "web3Auth",
                 // // @ts-ignore
@@ -68,15 +70,21 @@ const Navbar = (props: Props) => {
                 // chainId: Moralis.Chains.POLYGON_MAINNET,
               })
                 .then((res) => {
-                  getOrCreateUser(Moralis).then((res: any) => console.log(res));
+                  console.log(res);
+                  getOrCreateUser(Moralis).then((res: any) => {
+                    setIsLoading(false);
+                  });
                 })
-                .catch((err) => console.log(err))
-            }
+                .catch((err) => {
+                  console.log(err);
+                  setIsLoading(false);
+                });
+            }}
           >
             <Typography sx={{ mx: 2, fontSize: 15 }}>Connect Wallet</Typography>
           </NavbarButton>
         ) : (
-          <ProfileMenu />
+          <>{!isLoading && <ProfileMenu />}</>
         )}
       </Box>
     </StyledNav>
