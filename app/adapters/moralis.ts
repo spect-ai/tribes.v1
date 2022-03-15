@@ -594,3 +594,17 @@ export function moveCards(
   };
   return Moralis.Cloud.run("moveCardsAfterEpoch", params);
 }
+
+export function updateThemeFromSpace(
+  Moralis: any,
+  boardId: string,
+  teamId: string,
+  theme: number
+) {
+  const params = {
+    boardId: boardId,
+    teamId: teamId,
+    theme: theme,
+  };
+  return Moralis.Cloud.run("updateThemeFromSpace", params);
+}

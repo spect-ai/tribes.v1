@@ -391,3 +391,23 @@ Moralis.Cloud.define("joinSpace", async (request) => {
     throw `Error while joining space ${err}`;
   }
 });
+
+Moralis.Cloud.define("updateThemeFromSpace", async (request) => {
+  try {
+    const tribeQuery = new Moralis.Query("Team");
+    tribeQuery.equalTo("teamId", request.params.teamId);
+    let tribe = await tribeQuery.first();
+    tribe.set("theme", request.params.theme);
+    await Moralis.Object.saveAll([tribe], { useMasterKey: true });
+    const boardObj = await getBoardObjWithTasksByObjectId(
+      request.params.boardId,
+      request.user.id
+    );
+    return boardObj[0];
+  } catch (err) {
+    logger.error(
+      `Error while updating theme on board id ${request.params.boardId}: ${err}`
+    );
+    throw `Error while updating theme ${err}`;
+  }
+});

@@ -11,11 +11,12 @@ import {
   TextField,
   Tooltip,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import { PrimaryButton } from "../../elements/styledComponents";
+import { PrimaryButton, SidebarButton } from "../../elements/styledComponents";
 import { getTeam, updateBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -28,6 +29,7 @@ import {
 } from "../../../utils/utils";
 import { registryTemp } from "../../../constants";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { ButtonText } from "../sidebar";
 
 type Props = {};
 
@@ -64,23 +66,20 @@ const BoardSettings = (props: Props) => {
   const handleConfirmClose = () => {
     setIsConfirmOpen(false);
   };
+
+  const { palette } = useTheme();
   return (
     <>
-      <Tooltip title="Settings">
-        <IconButton
-          sx={{ mb: 0.5, p: 2 }}
-          size="small"
-          onClick={() => setIsOpen(true)}
-        >
-          <SettingsIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
+      <SidebarButton color="inherit" onClick={() => setIsOpen(true)}>
+        <SettingsIcon />
+        <ButtonText>Settings</ButtonText>
+      </SidebarButton>
       {isConfirmOpen && (
         <ConfirmModal isOpen={isConfirmOpen} handleClose={handleConfirmClose} />
       )}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
-          <Box sx={modalStyle}>
+          <ModalContainer>
             <Heading>
               <div>Settings</div>
               <Box sx={{ flex: "1 1 auto" }} />
@@ -287,25 +286,25 @@ const BoardSettings = (props: Props) => {
                 </PrimaryButton>
               </Box>
             </ModalContent>
-          </Box>
+          </ModalContainer>
         </Grow>
       </Modal>
     </>
   );
 };
-
-const modalStyle = {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
   position: "absolute" as "absolute",
   top: "10%",
   left: "25%",
   transform: "translate(-50%, -50%)",
   width: "50rem",
-  bgcolor: "background.paper",
   border: "2px solid #000",
+  backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: "auto",
   maxHeight: "calc(100% - 128px)",
-};
+}));
 
 const Heading = styled("div")(({ theme }) => ({
   fontWeight: 500,

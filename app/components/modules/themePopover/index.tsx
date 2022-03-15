@@ -8,7 +8,12 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import { useRouter } from "next/router";
 import React from "react";
+import { useMoralis } from "react-moralis";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { updateThemeFromSpace } from "../../../adapters/moralis";
+import { BoardData } from "../../../types";
 
 type Props = {
   open: boolean;
@@ -17,8 +22,13 @@ type Props = {
   type: string;
 };
 
-const ThemePopover = ({ open, anchorEl, handleClose }: Props) => {
+const ThemePopover = ({ open, anchorEl, handleClose, type }: Props) => {
   const { palette } = useTheme();
+  const { setSpace, themeChanged, setThemeChanged } = useSpace();
+  const router = useRouter();
+  const { Moralis } = useMoralis();
+  const bid = router.query.bid as string;
+  const id = router.query.id as string;
   return (
     <Popover
       open={open}
@@ -32,19 +42,59 @@ const ThemePopover = ({ open, anchorEl, handleClose }: Props) => {
       <PopoverContainer palette={palette}>
         <OptionsButton color="inherit">
           <ThemeColor color="#000f29" />
-          <Typography fontSize={14} sx={{ width: "70%" }}>
+          <Typography
+            fontSize={14}
+            sx={{ width: "70%" }}
+            onClick={() => {
+              updateThemeFromSpace(Moralis, bid, id, 0).then(
+                (res: BoardData) => {
+                  setSpace(res);
+                  localStorage.setItem("theme", "0");
+                  setThemeChanged(!themeChanged);
+                }
+              );
+              handleClose(type);
+            }}
+          >
             Classic Dark
           </Typography>
         </OptionsButton>
         <OptionsButton color="inherit">
           <ThemeColor color="#38006b" />
-          <Typography fontSize={14} sx={{ width: "70%" }}>
+          <Typography
+            fontSize={14}
+            sx={{ width: "70%" }}
+            onClick={() => {
+              updateThemeFromSpace(Moralis, bid, id, 1).then(
+                (res: BoardData) => {
+                  setSpace(res);
+                  localStorage.setItem("theme", "1");
+                  setThemeChanged(!themeChanged);
+                }
+              );
+              handleClose(type);
+            }}
+          >
             Warm Purple
           </Typography>
         </OptionsButton>
         <OptionsButton color="inherit">
           <ThemeColor color="#0288d1" />
-          <Typography fontSize={14} sx={{ width: "70%" }}>
+          <Typography
+            fontSize={14}
+            sx={{ width: "70%" }}
+            onClick={() => {
+              updateThemeFromSpace(Moralis, bid, id, 2).then(
+                (res: BoardData) => {
+                  setSpace(res);
+                  console.log(res);
+                  localStorage.setItem("theme", "2");
+                  setThemeChanged(!themeChanged);
+                }
+              );
+              handleClose(type);
+            }}
+          >
             Ocean Blue
           </Typography>
         </OptionsButton>

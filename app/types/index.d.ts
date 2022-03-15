@@ -54,6 +54,7 @@ export interface Team {
   _created_at: any;
   logo: string;
   boards: BoardData[];
+  theme: number;
 }
 
 export interface Epoch {

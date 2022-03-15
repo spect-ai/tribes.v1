@@ -22,6 +22,7 @@ import PaletteIcon from "@mui/icons-material/Palette";
 import BallotIcon from "@mui/icons-material/Ballot";
 import ThemePopover from "../themePopover";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import BoardSettings from "../boardSettings";
 
 type Props = {};
 
@@ -81,10 +82,9 @@ const Sidebar = (props: Props) => {
                   <NotificationIcon />
                   <ButtonText>Notification</ButtonText>
                 </SidebarButton>
-                <SidebarButton color="inherit">
-                  <SettingsIcon />
-                  <ButtonText>Settings</ButtonText>
-                </SidebarButton>
+                {space.roles[user?.id as string] === "admin" && (
+                  <BoardSettings />
+                )}
                 <SidebarButton color="inherit">
                   <PlayCircleFilledWhiteIcon />
                   <ButtonText>Start Epoch</ButtonText>
@@ -163,7 +163,7 @@ const Profile = styled.div`
   margin-bottom: 1rem;
 `;
 
-const ButtonText = styled.div`
+export const ButtonText = styled.div`
   overflow: hidden;
   height: 20px;
   width: 86%;
