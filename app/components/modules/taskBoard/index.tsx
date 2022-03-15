@@ -60,7 +60,7 @@ const TaskBoard = (props: Props) => {
           setIsLoading(false);
         })
         .catch((err: any) => {
-          notifyError("Sorry! There was an error while getting space.");
+          notifyError(err.message);
         });
     }
   }, [isInitialized, bid]);

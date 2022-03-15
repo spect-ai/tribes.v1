@@ -35,7 +35,8 @@ export function initBoard(
     chain: Chain;
     tokenAddress: string;
     tokenLimit: number;
-  }
+  },
+  isPrivate: boolean
 ) {
   console.log(members);
   const params = {
@@ -44,6 +45,7 @@ export function initBoard(
     members: members,
     roles: roles,
     tokenGating: tokenGating,
+    isPrivate: isPrivate,
   };
   return Moralis.Cloud.run("initBoard", params);
 }

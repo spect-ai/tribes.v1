@@ -79,20 +79,30 @@ Moralis.Cloud.define("getBoard", async (request) => {
       request.user?.id
     );
     logger.info(`boardobj ${JSON.stringify(boardObj)}`);
+
     if (boardObj.length === 0) throw "Board not found";
+    const canReadSpace = canRead(boardObj[0], request.user.id);
+    if (!canReadSpace) throw "You dont have access to view this space";
     boardObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
       boardObj[0].members
     );
     return boardObj[0];
   } catch (err) {
     logger.error(`Error while getting board - ${err}`);
-    throw `Error while getting board - ${err}`;
+    throw err;
   }
 });
 
 Moralis.Cloud.define("getBoards", async (request) => {
   try {
-    return await getBoardObjByTeamId(request.params.teamId);
+    const spaces = await getBoardObjByTeamId(request.params.teamId);
+    var resSpaces = [];
+    for (var space in spaces) {
+      if (canRead(space, request.user.id)) {
+        resSpaces.push(space);
+      }
+    }
+    return resSpaces;
   } catch (err) {
     logger.error(`Error while getting boards - ${err}`);
     throw `Error while getting boards - ${err}`;
@@ -127,6 +137,7 @@ Moralis.Cloud.define("initBoard", async (request) => {
       board.set("columns", columnIdToColumnMap);
       board.set("columnOrder", columnIds);
       board.set("statusList", initBoardStatusList);
+      board.set("private", request.params.isPrivate);
 
       // TODO: Make this customizable
       board.set("members", request.params.members);
@@ -340,7 +351,7 @@ Moralis.Cloud.define("joinSpace", async (request) => {
     ) {
       return false; // replace with throw maybe?
     }
-    let tribe = await getTribeByTeamId(board.get("teamId")); // need to change to objectid
+    let tribe = await getTribeByTeamId(board.get("teamId"));
     const options = {
       chain: board.get("tokenGating").chain.name,
       address: request.user.get("ethAddress"),

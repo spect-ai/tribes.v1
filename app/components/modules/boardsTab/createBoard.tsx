@@ -17,6 +17,7 @@ import {
   MenuItem,
   Select,
   Autocomplete,
+  Grid,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState, useEffect } from "react";
@@ -63,6 +64,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
     Array(tribe.members?.length).fill(true)
   );
   const [roles, setRoles] = useState(tribe.roles as { [key: string]: string });
+  const [isPrivate, setIsPrivate] = useState(false);
 
   const toggleCheckboxValue = (index: number) => {
     setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
@@ -104,6 +106,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               fullWidth
               sx={{ mb: 2 }}
             /> */}
+
             <Accordion disableGutters>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
@@ -160,6 +163,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                             }}
                           />
                         </TableCell>
+
                         <TableCell align="right">
                           {tribe.memberDetails[member].username}
                         </TableCell>
@@ -229,45 +233,64 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                 </Box>
               </AccordionDetails>
             </Accordion>
-            <PrimaryButton
-              loading={isLoading}
-              variant="outlined"
-              sx={{ width: "50%", mt: 2, borderRadius: 1 }}
-              onClick={() => {
-                const members = getMembers();
-                setIsLoading(true);
-                initBoard(
-                  Moralis,
-                  name,
-                  members as Array<string>,
-                  roles,
-                  tribe.teamId,
-                  {
-                    chain,
-                    tokenAddress,
-                    tokenLimit: parseFloat(tokenLimit),
-                  }
-                )
-                  .then((res: any) => {
-                    if (res) {
-                      router.push(
-                        `/tribe/${tribe.teamId}/board/${res.id}`,
-                        undefined
-                      );
-                    }
-                    setIsLoading(false);
-                  })
-                  .catch((err: any) => {
-                    console.log(err);
-                    notifyError(
-                      "Sorry! There was an error while creating space"
-                    );
-                    setIsLoading(false);
-                  });
-              }}
-            >
-              Create Space
-            </PrimaryButton>
+            <Grid container alignItems="center" marginTop={2}>
+              <Grid item xs={3}>
+                <PrimaryButton
+                  loading={isLoading}
+                  variant="outlined"
+                  sx={{ borderRadius: 1 }}
+                  onClick={() => {
+                    const members = getMembers();
+                    setIsLoading(true);
+                    initBoard(
+                      Moralis,
+                      name,
+                      members as Array<string>,
+                      roles,
+                      tribe.teamId,
+                      {
+                        chain,
+                        tokenAddress,
+                        tokenLimit: parseFloat(tokenLimit),
+                      },
+                      isPrivate
+                    )
+                      .then((res: any) => {
+                        if (res) {
+                          router.push(
+                            `/tribe/${tribe.teamId}/board/${res.id}`,
+                            undefined
+                          );
+                        }
+                        setIsLoading(false);
+                      })
+                      .catch((err: any) => {
+                        console.log(err);
+                        notifyError(
+                          "Sorry! There was an error while creating space"
+                        );
+                        setIsLoading(false);
+                      });
+                  }}
+                >
+                  Create Space
+                </PrimaryButton>
+              </Grid>
+              <Grid item xs={1}>
+                <Checkbox
+                  inputProps={{
+                    "aria-label": "select all desserts",
+                  }}
+                  checked={isPrivate}
+                  onChange={(e) => {
+                    setIsPrivate(e.target.checked);
+                  }}
+                />
+              </Grid>
+              <Grid item xs={1}>
+                <Typography color="common.white">{`Private`}</Typography>
+              </Grid>
+            </Grid>
           </ModalContent>
         </Box>
       </Grow>

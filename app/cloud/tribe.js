@@ -77,6 +77,13 @@ Moralis.Cloud.define("getTeam", async (request) => {
     team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
       team[0].members
     );
+    var resSpaces = [];
+    for (var space of team[0].boards) {
+      if (canRead(space, request.user.id)) {
+        resSpaces.push(space);
+      }
+    }
+    team[0].boards = resSpaces;
     return team[0];
   } catch (err) {
     logger.error(

@@ -76,9 +76,10 @@ Moralis.Cloud.define("getTask", async (request) => {
       const task = await getTaskObjByTaskId(request.params.taskId);
       if (!task) throw `Task ${request.params.taskId} not found`;
 
-      // Get all board members so they can be displayed as options for reviewers and assignees
-      const board = await getBoardObjByObjectId(task.boardId, request.user?.id);
-      logger.info(`board ${JSON.stringify(board)}`);
+      // Get space to check if user can view it
+      const space = await getBoardObjByObjectId(task.boardId, request.user?.id);
+      const canReadSpace = canRead(space[0], request.user.id);
+      if (!canReadSpace) throw "You dont have access to view this space";
 
       // Get access level of caller
       const access = getFieldLevelAccess(task, request.user?.id);
@@ -91,7 +92,7 @@ Moralis.Cloud.define("getTask", async (request) => {
     logger.error(
       `Error while getting task from board ${request.params.taskId}: ${err}`
     );
-    throw `Error while getting task ${err}`;
+    throw err;
   }
 });
 
@@ -108,6 +109,7 @@ Moralis.Cloud.define("addTask", async (request) => {
       columns[request.params.columnId].taskIds = taskIds.concat([taskId]);
       board.set("columns", columns);
       const defaultPayment = board.get("defaultPayment");
+      logger.info(defaultPayment);
       var task = new Moralis.Object("Task");
       task.set("taskId", taskId);
       task.set("token", {

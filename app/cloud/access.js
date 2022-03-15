@@ -19,6 +19,10 @@ function isMember(userId, entity) {
   return true;
 }
 
+function canRead(boardObj, userId) {
+  return !boardObj.private || boardObj.members?.includes(userId);
+}
+
 function canCreateTask(userId, columnId, boardObj) {}
 
 function canMoveTask(
