@@ -20,6 +20,9 @@ function isMember(userId, entity) {
 }
 
 function canRead(boardObj, userId) {
+  if (!userId) {
+    return !boardObj.private;
+  }
   return !boardObj.private || boardObj.members?.includes(userId);
 }
 

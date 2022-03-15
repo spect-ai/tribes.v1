@@ -29,7 +29,6 @@ const Board = (props: Props) => {
             <BoardButton
               variant="contained"
               color="secondary"
-              disabled={!isAuthenticated}
               onClick={() => {
                 router.push(
                   `/tribe/${tribe.teamId}/board/${board._id}`,

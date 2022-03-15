@@ -79,7 +79,7 @@ Moralis.Cloud.define("getTeam", async (request) => {
     );
     var resSpaces = [];
     for (var space of team[0].boards) {
-      if (canRead(space, request.user.id)) {
+      if (canRead(space, request.user?.id)) {
         resSpaces.push(space);
       }
     }

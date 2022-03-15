@@ -81,7 +81,7 @@ Moralis.Cloud.define("getBoard", async (request) => {
     logger.info(`boardobj ${JSON.stringify(boardObj)}`);
 
     if (boardObj.length === 0) throw "Board not found";
-    const canReadSpace = canRead(boardObj[0], request.user.id);
+    const canReadSpace = canRead(boardObj[0], request.user?.id);
     if (!canReadSpace) throw "You dont have access to view this space";
     boardObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
       boardObj[0].members
@@ -98,7 +98,7 @@ Moralis.Cloud.define("getBoards", async (request) => {
     const spaces = await getBoardObjByTeamId(request.params.teamId);
     var resSpaces = [];
     for (var space in spaces) {
-      if (canRead(space, request.user.id)) {
+      if (canRead(space, request.user?.id)) {
         resSpaces.push(space);
       }
     }

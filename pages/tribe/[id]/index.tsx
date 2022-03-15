@@ -48,6 +48,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const context = useProviderTribe();
   const { setLoading, getTeam, setTribe, isMember } = context;
   const { dispatch } = useGlobal();
+  const { isAuthenticated } = useMoralis();
   useEffect(() => {
     setLoading(true);
     console.log("useEffect tribe");
@@ -63,7 +64,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
         teamId: id,
       },
     });
-  }, [id, isMember]);
+  }, [id, isMember, isAuthenticated]);
   return (
     <>
       <Head>
