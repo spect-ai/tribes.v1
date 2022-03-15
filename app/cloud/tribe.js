@@ -118,6 +118,15 @@ Moralis.Cloud.define("getMyTeams", async (request) => {
 Moralis.Cloud.define("createTeam", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
+    var whitelistQuery = new Moralis.Query("Whitelist");
+    whitelistQuery.equalTo("ethAddress", request.user.ethAddress);
+    const whitelist = await whitelistQuery.first({ useMasterKey: true });
+    if (!whitelist)
+      throw {
+        code: 101,
+        message: "Please fill out the waitlist to create tribe",
+      };
+
     var team = new Moralis.Object("Team");
     const teamId = crypto.randomUUID();
     logger.info(teamId);
@@ -145,7 +154,7 @@ Moralis.Cloud.define("createTeam", async (request) => {
     logger.error(
       `Error while creating tribe with name ${request.params.name} ${err}`
     );
-    throw `Error while creating tribe ${err}`;
+    throw err;
   }
 });
 
@@ -183,11 +192,6 @@ Moralis.Cloud.define("updateTeam", async (request) => {
 });
 
 Moralis.Cloud.define("updateMembers", async (request) => {
-  /*request.params.members: [{"ethAddress":"0x232324", "role": "admin", "updateType":"invite"},
-                              {"ethAddress':'0x232324', 'role': 'admin', 'updateType':'revoke'}, 
-                              {'ethAddress':'0x232324', 'newRole': 'admin', 'oldRole':'general', 'updateType':'roleChange'}, 
-                              {'ethAddress':'0x232324', 'role': 'admin', 'updateType':'invite']
-      */
   const logger = Moralis.Cloud.getLogger();
   try {
     var team = await getTribeByTeamId(request.params.teamId);
@@ -196,19 +200,7 @@ Moralis.Cloud.define("updateMembers", async (request) => {
         (m) => m.updateType === "invite"
       );
       logger.info(`Invited members: ${JSON.stringify(invitedMembers)}`);
-
-      var revokedMemberAddresses = [];
-      var revokedMembers = request.params.members.filter(
-        (m) => m.updateType === "revoke"
-      );
-      revokedMembers.map((a) => revokedMemberAddresses.push(a.ethAddress));
-      logger.info(`Revoked members: ${JSON.stringify(revokedMemberAddresses)}`);
-
-      //var roleChangedMembers = request.params.members.filter((m) => m.updateType === "roleChange");
       await invite(invitedMembers, request.params.teamId, request.user.id);
-
-      //await invite(invitedMembers, request.params.teamId, request.params.ethAddress);
-      //await revoke(revokedMemberAddresses, request.params.teamId);
 
       return true;
     } else {
@@ -291,6 +283,6 @@ Moralis.Cloud.define("joinTribe", async (request) => {
     return true;
   } catch (err) {
     logger.error(`Error while joining tribe ${err}`);
-    return false;
+    throw err;
   }
 });

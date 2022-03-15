@@ -17,6 +17,7 @@ import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
 import { createTribe } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
 import { notifyError } from "../settingsTab";
+import { Toaster } from "react-hot-toast";
 
 type Props = {};
 
@@ -41,13 +42,15 @@ const CreateTribeModal = (props: Props) => {
         });
       })
       .catch((err: any) => {
-        notifyError(`Sorry! There was an error while creating tribe.`);
         setIsLoading(false);
+        handleClose();
+        notifyError(err.message);
       });
   };
 
   return (
     <>
+      <Toaster />
       <Tooltip title="Create Tribe">
         <CreateTeamButton
           onClick={() => {
