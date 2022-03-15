@@ -56,6 +56,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const { dispatch } = useGlobal();
   const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
   const { isAuthenticated } = useMoralis();
+  console.log("reg:", state.registry);
   useEffect(() => {
     setTheme(
       createTheme(getTheme(parseInt(localStorage.getItem("theme") || "0")))
