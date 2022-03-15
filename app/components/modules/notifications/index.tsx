@@ -6,7 +6,6 @@ import { Backdrop, Typography, CircularProgress, Box } from "@mui/material";
 import { useMoralis } from "react-moralis";
 import { getInvitations, acceptInvitations } from "../../../adapters/moralis";
 import { smartTrim } from "../../../utils/utils";
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 
 export default function Notification() {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
@@ -44,7 +43,7 @@ export default function Notification() {
     setAnchorEl(null);
   };
 
-  const acceptInviteHandler = (teamId: number) => {
+  const acceptInviteHandler = (teamId: string) => {
     setLoading(true);
     acceptInvitations(Moralis, ethAddress, teamId)
       .then((res: any[]) => {
