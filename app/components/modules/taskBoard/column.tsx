@@ -86,7 +86,10 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       value={columnTitle}
                       onChange={(e) => setColumnTitle(e.target.value)}
                       onBlur={updateColumn}
-                      readOnly={data.roles[user?.id as string] !== "admin"}
+                      readOnly={
+                        data.roles[user?.id as string] !== "admin" ||
+                        column.status === "Closed"
+                      }
                     />
                     <Box sx={{ flex: "1 1 auto" }} />
                     <IconButton

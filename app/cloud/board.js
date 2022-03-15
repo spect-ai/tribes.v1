@@ -138,6 +138,16 @@ Moralis.Cloud.define("initBoard", async (request) => {
       board.set("columnOrder", columnIds);
       board.set("statusList", initBoardStatusList);
       board.set("private", request.params.isPrivate);
+      board.set("defaultPayment", {
+        chain: {
+          chainId: "137",
+          name: "polygon",
+        },
+        token: {
+          address: "0x0",
+          symbol: "MATIC",
+        },
+      });
 
       // TODO: Make this customizable
       board.set("members", request.params.members);

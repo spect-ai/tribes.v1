@@ -9,7 +9,7 @@ async function getCreatedTribe(
   tribe.set("name", name);
   tribe.set("members", members);
   tribe.set("roles", roles);
-  tribe.set("isPublic", false);
+  tribe.set("isPublic", true);
   return tribe;
 }
 

@@ -41,12 +41,10 @@ const BoardSettings = (props: Props) => {
     data.defaultPayment?.chain || { chainId: "137", name: "polygon" }
   );
   const [tokenAddress, setTokenAddress] = useState(
-    data.defaultPayment?.token?.address || "0x0"
+    data.defaultPayment?.token?.address
   );
   const [tokenName, setTokenName] = useState(
-    data.defaultPayment?.token?.symbol ||
-      data.defaultPayment?.chain.name ||
-      "polygon"
+    data.defaultPayment?.token?.symbol
   );
   const [tokenGatechain, setTokenGateChain] = useState(
     data.tokenGating?.chain as Chain
@@ -114,6 +112,9 @@ const BoardSettings = (props: Props) => {
                 </AccordionSummary>
 
                 <AccordionDetails>
+                  <Typography>
+                    Default payment for all the new tasks created
+                  </Typography>
                   <Autocomplete
                     options={getFlattenedNetworks(registryTemp as Registry)}
                     getOptionLabel={(option) => option.name}
@@ -127,8 +128,7 @@ const BoardSettings = (props: Props) => {
                         {...params}
                         size="small"
                         fullWidth
-                        sx={{ mb: 4 }}
-                        label="Network Chain"
+                        sx={{ my: 4 }}
                       />
                     )}
                   />
@@ -137,7 +137,6 @@ const BoardSettings = (props: Props) => {
                       size="small"
                       fullWidth
                       sx={{ mr: 4 }}
-                      label="Token Address"
                       value={tokenAddress}
                       onChange={async (e) => {
                         setTokenAddress(e.target.value);
@@ -157,7 +156,6 @@ const BoardSettings = (props: Props) => {
                     <TextField
                       size="small"
                       sx={{ mb: 4, width: "45%" }}
-                      label="Name"
                       value={tokenName}
                       InputProps={{ readOnly: true }}
                     />

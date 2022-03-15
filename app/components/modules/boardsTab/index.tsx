@@ -43,7 +43,7 @@ const Board = (props: Props) => {
         ))}
 
         <Grid item xs={3}>
-          {user && tribe.members.includes(user?.id) && (
+          {user && tribe.roles[user.id] === "admin" && (
             <CreateBoardButton
               variant="outlined"
               disabled={tribe.roles[user?.id] !== "admin"}

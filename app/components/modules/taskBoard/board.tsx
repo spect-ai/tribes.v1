@@ -40,6 +40,18 @@ const Board = ({ expanded, handleChange }: Props) => {
     if (!destination) {
       return;
     }
+    const task = data.tasks[draggableId];
+    if (
+      !(
+        task.access.assignee ||
+        task.access.creator ||
+        task.access.reviewer ||
+        data.roles[user?.id as string] === "admin"
+      )
+    ) {
+      notify("Sorry! You don't have access to this task", "error");
+      return;
+    }
     if (
       destination.droppableId === source.droppableId &&
       destination.index === source.index

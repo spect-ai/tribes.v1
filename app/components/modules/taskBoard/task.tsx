@@ -21,6 +21,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
   const { data, setData } = useBoard();
+  const { user } = useMoralis();
   return (
     <>
       {isOpen && (
@@ -31,13 +32,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
           column={column}
         />
       )}
-      <Draggable
-        draggableId={task.taskId}
-        index={index}
-        isDragDisabled={
-          !(task.access.assignee || task.access.creator || task.access.reviewer)
-        }
-      >
+      <Draggable draggableId={task.taskId} index={index}>
         {(provided, snapshot) => (
           <TaskCard
             {...provided.draggableProps}
