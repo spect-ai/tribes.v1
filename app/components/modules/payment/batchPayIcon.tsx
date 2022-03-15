@@ -17,6 +17,8 @@ import { capitalizeFirstLetter } from "../../../utils/utils";
 import { notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { SidebarButton } from "../../elements/styledComponents";
+import { ButtonText } from "../spaceSidebar";
 
 interface Props {}
 
@@ -186,60 +188,58 @@ const Payment = ({}: Props) => {
   return (
     <>
       <Toaster />
-      <Tooltip title="Batch Pay">
-        <IconButton
-          sx={{ mb: 0.5, p: 2 }}
-          size="small"
-          onClick={() => {
-            setIsLoading(true);
-            getBatchPayAmount(
-              Moralis,
-              bid as string,
-              window.ethereum.networkVersion
-            )
-              .then((res: BatchPayResponse) => {
-                setTaskIdsWithCurencyPayment(res.taskIdsWithCurrencyPayment);
-                setTaskIdsWithTokenPayment(res.taskIdsWithTokenPayment);
-                var hasApproval = false;
-                getRequiredApprovals(
-                  res.uniqueTokenAddresses,
-                  res.aggregatedTokenValues,
-                  window.ethereum.networkVersion
-                )
-                  .then((pendingApprovals: any) => {
-                    if (pendingApprovals.tokenAddresses.length > 0) {
-                      handleApprovalInfoUpdate(
-                        pendingApprovals.tokenValues,
-                        pendingApprovals.tokenAddresses
-                      );
-                      hasApproval = true;
-                    }
-                    handleTokenDistributionInfoUpdate(
-                      res.contributors,
-                      res.tokenAddresses,
-                      res.tokenValues
+      <SidebarButton
+        color="inherit"
+        onClick={() => {
+          setIsLoading(true);
+          getBatchPayAmount(
+            Moralis,
+            bid as string,
+            window.ethereum.networkVersion
+          )
+            .then((res: BatchPayResponse) => {
+              setTaskIdsWithCurencyPayment(res.taskIdsWithCurrencyPayment);
+              setTaskIdsWithTokenPayment(res.taskIdsWithTokenPayment);
+              var hasApproval = false;
+              getRequiredApprovals(
+                res.uniqueTokenAddresses,
+                res.aggregatedTokenValues,
+                window.ethereum.networkVersion
+              )
+                .then((pendingApprovals: any) => {
+                  if (pendingApprovals.tokenAddresses.length > 0) {
+                    handleApprovalInfoUpdate(
+                      pendingApprovals.tokenValues,
+                      pendingApprovals.tokenAddresses
                     );
+                    hasApproval = true;
+                  }
+                  handleTokenDistributionInfoUpdate(
+                    res.contributors,
+                    res.tokenAddresses,
+                    res.tokenValues
+                  );
 
-                    handleCurrencyDistributionInfoUpdate(
-                      res.currencyContributors,
-                      res.currencyValues
-                    );
-                    handleSteps(
-                      hasApproval,
-                      res.contributors.length > 0,
-                      res.currencyContributors.length > 0
-                    );
-                    setIsOpen(true);
-                    setIsLoading(false);
-                  })
-                  .catch((err: any) => notifyError(err));
-              })
-              .catch((err: any) => notifyError(err));
-          }}
-        >
-          <PaidIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
+                  handleCurrencyDistributionInfoUpdate(
+                    res.currencyContributors,
+                    res.currencyValues
+                  );
+                  handleSteps(
+                    hasApproval,
+                    res.contributors.length > 0,
+                    res.currencyContributors.length > 0
+                  );
+                  setIsOpen(true);
+                  setIsLoading(false);
+                })
+                .catch((err: any) => notifyError(err));
+            })
+            .catch((err: any) => notifyError(err));
+        }}
+      >
+        <PaidIcon />
+        <ButtonText>Batch Pay</ButtonText>
+      </SidebarButton>
       {!isLoading && (
         <PaymentModal
           isModalOpen={isOpen}

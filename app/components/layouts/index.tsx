@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import Footer from "../modules/footer";
 import Navbar from "../modules/navbar";
-import Sidebar from "../modules/sidebar";
+import Sidebar from "../modules/spaceSidebar";
 import { useMoralis } from "react-moralis";
 import GlobalContextProvider, {
   initContracts,

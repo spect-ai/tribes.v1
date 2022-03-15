@@ -76,6 +76,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
             {...provided.dragHandleProps}
             isDragging={snapshot.isDragging}
             ref={provided.innerRef}
+            palette={palette}
           >
             <Droppable droppableId={id} type="task">
               {(provided) => (
@@ -126,6 +127,8 @@ const Column = ({ tasks, id, column, index }: Props) => {
                             ml: 1,
                             color: palette.text.primary,
                           }}
+                          variant="contained"
+                          disableElevation
                           startIcon={<AddIcon />}
                           onClick={() => {
                             setShowCreateTask(true);
@@ -157,6 +160,8 @@ const Column = ({ tasks, id, column, index }: Props) => {
                           onClick={() => setShowCreateGithubTask(true)}
                           fullWidth
                           size="small"
+                          variant="contained"
+                          disableElevation
                           disabled={space.roles[user?.id as string] !== "admin"}
                         >
                           Import Card
@@ -225,14 +230,16 @@ const TaskListContainer = styled.div<{ palette: Palette }>`
   border-radius: 0.3rem;
 `;
 
-const Container = styled.div<{ isDragging: boolean }>`
+const Container = styled.div<{ isDragging: boolean; palette: Palette }>`
   display: flex;
   flex-direction: column;
   border-radius: 0.3rem;
   border: ${(props) =>
-    props.isDragging ? "0.5px solid #0061ff" : "0.5px solid transparent"};
+    props.isDragging
+      ? `0.5px solid ${props.palette.primary.light}`
+      : "0.5px solid transparent"};
   &:hover {
-    border: 0.1px solid #3f3f3e;
+    border: 0.1px solid ${(props) => props.palette.secondary.dark};
   }
   min-width: 16rem;
   transition: 0.5s ease-in-out;

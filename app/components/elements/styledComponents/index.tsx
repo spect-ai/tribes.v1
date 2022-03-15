@@ -8,7 +8,7 @@ import {
   Tooltip,
   tooltipClasses,
   TooltipProps,
-  withTheme,
+  Accordion,
 } from "@mui/material";
 
 export const PrimaryButton = styled(LoadingButton)<ButtonProps>(
@@ -69,6 +69,11 @@ export const SidebarButton = styled(Button)<ButtonProps>(({ theme }) => ({
   pt: 2,
   margin: 0,
   minWidth: 0,
+}));
+
+export const StyledAccordian = styled(Accordion)(({ theme }) => ({
+  backgroundColor: theme.palette.primary.dark,
+  boxShadow: theme.shadows[1],
 }));
 
 interface StyledTabProps {

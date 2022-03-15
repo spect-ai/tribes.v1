@@ -39,7 +39,7 @@ const ThemePopover = ({ open, anchorEl, handleClose, type }: Props) => {
         horizontal: "center",
       }}
     >
-      <PopoverContainer palette={palette}>
+      <SidebarPopoverContainer palette={palette}>
         <OptionsButton color="inherit">
           <ThemeColor color="#000f29" />
           <Typography
@@ -98,12 +98,12 @@ const ThemePopover = ({ open, anchorEl, handleClose, type }: Props) => {
             Ocean Blue
           </Typography>
         </OptionsButton>
-      </PopoverContainer>
+      </SidebarPopoverContainer>
     </Popover>
   );
 };
 
-export const PopoverContainer = styled.div<{ palette: Palette }>`
+export const SidebarPopoverContainer = styled.div<{ palette: Palette }>`
   display: flex;
   flex-direction: column;
   padding: 16px 8px;

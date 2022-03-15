@@ -20,7 +20,11 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { Box } from "@mui/system";
-import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
+import {
+  ModalHeading,
+  PrimaryButton,
+  SidebarButton,
+} from "../../elements/styledComponents";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useMoralis } from "react-moralis";
@@ -35,13 +39,12 @@ import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import CreateEpochTaskList from "./createEpochTaskList";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
+import { ButtonText } from "../spaceSidebar";
 
-type Props = {
-  isOpen: boolean;
-  setIsOpen: Function;
-};
+type Props = {};
 
-const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
+const CreateEpoch = (props: Props) => {
   const { space, setSpace, handleTabChange } = useSpace();
   const { Moralis } = useMoralis();
   const [name, setName] = useState("");
@@ -57,6 +60,7 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
   const [isCardChecked, setIsCardChecked] = useState(
     Array(space.columns[space.columnOrder[0]].taskIds.length).fill(true)
   );
+  const [isOpen, setIsOpen] = useState(false);
 
   const [chain, setChain] = useState({
     chainId: "80001",
@@ -133,8 +137,11 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
   };
   return (
     <>
-      <Toaster />
-
+      <SidebarButton color="inherit" onClick={() => setIsOpen(true)}>
+        <PlayCircleFilledWhiteIcon />
+        <ButtonText>Create Epoch</ButtonText>
+      </SidebarButton>
+      {/* <Toaster /> */}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
           <Box sx={modalStyle}>
@@ -467,4 +474,4 @@ const ModalContent = styled("div")(({ theme }) => ({
   padding: 32,
 }));
 
-export default CreateEpochModal;
+export default CreateEpoch;

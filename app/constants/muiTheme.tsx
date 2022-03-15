@@ -48,7 +48,7 @@ const oceanBlue = {
   palette: {
     mode: "dark" as any,
     primary: {
-      main: "#42a5f5",
+      main: "#0077c2",
       light: "#81d4fa",
     },
     secondary: {

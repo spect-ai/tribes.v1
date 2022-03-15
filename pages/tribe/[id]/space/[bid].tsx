@@ -2,7 +2,7 @@ import { NextPage } from "next";
 import BoardsTemplate from "../../../../app/components/templates/boards";
 import Head from "next/head";
 import styled from "@emotion/styled";
-import Sidebar from "../../../../app/components/modules/sidebar";
+import Sidebar from "../../../../app/components/modules/spaceSidebar";
 import { createTheme, Theme, ThemeProvider, useTheme } from "@mui/material";
 import { createContext, useContext, useEffect, useState } from "react";
 import { BoardData, Team } from "../../../../app/types";

@@ -103,7 +103,7 @@ const Heading = (props: Props) => {
               fontSize: 14,
             }}
           >
-            {space.team[0].name}
+            {space.team && space.team[0].name}
           </MuiLink>
         </Link>
         <MuiLink

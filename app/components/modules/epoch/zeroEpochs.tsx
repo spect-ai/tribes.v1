@@ -5,6 +5,7 @@ import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite
 import CreateEpochModal from "./createEpochModal";
 import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import CreateEpoch from "./createEpochModal";
 
 type Props = {};
 
@@ -28,7 +29,7 @@ const ZeroEpochs = (props: Props) => {
         </Typography>{" "}
         {user && space.roles[user?.id] === "admin" && (
           <>
-            <PrimaryButton
+            {/* <PrimaryButton
               variant="outlined"
               size="large"
               endIcon={<PlayCircleFilledWhiteIcon />}
@@ -38,13 +39,11 @@ const ZeroEpochs = (props: Props) => {
               sx={{ ml: 16, borderRadius: 1, mt: 2 }}
             >
               Start an epoch
-            </PrimaryButton>
+            </PrimaryButton> */}
+            <CreateEpoch />
           </>
         )}
       </Grid>
-      {isModalOpen && (
-        <CreateEpochModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
-      )}
     </Grid>
   );
 };

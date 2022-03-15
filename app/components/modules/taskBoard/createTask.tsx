@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { Button, InputBase } from "@mui/material";
+import { Button, InputBase, Palette, useTheme } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState } from "react";
 import DoneIcon from "@mui/icons-material/Done";
@@ -17,7 +17,7 @@ type Props = {
   columnId: string;
 };
 
-export const CreateTaskContainer = styled.div`
+export const CreateTaskContainer = styled.div<{ palette: Palette }>`
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -25,7 +25,7 @@ export const CreateTaskContainer = styled.div`
   padding: 5px;
   margin: 5px;
   border-radius: 5px;
-  background-color: #00194a;
+  background-color: ${(props) => props.palette.primary.dark};
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   border: 0.5px solid #3f3f3e;
 `;
@@ -37,10 +37,11 @@ const CreateTask = ({ setShowCreateTask, columnId, showCreateTask }: Props) => {
   const { Moralis } = useMoralis();
   const router = useRouter();
   const { bid } = router.query;
+  const { palette } = useTheme();
   return (
     <div>
       {showCreateTask && (
-        <CreateTaskContainer>
+        <CreateTaskContainer palette={palette}>
           <InputBase
             placeholder="Name"
             sx={{
@@ -91,7 +92,7 @@ const CreateTask = ({ setShowCreateTask, columnId, showCreateTask }: Props) => {
                   setShowCreateTask(false);
                 });
               }}
-              sx={{ textTransform: "none" }}
+              sx={{ textTransform: "none", color: "#eaeaea" }}
               fullWidth
             >
               Done

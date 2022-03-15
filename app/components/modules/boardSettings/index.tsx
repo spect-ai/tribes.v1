@@ -16,7 +16,11 @@ import {
 import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import { PrimaryButton, SidebarButton } from "../../elements/styledComponents";
+import {
+  PrimaryButton,
+  SidebarButton,
+  StyledAccordian,
+} from "../../elements/styledComponents";
 import { getTeam, updateBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -29,7 +33,7 @@ import {
 } from "../../../utils/utils";
 import { registryTemp } from "../../../constants";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { ButtonText } from "../sidebar";
+import { ButtonText } from "../spaceSidebar";
 
 type Props = {};
 
@@ -88,13 +92,13 @@ const BoardSettings = (props: Props) => {
               </IconButton>
             </Heading>
             <ModalContent>
-              <Accordion disableGutters>
+              <StyledAccordian disableGutters>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
                   id="panel1a-header"
                 >
-                  <Typography>Board Info</Typography>
+                  <Typography>Space Info</Typography>
                 </AccordionSummary>
 
                 <AccordionDetails>
@@ -105,8 +109,8 @@ const BoardSettings = (props: Props) => {
                     fullWidth
                   ></TextField>
                 </AccordionDetails>
-              </Accordion>
-              <Accordion disableGutters>
+              </StyledAccordian>
+              <StyledAccordian disableGutters>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Typography>Default Payment</Typography>
                 </AccordionSummary>
@@ -161,8 +165,8 @@ const BoardSettings = (props: Props) => {
                     />
                   </Box>
                 </AccordionDetails>
-              </Accordion>
-              <Accordion disableGutters>
+              </StyledAccordian>
+              <StyledAccordian disableGutters>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   Token Gating
                 </AccordionSummary>
@@ -209,8 +213,8 @@ const BoardSettings = (props: Props) => {
                     />
                   </Box>
                 </AccordionDetails>
-              </Accordion>
-              <Accordion disableGutters>
+              </StyledAccordian>
+              <StyledAccordian disableGutters>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
@@ -244,7 +248,7 @@ const BoardSettings = (props: Props) => {
                     </Grid>
                   </Grid>
                 </AccordionDetails>
-              </Accordion>
+              </StyledAccordian>
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <PrimaryButton
                   variant="outlined"

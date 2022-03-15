@@ -30,7 +30,7 @@ const Board = (props: Props) => {
               color="secondary"
               onClick={() => {
                 router.push(
-                  `/tribe/${tribe.teamId}/board/${board._id}`,
+                  `/tribe/${tribe.teamId}/space/${board._id}`,
                   undefined
                 );
               }}

@@ -40,13 +40,14 @@ const Board = ({ expanded, handleChange }: Props) => {
     if (!destination) {
       return;
     }
-    const task = data.tasks[draggableId];
+    const task = space.tasks[draggableId];
     if (
+      type !== "column" &&
       !(
         task.access.assignee ||
         task.access.creator ||
         task.access.reviewer ||
-        data.roles[user?.id as string] === "admin"
+        space.roles[user?.id as string] === "admin"
       )
     ) {
       notify("Sorry! You don't have access to this task", "error");
