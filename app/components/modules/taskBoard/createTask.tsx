@@ -2,7 +2,6 @@ import styled from "@emotion/styled";
 import { Button, InputBase } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState } from "react";
-import { useBoard } from ".";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { addTask } from "../../../adapters/moralis";
@@ -10,6 +9,7 @@ import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { resolve } from "path/win32";
 import { BoardData } from "../../../types";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   showCreateTask: boolean;
@@ -33,7 +33,7 @@ export const CreateTaskContainer = styled.div`
 const CreateTask = ({ setShowCreateTask, columnId, showCreateTask }: Props) => {
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskValue, setNewTaskValue] = useState("");
-  const { data, setData } = useBoard();
+  const { setSpace } = useSpace();
   const { Moralis } = useMoralis();
   const router = useRouter();
   const { bid } = router.query;
@@ -85,7 +85,7 @@ const CreateTask = ({ setShowCreateTask, columnId, showCreateTask }: Props) => {
                     alert("Error");
                     return;
                   }
-                  setData(res as BoardData);
+                  setSpace(res as BoardData);
                   setNewTaskValue("");
                   setNewTaskTitle("");
                   setShowCreateTask(false);

@@ -6,12 +6,12 @@ import DateRangeIcon from "@mui/icons-material/DateRange";
 import TaskModal from "../taskModal";
 import { labelsMapping, monthMap } from "../../../constants";
 import { Column, Task } from "../../../types";
-import { useBoard } from "../taskBoard";
 import PriceCheckIcon from "@mui/icons-material/PriceCheck";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import { useMoralis } from "react-moralis";
 import { smartTrim } from "../../../utils/utils";
 import { Palette, useTheme } from "@mui/material";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   task: Task;
@@ -21,7 +21,7 @@ type Props = {
 const TaskContainer = ({ task, index, column }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
   const { palette } = useTheme();
   return (
     <>
@@ -76,7 +76,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
                 {task.assignee.length > 0 && (
                   <Chip color="#ce93d8">
                     {smartTrim(
-                      data.memberDetails[task.assignee[0]].username,
+                      space.memberDetails[task.assignee[0]].username,
                       8
                     )}
                   </Chip>

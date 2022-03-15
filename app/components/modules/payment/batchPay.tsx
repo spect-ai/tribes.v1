@@ -9,12 +9,12 @@ import {
 import { registryTemp } from "../../../constants";
 import Image from "next/image";
 import { batchPayTokens, distributeEther } from "../../../adapters/contract";
-import { useBoard } from "../taskBoard";
 import { capitalizeFirstLetter } from "../../../utils/utils";
 import { Member } from "../../../types";
 import { useMoralis } from "react-moralis";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   handleNextStep: Function;
@@ -46,7 +46,7 @@ const BatchPay = ({
   handleStatusUpdate,
 }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
   const { Moralis, isInitialized } = useMoralis();
 
   return (
@@ -105,15 +105,15 @@ const BatchPay = ({
                       <Avatar
                         alt=""
                         src={
-                          data.memberDetails[contributor]?.profilePicture
-                            ? data.memberDetails[contributor].profilePicture
+                          space.memberDetails[contributor]?.profilePicture
+                            ? space.memberDetails[contributor].profilePicture
                                 ._url
-                            : `https://www.gravatar.com/avatar/${data.memberDetails[contributor]?.username}?d=identicon&s=32`
+                            : `https://www.gravatar.com/avatar/${space.memberDetails[contributor]?.username}?d=identicon&s=32`
                         }
                         sx={{ height: 30, width: 30 }}
                       />
                       <Typography color="text.primary" marginLeft="20px">
-                        {data.memberDetails[contributor]?.username}
+                        {space.memberDetails[contributor]?.username}
                       </Typography>
                     </Box>
                   </Grid>
@@ -155,7 +155,7 @@ const BatchPay = ({
                   tokenDistributionInfo.tokenAddresses,
                   getEthAddresses(
                     tokenDistributionInfo.contributors,
-                    data.memberDetails
+                    space.memberDetails
                   ),
                   tokenDistributionInfo.tokenValues,
                   "123",

@@ -5,9 +5,9 @@ import { useMoralis } from "react-moralis";
 import { updateTaskSubmission } from "../../../adapters/moralis";
 import { BoardData, Task } from "../../../types";
 import { PrimaryButton } from "../../elements/styledComponents";
-import { useBoard } from "../taskBoard";
 import { PopoverContainer } from "./datePopover";
 import { notifyError } from "../settingsTab";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   open: boolean;
@@ -21,7 +21,7 @@ const SubmissionPopover = ({ open, anchorEl, handleClose, task }: Props) => {
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
-  const { data, setData } = useBoard();
+  const { setSpace } = useSpace();
   return (
     <Popover
       open={open}
@@ -56,7 +56,7 @@ const SubmissionPopover = ({ open, anchorEl, handleClose, task }: Props) => {
             setIsLoading(true);
             updateTaskSubmission(Moralis, link, name, task.taskId)
               .then((res: BoardData) => {
-                setData(res);
+                setSpace(res);
                 setIsLoading(false);
                 handleClose("submission");
               })

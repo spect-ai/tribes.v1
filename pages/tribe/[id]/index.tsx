@@ -14,14 +14,13 @@ import { getTaskEpoch } from "../../../app/adapters/moralis";
 import Navbar from "../../../app/components/modules/navbar";
 import Sidebar from "../../../app/components/modules/sidebar";
 import TribeTemplate from "../../../app/components/templates/tribe";
-import { muiTheme } from "../../../app/constants/muiTheme";
 import {
   setNavbarLogo,
   setNavbarTitle,
   useGlobal,
 } from "../../../app/context/globalContext";
 import { Team } from "../../../app/types";
-import { PageContainer } from "./board/[bid]";
+import { PageContainer } from "./space/[bid]";
 
 interface Props {}
 
@@ -70,7 +69,9 @@ const TribePage: NextPage<Props> = (props: Props) => {
         teamId: id,
       },
     });
-  }, [id, isMember, isAuthenticated]);
+  }, [id, isMember]);
+  const { palette } = useTheme();
+  let theme = createTheme();
   return (
     <>
       <Head>

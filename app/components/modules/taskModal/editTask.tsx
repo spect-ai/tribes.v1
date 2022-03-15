@@ -24,7 +24,6 @@ import {
   archiveTask,
 } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import { useBoard } from "../taskBoard";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 import { labelsMapping, registryTemp } from "../../../constants";
@@ -49,6 +48,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import PublishIcon from "@mui/icons-material/Publish";
 import { notify, notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   task: Task;
@@ -65,7 +65,7 @@ const converter = new Showdown.Converter({
 });
 
 const EditTask = ({ task, handleClose, column }: Props) => {
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
   const { Moralis, user } = useMoralis();
   const [isLoading, setIsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -80,7 +80,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
     setOpen({ [field]: false });
   };
   const isSpaceMember = () => {
-    return data.members.indexOf(user?.id as string) !== -1;
+    return space.members.indexOf(user?.id as string) !== -1;
   };
 
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
@@ -90,7 +90,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
     completePayment(Moralis, taskIds)
       .then((res: any) => {
         console.log(res);
-        setData(res);
+        setSpace(res);
       })
       .catch((err: any) => {
         notifyError(
@@ -122,7 +122,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
             if (task.access.creator || task.access.reviewer) {
               updateTaskTitle(Moralis, title, task.taskId)
                 .then((res: BoardData) => {
-                  setData(res);
+                  setSpace(res);
                 })
                 .catch((err: any) => {
                   notifyError(
@@ -176,12 +176,13 @@ const EditTask = ({ task, handleClose, column }: Props) => {
               Reviewer
             </Typography>
             <InnerInfo>
-              <Tooltip title={data.memberDetails[task.reviewer[0]].username}>
+              <Tooltip title={space.memberDetails[task.reviewer[0]].username}>
                 <Avatar
                   sx={{ height: 32, width: 32 }}
                   src={
-                    data.memberDetails[task.reviewer[0]].profilePicture
-                      ? data.memberDetails[task.reviewer[0]].profilePicture._url
+                    space.memberDetails[task.reviewer[0]].profilePicture
+                      ? space.memberDetails[task.reviewer[0]].profilePicture
+                          ._url
                       : `https://www.gravatar.com/avatar/${getMD5String(
                           task.reviewer[0]
                         )}?d=identicon&s=32`
@@ -199,12 +200,13 @@ const EditTask = ({ task, handleClose, column }: Props) => {
             </Typography>
 
             <InnerInfo>
-              <Tooltip title={data.memberDetails[task.assignee[0]]?.username}>
+              <Tooltip title={space.memberDetails[task.assignee[0]]?.username}>
                 <Avatar
                   sx={{ height: 32, width: 32 }}
                   src={
-                    data.memberDetails[task.assignee[0]].profilePicture
-                      ? data.memberDetails[task.assignee[0]].profilePicture._url
+                    space.memberDetails[task.assignee[0]].profilePicture
+                      ? space.memberDetails[task.assignee[0]].profilePicture
+                          ._url
                       : `https://www.gravatar.com/avatar/${getMD5String(
                           task.assignee[0]
                         )}?d=identicon&s=32`
@@ -261,7 +263,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                       description,
                       task.taskId
                     ).then((res: BoardData) => {
-                      setData(res);
+                      setSpace(res);
                       setIsLoading(false);
                     });
                   }}
@@ -300,15 +302,15 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                 <Avatar
                   sx={{ width: 24, height: 24, mr: 2 }}
                   src={
-                    data.memberDetails[activity.actor].profilePicture
-                      ? data.memberDetails[activity.actor].profilePicture._url
+                    space.memberDetails[activity.actor].profilePicture
+                      ? space.memberDetails[activity.actor].profilePicture._url
                       : `https://www.gravatar.com/avatar/${getMD5String(
-                          data.memberDetails[activity.actor].username
+                          space.memberDetails[activity.actor].username
                         )}?d=identicon&s=32`
                   }
                 />
                 <ListItemText
-                  primary={`${data.memberDetails[activity.actor].username} ${
+                  primary={`${space.memberDetails[activity.actor].username} ${
                     actionMap[activity.action as keyof typeof actionMap]
                   } on ${activity.timestamp.getDate()}  ${
                     // @ts-ignore
@@ -480,7 +482,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     task={task}
                   />
                 )}
-                {data.roles[user?.id as string] === "admin" &&
+                {space.roles[user?.id as string] === "admin" &&
                   task.status === 205 && (
                     <TaskButton
                       variant="outlined"
@@ -490,7 +492,10 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                         task.token.symbol ===
                         registryTemp[task.chain.chainId].nativeCurrency
                           ? distributeEther(
-                              [data.memberDetails[task.assignee[0]].ethAddress],
+                              [
+                                space.memberDetails[task.assignee[0]]
+                                  .ethAddress,
+                              ],
                               [task.value],
                               task.taskId,
                               window.ethereum.networkVersion
@@ -503,7 +508,10 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                               .catch((err: any) => alert(err))
                           : batchPayTokens(
                               [task.token.address as string],
-                              [data.memberDetails[task.assignee[0]].ethAddress],
+                              [
+                                space.memberDetails[task.assignee[0]]
+                                  .ethAddress,
+                              ],
                               [task.value],
                               task.taskId,
                               window.ethereum.networkVersion
@@ -533,7 +541,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                       // Can we improve the experience here by the greedy approach?
                       assignToMe(Moralis, task.taskId)
                         .then((res: BoardData) => {
-                          setData(res);
+                          setSpace(res);
                         })
                         .catch((err: any) => {
                           notifyError(
@@ -545,7 +553,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     Assign to me
                   </TaskButton>
                 )}
-                {data.roles[user?.id as string] === "admin" && (
+                {space.roles[user?.id as string] === "admin" && (
                   <TaskButton
                     variant="outlined"
                     color="error"
@@ -553,7 +561,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     onClick={() => {
                       archiveTask(Moralis, task.taskId)
                         .then((res: BoardData) => {
-                          setData(res);
+                          setSpace(res);
                           notify("Task archived successfully", "success");
                           handleClose();
                         })

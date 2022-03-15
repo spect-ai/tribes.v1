@@ -17,16 +17,16 @@ import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { getTeam, updateBoardMembers } from "../../../adapters/moralis";
 import { BoardData, Team } from "../../../types";
-import { useBoard } from "../taskBoard";
 import styled from "@emotion/styled";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { Toaster } from "react-hot-toast";
 import { notify, notifyError } from "../settingsTab";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {};
 
 const Members = (props: Props) => {
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
   const [tribe, setTribe] = useState<Team>({} as Team);
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis, user } = useMoralis();
@@ -38,16 +38,16 @@ const Members = (props: Props) => {
     setIsChecked(isChecked?.map((v, i) => (i === index ? !v : v)));
   };
   useEffect(() => {
-    getTeam(Moralis, data.teamId)
+    getTeam(Moralis, space.teamId)
       .then((res: Team) => {
         setTribe(res);
         const membersArray = res.members.map((member: string) => {
-          return data.members.indexOf(member) !== -1;
+          return space.members.indexOf(member) !== -1;
         });
         let roles = {};
         res.members.map((member: string) => {
           // @ts-ignore
-          roles[member] = data.roles[member] || "member";
+          roles[member] = space.roles[member] || "member";
         });
         setRoles(roles);
         setIsChecked(membersArray);
@@ -66,10 +66,10 @@ const Members = (props: Props) => {
     const members = tribe.members.filter((member: string, index: number) => {
       return isChecked[index];
     });
-    updateBoardMembers(Moralis, data.objectId, members, roles)
+    updateBoardMembers(Moralis, space.objectId, members, roles)
       .then((res: BoardData) => {
         setIsLoading(false);
-        setData(res);
+        setSpace(res);
         notify("Members updated successfully");
       })
       .catch((err: any) => {
@@ -88,7 +88,7 @@ const Members = (props: Props) => {
             <TableCell padding="checkbox">
               <Checkbox
                 checked={isChecked.every((elem) => elem === true)}
-                disabled={data.roles[user?.id as string] !== "admin"}
+                disabled={space.roles[user?.id as string] !== "admin"}
                 onChange={(e) => {
                   setIsChecked(
                     Array(tribe.members.length).fill(e.target.checked)
@@ -121,7 +121,7 @@ const Members = (props: Props) => {
                     "aria-label": "select all desserts",
                   }}
                   checked={isChecked.at(index) || false}
-                  disabled={data.roles[user?.id as string] !== "admin"}
+                  disabled={space.roles[user?.id as string] !== "admin"}
                   onClick={() => {
                     toggleCheckboxValue(index);
                   }}
@@ -140,7 +140,7 @@ const Members = (props: Props) => {
                     fontSize: 12,
                     textAlign: "center",
                   }}
-                  disabled={data.roles[user?.id as string] !== "admin"}
+                  disabled={space.roles[user?.id as string] !== "admin"}
                   onChange={(e) => {
                     setRoles({ ...roles, [member]: e.target.value });
                   }}
@@ -153,7 +153,7 @@ const Members = (props: Props) => {
           ))}
         </TableBody>
       </Table>
-      {data.roles[user?.id as string] === "admin" && (
+      {space.roles[user?.id as string] === "admin" && (
         <PrimaryButton
           variant="outlined"
           sx={{ borderRadius: 1, width: "20%", mt: 2 }}

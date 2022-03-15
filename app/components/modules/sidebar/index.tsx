@@ -2,8 +2,6 @@ import styled from "@emotion/styled";
 import {
   Avatar,
   Box,
-  Button,
-  ButtonBase,
   Collapse,
   IconButton,
   Palette,
@@ -12,30 +10,26 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
-import { getMyTeams, getTeam } from "../../../adapters/moralis";
 import { SidebarButton } from "../../elements/styledComponents";
 import NotificationIcon from "@mui/icons-material/Notifications";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PaidIcon from "@mui/icons-material/Paid";
 import { smartTrim } from "../../../utils/utils";
-import { useBoard } from "../taskBoard";
 import { Team } from "../../../types";
 import { useRouter } from "next/router";
 import PaletteIcon from "@mui/icons-material/Palette";
 import BallotIcon from "@mui/icons-material/Ballot";
 import ThemePopover from "../themePopover";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {};
 
 const Sidebar = (props: Props) => {
-  const { Moralis, isInitialized, isAuthenticated, user } = useMoralis();
+  const { user } = useMoralis();
   const [myTeams, setMyTeams] = useState([] as any[]);
   const [isCollapsed, setIsCollapsed] = useState(true);
-  const [tribe, setTribe] = useState<Team>({} as Team);
-  const { data } = useBoard();
-  const router = useRouter();
-  const { id } = router.query;
+  const { space, isLoading } = useSpace();
 
   const onMouseHover = () => setIsCollapsed(false);
   const onMouseLeave = () => setIsCollapsed(true);
@@ -53,15 +47,6 @@ const Sidebar = (props: Props) => {
   const handleClosePopover = (field: string) => {
     setOpen({ [field]: false });
   };
-
-  useEffect(() => {
-    if (isInitialized && isAuthenticated) {
-      getTeam(Moralis, id as string).then((res: Team) => {
-        setTribe(res);
-      });
-    }
-  }, [isInitialized, isAuthenticated]);
-
   return (
     <SidebarContainer
       onMouseEnter={onMouseHover}
@@ -70,58 +55,66 @@ const Sidebar = (props: Props) => {
     >
       <Collapse orientation="horizontal" in={!isCollapsed} collapsedSize={50}>
         <SidebarContent>
-          <Actions>
-            <SidebarButton sx={{ mt: 2 }} color="inherit">
-              <Avatar
-                variant="rounded"
-                sx={{ p: 0, m: 0, width: 32, height: 32 }}
-                src={tribe?.logo}
-              >
-                {tribe?.name && tribe.name[0]}
-              </Avatar>
-              <AvatarText>
-                <Typography sx={{ fontSize: 15 }}>{tribe?.name}</Typography>
-                <Typography sx={{ fontSize: 12, color: palette.primary.light }}>
-                  {tribe?.members?.length} members
-                </Typography>
-              </AvatarText>
-            </SidebarButton>
-            <Box sx={{ mt: 12, display: "flex", flexDirection: "column" }}>
-              <SidebarButton color="inherit">
-                <NotificationIcon />
-                <ButtonText>Notification</ButtonText>
+          {!isLoading && space?.team ? (
+            <Actions>
+              <SidebarButton sx={{ mt: 2 }} color="inherit">
+                <Avatar
+                  variant="rounded"
+                  sx={{ p: 0, m: 0, width: 32, height: 32 }}
+                  src={space.team[0].logo}
+                >
+                  {space.team[0].name && space.team[0].name[0]}
+                </Avatar>
+                <AvatarText>
+                  <Typography sx={{ fontSize: 15 }}>
+                    {space.team[0].name}
+                  </Typography>
+                  <Typography
+                    sx={{ fontSize: 12, color: palette.primary.light }}
+                  >
+                    {space.team[0]?.members?.length} members
+                  </Typography>
+                </AvatarText>
               </SidebarButton>
-              <SidebarButton color="inherit">
-                <SettingsIcon />
-                <ButtonText>Settings</ButtonText>
-              </SidebarButton>
-              <SidebarButton color="inherit">
-                <PlayCircleFilledWhiteIcon />
-                <ButtonText>Start Epoch</ButtonText>
-              </SidebarButton>
-              <SidebarButton color="inherit">
-                <PaidIcon />
-                <ButtonText>Batch Pay</ButtonText>
-              </SidebarButton>
-              <SidebarButton color="inherit" onClick={handleClick("theme")}>
-                <PaletteIcon />
-                <ButtonText>Theme</ButtonText>
-              </SidebarButton>
-              <ThemePopover
-                open={open["theme"]}
-                anchorEl={anchorEl}
-                handleClose={handleClosePopover}
-                type="theme"
-              />
-              <SidebarButton color="inherit">
-                <BallotIcon />
-                <ButtonText>Spaces</ButtonText>
-              </SidebarButton>
-            </Box>
-            <Box
-              sx={{ mt: 12, display: "flex", flexDirection: "column" }}
-            ></Box>
-          </Actions>
+              <Box sx={{ mt: 12, display: "flex", flexDirection: "column" }}>
+                <SidebarButton color="inherit">
+                  <NotificationIcon />
+                  <ButtonText>Notification</ButtonText>
+                </SidebarButton>
+                <SidebarButton color="inherit">
+                  <SettingsIcon />
+                  <ButtonText>Settings</ButtonText>
+                </SidebarButton>
+                <SidebarButton color="inherit">
+                  <PlayCircleFilledWhiteIcon />
+                  <ButtonText>Start Epoch</ButtonText>
+                </SidebarButton>
+                <SidebarButton color="inherit">
+                  <PaidIcon />
+                  <ButtonText>Batch Pay</ButtonText>
+                </SidebarButton>
+                <SidebarButton color="inherit" onClick={handleClick("theme")}>
+                  <PaletteIcon />
+                  <ButtonText>Theme</ButtonText>
+                </SidebarButton>
+                <ThemePopover
+                  open={open["theme"]}
+                  anchorEl={anchorEl}
+                  handleClose={handleClosePopover}
+                  type="theme"
+                />
+                <SidebarButton color="inherit">
+                  <BallotIcon />
+                  <ButtonText>Spaces</ButtonText>
+                </SidebarButton>
+              </Box>
+              <Box
+                sx={{ mt: 12, display: "flex", flexDirection: "column" }}
+              ></Box>
+            </Actions>
+          ) : (
+            <div>loading</div>
+          )}
           <Box sx={{ flex: "1 1 auto" }} />
           <Profile>
             <SidebarButton sx={{ mt: 2 }} color="inherit">

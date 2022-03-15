@@ -6,9 +6,9 @@ import { useMoralis } from "react-moralis";
 import { updateTaskMember } from "../../../adapters/moralis";
 import { BoardData, Task } from "../../../types";
 import { PrimaryButton } from "../../elements/styledComponents";
-import { useBoard } from "../taskBoard";
 import { PopoverContainer } from "./datePopover";
 import { notifyError } from "../settingsTab";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   open: boolean;
@@ -22,7 +22,7 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
   const [member, setMember] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
 
   useEffect(() => {
     if (type === "assignee") {
@@ -47,9 +47,9 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
     >
       <PopoverContainer>
         <Autocomplete
-          options={data.members} // Get options from members
+          options={space.members} // Get options from members
           value={member as any}
-          getOptionLabel={(option) => data.memberDetails[option].username}
+          getOptionLabel={(option) => space.memberDetails[option].username}
           onChange={(event, newValue) => {
             setMember(newValue as string);
           }}
@@ -72,7 +72,7 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
             // we store array of assignee and reviewer to be able to handle multiple assignees and reviewers later
             updateTaskMember(Moralis, member, type, task.taskId)
               .then((res: BoardData) => {
-                setData(res);
+                setSpace(res);
                 setIsLoading(false);
                 handleClose(type);
               })

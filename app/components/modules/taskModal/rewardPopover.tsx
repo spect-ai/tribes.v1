@@ -5,7 +5,6 @@ import { useMoralis } from "react-moralis";
 import { updateTaskReward } from "../../../adapters/moralis";
 import { BoardData, Chain, Registry, Task, Token } from "../../../types";
 import { PrimaryButton } from "../../elements/styledComponents";
-import { useBoard } from "../taskBoard";
 import { PopoverContainer } from "./datePopover";
 import { useGlobal } from "../../../context/globalContext";
 import {
@@ -14,6 +13,7 @@ import {
   getFlattenedCurrencies,
 } from "../../../utils/utils";
 import { registryTemp } from "../../../constants";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   open: boolean;
@@ -31,7 +31,7 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
   const [value, setValue] = useState(task.value?.toString());
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
-  const { data, setData } = useBoard();
+  const { setSpace } = useSpace();
   return (
     <Popover
       open={open}
@@ -112,7 +112,7 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
               parseFloat(value),
               task.taskId
             ).then((res: BoardData) => {
-              setData(res);
+              setSpace(res);
               setIsLoading(false);
               handleClose("reward");
             });

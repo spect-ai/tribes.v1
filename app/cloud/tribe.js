@@ -10,6 +10,7 @@ async function getCreatedTribe(
   tribe.set("members", members);
   tribe.set("roles", roles);
   tribe.set("isPublic", true);
+  tribe.set("theme", 0);
   return tribe;
 }
 

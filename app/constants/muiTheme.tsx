@@ -1,4 +1,4 @@
-export const classicDark = {
+const classicDark = {
   spacing: 4,
   palette: {
     mode: "dark" as any,
@@ -20,7 +20,7 @@ export const classicDark = {
   },
 };
 
-export const warmPurple = {
+const warmPurple = {
   spacing: 4,
   palette: {
     mode: "dark" as any,
@@ -43,7 +43,7 @@ export const warmPurple = {
   },
 };
 
-export const oceanBlue = {
+const oceanBlue = {
   spacing: 4,
   palette: {
     mode: "dark" as any,
@@ -64,4 +64,17 @@ export const oceanBlue = {
     },
     divider: "#5a6972",
   },
+};
+
+export const getTheme = (themeType: number) => {
+  if (themeType === 0) {
+    return classicDark;
+  }
+  if (themeType === 1) {
+    return warmPurple;
+  }
+  if (themeType === 2) {
+    return oceanBlue;
+  }
+  return classicDark;
 };

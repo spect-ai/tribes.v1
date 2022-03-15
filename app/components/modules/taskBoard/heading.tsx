@@ -13,10 +13,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
-import { useBoard } from ".";
 import BoardSettings from "../boardSettings";
-import GroupsIcon from "@mui/icons-material/Groups";
-import DashboardIcon from "@mui/icons-material/Dashboard";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import Link from "next/link";
@@ -32,6 +29,7 @@ import CreateEpochModal from "../epoch/createEpochModal";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
 import { notify, notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {};
 
@@ -47,7 +45,7 @@ const StyledIcon = styled.div`
 `;
 
 const Heading = (props: Props) => {
-  const { data, setData, tab, handleTabChange } = useBoard();
+  const { space, setSpace, tab, handleTabChange } = useSpace();
   const router = useRouter();
   const id = router.query.id as string;
   const bid = router.query.bid as string;
@@ -71,7 +69,7 @@ const Heading = (props: Props) => {
           notifyError("Sorry! There was an error while getting your space")
         );
     }
-  }, [isInitialized, data.name]);
+  }, [isInitialized, space.name]);
 
   return (
     <Container>
@@ -105,7 +103,7 @@ const Heading = (props: Props) => {
               fontSize: 14,
             }}
           >
-            {data.team[0].name}
+            {space.team[0].name}
           </MuiLink>
         </Link>
         <MuiLink
@@ -119,15 +117,15 @@ const Heading = (props: Props) => {
           }}
           href=""
         >
-          {data.name}
+          {space.name}
         </MuiLink>
       </Breadcrumbs>
       <Box sx={{ display: "none", flexDirection: "row", alignItems: "center" }}>
         <Typography variant="h6" sx={{ mx: 2 }}>
-          {data.name}
+          {space.name}
         </Typography>
-        {data.roles[user?.id as string] === "admin" && <BoardSettings />}
-        {data.roles[user?.id as string] === "admin" && <Payment />}
+        {space.roles[user?.id as string] === "admin" && <BoardSettings />}
+        {space.roles[user?.id as string] === "admin" && <Payment />}
         <Tooltip title="Switch Board">
           <IconButton
             sx={{ mb: 0.5, p: 2.5 }}
@@ -144,8 +142,8 @@ const Heading = (props: Props) => {
             </IconButton>
           </MuiLink>
         </Tooltip>
-        {data.members.indexOf(user?.id as string) === -1 &&
-          data.tokenGating.tokenLimit > 0 && (
+        {space.members.indexOf(user?.id as string) === -1 &&
+          space.tokenGating.tokenLimit > 0 && (
             <Tooltip title="You can join space if you have enough tokens">
               <PrimaryButton
                 variant="outlined"
@@ -157,7 +155,7 @@ const Heading = (props: Props) => {
                     .then((res: any) => {
                       console.log(res);
                       setIsLoadingJoinSpace(false);
-                      setData(res);
+                      setSpace(res);
                       notify("Joined Space Succesfully");
                     })
                     .catch((err: any) => {
@@ -175,7 +173,7 @@ const Heading = (props: Props) => {
             <PeopleOutlineIcon />
           </IconButton>
         </Tooltip> */}
-        {data.roles[user?.id as string] === "admin" && (
+        {space.roles[user?.id as string] === "admin" && (
           <Tooltip title="Start Epoch">
             <IconButton
               sx={{ p: 1.7 }}
@@ -194,7 +192,7 @@ const Heading = (props: Props) => {
         )}
       </Box>
       {/* <Typography sx={{ ml: 2, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
-        {data.description}
+        {space.description}
       </Typography> */}
       <StyledTabs value={tab} onChange={handleTabChange} centered>
         <StyledTab label="Board" />

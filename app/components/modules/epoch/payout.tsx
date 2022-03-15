@@ -12,10 +12,10 @@ import { TokenDistributionInfo } from "../payment/batchPay";
 import { ApprovalInfo } from "../payment/approve";
 import { CurrencyDistributionInfo } from "../payment/batchPayCurrency";
 import { notifyError } from "../settingsTab";
-import { useBoard } from "../taskBoard";
 import { Toaster } from "react-hot-toast";
 import { completeEpochPayment } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   epoch: Epoch;
@@ -36,7 +36,7 @@ const PayoutButton = ({ epoch }: Props) => {
   const [currencyDistributionInfo, setCurrencyDistributionInfo] = useState(
     {} as CurrencyDistributionInfo
   );
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
   const { Moralis, isInitialized } = useMoralis();
 
   const handleApprovalInfoUpdate = (
@@ -118,8 +118,8 @@ const PayoutButton = ({ epoch }: Props) => {
   const handleStatusUpdate = (paymentType: string) => {
     completeEpochPayment(Moralis, epoch.objectId)
       .then((res: any) => {
-        const temp = Object.assign(data, res);
-        setData(temp);
+        const temp = Object.assign(space, res);
+        setSpace(temp);
       })
       .catch((err: any) => {
         notifyError(

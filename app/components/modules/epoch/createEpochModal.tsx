@@ -22,7 +22,6 @@ import React, { useState } from "react";
 import { Box } from "@mui/system";
 import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
 import CloseIcon from "@mui/icons-material/Close";
-import { useBoard } from "../taskBoard";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useMoralis } from "react-moralis";
 import { Member, Chain, Registry, Task, Token, Epoch } from "../../../types";
@@ -35,6 +34,7 @@ import { registryTemp } from "../../../constants";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import CreateEpochTaskList from "./createEpochTaskList";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   isOpen: boolean;
@@ -42,7 +42,7 @@ type Props = {
 };
 
 const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
-  const { data, setData, handleTabChange } = useBoard();
+  const { space, setSpace, handleTabChange } = useSpace();
   const { Moralis } = useMoralis();
   const [name, setName] = useState("");
   const [duration, setDuration] = useState("");
@@ -50,12 +50,12 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
   const [strategy, setStrategy] = useState("");
   const [budget, setBudget] = useState("");
   const [passThreshold, setPassThreshold] = useState("");
-  const [cardColumn, setCardColumn] = useState(data.columnOrder[0]);
+  const [cardColumn, setCardColumn] = useState(space.columnOrder[0]);
   const [cards, setCards] = useState(
-    data.columns[data.columnOrder[0]].taskIds as string[]
+    space.columns[space.columnOrder[0]].taskIds as string[]
   );
   const [isCardChecked, setIsCardChecked] = useState(
-    Array(data.columns[data.columnOrder[0]].taskIds.length).fill(true)
+    Array(space.columns[space.columnOrder[0]].taskIds.length).fill(true)
   );
 
   const [chain, setChain] = useState({
@@ -69,10 +69,10 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
   );
 
   const [isChecked, setIsChecked] = useState(
-    Array(data.members?.length).fill(true)
+    Array(space.members?.length).fill(true)
   );
   const [allocations, setAllocations] = useState(
-    Array(data.members?.length).fill(100)
+    Array(space.members?.length).fill(100)
   );
   const toggleCheckboxValue = (index: number) => {
     setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
@@ -84,18 +84,19 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
   };
 
   const handleNewEpochAddition = (res: any) => {
-    const temp = Object.assign({}, data);
+    const temp = Object.assign({}, space);
     temp.epochs = res.epochs;
     temp.taskDetails = res.taskDetails;
-    setData(temp);
+
+    setSpace(temp);
   };
 
   const getMembers = () => {
     var members = [];
-    for (let i = 0; i < data.members.length; i++) {
+    for (let i = 0; i < space.members.length; i++) {
       if (isChecked.at(i)) {
         var member = {
-          objectId: data.members[i],
+          objectId: space.members[i],
           votesAllocated: allocations.at(i),
         };
         members.push(member);
@@ -106,9 +107,9 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
 
   const getMemberChoices = () => {
     var choices = [] as string[];
-    for (let i = 0; i < data.members.length; i++) {
+    for (let i = 0; i < space.members.length; i++) {
       if (isChecked.at(i)) {
-        choices.push(data.members[i]);
+        choices.push(space.members[i]);
       }
     }
     return choices;
@@ -310,7 +311,7 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
                             checked={isChecked.every((elem) => elem === true)}
                             onChange={(e) => {
                               setIsChecked(
-                                Array(data.members.length).fill(
+                                Array(space.members.length).fill(
                                   e.target.checked
                                 )
                               );
@@ -333,7 +334,7 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {data.members?.map((member, index) => (
+                      {space.members?.map((member, index) => (
                         <TableRow
                           key={index}
                           sx={{
@@ -360,7 +361,7 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
                           </TableCell>
                           {isOpen && (
                             <TableCell align="right">
-                              {data.memberDetails[member].username}
+                              {space.memberDetails[member].username}
                             </TableCell>
                           )}
                           <TableCell align="right">
@@ -412,8 +413,8 @@ const CreateEpochModal = ({ isOpen, setIsOpen }: Props) => {
                     type === "Member" ? getMemberChoices() : getCardChoices();
                   startEpoch(
                     Moralis,
-                    data.teamId,
-                    data.objectId,
+                    space.teamId,
+                    space.objectId,
                     name,
                     type,
                     parseInt(duration),

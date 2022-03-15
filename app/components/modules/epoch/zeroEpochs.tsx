@@ -3,14 +3,14 @@ import { Grid, Typography } from "@mui/material";
 import { PrimaryButton } from "../../elements/styledComponents";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
 import CreateEpochModal from "./createEpochModal";
-import { useBoard } from "../taskBoard";
 import { useMoralis } from "react-moralis";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {};
 
 const ZeroEpochs = (props: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { data } = useBoard();
+  const { space } = useSpace();
   const { user } = useMoralis();
 
   return (
@@ -26,7 +26,7 @@ const ZeroEpochs = (props: Props) => {
         <Typography variant="h6" sx={{ mb: 2 }} color="text.primary">
           There are no epochs in this space
         </Typography>{" "}
-        {user && data.roles[user?.id] === "admin" && (
+        {user && space.roles[user?.id] === "admin" && (
           <>
             <PrimaryButton
               variant="outlined"

@@ -15,8 +15,8 @@ import { CurrencyDistributionInfo } from "./batchPayCurrency";
 import { completePayment } from "../../../adapters/moralis";
 import { capitalizeFirstLetter } from "../../../utils/utils";
 import { notifyError } from "../settingsTab";
-import { useBoard } from "../taskBoard";
 import { Toaster } from "react-hot-toast";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 interface Props {}
 
@@ -72,7 +72,7 @@ const Payment = ({}: Props) => {
   const [taskIdsWithCurencyPayment, setTaskIdsWithCurencyPayment] = useState(
     [] as string[]
   );
-  const { data, setData } = useBoard();
+  const { setSpace } = useSpace();
 
   const [steps, setSteps] = useState([] as string[]);
   const [activeStep, setActiveStep] = useState(-1);
@@ -124,7 +124,7 @@ const Payment = ({}: Props) => {
     if (paymentType === "currency") {
       completePayment(Moralis, taskIdsWithCurencyPayment)
         .then((res: any) => {
-          setData(res);
+          setSpace(res);
         })
         .catch((err: any) => {
           notifyError(
@@ -134,7 +134,7 @@ const Payment = ({}: Props) => {
     } else if (paymentType === "token") {
       completePayment(Moralis, taskIdsWithTokenPayment)
         .then((res: any) => {
-          setData(res);
+          setSpace(res);
         })
         .catch((err: any) => {
           notifyError(

@@ -19,7 +19,6 @@ import { PrimaryButton } from "../../elements/styledComponents";
 import { getTeam, updateBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { useBoard } from "../taskBoard";
 import { BoardData, Chain, Registry, Team, Token } from "../../../types";
 import ConfirmModal from "./confirmModal";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -28,32 +27,34 @@ import {
   getFlattenedNetworks,
 } from "../../../utils/utils";
 import { registryTemp } from "../../../constants";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {};
 
 const BoardSettings = (props: Props) => {
-  const { data, setData } = useBoard();
-  console.log(data);
+  const { space, setSpace } = useSpace();
   const { Moralis } = useMoralis();
-  const [name, setName] = useState(data.name);
+  const [name, setName] = useState(space.name);
   const [isOpen, setIsOpen] = useState(false);
   const [chain, setChain] = useState<Chain>(
-    data.defaultPayment?.chain || { chainId: "137", name: "polygon" }
+    space.defaultPayment?.chain || { chainId: "137", name: "polygon" }
   );
   const [tokenAddress, setTokenAddress] = useState(
-    data.defaultPayment?.token?.address
+    space.defaultPayment?.token?.address || "0x0"
   );
   const [tokenName, setTokenName] = useState(
-    data.defaultPayment?.token?.symbol
+    space.defaultPayment?.token?.symbol ||
+      space.defaultPayment?.chain.name ||
+      "polygon"
   );
   const [tokenGatechain, setTokenGateChain] = useState(
-    data.tokenGating?.chain as Chain
+    space.tokenGating?.chain as Chain
   );
   const [tokenGateAddress, setTokenGateAddress] = useState(
-    data.tokenGating?.tokenAddress
+    space.tokenGating?.tokenAddress
   );
   const [tokenGateLimit, setTokenGateLLimit] = useState(
-    data.tokenGating?.tokenLimit
+    space.tokenGating?.tokenLimit
   );
   const handleClose = () => {
     setIsOpen(false);
@@ -254,7 +255,7 @@ const BoardSettings = (props: Props) => {
                     setIsLoading(true);
                     updateBoard(
                       Moralis,
-                      data.objectId,
+                      space.objectId,
                       name,
                       chain,
                       {
@@ -268,7 +269,7 @@ const BoardSettings = (props: Props) => {
                       }
                     ).then((res: any) => {
                       console.log(res);
-                      setData(res as BoardData);
+                      setSpace(res as BoardData);
                       setIsLoading(false);
                       handleClose();
                     });

@@ -8,10 +8,10 @@ import {
   LabelChipButton,
   PrimaryButton,
 } from "../../elements/styledComponents";
-import { useBoard } from "../taskBoard";
 import { PopoverContainer } from "./datePopover";
 import { notify } from "../settingsTab";
 import { notifyError } from "../settingsTab";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   open: boolean;
@@ -24,7 +24,7 @@ type Props = {
 const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
   const [status, setStatus] = useState(column.title);
   return (
     <Popover
@@ -38,7 +38,7 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
     >
       <PopoverContainer>
         <Autocomplete
-          options={Object.values(data.columns).map((column) => column.title)}
+          options={Object.values(space.columns).map((column) => column.title)}
           value={status}
           onChange={(event, newValue) => {
             setStatus(newValue as any);
@@ -63,17 +63,17 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
               task.boardId,
               task.taskId,
               column.id,
-              Object.values(data.columns).filter(
+              Object.values(space.columns).filter(
                 (col: Column) => col.title === status
               )[0]?.id
             )
               .then((res: BoardData) => {
-                setData(res);
+                setSpace(res);
                 if (status === "Done") {
                   updateTaskStatus(Moralis, task.taskId, 205)
                     .then((res: any) => {
                       console.log("updateTaskStatus", res);
-                      setData(res as BoardData);
+                      setSpace(res as BoardData);
                     })
                     .catch((err: any) => {
                       notifyError(

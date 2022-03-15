@@ -8,7 +8,6 @@ import {
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import { useBoard } from ".";
 import TaskContainer from "./task";
 import AddIcon from "@mui/icons-material/Add";
 
@@ -23,6 +22,7 @@ import { updateColumnName } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
 import { BoardData, Column, Task } from "../../../types";
 import { notifyError } from "../settingsTab";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   tasks: Task[];
@@ -34,7 +34,7 @@ type Props = {
 const Column = ({ tasks, id, column, index }: Props) => {
   const { Moralis, user } = useMoralis();
   const router = useRouter();
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
   const { bid } = router.query;
 
   const [showCreateTask, setShowCreateTask] = useState(false);
@@ -56,7 +56,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
       updateColumnName(Moralis, bid as string, id, columnTitle)
         .then((res: BoardData) => {
           console.log(res);
-          setData(res);
+          setSpace(res);
         })
         .catch((err: any) => {
           notifyError("Sorry! There was an error while updating column name");
@@ -68,7 +68,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
       <Draggable
         draggableId={id}
         index={index}
-        isDragDisabled={data.roles[user?.id as string] !== "admin"}
+        isDragDisabled={space.roles[user?.id as string] !== "admin"}
       >
         {(provided, snapshot) => (
           <Container
@@ -94,17 +94,14 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       value={columnTitle}
                       onChange={(e) => setColumnTitle(e.target.value)}
                       onBlur={updateColumn}
-                      readOnly={
-                        data.roles[user?.id as string] !== "admin" ||
-                        column.status === "Closed"
-                      }
+                      readOnly={space.roles[user?.id as string] !== "admin"}
                     />
                     <Box sx={{ flex: "1 1 auto" }} />
                     <IconButton
                       sx={{ mb: 0.5, p: 1 }}
                       size="small"
                       onClick={handleClick}
-                      disabled={data.roles[user?.id as string] !== "admin"}
+                      disabled={space.roles[user?.id as string] !== "admin"}
                     >
                       <SettingsIcon fontSize="small" />
                     </IconButton>
@@ -141,7 +138,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                           }}
                           fullWidth
                           size="small"
-                          disabled={data.roles[user?.id as string] !== "admin"}
+                          disabled={space.roles[user?.id as string] !== "admin"}
                         >
                           Add Card
                         </Button>
@@ -157,7 +154,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                           onClick={() => setShowCreateGithubTask(true)}
                           fullWidth
                           size="small"
-                          disabled={data.roles[user?.id as string] !== "admin"}
+                          disabled={space.roles[user?.id as string] !== "admin"}
                         >
                           Import Card
                         </Button>

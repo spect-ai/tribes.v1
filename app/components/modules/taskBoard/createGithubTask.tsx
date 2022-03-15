@@ -2,7 +2,6 @@ import { Button, InputBase } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState } from "react";
 import { BoardData } from "../../../types";
-import { useBoard } from ".";
 import DoneIcon from "@mui/icons-material/Done";
 import CloseIcon from "@mui/icons-material/Close";
 import { CreateTaskContainer } from "./createTask";
@@ -10,6 +9,7 @@ import { addTask } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { Octokit } from "@octokit/rest";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   setShowCreateTask: (showCreateTask: boolean) => void;
@@ -21,7 +21,7 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
   const [newTaskValue, setNewTaskValue] = useState(
     undefined as unknown as number
   );
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
   const { Moralis } = useMoralis();
   const router = useRouter();
   const { bid } = router.query;
@@ -72,7 +72,7 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
                   newTaskValue,
                   data.body as string,
                   newIssueLink
-                ).then((res: any) => setData(res as BoardData));
+                ).then((res: any) => setSpace(res as BoardData));
                 setNewTaskValue(0);
                 setNewIssueLink("");
                 setShowCreateTask(false);

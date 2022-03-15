@@ -3,7 +3,7 @@ import { Button, Popover } from "@mui/material";
 import { useRouter } from "next/router";
 import React from "react";
 import { useMoralis } from "react-moralis";
-import { useBoard } from ".";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { removeColumn } from "../../../adapters/moralis";
 import { BoardData } from "../../../types";
 import { notifyError } from "../settingsTab";
@@ -27,7 +27,7 @@ const ColumnSettingsPopover = ({
   columnId,
   handleClose,
 }: Props) => {
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
   const { Moralis } = useMoralis();
   const router = useRouter();
   const { bid } = router.query;
@@ -48,20 +48,20 @@ const ColumnSettingsPopover = ({
           sx={{ textTransform: "none" }}
           size="small"
           onClick={() => {
-            const tempData = Object.assign({}, data);
-            setData({
-              ...data,
-              columnOrder: data.columnOrder.filter((id) => id !== columnId),
+            const tempData = Object.assign({}, space);
+            setSpace({
+              ...space,
+              columnOrder: space.columnOrder.filter((id) => id !== columnId),
             });
             removeColumn(Moralis, bid as string, columnId)
               .then((res: BoardData) => {
-                setData(res);
+                setSpace(res);
                 console.log(res.columns);
                 handleClose();
               })
               .catch((err: any) => {
                 console.log(err);
-                setData(tempData);
+                setSpace(tempData);
                 notifyError("Sorry! There was an error while removing column.");
               });
           }}
