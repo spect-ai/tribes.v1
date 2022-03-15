@@ -46,9 +46,11 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();
   const { id } = router.query;
   const context = useProviderTribe();
+  const { state } = useGlobal();
   const { setLoading, getTeam, setTribe, isMember } = context;
   const { dispatch } = useGlobal();
   const { isAuthenticated } = useMoralis();
+  console.log("reg:", state.registry);
   useEffect(() => {
     setLoading(true);
     console.log("useEffect tribe");

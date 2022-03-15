@@ -18,7 +18,7 @@ const GlobalContext = createContext<{
 }>({ state: initialState, dispatch: () => null });
 
 const initContracts = async (dispatch: React.Dispatch<Action>) => {
-  dispatch({ type: "START_ASYNC" });
+  // dispatch({ type: "START_ASYNC" });
   try {
     // if (process.env.NETWORK_CHAIN === "polygon") {
     //   const { } = initializePolygonContracts();
@@ -32,14 +32,15 @@ const initContracts = async (dispatch: React.Dispatch<Action>) => {
       type: "SET_DISTRIBUTOR_CONTRACT",
       contract: distributorContract,
     });
-    dispatch({ type: "END_ASYNC" });
+    // dispatch({ type: "END_ASYNC" });
   } catch (error: any) {
     dispatch({ type: "SET_ERROR", error });
   }
 };
 
-const initRegistry = async (dispatch: React.Dispatch<Action>, moralis: any) => {
-  getRegistry(moralis).then((res: Registry) => {
+const initRegistry = async (dispatch: React.Dispatch<Action>, Moralis: any) => {
+  console.log("initreg");
+  getRegistry(Moralis).then((res: Registry) => {
     try {
       dispatch({
         type: "SET_REGISTRY",
