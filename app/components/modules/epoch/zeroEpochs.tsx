@@ -44,9 +44,6 @@ const ZeroEpochs = (props: Props) => {
           </>
         )}
       </Grid>
-      {isModalOpen && (
-        <CreateEpochModal isOpen={isModalOpen} setIsOpen={setIsModalOpen} />
-      )}
     </Grid>
   );
 };
