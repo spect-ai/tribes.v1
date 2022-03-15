@@ -55,6 +55,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const { setLoading, getTeam, setTribe, isMember } = context;
   const { dispatch } = useGlobal();
   const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
+  const { isAuthenticated } = useMoralis();
   useEffect(() => {
     setTheme(
       createTheme(getTheme(parseInt(localStorage.getItem("theme") || "0")))
@@ -71,7 +72,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
         teamId: id,
       },
     });
-  }, [id, isMember]);
+  }, [id, isMember, isAuthenticated]);
   return (
     <>
       <Head>
