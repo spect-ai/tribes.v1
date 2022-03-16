@@ -1,7 +1,7 @@
 async function getBoardByObjectId(objectId) {
   const boardQuery = new Moralis.Query("Board");
   boardQuery.equalTo("objectId", objectId);
-  return await boardQuery.first();
+  return await boardQuery.first({ useMasterKey: true });
 }
 
 async function getBoardObjByObjectId(objectId, callerId) {
@@ -18,7 +18,7 @@ async function getBoardObjByObjectId(objectId, callerId) {
     },
   ];
 
-  var board = await boardQuery.aggregate(pipeline);
+  var board = await boardQuery.aggregate(pipeline, { useMasterKey: true });
   if (board.length === 0) throw "Board doesnt exist";
   if (callerId) board[0].access = getSpaceAccess(callerId, board[0]);
   return board;
@@ -308,11 +308,12 @@ Moralis.Cloud.define("updateBoard", async (request) => {
   }
 });
 
+// PERM NEEDED
 Moralis.Cloud.define("deleteBoard", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const board = await getBoardByObjectId(request.params.boardId);
-    board && (await board.destroy());
+    board && (await board.destroy({ useMasterKey: true }));
     return true;
   } catch (err) {
     logger.error(
@@ -322,11 +323,12 @@ Moralis.Cloud.define("deleteBoard", async (request) => {
   }
 });
 
+// PERM NEEDED
 Moralis.Cloud.define("updateBoardMembers", async (request) => {
   try {
     const boardQuery = new Moralis.Query("Board");
     boardQuery.equalTo("objectId", request.params.boardId);
-    const board = await boardQuery.first();
+    const board = await boardQuery.first({ useMasterKey: true });
     board.set("members", request.params.members);
     board.set("roles", request.params.roles);
     await Moralis.Object.saveAll([board], { useMasterKey: true });

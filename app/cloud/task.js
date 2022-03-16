@@ -1,25 +1,25 @@
 async function getTaskByTaskId(taskId) {
   const taskQuery = new Moralis.Query("Task");
   taskQuery.equalTo("taskId", taskId);
-  return await taskQuery.first();
+  return await taskQuery.first({ useMasterKey: true });
 }
 
 async function getTasksByTaskIds(taskIds) {
   const taskQuery = new Moralis.Query("Task");
   taskQuery.containedIn("taskId", taskIds);
-  return await taskQuery.find();
+  return await taskQuery.find({ useMasterKey: true });
 }
 async function getTaskObjsByTaskIds(taskIds) {
   const taskQuery = new Moralis.Query("Task");
   const pipeline = [{ match: { taskId: { $in: taskIds } } }];
-  const tasks = await taskQuery.aggregate(pipeline);
+  const tasks = await taskQuery.aggregate(pipeline, { useMasterKey: true });
   return tasks;
 }
 
 async function getTaskObjByTaskId(taskId) {
   const taskQuery = new Moralis.Query("Task");
   const pipeline = [{ match: { taskId: taskId } }, { limit: 1 }];
-  const task = await taskQuery.aggregate(pipeline);
+  const task = await taskQuery.aggregate(pipeline, { useMasterKey: true });
   return task.length > 0 ? task[0] : null;
 }
 
@@ -41,13 +41,13 @@ async function getTaskObjByBoardId(boardId) {
       },
     },
   ];
-  return await taskQuery.aggregate(pipeline);
+  return await taskQuery.aggregate(pipeline, { useMasterKey: true });
 }
 
 async function getTaskCountInBoard(boardId) {
   const taskQuery = new Moralis.Query("Task");
   taskQuery.equalTo("boardId", boardId);
-  return await taskQuery.count();
+  return await taskQuery.count({ useMasterKey: true });
 }
 
 function getTaskObjByTaskParseObj(task) {

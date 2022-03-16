@@ -239,6 +239,7 @@ export const registryTemp: Registry = {
           "https://ipfs.moralis.io:2053/ipfs/QmRNqgazYuxUa5WdddFPftTWiP3KwzBMgV9Z19QWnLMETc",
       },
     },
+    distributorAddress: "0x54904743F2A0d0BCC228e334bF52d4b578901cfB",
     pictureUrl:
       "https://ipfs.moralis.io:2053/ipfs/QmRNqgazYuxUa5WdddFPftTWiP3KwzBMgV9Z19QWnLMETc",
   },
@@ -278,6 +279,7 @@ export const registryTemp: Registry = {
     nativeCurrency: "AVAX",
     tokenAddresses: [],
     tokens: {},
+    distributorAddress: "0xD620b76e0dE2A776449E2969Bf8B725ECDA5b66e",
     pictureUrl:
       "https://ipfs.moralis.io:2053/ipfs/QmRALA5qvQBRwWre8ofuhCbr3wxVmPS3kGetRR9uJqbqqe",
   },

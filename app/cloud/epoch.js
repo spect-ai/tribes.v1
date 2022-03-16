@@ -1,19 +1,19 @@
 async function getEpochCountByTeamId(teamId) {
   const epochQuery = new Moralis.Query("Epoch");
   epochQuery.equalTo("teamId", teamId);
-  return await epochQuery.count();
+  return await epochQuery.count({ useMasterKey: true });
 }
 
 async function getEpochParseObjByObjectId(objectId) {
   const epochQuery = new Moralis.Query("Epoch");
   epochQuery.equalTo("objectId", objectId);
-  return await epochQuery.first();
+  return await epochQuery.first({ useMasterKey: true });
 }
 
 async function getEpochsBySpaceId(spaceId, callerId) {
   const epochQuery = new Moralis.Query("Epoch");
   const pipeline = [{ match: { spaceId: spaceId } }];
-  var epochs = await epochQuery.aggregate(pipeline);
+  var epochs = await epochQuery.aggregate(pipeline, { useMasterKey: true });
   for (var epoch of epochs) {
     if (callerId in epoch.memberStats) {
       epoch.votesGivenByCaller = epoch.memberStats[callerId].votesGiven;
@@ -27,7 +27,7 @@ async function getEpochsBySpaceId(spaceId, callerId) {
 async function getEpochByObjectId(objectId, callerId) {
   const epochQuery = new Moralis.Query("Epoch");
   const pipeline = [{ match: { objectId: objectId } }];
-  const epoch = await epochQuery.aggregate(pipeline);
+  const epoch = await epochQuery.aggregate(pipeline, { useMasterKey: true });
   if (callerId in epoch[0].memberStats) {
     epoch[0].votesGivenByCaller = epoch[0].memberStats[callerId].votesGiven;
     epoch[0].votesAllocated = epoch[0].memberStats[callerId].votesAllocated;
@@ -278,16 +278,18 @@ Moralis.Cloud.define("completeEpochPayment", async (request) => {
 Moralis.Cloud.define("moveCardsAfterEpoch", async (request) => {
   try {
     const epoch = await getEpochParseObjByObjectId(request.params.epochId);
-    logger.info(`spaceId ${epoch.get("spaceId")}`);
 
     if (epoch.get("type") === "Card") {
       for (var cardId of epoch.get("choices")) {
+        logger.info(`cardId ${cardId}`);
         if (
           (epoch.get("votesFor")[cardId] * 100) /
             (epoch.get("votesFor")[cardId] +
               epoch.get("votesAgainst")[cardId]) >=
           epoch.get("passThreshold")
         ) {
+          logger.info(`ady`);
+
           await handleColumnChange(
             epoch.get("spaceId"),
             cardId,
@@ -295,7 +297,10 @@ Moralis.Cloud.define("moveCardsAfterEpoch", async (request) => {
             request.params.passColumnId,
             request.user.id
           );
+          logger.info(`ayo`);
         } else {
+          logger.info(`hffg`);
+
           await handleColumnChange(
             epoch.get("spaceId"),
             cardId,
@@ -303,6 +308,7 @@ Moralis.Cloud.define("moveCardsAfterEpoch", async (request) => {
             request.params.noPassColumnId,
             request.user.id
           );
+          logger.info(`adadad`);
         }
       }
     }

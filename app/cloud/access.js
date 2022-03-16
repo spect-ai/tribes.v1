@@ -40,7 +40,6 @@ function canMoveTask(
     isTaskReviewer(board, callerId) ||
     (isTaskAssignee(board, callerId) && destinationColumnId !== "column-3")
   ) {
-    logger.info(`something too`);
     return true;
   } else return isAdmin(callerId, board);
 }

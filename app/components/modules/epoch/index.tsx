@@ -68,10 +68,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [passColumn, setPassColumn] = useState("");
   const [noPassColumn, setNoPassColumn] = useState("");
-  console.log(`data3232`);
-
-  console.log(data);
-
   const handleVotesGiven = (
     epochid: string,
     choiceId: string,

@@ -12,13 +12,13 @@ async function getUpdatedUser(userInfo, tribes) {
 async function getUserByEthAddress(ethAddress) {
   const userInfoQuery = new Moralis.Query("UserInfo");
   userInfoQuery.equalTo("ethAddress", ethAddress);
-  return await userInfoQuery.first();
+  return await userInfoQuery.first({ useMasterKey: true });
 }
 
 async function getUserByUserId(userId) {
   const userInfoQuery = new Moralis.Query("UserInfo");
   userInfoQuery.equalTo("userId", userId);
-  return await userInfoQuery.first();
+  return await userInfoQuery.first({ useMasterKey: true });
 }
 
 async function getUserDetailsByUserIds(userIds) {

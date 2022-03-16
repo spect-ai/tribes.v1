@@ -35,13 +35,13 @@ async function getUpdatedTribeDetails(
 
 async function getTribeCount() {
   const tribeQuery = new Moralis.Query("Team");
-  return await tribeQuery.count();
+  return await tribeQuery.count({ useMasterKey: true });
 }
 
 async function getTribeByTeamId(teamId) {
   const teamQuery = new Moralis.Query("Team");
   teamQuery.equalTo("teamId", teamId);
-  return await teamQuery.first();
+  return await teamQuery.first({ useMasterKey: true });
 }
 
 async function getTribeObjByTeamId(teamId) {
@@ -57,7 +57,7 @@ async function getTribeObjByTeamId(teamId) {
       },
     },
   ];
-  return await teamQuery.aggregate(pipeline);
+  return await teamQuery.aggregate(pipeline, { useMasterKey: true });
 }
 
 async function isWhitelisted(ethAddress) {
@@ -104,7 +104,7 @@ Moralis.Cloud.define("getPublicTeams", async (request) => {
   try {
     const teamQuery = new Moralis.Query("Team");
     const pipeline = [{ match: { isPublic: true } }];
-    return await teamQuery.aggregate(pipeline);
+    return await teamQuery.aggregate(pipeline, { useMasterKey: true });
   } catch (err) {
     logger.error(`Error while getting public tribes: ${err}`);
     throw `Error while getting public tribes ${err}`;
@@ -115,11 +115,11 @@ Moralis.Cloud.define("getMyTeams", async (request) => {
   try {
     const userInfoQuery = new Moralis.Query("UserInfo");
     userInfoQuery.equalTo("userId", request.user.id);
-    const userInfo = await userInfoQuery.first();
+    const userInfo = await userInfoQuery.first({ useMasterKey: true });
     if (userInfo) {
       const teamQuery = new Moralis.Query("Team");
       teamQuery.containedIn("teamId", userInfo.get("tribes"));
-      return await teamQuery.find();
+      return await teamQuery.find({ useMasterKey: true });
     }
   } catch (err) {
     logger.error(
@@ -153,9 +153,9 @@ Moralis.Cloud.define("createTeam", async (request) => {
       (members = [request.user.id]),
       roles
     );
-
     // Add tribe to tribe creator's user info
     const userInfo = await getUserByUserId(request.user.id);
+
     teamMemberships = userInfo.get("tribes").concat([teamId]);
     userInfo.set("tribes", teamMemberships);
 
