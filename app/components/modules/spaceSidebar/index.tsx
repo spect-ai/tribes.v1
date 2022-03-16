@@ -11,24 +11,21 @@ import React, { useState } from "react";
 import { useMoralis } from "react-moralis";
 import { SidebarButton } from "../../elements/styledComponents";
 import NotificationIcon from "@mui/icons-material/Notifications";
-import { smartTrim } from "../../../utils/utils";
 import PaletteIcon from "@mui/icons-material/Palette";
 import BallotIcon from "@mui/icons-material/Ballot";
-import ThemePopover, { OptionsButton } from "../themePopover";
+import ThemePopover from "../themePopover";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import BoardSettings from "../boardSettings";
 import ViewTribePopover from "../viewTribePopover";
 import Payment from "../payment/batchPayIcon";
 import CreateEpoch from "../epoch/createEpochModal";
 import SpacesPopover from "../spacesPopover";
-import ProfilePopover from "../profilePopover";
-import LoginIcon from "@mui/icons-material/Login";
+import SidebarProfile from "../../elements/sidebarProfile";
 
 type Props = {};
 
 const Sidebar = (props: Props) => {
-  const { user, isAuthenticated, authenticate } = useMoralis();
-  const [myTeams, setMyTeams] = useState([] as any[]);
+  const { user } = useMoralis();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const { space, isLoading } = useSpace();
 
@@ -58,29 +55,6 @@ const Sidebar = (props: Props) => {
         <SidebarContent>
           {!isLoading && space?.team ? (
             <Actions>
-              <SidebarButton
-                sx={{ mt: 2 }}
-                color="inherit"
-                onClick={handleClick("viewTribe")}
-              >
-                <Avatar
-                  variant="rounded"
-                  sx={{ p: 0, m: 0, width: 32, height: 32 }}
-                  src={space.team[0].logo}
-                >
-                  {space.team[0].name && space.team[0].name[0]}
-                </Avatar>
-                <AvatarText>
-                  <Typography sx={{ fontSize: 15 }}>
-                    {space.team[0].name}
-                  </Typography>
-                  <Typography
-                    sx={{ fontSize: 12, color: palette.primary.light }}
-                  >
-                    {space.team[0]?.members?.length} members
-                  </Typography>
-                </AvatarText>
-              </SidebarButton>
               <ViewTribePopover
                 open={open["viewTribe"]}
                 anchorEl={anchorEl}
@@ -126,51 +100,7 @@ const Sidebar = (props: Props) => {
           ) : (
             <div>loading</div>
           )}
-          <Box sx={{ flex: "1 1 auto" }} />
-          <Profile>
-            {!isAuthenticated && (
-              <SidebarButton
-                sx={{ mt: 2 }}
-                color="inherit"
-                onClick={() => authenticate()}
-              >
-                <LoginIcon />
-                <ButtonText>Connect Wallet</ButtonText>
-              </SidebarButton>
-            )}
-            {isAuthenticated && (
-              <SidebarButton
-                sx={{ mt: 2 }}
-                color="inherit"
-                onClick={handleClick("profile")}
-              >
-                <Avatar
-                  variant="rounded"
-                  sx={{ p: 0, m: 0, width: 32, height: 32 }}
-                  src={user?.get("profilePicture")._url}
-                >
-                  {user?.get("username")[0]}
-                </Avatar>
-
-                <AvatarText>
-                  <Typography sx={{ fontSize: 15 }}>
-                    {user?.get("username")}
-                  </Typography>
-                  <Typography
-                    sx={{ fontSize: 12, color: palette.primary.light }}
-                  >
-                    {smartTrim(user?.get("ethAddress"), 10)}
-                  </Typography>
-                </AvatarText>
-              </SidebarButton>
-            )}
-            <ProfilePopover
-              open={open["profile"]}
-              anchorEl={anchorEl}
-              handleClose={handleClosePopover}
-              type="profile"
-            />
-          </Profile>
+          <SidebarProfile />
         </SidebarContent>
       </Collapse>
     </SidebarContainer>
@@ -189,14 +119,7 @@ export const SidebarContent = styled.div`
 export const Actions = styled.div`
   display: flex;
   flex-direction: column;
-  min-height: 89vh;
-`;
-
-const Profile = styled.div`
-  display: flex;
-  flex-direction: column;
-  border-top: 1px solid #5a6972;
-  margin-bottom: 1rem;
+  min-height: 86vh;
 `;
 
 export const ButtonText = styled.div`
@@ -207,7 +130,7 @@ export const ButtonText = styled.div`
   text-transform: none;
 `;
 
-const AvatarText = styled.div`
+export const AvatarText = styled.div`
   overflow: hidden;
   height: 40px;
   width: 100%;

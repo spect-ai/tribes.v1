@@ -9,14 +9,16 @@ import {
   Typography,
   Avatar,
   Grid,
+  ThemeProvider,
+  createTheme,
 } from "@mui/material";
 import Link from "next/link";
 import {
   StyledTab,
   StyledTabs,
 } from "../app/components/elements/styledComponents";
-import { useEffect, useState } from "react";
-import { getPublicTeams } from "../app/adapters/moralis";
+import { createContext, useContext, useEffect, useState } from "react";
+import { getMyTeams, getPublicTeams } from "../app/adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { Team } from "../app/types";
 import {
@@ -27,32 +29,49 @@ import {
 import { tribesLogo } from "../app/constants";
 import Head from "next/head";
 import Navbar from "../app/components/modules/navbar";
+import ExploreTemplate from "../app/components/templates/explore";
+import { getTheme } from "../app/constants/muiTheme";
+import { PageContainer } from "./tribe/[id]/space/[bid]";
+import ExploreSidebar from "../app/components/modules/exploreSidebar";
 
-type Props = {
-  image: string;
-  title: string;
-  members: number;
-  teamId: string;
-};
+interface ExploreContextType {
+  publicTribes: Team[];
+  setPublicTribes: (publicTribes: Team[]) => void;
+  myTribes: Team[];
+  setMyTribes: (myTribes: Team[]) => void;
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+  tab: number;
+  setTab: (tab: number) => void;
+}
+
+export const ExploreContext = createContext<ExploreContextType>(
+  {} as ExploreContextType
+);
 
 const Home: NextPage = () => {
-  const [tab, setTab] = useState(0);
-  const [tribes, setTribes] = useState<Team[]>([] as Team[]);
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTab(newValue);
+  const { Moralis, isInitialized, isAuthenticated } = useMoralis();
+  const context = useProviderExplore();
+  const { setMyTribes, setLoading, setPublicTribes } = context;
+  const initializeExplore = async () => {
+    setLoading(true);
+    try {
+      const publicTeams = await getPublicTeams(Moralis);
+      const myTeams = await getMyTeams(Moralis);
+      setPublicTribes(publicTeams);
+      setMyTribes(myTeams);
+      setLoading(false);
+    } catch (e) {
+      console.log(e);
+      setLoading(false);
+    }
   };
-  const { dispatch } = useGlobal();
-  const { Moralis, isInitialized } = useMoralis();
+
   useEffect(() => {
     if (isInitialized) {
-      setNavbarLogo(dispatch, tribesLogo);
-      setNavbarTitle(dispatch, "");
-      getPublicTeams(Moralis).then((res: any) => {
-        setTribes(res);
-        console.log(res);
-      });
+      initializeExplore();
     }
-  }, [isInitialized]);
+  }, [isInitialized, isAuthenticated]);
   return (
     <>
       <Head>
@@ -60,102 +79,36 @@ const Home: NextPage = () => {
         <meta name="description" content="Manage DAO with ease" />
         <link rel="icon" href="/logo2.svg" />
       </Head>
-      <Navbar />
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-        }}
-      >
-        <StyledTabs value={tab} onChange={handleTabChange} centered>
-          <StyledTab label="Explore Tribes" />
-          {/* <StyledTab label="Explore Gigs (coming soon)" disabled /> */}
-        </StyledTabs>
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "start",
-            paddingLeft: 2,
-            paddingRight: 2,
-            mt: 4,
-          }}
-        >
-          <Grid container spacing={2} columns={15}>
-            {tribes.map((tribe: Team, index: number) => (
-              <Grid item xs={3} key={index}>
-                <DAOCards
-                  image={tribe.logo}
-                  title={tribe.name}
-                  members={tribe.members.length}
-                  teamId={tribe.teamId}
-                />
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-      </Box>
+      <ThemeProvider theme={createTheme(getTheme(0))}>
+        <PageContainer theme={createTheme(getTheme(0))}>
+          <ExploreContext.Provider value={context}>
+            <ExploreSidebar />
+            <ExploreTemplate />
+          </ExploreContext.Provider>
+        </PageContainer>
+      </ThemeProvider>
     </>
   );
 };
 
-const TribeAvatar = styled(Avatar)(({ theme }) => ({
-  height: 70,
-  width: 70,
-  objectFit: "cover",
-}));
+function useProviderExplore() {
+  const [publicTribes, setPublicTribes] = useState<Team[]>([] as Team[]);
+  const [myTribes, setMyTribes] = useState<Team[]>([] as Team[]);
+  const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState(0);
 
-const DAOCards = ({ image, title, members, teamId }: Props) => {
-  return (
-    <Card
-      sx={{
-        padding: 3,
-        backgroundColor: "inherit",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        borderRadius: 4,
-        border: "1px solid #5a6972",
-        margin: "0px 8px",
-      }}
-    >
-      <TribeAvatar alt="Remy Sharp" src={image} />
-      <CardContent>
-        <Typography
-          gutterBottom
-          variant="h6"
-          component="div"
-          sx={{ textAlign: "center", maxHeight: "4rem", overflow: "hidden" }}
-        >
-          {title}
-        </Typography>
-        <Typography
-          gutterBottom
-          component="div"
-          sx={{ textAlign: "center", color: "#5a6972", fontSize: 12 }}
-        >
-          {members} members
-        </Typography>
-      </CardContent>
-      <CardActions sx={{ p: 0 }}>
-        <Link href={`/tribe/${teamId}`} passHref>
-          <Button
-            variant="outlined"
-            sx={{
-              borderRadius: 4,
-              borderColor: "#5a6972",
-              color: "#5a6972",
-              width: 100,
-              textTransform: "none",
-            }}
-          >
-            View
-          </Button>
-        </Link>
-      </CardActions>
-    </Card>
-  );
-};
+  return {
+    publicTribes,
+    setPublicTribes,
+    myTribes,
+    setMyTribes,
+    loading,
+    setLoading,
+    tab,
+    setTab,
+  };
+}
+
+export const useExplore = () => useContext(ExploreContext);
 
 export default Home;

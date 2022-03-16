@@ -10,11 +10,10 @@ import { ButtonText } from "../spaceSidebar";
 type Props = {
   open: boolean;
   anchorEl: HTMLButtonElement | null;
-  handleClose: (field: string) => void;
-  type: string;
+  handleClose: () => void;
 };
 
-const ProfilePopover = ({ open, anchorEl, handleClose, type }: Props) => {
+const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
   const { palette } = useTheme();
   const { logout } = useMoralis();
   const router = useRouter();
@@ -35,8 +34,12 @@ const ProfilePopover = ({ open, anchorEl, handleClose, type }: Props) => {
           color="inherit"
           onClick={() => {
             logout();
-            router.push(`/tribe/${id}`);
-            handleClose(type);
+            if (id) {
+              router.push(`/tribe/${id}`);
+            } else {
+              router.push("/");
+            }
+            handleClose();
           }}
         >
           <LogoutIcon />
