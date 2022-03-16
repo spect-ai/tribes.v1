@@ -68,6 +68,29 @@ async function getUserCount() {
   return await userQuery.count({ useMasterKey: true });
 }
 
+function getAllAssociatedUsersIds(board, tasks, epochs) {
+  const boardMembers = board.members;
+  var taskMembers = [];
+  for (var task of tasks) {
+    taskMembers = taskMembers.concat(task.assignee).concat(task.reviewer);
+    taskMembers.push(task.creator);
+  }
+
+  var epochMembers = [];
+  for (var epoch of epochs) {
+    epochMembers = epochMembers.concat(Object.keys(epoch.memberStats));
+    if (epoch.type === "Member") {
+      epochMembers = epochMembers.concat(epoch.choices);
+    }
+  }
+  var uniqueUserIds = boardMembers
+    .concat(taskMembers)
+    .concat(epochMembers)
+    .filter(onlyUnique);
+
+  return uniqueUserIds;
+}
+
 Moralis.Cloud.define("getUserCount", async (request) => {
   return await getUserCount();
 });

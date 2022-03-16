@@ -33,3 +33,7 @@ async function isValidToken(tokenAddress, chainId) {
   const token = await addressQuery.first();
   return token ? true : false;
 }
+
+function onlyUnique(value, index, self) {
+  return self.indexOf(value) === index;
+}

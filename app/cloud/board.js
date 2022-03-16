@@ -20,10 +20,6 @@ async function getBoardObjByObjectId(objectId, callerId) {
 
   var board = await boardQuery.aggregate(pipeline);
   if (board.length === 0) throw "Board doesnt exist";
-  var memberDetails = await getUserIdToUserDetailsMapByUserIds(
-    board[0].members
-  );
-  board[0].memberDetails = memberDetails;
   if (callerId) board[0].access = getSpaceAccess(callerId, board[0]);
   return board;
 }
@@ -47,6 +43,47 @@ async function getBoardObjByTeamId(teamId) {
   const boardQuery = new Moralis.Query("Board");
   const pipeline = [{ match: { teamId: teamId } }];
   return await boardQuery.aggregate(pipeline);
+}
+
+async function getEssentialBoardObjByTeamId(teamId) {
+  const boardQuery = new Moralis.Query("Board");
+  const pipeline = [
+    { match: { teamId: teamId } },
+    {
+      project: {
+        name: 1,
+        objectId: 1,
+        private: 1,
+        members: 1,
+      },
+    },
+  ];
+  return await boardQuery.aggregate(pipeline);
+}
+
+async function getSpace(boardId, callerId) {
+  try {
+    const boardObj = await getBoardObjWithTasksByObjectId(boardId, callerId);
+    logger.info(`boardobj ${JSON.stringify(boardObj)}`);
+
+    if (boardObj.length === 0) throw "Board not found";
+    const canReadSpace = canRead(boardObj[0], callerId);
+    if (!canReadSpace) throw "You dont have access to view this space";
+
+    const epochs = await getEpochsBySpaceId(boardObj[0].objectId, callerId);
+    var userIds = getAllAssociatedUsersIds(
+      boardObj[0],
+      Object.values(boardObj[0].tasks),
+      epochs
+    );
+    boardObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
+      userIds
+    );
+    return boardObj[0];
+  } catch (err) {
+    logger.error(`Error while getting board - ${err}`);
+    throw err;
+  }
 }
 
 function joinSpaceAsMember(space, userId) {
@@ -73,35 +110,21 @@ function getBoardObjFromBoardParseObj(board) {
 }
 
 Moralis.Cloud.define("getBoard", async (request) => {
-  try {
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId,
-      request.user?.id
-    );
-    logger.info(`boardobj ${JSON.stringify(boardObj)}`);
-
-    if (boardObj.length === 0) throw "Board not found";
-    const canReadSpace = canRead(boardObj[0], request.user?.id);
-    if (!canReadSpace) throw "You dont have access to view this space";
-    boardObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
-      boardObj[0].members
-    );
-    return boardObj[0];
-  } catch (err) {
-    logger.error(`Error while getting board - ${err}`);
-    throw err;
-  }
+  return await getSpace(request.params.boardId, request.user?.id);
 });
 
-Moralis.Cloud.define("getBoards", async (request) => {
+Moralis.Cloud.define("getEssentialBoardsInfo", async (request) => {
   try {
-    const spaces = await getBoardObjByTeamId(request.params.teamId);
+    const spaces = await getEssentialBoardObjByTeamId(request.params.teamId);
     var resSpaces = [];
-    for (var space in spaces) {
+    logger.info(`spaces ${JSON.stringify(spaces)}`);
+    for (var space of spaces) {
       if (canRead(space, request.user?.id)) {
         resSpaces.push(space);
       }
     }
+    logger.info(`resSpaces ${JSON.stringify(resSpaces)}`);
+
     return resSpaces;
   } catch (err) {
     logger.error(`Error while getting boards - ${err}`);
@@ -179,12 +202,7 @@ Moralis.Cloud.define("updateColumnName", async (request) => {
     board.set("columns", columns);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
     logger.info("save completed --------------------");
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId,
-      request.user.id
-    );
-    logger.info(`Updated column name ${JSON.stringify(boardObj)}`);
-    return boardObj[0];
+    return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
     logger.error(
       `Error while updating column name in board ${request.params.boardId}: ${err}`
@@ -207,11 +225,7 @@ Moralis.Cloud.define("updateColumnTasks", async (request) => {
     board.set("columns", columns);
     logger.info(`Updating column tasks ${JSON.stringify(columns)}`);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId,
-      request.user.id
-    );
-    return boardObj[0];
+    return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
     logger.error(
       `Error while updating column tasks in board ${request.params.boardId}: ${err}`
@@ -225,11 +239,7 @@ Moralis.Cloud.define("updateColumnOrder", async (request) => {
     const board = await getBoardByObjectId(request.params.boardId);
     board.set("columnOrder", request.params.newColumnOrder);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId,
-      request.user.id
-    );
-    return boardObj[0];
+    return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
     logger.error(
       `Error while updating column order in board ${request.params.boardId}: ${err}`
@@ -252,11 +262,7 @@ Moralis.Cloud.define("addColumn", async (request) => {
     board.set("columnOrder", newColumnOrder);
     board.set("columns", columns);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId,
-      request.user.id
-    );
-    return boardObj[0];
+    return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
     logger.error(
       `Error while adding column in board ${request.params.boardId}: ${err}`
@@ -276,11 +282,7 @@ Moralis.Cloud.define("removeColumn", async (request) => {
     board.set("columnOrder", columnOrder);
     board.set("columns", columns);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId,
-      request.user.id
-    );
-    return boardObj[0];
+    return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
     logger.error(
       `Error while removing column in board ${request.params.boardId}: ${err}`
@@ -297,11 +299,7 @@ Moralis.Cloud.define("updateBoard", async (request) => {
     board.set("defaultPayment", request.params.defaultPayment);
     board.set("tokenGating", request.params.tokenGating);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId,
-      request.user.id
-    );
-    return boardObj[0];
+    return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
     logger.error(
       `Error while updating board ${request.params.boardId}: ${err}`
@@ -332,11 +330,7 @@ Moralis.Cloud.define("updateBoardMembers", async (request) => {
     board.set("members", request.params.members);
     board.set("roles", request.params.roles);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    const boardObj = await getBoardObjWithTasksByObjectId(
-      request.params.boardId,
-      request.user.id
-    );
-    return boardObj[0];
+    return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
     logger.error(
       `Error while updating board members on board id ${request.params.boardId}: ${err}`
@@ -384,11 +378,7 @@ Moralis.Cloud.define("joinSpace", async (request) => {
       }
       board = joinSpaceAsMember(board, request.user.id);
       await Moralis.Object.saveAll([tribe, board], { useMasterKey: true });
-      const boardObj = await getBoardObjWithTasksByObjectId(
-        request.params.boardId,
-        request.user.id
-      );
-      return boardObj[0];
+      return await getSpace(request.params.boardId, request.user.id);
     } else {
       throw "Not enough balance to join this space";
     }

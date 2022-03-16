@@ -306,12 +306,7 @@ Moralis.Cloud.define("moveCardsAfterEpoch", async (request) => {
         }
       }
     }
-    const board = await getBoardObjWithTasksByObjectId(
-      epoch.get("spaceId"),
-      request.user.id
-    );
-    logger.info(`hahaha`);
-    return board[0];
+    return await getSpace(epoch.get("spaceId"), request.user.id);
   } catch (err) {
     logger.error(
       `Error while moving cards after epoch ${request.params.epochId}: ${err}`

@@ -5,7 +5,6 @@ import CreateBoard from "./createBoard";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
-import { getBoards } from "../../../adapters/moralis";
 import { BoardData } from "../../../types";
 
 type Props = {};

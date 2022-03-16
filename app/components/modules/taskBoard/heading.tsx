@@ -20,7 +20,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 import Link from "next/link";
-import { getBoards, joinSpace } from "../../../adapters/moralis";
+import { getEssentialBoardsInfo, joinSpace } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import Payment from "../payment/batchPayIcon";
 import {
@@ -60,8 +60,11 @@ const Heading = (props: Props) => {
 
   useEffect(() => {
     if (isInitialized) {
-      getBoards(Moralis, id)
+      getEssentialBoardsInfo(Moralis, id)
         .then((res: any) => {
+          console.log(`res`);
+
+          console.log(res);
           setBoards(res);
         })
         .catch((err: any) =>

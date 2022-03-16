@@ -50,11 +50,11 @@ export function initBoard(
   return Moralis.Cloud.run("initBoard", params);
 }
 
-export function getBoards(Moralis: any, teamId: string) {
+export function getEssentialBoardsInfo(Moralis: any, teamId: string) {
   const params = {
     teamId: teamId,
   };
-  return Moralis.Cloud.run("getBoards", params);
+  return Moralis.Cloud.run("getEssentialBoardsInfo", params);
 }
 
 export function getBoard(Moralis: any, boardId: string) {
