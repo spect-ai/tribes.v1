@@ -68,6 +68,13 @@ async function isWhitelisted(ethAddress) {
   return whitelist.length !== 0;
 }
 
+async function isWhitelisted(ethAddress) {
+  const whitelistQuery = new Moralis.Query("Whitelist");
+  whitelistQuery.equalTo("ethAddress", ethAddress);
+  const whitelist = await whitelistQuery.find({ useMasterKey: true });
+  return whitelist.length !== 0;
+}
+
 function joinTribeAsMember(tribe, userId) {
   const members = tribe.get("members");
   const roles = tribe.get("roles");
