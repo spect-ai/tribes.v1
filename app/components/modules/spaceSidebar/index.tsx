@@ -13,7 +13,7 @@ import { SidebarButton } from "../../elements/styledComponents";
 import NotificationIcon from "@mui/icons-material/Notifications";
 import PaletteIcon from "@mui/icons-material/Palette";
 import BallotIcon from "@mui/icons-material/Ballot";
-import ThemePopover, { OptionsButton } from "../themePopover";
+import ThemePopover from "../themePopover";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import BoardSettings from "../boardSettings";
 import ViewTribePopover from "../viewTribePopover";
