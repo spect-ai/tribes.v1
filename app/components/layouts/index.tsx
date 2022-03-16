@@ -38,13 +38,15 @@ const Main = styled.main`
 `;
 
 const Layout = ({ children }: Props) => {
-  const { Moralis } = useMoralis();
+  const { Moralis, isInitialized } = useMoralis();
   const { dispatch, state } = useGlobal();
 
   useEffect(() => {
-    initContracts(dispatch);
-    //initRegistry(dispatch, Moralis);
-  }, []);
+    if (isInitialized) {
+      initContracts(dispatch);
+      initRegistry(dispatch, Moralis);
+    }
+  }, [isInitialized]);
   return (
     <OuterDiv>
       <Sidebar />
