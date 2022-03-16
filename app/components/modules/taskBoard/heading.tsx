@@ -185,10 +185,12 @@ const Heading = (props: Props) => {
             </IconButton>
           </Tooltip>
         )}
-        <CreateEpochModal
-          isOpen={isEpochModalOpen}
-          setIsOpen={setIsEpochModalOpen}
-        />
+        {isEpochModalOpen && (
+          <CreateEpochModal
+            isOpen={isEpochModalOpen}
+            setIsOpen={setIsEpochModalOpen}
+          />
+        )}
       </Box>
       {/* <Typography sx={{ ml: 2, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
         {data.description}

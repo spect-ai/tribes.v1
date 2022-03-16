@@ -68,6 +68,9 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [passColumn, setPassColumn] = useState("");
   const [noPassColumn, setNoPassColumn] = useState("");
+  console.log(`data3232`);
+
+  console.log(data);
 
   const handleVotesGiven = (
     epochid: string,
@@ -120,7 +123,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
     setIsLoading(true);
     getEpochs(Moralis, bid)
       .then((res: any) => {
-        console.log(res);
         setData(
           Object.assign(data, {
             epochs: res.epochs,
@@ -149,283 +151,305 @@ const EpochList = ({ expanded, handleChange }: Props) => {
       <Accordion hidden>
         <AccordionSummary />
       </Accordion>
-      {data.epochs?.length === 0 ? (
-        <ZeroEpochs />
-      ) : (
-        data.epochs?.map((epoch, index) => (
-          <>
-            {" "}
-            {(Object.keys(epoch.memberStats).includes(user?.id as string) ||
-              data.roles[user?.id as string] === "admin") && (
-              <Accordion
-                disableGutters
-                key={index}
-                sx={{ border: "2px solid #00194A" }}
-              >
-                <AccordionSummary
-                  aria-controls="panel1d-content"
-                  id="panel1d-header"
-                  expandIcon={<ExpandMoreIcon />}
-                  sx={{ backgroundColor: "#00194A" }}
-                >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "100%",
-                    }}
+      {!isLoading && (
+        <>
+          {data.epochs?.length === 0 ? (
+            <ZeroEpochs />
+          ) : (
+            data.epochs?.map((epoch, index) => (
+              <>
+                {" "}
+                {(Object.keys(epoch.memberStats).includes(user?.id as string) ||
+                  data.roles[user?.id as string] === "admin") && (
+                  <Accordion
+                    disableGutters
+                    key={index}
+                    sx={{ border: "2px solid #00194A" }}
                   >
-                    <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                      {epoch.name}
-                    </Typography>
-                    <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                      Started on{" "}
-                      {
-                        monthMap[
-                          epoch.startTime.getMonth() as keyof typeof monthMap
-                        ]
-                      }{" "}
-                      {epoch.startTime.getDate()}
-                    </Typography>
-                    <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                      {epoch.type}
-                    </Typography>
-                    {epoch.active && <Chip label="Ongoing" color="primary" />}
-                    {epoch.paid && <Chip label="Paid" color="success" />}
-                  </Box>
-                </AccordionSummary>
-                <AccordionDetails sx={{ backgroundColor: "#000f29" }}>
-                  <Grid container>
-                    <Grid item xs={8}>
-                      {!isLoading &&
-                        epoch.strategy === "Quadratic voting" &&
-                        Object.keys(votesGiven).includes(epoch.objectId) && (
-                          <NumericVoting
-                            epochId={epoch.objectId}
-                            type={epoch.type}
-                            active={epoch.active}
-                            details={getDetails(epoch.choices, epoch.type)}
-                            choices={getChoices(epoch.choices, epoch.active)}
-                            votesGiven={votesGiven[epoch.objectId]}
-                            handleVotesGiven={handleVotesGiven}
-                            votesRemaining={votesRemaining[epoch.objectId]}
-                            handleVotesRemaining={handleVotesRemaining}
-                            values={epoch.values}
-                            tokenSymbol={epoch.token.symbol}
-                          />
+                    <AccordionSummary
+                      aria-controls="panel1d-content"
+                      id="panel1d-header"
+                      expandIcon={<ExpandMoreIcon />}
+                      sx={{ backgroundColor: "#00194A" }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          alignItems: "center",
+                          width: "100%",
+                        }}
+                      >
+                        <Typography sx={{ width: "30%", flexShrink: 0 }}>
+                          {epoch.name}
+                        </Typography>
+                        <Typography sx={{ width: "30%", flexShrink: 0 }}>
+                          Started on{" "}
+                          {
+                            monthMap[
+                              epoch.startTime.getMonth() as keyof typeof monthMap
+                            ]
+                          }{" "}
+                          {epoch.startTime.getDate()}
+                        </Typography>
+                        <Typography sx={{ width: "30%", flexShrink: 0 }}>
+                          {epoch.type}
+                        </Typography>
+                        {epoch.active && (
+                          <Chip label="Ongoing" color="primary" />
                         )}
-                      {!isLoading &&
-                        epoch.strategy === "Pass/No Pass" &&
-                        Object.keys(votesGiven).includes(epoch.objectId) && (
-                          <ForAgainstVoting
-                            epochId={epoch.objectId}
-                            type={epoch.type}
-                            active={epoch.active}
-                            details={getDetails(epoch.choices, epoch.type)}
-                            choices={getChoices(epoch.choices, epoch.active)}
-                            votesGiven={votesGiven[epoch.objectId]}
-                            handleVotesGiven={handleVotesGiven}
-                            votesAgainst={epoch.votesAgainst}
-                            votesFor={epoch.votesFor}
-                            isLoading={isLoading}
-                            canVote={Object.keys(epoch.memberStats).includes(
-                              user?.id as string
+                        {epoch.paid && <Chip label="Paid" color="success" />}
+                      </Box>
+                    </AccordionSummary>
+                    <AccordionDetails sx={{ backgroundColor: "#000f29" }}>
+                      <Grid container>
+                        <Grid item xs={8}>
+                          {!isLoading &&
+                            epoch.strategy === "Quadratic voting" &&
+                            Object.keys(votesGiven).includes(
+                              epoch.objectId
+                            ) && (
+                              <NumericVoting
+                                epochId={epoch.objectId}
+                                type={epoch.type}
+                                active={epoch.active}
+                                details={getDetails(epoch.choices, epoch.type)}
+                                choices={getChoices(
+                                  epoch.choices,
+                                  epoch.active
+                                )}
+                                votesGiven={votesGiven[epoch.objectId]}
+                                handleVotesGiven={handleVotesGiven}
+                                votesRemaining={votesRemaining[epoch.objectId]}
+                                handleVotesRemaining={handleVotesRemaining}
+                                values={epoch.values}
+                                tokenSymbol={epoch.token.symbol}
+                              />
                             )}
-                          />
-                        )}
-                    </Grid>
-                    <Grid item xs={4}>
-                      <DetailContainer>
-                        {epoch.active && epoch.type === "Member" && (
-                          <InfoContainer>
-                            <Typography
-                              sx={{
-                                color: "#99ccff",
-                                textAlign: "right",
-                                fontSize: 14,
-                              }}
-                            >
-                              Votes remaining
-                            </Typography>
-                            <Typography sx={{ textAlign: "right" }}>
-                              {votesRemaining[epoch.objectId]}
-                            </Typography>
-                          </InfoContainer>
-                        )}
-                        {epoch.budget && epoch.budget > 0 && (
-                          <InfoContainer>
-                            <Typography
-                              sx={{
-                                color: "#99ccff",
-                                textAlign: "right",
-                                fontSize: 14,
-                              }}
-                            >
-                              Total Budget
-                            </Typography>
-                            <Typography sx={{ textAlign: "right" }}>
-                              {epoch.budget} {epoch.token.symbol}
-                            </Typography>
-                          </InfoContainer>
-                        )}
-                        {epoch.active ? (
-                          <>
-                            <ButtonContainer>
-                              {Object.keys(epoch.memberStats).includes(
-                                user?.id as string
-                              ) && (
-                                <PrimaryButton
-                                  endIcon={<SaveIcon />}
-                                  loading={isLoading}
-                                  variant="outlined"
-                                  disabled={votesRemaining[epoch.objectId] < 0}
-                                  sx={{ mx: 4, borderRadius: 1 }}
-                                  size="small"
-                                  onClick={() => {
-                                    setIsLoading(true);
-                                    saveVotes(
-                                      Moralis,
-                                      epoch.objectId,
-                                      votesGiven[epoch.objectId]
-                                    )
-                                      .then((res: any) => {
-                                        setIsLoading(false);
-                                        notify("Votes saved!");
-                                      })
-                                      .catch((err: any) => alert(err));
-                                  }}
-                                >
-                                  Save
-                                </PrimaryButton>
-                              )}
-                              {data.roles[user?.id as string] === "admin" && (
-                                <PrimaryButton
-                                  endIcon={<CloseIcon />}
-                                  variant="outlined"
-                                  size="small"
-                                  sx={{ borderRadius: 1 }}
-                                  loading={isLoading}
-                                  onClick={() => {
-                                    setIsLoading(true);
-                                    endEpoch(Moralis, epoch.objectId)
-                                      .then((res: any) => {
-                                        handleEpochUpdateAfterSave(index, res);
-                                        setIsLoading(false);
-                                        notify("Epoch Ended!");
-                                      })
-                                      .catch((err: any) => {
-                                        notifyError(
-                                          `Sorry! There was an error while ending the epoch.`
-                                        );
-                                        setIsLoading(false);
-                                      });
-                                  }}
-                                >
-                                  End Epoch
-                                </PrimaryButton>
-                              )}
-                              {/* )} */}
-                            </ButtonContainer>{" "}
-                          </>
-                        ) : (
-                          <ButtonContainer>
-                            {epoch.type === "Member" ? (
-                              <PayoutButton epoch={epoch} />
-                            ) : (
-                              <Box sx={{ alignItems: "center" }}>
-                                <Typography variant="body2">
-                                  Move cards that passed to
-                                </Typography>
-                                <Autocomplete
-                                  options={data.columnOrder}
-                                  getOptionLabel={(option) =>
-                                    option && data.columns[option].title
-                                  }
-                                  value={passColumn}
-                                  onChange={(event, newValue) => {
-                                    setPassColumn(newValue as string);
-                                  }}
-                                  renderInput={(params) => (
-                                    <TextField
-                                      {...params}
-                                      id="filled-hidden-label-normal"
-                                      placeholder="Column"
-                                      size="small"
-                                      margin="dense"
-                                    />
-                                  )}
-                                />
-                                <Typography variant="body2">
-                                  {`Move cards that didn't pass to`}
-                                </Typography>
-                                <Autocomplete
-                                  options={data.columnOrder}
-                                  getOptionLabel={(option) =>
-                                    option && data.columns[option].title
-                                  }
-                                  value={noPassColumn}
-                                  onChange={(event, newValue) => {
-                                    setNoPassColumn(newValue as string);
-                                  }}
-                                  renderInput={(params) => (
-                                    <TextField
-                                      {...params}
-                                      id="filled-hidden-label-normal"
-                                      placeholder="Column"
-                                      size="small"
-                                      margin="dense"
-                                    />
-                                  )}
-                                />
-                                <PrimaryButton
-                                  endIcon={<PaidIcon />}
-                                  variant="outlined"
+                          {!isLoading &&
+                            epoch.strategy === "Pass/No Pass" &&
+                            Object.keys(votesGiven).includes(
+                              epoch.objectId
+                            ) && (
+                              <ForAgainstVoting
+                                epochId={epoch.objectId}
+                                type={epoch.type}
+                                active={epoch.active}
+                                details={getDetails(epoch.choices, epoch.type)}
+                                choices={getChoices(
+                                  epoch.choices,
+                                  epoch.active
+                                )}
+                                votesGiven={votesGiven[epoch.objectId]}
+                                handleVotesGiven={handleVotesGiven}
+                                votesAgainst={epoch.votesAgainst}
+                                votesFor={epoch.votesFor}
+                                isLoading={isLoading}
+                                canVote={Object.keys(
+                                  epoch.memberStats
+                                ).includes(user?.id as string)}
+                              />
+                            )}
+                        </Grid>
+                        <Grid item xs={4}>
+                          <DetailContainer>
+                            {epoch.active && epoch.type === "Member" && (
+                              <InfoContainer>
+                                <Typography
                                   sx={{
-                                    mx: 4,
-                                    mt: 4,
-                                    ml: 8,
-                                    borderRadius: 1,
-                                  }}
-                                  size="small"
-                                  onClick={() => {
-                                    setIsLoading(true);
-                                    moveCards(
-                                      Moralis,
-                                      epoch.objectId,
-                                      passColumn,
-                                      noPassColumn
-                                    )
-                                      .then((res: any) => {
-                                        setData(res);
-                                        handleTabChange({} as any, 0);
-                                        setIsLoading(false);
-                                      })
-                                      .catch((err: any) => {
-                                        notifyError(
-                                          "Sorry! There was an error while moving cards."
-                                        );
-                                        setIsLoading(false);
-                                      });
+                                    color: "#99ccff",
+                                    textAlign: "right",
+                                    fontSize: 14,
                                   }}
                                 >
-                                  Move cards
-                                </PrimaryButton>
-                              </Box>
+                                  Votes remaining
+                                </Typography>
+                                <Typography sx={{ textAlign: "right" }}>
+                                  {votesRemaining[epoch.objectId]}
+                                </Typography>
+                              </InfoContainer>
                             )}
-                            {epoch.type === "Member" && (
-                              <CsvExport epoch={epoch} />
+                            {epoch.budget && epoch.budget > 0 && (
+                              <InfoContainer>
+                                <Typography
+                                  sx={{
+                                    color: "#99ccff",
+                                    textAlign: "right",
+                                    fontSize: 14,
+                                  }}
+                                >
+                                  Total Budget
+                                </Typography>
+                                <Typography sx={{ textAlign: "right" }}>
+                                  {epoch.budget} {epoch.token.symbol}
+                                </Typography>
+                              </InfoContainer>
                             )}
-                          </ButtonContainer>
-                        )}
-                      </DetailContainer>
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
-            )}{" "}
-          </>
-        ))
+                            {epoch.active ? (
+                              <>
+                                <ButtonContainer>
+                                  {Object.keys(epoch.memberStats).includes(
+                                    user?.id as string
+                                  ) && (
+                                    <PrimaryButton
+                                      endIcon={<SaveIcon />}
+                                      loading={isLoading}
+                                      variant="outlined"
+                                      disabled={
+                                        votesRemaining[epoch.objectId] < 0
+                                      }
+                                      sx={{ mx: 4, borderRadius: 1 }}
+                                      size="small"
+                                      onClick={() => {
+                                        setIsLoading(true);
+                                        saveVotes(
+                                          Moralis,
+                                          epoch.objectId,
+                                          votesGiven[epoch.objectId]
+                                        )
+                                          .then((res: any) => {
+                                            setIsLoading(false);
+                                            notify("Votes saved!");
+                                          })
+                                          .catch((err: any) => alert(err));
+                                      }}
+                                    >
+                                      Save
+                                    </PrimaryButton>
+                                  )}
+                                  {data.roles[user?.id as string] ===
+                                    "admin" && (
+                                    <PrimaryButton
+                                      endIcon={<CloseIcon />}
+                                      variant="outlined"
+                                      size="small"
+                                      sx={{ borderRadius: 1 }}
+                                      loading={isLoading}
+                                      onClick={() => {
+                                        setIsLoading(true);
+                                        endEpoch(Moralis, epoch.objectId)
+                                          .then((res: any) => {
+                                            handleEpochUpdateAfterSave(
+                                              index,
+                                              res
+                                            );
+                                            setIsLoading(false);
+                                            notify("Epoch Ended!");
+                                          })
+                                          .catch((err: any) => {
+                                            notifyError(
+                                              `Sorry! There was an error while ending the epoch.`
+                                            );
+                                            setIsLoading(false);
+                                          });
+                                      }}
+                                    >
+                                      End Epoch
+                                    </PrimaryButton>
+                                  )}
+                                  {/* )} */}
+                                </ButtonContainer>{" "}
+                              </>
+                            ) : (
+                              <ButtonContainer>
+                                {epoch.type === "Member" ? (
+                                  <PayoutButton epoch={epoch} />
+                                ) : (
+                                  <Box sx={{ alignItems: "center" }}>
+                                    <Typography variant="body2">
+                                      Move cards that passed to
+                                    </Typography>
+                                    <Autocomplete
+                                      options={data.columnOrder}
+                                      getOptionLabel={(option) =>
+                                        option && data.columns[option].title
+                                      }
+                                      value={passColumn}
+                                      onChange={(event, newValue) => {
+                                        setPassColumn(newValue as string);
+                                      }}
+                                      renderInput={(params) => (
+                                        <TextField
+                                          {...params}
+                                          id="filled-hidden-label-normal"
+                                          placeholder="Column"
+                                          size="small"
+                                          margin="dense"
+                                        />
+                                      )}
+                                    />
+                                    <Typography variant="body2">
+                                      {`Move cards that didn't pass to`}
+                                    </Typography>
+                                    <Autocomplete
+                                      options={data.columnOrder}
+                                      getOptionLabel={(option) =>
+                                        option && data.columns[option].title
+                                      }
+                                      value={noPassColumn}
+                                      onChange={(event, newValue) => {
+                                        setNoPassColumn(newValue as string);
+                                      }}
+                                      renderInput={(params) => (
+                                        <TextField
+                                          {...params}
+                                          id="filled-hidden-label-normal"
+                                          placeholder="Column"
+                                          size="small"
+                                          margin="dense"
+                                        />
+                                      )}
+                                    />
+                                    <PrimaryButton
+                                      endIcon={<PaidIcon />}
+                                      variant="outlined"
+                                      sx={{
+                                        mx: 4,
+                                        mt: 4,
+                                        ml: 8,
+                                        borderRadius: 1,
+                                      }}
+                                      size="small"
+                                      onClick={() => {
+                                        setIsLoading(true);
+                                        moveCards(
+                                          Moralis,
+                                          epoch.objectId,
+                                          passColumn,
+                                          noPassColumn
+                                        )
+                                          .then((res: any) => {
+                                            setData(res);
+                                            handleTabChange({} as any, 0);
+                                            setIsLoading(false);
+                                          })
+                                          .catch((err: any) => {
+                                            notifyError(
+                                              "Sorry! There was an error while moving cards."
+                                            );
+                                            setIsLoading(false);
+                                          });
+                                      }}
+                                    >
+                                      Move cards
+                                    </PrimaryButton>
+                                  </Box>
+                                )}
+                                {epoch.type === "Member" && (
+                                  <CsvExport epoch={epoch} />
+                                )}
+                              </ButtonContainer>
+                            )}
+                          </DetailContainer>
+                        </Grid>
+                      </Grid>
+                    </AccordionDetails>
+                  </Accordion>
+                )}{" "}
+              </>
+            ))
+          )}
+        </>
       )}
     </Container>
   );

@@ -87,10 +87,14 @@ const TaskBoard = (props: Props) => {
             <Grow in={tab === 1} timeout={500}>
               <div>
                 {user && user?.id in context.data.roles ? (
-                  <EpochList
-                    expanded={panelExpanded === "epoch"}
-                    handleChange={handleChange}
-                  />
+                  !context.data.creatingEpoch && (
+                    <>
+                      <EpochList
+                        expanded={panelExpanded === "epoch"}
+                        handleChange={handleChange}
+                      />
+                    </>
+                  )
                 ) : (
                   <NoAccess />
                 )}

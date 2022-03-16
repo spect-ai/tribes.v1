@@ -60,6 +60,13 @@ async function getTribeObjByTeamId(teamId) {
   return await teamQuery.aggregate(pipeline);
 }
 
+async function isWhitelisted(ethAddress) {
+  const whitelistQuery = new Moralis.Query("Whitelist");
+  whitelistQuery.equalTo("ethAddress", ethAddress);
+  const whitelist = await whitelistQuery.find({ useMasterKey: true });
+  return whitelist.length !== 0;
+}
+
 function joinTribeAsMember(tribe, userId) {
   const members = tribe.get("members");
   const roles = tribe.get("roles");
@@ -125,10 +132,8 @@ Moralis.Cloud.define("getMyTeams", async (request) => {
 Moralis.Cloud.define("createTeam", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
-    var whitelistQuery = new Moralis.Query("Whitelist");
-    whitelistQuery.equalTo("ethAddress", request.user.ethAddress);
-    const whitelist = await whitelistQuery.first({ useMasterKey: true });
-    if (!whitelist)
+    const whitelisted = await isWhitelisted(request.user.get("ethAddress"));
+    if (!whitelisted)
       throw {
         code: 101,
         message: "Please fill out the waitlist to create tribe",
