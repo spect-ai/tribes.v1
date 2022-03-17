@@ -6,7 +6,7 @@ import { updateTaskSubmission } from "../../../adapters/moralis";
 import { BoardData, Task } from "../../../types";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { PopoverContainer } from "./datePopover";
-import { notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
@@ -63,8 +63,9 @@ const SubmissionPopover = ({ open, anchorEl, handleClose, task }: Props) => {
                 handleClose("submission");
               })
               .catch((err: any) => {
-                notifyError(
-                  "Sorry! There was an error while submitting to task."
+                notify(
+                  "Sorry! There was an error while submitting to task.",
+                  "error"
                 );
               });
           }}

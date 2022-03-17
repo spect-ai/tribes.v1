@@ -4,7 +4,7 @@ import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { getTask } from "../../../adapters/moralis";
 import { Column, Task } from "../../../types";
-import { notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
 import EditTask from "./editTask";
 import SkeletonLoader from "./skeletonLoader";
 
@@ -31,7 +31,7 @@ const TaskModal = ({ isOpen, handleClose, taskId, column }: Props) => {
       })
       .catch((err: any) => {
         console.log(err);
-        notifyError(`Sorry! There was an error while getting task`);
+        notify(`Sorry! There was an error while getting task`, "error");
       });
   }, [space]);
 

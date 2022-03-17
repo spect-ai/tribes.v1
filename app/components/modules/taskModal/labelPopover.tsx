@@ -10,8 +10,8 @@ import {
   PrimaryButton,
 } from "../../elements/styledComponents";
 import { PopoverContainer } from "./datePopover";
-import { notifyError } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { notify } from "../settingsTab";
 
 type Props = {
   open: boolean;
@@ -68,8 +68,9 @@ const LabelPopover = ({ open, anchorEl, handleClose, task }: Props) => {
                 handleClose("label");
               })
               .catch((err: any) => {
-                notifyError(
-                  "Sorry! There was an error while updating task labels."
+                notify(
+                  "Sorry! There was an error while updating task labels.",
+                  "error"
                 );
               });
           }}

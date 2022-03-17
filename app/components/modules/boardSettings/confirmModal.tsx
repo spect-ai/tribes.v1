@@ -14,8 +14,8 @@ import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { deleteBoard } from "../../../adapters/moralis";
-import { notifyError } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { notify } from "../settingsTab";
 
 type Props = {
   isOpen: boolean;
@@ -60,8 +60,9 @@ const ConfirmModal = ({ isOpen, handleClose }: Props) => {
                         setIsLoading(false);
                       })
                       .catch((err: any) => {
-                        notifyError(
-                          `Sorry! There was an error while deleting board.`
+                        notify(
+                          `Sorry! There was an error while deleting board.`,
+                          "error"
                         );
                         setIsLoading(false);
                       });

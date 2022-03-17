@@ -1,4 +1,4 @@
-import { Button, InputBase } from "@mui/material";
+import { Button, InputBase, useTheme } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState } from "react";
 import { BoardData } from "../../../types";
@@ -26,8 +26,9 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
   const router = useRouter();
   const { bid } = router.query;
   const octokit = new Octokit();
+  const { palette } = useTheme();
   return (
-    <CreateTaskContainer>
+    <CreateTaskContainer palette={palette}>
       <InputBase
         placeholder="Issue Link"
         sx={{

@@ -27,7 +27,7 @@ import {
 } from "../../elements/styledComponents";
 import CreateEpochModal from "../epoch/createEpochModal";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
-import { notify, notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
@@ -60,13 +60,10 @@ const Heading = (props: Props) => {
     if (isInitialized) {
       getEssentialBoardsInfo(Moralis, id)
         .then((res: any) => {
-          console.log(`res`);
-
-          console.log(res);
           setBoards(res);
         })
         .catch((err: any) =>
-          notifyError("Sorry! There was an error while getting your space")
+          notify("Sorry! There was an error while getting your space", "error")
         );
     }
   }, [isInitialized, space.name]);

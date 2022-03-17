@@ -46,7 +46,7 @@ import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
 import HailIcon from "@mui/icons-material/Hail";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PublishIcon from "@mui/icons-material/Publish";
-import { notify, notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
@@ -93,8 +93,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
         setSpace(res);
       })
       .catch((err: any) => {
-        notifyError(
-          "Sorry! There was an error while updating task status to paid. However, the payment has gone through."
+        notify(
+          "Sorry! There was an error while updating task status to paid. However, the payment has gone through.",
+          "error"
         );
         setIsLoading(false);
       });
@@ -125,8 +126,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                   setSpace(res);
                 })
                 .catch((err: any) => {
-                  notifyError(
-                    "Sorry! There was an error while updating task title."
+                  notify(
+                    "Sorry! There was an error while updating task title.",
+                    "error"
                   );
                 });
             }
@@ -545,8 +547,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                           setSpace(res);
                         })
                         .catch((err: any) => {
-                          notifyError(
-                            "Sorry! There was an error while assigning task."
+                          notify(
+                            "Sorry! There was an error while assigning task.",
+                            "error"
                           );
                         });
                     }}
@@ -567,8 +570,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                           handleClose();
                         })
                         .catch((err: any) => {
-                          notifyError(
-                            "Sorry! There was an error while archiving task."
+                          notify(
+                            "Sorry! There was an error while archiving task.",
+                            "error"
                           );
                         });
                     }}

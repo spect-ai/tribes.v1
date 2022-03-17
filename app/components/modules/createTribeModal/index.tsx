@@ -15,10 +15,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
 import { createTribe } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
-import { notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { SidebarButton } from "../exploreSidebar";
+import { notify } from "../settingsTab";
 
 type Props = {};
 
@@ -46,7 +46,7 @@ const CreateTribeModal = (props: Props) => {
       .catch((err: any) => {
         setIsLoading(false);
         handleClose();
-        notifyError(err.message);
+        notify(err.message, "error");
       });
   };
 

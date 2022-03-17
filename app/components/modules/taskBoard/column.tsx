@@ -21,8 +21,8 @@ import { useMoralis } from "react-moralis";
 import { updateColumnName } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
 import { BoardData, Column, Task } from "../../../types";
-import { notifyError } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { notify } from "../settingsTab";
 
 type Props = {
   tasks: Task[];
@@ -59,7 +59,10 @@ const Column = ({ tasks, id, column, index }: Props) => {
           setSpace(res);
         })
         .catch((err: any) => {
-          notifyError("Sorry! There was an error while updating column name");
+          notify(
+            "Sorry! There was an error while updating column name",
+            "error"
+          );
         });
     }
   }

@@ -5,8 +5,6 @@ import { useRouter } from "next/router";
 import Layout from "../app/components/layouts";
 import "../app/styles/globals.css";
 import "../app/styles/mde.css";
-import { classicDark, warmPurple } from "../app/constants/muiTheme";
-import { createTheme, ThemeProvider } from "@mui/material";
 import GlobalContextProvider from "../app/context/globalContext";
 
 function MyApp({ Component, pageProps }: AppProps) {

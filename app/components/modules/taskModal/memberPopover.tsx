@@ -7,8 +7,8 @@ import { updateTaskMember } from "../../../adapters/moralis";
 import { BoardData, Task } from "../../../types";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { PopoverContainer } from "./datePopover";
-import { notifyError } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { notify } from "../settingsTab";
 
 type Props = {
   open: boolean;
@@ -77,8 +77,9 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
                 handleClose(type);
               })
               .catch((err: any) => {
-                notifyError(
-                  `Sorry! There was an error while updating ${type}.`
+                notify(
+                  `Sorry! There was an error while updating ${type}.`,
+                  "error"
                 );
               });
           }}

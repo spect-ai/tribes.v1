@@ -6,7 +6,7 @@ import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { removeColumn } from "../../../adapters/moralis";
 import { BoardData } from "../../../types";
-import { notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
 
 type Props = {
   open: boolean;
@@ -62,7 +62,10 @@ const ColumnSettingsPopover = ({
               .catch((err: any) => {
                 console.log(err);
                 setSpace(tempData);
-                notifyError("Sorry! There was an error while removing column.");
+                notify(
+                  "Sorry! There was an error while removing column.",
+                  "error"
+                );
               });
           }}
         >

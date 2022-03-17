@@ -52,7 +52,7 @@ const ProfileMenu = (props: Props) => {
   };
   return (
     <>
-      <ProfileSettings isOpen={isOpen} handleClose={handleSettingsClose} />
+      <ProfileSettings />
       <NavbarButton
         variant="outlined"
         endIcon={<ExpandMoreIcon sx={{ color: "#99ccff" }} />}

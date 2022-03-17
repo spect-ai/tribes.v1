@@ -10,7 +10,6 @@ import {
 } from "../../elements/styledComponents";
 import { PopoverContainer } from "./datePopover";
 import { notify } from "../settingsTab";
-import { notifyError } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
@@ -77,8 +76,9 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
                       setSpace(res as BoardData);
                     })
                     .catch((err: any) => {
-                      notifyError(
-                        "Sorry! There was an error while moving task."
+                      notify(
+                        "Sorry! There was an error while moving task.",
+                        "error"
                       );
                     });
                 }

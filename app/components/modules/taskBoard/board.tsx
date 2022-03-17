@@ -20,7 +20,7 @@ import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { reorder } from "../../../utils/utils";
 import { BoardData } from "../../../types";
-import { notify, notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
@@ -76,8 +76,9 @@ const Board = ({ expanded, handleChange }: Props) => {
         })
         .catch((err: any) => {
           setSpace(tempData);
-          notifyError(
-            "Sorry! There was an error while changing the column order."
+          notify(
+            "Sorry! There was an error while changing the column order.",
+            "error"
           );
         });
       return;
@@ -112,7 +113,7 @@ const Board = ({ expanded, handleChange }: Props) => {
         })
         .catch((err: any) => {
           setSpace(tempData);
-          notifyError("Sorry! There was an error while moving tasks.");
+          notify("Sorry! There was an error while moving tasks.", "error");
         });
     } else {
       const startTaskIds = Array.from(start.taskIds); // copy
@@ -157,7 +158,7 @@ const Board = ({ expanded, handleChange }: Props) => {
         })
         .catch((err: any) => {
           setSpace(tempData);
-          notifyError("Sorry! There was an error while moving tasks.");
+          notify("Sorry! There was an error while moving tasks.", "error");
         });
     }
   };
@@ -216,8 +217,9 @@ const Board = ({ expanded, handleChange }: Props) => {
                   .then((res: BoardData) => setSpace(res))
                   .catch((err: any) => {
                     setSpace(tempData);
-                    notifyError(
-                      "Sorry! There was an error while adding column"
+                    notify(
+                      "Sorry! There was an error while adding column",
+                      "error"
                     );
                   });
               }}

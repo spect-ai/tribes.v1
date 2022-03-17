@@ -20,7 +20,7 @@ import { BoardData, Team } from "../../../types";
 import styled from "@emotion/styled";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { Toaster } from "react-hot-toast";
-import { notify, notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {};
@@ -53,7 +53,7 @@ const Members = (props: Props) => {
         setIsChecked(membersArray);
       })
       .catch((err: any) => {
-        notifyError(`Sorry! There was an error while loading members.`);
+        notify(`Sorry! There was an error while loading members.`, "error");
       });
   }, []);
 
@@ -74,7 +74,7 @@ const Members = (props: Props) => {
       })
       .catch((err: any) => {
         console.log(err);
-        notifyError("Sorry! There was an error while updating members.");
+        notify("Sorry! There was an error while updating members.", "error");
         setIsLoading(false);
       });
   };
