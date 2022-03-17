@@ -2,8 +2,13 @@ import { NextPage } from "next";
 import BoardsTemplate from "../../../../app/components/templates/boards";
 import Head from "next/head";
 import styled from "@emotion/styled";
-import Sidebar from "../../../../app/components/modules/spaceSidebar";
-import { createTheme, Theme, ThemeProvider, useTheme } from "@mui/material";
+import {
+  Box,
+  createTheme,
+  Theme,
+  ThemeProvider,
+  useTheme,
+} from "@mui/material";
 import { createContext, useContext, useEffect, useState } from "react";
 import { BoardData, Team } from "../../../../app/types";
 import { useMoralis } from "react-moralis";
@@ -11,6 +16,8 @@ import { useRouter } from "next/router";
 import { getSpace } from "../../../../app/adapters/moralis";
 import { notify } from "../../../../app/components/modules/settingsTab";
 import { getTheme } from "../../../../app/constants/muiTheme";
+import SpaceNavbar from "../../../../app/components/modules/spaceNavbar";
+import ExploreSidebar from "../../../../app/components/modules/exploreSidebar";
 
 interface Props {}
 interface SpaceContextType {
@@ -64,9 +71,12 @@ const SpacePage: NextPage<Props> = (props: Props) => {
       </Head>
       <SpaceContext.Provider value={context}>
         <ThemeProvider theme={theme}>
-          <PageContainer theme={theme}>
-            <Sidebar />
-            <BoardsTemplate />
+          <PageContainer theme={createTheme(getTheme(0))}>
+            <SpaceNavbar />
+            <Box sx={{ display: "flex", flexDirection: "row" }}>
+              <ExploreSidebar />
+              <BoardsTemplate />
+            </Box>
           </PageContainer>
         </ThemeProvider>
       </SpaceContext.Provider>
@@ -76,7 +86,7 @@ const SpacePage: NextPage<Props> = (props: Props) => {
 
 export const PageContainer = styled.div<{ theme: Theme }>`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   min-height: 100vh;
   background-color: ${(props) => props.theme.palette?.background.default};
 `;

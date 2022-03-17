@@ -1,6 +1,5 @@
 import {
   Box,
-  Fade,
   Grow,
   IconButton,
   Modal,
@@ -8,21 +7,18 @@ import {
   TextField,
   Tooltip,
   Typography,
+  useTheme,
 } from "@mui/material";
 import React, { useState } from "react";
-import AddIcon from "@mui/icons-material/Add";
 import { useMoralis } from "react-moralis";
 import CloseIcon from "@mui/icons-material/Close";
-import {
-  ModalHeading,
-  PrimaryButton,
-  SidebarButton,
-} from "../../elements/styledComponents";
+import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
 import { createTribe } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
 import { notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
-import { ButtonText } from "../spaceSidebar";
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import { SidebarButton } from "../exploreSidebar";
 
 type Props = {};
 
@@ -33,6 +29,7 @@ const CreateTribeModal = (props: Props) => {
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { palette } = useTheme();
 
   const { Moralis, isAuthenticated, authenticate } = useMoralis();
 
@@ -56,7 +53,22 @@ const CreateTribeModal = (props: Props) => {
   return (
     <>
       <Toaster />
-      <SidebarButton
+      <Tooltip title="Create Tribe" placement="right" arrow sx={{ m: 0, p: 0 }}>
+        <SidebarButton
+          palette={palette}
+          selected={false}
+          onClick={() => {
+            if (!isAuthenticated) {
+              authenticate();
+            } else {
+              handleOpen();
+            }
+          }}
+        >
+          <AddCircleOutlineIcon sx={{ fontSize: 30, color: palette.divider }} />
+        </SidebarButton>
+      </Tooltip>
+      {/* <SidebarButton
         sx={{ mt: 2 }}
         color="inherit"
         onClick={() => {
@@ -69,7 +81,7 @@ const CreateTribeModal = (props: Props) => {
       >
         <AddIcon />
         <ButtonText>Create Tribe</ButtonText>
-      </SidebarButton>
+      </SidebarButton> */}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
           <ModalContainer>

@@ -21,10 +21,6 @@ const ExploreTemplate = (props: Props) => {
         width: "100%",
       }}
     >
-      <StyledTabs value={tab} onChange={handleTabChange} centered>
-        <StyledTab label="Explore Tribes" />
-        {/* <StyledTab label="Explore Gigs (coming soon)" disabled /> */}
-      </StyledTabs>
       <Box
         sx={{
           display: "flex",
@@ -34,7 +30,7 @@ const ExploreTemplate = (props: Props) => {
           width: "95%",
         }}
       >
-        <Grid container spacing={2} columns={15}>
+        <Grid container spacing={8} columns={15}>
           {publicTribes.map((tribe: Team, index: number) => (
             <Grid item xs={3} key={index}>
               <DAOCard

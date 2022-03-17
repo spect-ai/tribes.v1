@@ -91,35 +91,6 @@ const Heading = (props: Props) => {
           ))}
         </List>
       </Drawer>
-      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 0, ml: 2 }}>
-        <Link href={`/tribe/${id}`} passHref>
-          <MuiLink
-            color="inherit"
-            underline="hover"
-            sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              fontSize: 14,
-            }}
-          >
-            {space.team && space.team[0].name}
-          </MuiLink>
-        </Link>
-        <MuiLink
-          color="inherit"
-          underline="hover"
-          sx={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            fontSize: 14,
-          }}
-          href=""
-        >
-          {space.name}
-        </MuiLink>
-      </Breadcrumbs>
       <Box sx={{ display: "none", flexDirection: "row", alignItems: "center" }}>
         <Typography variant="h6" sx={{ mx: 2 }}>
           {space.name}
@@ -184,21 +155,8 @@ const Heading = (props: Props) => {
             </IconButton>
           </Tooltip>
         )}
-        {isEpochModalOpen && (
-          <CreateEpochModal
-            isOpen={isEpochModalOpen}
-            setIsOpen={setIsEpochModalOpen}
-          />
-        )}
+        {isEpochModalOpen && <CreateEpochModal />}
       </Box>
-      {/* <Typography sx={{ ml: 2, fontSize: 14 }} color="rgba(255, 255, 255, 0.5)">
-        {space.description}
-      </Typography> */}
-      <StyledTabs value={tab} onChange={handleTabChange} centered>
-        <StyledTab label="Board" />
-        <StyledTab label="Epoch" />
-        <StyledTab label="Members" />
-      </StyledTabs>
     </Container>
   );
 };

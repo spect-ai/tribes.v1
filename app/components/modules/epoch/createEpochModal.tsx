@@ -40,13 +40,13 @@ import { Toaster } from "react-hot-toast";
 import CreateEpochTaskList from "./createEpochTaskList";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
-import { ButtonText } from "../spaceSidebar";
+import { ButtonText } from "../exploreSidebar";
 
 type Props = {};
 
 const CreateEpoch = (props: Props) => {
   const { space, setSpace, handleTabChange } = useSpace();
-  const { Moralis } = useMoralis();
+  const { Moralis, user } = useMoralis();
   const [name, setName] = useState("");
   const [duration, setDuration] = useState("");
   const [type, setType] = useState("");
@@ -137,10 +137,21 @@ const CreateEpoch = (props: Props) => {
   };
   return (
     <>
-      <SidebarButton color="inherit" onClick={() => setIsOpen(true)}>
-        <PlayCircleFilledWhiteIcon />
-        <ButtonText>Create Epoch</ButtonText>
-      </SidebarButton>
+      {user && space.roles[user?.id] === "admin" && (
+        <>
+          <PrimaryButton
+            variant="outlined"
+            size="large"
+            endIcon={<PlayCircleFilledWhiteIcon />}
+            onClick={() => {
+              setIsOpen(true);
+            }}
+            sx={{ ml: 16, borderRadius: 1, mt: 2 }}
+          >
+            Start an epoch
+          </PrimaryButton>
+        </>
+      )}
       {/* <Toaster /> */}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
@@ -412,9 +423,9 @@ const CreateEpoch = (props: Props) => {
                     notify("Please fill all the fields", "error");
                     return;
                   }
-                  const temp = Object.assign({}, data);
+                  const temp = Object.assign({}, space);
                   temp.creatingEpoch = true;
-                  setData(temp);
+                  setSpace(temp);
                   const members = getMembers();
                   const choices =
                     type === "Member" ? getMemberChoices() : getCardChoices();
@@ -437,9 +448,9 @@ const CreateEpoch = (props: Props) => {
                       handleClose();
                       console.log(res);
                       handleNewEpochAddition(res);
-                      const temp = Object.assign({}, data);
+                      const temp = Object.assign({}, space);
                       temp.creatingEpoch = false;
-                      setData(temp);
+                      setSpace(temp);
                       handleTabChange({} as any, 1);
                     })
                     .catch((err: any) => alert(err));

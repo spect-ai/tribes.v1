@@ -221,7 +221,7 @@ const TaskList = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   height: fit-content;
-  max-height: 60vh;
+  max-height: calc(100vh - 10rem);
 `;
 
 const TaskListContainer = styled.div<{ palette: Palette }>`

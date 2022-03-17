@@ -13,19 +13,12 @@ import {
   createTheme,
 } from "@mui/material";
 import Link from "next/link";
-import {
-  StyledTab,
-  StyledTabs,
-} from "../app/components/elements/styledComponents";
+
 import { createContext, useContext, useEffect, useState } from "react";
 import { getMyTeams, getPublicTeams } from "../app/adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { Team } from "../app/types";
-import {
-  setNavbarLogo,
-  setNavbarTitle,
-  useGlobal,
-} from "../app/context/globalContext";
+
 import { tribesLogo } from "../app/constants";
 import Head from "next/head";
 import Navbar from "../app/components/modules/navbar";
@@ -37,8 +30,8 @@ import ExploreSidebar from "../app/components/modules/exploreSidebar";
 interface ExploreContextType {
   publicTribes: Team[];
   setPublicTribes: (publicTribes: Team[]) => void;
-  myTribes: Team[];
-  setMyTribes: (myTribes: Team[]) => void;
+  myTribes: any[];
+  setMyTribes: (myTribes: any[]) => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
   tab: number;
@@ -80,12 +73,15 @@ const Home: NextPage = () => {
         <link rel="icon" href="/logo2.svg" />
       </Head>
       <ThemeProvider theme={createTheme(getTheme(0))}>
-        <PageContainer theme={createTheme(getTheme(0))}>
-          <ExploreContext.Provider value={context}>
-            <ExploreSidebar />
-            <ExploreTemplate />
-          </ExploreContext.Provider>
-        </PageContainer>
+        <ExploreContext.Provider value={context}>
+          <PageContainer theme={createTheme(getTheme(0))}>
+            <Navbar />
+            <Box sx={{ display: "flex", flexDirection: "row" }}>
+              <ExploreSidebar />
+              <ExploreTemplate />
+            </Box>
+          </PageContainer>
+        </ExploreContext.Provider>
       </ThemeProvider>
     </>
   );
@@ -93,7 +89,7 @@ const Home: NextPage = () => {
 
 function useProviderExplore() {
   const [publicTribes, setPublicTribes] = useState<Team[]>([] as Team[]);
-  const [myTribes, setMyTribes] = useState<Team[]>([] as Team[]);
+  const [myTribes, setMyTribes] = useState<any[]>([] as any[]);
   const [loading, setLoading] = useState(false);
   const [tab, setTab] = useState(0);
 

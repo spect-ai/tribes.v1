@@ -2,7 +2,6 @@ import { Avatar, Typography, useTheme } from "@mui/material";
 import React, { useState } from "react";
 import { useMoralis } from "react-moralis";
 import ProfilePopover from "../../modules/profilePopover";
-import { AvatarText, ButtonText } from "../../modules/spaceSidebar";
 import { SidebarButton } from "../styledComponents";
 import LoginIcon from "@mui/icons-material/Login";
 import { smartTrim } from "../../../utils/utils";
@@ -33,7 +32,6 @@ const SidebarProfile = (props: Props) => {
           onClick={() => authenticate()}
         >
           <LoginIcon />
-          <ButtonText>Connect Wallet</ButtonText>
         </SidebarButton>
       )}
       {isAuthenticated && (
@@ -49,15 +47,6 @@ const SidebarProfile = (props: Props) => {
           >
             {user?.get("username")[0]}
           </Avatar>
-
-          <AvatarText>
-            <Typography sx={{ fontSize: 15 }}>
-              {user?.get("username")}
-            </Typography>
-            <Typography sx={{ fontSize: 12, color: palette.primary.light }}>
-              {smartTrim(user?.get("ethAddress"), 10)}
-            </Typography>
-          </AvatarText>
         </SidebarButton>
       )}
       <ProfilePopover
@@ -72,8 +61,8 @@ const SidebarProfile = (props: Props) => {
 const Profile = styled.div`
   display: flex;
   flex-direction: column;
-  border-top: 1px solid #5a6972;
-  margin-bottom: 1rem;
+  margin-bottom: 0.7rem;
+  margin-right: 1.7rem;
 `;
 
 export default SidebarProfile;

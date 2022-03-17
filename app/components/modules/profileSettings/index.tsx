@@ -16,8 +16,8 @@ import { useMoralis } from "react-moralis";
 import EditIcon from "@mui/icons-material/Edit";
 import { getMD5String } from "../../../utils/utils";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { ButtonText } from "../spaceSidebar";
 import { OptionsButton } from "../themePopover";
+import { ButtonText } from "../exploreSidebar";
 
 type Props = {};
 

@@ -133,3 +133,14 @@ export const ModalHeading = styled("div")(({ theme }) => ({
   padding: 16,
   paddingLeft: 32,
 }));
+
+export const StyledNav = styled("nav")(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  height: "3rem",
+  width: "100%",
+  paddingTop: "0.4rem",
+  borderBottom: `1px solid ${theme.palette.divider}`,
+}));

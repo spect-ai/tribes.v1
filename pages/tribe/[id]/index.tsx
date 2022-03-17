@@ -1,5 +1,11 @@
 import styled from "@emotion/styled";
-import { createTheme, Theme, ThemeProvider, useTheme } from "@mui/material";
+import {
+  Box,
+  createTheme,
+  Theme,
+  ThemeProvider,
+  useTheme,
+} from "@mui/material";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -11,8 +17,8 @@ import {
 } from "react-moralis";
 import { ResolveCallOptions } from "react-moralis/lib/hooks/internal/_useResolveAsyncCall";
 import { getTaskEpoch } from "../../../app/adapters/moralis";
-import Navbar from "../../../app/components/modules/navbar";
-import Sidebar from "../../../app/components/modules/spaceSidebar";
+import ExploreSidebar from "../../../app/components/modules/exploreSidebar";
+import TribeNavbar from "../../../app/components/modules/tribeNavbar";
 import TribeTemplate from "../../../app/components/templates/tribe";
 import { getTheme } from "../../../app/constants/muiTheme";
 import {
@@ -51,13 +57,9 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();
   const { id } = router.query;
   const context = useProviderTribe();
-  const { state } = useGlobal();
   const { setLoading, getTeam, setTribe, isMember } = context;
-  const { dispatch } = useGlobal();
   const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
   const { isAuthenticated } = useMoralis();
-  console.log("reg:", state.registry);
-  const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
   useEffect(() => {
     setTheme(
       createTheme(getTheme(parseInt(localStorage.getItem("theme") || "0")))
@@ -84,9 +86,12 @@ const TribePage: NextPage<Props> = (props: Props) => {
       </Head>
       <ThemeProvider theme={theme}>
         <TribeContext.Provider value={context}>
-          <PageContainer theme={theme}>
-            <Sidebar />
-            <TribeTemplate />
+          <PageContainer theme={createTheme(getTheme(0))}>
+            <TribeNavbar />
+            <Box sx={{ display: "flex", flexDirection: "row" }}>
+              <ExploreSidebar />
+              <TribeTemplate />
+            </Box>
           </PageContainer>
         </TribeContext.Provider>
       </ThemeProvider>

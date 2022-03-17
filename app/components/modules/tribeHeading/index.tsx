@@ -56,13 +56,6 @@ const TribeHeading = (props: Props) => {
           </StyledAnchor>
         )}
       </Box>
-      <StyledTabs value={tab} onChange={handleTabChange} centered>
-        <StyledTab label="Overview" />
-        <StyledTab
-          label="Settings"
-          disabled={user ? tribe.roles[user?.id] !== "admin" : true}
-        />
-      </StyledTabs>
       <Box
         sx={{
           display: "flex",

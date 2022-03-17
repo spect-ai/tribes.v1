@@ -5,7 +5,7 @@ import { useMoralis } from "react-moralis";
 import ProfileSettings from "../profileSettings";
 import { OptionsButton, SidebarPopoverContainer } from "../themePopover";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { ButtonText } from "../spaceSidebar";
+import { ButtonText } from "../exploreSidebar";
 
 type Props = {
   open: boolean;

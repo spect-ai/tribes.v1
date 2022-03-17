@@ -33,7 +33,7 @@ import {
 } from "../../../utils/utils";
 import { registryTemp } from "../../../constants";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { ButtonText } from "../spaceSidebar";
+import { ButtonText } from "../exploreSidebar";
 
 type Props = {};
 

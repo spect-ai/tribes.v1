@@ -1,11 +1,11 @@
+import styled from "@emotion/styled";
 import {
   Avatar,
   Button,
-  Card,
-  CardActions,
-  CardContent,
-  styled,
+  Palette,
+  styled as MUIStyled,
   Typography,
+  useTheme,
 } from "@mui/material";
 import Link from "next/link";
 import React from "react";
@@ -18,61 +18,71 @@ type Props = {
 };
 
 const DAOCard = ({ image, title, members, teamId }: Props) => {
+  const { palette } = useTheme();
   return (
-    <Card
-      sx={{
-        padding: 3,
-        backgroundColor: "inherit",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        borderRadius: 1,
-        border: "1px solid #5a6972",
-        margin: "0px 8px",
-      }}
-    >
-      <TribeAvatar alt="Remy Sharp" src={image} />
-      <CardContent>
-        <Typography
-          gutterBottom
-          variant="h6"
-          component="div"
-          sx={{ textAlign: "center", maxHeight: "4rem", overflow: "hidden" }}
-        >
-          {title}
-        </Typography>
-        <Typography
-          gutterBottom
-          component="div"
-          sx={{ textAlign: "center", color: "#5a6972", fontSize: 12 }}
-        >
-          {members} members
-        </Typography>
-      </CardContent>
-      <CardActions sx={{ p: 0 }}>
-        <Link href={`/tribe/${teamId}`} passHref>
+    <Link href={`/tribe/${teamId}`} passHref>
+      <Card palette={palette}>
+        <CardContent>
+          <TribeAvatar alt="Remy Sharp" src={image} />
+          <Typography
+            gutterBottom
+            variant="h6"
+            component="div"
+            color={palette.text.primary}
+            sx={{ textAlign: "center", maxHeight: "4rem", overflow: "hidden" }}
+          >
+            {title}
+          </Typography>
+          <Typography
+            gutterBottom
+            component="div"
+            sx={{ textAlign: "center", color: "#5a6972", fontSize: 13 }}
+          >
+            {members} members
+          </Typography>
           <Button
             variant="outlined"
             color="secondary"
             disableElevation
             sx={{
-              borderRadius: 4,
+              borderRadius: 2,
               width: 100,
               textTransform: "none",
+              mt: 4,
             }}
           >
-            View
+            Join
           </Button>
-        </Link>
-      </CardActions>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 };
 
-const TribeAvatar = styled(Avatar)(({ theme }) => ({
+const TribeAvatar = MUIStyled(Avatar)(({ theme }) => ({
   height: 60,
   width: 60,
   objectFit: "cover",
 }));
+
+const Card = styled.div<{ palette: Palette }>`
+  width: 100%;
+  height: 14rem;
+  border: 1px solid ${(props) => props.palette.divider};
+  border-radius: 12px;
+  &:hover {
+    cursor: pointer;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+    border: 1px solid ${(props) => props.palette.text.primary};
+  }
+  transition: all 0.5s ease;
+`;
+
+const CardContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem;
+`;
 
 export default DAOCard;

@@ -234,8 +234,8 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   padding: 0 0.5rem;
-  height: 88vh;
-  max-width: calc(100vw - 9rem);
+  height: calc(100vh - 3.8rem);
+  max-width: calc(100vw - 7.2rem);
   overflow-x: auto;
   overflow-y: hidden;
 `;

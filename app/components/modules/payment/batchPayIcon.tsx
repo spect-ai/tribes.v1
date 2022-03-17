@@ -18,7 +18,7 @@ import { notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { SidebarButton } from "../../elements/styledComponents";
-import { ButtonText } from "../spaceSidebar";
+import { ButtonText } from "../exploreSidebar";
 
 interface Props {}
 
