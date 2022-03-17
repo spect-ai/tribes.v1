@@ -33,14 +33,6 @@ export const notify = (text: string, type?: string) => {
     });
   }
 };
-
-export const notifyError = (text: string) =>
-  toast.error(text, {
-    duration: 4000,
-    position: "top-center",
-    style: { fontSize: "1rem" },
-  });
-
 const Settings = () => {
   const { tribe, setTribe } = useTribe();
   const { Moralis } = useMoralis();
@@ -68,7 +60,7 @@ const Settings = () => {
         notify("Updated Tribe!");
       })
       .catch((err: any) =>
-        notifyError("Sorry! There was an error while updating tribe.")
+        notify("Sorry! There was an error while updating tribe.", "error")
       );
   };
 

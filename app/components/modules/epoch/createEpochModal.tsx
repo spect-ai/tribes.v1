@@ -17,6 +17,7 @@ import {
   AccordionDetails,
   AccordionSummary,
   Grid,
+  useTheme,
 } from "@mui/material";
 import React, { useState } from "react";
 import { Box } from "@mui/system";
@@ -61,6 +62,7 @@ const CreateEpoch = (props: Props) => {
     Array(space.columns[space.columnOrder[0]].taskIds.length).fill(true)
   );
   const [isOpen, setIsOpen] = useState(false);
+  const { palette } = useTheme();
 
   const [chain, setChain] = useState({
     chainId: "80001",
@@ -327,6 +329,7 @@ const CreateEpoch = (props: Props) => {
                             inputProps={{
                               "aria-label": "select all desserts",
                             }}
+                            color="default"
                             checked={isChecked.every((elem) => elem === true)}
                             onChange={(e) => {
                               setIsChecked(
@@ -368,7 +371,7 @@ const CreateEpoch = (props: Props) => {
                             padding="checkbox"
                           >
                             <Checkbox
-                              color="primary"
+                              color="secondary"
                               inputProps={{
                                 "aria-label": "select all desserts",
                               }}
@@ -418,6 +421,7 @@ const CreateEpoch = (props: Props) => {
 
               <PrimaryButton
                 variant="outlined"
+                color="secondary"
                 sx={{ width: "50%", mt: 2, borderRadius: 1 }}
                 onClick={() => {
                   if (!validateFields()) {

@@ -12,7 +12,7 @@ import { batchPayTokens, distributeEther } from "../../../adapters/contract";
 import { capitalizeFirstLetter } from "../../../utils/utils";
 import { Member } from "../../../types";
 import { useMoralis } from "react-moralis";
-import { notify, notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
@@ -47,7 +47,6 @@ const BatchPayCurrency = ({
   const [isLoading, setIsLoading] = useState(false);
   const { space, setSpace } = useSpace();
   const { Moralis, isInitialized } = useMoralis();
-  console.log(`here`);
   return (
     <React.Fragment>
       <Box
@@ -163,12 +162,13 @@ const BatchPayCurrency = ({
                     });
                   })
                   .catch((err: any) => {
-                    notifyError(err.space.message);
+                    notify(err.message, "error");
                     setIsLoading(false);
                   });
               }}
               variant="outlined"
               id="bApprove"
+              color="secondary"
             >
               Batch Pay
             </PrimaryButton>

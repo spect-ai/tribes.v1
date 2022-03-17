@@ -6,7 +6,6 @@ import {
   completeEpochPayment,
   completePayment,
 } from "../../../adapters/moralis";
-import { registryTemp } from "../../../constants";
 import Image from "next/image";
 import { batchPayTokens, distributeEther } from "../../../adapters/contract";
 import { capitalizeFirstLetter } from "../../../utils/utils";
@@ -15,6 +14,7 @@ import { useMoralis } from "react-moralis";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { useGlobal } from "../../../context/globalContext";
 
 type Props = {
   handleNextStep: Function;
@@ -47,11 +47,10 @@ const BatchPay = ({
 }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { space, setSpace } = useSpace();
-  const { Moralis, isInitialized } = useMoralis();
-
+  const { state } = useGlobal();
+  const { registry } = state;
   return (
     <React.Fragment>
-      <Toaster />
       <Box
         sx={{
           display: "flex",
@@ -72,7 +71,7 @@ const BatchPay = ({
               <Grid item xs={3}>
                 <Box style={{ display: "flex" }}>
                   <Avatar
-                    src={registryTemp[chainId].pictureUrl}
+                    src={registry[chainId].pictureUrl}
                     sx={{
                       width: "2rem",
                       height: "2rem",
@@ -86,7 +85,7 @@ const BatchPay = ({
                     marginBottom="10px"
                     marginLeft="10px"
                   >
-                    {capitalizeFirstLetter(registryTemp[chainId].name)} Network
+                    {capitalizeFirstLetter(registry[chainId].name)} Network
                   </Typography>
                 </Box>
               </Grid>
@@ -121,7 +120,7 @@ const BatchPay = ({
                     <Typography color="text.primary" marginLeft="20px">
                       {tokenDistributionInfo.tokenValues[index]?.toFixed(2)}{" "}
                       {
-                        registryTemp[chainId].tokens[
+                        registry[chainId].tokens[
                           tokenDistributionInfo.tokenAddresses[index]
                         ].symbol
                       }
@@ -176,6 +175,7 @@ const BatchPay = ({
               }}
               variant="outlined"
               id="bApprove"
+              color="secondary"
             >
               Batch Pay
             </PrimaryButton>

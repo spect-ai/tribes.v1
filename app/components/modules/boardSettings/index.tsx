@@ -20,35 +20,25 @@ import {
   PrimaryButton,
   StyledAccordian,
 } from "../../elements/styledComponents";
-import {
-  getTeam,
-  updateBoard,
-  updateThemeFromSpace,
-} from "../../../adapters/moralis";
+import { updateBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { BoardData, Chain, Registry, Team, Token } from "../../../types";
 import ConfirmModal from "./confirmModal";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import {
-  getFlattenedCurrencies,
-  getFlattenedNetworks,
-} from "../../../utils/utils";
+import { getFlattenedNetworks } from "../../../utils/utils";
 import { registryTemp } from "../../../constants";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { ButtonText, SidebarButton } from "../exploreSidebar";
-import { OptionsButton } from "../themePopover";
+import { SidebarButton } from "../exploreSidebar";
 import { useRouter } from "next/router";
 import styled from "@emotion/styled";
 
 type Props = {};
 
 const BoardSettings = (props: Props) => {
-  console.log("boardsettingsss");
-
   const { space, setSpace, setThemeChanged, themeChanged } = useSpace();
   const { Moralis } = useMoralis();
-  const [name, setName] = useState(space?.name);
+  const [name, setName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [chain, setChain] = useState<Chain>(
     space?.defaultPayment?.chain || { chainId: "137", name: "polygon" }
@@ -83,6 +73,11 @@ const BoardSettings = (props: Props) => {
   const id = router.query.id as string;
   const bid = router.query.bid as string;
   const { palette } = useTheme();
+
+  useEffect(() => {
+    setName(space.name);
+  }, [space]);
+
   return (
     <>
       <SidebarButton
@@ -111,7 +106,7 @@ const BoardSettings = (props: Props) => {
         <Grow in={isOpen} timeout={500}>
           <ModalContainer>
             <Heading>
-              <div>Settings</div>
+              <Typography>Settings</Typography>
               <Box sx={{ flex: "1 1 auto" }} />
               <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
                 <CloseIcon />
@@ -129,7 +124,7 @@ const BoardSettings = (props: Props) => {
 
                 <AccordionDetails>
                   <TextField
-                    placeholder="Board Name"
+                    placeholder="Space Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     fullWidth
@@ -240,7 +235,7 @@ const BoardSettings = (props: Props) => {
                   </Box>
                 </AccordionDetails>
               </StyledAccordian>
-              <StyledAccordian disableGutters>
+              {/* <StyledAccordian disableGutters>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
@@ -304,10 +299,11 @@ const BoardSettings = (props: Props) => {
                   </Typography>
                 </OptionsButton>
                 <AccordionDetails></AccordionDetails>
-              </StyledAccordian>
+              </StyledAccordian> */}
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <PrimaryButton
                   variant="outlined"
+                  color="secondary"
                   sx={{ width: "50%", mt: 2, mr: 4, borderRadius: 1 }}
                   loading={isLoading}
                   onClick={() => {

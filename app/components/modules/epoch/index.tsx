@@ -26,7 +26,7 @@ import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { Epoch } from "../../../types";
 import { monthMap } from "../../../constants";
-import { notify, notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { registryTemp } from "../../../constants";
 import PaymentModal, { BatchPayInfo } from "../payment";
@@ -138,7 +138,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
         setIsLoading(false);
       })
       .catch((err: any) => {
-        notifyError(`Sorry! There was an error while getting epochs.`);
+        notify(`Sorry! There was an error while getting epochs.`, "error");
         setIsLoading(false);
       });
   }, []);
@@ -282,6 +282,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                   disabled={votesRemaining[epoch.objectId] < 0}
                                   sx={{ mx: 4, borderRadius: 1 }}
                                   size="small"
+                                  color="secondary"
                                   onClick={() => {
                                     setIsLoading(true);
                                     saveVotes(
@@ -304,6 +305,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                   endIcon={<CloseIcon />}
                                   variant="outlined"
                                   size="small"
+                                  color="secondary"
                                   sx={{ borderRadius: 1 }}
                                   loading={isLoading}
                                   onClick={() => {
@@ -315,8 +317,9 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                         notify("Epoch Ended!");
                                       })
                                       .catch((err: any) => {
-                                        notifyError(
-                                          `Sorry! There was an error while ending the epoch.`
+                                        notify(
+                                          `Sorry! There was an error while ending the epoch.`,
+                                          "error"
                                         );
                                         setIsLoading(false);
                                       });
@@ -380,6 +383,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                 />
                                 <PrimaryButton
                                   endIcon={<PaidIcon />}
+                                  color="secondary"
                                   variant="outlined"
                                   sx={{
                                     mx: 4,
@@ -402,8 +406,9 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                         setIsLoading(false);
                                       })
                                       .catch((err: any) => {
-                                        notifyError(
-                                          "Sorry! There was an error while moving cards."
+                                        notify(
+                                          "Sorry! There was an error while moving cards.",
+                                          "error"
                                         );
                                         setIsLoading(false);
                                       });

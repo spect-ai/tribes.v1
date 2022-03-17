@@ -21,6 +21,8 @@ import { useMoralis } from "react-moralis";
 import { notify } from "../settingsTab";
 import SwitchLeftIcon from "@mui/icons-material/SwitchLeft";
 import BoardSettings from "../boardSettings";
+import BatchPay from "../payment/batchPay";
+import Payment from "../payment/batchPayIcon";
 
 type Props = {};
 
@@ -111,6 +113,7 @@ const ExploreSidebar = (props: Props) => {
         </SidebarButton>
       )}
       {bid && <BoardSettings />}
+      {bid && <Payment />}
       <Divider sx={{ my: 5, mx: 3 }} />
       <CreateTribeModal />
       {myTribes?.map((tribe, index) => (

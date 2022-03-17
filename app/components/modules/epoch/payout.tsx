@@ -11,7 +11,7 @@ import { capitalizeFirstLetter } from "../../../utils/utils";
 import { TokenDistributionInfo } from "../payment/batchPay";
 import { ApprovalInfo } from "../payment/approve";
 import { CurrencyDistributionInfo } from "../payment/batchPayCurrency";
-import { notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { completeEpochPayment } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
@@ -122,14 +122,14 @@ const PayoutButton = ({ epoch }: Props) => {
         setSpace(temp);
       })
       .catch((err: any) => {
-        notifyError(
-          `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`
+        notify(
+          `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`,
+          "error"
         );
       });
   };
   return (
     <>
-      <Toaster />
       <PrimaryButton
         endIcon={<PaidIcon />}
         variant="outlined"
@@ -139,6 +139,7 @@ const PayoutButton = ({ epoch }: Props) => {
           borderRadius: 1,
         }}
         size="small"
+        color="secondary"
         onClick={() => {
           setIsLoading(true);
           var hasApproval = false;
@@ -174,7 +175,7 @@ const PayoutButton = ({ epoch }: Props) => {
                 setIsOpen(true);
                 setIsLoading(false);
               })
-              .catch((err: any) => notifyError(err));
+              .catch((err: any) => notify(err, "error"));
           } else {
             handleCurrencyDistributionInfoUpdate(
               Object.keys(epoch.values),

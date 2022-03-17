@@ -90,6 +90,9 @@ export function getPendingApprovals(
 
   let contract = getDistributorContract(chainId);
   var valuesInWei = values.map((v) => ethers.utils.parseEther(v.toString()));
+  if (addresses[0] === "0x0") {
+    return true;
+  }
   return contract.pendingApprovals(addresses, valuesInWei);
 }
 

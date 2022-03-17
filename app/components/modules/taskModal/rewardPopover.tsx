@@ -102,6 +102,8 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
         />
         <PrimaryButton
           variant="outlined"
+          color="secondary"
+          sx={{ borderRadius: 1 }}
           loading={isLoading}
           onClick={() => {
             setIsLoading(true);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { IconButton, Tooltip, styled } from "@mui/material";
+import { IconButton, Tooltip, styled, useTheme } from "@mui/material";
 import PaidIcon from "@mui/icons-material/Paid";
 import { getBatchPayAmount } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
@@ -14,11 +14,10 @@ import { ApprovalInfo } from "./approve";
 import { CurrencyDistributionInfo } from "./batchPayCurrency";
 import { completePayment } from "../../../adapters/moralis";
 import { capitalizeFirstLetter } from "../../../utils/utils";
-import { notifyError } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { SidebarButton } from "../../elements/styledComponents";
-import { ButtonText } from "../exploreSidebar";
+import { ButtonText, SidebarButton } from "../exploreSidebar";
+import { notify } from "../settingsTab";
 
 interface Props {}
 
@@ -85,6 +84,7 @@ const Payment = ({}: Props) => {
   const router = useRouter();
   const { id, bid } = router.query;
   const { Moralis, isInitialized } = useMoralis();
+  const { palette } = useTheme();
 
   const handleApprovalInfoUpdate = (
     uniqueTokenAddresses: string[],
@@ -129,8 +129,9 @@ const Payment = ({}: Props) => {
           setSpace(res);
         })
         .catch((err: any) => {
-          notifyError(
-            `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`
+          notify(
+            `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`,
+            "error"
           );
         });
     } else if (paymentType === "token") {
@@ -139,8 +140,9 @@ const Payment = ({}: Props) => {
           setSpace(res);
         })
         .catch((err: any) => {
-          notifyError(
-            `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`
+          notify(
+            `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`,
+            "error"
           );
         });
     }
@@ -187,9 +189,9 @@ const Payment = ({}: Props) => {
 
   return (
     <>
-      <Toaster />
       <SidebarButton
-        color="inherit"
+        palette={palette}
+        selected={isOpen}
         onClick={() => {
           setIsLoading(true);
           getBatchPayAmount(
@@ -232,13 +234,23 @@ const Payment = ({}: Props) => {
                   setIsOpen(true);
                   setIsLoading(false);
                 })
-                .catch((err: any) => notifyError(err));
+                .catch((err: any) => {
+                  console.log(err);
+                });
             })
-            .catch((err: any) => notifyError(err));
+            .catch((err: any) => {
+              console.log(err);
+            });
         }}
       >
-        <PaidIcon />
-        <ButtonText>Batch Pay</ButtonText>
+        <Tooltip title="Batch Pay" placement="right" arrow sx={{ m: 0, p: 0 }}>
+          <PaidIcon
+            sx={{
+              fontSize: 28,
+              color: isOpen ? palette.secondary.main : palette.divider,
+            }}
+          />
+        </Tooltip>
       </SidebarButton>
       {!isLoading && (
         <PaymentModal

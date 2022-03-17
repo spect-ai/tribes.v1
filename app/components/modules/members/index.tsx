@@ -157,6 +157,7 @@ const Members = (props: Props) => {
       {space.roles[user?.id as string] === "admin" && (
         <PrimaryButton
           variant="outlined"
+          color="secondary"
           sx={{ borderRadius: 1, width: "20%", mt: 2 }}
           fullWidth
           onClick={onSave}
