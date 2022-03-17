@@ -276,6 +276,7 @@ const MainContainer = styled.div`
   flex-direction: row;
   width: 100%;
   margin-top: 10px;
+  margin-bottom: 2rem;
 `;
 
 const SettingContainer = styled.div`

@@ -79,8 +79,11 @@ function joinTribeAsMember(tribe, userId) {
 }
 
 Moralis.Cloud.define("getTeam", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
   try {
+    logger.info(`getTeam ${request.params.teamId}`);
     const team = await getTribeObjByTeamId(request.params.teamId);
+    logger.info(`getTeam ${request.params.team}`);
     if (team.length === 0) throw "Team not found";
     team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
       team[0].members
@@ -113,6 +116,7 @@ Moralis.Cloud.define("getPublicTeams", async (request) => {
 });
 
 Moralis.Cloud.define("getMyTeams", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
   try {
     const userInfoQuery = new Moralis.Query("UserInfo");
     userInfoQuery.equalTo("userId", request.user?.id);

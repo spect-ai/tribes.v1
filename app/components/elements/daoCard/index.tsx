@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import React from "react";
+import { normalTrim } from "../../../utils/utils";
 
 type Props = {
   image: string;
@@ -31,7 +32,7 @@ const DAOCard = ({ image, title, members, teamId }: Props) => {
             color={palette.text.primary}
             sx={{ textAlign: "center", maxHeight: "4rem", overflow: "hidden" }}
           >
-            {title}
+            {normalTrim(title, 18)}
           </Typography>
           <Typography
             gutterBottom

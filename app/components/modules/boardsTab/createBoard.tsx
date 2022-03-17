@@ -31,7 +31,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Chain, Member, Registry } from "../../../types";
 import { getFlattenedNetworks } from "../../../utils/utils";
 import { registryTemp } from "../../../constants";
-import { notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
 
 type Props = {
   isOpen: boolean;
@@ -238,6 +238,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                 <PrimaryButton
                   loading={isLoading}
                   variant="outlined"
+                  color="secondary"
                   sx={{ borderRadius: 1 }}
                   onClick={() => {
                     const members = getMembers();
@@ -266,8 +267,9 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                       })
                       .catch((err: any) => {
                         console.log(err);
-                        notifyError(
-                          "Sorry! There was an error while creating space"
+                        notify(
+                          "Sorry! There was an error while creating space",
+                          "error"
                         );
                         setIsLoading(false);
                       });

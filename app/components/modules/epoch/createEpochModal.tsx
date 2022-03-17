@@ -149,7 +149,7 @@ const CreateEpoch = (props: Props) => {
             onClick={() => {
               setIsOpen(true);
             }}
-            sx={{ ml: 16, borderRadius: 1, mt: 2 }}
+            sx={{ borderRadius: 1, my: 2 }}
           >
             Start an epoch
           </PrimaryButton>

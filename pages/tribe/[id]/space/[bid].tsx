@@ -18,6 +18,7 @@ import { notify } from "../../../../app/components/modules/settingsTab";
 import { getTheme } from "../../../../app/constants/muiTheme";
 import SpaceNavbar from "../../../../app/components/modules/spaceNavbar";
 import ExploreSidebar from "../../../../app/components/modules/exploreSidebar";
+import NotFound from "../../../../app/components/elements/notFound";
 
 interface Props {}
 interface SpaceContextType {
@@ -37,6 +38,7 @@ const SpacePage: NextPage<Props> = (props: Props) => {
   const { Moralis, isInitialized, user } = useMoralis();
   const context = useProviderSpace();
   const { setSpace, setIsLoading, themeChanged } = context;
+  const [notFound, setNotFound] = useState(false);
 
   const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
 
@@ -57,7 +59,8 @@ const SpacePage: NextPage<Props> = (props: Props) => {
           setIsLoading(false);
         })
         .catch((err: any) => {
-          notify(err.message, "error");
+          console.log(err);
+          setNotFound(true);
           setIsLoading(false);
         });
     }
@@ -72,10 +75,12 @@ const SpacePage: NextPage<Props> = (props: Props) => {
       <SpaceContext.Provider value={context}>
         <ThemeProvider theme={theme}>
           <PageContainer theme={createTheme(getTheme(0))}>
-            <SpaceNavbar />
+            {!notFound && <SpaceNavbar />}
+
             <Box sx={{ display: "flex", flexDirection: "row" }}>
               <ExploreSidebar />
-              <BoardsTemplate />
+              {!notFound && <BoardsTemplate />}
+              {notFound && <NotFound text="Space not found" />}
             </Box>
           </PageContainer>
         </ThemeProvider>

@@ -38,6 +38,7 @@ import NumericVoting, { Details } from "./numericVoting";
 import ForAgainstVoting from "./forAgainstVoting";
 import ZeroEpochs from "./zeroEpochs";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import CreateEpoch from "./createEpochModal";
 
 type Props = {
   expanded: boolean;
@@ -146,6 +147,9 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   return (
     <Container>
       <Toaster />
+      <Box sx={{ width: "20%" }}>
+        {space.epochs?.length !== 0 && <CreateEpoch />}
+      </Box>
       <Accordion hidden>
         <AccordionSummary />
       </Accordion>

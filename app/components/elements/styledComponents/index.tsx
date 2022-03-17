@@ -100,7 +100,7 @@ export const StyledTabs = styled((props: StyledTabsProps) => (
     backgroundColor: "transparent",
   },
   "& .MuiTabs-indicatorSpan": {
-    maxWidth: 40,
+    maxWidth: 70,
     width: "100%",
     backgroundColor: theme.palette.primary.light,
   },
@@ -120,6 +120,7 @@ export const StyledTab = styled((props: StyledTabProps) => (
   "&.Mui-focusVisible": {
     backgroundColor: "rgba(100, 95, 228, 0.32)",
   },
+  height: "1px",
 }));
 
 export const ModalHeading = styled("div")(({ theme }) => ({

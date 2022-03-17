@@ -4,6 +4,7 @@ import {
   createTheme,
   Theme,
   ThemeProvider,
+  Typography,
   useTheme,
 } from "@mui/material";
 import { NextPage } from "next";
@@ -17,6 +18,7 @@ import {
 } from "react-moralis";
 import { ResolveCallOptions } from "react-moralis/lib/hooks/internal/_useResolveAsyncCall";
 import { getTaskEpoch } from "../../../app/adapters/moralis";
+import NotFound from "../../../app/components/elements/notFound";
 import ExploreSidebar from "../../../app/components/modules/exploreSidebar";
 import TribeNavbar from "../../../app/components/modules/tribeNavbar";
 import TribeTemplate from "../../../app/components/templates/tribe";
@@ -60,24 +62,32 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const { state } = useGlobal();
   const { setLoading, getTeam, setTribe, isMember } = context;
   const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
-  const { isAuthenticated } = useMoralis();
+  const { isAuthenticated, isInitialized } = useMoralis();
+  const [notFound, setNotFound] = useState(false);
   useEffect(() => {
-    setTheme(
-      createTheme(getTheme(parseInt(localStorage.getItem("theme") || "0")))
-    );
-    setLoading(true);
-    getTeam({
-      onSuccess: (res: any) => {
-        console.log(res);
-        setTribe(res as Team);
-        setTheme(createTheme(getTheme(res.theme)));
-        setLoading(false);
-      },
-      params: {
-        teamId: id,
-      },
-    });
-  }, [id, isMember, isAuthenticated]);
+    if (isInitialized && id) {
+      setTheme(
+        createTheme(getTheme(parseInt(localStorage.getItem("theme") || "0")))
+      );
+      setLoading(true);
+      getTeam({
+        onSuccess: (res: any) => {
+          console.log(res);
+          setTribe(res as Team);
+          setTheme(createTheme(getTheme(res.theme)));
+          setLoading(false);
+        },
+        onError: (err: any) => {
+          console.log(err);
+          setNotFound(true);
+          setLoading(false);
+        },
+        params: {
+          teamId: id,
+        },
+      });
+    }
+  }, [id, isMember, isAuthenticated, isInitialized]);
   return (
     <>
       <Head>
@@ -88,10 +98,11 @@ const TribePage: NextPage<Props> = (props: Props) => {
       <ThemeProvider theme={theme}>
         <TribeContext.Provider value={context}>
           <PageContainer theme={createTheme(getTheme(0))}>
-            <TribeNavbar />
+            {!notFound && <TribeNavbar />}
             <Box sx={{ display: "flex", flexDirection: "row" }}>
               <ExploreSidebar />
-              <TribeTemplate />
+              {!notFound && <TribeTemplate />}
+              {notFound && <NotFound text="Tribe not found" />}
             </Box>
           </PageContainer>
         </TribeContext.Provider>
