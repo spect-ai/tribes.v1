@@ -52,6 +52,8 @@ const SubmissionPopover = ({ open, anchorEl, handleClose, task }: Props) => {
         <PrimaryButton
           variant="outlined"
           loading={isLoading}
+          color="secondary"
+          sx={{ borderRadius: 1 }}
           onClick={() => {
             setIsLoading(true);
             updateTaskSubmission(Moralis, link, name, task.taskId)

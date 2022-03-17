@@ -119,53 +119,55 @@ const Column = ({ tasks, id, column, index }: Props) => {
                   <Box sx={{ display: "flex", flexDirection: "row" }}>
                     {column.title !== "Done" && (
                       <>
-                        <Button
-                          sx={{
-                            textTransform: "none",
-                            textAlign: "left",
-                            justifyContent: "flex-start",
-                            ml: 1,
-                            color: palette.text.primary,
-                          }}
-                          variant="contained"
-                          disableElevation
-                          startIcon={<AddIcon />}
-                          onClick={() => {
-                            setShowCreateTask(true);
-                            setTimeout(() => {
-                              document
-                                .getElementById("taskCancelButton")
-                                ?.scrollIntoView({
-                                  behavior: "smooth",
-                                  block: "end",
-                                  inline: "nearest",
-                                });
-                            }, 10);
-                          }}
-                          fullWidth
-                          size="small"
-                          disabled={space.roles[user?.id as string] !== "admin"}
-                        >
-                          Add Card
-                        </Button>
-                        <Button
-                          sx={{
-                            textTransform: "none",
-                            textAlign: "left",
-                            justifyContent: "flex-start",
-                            mr: 1,
-                            color: palette.text.primary,
-                          }}
-                          startIcon={<GitHubIcon />}
-                          onClick={() => setShowCreateGithubTask(true)}
-                          fullWidth
-                          size="small"
-                          variant="contained"
-                          disableElevation
-                          disabled={space.roles[user?.id as string] !== "admin"}
-                        >
-                          Import Card
-                        </Button>
+                        {space.roles[user?.id as string] === "admin" && (
+                          <Button
+                            sx={{
+                              textTransform: "none",
+                              textAlign: "left",
+                              justifyContent: "flex-start",
+                              ml: 1,
+                              color: palette.text.primary,
+                            }}
+                            variant="contained"
+                            disableElevation
+                            startIcon={<AddIcon />}
+                            onClick={() => {
+                              setShowCreateTask(true);
+                              setTimeout(() => {
+                                document
+                                  .getElementById("taskCancelButton")
+                                  ?.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "end",
+                                    inline: "nearest",
+                                  });
+                              }, 10);
+                            }}
+                            fullWidth
+                            size="small"
+                          >
+                            Add Card
+                          </Button>
+                        )}
+                        {space.roles[user?.id as string] === "admin" && (
+                          <Button
+                            sx={{
+                              textTransform: "none",
+                              textAlign: "left",
+                              justifyContent: "flex-start",
+                              mr: 1,
+                              color: palette.text.primary,
+                            }}
+                            startIcon={<GitHubIcon />}
+                            onClick={() => setShowCreateGithubTask(true)}
+                            fullWidth
+                            size="small"
+                            variant="contained"
+                            disableElevation
+                          >
+                            Import Card
+                          </Button>
+                        )}
                       </>
                     )}
                   </Box>

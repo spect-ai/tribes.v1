@@ -4,8 +4,8 @@ import { useMoralis } from "react-moralis";
 import ProfilePopover from "../../modules/profilePopover";
 import { SidebarButton } from "../styledComponents";
 import LoginIcon from "@mui/icons-material/Login";
-import { smartTrim } from "../../../utils/utils";
 import styled from "@emotion/styled";
+import { getMD5String } from "../../../utils/utils";
 
 type Props = {};
 
@@ -43,7 +43,12 @@ const SidebarProfile = (props: Props) => {
           <Avatar
             variant="rounded"
             sx={{ p: 0, m: 0, width: 32, height: 32 }}
-            src={user?.get("profilePicture")._url}
+            src={
+              user?.get("profilePicture")?._url ||
+              `https://www.gravatar.com/avatar/${getMD5String(
+                user?.id as string
+              )}?d=identicon&s=64`
+            }
           >
             {user?.get("username")[0]}
           </Avatar>

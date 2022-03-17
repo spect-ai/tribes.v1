@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
-import { Avatar, Breadcrumbs, Link, useTheme } from "@mui/material";
+import { Avatar, Breadcrumbs, Link, Skeleton, useTheme } from "@mui/material";
 import React from "react";
+import { useMoralis } from "react-moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import SidebarProfile from "../../elements/sidebarProfile";
 import {
@@ -12,8 +13,22 @@ import {
 type Props = {};
 
 const TribeNavbar = (props: Props) => {
-  const { tab, handleTabChange, tribe } = useTribe();
+  const { tab, handleTabChange, tribe, loading } = useTribe();
   const { palette } = useTheme();
+  const { user } = useMoralis();
+  if (loading) {
+    return (
+      <StyledNav>
+        <Skeleton
+          variant="rectangular"
+          width="100%"
+          height={40}
+          animation="wave"
+          sx={{ mx: 8 }}
+        />
+      </StyledNav>
+    );
+  }
   return (
     <StyledNav>
       <NavbarContainer>
@@ -32,7 +47,10 @@ const TribeNavbar = (props: Props) => {
       </NavbarContainer>
       <StyledTabs value={tab} onChange={handleTabChange} centered>
         <StyledTab label="Overview" />
-        <StyledTab label="Settings" />
+        <StyledTab
+          label="Settings"
+          disabled={tribe.roles[user?.id as string] !== "admin"}
+        />
       </StyledTabs>
       <SidebarProfile />
     </StyledNav>

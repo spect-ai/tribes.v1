@@ -7,7 +7,7 @@ import {
   Grow,
   IconButton,
   Modal,
-  styled,
+  styled as MUIStyled,
   TextField,
   Tooltip,
   Typography,
@@ -18,10 +18,13 @@ import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import {
   PrimaryButton,
-  SidebarButton,
   StyledAccordian,
 } from "../../elements/styledComponents";
-import { getTeam, updateBoard } from "../../../adapters/moralis";
+import {
+  getTeam,
+  updateBoard,
+  updateThemeFromSpace,
+} from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { BoardData, Chain, Registry, Team, Token } from "../../../types";
@@ -33,34 +36,39 @@ import {
 } from "../../../utils/utils";
 import { registryTemp } from "../../../constants";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { ButtonText } from "../exploreSidebar";
+import { ButtonText, SidebarButton } from "../exploreSidebar";
+import { OptionsButton } from "../themePopover";
+import { useRouter } from "next/router";
+import styled from "@emotion/styled";
 
 type Props = {};
 
 const BoardSettings = (props: Props) => {
-  const { space, setSpace } = useSpace();
+  console.log("boardsettingsss");
+
+  const { space, setSpace, setThemeChanged, themeChanged } = useSpace();
   const { Moralis } = useMoralis();
-  const [name, setName] = useState(space.name);
+  const [name, setName] = useState(space?.name);
   const [isOpen, setIsOpen] = useState(false);
   const [chain, setChain] = useState<Chain>(
-    space.defaultPayment?.chain || { chainId: "137", name: "polygon" }
+    space?.defaultPayment?.chain || { chainId: "137", name: "polygon" }
   );
   const [tokenAddress, setTokenAddress] = useState(
-    space.defaultPayment?.token?.address || "0x0"
+    space?.defaultPayment?.token?.address || "0x0"
   );
   const [tokenName, setTokenName] = useState(
-    space.defaultPayment?.token?.symbol ||
-      space.defaultPayment?.chain.name ||
+    space?.defaultPayment?.token?.symbol ||
+      space?.defaultPayment?.chain.name ||
       "polygon"
   );
   const [tokenGatechain, setTokenGateChain] = useState(
-    space.tokenGating?.chain as Chain
+    space?.tokenGating?.chain as Chain
   );
   const [tokenGateAddress, setTokenGateAddress] = useState(
-    space.tokenGating?.tokenAddress
+    space?.tokenGating?.tokenAddress
   );
   const [tokenGateLimit, setTokenGateLLimit] = useState(
-    space.tokenGating?.tokenLimit
+    space?.tokenGating?.tokenLimit
   );
   const handleClose = () => {
     setIsOpen(false);
@@ -71,12 +79,30 @@ const BoardSettings = (props: Props) => {
     setIsConfirmOpen(false);
   };
 
+  const router = useRouter();
+  const id = router.query.id as string;
+  const bid = router.query.bid as string;
   const { palette } = useTheme();
   return (
     <>
-      <SidebarButton color="inherit" onClick={() => setIsOpen(true)}>
-        <SettingsIcon />
-        <ButtonText>Settings</ButtonText>
+      <SidebarButton
+        palette={palette}
+        selected={isOpen}
+        onClick={() => setIsOpen(true)}
+      >
+        <Tooltip
+          title="Space Settings"
+          placement="right"
+          arrow
+          sx={{ m: 0, p: 0 }}
+        >
+          <SettingsIcon
+            sx={{
+              fontSize: 28,
+              color: isOpen ? palette.secondary.main : palette.divider,
+            }}
+          />
+        </Tooltip>
       </SidebarButton>
       {isConfirmOpen && (
         <ConfirmModal isOpen={isConfirmOpen} handleClose={handleConfirmClose} />
@@ -220,34 +246,64 @@ const BoardSettings = (props: Props) => {
                   aria-controls="panel1a-content"
                   id="panel1a-header"
                 >
-                  <Typography>Integrations (Coming Soon)</Typography>
+                  <Typography>Theme</Typography>
                 </AccordionSummary>
-
-                <AccordionDetails>
-                  <Grid container spacing={1}>
-                    <Grid item xs={12}>
-                      <PrimaryButton
-                        disabled
-                        startIcon={<i className="fa-brands fa-github"></i>}
-                      >
-                        Connect with Github
-                      </PrimaryButton>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <PrimaryButton
-                        disabled
-                        startIcon={
-                          <i
-                            className="fa-brands fa-discord"
-                            style={{ fontSize: 17 }}
-                          ></i>
+                <OptionsButton color="inherit">
+                  <ThemeColor color="#000f29" />
+                  <Typography
+                    fontSize={14}
+                    sx={{ width: "70%" }}
+                    onClick={() => {
+                      updateThemeFromSpace(Moralis, bid, id, 0).then(
+                        (res: BoardData) => {
+                          setSpace(res);
+                          localStorage.setItem("theme", "0");
+                          setThemeChanged(!themeChanged);
                         }
-                      >
-                        Connect with Discord
-                      </PrimaryButton>
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
+                      );
+                    }}
+                  >
+                    Classic Dark
+                  </Typography>
+                </OptionsButton>
+                <OptionsButton color="inherit">
+                  <ThemeColor color="#38006b" />
+                  <Typography
+                    fontSize={14}
+                    sx={{ width: "70%" }}
+                    onClick={() => {
+                      updateThemeFromSpace(Moralis, bid, id, 1).then(
+                        (res: BoardData) => {
+                          setSpace(res);
+                          localStorage.setItem("theme", "1");
+                          setThemeChanged(!themeChanged);
+                        }
+                      );
+                    }}
+                  >
+                    Warm Purple
+                  </Typography>
+                </OptionsButton>
+                <OptionsButton color="inherit">
+                  <ThemeColor color="#0288d1" />
+                  <Typography
+                    fontSize={14}
+                    sx={{ width: "70%" }}
+                    onClick={() => {
+                      updateThemeFromSpace(Moralis, bid, id, 2).then(
+                        (res: BoardData) => {
+                          setSpace(res);
+                          console.log(res);
+                          localStorage.setItem("theme", "2");
+                          setThemeChanged(!themeChanged);
+                        }
+                      );
+                    }}
+                  >
+                    Ocean Blue
+                  </Typography>
+                </OptionsButton>
+                <AccordionDetails></AccordionDetails>
               </StyledAccordian>
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <PrimaryButton
@@ -297,7 +353,7 @@ const BoardSettings = (props: Props) => {
   );
 };
 // @ts-ignore
-const ModalContainer = styled(Box)(({ theme }) => ({
+const ModalContainer = MUIStyled(Box)(({ theme }) => ({
   position: "absolute" as "absolute",
   top: "10%",
   left: "25%",
@@ -310,7 +366,7 @@ const ModalContainer = styled(Box)(({ theme }) => ({
   maxHeight: "calc(100% - 128px)",
 }));
 
-const Heading = styled("div")(({ theme }) => ({
+const Heading = MUIStyled("div")(({ theme }) => ({
   fontWeight: 500,
   fontSize: 16,
   color: theme.palette.text.secondary,
@@ -322,10 +378,19 @@ const Heading = styled("div")(({ theme }) => ({
   paddingLeft: 32,
 }));
 
-const ModalContent = styled("div")(({ theme }) => ({
+const ModalContent = MUIStyled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   padding: 32,
 }));
+
+const ThemeColor = styled.div<{ color: string }>`
+  background-color: ${({ color }) => color};
+  border-radius: 2px;
+  height: 18px;
+  width: 18px;
+  margin-right: 8px;
+  border: 1px solid #5a6972;
+`;
 
 export default BoardSettings;

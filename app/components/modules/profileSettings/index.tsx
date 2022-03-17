@@ -52,7 +52,7 @@ const ProfileSettings = (props: Props) => {
                   src={
                     user?.get("profilePicture")?._url ||
                     `https://www.gravatar.com/avatar/${getMD5String(
-                      user?.get("username")
+                      user?.id as string
                     )}?d=identicon&s=64`
                   }
                   sx={{ height: 60, width: 60 }}

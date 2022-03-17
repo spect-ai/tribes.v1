@@ -3,55 +3,80 @@ import {
   Avatar,
   Box,
   Divider,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemText,
   Palette,
   Tooltip,
   useTheme,
 } from "@mui/material";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { useExplore } from "../../../../pages";
 import ExploreIcon from "@mui/icons-material/Explore";
 import { useRouter } from "next/router";
 import CreateTribeModal from "../createTribeModal";
-import { getMyTeams } from "../../../adapters/moralis";
+import { getEssentialBoardsInfo, getMyTeams } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { notify } from "../settingsTab";
+import SwitchLeftIcon from "@mui/icons-material/SwitchLeft";
+import BoardSettings from "../boardSettings";
 
 type Props = {};
 
 const ExploreSidebar = (props: Props) => {
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  const [tribeSpaces, setTribeSpaces] = useState([]);
   const [myTribes, setMyTribes] = useState<any[]>([] as any[]);
-  const onMouseHover = () => setIsCollapsed(false);
-  const onMouseLeave = () => setIsCollapsed(true);
-
   const { palette } = useTheme();
   const { Moralis, isInitialized, isAuthenticated } = useMoralis();
-
   const router = useRouter();
-  const id = router.query.id;
+  const id = router.query.id as string;
+  const bid = router.query.bid as string;
+  const handleClose = () => setIsOpen(false);
+
+  const initializeData = async () => {
+    try {
+      const myTribes = await getMyTeams(Moralis);
+      const spaces = await getEssentialBoardsInfo(Moralis, id);
+      setMyTribes(myTribes);
+      setTribeSpaces(spaces);
+    } catch (e) {
+      console.log(e);
+      notify("Error in initalizing sidebar data");
+    }
+  };
 
   useEffect(() => {
     if (isInitialized) {
-      getMyTeams(Moralis)
-        .then((res: any) => {
-          setMyTribes(res);
-        })
-        .catch((err: any) => {
-          notify("Error failed to get my tribes");
-          console.log(err);
-        });
+      initializeData();
     }
   }, [isInitialized, isAuthenticated]);
 
   return (
-    <SidebarContainer
-      onMouseEnter={onMouseHover}
-      onMouseLeave={onMouseLeave}
-      palette={palette}
-    >
+    <SidebarContainer palette={palette}>
       <Box sx={{ mt: 4 }} />
-
+      <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
+        <List
+          sx={{
+            maxWidth: "10rem",
+            backgroundColor: palette.background.default,
+            height: "100%",
+          }}
+        >
+          {tribeSpaces.map((space: any, index) => (
+            <Link
+              href={`/tribe/${id}/space/${space.objectId}`}
+              key={index}
+              passHref
+            >
+              <ListItemButton selected={space.objectId === bid}>
+                <ListItemText primary={space.name} />
+              </ListItemButton>
+            </Link>
+          ))}
+        </List>
+      </Drawer>
       <Link href={"/"} passHref>
         <SidebarButton palette={palette} selected={!id}>
           <Tooltip title="Explore" placement="right" arrow sx={{ m: 0, p: 0 }}>
@@ -64,6 +89,28 @@ const ExploreSidebar = (props: Props) => {
           </Tooltip>
         </SidebarButton>
       </Link>
+      {bid && (
+        <SidebarButton
+          palette={palette}
+          selected={!id}
+          onClick={() => setIsOpen(true)}
+        >
+          <Tooltip
+            title="Switch Space"
+            placement="right"
+            arrow
+            sx={{ m: 0, p: 0 }}
+          >
+            <SwitchLeftIcon
+              sx={{
+                fontSize: 28,
+                color: !id ? palette.secondary.main : palette.divider,
+              }}
+            />
+          </Tooltip>
+        </SidebarButton>
+      )}
+      {bid && <BoardSettings />}
       <Divider sx={{ my: 5, mx: 3 }} />
       <CreateTribeModal />
       {myTribes?.map((tribe, index) => (

@@ -56,8 +56,9 @@ const LabelPopover = ({ open, anchorEl, handleClose, task }: Props) => {
         />
         <PrimaryButton
           variant="outlined"
-          sx={{ mt: 4 }}
+          sx={{ mt: 4, borderRadius: 1 }}
           loading={isLoading}
+          color="secondary"
           onClick={() => {
             setIsLoading(true);
             updateTaskLabels(Moralis, labels, task.taskId)

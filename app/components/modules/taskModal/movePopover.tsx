@@ -55,7 +55,8 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
         />
         <PrimaryButton
           variant="outlined"
-          sx={{ mt: 4 }}
+          sx={{ mt: 4, borderRadius: 1 }}
+          color="secondary"
           onClick={() => {
             setIsLoading(true);
             updateTaskColumn(
