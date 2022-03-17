@@ -26,7 +26,7 @@ const ExploreSidebar = (props: Props) => {
   const onMouseLeave = () => setIsCollapsed(true);
 
   const { palette } = useTheme();
-  const { Moralis, isInitialized } = useMoralis();
+  const { Moralis, isInitialized, isAuthenticated } = useMoralis();
 
   const router = useRouter();
   const id = router.query.id;
@@ -42,7 +42,7 @@ const ExploreSidebar = (props: Props) => {
           console.log(err);
         });
     }
-  }, [isInitialized]);
+  }, [isInitialized, isAuthenticated]);
 
   return (
     <SidebarContainer

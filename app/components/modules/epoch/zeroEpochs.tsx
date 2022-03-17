@@ -29,17 +29,6 @@ const ZeroEpochs = (props: Props) => {
         </Typography>{" "}
         {user && space.roles[user?.id] === "admin" && (
           <>
-            {/* <PrimaryButton
-              variant="outlined"
-              size="large"
-              endIcon={<PlayCircleFilledWhiteIcon />}
-              onClick={() => {
-                setIsModalOpen(true);
-              }}
-              sx={{ ml: 16, borderRadius: 1, mt: 2 }}
-            >
-              Start an epoch
-            </PrimaryButton> */}
             <CreateEpoch />
           </>
         )}

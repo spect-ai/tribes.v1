@@ -263,8 +263,9 @@ const Settings = () => {
             <PrimaryButton
               type="submit"
               variant="outlined"
+              color="secondary"
               fullWidth
-              sx={{ width: "50%" }}
+              sx={{ width: "20%", borderRadius: 2 }}
               loading={isLoading}
             >
               Save

@@ -102,6 +102,7 @@ const ProfileSettings = (props: Props) => {
               </FieldContainer>
               <PrimaryButton
                 variant="outlined"
+                color="secondary"
                 sx={{ width: "50%", mt: 2, borderRadius: 1 }}
                 loading={isLoading}
                 onClick={() => {

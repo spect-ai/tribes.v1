@@ -66,8 +66,9 @@ const TribeHeading = (props: Props) => {
       >
         {/* <Typography variant="h6">{tribe.name}</Typography> */}
         <PrimaryButton
-          sx={{ borderRadius: 1, mr: 4 }}
+          sx={{ borderRadius: 1, my: 4 }}
           variant="outlined"
+          color="secondary"
           endIcon={<PeopleOutlineIcon />}
           onClick={() => {
             navigator.clipboard.writeText(window.location.href).then(

@@ -20,7 +20,7 @@ export const PrimaryButton = styled(LoadingButton)<ButtonProps>(
 );
 
 export const TaskButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText(theme.palette.secondary.main),
+  color: theme.palette.text.primary,
   textTransform: "none",
   marginBottom: "6px",
 }));

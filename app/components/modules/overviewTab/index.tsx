@@ -45,7 +45,9 @@ const Overview = () => {
                   mt: 4,
                 }}
               >
-                <Title>Contributors</Title>
+                <Typography variant="h6" color="text.secondary">
+                  Contributors
+                </Typography>
                 <AvatarGroup max={6} sx={{ width: "fit-content" }}>
                   {tribe?.members?.map((memberId, idx) => (
                     <Tooltip
@@ -104,12 +106,6 @@ const DescriptionContainer = styled.div`
   align-self: flex-start;
   flex-direction: column;
   padding-bottom: 16px;
-`;
-
-const Title = styled.div`
-  font-size: 20px;
-  margin-bottom: 10;
-  margin-top: 10;
 `;
 
 // color: ${classicDark.palette.text.secondary};

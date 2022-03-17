@@ -94,6 +94,7 @@ const Members = (props: Props) => {
                     Array(tribe.members.length).fill(e.target.checked)
                   );
                 }}
+                color="secondary"
               />
             </TableCell>
             <TableCell align="right" sx={{ color: palette.text.secondary }}>
@@ -116,7 +117,7 @@ const Members = (props: Props) => {
             >
               <TableCell component="th" scope="row" padding="checkbox">
                 <Checkbox
-                  color="primary"
+                  color="secondary"
                   inputProps={{
                     "aria-label": "select all desserts",
                   }}

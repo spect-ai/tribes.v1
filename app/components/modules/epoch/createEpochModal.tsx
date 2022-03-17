@@ -142,6 +142,7 @@ const CreateEpoch = (props: Props) => {
           <PrimaryButton
             variant="outlined"
             size="large"
+            color="secondary"
             endIcon={<PlayCircleFilledWhiteIcon />}
             onClick={() => {
               setIsOpen(true);

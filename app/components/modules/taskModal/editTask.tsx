@@ -222,7 +222,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
               Reward
             </Typography>
             <InnerInfo>
-              <Typography sx={{ fontSize: 14 }} color="primary">
+              <Typography sx={{ fontSize: 14 }} color="text.primary">
                 {task.value} {task.token.symbol}
               </Typography>
             </InnerInfo>
@@ -254,7 +254,8 @@ const EditTask = ({ task, handleClose, column }: Props) => {
               {(task.access.creator || task.access.reviewer) && (
                 <PrimaryButton
                   variant="outlined"
-                  sx={{ mt: 4 }}
+                  sx={{ mt: 4, borderRadius: 2 }}
+                  color="secondary"
                   loading={isLoading}
                   onClick={() => {
                     setIsLoading(true);
@@ -340,10 +341,10 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                   task.access.assignee) && (
                   <TaskButton
                     variant="outlined"
-                    color="primary"
                     disabled={column.status === "Closed"}
                     onClick={handleClick("date")}
                     endIcon={<EventIcon />}
+                    color="secondary"
                   >
                     Due Date
                   </TaskButton>
@@ -358,7 +359,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                 )}
                 <TaskButton
                   variant="outlined"
-                  color="primary"
+                  color="secondary"
                   onClick={handleClick("label")}
                   disabled={!isSpaceMember() || column.status === "Closed"}
                   endIcon={<LabelIcon />}
@@ -376,7 +377,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                 {(task.access.reviewer || task.access.creator) && (
                   <TaskButton
                     variant="outlined"
-                    color="primary"
+                    color="secondary"
                     onClick={handleClick("reviewer")}
                     disabled={column.status === "Closed"}
                     endIcon={<VisibilityIcon />}
@@ -396,7 +397,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                 {(task.access.reviewer || task.access.creator) && (
                   <TaskButton
                     variant="outlined"
-                    color="primary"
+                    color="secondary"
                     onClick={handleClick("assignee")}
                     disabled={column.status === "Closed"}
                     endIcon={<AssignmentIndIcon />}
@@ -416,7 +417,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                 {task.access.creator && (
                   <TaskButton
                     variant="outlined"
-                    color="primary"
+                    color="secondary"
                     onClick={handleClick("reward")}
                     endIcon={<PaidIcon />}
                   >
@@ -434,7 +435,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                 {task.access.assignee && (
                   <TaskButton
                     variant="outlined"
-                    color="primary"
+                    color="secondary"
                     onClick={handleClick("submission")}
                     endIcon={<PublishIcon />}
                   >
@@ -466,7 +467,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                   task.access.assignee) && (
                   <TaskButton
                     variant="outlined"
-                    color="primary"
+                    color="secondary"
                     onClick={handleClick("move")}
                     endIcon={<ArrowCircleRightIcon />}
                   >
@@ -486,7 +487,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                   task.status === 205 && (
                     <TaskButton
                       variant="outlined"
-                      color="primary"
+                      color="secondary"
                       endIcon={<PaidIcon />}
                       onClick={() => {
                         task.token.symbol ===
@@ -534,7 +535,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                 {!task.assignee.length && (
                   <TaskButton
                     variant="outlined"
-                    color="primary"
+                    color="secondary"
                     disabled={!isSpaceMember()}
                     endIcon={<HailIcon />}
                     onClick={() => {
