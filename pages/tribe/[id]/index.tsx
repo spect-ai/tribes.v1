@@ -62,9 +62,11 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const { state } = useGlobal();
   const { setLoading, getTeam, setTribe, isMember } = context;
   const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
-  const { isAuthenticated, isInitialized } = useMoralis();
+  const { isAuthenticated, isInitialized, user, isUserUpdating } = useMoralis();
   const [notFound, setNotFound] = useState(false);
+
   useEffect(() => {
+    console.log("hi");
     if (isInitialized && id) {
       setTheme(
         createTheme(getTheme(parseInt(localStorage.getItem("theme") || "0")))

@@ -58,14 +58,22 @@ const Members = (props: Props) => {
   }, []);
 
   const onSave = () => {
-    if (!Object.values(roles).includes("admin")) {
-      notify("You must have at least one admin", "error");
-      return;
-    }
     setIsLoading(true);
     const members = tribe.members.filter((member: string, index: number) => {
       return isChecked[index];
     });
+    let adminExists;
+    members.map((member: string) => {
+      if (roles[member] === "admin") {
+        adminExists = true;
+        return;
+      }
+    });
+    if (!adminExists) {
+      notify(`You must have at least one admin.`, "error");
+      setIsLoading(false);
+      return;
+    }
     updateBoardMembers(Moralis, space.objectId, members, roles)
       .then((res: BoardData) => {
         setIsLoading(false);
@@ -94,7 +102,7 @@ const Members = (props: Props) => {
                     Array(tribe.members.length).fill(e.target.checked)
                   );
                 }}
-                color="secondary"
+                color="default"
               />
             </TableCell>
             <TableCell align="right" sx={{ color: palette.text.secondary }}>

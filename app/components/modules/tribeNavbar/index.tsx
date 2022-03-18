@@ -41,7 +41,7 @@ const TribeNavbar = (props: Props) => {
           {tribe.name && tribe.name[0]}
         </Avatar>
         <Breadcrumbs aria-label="breadcrumb" sx={{ ml: 4 }}>
-          <Link underline="hover" color="text.primary" href="/">
+          <Link underline="none" color="text.primary">
             {tribe.name}
           </Link>
         </Breadcrumbs>

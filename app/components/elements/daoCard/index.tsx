@@ -32,7 +32,7 @@ const DAOCard = ({ image, title, members, teamId }: Props) => {
             color={palette.text.primary}
             sx={{ textAlign: "center", maxHeight: "4rem", overflow: "hidden" }}
           >
-            {normalTrim(title, 18)}
+            {normalTrim(title, 17)}
           </Typography>
           <Typography
             gutterBottom

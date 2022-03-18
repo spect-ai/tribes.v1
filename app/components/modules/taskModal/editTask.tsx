@@ -345,10 +345,12 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     variant="outlined"
                     disabled={column.status === "Closed"}
                     onClick={handleClick("date")}
-                    endIcon={<EventIcon />}
                     color="secondary"
                   >
-                    Due Date
+                    <Typography sx={{ width: "50%", fontSize: 15 }}>
+                      Due Date
+                    </Typography>
+                    <EventIcon />
                   </TaskButton>
                 )}
                 {open["date"] && (
@@ -364,9 +366,11 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                   color="secondary"
                   onClick={handleClick("label")}
                   disabled={!isSpaceMember() || column.status === "Closed"}
-                  endIcon={<LabelIcon />}
                 >
-                  Labels
+                  <Typography sx={{ width: "50%", fontSize: 15 }}>
+                    Labels
+                  </Typography>
+                  <LabelIcon />
                 </TaskButton>
                 {open["label"] && (
                   <LabelPopover
@@ -382,9 +386,11 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     color="secondary"
                     onClick={handleClick("reviewer")}
                     disabled={column.status === "Closed"}
-                    endIcon={<VisibilityIcon />}
                   >
-                    Reviewer
+                    <Typography sx={{ width: "50%", fontSize: 15 }}>
+                      Reviewer
+                    </Typography>
+                    <VisibilityIcon />
                   </TaskButton>
                 )}
                 {open["reviewer"] && (
@@ -402,9 +408,11 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     color="secondary"
                     onClick={handleClick("assignee")}
                     disabled={column.status === "Closed"}
-                    endIcon={<AssignmentIndIcon />}
                   >
-                    Assignee
+                    <Typography sx={{ width: "50%", fontSize: 15 }}>
+                      Assignee
+                    </Typography>
+                    <AssignmentIndIcon />
                   </TaskButton>
                 )}
                 {open["assignee"] && (
@@ -421,9 +429,11 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     variant="outlined"
                     color="secondary"
                     onClick={handleClick("reward")}
-                    endIcon={<PaidIcon />}
                   >
-                    Reward
+                    <Typography sx={{ width: "50%", fontSize: 15 }}>
+                      Reward
+                    </Typography>
+                    <PaidIcon />
                   </TaskButton>
                 )}
                 {open["reward"] && (
@@ -439,9 +449,11 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     variant="outlined"
                     color="secondary"
                     onClick={handleClick("submission")}
-                    endIcon={<PublishIcon />}
                   >
-                    Submission
+                    <Typography sx={{ width: "50%", fontSize: 15 }}>
+                      Submission
+                    </Typography>
+                    <PublishIcon />
                   </TaskButton>
                 )}
                 {open["submission"] && (
@@ -471,9 +483,11 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     variant="outlined"
                     color="secondary"
                     onClick={handleClick("move")}
-                    endIcon={<ArrowCircleRightIcon />}
                   >
-                    Move
+                    <Typography sx={{ width: "50%", fontSize: 15 }}>
+                      Move
+                    </Typography>
+                    <ArrowCircleRightIcon />
                   </TaskButton>
                 )}
                 {open["move"] && (
@@ -490,7 +504,6 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     <TaskButton
                       variant="outlined"
                       color="secondary"
-                      endIcon={<PaidIcon />}
                       onClick={() => {
                         task.token.symbol ===
                         registryTemp[task.chain.chainId].nativeCurrency
@@ -526,7 +539,10 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                               .catch((err: any) => alert(err));
                       }}
                     >
-                      Pay
+                      <Typography sx={{ width: "50%", fontSize: 15 }}>
+                        Pay
+                      </Typography>
+                      <PaidIcon />
                     </TaskButton>
                   )}
                 {/*!task.access.creator && (
@@ -539,7 +555,6 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     variant="outlined"
                     color="secondary"
                     disabled={!isSpaceMember()}
-                    endIcon={<HailIcon />}
                     onClick={() => {
                       // Can we improve the experience here by the greedy approach?
                       assignToMe(Moralis, task.taskId)
@@ -554,14 +569,16 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                         });
                     }}
                   >
-                    Assign to me
+                    <Typography sx={{ width: "50%", fontSize: 15 }}>
+                      Assign to Me
+                    </Typography>
+                    <HailIcon />
                   </TaskButton>
                 )}
                 {space.roles[user?.id as string] === "admin" && (
                   <TaskButton
                     variant="outlined"
                     color="error"
-                    endIcon={<DeleteIcon />}
                     onClick={() => {
                       archiveTask(Moralis, task.taskId)
                         .then((res: BoardData) => {
@@ -577,7 +594,10 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                         });
                     }}
                   >
-                    Archive
+                    <Typography sx={{ width: "50%", fontSize: 15 }}>
+                      Archive
+                    </Typography>
+                    <DeleteIcon />
                   </TaskButton>
                 )}
               </Box>

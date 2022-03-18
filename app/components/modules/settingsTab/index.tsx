@@ -42,7 +42,6 @@ const Settings = () => {
     control,
     formState: { errors },
     setValue,
-    getValues,
   } = useForm<SettingFormInput>({
     defaultValues: {
       logo: tribe.logo,
@@ -101,6 +100,7 @@ const Settings = () => {
                   minRows="3"
                   fullWidth
                   placeholder="Description"
+                  multiline
                   label={tribe.description ? "Description" : ""}
                 />
               )}

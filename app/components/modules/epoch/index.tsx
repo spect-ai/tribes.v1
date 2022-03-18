@@ -9,6 +9,7 @@ import {
   Typography,
   Autocomplete,
   TextField,
+  Skeleton,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -145,17 +146,22 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   };
 
   useEffect(() => {
-    setIsLoading(true);
-    loadEpochs(Moralis, bid);
-  }, []);
-
-  useEffect(() => {
     if (refreshEpochs) {
       setIsLoading(true);
       loadEpochs(Moralis, bid);
       setRefreshEpochs(false);
     }
   }, [refreshEpochs]);
+  if (isLoading) {
+    return (
+      <Skeleton
+        variant="rectangular"
+        width="100%"
+        animation="wave"
+        sx={{ mt: 8 }}
+      />
+    );
+  }
 
   return (
     <Container>

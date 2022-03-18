@@ -8,11 +8,14 @@ import {
 } from "../../elements/styledComponents";
 import { NavbarContainer } from "../../../components/modules/tribeNavbar/index";
 import SidebarProfile from "../../elements/sidebarProfile";
+import { useRouter } from "next/router";
 
 type Props = {};
 
 const SpaceNavbar = (props: Props) => {
   const { tab, handleTabChange, space } = useSpace();
+  const router = useRouter();
+  const id = router.query.id as string;
   const { palette } = useTheme();
   return (
     <StyledNav>
@@ -25,10 +28,10 @@ const SpaceNavbar = (props: Props) => {
           {space.team && space.team[0]?.name[0]}
         </Avatar>
         <Breadcrumbs aria-label="breadcrumb" sx={{ ml: 4 }}>
-          <Link underline="hover" color="inherit" href="/">
+          <Link underline="hover" color="inherit" href={`/tribe/${id}`}>
             {space.team && space.team[0]?.name}
           </Link>
-          <Link underline="hover" color="text.primary" href="/">
+          <Link underline="none" color="text.primary">
             {space.name}
           </Link>
         </Breadcrumbs>
