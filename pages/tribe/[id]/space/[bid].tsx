@@ -30,6 +30,8 @@ interface SpaceContextType {
   setIsLoading: (isLoading: boolean) => void;
   themeChanged: boolean;
   setThemeChanged: (themeChanged: boolean) => void;
+  refreshEpochs: boolean;
+  setRefreshEpochs: (refreshEpochs: boolean) => void;
 }
 
 const SpaceContext = createContext<SpaceContextType>({} as SpaceContextType);
@@ -101,9 +103,11 @@ function useProviderSpace() {
   const [tab, setTab] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [themeChanged, setThemeChanged] = useState(false);
+  const [refreshEpochs, setRefreshEpochs] = useState(false);
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
+
   return {
     space,
     setSpace,
@@ -113,6 +117,8 @@ function useProviderSpace() {
     setIsLoading,
     themeChanged,
     setThemeChanged,
+    refreshEpochs,
+    setRefreshEpochs,
   };
 }
 

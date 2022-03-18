@@ -62,7 +62,8 @@ type VotesRemaining = {
 const EpochList = ({ expanded, handleChange }: Props) => {
   const { Moralis, user } = useMoralis();
   const router = useRouter();
-  const { space, setSpace, handleTabChange } = useSpace();
+  const { space, setSpace, handleTabChange, refreshEpochs, setRefreshEpochs } =
+    useSpace();
   const bid = router.query.bid as string;
   const [votesGiven, setVotesGiven] = useState({} as VotesGivenAllEpochs);
   const [votesRemaining, setVotesRemaining] = useState({} as VotesRemaining);
@@ -117,8 +118,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
     return active ? choices.filter((ele: string) => ele !== user?.id) : choices;
   };
 
-  useEffect(() => {
-    setIsLoading(true);
+  const loadEpochs = (Moralis: any, bid: string) => {
     getEpochs(Moralis, bid)
       .then((res: any) => {
         console.log(res);
@@ -142,7 +142,20 @@ const EpochList = ({ expanded, handleChange }: Props) => {
         notify(`Sorry! There was an error while getting epochs.`, "error");
         setIsLoading(false);
       });
+  };
+
+  useEffect(() => {
+    setIsLoading(true);
+    loadEpochs(Moralis, bid);
   }, []);
+
+  useEffect(() => {
+    if (refreshEpochs) {
+      setIsLoading(true);
+      loadEpochs(Moralis, bid);
+      setRefreshEpochs(false);
+    }
+  }, [refreshEpochs]);
 
   return (
     <Container>

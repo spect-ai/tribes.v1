@@ -109,7 +109,7 @@ Moralis.Cloud.define("addTask", async (request) => {
       columns[request.params.columnId].taskIds = taskIds.concat([taskId]);
       board.set("columns", columns);
       const defaultPayment = board.get("defaultPayment");
-      logger.info(defaultPayment);
+      logger.info(`defaultPayment ${JSON.stringify(defaultPayment)}`);
       var task = new Moralis.Object("Task");
       task.set("taskId", taskId);
       task.set("token", {

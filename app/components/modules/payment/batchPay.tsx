@@ -49,6 +49,7 @@ const BatchPay = ({
   const { space, setSpace } = useSpace();
   const { state } = useGlobal();
   const { registry } = state;
+  console.log(registry);
   return (
     <React.Fragment>
       <Box

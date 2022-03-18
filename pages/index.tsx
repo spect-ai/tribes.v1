@@ -46,12 +46,10 @@ const Home: NextPage = () => {
   const { Moralis, isInitialized, isAuthenticated } = useMoralis();
   const context = useProviderExplore();
   const { setMyTribes, setLoading, setPublicTribes } = context;
-  const initializeExplore = async () => {
+  const initializeExploreAfterWalletConnect = async () => {
     setLoading(true);
     try {
-      const publicTeams = await getPublicTeams(Moralis);
       const myTeams = await getMyTeams(Moralis);
-      setPublicTribes(publicTeams);
       setMyTribes(myTeams);
       setLoading(false);
     } catch (e) {
@@ -60,15 +58,33 @@ const Home: NextPage = () => {
     }
   };
 
+  const initializeExploreBeforeWalletConnect = async () => {
+    setLoading(true);
+    try {
+      const publicTeams = await getPublicTeams(Moralis);
+      setPublicTribes(publicTeams);
+    } catch (e) {
+      console.log(e);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (isInitialized) {
-      initializeExplore();
+      initializeExploreBeforeWalletConnect();
+      console.log(isAuthenticated);
+      if (isAuthenticated) {
+        initializeExploreAfterWalletConnect();
+      }
+      if (!isAuthenticated) {
+        setMyTribes([]);
+      }
     }
   }, [isInitialized, isAuthenticated]);
   return (
     <>
       <Head>
-        <title>Spect.Tribes</title>
+        <title>Spect Tribes</title>
         <meta name="description" content="Manage DAO with ease" />
         <link rel="icon" href="/logo2.svg" />
       </Head>

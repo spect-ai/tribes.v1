@@ -39,6 +39,7 @@ Moralis.Cloud.define("getRegistry", async (request) => {
         mainnet: network.mainnet,
         chainId: network.chainId,
         nativeCurrency: network.nativeCurrency,
+        pictureUrl: network.pictureUrl,
         tokenAddresses: [],
         tokens: {},
       };
@@ -50,6 +51,7 @@ Moralis.Cloud.define("getRegistry", async (request) => {
             address: addr.address,
             name: addr.name,
             symbol: addr.symbol,
+            pictureUrl: addr.pictureUrl,
           };
           registry[network.chainId].tokenAddresses.push(addr.address);
         }

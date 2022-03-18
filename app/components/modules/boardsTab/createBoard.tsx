@@ -259,7 +259,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                       .then((res: any) => {
                         if (res) {
                           router.push(
-                            `/tribe/${tribe.teamId}/board/${res.id}`,
+                            `/tribe/${tribe.teamId}/space/${res.id}`,
                             undefined
                           );
                         }

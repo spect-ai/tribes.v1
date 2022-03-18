@@ -39,13 +39,15 @@ const ExploreSidebar = (props: Props) => {
 
   const initializeData = async () => {
     try {
-      const myTribes = await getMyTeams(Moralis);
-      const spaces = await getEssentialBoardsInfo(Moralis, id);
-      setMyTribes(myTribes);
-      setTribeSpaces(spaces);
+      if (isAuthenticated) {
+        const myTribes = await getMyTeams(Moralis);
+        const spaces = await getEssentialBoardsInfo(Moralis, id);
+        setMyTribes(myTribes);
+        setTribeSpaces(spaces);
+      }
     } catch (e) {
       console.log(e);
-      notify("Error in initalizing sidebar data");
+      notify("Error in initalizing sidebar data", "error");
     }
   };
 

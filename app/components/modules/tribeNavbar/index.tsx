@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Avatar, Breadcrumbs, Link, Skeleton, useTheme } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { useMoralis } from "react-moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import SidebarProfile from "../../elements/sidebarProfile";
@@ -29,6 +29,7 @@ const TribeNavbar = (props: Props) => {
       </StyledNav>
     );
   }
+
   return (
     <StyledNav>
       <NavbarContainer>

@@ -147,7 +147,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
               Due Date
             </Typography>
             <InnerInfo>
-              <Typography sx={{ fontSize: 14 }} color="primary">
+              <Typography sx={{ fontSize: 14 }} color="text.primary">
                 {task.deadline?.getDate()}{" "}
                 {monthMap[task.deadline?.getMonth() as keyof typeof monthMap]}{" "}
                 {task.deadline && formatTime(task.deadline)}

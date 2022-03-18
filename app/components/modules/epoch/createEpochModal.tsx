@@ -46,7 +46,7 @@ import { ButtonText } from "../exploreSidebar";
 type Props = {};
 
 const CreateEpoch = (props: Props) => {
-  const { space, setSpace, handleTabChange } = useSpace();
+  const { space, setSpace, handleTabChange, setRefreshEpochs } = useSpace();
   const { Moralis, user } = useMoralis();
   const [name, setName] = useState("");
   const [duration, setDuration] = useState("");
@@ -87,14 +87,6 @@ const CreateEpoch = (props: Props) => {
     setAllocations(
       allocations.map((v, i) => (i === index ? value : allocations[i]))
     );
-  };
-
-  const handleNewEpochAddition = (res: any) => {
-    const temp = Object.assign({}, space);
-    temp.epochs = res.epochs;
-    temp.taskDetails = res.taskDetails;
-
-    setSpace(temp);
   };
 
   const getMembers = () => {
@@ -182,6 +174,7 @@ const CreateEpoch = (props: Props) => {
                 onChange={(event, newValue) => {
                   setType(newValue as string);
                   if (newValue === "Member") setStrategy("Quadratic voting");
+                  if (newValue === "Card") setStrategy("Pass/No Pass");
                 }}
                 renderInput={(params) => (
                   <TextField
@@ -423,6 +416,11 @@ const CreateEpoch = (props: Props) => {
                 variant="outlined"
                 color="secondary"
                 sx={{ width: "50%", mt: 2, borderRadius: 1 }}
+                disabled={
+                  type === "Member"
+                    ? getMemberChoices()?.length < 3
+                    : getCardChoices()?.length < 2
+                }
                 onClick={() => {
                   if (!validateFields()) {
                     notify("Please fill all the fields", "error");
@@ -452,10 +450,7 @@ const CreateEpoch = (props: Props) => {
                     .then((res: any) => {
                       handleClose();
                       console.log(res);
-                      handleNewEpochAddition(res);
-                      const temp = Object.assign({}, space);
-                      temp.creatingEpoch = false;
-                      setSpace(temp);
+                      setRefreshEpochs(true);
                       handleTabChange({} as any, 1);
                     })
                     .catch((err: any) => alert(err));

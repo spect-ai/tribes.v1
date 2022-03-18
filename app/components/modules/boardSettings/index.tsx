@@ -36,7 +36,8 @@ import styled from "@emotion/styled";
 type Props = {};
 
 const BoardSettings = (props: Props) => {
-  const { space, setSpace, setThemeChanged, themeChanged } = useSpace();
+  const { space, setSpace, setThemeChanged, themeChanged, setRefreshEpochs } =
+    useSpace();
   const { Moralis } = useMoralis();
   const [name, setName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -326,6 +327,7 @@ const BoardSettings = (props: Props) => {
                       console.log(res);
                       setSpace(res as BoardData);
                       setIsLoading(false);
+                      setRefreshEpochs(true);
                       handleClose();
                     });
                   }}
