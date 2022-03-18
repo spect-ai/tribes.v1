@@ -200,6 +200,7 @@ const Payment = ({}: Props) => {
             window.ethereum.networkVersion
           )
             .then((res: BatchPayResponse) => {
+              console.log(res);
               setTaskIdsWithCurencyPayment(res.taskIdsWithCurrencyPayment);
               setTaskIdsWithTokenPayment(res.taskIdsWithTokenPayment);
               var hasApproval = false;
@@ -209,10 +210,11 @@ const Payment = ({}: Props) => {
                 window.ethereum.networkVersion
               )
                 .then((pendingApprovals: any) => {
+                  console.log(pendingApprovals);
                   if (pendingApprovals.tokenAddresses.length > 0) {
                     handleApprovalInfoUpdate(
-                      pendingApprovals.tokenValues,
-                      pendingApprovals.tokenAddresses
+                      pendingApprovals.tokenAddresses,
+                      pendingApprovals.tokenValues
                     );
                     hasApproval = true;
                   }

@@ -32,13 +32,14 @@ import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { SidebarButton } from "../exploreSidebar";
 import { useRouter } from "next/router";
 import styled from "@emotion/styled";
+import { notify } from "../settingsTab";
 
 type Props = {};
 
 const BoardSettings = (props: Props) => {
   const { space, setSpace, setThemeChanged, themeChanged, setRefreshEpochs } =
     useSpace();
-  const { Moralis } = useMoralis();
+  const { Moralis, user } = useMoralis();
   const [name, setName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [chain, setChain] = useState<Chain>(
@@ -308,6 +309,13 @@ const BoardSettings = (props: Props) => {
                   sx={{ width: "50%", mt: 2, mr: 4, borderRadius: 1 }}
                   loading={isLoading}
                   onClick={() => {
+                    if (
+                      space.roles[user?.id as string] &&
+                      space.roles[user?.id as string] !== "admin"
+                    ) {
+                      notify("Only stewards can update settings", "error");
+                      return;
+                    }
                     setIsLoading(true);
                     updateBoard(
                       Moralis,
@@ -338,7 +346,16 @@ const BoardSettings = (props: Props) => {
                   variant="outlined"
                   sx={{ width: "50%", mt: 2, borderRadius: 1 }}
                   color="error"
-                  onClick={() => setIsConfirmOpen(true)}
+                  onClick={() => {
+                    if (
+                      space.roles[user?.id as string] &&
+                      space.roles[user?.id as string] !== "admin"
+                    ) {
+                      notify("Only stewards can update settings", "error");
+                      return;
+                    }
+                    setIsConfirmOpen(true);
+                  }}
                 >
                   Delete Space
                 </PrimaryButton>

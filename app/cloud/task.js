@@ -521,10 +521,19 @@ async function getTokenRewardAmounts(chainId, boardId) {
         boardId: boardId,
         status: 205,
         value: { $gt: 0 },
-        nativeCurrencyPayment: { $ne: true },
-        $expr: {
-          $eq: ["$chain.chainId", chainId],
-        },
+        // nativeCurrencyPayment: { $ne: true },
+        $and: [
+          {
+            $expr: {
+              $eq: ["$chain.chainId", chainId],
+            },
+          },
+          {
+            $expr: {
+              $ne: ["$token.address", "0x0"],
+            },
+          },
+        ],
       },
     },
     {
@@ -549,10 +558,18 @@ async function getCurrencyRewardAmounts(chainId, boardId) {
         boardId: boardId,
         status: 205,
         value: { $gt: 0 },
-        nativeCurrencyPayment: { $eq: true },
-        $expr: {
-          $eq: ["$chain.chainId", chainId],
-        },
+        $and: [
+          {
+            $expr: {
+              $eq: ["$chain.chainId", chainId],
+            },
+          },
+          {
+            $expr: {
+              $eq: ["$token.address", "0x0"],
+            },
+          },
+        ],
       },
     },
     {
@@ -575,11 +592,20 @@ async function getTaskIdsWithPendingTokenPayments(chainId, boardId) {
       match: {
         boardId: boardId,
         status: 205,
-        nativeCurrencyPayment: { $ne: true },
+        // nativeCurrencyPayment: { $ne: true }, we dont really need this we using 0x0 address
         value: { $gt: 0 },
-        $expr: {
-          $eq: ["$chain.chainId", chainId],
-        },
+        $and: [
+          {
+            $expr: {
+              $eq: ["$chain.chainId", chainId],
+            },
+          },
+          {
+            $expr: {
+              $ne: ["$token.address", "0x0"],
+            },
+          },
+        ],
       },
     },
     {
@@ -600,11 +626,19 @@ async function getTaskIdsWithPendingCurrencyPayments(chainId, boardId) {
       match: {
         boardId: boardId,
         status: 205,
-        nativeCurrencyPayment: { $eq: true },
         value: { $gt: 0 },
-        $expr: {
-          $eq: ["$chain.chainId", chainId],
-        },
+        $and: [
+          {
+            $expr: {
+              $eq: ["$chain.chainId", chainId],
+            },
+          },
+          {
+            $expr: {
+              $eq: ["$token.address", "0x0"],
+            },
+          },
+        ],
       },
     },
     {

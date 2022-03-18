@@ -168,6 +168,7 @@ const BatchPay = ({
                       setIsLoading(false);
                       handleNextStep();
                     });
+                    notify("Payment done succesfully!");
                   })
                   .catch((err: any) => {
                     alert(err.message);

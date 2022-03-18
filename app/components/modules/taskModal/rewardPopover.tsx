@@ -9,7 +9,6 @@ import { PopoverContainer } from "./datePopover";
 import { useGlobal } from "../../../context/globalContext";
 import {
   getFlattenedNetworks,
-  getFlattenedTokens,
   getFlattenedCurrencies,
 } from "../../../utils/utils";
 import { registryTemp } from "../../../constants";
@@ -46,6 +45,7 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
         <Autocomplete
           options={getFlattenedNetworks(registryTemp as Registry)}
           getOptionLabel={(option) => option.name}
+          disableClearable
           value={chain}
           onChange={(event, newValue) => {
             setChain(newValue as Chain);
@@ -72,6 +72,7 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
             registryTemp as Registry,
             chain.chainId
           )}
+          disableClearable
           getOptionLabel={(option) => option.symbol}
           value={token}
           onChange={(event, newValue) => {

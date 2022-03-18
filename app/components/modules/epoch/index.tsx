@@ -68,7 +68,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   const bid = router.query.bid as string;
   const [votesGiven, setVotesGiven] = useState({} as VotesGivenAllEpochs);
   const [votesRemaining, setVotesRemaining] = useState({} as VotesRemaining);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [passColumn, setPassColumn] = useState("");
   const [noPassColumn, setNoPassColumn] = useState("");
 
@@ -79,6 +79,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   ) => {
     var temp = Object.assign({}, votesGiven); // Shallow copy
     temp[epochid][choiceId] = value;
+    console.log(temp);
     setVotesGiven(temp);
   };
 

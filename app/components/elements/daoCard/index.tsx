@@ -52,7 +52,7 @@ const DAOCard = ({ image, title, members, teamId }: Props) => {
               mt: 4,
             }}
           >
-            Join
+            View
           </Button>
         </CardContent>
       </Card>

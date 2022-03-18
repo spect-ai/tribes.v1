@@ -114,8 +114,8 @@ const ExploreSidebar = (props: Props) => {
           </Tooltip>
         </SidebarButton>
       )}
-      {bid && <BoardSettings />}
-      {bid && <Payment />}
+      {bid && isAuthenticated && <BoardSettings />}
+      {bid && isAuthenticated && <Payment />}
       <Divider sx={{ my: 5, mx: 3 }} />
       <CreateTribeModal />
       {myTribes?.map((tribe, index) => (

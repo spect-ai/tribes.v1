@@ -133,6 +133,7 @@ const PayoutButton = ({ epoch }: Props) => {
       <PrimaryButton
         endIcon={<PaidIcon />}
         variant="outlined"
+        disabled={epoch.paid}
         loading={isLoading}
         sx={{
           mx: 4,

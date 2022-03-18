@@ -66,7 +66,6 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    console.log("hi");
     if (isInitialized && id) {
       setTheme(
         createTheme(getTheme(parseInt(localStorage.getItem("theme") || "0")))

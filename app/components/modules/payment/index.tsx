@@ -44,12 +44,8 @@ const PaymentModal = ({
   maxModalActiveStep,
   handleStatusUpdate,
 }: Props) => {
-  console.log(isModalOpen);
-
   const [isOpen, setIsOpen] = useState(isModalOpen);
-  console.log(isOpen);
   const [steps, setSteps] = useState(modalSteps);
-  console.log(steps);
   const [activeStep, setActiveStep] = useState(activeModalStep);
   const [maxActiveStep, setMaxActiveStep] = useState(maxModalActiveStep);
   const {

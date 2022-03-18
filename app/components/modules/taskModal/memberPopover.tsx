@@ -65,6 +65,7 @@ const MemberPopover = ({ open, anchorEl, handleClose, type, task }: Props) => {
         />
         <PrimaryButton
           variant="outlined"
+          color="secondary"
           sx={{ mt: 4, borderRadius: 1 }}
           loading={isLoading}
           onClick={() => {

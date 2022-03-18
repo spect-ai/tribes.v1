@@ -64,12 +64,14 @@ export const NavbarButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
   height: "35px",
 }));
 
-export const SidebarButton = styled(Button)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText("#000f29"),
-  pt: 2,
-  margin: 0,
-  minWidth: 0,
-}));
+export const SidebarButton = styled(LoadingButton)<ButtonProps>(
+  ({ theme }) => ({
+    color: theme.palette.getContrastText("#000f29"),
+    pt: 2,
+    margin: 0,
+    minWidth: 0,
+  })
+);
 
 export const StyledAccordian = styled(Accordion)(({ theme }) => ({
   backgroundColor: theme.palette.primary.dark,

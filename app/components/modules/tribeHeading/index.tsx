@@ -4,6 +4,7 @@ import {
   Breadcrumbs,
   styled as MUIStyled,
   Link as MuiLink,
+  Tooltip,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
@@ -32,7 +33,6 @@ const TribeHeading = (props: Props) => {
 
   return (
     <Container>
-      <Toaster />
       <Box
         sx={{
           display: "flex",
@@ -66,7 +66,7 @@ const TribeHeading = (props: Props) => {
       >
         {/* <Typography variant="h6">{tribe.name}</Typography> */}
         <PrimaryButton
-          sx={{ borderRadius: 1, my: 4 }}
+          sx={{ borderRadius: 1, my: 4, mr: 2 }}
           variant="outlined"
           color="secondary"
           endIcon={<PeopleOutlineIcon />}
@@ -86,12 +86,13 @@ const TribeHeading = (props: Props) => {
         {!(user && tribe.members.includes(user?.id)) && (
           <PrimaryButton
             variant="outlined"
+            color="secondary"
             loading={isLoading}
-            disabled={!isAuthenticated}
             sx={{ borderRadius: 1 }}
             onClick={async () => {
               if (!isAuthenticated) {
-                await authenticate();
+                notify("Connect Wallet to join tribe", "error");
+                return;
               }
               setIsLoading(true);
               joinTribe(Moralis, id).then((res: boolean) => {

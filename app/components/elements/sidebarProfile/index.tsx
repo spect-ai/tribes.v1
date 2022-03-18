@@ -10,7 +10,8 @@ import { getMD5String } from "../../../utils/utils";
 type Props = {};
 
 const SidebarProfile = (props: Props) => {
-  const { user, isAuthenticated, authenticate } = useMoralis();
+  const { user, isAuthenticated, authenticate, isAuthenticating } =
+    useMoralis();
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -29,9 +30,13 @@ const SidebarProfile = (props: Props) => {
         <SidebarButton
           sx={{ mt: 2 }}
           color="inherit"
+          loading={isAuthenticating}
           onClick={() => authenticate()}
         >
           <LoginIcon />
+          <Typography sx={{ textTransform: "none", fontSize: 14, ml: 2 }}>
+            Connect
+          </Typography>
         </SidebarButton>
       )}
       {isAuthenticated && (
@@ -67,7 +72,7 @@ const Profile = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 0.7rem;
-  margin-right: 1.7rem;
+  margin-right: 1rem;
 `;
 
 export default SidebarProfile;

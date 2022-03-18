@@ -12,8 +12,8 @@ import Image from "next/image";
 import CloseIcon from "@mui/icons-material/Close";
 import { approve } from "../../../adapters/contract";
 import { BatchPayInfo } from ".";
-import { registryTemp } from "../../../constants";
 import { capitalizeFirstLetter } from "../../../utils/utils";
+import { useGlobal } from "../../../context/globalContext";
 
 interface Props {
   handleNextStep: Function;
@@ -59,6 +59,9 @@ const ApproveModal = ({
     return pendingApprovals.length > 0 ? false : true;
   };
 
+  const { state } = useGlobal();
+  const registry = state.registry;
+
   return (
     <React.Fragment>
       <Box
@@ -81,7 +84,7 @@ const ApproveModal = ({
               <Grid item xs={3}>
                 <Box style={{ display: "flex" }}>
                   <Avatar
-                    src={registryTemp[chainId].pictureUrl}
+                    src={registry[chainId].pictureUrl}
                     sx={{
                       width: "2rem",
                       height: "2rem",
@@ -96,7 +99,7 @@ const ApproveModal = ({
                     marginBottom="10px"
                     marginLeft="10px"
                   >
-                    {capitalizeFirstLetter(registryTemp[chainId].name)} Network
+                    {capitalizeFirstLetter(registry[chainId].name)} Network
                   </Typography>
                 </Box>
               </Grid>
@@ -129,12 +132,12 @@ const ApproveModal = ({
                           objectFit: "cover",
                           my: 1,
                         }}
-                        src={registryTemp[chainId].tokens[address].pictureUrl}
+                        src={registry[chainId].tokens[address].pictureUrl}
                       >
-                        {registryTemp[chainId].tokens[address].symbol[0]}
+                        {registry[chainId].tokens[address].symbol[0]}
                       </Avatar>
                       <Typography color="text.primary" marginLeft="20px">
-                        {registryTemp[chainId].tokens[address].symbol}
+                        {registry[chainId].tokens[address].symbol}
                       </Typography>
                     </Box>
                   </Grid>
@@ -157,6 +160,7 @@ const ApproveModal = ({
                       <PrimaryButton
                         loading={isLoading[index]}
                         sx={{ borderRadius: "3px" }}
+                        color="secondary"
                         onClick={() => {
                           toggleIsLoading(index);
                           approve(

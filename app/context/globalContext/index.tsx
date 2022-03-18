@@ -39,7 +39,6 @@ const initContracts = async (dispatch: React.Dispatch<Action>) => {
 };
 
 const initRegistry = async (dispatch: React.Dispatch<Action>, Moralis: any) => {
-  console.log("initreg");
   getRegistry(Moralis).then((res: Registry) => {
     try {
       dispatch({

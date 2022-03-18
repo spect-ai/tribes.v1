@@ -256,8 +256,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
               {(task.access.creator || task.access.reviewer) && (
                 <PrimaryButton
                   variant="outlined"
-                  sx={{ mt: 4, borderRadius: 2 }}
+                  sx={{ mt: 4, borderRadius: 1 }}
                   color="secondary"
+                  size="small"
                   loading={isLoading}
                   onClick={() => {
                     setIsLoading(true);

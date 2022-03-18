@@ -10,6 +10,7 @@ import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { Octokit } from "@octokit/rest";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { notify } from "../settingsTab";
 
 type Props = {
   setShowCreateTask: (showCreateTask: boolean) => void;
@@ -56,6 +57,7 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
       >
         <Button
           startIcon={<DoneIcon />}
+          color="secondary"
           onClick={() => {
             const splitValues = newIssueLink.split("/");
             octokit.rest.issues
@@ -77,7 +79,10 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
                 setNewTaskValue(0);
                 setNewIssueLink("");
                 setShowCreateTask(false);
-              });
+              })
+              .catch((err) =>
+                notify("Issue not found. Make sure the repo is public", "error")
+              );
           }}
           sx={{ textTransform: "none" }}
           fullWidth
