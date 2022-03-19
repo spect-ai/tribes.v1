@@ -170,11 +170,7 @@ const CreateEpoch = (props: Props) => {
     )
       .then((res: any) => {
         handleClose();
-        console.log(res);
-        handleNewEpochAddition(res);
-        const temp = Object.assign({}, space);
-        temp.creatingEpoch = false;
-        setSpace(temp);
+        setRefreshEpochs(true);
         handleTabChange({} as any, 1);
       })
       .catch((err: any) => alert(err));
@@ -245,6 +241,9 @@ const CreateEpoch = (props: Props) => {
                         if (newValue === "Member") {
                           setValue("strategy", "Quadratic voting");
                           setStrategy("Quadratic voting");
+                        } else if (newValue === "Card") {
+                          setValue("strategy", "Pass/No Pass");
+                          setStrategy("Pass/No Pass");
                         }
                         // setType(newValue as string);
                         // if (newValue === "Member")
@@ -296,7 +295,7 @@ const CreateEpoch = (props: Props) => {
                       options={
                         type === "Member"
                           ? ["Quadratic voting"]
-                          : ["Quadratic voting", "Pass/No Pass"]
+                          : ["Pass/No Pass"]
                       }
                       onChange={(event, newValue) => {
                         field.onChange(newValue);

@@ -153,6 +153,11 @@ const EpochList = ({ expanded, handleChange }: Props) => {
       setRefreshEpochs(false);
     }
   }, [refreshEpochs]);
+  useEffect(() => {
+    setIsLoading(true);
+    loadEpochs(Moralis, bid);
+    setRefreshEpochs(false);
+  }, []);
   if (isLoading) {
     return (
       <Skeleton
