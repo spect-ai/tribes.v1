@@ -92,7 +92,7 @@ export interface Epoch {
 }
 
 export interface Token {
-  address?: string;
+  address: string;
   symbol: string;
 }
 
@@ -207,8 +207,8 @@ export type Registry = {
 
 export type TokenGate = {
   chain: Chain;
-  tokenAddress: string;
-  tokenLimit: number;
+  token: Token;
+  tokenLimit: string;
 };
 
 export type DefaultPayment = {

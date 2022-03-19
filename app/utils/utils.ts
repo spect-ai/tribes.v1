@@ -109,7 +109,7 @@ export function getFlattenedNetworks(registry: Registry) {
 
 export function getFlattenedTokens(registry: Registry, chainId: string) {
   var tokens: Array<Token> = [];
-  for (var tokenAddress of registry[chainId].tokenAddresses) {
+  for (var tokenAddress of registry[chainId]?.tokenAddresses) {
     tokens.push({
       address: tokenAddress,
       symbol: registry[chainId].tokens[tokenAddress].symbol,
@@ -120,7 +120,8 @@ export function getFlattenedTokens(registry: Registry, chainId: string) {
 
 export function getFlattenedCurrencies(registry: Registry, chainId: string) {
   var currencies = getFlattenedTokens(registry, chainId);
-  currencies = [...currencies, { symbol: registry[chainId].nativeCurrency }];
+  // @ts-ignore
+  // currencies = [...currencies, { symbol: registry[chainId].nativeCurrency }];
   return currencies;
 }
 

@@ -18,32 +18,31 @@ import {
   Select,
   Autocomplete,
   Grid,
+  createFilterOptions,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState, useEffect } from "react";
-import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
+import {
+  ModalHeading,
+  PrimaryButton,
+  StyledAccordian,
+} from "../../elements/styledComponents";
 import { initBoard } from "../../../adapters/moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Chain, Member, Registry } from "../../../types";
-import { getFlattenedNetworks } from "../../../utils/utils";
-import { registryTemp } from "../../../constants";
+import { Chain, Member, Registry, Token } from "../../../types";
 import { notify } from "../settingsTab";
+import { useGlobal } from "../../../context/globalContext";
+import TokenGateForm from "../../elements/tokenGateForm";
 
 type Props = {
   isOpen: boolean;
   handleClose: () => void;
 };
 
-function createData(username: string, role: string) {
-  return {
-    username,
-    role,
-  };
-}
 interface SpaceMember {
   [key: string]: Member;
 }
@@ -53,6 +52,11 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   const { Moralis } = useMoralis();
   const router = useRouter();
   const [name, setName] = useState("");
+  const [token, setToken] = useState<Token>();
+  const {
+    state: { registry },
+  } = useGlobal();
+  console.log(registry);
   const [chain, setChain] = useState({
     chainId: "137",
     name: "polygon",
@@ -65,6 +69,8 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   );
   const [roles, setRoles] = useState(tribe.roles as { [key: string]: string });
   const [isPrivate, setIsPrivate] = useState(false);
+
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const toggleCheckboxValue = (index: number) => {
     setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
@@ -83,7 +89,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   return (
     <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
       <Grow in={isOpen} timeout={500}>
-        <Box sx={modalStyle}>
+        <ModalContainer>
           <ModalHeading>
             <Typography sx={{ color: "#99ccff" }}>Create Space</Typography>
             <Box sx={{ flex: "1 1 auto" }} />
@@ -107,11 +113,12 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               sx={{ mb: 2 }}
             /> */}
 
-            <Accordion disableGutters>
+            <StyledAccordian disableGutters>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"
                 id="panel1a-header"
+                sx={{ fontWeight: "bold" }}
               >
                 Members
               </AccordionSummary>
@@ -127,6 +134,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                               Array(tribe.members.length).fill(e.target.checked)
                             );
                           }}
+                          color="default"
                         />
                       </TableCell>
                       <TableCell align="right" sx={{ color: "#99ccff" }}>
@@ -153,7 +161,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                           padding="checkbox"
                         >
                           <Checkbox
-                            color="primary"
+                            color="secondary"
                             inputProps={{
                               "aria-label": "select all desserts",
                             }}
@@ -186,9 +194,12 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                   </TableBody>
                 </Table>
               </AccordionDetails>
-            </Accordion>
-            <Accordion disableGutters>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            </StyledAccordian>
+            <StyledAccordian disableGutters>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{ fontWeight: "bold" }}
+              >
                 Token Gating
               </AccordionSummary>
               <AccordionDetails>
@@ -196,43 +207,16 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                   Enable token gating to allow addresses with the token limit to
                   automatically join space without any prior permission
                 </Typography>
-                <Autocomplete
-                  options={getFlattenedNetworks(registryTemp as Registry)}
-                  getOptionLabel={(option) => option.name}
-                  value={chain}
-                  disableClearable
-                  onChange={(event, newValue) => {
-                    setChain(newValue as Chain);
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      size="small"
-                      fullWidth
-                      sx={{ my: 4 }}
-                    />
-                  )}
+                <TokenGateForm
+                  chain={chain}
+                  setChain={setChain}
+                  token={token as Token}
+                  setToken={setToken}
+                  tokenLimit={tokenLimit}
+                  setTokenLimit={setTokenLimit}
                 />
-                <Box sx={{ display: "flex" }}>
-                  <TextField
-                    fullWidth
-                    placeholder="Token Address"
-                    size="small"
-                    value={tokenAddress}
-                    onChange={(e) => setTokenAddress(e.target.value)}
-                  />
-                  <TextField
-                    sx={{ width: "25%", ml: 2 }}
-                    placeholder="Limit"
-                    type={"number"}
-                    size="small"
-                    inputProps={{ min: 1 }}
-                    value={tokenLimit}
-                    onChange={(e) => setTokenLimit(e.target.value)}
-                  />
-                </Box>
               </AccordionDetails>
-            </Accordion>
+            </StyledAccordian>
             <Grid container alignItems="center" marginTop={2}>
               <Grid item xs={3}>
                 <PrimaryButton
@@ -251,7 +235,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                       tribe.teamId,
                       {
                         chain,
-                        tokenAddress,
+                        token: token as Token,
                         tokenLimit: parseFloat(tokenLimit),
                       },
                       isPrivate
@@ -287,6 +271,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                   onChange={(e) => {
                     setIsPrivate(e.target.checked);
                   }}
+                  color="default"
                 />
               </Grid>
               <Grid item xs={1}>
@@ -294,24 +279,25 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               </Grid>
             </Grid>
           </ModalContent>
-        </Box>
+        </ModalContainer>
       </Grow>
     </Modal>
   );
 };
 
-const modalStyle = {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
   position: "absolute" as "absolute",
-  top: "15%",
-  left: "30%",
+  top: "10%",
+  left: "25%",
   transform: "translate(-50%, -50%)",
-  width: "40rem",
-  bgcolor: "background.paper",
+  width: "50rem",
   border: "2px solid #000",
+  backgroundColor: theme.palette.background.default,
   boxShadow: 24,
-  overflowY: "auto",
-  maxHeight: "80vh",
-};
+  overflow: "auto",
+  maxHeight: "calc(100% - 128px)",
+}));
 
 const ModalContent = styled("div")(({ theme }) => ({
   display: "flex",

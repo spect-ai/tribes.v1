@@ -24,6 +24,7 @@ const SpaceNavbar = (props: Props) => {
   const bid = router.query.bid as string;
   const { palette } = useTheme();
   const { user, Moralis } = useMoralis();
+  console.log(space);
   return (
     <StyledNav>
       <NavbarContainer>
@@ -43,7 +44,7 @@ const SpaceNavbar = (props: Props) => {
           </Link>
         </Breadcrumbs>
         {!space.members?.includes(user?.id as string) &&
-          space.tokenGating?.tokenLimit > 0 && (
+          parseFloat(space.tokenGating?.tokenLimit) > 0 && (
             <Tooltip title="You can join space if you have enough tokens">
               <PrimaryButton
                 variant="outlined"

@@ -345,35 +345,49 @@ Moralis.Cloud.define("joinSpace", async (request) => {
   try {
     const boardQuery = new Moralis.Query("Board");
     boardQuery.equalTo("objectId", request.params.boardId);
-    let board = await boardQuery.first();
+    const web3 = Moralis.web3ByChain("0x1");
+    let board = await boardQuery.first({ useMasterKey: true });
     if (board.get("members").indexOf(request.user.id) !== -1) {
-      return false; // replace with throw maybe?
+      throw "User already in space";
     }
     if (
       !(
-        board.get("tokenGating").tokenAddress &&
+        board.get("tokenGating").token.address &&
         board.get("tokenGating").tokenLimit > 0
       )
     ) {
-      return false; // replace with throw maybe?
+      throw "Token gating not set up";
     }
     let tribe = await getTribeByTeamId(board.get("teamId"));
+    const tokenGating = board.get("tokenGating");
+
     const options = {
-      chain: board.get("tokenGating").chain.name,
+      chain: tokenGating.chain.name,
       address: request.user.get("ethAddress"),
     };
+    if (tokenGating.token.address === "0x0") {
+      const balance = await Moralis.Web3API.account.getNativeBalance(options);
+      logger.info(balance.balance);
+      if (web3.utils.fromWei(balance.balance) >= tokenGating.tokenLimit) {
+        if (tribe.get("members").indexOf(request.user.id) === -1) {
+          tribe = joinTribeAsMember(tribe, request.user.id);
+        }
+        board = joinSpaceAsMember(board, request.user.id);
+        await Moralis.Object.saveAll([tribe, board], { useMasterKey: true });
+        return await getSpace(request.params.boardId, request.user.id);
+      } else {
+        throw `Not enough balance to join this space. Need atleast ${tokenGating.tokenLimit} ${tokenGating.token.symbol} `;
+      }
+    }
     const balances = await Moralis.Web3API.account.getTokenBalances(options);
     const token = balances.filter(
-      (b) =>
-        b.token_address.toLowerCase() ===
-        board.get("tokenGating").tokenAddress.toLowerCase()
+      (b) => b.token_address.toLowerCase() === tokenGating.token.address
     );
     logger.info(`token ${JSON.stringify(token)}`);
-    const web3 = Moralis.web3ByChain("0x1");
+
     if (
       token[0] &&
-      web3.utils.fromWei(token[0].balance.toString()) >=
-        board.get("tokenGating").tokenLimit
+      web3.utils.fromWei(token[0].balance.toString()) >= tokenGating.tokenLimit
     ) {
       if (tribe.get("members").indexOf(request.user.id) === -1) {
         tribe = joinTribeAsMember(tribe, request.user.id);
@@ -382,7 +396,7 @@ Moralis.Cloud.define("joinSpace", async (request) => {
       await Moralis.Object.saveAll([tribe, board], { useMasterKey: true });
       return await getSpace(request.params.boardId, request.user.id);
     } else {
-      throw "Not enough balance to join this space";
+      throw `Not enough balance to join this space. Need atleast ${tokenGating.tokenLimit} ${tokenGating.token.symbol} `;
     }
   } catch (err) {
     logger.error(

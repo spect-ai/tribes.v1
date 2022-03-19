@@ -11,7 +11,6 @@ import {
   getFlattenedNetworks,
   getFlattenedCurrencies,
 } from "../../../utils/utils";
-import { registryTemp } from "../../../constants";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
@@ -43,14 +42,14 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
     >
       <PopoverContainer>
         <Autocomplete
-          options={getFlattenedNetworks(registryTemp as Registry)}
+          options={getFlattenedNetworks(registry as Registry)}
           getOptionLabel={(option) => option.name}
           disableClearable
           value={chain}
           onChange={(event, newValue) => {
             setChain(newValue as Chain);
             let tokens = getFlattenedCurrencies(
-              registryTemp as Registry,
+              registry as Registry,
               newValue?.chainId as string
             );
             if (tokens.length > 0) setToken(tokens[0]);
@@ -68,10 +67,7 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
           )}
         />
         <Autocomplete
-          options={getFlattenedCurrencies(
-            registryTemp as Registry,
-            chain.chainId
-          )}
+          options={getFlattenedCurrencies(registry as Registry, chain.chainId)}
           disableClearable
           getOptionLabel={(option) => option.symbol}
           value={token}

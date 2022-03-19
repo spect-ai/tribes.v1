@@ -1,9 +1,7 @@
 import {
-  Accordion,
   AccordionDetails,
   AccordionSummary,
   Autocomplete,
-  Grid,
   Grow,
   IconButton,
   Modal,
@@ -27,41 +25,31 @@ import { BoardData, Chain, Registry, Team, Token } from "../../../types";
 import ConfirmModal from "./confirmModal";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { getFlattenedNetworks } from "../../../utils/utils";
-import { registryTemp } from "../../../constants";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { SidebarButton } from "../exploreSidebar";
 import { useRouter } from "next/router";
 import styled from "@emotion/styled";
 import { notify } from "../settingsTab";
+import { useGlobal } from "../../../context/globalContext";
+import TokenGateForm from "../../elements/tokenGateForm";
+import DefaultPaymentForm from "../../elements/defaultPaymentForm";
 
 type Props = {};
 
 const BoardSettings = (props: Props) => {
   const { space, setSpace, setThemeChanged, themeChanged, setRefreshEpochs } =
     useSpace();
+  const {
+    state: { registry },
+  } = useGlobal();
   const { Moralis, user } = useMoralis();
   const [name, setName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [chain, setChain] = useState<Chain>(
-    space?.defaultPayment?.chain || { chainId: "137", name: "polygon" }
-  );
-  const [tokenAddress, setTokenAddress] = useState(
-    space?.defaultPayment?.token?.address || "0x0"
-  );
-  const [tokenName, setTokenName] = useState(
-    space?.defaultPayment?.token?.symbol ||
-      space?.defaultPayment?.chain.name ||
-      "polygon"
-  );
-  const [tokenGatechain, setTokenGateChain] = useState(
-    space?.tokenGating?.chain as Chain
-  );
-  const [tokenGateAddress, setTokenGateAddress] = useState(
-    space?.tokenGating?.tokenAddress
-  );
-  const [tokenGateLimit, setTokenGateLLimit] = useState(
-    space?.tokenGating?.tokenLimit
-  );
+  const [defaultToken, setDefaultToken] = useState<Token>({} as Token);
+  const [defaultChain, setDefaultChain] = useState<Chain>({} as Chain);
+  const [tokenGatechain, setTokenGateChain] = useState<Chain>({} as Chain);
+  const [tokenGateToken, setTokenGateToken] = useState<Token>({} as Token);
+  const [tokenGateLimit, setTokenGateLimit] = useState<string>("");
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -75,11 +63,14 @@ const BoardSettings = (props: Props) => {
   const id = router.query.id as string;
   const bid = router.query.bid as string;
   const { palette } = useTheme();
-
   useEffect(() => {
     setName(space.name);
+    setTokenGateChain(space.tokenGating?.chain);
+    setTokenGateToken(space.tokenGating?.token);
+    setTokenGateLimit(space.tokenGating?.tokenLimit);
+    setDefaultChain(space.defaultPayment?.chain);
+    setDefaultToken(space.defaultPayment?.token);
   }, [space]);
-
   return (
     <>
       <SidebarButton
@@ -142,51 +133,12 @@ const BoardSettings = (props: Props) => {
                   <Typography>
                     Default payment for all the new tasks created
                   </Typography>
-                  <Autocomplete
-                    options={getFlattenedNetworks(registryTemp as Registry)}
-                    getOptionLabel={(option) => option.name}
-                    value={chain}
-                    disableClearable
-                    onChange={(event, newValue) => {
-                      setChain(newValue as Chain);
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        size="small"
-                        fullWidth
-                        sx={{ my: 4 }}
-                      />
-                    )}
+                  <DefaultPaymentForm
+                    chain={defaultChain}
+                    setChain={setDefaultChain}
+                    token={defaultToken}
+                    setToken={setDefaultToken}
                   />
-                  <Box sx={{ display: "flex" }}>
-                    <TextField
-                      size="small"
-                      fullWidth
-                      sx={{ mr: 4 }}
-                      value={tokenAddress}
-                      onChange={async (e) => {
-                        setTokenAddress(e.target.value);
-                        if (e.target.value.length === 42) {
-                          const options = {
-                            chain: chain.name,
-                            addresses: e.target.value,
-                          };
-                          const token =
-                            await Moralis.Web3API.token.getTokenMetadata(
-                              options as any
-                            );
-                          setTokenName(token[0].symbol);
-                        }
-                      }}
-                    />
-                    <TextField
-                      size="small"
-                      sx={{ mb: 4, width: "45%" }}
-                      value={tokenName}
-                      InputProps={{ readOnly: true }}
-                    />
-                  </Box>
                 </AccordionDetails>
               </StyledAccordian>
               <StyledAccordian disableGutters>
@@ -196,45 +148,16 @@ const BoardSettings = (props: Props) => {
                 <AccordionDetails>
                   <Typography>
                     Enable token gating to allow addresses with the token limit
-                    to automatically join space without any prior permission
+                    to automatically join space without any prior permissions
                   </Typography>
-                  <Autocomplete
-                    options={getFlattenedNetworks(registryTemp as Registry)}
-                    getOptionLabel={(option) => option.name}
-                    value={tokenGatechain}
-                    disableClearable
-                    onChange={(event, newValue) => {
-                      setTokenGateChain(newValue as Chain);
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        size="small"
-                        fullWidth
-                        sx={{ my: 4 }}
-                      />
-                    )}
+                  <TokenGateForm
+                    chain={tokenGatechain || space?.tokenGating?.chain}
+                    setChain={setTokenGateChain}
+                    token={tokenGateToken || space?.tokenGating?.token}
+                    setToken={setTokenGateToken}
+                    tokenLimit={tokenGateLimit}
+                    setTokenLimit={setTokenGateLimit}
                   />
-                  <Box sx={{ display: "flex" }}>
-                    <TextField
-                      fullWidth
-                      placeholder="Token Address"
-                      size="small"
-                      value={tokenGateAddress}
-                      onChange={(e) => setTokenGateAddress(e.target.value)}
-                    />
-                    <TextField
-                      sx={{ width: "25%", ml: 2 }}
-                      placeholder="Limit"
-                      type={"number"}
-                      size="small"
-                      inputProps={{ min: 1 }}
-                      value={tokenGateLimit}
-                      onChange={(e) =>
-                        setTokenGateLLimit(Number(e.target.value))
-                      }
-                    />
-                  </Box>
                 </AccordionDetails>
               </StyledAccordian>
               {/* <StyledAccordian disableGutters>
@@ -321,14 +244,13 @@ const BoardSettings = (props: Props) => {
                       Moralis,
                       space.objectId,
                       name,
-                      chain,
                       {
-                        address: tokenAddress,
-                        symbol: tokenName,
+                        chain: defaultChain,
+                        token: defaultToken,
                       },
                       {
                         chain: tokenGatechain,
-                        tokenAddress: tokenGateAddress,
+                        token: tokenGateToken,
                         tokenLimit: tokenGateLimit,
                       }
                     ).then((res: any) => {

@@ -1,4 +1,12 @@
-import { Team, Epoch, Member, Chain, Token, TokenGate } from "../types/index";
+import {
+  Team,
+  Epoch,
+  Member,
+  Chain,
+  Token,
+  TokenGate,
+  DefaultPayment,
+} from "../types/index";
 
 export function getOrCreateUser(Moralis: any) {
   return Moralis.Cloud.run("getOrCreateUser");
@@ -33,7 +41,7 @@ export function initBoard(
   teamId: string,
   tokenGating: {
     chain: Chain;
-    tokenAddress: string;
+    token: Token;
     tokenLimit: number;
   },
   isPrivate: boolean
@@ -413,17 +421,13 @@ export function updateBoard(
   Moralis: any,
   boardId: string,
   name: string,
-  chain: Chain,
-  token: Token,
+  defaultPayment: DefaultPayment,
   tokenGating: TokenGate
 ) {
   const params = {
     boardId: boardId,
     name: name,
-    defaultPayment: {
-      chain: chain,
-      token: token,
-    },
+    defaultPayment: defaultPayment,
     tokenGating: tokenGating,
   };
   return Moralis.Cloud.run("updateBoard", params);
@@ -607,4 +611,20 @@ export function updateThemeFromSpace(
     theme: theme,
   };
   return Moralis.Cloud.run("updateThemeFromSpace", params);
+}
+
+export function addERC20Token(
+  address: string,
+  chainId: string,
+  symbol: string,
+  name: string,
+  Moralis: any
+) {
+  const params = {
+    address: address,
+    chainId: chainId,
+    symbol: symbol,
+    name: name,
+  };
+  return Moralis.Cloud.run("addERC20Token", params);
 }

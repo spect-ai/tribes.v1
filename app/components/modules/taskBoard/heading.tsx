@@ -45,117 +45,118 @@ const StyledIcon = styled.div`
 `;
 
 const Heading = (props: Props) => {
-  const { space, setSpace, tab, handleTabChange } = useSpace();
-  const router = useRouter();
-  const id = router.query.id as string;
-  const bid = router.query.bid as string;
-  const [isOpen, setIsOpen] = useState(false);
-  const [isEpochModalOpen, setIsEpochModalOpen] = useState(false);
-  const handleClose = () => setIsOpen(false);
-  const { Moralis, isInitialized, user } = useMoralis();
-  const [boards, setBoards] = useState([]);
-  const [isLoadingJoinSpace, setIsLoadingJoinSpace] = useState(false);
+  // const { space, setSpace, tab, handleTabChange } = useSpace();
+  // const router = useRouter();
+  // const id = router.query.id as string;
+  // const bid = router.query.bid as string;
+  // const [isOpen, setIsOpen] = useState(false);
+  // const [isEpochModalOpen, setIsEpochModalOpen] = useState(false);
+  // const handleClose = () => setIsOpen(false);
+  // const { Moralis, isInitialized, user } = useMoralis();
+  // const [boards, setBoards] = useState([]);
+  // const [isLoadingJoinSpace, setIsLoadingJoinSpace] = useState(false);
 
-  useEffect(() => {
-    if (isInitialized) {
-      getEssentialBoardsInfo(Moralis, id)
-        .then((res: any) => {
-          setBoards(res);
-        })
-        .catch((err: any) =>
-          notify("Sorry! There was an error while getting your space", "error")
-        );
-    }
-  }, [isInitialized, space.name]);
+  // useEffect(() => {
+  //   if (isInitialized) {
+  //     getEssentialBoardsInfo(Moralis, id)
+  //       .then((res: any) => {
+  //         setBoards(res);
+  //       })
+  //       .catch((err: any) =>
+  //         notify("Sorry! There was an error while getting your space", "error")
+  //       );
+  //   }
+  // }, [isInitialized, space.name]);
+  return <div></div>;
 
-  return (
-    <Container>
-      <Toaster />
-      <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
-        <List
-          sx={{ maxWidth: "10rem", backgroundColor: "#00194A", height: "100%" }}
-        >
-          {boards.map((board: any, index) => (
-            <Link
-              href={`/tribe/${id}/board/${board.objectId}`}
-              key={board.objectId}
-              passHref
-            >
-              <ListItemButton selected={board.objectId === bid}>
-                <ListItemText primary={board.name} />
-              </ListItemButton>
-            </Link>
-          ))}
-        </List>
-      </Drawer>
-      <Box sx={{ display: "none", flexDirection: "row", alignItems: "center" }}>
-        <Typography variant="h6" sx={{ mx: 2 }}>
-          {space.name}
-        </Typography>
-        {space.roles[user?.id as string] === "admin" && <BoardSettings />}
-        {space.roles[user?.id as string] === "admin" && <Payment />}
-        <Tooltip title="Switch Board">
-          <IconButton
-            sx={{ mb: 0.5, p: 2.5 }}
-            size="small"
-            onClick={() => setIsOpen(true)}
-          >
-            <StyledIcon className="fa-solid fa-arrow-right-arrow-left"></StyledIcon>
-          </IconButton>
-        </Tooltip>
-        <Tooltip title="Refresh">
-          <MuiLink href="">
-            <IconButton sx={{ mb: 0, p: 1.7 }} size="small">
-              <RefreshIcon />
-            </IconButton>
-          </MuiLink>
-        </Tooltip>
-        {space.members.indexOf(user?.id as string) === -1 &&
-          space.tokenGating.tokenLimit > 0 && (
-            <Tooltip title="You can join space if you have enough tokens">
-              <PrimaryButton
-                variant="outlined"
-                sx={{ borderRadius: 1, mx: 4 }}
-                loading={isLoadingJoinSpace}
-                onClick={async () => {
-                  setIsLoadingJoinSpace(true);
-                  joinSpace(Moralis, bid)
-                    .then((res: any) => {
-                      console.log(res);
-                      setIsLoadingJoinSpace(false);
-                      setSpace(res);
-                      notify("Joined Space Succesfully");
-                    })
-                    .catch((err: any) => {
-                      setIsLoadingJoinSpace(false);
-                      notify(err.message, "error");
-                    });
-                }}
-              >
-                Join Space
-              </PrimaryButton>
-            </Tooltip>
-          )}
-        {/* <Tooltip title="Invite member">
-          <IconButton sx={{ mb: 0, p: 1.7 }} size="small">
-            <PeopleOutlineIcon />
-          </IconButton>
-        </Tooltip> */}
-        {space.roles[user?.id as string] === "admin" && (
-          <Tooltip title="Start Epoch">
-            <IconButton
-              sx={{ p: 1.7 }}
-              size="small"
-              onClick={() => setIsEpochModalOpen(true)}
-            >
-              <PlayCircleFilledWhiteIcon />
-            </IconButton>
-          </Tooltip>
-        )}
-        {isEpochModalOpen && <CreateEpochModal />}
-      </Box>
-    </Container>
-  );
+  // return (
+  //   <Container>
+  //     <Toaster />
+  //     <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
+  //       <List
+  //         sx={{ maxWidth: "10rem", backgroundColor: "#00194A", height: "100%" }}
+  //       >
+  //         {boards.map((board: any, index) => (
+  //           <Link
+  //             href={`/tribe/${id}/board/${board.objectId}`}
+  //             key={board.objectId}
+  //             passHref
+  //           >
+  //             <ListItemButton selected={board.objectId === bid}>
+  //               <ListItemText primary={board.name} />
+  //             </ListItemButton>
+  //           </Link>
+  //         ))}
+  //       </List>
+  //     </Drawer>
+  //     <Box sx={{ display: "none", flexDirection: "row", alignItems: "center" }}>
+  //       <Typography variant="h6" sx={{ mx: 2 }}>
+  //         {space.name}
+  //       </Typography>
+  //       {space.roles[user?.id as string] === "admin" && <BoardSettings />}
+  //       {space.roles[user?.id as string] === "admin" && <Payment />}
+  //       <Tooltip title="Switch Board">
+  //         <IconButton
+  //           sx={{ mb: 0.5, p: 2.5 }}
+  //           size="small"
+  //           onClick={() => setIsOpen(true)}
+  //         >
+  //           <StyledIcon className="fa-solid fa-arrow-right-arrow-left"></StyledIcon>
+  //         </IconButton>
+  //       </Tooltip>
+  //       <Tooltip title="Refresh">
+  //         <MuiLink href="">
+  //           <IconButton sx={{ mb: 0, p: 1.7 }} size="small">
+  //             <RefreshIcon />
+  //           </IconButton>
+  //         </MuiLink>
+  //       </Tooltip>
+  //       {space.members.indexOf(user?.id as string) === -1 &&
+  //         space.tokenGating.tokenLimit > 0 && (
+  //           <Tooltip title="You can join space if you have enough tokens">
+  //             <PrimaryButton
+  //               variant="outlined"
+  //               sx={{ borderRadius: 1, mx: 4 }}
+  //               loading={isLoadingJoinSpace}
+  //               onClick={async () => {
+  //                 setIsLoadingJoinSpace(true);
+  //                 joinSpace(Moralis, bid)
+  //                   .then((res: any) => {
+  //                     console.log(res);
+  //                     setIsLoadingJoinSpace(false);
+  //                     setSpace(res);
+  //                     notify("Joined Space Succesfully");
+  //                   })
+  //                   .catch((err: any) => {
+  //                     setIsLoadingJoinSpace(false);
+  //                     notify(err.message, "error");
+  //                   });
+  //               }}
+  //             >
+  //               Join Space
+  //             </PrimaryButton>
+  //           </Tooltip>
+  //         )}
+  //       {/* <Tooltip title="Invite member">
+  //         <IconButton sx={{ mb: 0, p: 1.7 }} size="small">
+  //           <PeopleOutlineIcon />
+  //         </IconButton>
+  //       </Tooltip> */}
+  //       {space.roles[user?.id as string] === "admin" && (
+  //         <Tooltip title="Start Epoch">
+  //           <IconButton
+  //             sx={{ p: 1.7 }}
+  //             size="small"
+  //             onClick={() => setIsEpochModalOpen(true)}
+  //           >
+  //             <PlayCircleFilledWhiteIcon />
+  //           </IconButton>
+  //         </Tooltip>
+  //       )}
+  //       {isEpochModalOpen && <CreateEpochModal />}
+  //     </Box>
+  //   </Container>
+  // );
 };
 
 export default Heading;
