@@ -1,7 +1,8 @@
 async function getTaskByTaskId(taskId) {
   const taskQuery = new Moralis.Query("Task");
   taskQuery.equalTo("taskId", taskId);
-  return await taskQuery.first({ useMasterKey: true });
+  logger.info(`taskId: ${taskId}`);
+  return taskQuery.first({ useMasterKey: true });
 }
 
 async function getTasksByTaskIds(taskIds) {
@@ -478,6 +479,7 @@ async function handleColumnChange(
     );
     const board = await getBoardByObjectId(boardId);
     const task = await getTaskByTaskId(taskId);
+    logger.info(`task ${JSON.stringify(task)}`);
     if (!canMoveTask(callerId, task, sourceId, destinationId, board))
       throw "Unfortunately you dont have the right access to move task";
     var columnsData = board.get("columns");

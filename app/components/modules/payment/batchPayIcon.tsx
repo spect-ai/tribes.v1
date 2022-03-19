@@ -85,6 +85,7 @@ const Payment = ({}: Props) => {
   const { id, bid } = router.query;
   const { Moralis, isInitialized } = useMoralis();
   const { palette } = useTheme();
+  const { space } = useSpace();
 
   const handleApprovalInfoUpdate = (
     uniqueTokenAddresses: string[],
@@ -238,6 +239,10 @@ const Payment = ({}: Props) => {
                 })
                 .catch((err: any) => {
                   console.log(err);
+                  notify(
+                    `Error occurred, make sure you are connected to a supported network`,
+                    "error"
+                  );
                 });
             })
             .catch((err: any) => {
@@ -254,9 +259,10 @@ const Payment = ({}: Props) => {
           />
         </Tooltip>
       </SidebarButton>
-      {!isLoading && (
+      {!isLoading && isOpen && (
         <PaymentModal
           isModalOpen={isOpen}
+          setIsModalOpen={setIsOpen}
           tokenDistributionInfo={tokenDistributionInfo}
           currencyDistributionInfo={currencyDistributionInfo}
           approvalInfo={approvalInfo}

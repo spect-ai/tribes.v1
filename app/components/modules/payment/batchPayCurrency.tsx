@@ -120,7 +120,7 @@ const BatchPayCurrency = ({
                   </Grid>
                   <Grid item xs={4}>
                     <Typography color="text.primary" marginLeft="20px">
-                      {currencyDistributionInfo.values[index]?.toFixed(2)}{" "}
+                      {currencyDistributionInfo.values[index]?.toFixed(3)}{" "}
                       {registry[chainId].nativeCurrency}
                     </Typography>
                   </Grid>
@@ -163,10 +163,14 @@ const BatchPayCurrency = ({
                     Promise.all(promises).then(() => {
                       setIsLoading(false);
                       handleNextStep();
+                      notify("Payment done succesfully!");
                     });
                   })
                   .catch((err: any) => {
-                    notify(err.message, "error");
+                    notify(
+                      "Error occured, possibly insufficient balance",
+                      "error"
+                    );
                     setIsLoading(false);
                   });
               }}

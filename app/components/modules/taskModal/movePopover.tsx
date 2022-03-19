@@ -86,7 +86,8 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
                 handleClose("move");
               })
               .catch((err: any) => {
-                notify(err); // Lets use toastify to show this
+                console.log(err);
+                notify(`Task move failed with error ${err.message}`, "error");
               });
           }}
         >

@@ -171,8 +171,12 @@ const BatchPay = ({
                     notify("Payment done succesfully!");
                   })
                   .catch((err: any) => {
-                    alert(err.message);
+                    notify(
+                      "Error occured, possibly insufficient balance",
+                      "error"
+                    );
                     setIsLoading(false);
+                    console.log(err.message);
                   });
               }}
               variant="outlined"

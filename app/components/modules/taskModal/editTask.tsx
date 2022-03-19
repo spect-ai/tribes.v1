@@ -109,7 +109,6 @@ const EditTask = ({ task, handleClose, column }: Props) => {
 
   return (
     <Container>
-      <Toaster />
       <TaskModalTitleContainer>
         <InputBase
           placeholder="Add Title"

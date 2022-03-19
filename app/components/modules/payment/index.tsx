@@ -7,6 +7,8 @@ import {
   Step,
   StepLabel,
   styled,
+  Typography,
+  Chip,
 } from "@mui/material";
 import ApproveModal, { ApprovalInfo } from "./approve";
 import BatchPay, { TokenDistributionInfo } from "./batchPay";
@@ -15,9 +17,12 @@ import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { useGlobal } from "../../../context/globalContext";
 import { registryTemp } from "../../../constants";
+import FmdBadIcon from "@mui/icons-material/FmdBad";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 interface Props {
   isModalOpen: boolean;
+  setIsModalOpen: (isModalOpen: boolean) => void;
   tokenDistributionInfo: TokenDistributionInfo;
   currencyDistributionInfo: CurrencyDistributionInfo;
   approvalInfo: ApprovalInfo;
@@ -36,6 +41,7 @@ export interface BatchPayInfo {
 
 const PaymentModal = ({
   isModalOpen,
+  setIsModalOpen,
   tokenDistributionInfo,
   currencyDistributionInfo,
   approvalInfo,
@@ -44,26 +50,25 @@ const PaymentModal = ({
   maxModalActiveStep,
   handleStatusUpdate,
 }: Props) => {
-  const [isOpen, setIsOpen] = useState(isModalOpen);
   const [steps, setSteps] = useState(modalSteps);
   const [activeStep, setActiveStep] = useState(activeModalStep);
   const [maxActiveStep, setMaxActiveStep] = useState(maxModalActiveStep);
   const {
     state: { registry },
   } = useGlobal();
-  const router = useRouter();
+  const { space } = useSpace();
   const handleClose = (event: any, reason: any) => {
-    setIsOpen(false);
+    setIsModalOpen(false);
   };
   const handleNextStep = () => {
     if (activeStep === maxActiveStep) {
-      setIsOpen(false);
+      setIsModalOpen(false);
     } else {
       setActiveStep(activeStep + 1);
     }
   };
   return (
-    <Modal open={isOpen} onClose={handleClose}>
+    <Modal open={isModalOpen} onClose={handleClose}>
       <Box sx={modalStyle}>
         <Stepper activeStep={activeStep}>
           {steps.map((label: any, index: number) => {
@@ -78,7 +83,25 @@ const PaymentModal = ({
             );
           })}
         </Stepper>
-        {activeStep === 0 && isOpen && (
+        {activeStep === -1 && (
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              p: 16,
+            }}
+          >
+            <Typography color="text.primary" sx={{ my: 2 }}>
+              No pending tasks found on the current chain
+            </Typography>
+            <Chip
+              icon={<FmdBadIcon />}
+              label={`Your default chain is ${space.defaultPayment.chain.name}`}
+            />
+          </Box>
+        )}
+        {activeStep === 0 && isModalOpen && (
           <ApproveModal
             handleClose={handleClose}
             handleNextStep={handleNextStep}
@@ -87,7 +110,7 @@ const PaymentModal = ({
             chainId={window.ethereum.networkVersion}
           />
         )}
-        {activeStep === 1 && isOpen && (
+        {activeStep === 1 && isModalOpen && (
           <BatchPay
             handleClose={handleClose}
             handleNextStep={handleNextStep}
@@ -96,7 +119,7 @@ const PaymentModal = ({
             handleStatusUpdate={handleStatusUpdate}
           />
         )}
-        {activeStep === 2 && isOpen && (
+        {activeStep === 2 && isModalOpen && (
           <BatchPayCurrency
             handleClose={handleClose}
             handleNextStep={handleNextStep}
@@ -112,7 +135,7 @@ const PaymentModal = ({
 
 export const modalStyle = {
   position: "absolute" as "absolute",
-  top: "50%",
+  top: "35%",
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "40rem",
