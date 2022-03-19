@@ -74,6 +74,7 @@ const CreateEpochTaskList = ({
                 <TableRow>
                   <TableCell padding="checkbox">
                     <Checkbox
+                      color="default"
                       inputProps={{
                         "aria-label": "select all desserts",
                       }}
@@ -109,7 +110,7 @@ const CreateEpochTaskList = ({
                     <TableCell component="th" scope="row" padding="checkbox">
                       {
                         <Checkbox
-                          color="primary"
+                          color="secondary"
                           inputProps={{
                             "aria-label": "select all desserts",
                           }}
