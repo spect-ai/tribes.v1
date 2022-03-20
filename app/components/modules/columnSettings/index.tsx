@@ -214,7 +214,7 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
                     control={
                       <Checkbox
                         color="default"
-                        checked={createCardRoles[3]}
+                        checked={moveCardRoles[3]}
                         onChange={(event) => {
                           setMoveCardRoles({
                             ...moveCardRoles,

@@ -256,7 +256,7 @@ Moralis.Cloud.define("createSpaceFromTrello", async (request) => {
         logger.info(request.params.tasks[i].title);
         task = handleCreateTask(
           task,
-          request.params.tasks[i].id,
+          request.params.tasks[i].id, // need to fix this, duplicate tasks are being created with trello id
           board.get("defaultPayment"),
           board.id,
           request.params.tasks[i].title,

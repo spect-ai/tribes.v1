@@ -108,9 +108,11 @@ function getTaskObjByTaskParseObj(task) {
 }
 
 Moralis.Cloud.define("getTask", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
   try {
     if (request.params.taskId) {
       const task = await getTaskObjByTaskId(request.params.taskId);
+      logger.info(`getTask: ${JSON.stringify(task)}`);
       if (!task) throw `Task ${request.params.taskId} not found`;
 
       // Get space to check if user can view it

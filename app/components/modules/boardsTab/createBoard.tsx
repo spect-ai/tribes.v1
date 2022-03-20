@@ -256,23 +256,19 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                         `https://api.trello.com/1/boards/${trelloBoardId}`
                       );
                       const boardJson = await board.json();
-                      console.log(boardJson);
                       const columns = await fetch(
                         `https://api.trello.com/1/boards/${trelloBoardId}/lists`
                       );
 
                       const columnsJson = await columns.json();
-                      console.log(columnsJson);
                       const cards = await fetch(
                         `https://api.trello.com/1/boards/${trelloBoardId}/cards`
                       );
 
                       const cardsJson = await cards.json();
-                      console.log(cardsJson);
                       const columnOrder = columnsJson.map(
                         (column: any) => column.id
                       );
-                      console.log(columnOrder);
                       let columnMap: {
                         [key: string]: Column;
                       } = {};
@@ -297,7 +293,6 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                           value: 0,
                         };
                       });
-                      console.log(tasks);
                       setColumnOrder(columnOrder);
                       setColumnMap(columnMap);
                       setTrelloBoard(boardJson);
