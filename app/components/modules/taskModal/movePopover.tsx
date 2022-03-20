@@ -22,7 +22,7 @@ type Props = {
 
 const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { Moralis } = useMoralis();
+  const { Moralis, user } = useMoralis();
   const { space, setSpace } = useSpace();
   const [status, setStatus] = useState(column.title);
   return (
@@ -42,6 +42,7 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
           onChange={(event, newValue) => {
             setStatus(newValue as any);
           }}
+          disableClearable
           renderInput={(params) => (
             <TextField
               {...params}
@@ -57,15 +58,37 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
           sx={{ mt: 4, borderRadius: 1 }}
           color="secondary"
           onClick={() => {
+            const destinationColumn = Object.values(space.columns).filter(
+              (col: Column) => col.title === status
+            )[0];
+            if (
+              !column.moveCard[space.roles[user?.id as string]] &&
+              !column.moveCard[0]
+            ) {
+              notify(
+                "You don't have permission to move cards from this column",
+                "error"
+              );
+              return;
+            }
+            if (
+              !destinationColumn.createCard[space.roles[user?.id as string]] &&
+              !destinationColumn.createCard[0]
+            ) {
+              notify(
+                "Your role doesn't have permission to move tasks in this column",
+                "error"
+              );
+              return;
+            }
+
             setIsLoading(true);
             updateTaskColumn(
               Moralis,
               task.boardId,
               task.taskId,
               column.id,
-              Object.values(space.columns).filter(
-                (col: Column) => col.title === status
-              )[0]?.id
+              destinationColumn.id
             )
               .then((res: BoardData) => {
                 setSpace(res);
@@ -91,7 +114,7 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
               });
           }}
         >
-          Save
+          Move
         </PrimaryButton>
       </PopoverContainer>
     </Popover>

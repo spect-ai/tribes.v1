@@ -6,6 +6,7 @@ import {
   Token,
   TokenGate,
   DefaultPayment,
+  Column,
 } from "../types/index";
 
 export function getOrCreateUser(Moralis: any) {
@@ -37,7 +38,7 @@ export function initBoard(
   Moralis: any,
   name: string,
   members: Array<string>,
-  roles: object,
+  roles: { [key: string]: number },
   teamId: string,
   tokenGating: {
     chain: Chain;
@@ -46,7 +47,6 @@ export function initBoard(
   },
   isPrivate: boolean
 ) {
-  console.log(members);
   const params = {
     name: name,
     teamId: teamId,
@@ -56,6 +56,36 @@ export function initBoard(
     isPrivate: isPrivate,
   };
   return Moralis.Cloud.run("initBoard", params);
+}
+
+export function createSpaceFromTrello(
+  Moralis: any,
+  name: string,
+  teamId: string,
+  columnMap: { [key: string]: Column },
+  columnOrder: string[],
+  isPrivate: boolean,
+  members: string[],
+  tasks: any[],
+  roles: { [key: string]: number },
+  tokenGating: {
+    chain: Chain;
+    token: Token;
+    tokenLimit: number;
+  }
+) {
+  const params = {
+    name: name,
+    teamId: teamId,
+    columnMap: columnMap,
+    columnOrder: columnOrder,
+    isPrivate: isPrivate,
+    members: members,
+    tasks: tasks,
+    roles: roles,
+    tokenGating: tokenGating,
+  };
+  return Moralis.Cloud.run("createSpaceFromTrello", params);
 }
 
 export function getEssentialBoardsInfo(Moralis: any, teamId: string) {
@@ -561,7 +591,7 @@ export function updateBoardMembers(
   Moralis: any,
   boardId: string,
   members: string[],
-  roles: { [key: string]: string }
+  roles: { [key: string]: number }
 ) {
   const params = {
     boardId: boardId,
@@ -641,4 +671,34 @@ export function getBatchPayInfo(
     chainIdHex: chainId,
   };
   return Moralis.Cloud.run("getBatchPayInfo", params);
+}
+
+export function updateTribeMembers(
+  Moralis: any,
+  teamId: string,
+  members: string[],
+  roles: { [key: string]: number }
+) {
+  const params = {
+    teamId: teamId,
+    members: members,
+    roles: roles,
+  };
+  return Moralis.Cloud.run("updateTribeMembers", params);
+}
+
+export function updateColumnPermissions(
+  Moralis: any,
+  boardId: string,
+  columnId: string,
+  createCardRoles: { [key: number]: boolean },
+  moveCardRoles: { [key: number]: boolean }
+) {
+  const params = {
+    boardId: boardId,
+    columnId: columnId,
+    createCardRoles: createCardRoles,
+    moveCardRoles: moveCardRoles,
+  };
+  return Moralis.Cloud.run("updateColumnPermissions", params);
 }

@@ -185,7 +185,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
           <>
             {" "}
             {(Object.keys(epoch.memberStats).includes(user?.id as string) ||
-              space.roles[user?.id as string] === "admin") && (
+              space.roles[user?.id as string] === 3) && (
               <Accordion
                 disableGutters
                 key={index}
@@ -329,7 +329,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                   Save
                                 </PrimaryButton>
                               )}
-                              {space.roles[user?.id as string] === "admin" && (
+                              {space.roles[user?.id as string] === 3 && (
                                 <PrimaryButton
                                   endIcon={<CloseIcon />}
                                   variant="outlined"

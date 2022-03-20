@@ -8,14 +8,14 @@ import { registryTemp } from "../../../constants";
 import PaymentModal from "../payment";
 import { getRequiredApprovals } from "../payment/batchPayIcon";
 import { capitalizeFirstLetter } from "../../../utils/utils";
-import { TokenDistributionInfo } from "../payment/batchPay";
-import { ApprovalInfo } from "../payment/approve";
 import { CurrencyDistributionInfo } from "../payment/batchPayCurrency";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { completeEpochPayment } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { TokenDistributionInfo } from "../payment/batchPay_";
+import { ApprovalInfo } from "../payment/approve_";
 
 type Props = {
   epoch: Epoch;
@@ -197,6 +197,7 @@ const PayoutButton = ({ epoch }: Props) => {
       {!isLoading && (
         <PaymentModal
           isModalOpen={isOpen}
+          setIsModalOpen={setIsOpen}
           approvalInfo={approvalInfo}
           tokenDistributionInfo={tokenDistributionInfo}
           currencyDistributionInfo={currencyDistributionInfo}

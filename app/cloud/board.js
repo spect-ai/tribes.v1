@@ -109,6 +109,40 @@ function getBoardObjFromBoardParseObj(board) {
   };
 }
 
+function handleCreateBoard(
+  board,
+  name,
+  teamId,
+  columnMap,
+  columnOrder,
+  isPrivate,
+  members,
+  roles,
+  tokenGating
+) {
+  board.set("name", name);
+  board.set("teamId", teamId);
+  board.set("columns", columnMap);
+  board.set("columnOrder", columnOrder);
+  board.set("private", isPrivate);
+  board.set("defaultPayment", {
+    chain: {
+      chainId: "137",
+      name: "polygon",
+    },
+    token: {
+      address: "0x0",
+      symbol: "MATIC",
+    },
+  });
+
+  // TODO: Make this customizable
+  board.set("members", members);
+  board.set("roles", roles);
+  board.set("tokenGating", tokenGating);
+  return board;
+}
+
 Moralis.Cloud.define("getBoard", async (request) => {
   return await getSpace(request.params.boardId, request.user?.id);
 });
@@ -139,7 +173,6 @@ Moralis.Cloud.define("initBoard", async (request) => {
     logger.info(JSON.stringify(team));
     if (isMember(request.user.id, team)) {
       var initColumns = ["To Do", "In Progress", "In Review", "Done"];
-      var initBoardStatusList = ["Open", "In Progress", "Submitted", "Closed"];
       var columnIds = [];
       var columnIdToColumnMap = {};
 
@@ -150,35 +183,25 @@ Moralis.Cloud.define("initBoard", async (request) => {
           id: columnId,
           title: initColumns[i],
           taskIds: [],
-          status: initBoardStatusList[i],
+          cardType: 1,
+          createCard: { 0: false, 1: false, 2: true, 3: true },
+          moveCard: { 0: false, 1: false, 2: true, 3: true },
         };
         logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
       }
       var board = new Moralis.Object("Board");
-      board.set("name", request.params.name);
-      board.set("teamId", request.params.teamId);
-      board.set("columns", columnIdToColumnMap);
-      board.set("columnOrder", columnIds);
-      board.set("statusList", initBoardStatusList);
-      board.set("private", request.params.isPrivate);
-      board.set("defaultPayment", {
-        chain: {
-          chainId: "137",
-          name: "polygon",
-        },
-        token: {
-          address: "0x0",
-          symbol: "MATIC",
-        },
-      });
-
-      // TODO: Make this customizable
-      board.set("members", request.params.members);
-      board.set("roles", request.params.roles);
-      board.set("tokenGating", request.params.tokenGating);
-
+      board = handleCreateBoard(
+        board,
+        request.params.name,
+        request.params.teamId,
+        columnIdToColumnMap,
+        columnIds,
+        request.params.isPrivate,
+        request.params.members,
+        request.params.roles,
+        request.params.tokenGating
+      );
       logger.error(`Creating new board ${JSON.stringify(board)}`);
-
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return board;
     } else {
@@ -190,6 +213,66 @@ Moralis.Cloud.define("initBoard", async (request) => {
       `Error while creating board with name ${request.params.name}: ${err}`
     );
     throw `Error while creating board: ${err}`;
+  }
+});
+
+Moralis.Cloud.define("createSpaceFromTrello", async (request) => {
+  try {
+    const logger = Moralis.Cloud.getLogger();
+    const team = await getTribeByTeamId(request.params.teamId);
+    logger.info(JSON.stringify(team));
+    if (isMember(request.user.id, team)) {
+      // for (let i = 0; i < initColumns.length; i++) {
+      //   var columnId = `column-${i}`;
+      //   columnIds.push(columnId);
+      //   columnIdToColumnMap[columnIds[i]] = {
+      //     id: columnId,
+      //     title: initColumns[i],
+      //     taskIds: [],
+      //     cardType: 1,
+      //     createCard: { 0: false, 1: false, 2: true, 3: true },
+      //     moveCard: { 0: false, 1: false, 2: true, 3: true },
+      //   };
+      // }
+      var board = new Moralis.Object("Board");
+      board = handleCreateBoard(
+        board,
+        request.params.name,
+        request.params.teamId,
+        request.params.columnMap,
+        request.params.columnOrder,
+        request.params.isPrivate,
+        request.params.members,
+        request.params.roles,
+        request.params.tokenGating
+      );
+      await Moralis.Object.saveAll([board], { useMasterKey: true });
+
+      logger.info(`Creating new board ${JSON.stringify(board)}`);
+      // board = await board.save({ useMasterKey: true });
+
+      for (let i = 0; i < request.params.tasks.length; i++) {
+        var task = new Moralis.Object("Task");
+        logger.info(request.params.tasks[i].title);
+        task = handleCreateTask(
+          task,
+          request.params.tasks[i].id, // need to fix this, duplicate tasks are being created with trello id
+          board.get("defaultPayment"),
+          board.id,
+          request.params.tasks[i].title,
+          request.params.tasks[i].value,
+          request.user.id,
+          request.params.tasks[i].description
+        );
+        await Moralis.Object.saveAll([task], { useMasterKey: true });
+      }
+      return board;
+    }
+  } catch (err) {
+    logger.error(
+      `Error while creating space from trello ${request.params.teamId}: ${err}`
+    );
+    throw `Error while creating space from trello ${request.params.teamId}: ${err}`;
   }
 });
 
@@ -423,5 +506,24 @@ Moralis.Cloud.define("updateThemeFromSpace", async (request) => {
       `Error while updating theme on board id ${request.params.boardId}: ${err}`
     );
     throw `Error while updating theme ${err}`;
+  }
+});
+
+Moralis.Cloud.define("updateColumnPermissions", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const board = await getBoardByObjectId(request.params.boardId);
+    const columns = board.get("columns");
+    columns[request.params.columnId].createCard =
+      request.params.createCardRoles;
+    columns[request.params.columnId].moveCard = request.params.moveCardRoles;
+    board.set("columns", columns);
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+    return await getSpace(request.params.boardId, request.user.id);
+  } catch (err) {
+    logger.error(
+      `Error while updating board ${request.params.boardId}: ${err}`
+    );
+    throw `Error while updating board ${request.params.boardId}: ${err}`;
   }
 });

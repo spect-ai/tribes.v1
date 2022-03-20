@@ -41,10 +41,10 @@ const Board = (props: Props) => {
         ))}
 
         <Grid item xs={3}>
-          {user && tribe.roles[user.id] === "admin" && (
+          {user && tribe.roles[user.id] === 3 && (
             <CreateBoardButton
               variant="outlined"
-              disabled={tribe.roles[user?.id] !== "admin"}
+              disabled={tribe.roles[user?.id] !== 3}
               onClick={() => setIsOpen(true)}
             >
               <ButtonText>Create new space</ButtonText>

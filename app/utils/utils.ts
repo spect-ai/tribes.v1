@@ -109,7 +109,6 @@ export function getFlattenedNetworks(registry: Registry) {
 
 export function getFlattenedTokens(registry: Registry, chainId: string) {
   var tokens: Array<Token> = [];
-  console.log(chainId);
   for (var tokenAddress of registry[chainId]?.tokenAddresses) {
     tokens.push({
       address: tokenAddress,
@@ -139,5 +138,5 @@ export function downloadCSV(content: Array<Array<any>>, filename: string) {
 }
 
 export function capitalizeFirstLetter(word: string) {
-  return word.charAt(0).toUpperCase() + word.slice(1);
+  return word?.charAt(0).toUpperCase() + word?.slice(1);
 }

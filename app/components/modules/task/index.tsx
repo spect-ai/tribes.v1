@@ -54,12 +54,12 @@ const TaskContainer = ({ task, index, column }: Props) => {
               <Title palette={palette}>{task.title}</Title>
 
               <ChipContainer>
-                {task.value && (
+                {task.value ? (
                   <Chip color="#99ccff">
                     <MonetizationOnIcon sx={{ fontSize: 12 }} />
                     {task.value} {task.token.symbol}
                   </Chip>
-                )}
+                ) : null}
                 {task.deadline && (
                   <Chip color="#5a6972">
                     <DateRangeIcon sx={{ fontSize: 12 }} />

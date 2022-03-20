@@ -24,7 +24,7 @@ const DAOCard = ({ image, title, members, teamId }: Props) => {
     <Link href={`/tribe/${teamId}`} passHref>
       <Card palette={palette}>
         <CardContent>
-          <TribeAvatar alt="Remy Sharp" src={image} />
+          <TribeAvatar alt="Remy Sharp" src={image} variant="rounded" />
           <Typography
             gutterBottom
             variant="h6"
