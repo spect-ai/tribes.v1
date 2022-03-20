@@ -82,7 +82,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
       <Draggable
         draggableId={id}
         index={index}
-        isDragDisabled={space.roles[user?.id as string] !== 2}
+        isDragDisabled={space.roles[user?.id as string] !== 3}
       >
         {(provided, snapshot) => (
           <Container

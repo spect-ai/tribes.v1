@@ -6,6 +6,7 @@ import {
   Token,
   TokenGate,
   DefaultPayment,
+  Column,
 } from "../types/index";
 
 export function getOrCreateUser(Moralis: any) {
@@ -55,6 +56,36 @@ export function initBoard(
     isPrivate: isPrivate,
   };
   return Moralis.Cloud.run("initBoard", params);
+}
+
+export function createSpaceFromTrello(
+  Moralis: any,
+  name: string,
+  teamId: string,
+  columnMap: { [key: string]: Column },
+  columnOrder: string[],
+  isPrivate: boolean,
+  members: string[],
+  tasks: any[],
+  roles: { [key: string]: number },
+  tokenGating: {
+    chain: Chain;
+    token: Token;
+    tokenLimit: number;
+  }
+) {
+  const params = {
+    name: name,
+    teamId: teamId,
+    columnMap: columnMap,
+    columnOrder: columnOrder,
+    isPrivate: isPrivate,
+    members: members,
+    tasks: tasks,
+    roles: roles,
+    tokenGating: tokenGating,
+  };
+  return Moralis.Cloud.run("createSpaceFromTrello", params);
 }
 
 export function getEssentialBoardsInfo(Moralis: any, teamId: string) {

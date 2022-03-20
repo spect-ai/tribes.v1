@@ -109,6 +109,40 @@ function getBoardObjFromBoardParseObj(board) {
   };
 }
 
+function handleCreateBoard(
+  board,
+  name,
+  teamId,
+  columnMap,
+  columnOrder,
+  isPrivate,
+  members,
+  roles,
+  tokenGating
+) {
+  board.set("name", name);
+  board.set("teamId", teamId);
+  board.set("columns", columnMap);
+  board.set("columnOrder", columnOrder);
+  board.set("private", isPrivate);
+  board.set("defaultPayment", {
+    chain: {
+      chainId: "137",
+      name: "polygon",
+    },
+    token: {
+      address: "0x0",
+      symbol: "MATIC",
+    },
+  });
+
+  // TODO: Make this customizable
+  board.set("members", members);
+  board.set("roles", roles);
+  board.set("tokenGating", tokenGating);
+  return board;
+}
+
 Moralis.Cloud.define("getBoard", async (request) => {
   return await getSpace(request.params.boardId, request.user?.id);
 });
@@ -156,29 +190,18 @@ Moralis.Cloud.define("initBoard", async (request) => {
         logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
       }
       var board = new Moralis.Object("Board");
-      board.set("name", request.params.name);
-      board.set("teamId", request.params.teamId);
-      board.set("columns", columnIdToColumnMap);
-      board.set("columnOrder", columnIds);
-      board.set("private", request.params.isPrivate);
-      board.set("defaultPayment", {
-        chain: {
-          chainId: "137",
-          name: "polygon",
-        },
-        token: {
-          address: "0x0",
-          symbol: "MATIC",
-        },
-      });
-
-      // TODO: Make this customizable
-      board.set("members", request.params.members);
-      board.set("roles", request.params.roles);
-      board.set("tokenGating", request.params.tokenGating);
-
+      board = handleCreateBoard(
+        board,
+        request.params.name,
+        request.params.teamId,
+        columnIdToColumnMap,
+        columnIds,
+        request.params.isPrivate,
+        request.params.members,
+        request.params.roles,
+        request.params.tokenGating
+      );
       logger.error(`Creating new board ${JSON.stringify(board)}`);
-
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return board;
     } else {
@@ -190,6 +213,66 @@ Moralis.Cloud.define("initBoard", async (request) => {
       `Error while creating board with name ${request.params.name}: ${err}`
     );
     throw `Error while creating board: ${err}`;
+  }
+});
+
+Moralis.Cloud.define("createSpaceFromTrello", async (request) => {
+  try {
+    const logger = Moralis.Cloud.getLogger();
+    const team = await getTribeByTeamId(request.params.teamId);
+    logger.info(JSON.stringify(team));
+    if (isMember(request.user.id, team)) {
+      // for (let i = 0; i < initColumns.length; i++) {
+      //   var columnId = `column-${i}`;
+      //   columnIds.push(columnId);
+      //   columnIdToColumnMap[columnIds[i]] = {
+      //     id: columnId,
+      //     title: initColumns[i],
+      //     taskIds: [],
+      //     cardType: 1,
+      //     createCard: { 0: false, 1: false, 2: true, 3: true },
+      //     moveCard: { 0: false, 1: false, 2: true, 3: true },
+      //   };
+      // }
+      var board = new Moralis.Object("Board");
+      board = handleCreateBoard(
+        board,
+        request.params.name,
+        request.params.teamId,
+        request.params.columnMap,
+        request.params.columnOrder,
+        request.params.isPrivate,
+        request.params.members,
+        request.params.roles,
+        request.params.tokenGating
+      );
+      await Moralis.Object.saveAll([board], { useMasterKey: true });
+
+      logger.info(`Creating new board ${JSON.stringify(board)}`);
+      // board = await board.save({ useMasterKey: true });
+
+      for (let i = 0; i < request.params.tasks.length; i++) {
+        var task = new Moralis.Object("Task");
+        logger.info(request.params.tasks[i].title);
+        task = handleCreateTask(
+          task,
+          request.params.tasks[i].id,
+          board.get("defaultPayment"),
+          board.id,
+          request.params.tasks[i].title,
+          request.params.tasks[i].value,
+          request.user.id,
+          request.params.tasks[i].description
+        );
+        await Moralis.Object.saveAll([task], { useMasterKey: true });
+      }
+      return board;
+    }
+  } catch (err) {
+    logger.error(
+      `Error while creating space from trello ${request.params.teamId}: ${err}`
+    );
+    throw `Error while creating space from trello ${request.params.teamId}: ${err}`;
   }
 });
 

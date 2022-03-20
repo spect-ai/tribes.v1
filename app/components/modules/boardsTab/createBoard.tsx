@@ -27,13 +27,13 @@ import {
   PrimaryButton,
   StyledAccordian,
 } from "../../elements/styledComponents";
-import { initBoard } from "../../../adapters/moralis";
+import { createSpaceFromTrello, initBoard } from "../../../adapters/moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Chain, Member, Registry, Token } from "../../../types";
+import { Chain, Column, Member, Registry, Token } from "../../../types";
 import { notify } from "../settingsTab";
 import { useGlobal } from "../../../context/globalContext";
 import TokenGateForm from "../../elements/tokenGateForm";
@@ -56,12 +56,10 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   const {
     state: { registry },
   } = useGlobal();
-  console.log(registry);
   const [chain, setChain] = useState({
     chainId: window.ethereum.networkVersion,
     name: registry[window.ethereum.networkVersion].name,
   } as Chain);
-  const [tokenAddress, setTokenAddress] = useState("");
   const [tokenLimit, setTokenLimit] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(
@@ -69,6 +67,13 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   );
   const [roles, setRoles] = useState(tribe.roles as { [key: string]: number });
   const [isPrivate, setIsPrivate] = useState(false);
+  const [trelloBoardId, setTrelloBoardId] = useState("");
+  const [columnMap, setColumnMap] = useState({});
+  const [columnOrder, setColumnOrder] = useState([]);
+  const [trelloBoard, setTrelloBoard] = useState<any>({} as any);
+  const [trelloTasks, setTrelloTasks] = useState([]);
+
+  const [isFetching, setIsFetching] = useState(false);
 
   const toggleCheckboxValue = (index: number) => {
     setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
@@ -84,6 +89,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
     }
     return members;
   };
+
   return (
     <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
       <Grow in={isOpen} timeout={500}>
@@ -219,6 +225,92 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                 />
               </AccordionDetails>
             </StyledAccordian>
+            <StyledAccordian disableGutters>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{ fontWeight: "bold" }}
+              >
+                Import Board
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>Import board from trello</Typography>
+                <Box sx={{ display: "flex" }}>
+                  <TextField
+                    placeholder="Trello Board Id"
+                    size="small"
+                    value={trelloBoardId}
+                    onChange={(event) => {
+                      setTrelloBoardId(event.target.value);
+                    }}
+                  />
+                  <PrimaryButton
+                    variant="outlined"
+                    size="small"
+                    color="secondary"
+                    fullWidth
+                    loading={isFetching}
+                    sx={{ borderRadius: 1, mx: 4, width: "25%" }}
+                    onClick={async () => {
+                      setIsFetching(true);
+                      const board = await fetch(
+                        `https://api.trello.com/1/boards/${trelloBoardId}`
+                      );
+                      const boardJson = await board.json();
+                      console.log(boardJson);
+                      const columns = await fetch(
+                        `https://api.trello.com/1/boards/${trelloBoardId}/lists`
+                      );
+
+                      const columnsJson = await columns.json();
+                      console.log(columnsJson);
+                      const cards = await fetch(
+                        `https://api.trello.com/1/boards/${trelloBoardId}/cards`
+                      );
+
+                      const cardsJson = await cards.json();
+                      console.log(cardsJson);
+                      const columnOrder = columnsJson.map(
+                        (column: any) => column.id
+                      );
+                      console.log(columnOrder);
+                      let columnMap: {
+                        [key: string]: Column;
+                      } = {};
+                      columnsJson.map((column: any) => {
+                        columnMap[column.id] = {
+                          id: column.id,
+                          title: column.name,
+                          taskIds: [],
+                          cardType: 1,
+                          createCard: { 0: false, 1: false, 2: true, 3: true },
+                          moveCard: { 0: false, 1: false, 2: true, 3: true },
+                        };
+                      });
+                      cardsJson.map((card: any) => {
+                        columnMap[card.idList].taskIds.push(card.id);
+                      });
+                      const tasks = cardsJson.map((task: any) => {
+                        return {
+                          id: task.id,
+                          title: task.name,
+                          description: task.desc,
+                          value: 0,
+                        };
+                      });
+                      console.log(tasks);
+                      setColumnOrder(columnOrder);
+                      setColumnMap(columnMap);
+                      setTrelloBoard(boardJson);
+                      setName(boardJson.name);
+                      setTrelloTasks(tasks);
+                      setIsFetching(false);
+                    }}
+                  >
+                    Fetch
+                  </PrimaryButton>
+                </Box>
+              </AccordionDetails>
+            </StyledAccordian>
             <Grid container alignItems="center" marginTop={2}>
               <Grid item xs={3}>
                 <PrimaryButton
@@ -229,6 +321,42 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                   onClick={() => {
                     const members = getMembers();
                     setIsLoading(true);
+                    if (trelloBoard?.name) {
+                      createSpaceFromTrello(
+                        Moralis,
+                        trelloBoard.name,
+                        tribe.teamId,
+                        columnMap,
+                        columnOrder,
+                        isPrivate,
+                        members as Array<string>,
+                        trelloTasks,
+                        roles,
+                        {
+                          chain,
+                          token: token as Token,
+                          tokenLimit: parseFloat(tokenLimit),
+                        }
+                      )
+                        .then((res: any) => {
+                          if (res) {
+                            router.push(
+                              `/tribe/${tribe.teamId}/space/${res.id}`,
+                              undefined
+                            );
+                          }
+                          setIsLoading(false);
+                        })
+                        .catch((err: any) => {
+                          console.log(err);
+                          notify(
+                            "Sorry! There was an error while creating space",
+                            "error"
+                          );
+                          setIsLoading(false);
+                        });
+                      return;
+                    }
                     initBoard(
                       Moralis,
                       name,

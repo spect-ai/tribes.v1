@@ -109,7 +109,6 @@ export function getFlattenedNetworks(registry: Registry) {
 
 export function getFlattenedTokens(registry: Registry, chainId: string) {
   var tokens: Array<Token> = [];
-  console.log(chainId);
   for (var tokenAddress of registry[chainId]?.tokenAddresses) {
     tokens.push({
       address: tokenAddress,

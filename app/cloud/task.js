@@ -51,6 +51,42 @@ async function getTaskCountInBoard(boardId) {
   return await taskQuery.count({ useMasterKey: true });
 }
 
+function handleCreateTask(
+  task,
+  taskId,
+  defaultPayment,
+  boardId,
+  title,
+  value,
+  userId,
+  description
+) {
+  task.set("taskId", taskId);
+  task.set("token", {
+    address: defaultPayment?.token?.address,
+    symbol: defaultPayment?.token?.symbol,
+  });
+  task.set("chain", {
+    chainId: defaultPayment?.chain?.chainId,
+    name: defaultPayment?.chain?.name,
+  });
+  task.set("boardId", boardId);
+  task.set("title", title);
+  task.set("value", parseFloat(value));
+  task.set("creator", userId);
+  task.set("reviewer", [userId]);
+  task.set("assignee", []);
+  task.set("description", description);
+  task.set("activity", [
+    {
+      actor: userId,
+      action: 100,
+      timestamp: new Date(),
+    },
+  ]);
+  return task;
+}
+
 function getTaskObjByTaskParseObj(task) {
   return {
     objectId: task.id,
@@ -112,31 +148,16 @@ Moralis.Cloud.define("addTask", async (request) => {
       const defaultPayment = board.get("defaultPayment");
       logger.info(`defaultPayment ${JSON.stringify(defaultPayment)}`);
       var task = new Moralis.Object("Task");
-      task.set("taskId", taskId);
-      task.set("token", {
-        address: defaultPayment?.token?.address,
-        symbol: defaultPayment?.token?.symbol,
-      });
-      task.set("chain", {
-        chainId: defaultPayment?.chain?.chainId,
-        name: defaultPayment?.chain?.name,
-      });
-      task.set("boardId", request.params.boardId);
-      task.set("title", request.params.title);
-      task.set("value", parseFloat(request.params.value));
-      task.set("creator", request.user.id);
-      task.set("reviewer", [request.user.id]);
-      task.set("assignee", []);
-      task.set("description", request.params.description);
-      task.set("activity", [
-        {
-          actor: request.user.id,
-          action: 100,
-          timestamp: new Date(),
-        },
-      ]);
-      task.set("issueLink", request.params.issueLink);
-      task.set("status", 100);
+      task = handleCreateTask(
+        task,
+        taskId,
+        defaultPayment,
+        request.params.boardId,
+        request.params.title,
+        request.params.value,
+        request.user.id,
+        request.params.description
+      );
       logger.info(`task ${JSON.stringify(task)}`);
       await Moralis.Object.saveAll([task], { useMasterKey: true });
       await Moralis.Object.saveAll([board], { useMasterKey: true });
