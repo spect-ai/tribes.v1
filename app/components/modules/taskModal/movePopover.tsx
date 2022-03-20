@@ -58,12 +58,25 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
           sx={{ mt: 4, borderRadius: 1 }}
           color="secondary"
           onClick={() => {
+            const destinationColumn = Object.values(space.columns).filter(
+              (col: Column) => col.title === status
+            )[0];
             if (
               !column.moveCard[space.roles[user?.id as string]] &&
               !column.moveCard[0]
             ) {
               notify(
                 "You don't have permission to move cards from this column",
+                "error"
+              );
+              return;
+            }
+            if (
+              !destinationColumn.createCard[space.roles[user?.id as string]] &&
+              !destinationColumn.createCard[0]
+            ) {
+              notify(
+                "Your role doesn't have permission to move tasks in this column",
                 "error"
               );
               return;
@@ -75,9 +88,7 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
               task.boardId,
               task.taskId,
               column.id,
-              Object.values(space.columns).filter(
-                (col: Column) => col.title === status
-              )[0]?.id
+              destinationColumn.id
             )
               .then((res: BoardData) => {
                 setSpace(res);
