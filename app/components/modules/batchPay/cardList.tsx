@@ -47,6 +47,7 @@ const CardList = ({
     return cardIds
       .filter((a) => space.tasks[a].value > 0)
       .filter((a) => space.tasks[a].status !== 400)
+      .filter((a) => space.tasks[a].status !== 300)
       .filter((a) => space.tasks[a].assignee?.length > 0) as string[];
   };
   const [cardColumn, setCardColumn] = useState(
@@ -191,11 +192,12 @@ const CardList = ({
           onClick={() => {
             setIsLoading(true);
             const cardIds = getCardIds();
-            console.log(registry[chainId]);
+            console.log(window.ethereum);
             getBatchPayInfo(
               Moralis,
               cardIds,
-              registry[chainId].distributorAddress as string
+              registry[chainId].distributorAddress as string,
+              window.ethereum.chainId
             )
               .then((res: any) => {
                 console.log(res);

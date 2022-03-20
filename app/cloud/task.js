@@ -873,7 +873,8 @@ Moralis.Cloud.define("getBatchPayInfo", async (request) => {
     tokenAddressToMinAllowanceRequired = await getApprovalInfo(
       tokenAddressToMinAllowanceRequired,
       request.user.get("ethAddress"),
-      request.params.distributor
+      request.params.distributor,
+      request.params.chainIdHex
     );
 
     // Flatten approval data
@@ -917,7 +918,8 @@ Moralis.Cloud.define("getBatchPayInfo", async (request) => {
 async function getApprovalInfo(
   tokenAddressToMinAllowanceRequired,
   callerAddress,
-  spenderAddress
+  spenderAddress,
+  chainIdHex
 ) {
   var res = {};
 
@@ -929,7 +931,7 @@ async function getApprovalInfo(
       value: minAllowance,
     });
     var allowance = await getAllowance(
-      "0x13881",
+      chainIdHex,
       tokenAddress,
       callerAddress,
       spenderAddress

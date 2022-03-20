@@ -632,11 +632,13 @@ export function addERC20Token(
 export function getBatchPayInfo(
   Moralis: any,
   taskIds: Array<string>,
-  distributor: string
+  distributor: string,
+  chainId: string
 ) {
   const params = {
     taskIds: taskIds,
     distributor: distributor,
+    chainIdHex: chainId,
   };
   return Moralis.Cloud.run("getBatchPayInfo", params);
 }
