@@ -628,3 +628,15 @@ export function addERC20Token(
   };
   return Moralis.Cloud.run("addERC20Token", params);
 }
+
+export function getBatchPayInfo(
+  Moralis: any,
+  taskIds: Array<string>,
+  distributor: string
+) {
+  const params = {
+    taskIds: taskIds,
+    distributor: distributor,
+  };
+  return Moralis.Cloud.run("getBatchPayInfo", params);
+}

@@ -20,9 +20,9 @@ import { getEssentialBoardsInfo, getMyTeams } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { notify } from "../settingsTab";
 import SwitchLeftIcon from "@mui/icons-material/SwitchLeft";
+import PaidIcon from "@mui/icons-material/Paid";
 import BoardSettings from "../boardSettings";
-import BatchPay from "../payment/batchPay";
-import Payment from "../payment/batchPayIcon";
+import PaymentModal from "../batchPay";
 
 type Props = {};
 
@@ -115,7 +115,7 @@ const ExploreSidebar = (props: Props) => {
         </SidebarButton>
       )}
       {bid && isAuthenticated && <BoardSettings />}
-      {bid && isAuthenticated && <Payment />}
+      {bid && isAuthenticated && <PaymentModal />}
       <Divider sx={{ my: 5, mx: 3 }} />
       <CreateTribeModal />
       {myTribes?.map((tribe, index) => (

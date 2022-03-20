@@ -137,7 +137,7 @@ Moralis.Cloud.define("addTask", async (request) => {
       ]);
       task.set("issueLink", request.params.issueLink);
       task.set("status", 100);
-
+      logger.info(`task ${JSON.stringify(task)}`);
       await Moralis.Object.saveAll([task], { useMasterKey: true });
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return await getSpace(request.params.boardId, request.user.id);
@@ -798,3 +798,146 @@ Moralis.Cloud.define("archiveTask", async (request) => {
   await Moralis.Object.saveAll(task, { useMasterKey: true });
   return await getSpace(task.get("boardId"), request.user.id);
 });
+
+Moralis.Cloud.define("getBatchPayInfo", async (request) => {
+  try {
+    // Result data structure
+    var paymentInfo = {
+      approval: {
+        required: false,
+        uniqueTokenAddresses: [],
+        aggregatedTokenValues: [],
+      },
+      tokens: {
+        type: "tokens",
+        contributors: [],
+        tokenAddresses: [],
+        tokenValues: [],
+        cardIds: [],
+      },
+      currency: {
+        type: "currency",
+        contributors: [],
+        tokenAddresses: null,
+        tokenValues: [],
+        cardIds: [],
+      },
+    };
+    var tasks = await getTasksByTaskIds(request.params.taskIds);
+    logger.info(`tasks ${JSON.stringify(tasks)}`);
+    var tokenAddressToMinAllowanceRequired = {};
+    var tokenAddressToContributorToValue = {};
+    var contributorToCurrencyValue = {};
+
+    // Aggregate values
+    for (var task of tasks) {
+      var assignee = task.get("assignee");
+
+      if (assignee?.length > 0 && task.get("value") > 0) {
+        var contributor = task.get("assignee")[0];
+        var value = task.get("value");
+        var token = task.get("token");
+        if ("address" in token && token?.address !== "0x0") {
+          paymentInfo.tokens.cardIds.push(task.get("taskId"));
+          if (!(token.address in tokenAddressToContributorToValue)) {
+            tokenAddressToContributorToValue[token.address] = {};
+          }
+          if (
+            !(contributor in tokenAddressToContributorToValue[token.address])
+          ) {
+            tokenAddressToContributorToValue[token.address][contributor] =
+              value;
+          } else {
+            tokenAddressToContributorToValue[token.address][contributor] +=
+              value;
+          }
+
+          logger.info(
+            `tokenAddressToContributorToValue ${JSON.stringify(
+              tokenAddressToContributorToValue
+            )}`
+          );
+          if (token.address in tokenAddressToMinAllowanceRequired)
+            tokenAddressToMinAllowanceRequired[token.address] += value;
+          else tokenAddressToMinAllowanceRequired[token.address] = value;
+        } else {
+          paymentInfo.currency.cardIds.push(task.get("taskId"));
+          if (contributor in contributorToCurrencyValue)
+            contributorToCurrencyValue[contributor] += value;
+          else contributorToCurrencyValue[contributor] = value;
+        }
+      }
+    }
+
+    // Get if approval required
+    tokenAddressToMinAllowanceRequired = await getApprovalInfo(
+      tokenAddressToMinAllowanceRequired,
+      request.user.get("ethAddress"),
+      request.params.distributor
+    );
+
+    // Flatten approval data
+    paymentInfo.approval.uniqueTokenAddresses = Object.keys(
+      tokenAddressToMinAllowanceRequired
+    );
+    paymentInfo.approval.aggregatedTokenValues = Object.values(
+      tokenAddressToMinAllowanceRequired
+    );
+    if (paymentInfo.approval.uniqueTokenAddresses.length > 0)
+      paymentInfo.approval.required = true;
+
+    // Flatten currency data
+    paymentInfo.currency.contributors = Object.keys(
+      tokenAddressToMinAllowanceRequired
+    );
+    paymentInfo.currency.tokenValues = Object.values(
+      tokenAddressToMinAllowanceRequired
+    );
+
+    // Flatten token data
+    for (const [tokenAddress, contributorToValue] of Object.entries(
+      tokenAddressToContributorToValue
+    )) {
+      for (const [contributor, value] of Object.entries(contributorToValue)) {
+        paymentInfo.tokens.tokenAddresses.push(tokenAddress);
+        paymentInfo.tokens.contributors.push(contributor);
+        paymentInfo.tokens.tokenValues.push(value);
+      }
+    }
+
+    return paymentInfo;
+  } catch (err) {
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
+    throw err;
+  }
+});
+
+async function getApprovalInfo(
+  tokenAddressToMinAllowanceRequired,
+  callerAddress,
+  spenderAddress
+) {
+  var res = {};
+
+  for (const [tokenAddress, minAllowance] of Object.entries(
+    tokenAddressToMinAllowanceRequired
+  )) {
+    var minAllowanceInWei = await Moralis.Cloud.units({
+      method: "toWei",
+      value: minAllowance,
+    });
+    var allowance = await getAllowance(
+      "0x13881",
+      tokenAddress,
+      callerAddress,
+      spenderAddress
+    );
+    logger.info(`allowance ${JSON.stringify(allowance)}`);
+    if (allowance < minAllowanceInWei) {
+      res[tokenAddress] = minAllowanceInWei;
+    }
+  }
+  return res;
+}

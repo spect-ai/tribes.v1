@@ -10,8 +10,8 @@ import {
   Typography,
   Chip,
 } from "@mui/material";
-import ApproveModal, { ApprovalInfo } from "./approve";
-import BatchPay, { TokenDistributionInfo } from "./batchPay";
+import ApproveModal, { ApprovalInfo } from "./approve_";
+import BatchPay, { TokenDistributionInfo } from "./batchPay_";
 import BatchPayCurrency, { CurrencyDistributionInfo } from "./batchPayCurrency";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
