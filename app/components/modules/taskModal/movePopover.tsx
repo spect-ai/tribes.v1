@@ -42,6 +42,7 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
           onChange={(event, newValue) => {
             setStatus(newValue as any);
           }}
+          disableClearable
           renderInput={(params) => (
             <TextField
               {...params}

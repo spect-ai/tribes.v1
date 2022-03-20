@@ -154,6 +154,9 @@ Moralis.Cloud.define("addTask", async (request) => {
 
 Moralis.Cloud.define("updateTaskColumn", async (request) => {
   const logger = Moralis.Cloud.getLogger();
+  if (request.params.sourceId === request.params.destinationId) {
+    throw "Source and destination column are the same";
+  }
   try {
     await handleColumnChange(
       request.params.boardId,
