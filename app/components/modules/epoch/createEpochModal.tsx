@@ -182,7 +182,7 @@ const CreateEpoch = (props: Props) => {
   };
   return (
     <>
-      {user && space.roles[user?.id] === "admin" && (
+      {user && space.roles[user?.id] === 3 && (
         <>
           <PrimaryButton
             variant="outlined"
