@@ -914,11 +914,9 @@ Moralis.Cloud.define("getBatchPayInfo", async (request) => {
       paymentInfo.approval.required = true;
 
     // Flatten currency data
-    paymentInfo.currency.contributors = Object.keys(
-      tokenAddressToMinAllowanceRequired
-    );
+    paymentInfo.currency.contributors = Object.keys(contributorToCurrencyValue);
     paymentInfo.currency.tokenValues = Object.values(
-      tokenAddressToMinAllowanceRequired
+      contributorToCurrencyValue
     );
 
     // Flatten token data

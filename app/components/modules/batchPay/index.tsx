@@ -70,6 +70,8 @@ const PaymentModal = ({}: Props) => {
   };
   const handleNextStep = (newPaymentInfo: PaymentInfo) => {
     var newPaymentInfo: PaymentInfo = newPaymentInfo || paymentInfo;
+
+    console.log(newPaymentInfo);
     if (activeStep === 0) {
       newPaymentInfo.approval?.required
         ? setActiveStep(1)

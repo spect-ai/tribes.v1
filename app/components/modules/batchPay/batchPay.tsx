@@ -87,11 +87,11 @@ const BatchPay = ({
                   <Grid item xs={4}>
                     <Typography color="text.primary" marginLeft="20px">
                       {distributionInfo.tokenValues[index]?.toFixed(2)}{" "}
-                      {
-                        registry[chainId].tokens[
-                          distributionInfo.tokenAddresses[index]
-                        ].symbol
-                      }
+                      {distributionInfo.type === "tokens"
+                        ? registry[chainId].tokens[
+                            distributionInfo.tokenAddresses[index]
+                          ].symbol
+                        : registry[chainId].nativeCurrency}
                     </Typography>
                   </Grid>
                 </Grid>
