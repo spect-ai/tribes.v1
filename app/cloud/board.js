@@ -139,7 +139,6 @@ Moralis.Cloud.define("initBoard", async (request) => {
     logger.info(JSON.stringify(team));
     if (isMember(request.user.id, team)) {
       var initColumns = ["To Do", "In Progress", "In Review", "Done"];
-      var initBoardStatusList = ["Open", "In Progress", "Submitted", "Closed"];
       var columnIds = [];
       var columnIdToColumnMap = {};
 
@@ -150,7 +149,9 @@ Moralis.Cloud.define("initBoard", async (request) => {
           id: columnId,
           title: initColumns[i],
           taskIds: [],
-          status: initBoardStatusList[i],
+          cardType: 1,
+          createCard: { 0: false, 1: false, 2: true, 3: true },
+          moveCard: { 0: false, 1: false, 2: true, 3: true },
         };
         logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
       }
@@ -159,7 +160,6 @@ Moralis.Cloud.define("initBoard", async (request) => {
       board.set("teamId", request.params.teamId);
       board.set("columns", columnIdToColumnMap);
       board.set("columnOrder", columnIds);
-      board.set("statusList", initBoardStatusList);
       board.set("private", request.params.isPrivate);
       board.set("defaultPayment", {
         chain: {
@@ -423,5 +423,24 @@ Moralis.Cloud.define("updateThemeFromSpace", async (request) => {
       `Error while updating theme on board id ${request.params.boardId}: ${err}`
     );
     throw `Error while updating theme ${err}`;
+  }
+});
+
+Moralis.Cloud.define("updateColumnPermissions", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const board = await getBoardByObjectId(request.params.boardId);
+    const columns = board.get("columns");
+    columns[request.params.columnId].createCard =
+      request.params.createCardRoles;
+    columns[request.params.columnId].moveCard = request.params.moveCardRoles;
+    board.set("columns", columns);
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+    return await getSpace(request.params.boardId, request.user.id);
+  } catch (err) {
+    logger.error(
+      `Error while updating board ${request.params.boardId}: ${err}`
+    );
+    throw `Error while updating board ${request.params.boardId}: ${err}`;
   }
 });

@@ -37,7 +37,7 @@ export function initBoard(
   Moralis: any,
   name: string,
   members: Array<string>,
-  roles: object,
+  roles: { [key: string]: number },
   teamId: string,
   tokenGating: {
     chain: Chain;
@@ -46,7 +46,6 @@ export function initBoard(
   },
   isPrivate: boolean
 ) {
-  console.log(members);
   const params = {
     name: name,
     teamId: teamId,
@@ -561,7 +560,7 @@ export function updateBoardMembers(
   Moralis: any,
   boardId: string,
   members: string[],
-  roles: { [key: string]: string }
+  roles: { [key: string]: number }
 ) {
   const params = {
     boardId: boardId,
@@ -639,4 +638,34 @@ export function getBatchPayInfo(
     distributor: distributor,
   };
   return Moralis.Cloud.run("getBatchPayInfo", params);
+}
+
+export function updateTribeMembers(
+  Moralis: any,
+  teamId: string,
+  members: string[],
+  roles: { [key: string]: number }
+) {
+  const params = {
+    teamId: teamId,
+    members: members,
+    roles: roles,
+  };
+  return Moralis.Cloud.run("updateTribeMembers", params);
+}
+
+export function updateColumnPermissions(
+  Moralis: any,
+  boardId: string,
+  columnId: string,
+  createCardRoles: { [key: number]: boolean },
+  moveCardRoles: { [key: number]: boolean }
+) {
+  const params = {
+    boardId: boardId,
+    columnId: columnId,
+    createCardRoles: createCardRoles,
+    moveCardRoles: moveCardRoles,
+  };
+  return Moralis.Cloud.run("updateColumnPermissions", params);
 }

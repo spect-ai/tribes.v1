@@ -139,5 +139,5 @@ export function downloadCSV(content: Array<Array<any>>, filename: string) {
 }
 
 export function capitalizeFirstLetter(word: string) {
-  return word.charAt(0).toUpperCase() + word.slice(1);
+  return word?.charAt(0).toUpperCase() + word?.slice(1);
 }

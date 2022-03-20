@@ -329,7 +329,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                   Save
                                 </PrimaryButton>
                               )}
-                              {space.roles[user?.id as string] === "admin" && (
+                              {space.roles[user?.id as string] === 3 && (
                                 <PrimaryButton
                                   endIcon={<CloseIcon />}
                                   variant="outlined"

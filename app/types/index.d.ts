@@ -43,7 +43,7 @@ export interface Team {
   description: string;
   members: Array<string>;
   memberDetails: Object<string, Member>;
-  roles: Object<string, string>;
+  roles: Object<string, number>;
   isPublic: boolean;
   discord: string;
   twitter: string;
@@ -146,8 +146,13 @@ export type Column = {
   id: string;
   title: string;
   taskIds: string[];
-  status: string;
-  color: string;
+  cardType: number;
+  createCard: {
+    [key: number]: boolean;
+  };
+  moveCard: {
+    [key: number]: boolean;
+  };
 };
 
 export interface BoardData {
@@ -171,7 +176,7 @@ export interface BoardData {
   taskDetails: Object<string, Task>;
   access: string;
   roles: {
-    [key: string]: string;
+    [key: string]: number;
   };
   epochs: Epoch[];
   _id: string;

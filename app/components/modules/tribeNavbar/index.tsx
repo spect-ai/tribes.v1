@@ -48,9 +48,10 @@ const TribeNavbar = (props: Props) => {
       </NavbarContainer>
       <StyledTabs value={tab} onChange={handleTabChange} centered>
         <StyledTab label="Overview" />
+        <StyledTab label="Members" />
         <StyledTab
           label="Settings"
-          disabled={tribe.roles[user?.id as string] !== "admin"}
+          disabled={tribe.roles[user?.id as string] !== 2}
         />
       </StyledTabs>
       <SidebarProfile />

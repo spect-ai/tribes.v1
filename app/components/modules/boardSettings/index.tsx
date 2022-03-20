@@ -121,7 +121,7 @@ const BoardSettings = (props: Props) => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     fullWidth
-                  ></TextField>
+                  />
                 </AccordionDetails>
               </StyledAccordian>
               <StyledAccordian disableGutters>
@@ -234,7 +234,7 @@ const BoardSettings = (props: Props) => {
                   onClick={() => {
                     if (
                       space.roles[user?.id as string] &&
-                      space.roles[user?.id as string] !== "admin"
+                      space.roles[user?.id as string] !== 3
                     ) {
                       notify("Only stewards can update settings", "error");
                       return;
@@ -271,7 +271,7 @@ const BoardSettings = (props: Props) => {
                   onClick={() => {
                     if (
                       space.roles[user?.id as string] &&
-                      space.roles[user?.id as string] !== "admin"
+                      space.roles[user?.id as string] !== 3
                     ) {
                       notify("Only stewards can update settings", "error");
                       return;

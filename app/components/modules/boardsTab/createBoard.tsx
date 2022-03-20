@@ -67,10 +67,8 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   const [isChecked, setIsChecked] = useState(
     Array(tribe.members?.length).fill(true)
   );
-  const [roles, setRoles] = useState(tribe.roles as { [key: string]: string });
+  const [roles, setRoles] = useState(tribe.roles as { [key: string]: number });
   const [isPrivate, setIsPrivate] = useState(false);
-
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const toggleCheckboxValue = (index: number) => {
     setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
@@ -177,16 +175,20 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                         </TableCell>
                         <TableCell align="right">
                           <Select
-                            value={roles[member] || "member"}
+                            value={roles[member] || 1}
                             fullWidth
                             sx={{ width: "80%", textAlign: "center" }}
                             size="small"
                             onChange={(e) => {
-                              setRoles({ ...roles, [member]: e.target.value });
+                              setRoles({
+                                ...roles,
+                                [member]: e.target.value as number,
+                              });
                             }}
                           >
-                            <MenuItem value={"member"}>Member</MenuItem>
-                            <MenuItem value={"admin"}>Admin</MenuItem>
+                            <MenuItem value={1}>Member</MenuItem>
+                            <MenuItem value={2}>Contributor</MenuItem>
+                            <MenuItem value={3}>Steward</MenuItem>
                           </Select>
                         </TableCell>
                       </TableRow>

@@ -22,7 +22,7 @@ type Props = {
 
 const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { Moralis } = useMoralis();
+  const { Moralis, user } = useMoralis();
   const { space, setSpace } = useSpace();
   const [status, setStatus] = useState(column.title);
   return (
@@ -58,6 +58,17 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
           sx={{ mt: 4, borderRadius: 1 }}
           color="secondary"
           onClick={() => {
+            if (
+              !column.moveCard[space.roles[user?.id as string]] &&
+              !column.moveCard[0]
+            ) {
+              notify(
+                "You don't have permission to move cards from this column",
+                "error"
+              );
+              return;
+            }
+
             setIsLoading(true);
             updateTaskColumn(
               Moralis,
@@ -92,7 +103,7 @@ const MovePopover = ({ open, anchorEl, handleClose, column, task }: Props) => {
               });
           }}
         >
-          Save
+          Move
         </PrimaryButton>
       </PopoverContainer>
     </Popover>
