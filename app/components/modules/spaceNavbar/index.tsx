@@ -63,7 +63,7 @@ const SpaceNavbar = (props: Props) => {
                     return;
                   }
                   setIsLoading(true);
-                  joinSpace(Moralis, bid)
+                  joinSpace(Moralis, bid, window.ethereum.chainId)
                     .then((res: any) => {
                       console.log(res);
                       setIsLoading(false);

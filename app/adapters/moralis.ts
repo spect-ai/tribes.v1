@@ -608,9 +608,10 @@ export function archiveTask(Moralis: any, taskId: string) {
   return Moralis.Cloud.run("archiveTask", params);
 }
 
-export function joinSpace(Moralis: any, boardId: string) {
+export function joinSpace(Moralis: any, boardId: string, chainId: string) {
   const params = {
     boardId: boardId,
+    chainIdHex: chainId,
   };
   return Moralis.Cloud.run("joinSpace", params);
 }

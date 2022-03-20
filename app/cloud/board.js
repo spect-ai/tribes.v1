@@ -428,7 +428,7 @@ Moralis.Cloud.define("joinSpace", async (request) => {
   try {
     const boardQuery = new Moralis.Query("Board");
     boardQuery.equalTo("objectId", request.params.boardId);
-    const web3 = Moralis.web3ByChain("0x1");
+    const web3 = Moralis.web3ByChain(request.params.chainIdHex);
     let board = await boardQuery.first({ useMasterKey: true });
     if (board.get("members").indexOf(request.user.id) !== -1) {
       throw "User already in space";

@@ -68,7 +68,7 @@ const ConfirmModal = ({ isOpen, handleClose }: Props) => {
                       });
                   }}
                 >
-                  Delete Board
+                  Delete Space
                 </PrimaryButton>
               </Box>
             </ModalContent>
