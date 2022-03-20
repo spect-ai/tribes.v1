@@ -8,21 +8,21 @@ import {
 } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
 import { Droppable, Draggable } from "react-beautiful-dnd";
-import TaskContainer from "./task";
 import AddIcon from "@mui/icons-material/Add";
 
 import { Box } from "@mui/system";
 import SettingsIcon from "@mui/icons-material/Settings";
-import ColumnSettingsPopover from "./columnSettingsPopover";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import CreateTask from "./createTask";
-import CreateGithubTask from "./createGithubTask";
 import { useMoralis } from "react-moralis";
 import { updateColumnName } from "../../../adapters/moralis";
 import { useRouter } from "next/router";
 import { BoardData, Column, Task } from "../../../types";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { notify } from "../settingsTab";
+import CreateTask from "../task/createTask";
+import TaskContainer from "../task";
+import CreateGithubTask from "../task/createGithubTask";
+import ColumnSettings from "../columnSettings";
 
 type Props = {
   tasks: Task[];
@@ -41,9 +41,13 @@ const Column = ({ tasks, id, column, index }: Props) => {
   const [showCreateGithubTask, setShowCreateGithubTask] = useState(false);
   const [currentColumnTitle, setCurrentColumnTitle] = useState(column.title);
   const [columnTitle, setColumnTitle] = useState(column.title);
+  const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
+  };
+  const handleModalClose = () => {
+    setIsOpen(false);
   };
   const handleClose = () => {
     setAnchorEl(null);
@@ -68,10 +72,17 @@ const Column = ({ tasks, id, column, index }: Props) => {
   }
   return (
     <OuterContainer>
+      {isOpen && (
+        <ColumnSettings
+          isOpen={isOpen}
+          handleClose={handleModalClose}
+          column={column}
+        />
+      )}
       <Draggable
         draggableId={id}
         index={index}
-        isDragDisabled={space.roles[user?.id as string] !== "admin"}
+        isDragDisabled={space.roles[user?.id as string] !== 3}
       >
         {(provided, snapshot) => (
           <Container
@@ -98,81 +109,89 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       value={columnTitle}
                       onChange={(e) => setColumnTitle(e.target.value)}
                       onBlur={updateColumn}
-                      readOnly={
-                        space.roles[user?.id as string] !== "admin" ||
-                        column.status === "Closed"
-                      }
+                      readOnly={space.roles[user?.id as string] !== 3}
                     />
                     <Box sx={{ flex: "1 1 auto" }} />
                     <IconButton
                       sx={{ mb: 0.5, p: 1 }}
                       size="small"
-                      onClick={handleClick}
-                      disabled={space.roles[user?.id as string] !== "admin"}
+                      onClick={() => setIsOpen(true)}
+                      disabled={space.roles[user?.id as string] !== 3}
                     >
                       <SettingsIcon fontSize="small" />
                     </IconButton>
-                    <ColumnSettingsPopover
-                      open={open}
-                      anchorEl={anchorEl}
-                      handleClose={handleClose}
-                      columnId={column.id}
-                    />
                   </TaskTitleContainer>
                   <Box sx={{ display: "flex", flexDirection: "row" }}>
-                    {column.title !== "Done" && (
-                      <>
-                        {space.roles[user?.id as string] === "admin" && (
-                          <Button
-                            sx={{
-                              textTransform: "none",
-                              textAlign: "left",
-                              justifyContent: "flex-start",
-                              ml: 1,
-                              color: palette.text.primary,
-                            }}
-                            variant="contained"
-                            disableElevation
-                            startIcon={<AddIcon />}
-                            onClick={() => {
-                              setShowCreateTask(true);
-                              setTimeout(() => {
-                                document
-                                  .getElementById("taskCancelButton")
-                                  ?.scrollIntoView({
-                                    behavior: "smooth",
-                                    block: "end",
-                                    inline: "nearest",
-                                  });
-                              }, 10);
-                            }}
-                            fullWidth
-                            size="small"
-                          >
-                            Add Card
-                          </Button>
-                        )}
-                        {space.roles[user?.id as string] === "admin" && (
-                          <Button
-                            sx={{
-                              textTransform: "none",
-                              textAlign: "left",
-                              justifyContent: "flex-start",
-                              mr: 1,
-                              color: palette.text.primary,
-                            }}
-                            startIcon={<GitHubIcon />}
-                            onClick={() => setShowCreateGithubTask(true)}
-                            fullWidth
-                            size="small"
-                            variant="contained"
-                            disableElevation
-                          >
-                            Import Card
-                          </Button>
-                        )}
-                      </>
-                    )}
+                    <>
+                      <Button
+                        sx={{
+                          textTransform: "none",
+                          textAlign: "left",
+                          justifyContent: "flex-start",
+                          ml: 1,
+                          color: palette.text.primary,
+                        }}
+                        variant="contained"
+                        disableElevation
+                        startIcon={<AddIcon />}
+                        onClick={() => {
+                          if (
+                            !column.createCard[
+                              space.roles[user?.id as string]
+                            ] &&
+                            !column.createCard[0]
+                          ) {
+                            notify(
+                              "Your role doesn't have permission to create tasks in this column",
+                              "error"
+                            );
+                            return;
+                          }
+                          setShowCreateTask(true);
+                          setTimeout(() => {
+                            document
+                              .getElementById("taskCancelButton")
+                              ?.scrollIntoView({
+                                behavior: "smooth",
+                                block: "end",
+                                inline: "nearest",
+                              });
+                          }, 10);
+                        }}
+                        fullWidth
+                        size="small"
+                      >
+                        Add Card
+                      </Button>
+                      <Button
+                        sx={{
+                          textTransform: "none",
+                          textAlign: "left",
+                          justifyContent: "flex-start",
+                          mr: 1,
+                          color: palette.text.primary,
+                        }}
+                        startIcon={<GitHubIcon />}
+                        onClick={() => {
+                          if (
+                            !column.createCard[space.roles[user?.id as string]]
+                          ) {
+                            notify(
+                              "Your role doesn't have permission to create tasks in this column",
+                              "error"
+                            );
+                            return;
+                          }
+                          setShowCreateGithubTask(true);
+                        }}
+                        fullWidth
+                        size="small"
+                        variant="contained"
+                        disableElevation
+                      >
+                        Import Card
+                      </Button>
+                    </>
                   </Box>
                   <TaskList>
                     {tasks?.map((task, index) => {

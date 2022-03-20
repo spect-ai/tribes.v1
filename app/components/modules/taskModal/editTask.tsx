@@ -101,7 +101,6 @@ const EditTask = ({ task, handleClose, column }: Props) => {
       });
   };
   useEffect(() => {
-    console.log(task.access);
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
     }
@@ -217,7 +216,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
             </InnerInfo>
           </Info>
         )}
-        {task.value && (
+        {task.value ? (
           <Info>
             <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
               Reward
@@ -228,7 +227,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
               </Typography>
             </InnerInfo>
           </Info>
-        )}
+        ) : null}
       </TaskModalInfoContainer>
       <Grid container spacing={0}>
         <Grid item xs={9}>
@@ -343,7 +342,6 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                   task.access.assignee) && (
                   <TaskButton
                     variant="outlined"
-                    disabled={column.status === "Closed"}
                     onClick={handleClick("date")}
                     color="secondary"
                   >
@@ -365,7 +363,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                   variant="outlined"
                   color="secondary"
                   onClick={handleClick("label")}
-                  disabled={!isSpaceMember() || column.status === "Closed"}
+                  disabled={!isSpaceMember()}
                 >
                   <Typography sx={{ width: "50%", fontSize: 15 }}>
                     Labels
@@ -385,7 +383,6 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     variant="outlined"
                     color="secondary"
                     onClick={handleClick("reviewer")}
-                    disabled={column.status === "Closed"}
                   >
                     <Typography sx={{ width: "50%", fontSize: 15 }}>
                       Reviewer
@@ -407,7 +404,6 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     variant="outlined"
                     color="secondary"
                     onClick={handleClick("assignee")}
-                    disabled={column.status === "Closed"}
                   >
                     <Typography sx={{ width: "50%", fontSize: 15 }}>
                       Assignee
@@ -499,52 +495,45 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     task={task}
                   />
                 )}
-                {space.roles[user?.id as string] === "admin" &&
-                  task.status === 205 && (
-                    <TaskButton
-                      variant="outlined"
-                      color="secondary"
-                      onClick={() => {
-                        task.token.symbol ===
-                        registryTemp[task.chain.chainId].nativeCurrency
-                          ? distributeEther(
-                              [
-                                space.memberDetails[task.assignee[0]]
-                                  .ethAddress,
-                              ],
-                              [task.value],
-                              task.taskId,
-                              window.ethereum.networkVersion
-                            )
-                              .then((res: any) => {
-                                console.log(res);
-                                handleTaskStatusUpdate([task.taskId]);
-                                handleClose();
-                              })
-                              .catch((err: any) => alert(err))
-                          : batchPayTokens(
-                              [task.token.address as string],
-                              [
-                                space.memberDetails[task.assignee[0]]
-                                  .ethAddress,
-                              ],
-                              [task.value],
-                              task.taskId,
-                              window.ethereum.networkVersion
-                            )
-                              .then((res: any) => {
-                                handleTaskStatusUpdate([task.taskId]);
-                                handleClose();
-                              })
-                              .catch((err: any) => alert(err));
-                      }}
-                    >
-                      <Typography sx={{ width: "50%", fontSize: 15 }}>
-                        Pay
-                      </Typography>
-                      <PaidIcon />
-                    </TaskButton>
-                  )}
+                {space.roles[user?.id as string] === 3 && (
+                  <TaskButton
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => {
+                      task.token.symbol ===
+                      registryTemp[task.chain.chainId].nativeCurrency
+                        ? distributeEther(
+                            [space.memberDetails[task.assignee[0]].ethAddress],
+                            [task.value],
+                            task.taskId,
+                            window.ethereum.networkVersion
+                          )
+                            .then((res: any) => {
+                              console.log(res);
+                              handleTaskStatusUpdate([task.taskId]);
+                              handleClose();
+                            })
+                            .catch((err: any) => alert(err))
+                        : batchPayTokens(
+                            [task.token.address as string],
+                            [space.memberDetails[task.assignee[0]].ethAddress],
+                            [task.value],
+                            task.taskId,
+                            window.ethereum.networkVersion
+                          )
+                            .then((res: any) => {
+                              handleTaskStatusUpdate([task.taskId]);
+                              handleClose();
+                            })
+                            .catch((err: any) => alert(err));
+                    }}
+                  >
+                    <Typography sx={{ width: "50%", fontSize: 15 }}>
+                      Pay
+                    </Typography>
+                    <PaidIcon />
+                  </TaskButton>
+                )}
                 {/*!task.access.creator && (
                   <TaskButton variant="outlined" color="primary">
                     Vote
@@ -575,7 +564,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     <HailIcon />
                   </TaskButton>
                 )}
-                {space.roles[user?.id as string] === "admin" && (
+                {space.roles[user?.id as string] === 3 && (
                   <TaskButton
                     variant="outlined"
                     color="error"

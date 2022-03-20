@@ -21,7 +21,7 @@ export const CreateTaskContainer = styled.div<{ palette: Palette }>`
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 16rem;
+  width: 15.6rem;
   padding: 5px;
   margin: 5px;
   border-radius: 5px;

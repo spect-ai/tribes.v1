@@ -72,7 +72,6 @@ const Home: NextPage = () => {
   useEffect(() => {
     if (isInitialized) {
       initializeExploreBeforeWalletConnect();
-      console.log(isAuthenticated);
       if (isAuthenticated) {
         initializeExploreAfterWalletConnect();
       }

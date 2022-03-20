@@ -8,7 +8,6 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
-import Column from "./column";
 import AddIcon from "@mui/icons-material/Add";
 import {
   addColumn,
@@ -22,6 +21,7 @@ import { reorder } from "../../../utils/utils";
 import { BoardData } from "../../../types";
 import { notify } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import Column from "../column";
 
 type Props = {
   expanded: boolean;
@@ -47,7 +47,7 @@ const Board = ({ expanded, handleChange }: Props) => {
         task.access.assignee ||
         task.access.creator ||
         task.access.reviewer ||
-        space.roles[user?.id as string] === "admin"
+        space.roles[user?.id as string] === 3
       )
     ) {
       notify("Sorry! You don't have access to this task", "error");
@@ -116,6 +116,26 @@ const Board = ({ expanded, handleChange }: Props) => {
           notify("Sorry! There was an error while moving tasks.", "error");
         });
     } else {
+      if (
+        !start.moveCard[space.roles[user?.id as string]] &&
+        !start.moveCard[0]
+      ) {
+        notify(
+          "You don't have permission to move cards from this column",
+          "error"
+        );
+        return;
+      }
+      if (
+        !finish.createCard[space.roles[user?.id as string]] &&
+        !finish.createCard[0]
+      ) {
+        notify(
+          "You don't have permission to move cards to this column",
+          "error"
+        );
+        return;
+      }
       const startTaskIds = Array.from(start.taskIds); // copy
       startTaskIds.splice(source.index, 1);
       const newStart = {
@@ -195,7 +215,7 @@ const Board = ({ expanded, handleChange }: Props) => {
                 borderRadius: 1,
                 margin: "0.3rem 2rem 1rem 0rem",
               }}
-              disabled={space.roles[user?.id as string] !== "admin"}
+              disabled={space.roles[user?.id as string] !== 3}
               onClick={() => {
                 const newColumnId = Object.keys(space.columns).length;
                 const tempData = Object.assign({}, space);
@@ -207,8 +227,9 @@ const Board = ({ expanded, handleChange }: Props) => {
                       id: `column-${newColumnId}`,
                       title: "",
                       taskIds: [],
-                      status: "",
-                      color: "",
+                      cardType: 1,
+                      createCard: { 0: false, 1: false, 2: true, 3: true },
+                      moveCard: { 0: false, 1: false, 2: true, 3: true },
                     },
                   },
                   columnOrder: [...space.columnOrder, `column-${newColumnId}`],

@@ -38,7 +38,7 @@ function canMoveTask(
   if (
     isTaskCreator(task, callerId) ||
     isTaskReviewer(task, callerId) ||
-    (isTaskAssignee(task, callerId) && destinationColumnId !== "column-3")
+    isTaskAssignee(task, callerId)
   ) {
     return true;
   } else return isAdmin(callerId, board);

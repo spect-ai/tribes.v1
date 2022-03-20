@@ -48,9 +48,7 @@ const SpacePage: NextPage<Props> = (props: Props) => {
   const { bid } = router.query;
 
   useEffect(() => {
-    setTheme(
-      createTheme(getTheme(parseInt(localStorage.getItem("theme") || "0")))
-    );
+    setTheme(createTheme(getTheme(0)));
     setIsLoading(true);
     if (isInitialized && bid) {
       getSpace(Moralis, bid as string)

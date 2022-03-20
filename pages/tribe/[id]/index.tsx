@@ -67,9 +67,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
 
   useEffect(() => {
     if (isInitialized && id) {
-      setTheme(
-        createTheme(getTheme(parseInt(localStorage.getItem("theme") || "0")))
-      );
+      setTheme(createTheme(getTheme(0)));
       setLoading(true);
       getTeam({
         onSuccess: (res: any) => {

@@ -35,7 +35,6 @@ const TokenGateForm = ({
   } = useGlobal();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const filter = createFilterOptions<Token>();
-  console.log(chain);
   return (
     <Box sx={{ display: "flex", my: 1 }}>
       <CustomTokenDialog

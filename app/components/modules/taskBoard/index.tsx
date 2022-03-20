@@ -6,7 +6,7 @@ import Heading from "./heading";
 import SkeletonLoader from "./skeletonLoader";
 import Board from "./board";
 import EpochList from "../epoch";
-import Members from "../members";
+import Members from "../spaceMembers";
 import NoAccess from "../epoch/noAccess";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 

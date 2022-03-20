@@ -159,7 +159,7 @@ const PaymentModal = ({}: Props) => {
                   marginLeft="10px"
                 >
                   {capitalizeFirstLetter(
-                    registry[window.ethereum.networkVersion].name
+                    registry[window.ethereum.networkVersion]?.name
                   )}{" "}
                   Network
                 </Typography>
