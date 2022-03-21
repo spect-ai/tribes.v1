@@ -58,7 +58,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   } = useGlobal();
   const [chain, setChain] = useState({
     chainId: window.ethereum.networkVersion,
-    name: registry[window.ethereum.networkVersion].name,
+    name: registry[window.ethereum.networkVersion]?.name,
   } as Chain);
   const [tokenLimit, setTokenLimit] = useState("");
   const [isLoading, setIsLoading] = useState(false);
