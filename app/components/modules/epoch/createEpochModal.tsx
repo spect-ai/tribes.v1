@@ -364,7 +364,7 @@ const CreateEpoch = (props: Props) => {
                             <Autocomplete
                               {...field}
                               options={getFlattenedCurrencies(
-                                registryTemp as Registry,
+                                registry as Registry,
                                 chain.chainId
                               )}
                               onChange={(event, newValue) => {
