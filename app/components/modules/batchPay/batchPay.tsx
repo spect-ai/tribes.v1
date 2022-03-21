@@ -21,6 +21,7 @@ type Props = {
 
 export type DistributionInfo = {
   cardIds: string[];
+  epochId: string;
   type: string;
   contributors: Array<string>;
   tokenAddresses: Array<string>;
@@ -46,6 +47,7 @@ const BatchPay = ({
   const { space, setSpace } = useSpace();
   const { state } = useGlobal();
   const { registry } = state;
+  console.log(distributionInfo);
   return (
     <React.Fragment>
       <Box
@@ -102,7 +104,9 @@ const BatchPay = ({
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}></Box>
         </>
         {
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+          <Box
+            sx={{ display: "flex", flexDirection: "row", pt: 2, marginTop: 8 }}
+          >
             <Button
               color="inherit"
               variant="outlined"
@@ -132,7 +136,11 @@ const BatchPay = ({
                     .then((res: any) => {
                       const promises: Array<any> = [];
                       promises.push(
-                        handleStatusUpdate("token", distributionInfo.cardIds)
+                        handleStatusUpdate(
+                          distributionInfo.epochId
+                            ? distributionInfo.epochId
+                            : distributionInfo.cardIds
+                        )
                       );
                       Promise.all(promises).then(() => {
                         setIsLoading(false);
@@ -158,7 +166,11 @@ const BatchPay = ({
                     .then((res: any) => {
                       const promises: Array<any> = [];
                       promises.push(
-                        handleStatusUpdate("currency", distributionInfo.cardIds)
+                        handleStatusUpdate(
+                          distributionInfo.epochId
+                            ? distributionInfo.epochId
+                            : distributionInfo.cardIds
+                        )
                       );
                       Promise.all(promises).then(() => {
                         setIsLoading(false);

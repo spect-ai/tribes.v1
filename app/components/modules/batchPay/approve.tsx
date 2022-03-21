@@ -11,8 +11,6 @@ import { PrimaryButton } from "../../elements/styledComponents";
 import Image from "next/image";
 import CloseIcon from "@mui/icons-material/Close";
 import { approve } from "../../../adapters/contract";
-import { BatchPayInfo } from ".";
-import { capitalizeFirstLetter } from "../../../utils/utils";
 import { useGlobal } from "../../../context/globalContext";
 
 interface Props {
@@ -63,6 +61,7 @@ const Approve = ({
   const { state } = useGlobal();
   const registry = state.registry;
 
+  console.log(approvalInfo);
   return (
     <React.Fragment>
       <Box
@@ -156,7 +155,9 @@ const Approve = ({
             )}
           </Box>
         </>
-        <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+        <Box
+          sx={{ display: "flex", flexDirection: "row", pt: 2, marginTop: 8 }}
+        >
           <Button
             color="inherit"
             variant="outlined"

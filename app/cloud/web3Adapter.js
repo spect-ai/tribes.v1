@@ -12,3 +12,17 @@ async function getAllowance(
     .call()
     .catch((err) => logger.info(err));
 }
+
+async function getNativeCurrencyBalance(chain, callerAddress) {
+  return await Moralis.Web3API.account.getNativeBalance({
+    chain: chain,
+    address: callerAddress,
+  });
+}
+
+async function getTokenBalances(chain, callerAddress) {
+  return await Moralis.Web3API.account.getTokenBalances({
+    chain: chain,
+    address: callerAddress,
+  });
+}

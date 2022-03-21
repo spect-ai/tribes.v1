@@ -93,6 +93,7 @@ const NumericVoting = ({
                     placeholder="Value"
                     inputProps={{
                       readOnly: !active,
+                      min: 0,
                     }}
                     size="small"
                     error={votesRemaining < 0}
@@ -112,14 +113,14 @@ const NumericVoting = ({
                   />
                 )}
               </TableCell>
-              {/* {!active && (
+              {!active && (
                 <TableCell align="right">
                   {choiceId in values && values[choiceId]
                     ? values[choiceId].toFixed(2)
                     : 0}{" "}
                   {tokenSymbol}
                 </TableCell>
-              )} */}
+              )}
             </TableRow>
           ))}
         </TableBody>

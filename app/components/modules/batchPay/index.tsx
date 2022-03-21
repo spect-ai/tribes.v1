@@ -31,13 +31,6 @@ import { notify } from "../settingsTab";
 
 interface Props {}
 
-export interface BatchPayInfo {
-  taskIdsWithTokenPayment: Array<string>;
-  taskIdsWithCurrencyPayment: Array<string>;
-  epochId: string;
-  type: string;
-}
-
 const modalSteps = [
   "Pick Cards",
   "Approve Tokens",
@@ -54,7 +47,6 @@ export type PaymentInfo = {
 const PaymentModal = ({}: Props) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadPaymentInfo, setLoadPaymentInfo] = useState(false);
   const [steps, setSteps] = useState(modalSteps);
   const { palette } = useTheme();
   const [activeStep, setActiveStep] = useState(0);
@@ -88,30 +80,17 @@ const PaymentModal = ({}: Props) => {
     else if (activeStep === 3) handleClose();
   };
 
-  const handleStatusUpdate = (paymentType: string, taskIds: string[]) => {
-    if (paymentType === "currency") {
-      completePayment(Moralis, taskIds)
-        .then((res: any) => {
-          setSpace(res);
-        })
-        .catch((err: any) => {
-          notify(
-            `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`,
-            "error"
-          );
-        });
-    } else if (paymentType === "token") {
-      completePayment(Moralis, taskIds)
-        .then((res: any) => {
-          setSpace(res);
-        })
-        .catch((err: any) => {
-          notify(
-            `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`,
-            "error"
-          );
-        });
-    }
+  const handleStatusUpdate = (taskIds: string[]) => {
+    completePayment(Moralis, taskIds)
+      .then((res: any) => {
+        setSpace(res);
+      })
+      .catch((err: any) => {
+        notify(
+          `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`,
+          "error"
+        );
+      });
   };
 
   return (

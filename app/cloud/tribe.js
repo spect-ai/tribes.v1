@@ -72,7 +72,7 @@ function joinTribeAsMember(tribe, userId) {
   const members = tribe.get("members");
   const roles = tribe.get("roles");
   members.push(userId);
-  roles[userId] = "member";
+  roles[userId] = 1;
   tribe.set("members", members);
   tribe.set("roles", roles);
   return tribe;

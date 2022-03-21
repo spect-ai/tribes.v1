@@ -30,9 +30,7 @@ import { monthMap } from "../../../constants";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { registryTemp } from "../../../constants";
-import PaymentModal, { BatchPayInfo } from "../payment";
 import CsvExport from "./export";
-import PayoutButton from "./payout";
 import { updateTaskColumn, updateTaskStatus } from "../../../adapters/moralis";
 import { BoardData, Column, Task } from "../../../types";
 import NumericVoting, { Details } from "./numericVoting";
@@ -40,6 +38,7 @@ import ForAgainstVoting from "./forAgainstVoting";
 import ZeroEpochs from "./zeroEpochs";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import CreateEpoch from "./createEpochModal";
+import PayoutContributors from "./payoutContributors";
 
 type Props = {
   expanded: boolean;
@@ -363,7 +362,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                         ) : (
                           <ButtonContainer>
                             {epoch.type === "Member" ? (
-                              <PayoutButton epoch={epoch} />
+                              <PayoutContributors epoch={epoch} />
                             ) : (
                               <Box sx={{ alignItems: "center" }}>
                                 <Typography variant="body2">
