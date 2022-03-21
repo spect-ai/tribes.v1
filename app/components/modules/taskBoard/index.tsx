@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Fade, Grow } from "@mui/material";
 import { useRouter } from "next/router";
 import { useMoralis } from "react-moralis";
-import Heading from "./heading";
 import SkeletonLoader from "./skeletonLoader";
 import Board from "./board";
 import EpochList from "../epoch";
@@ -28,7 +27,6 @@ const TaskBoard = (props: Props) => {
   return (
     <Fade in={!isLoading} timeout={500}>
       <div>
-        <Heading />
         {tab === 0 && (
           <Grow in={tab === 0} timeout={500}>
             <div>
