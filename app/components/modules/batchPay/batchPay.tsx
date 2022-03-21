@@ -88,7 +88,7 @@ const BatchPay = ({
                   </Grid>
                   <Grid item xs={4}>
                     <Typography color="text.primary" marginLeft="20px">
-                      {distributionInfo.tokenValues[index]?.toFixed(2)}{" "}
+                      {distributionInfo.tokenValues[index]?.toFixed(3)}{" "}
                       {distributionInfo.type === "tokens"
                         ? registry[chainId].tokens[
                             distributionInfo.tokenAddresses[index]

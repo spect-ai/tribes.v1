@@ -122,7 +122,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   const loadEpochs = (Moralis: any, bid: string) => {
     getEpochs(Moralis, bid)
       .then((res: any) => {
-        console.log(res);
         setSpace(
           Object.assign(space, {
             epochs: res.epochs,

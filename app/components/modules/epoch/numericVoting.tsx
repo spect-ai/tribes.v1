@@ -116,7 +116,7 @@ const NumericVoting = ({
               {!active && (
                 <TableCell align="right">
                   {choiceId in values && values[choiceId]
-                    ? values[choiceId].toFixed(2)
+                    ? values[choiceId].toFixed(3)
                     : 0}{" "}
                   {tokenSymbol}
                 </TableCell>

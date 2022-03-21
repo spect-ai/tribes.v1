@@ -43,6 +43,7 @@ const PayoutContributors = ({ epoch }: Props) => {
   } = useGlobal();
   const { Moralis, user } = useMoralis();
   const { space, setSpace, setRefreshEpochs } = useSpace();
+  console.log(epoch);
   const [distributionInfo, setDistributionInfo] = useState({
     contributors: Object.keys(epoch.values),
     tokenValues: Object.values(epoch.values),
