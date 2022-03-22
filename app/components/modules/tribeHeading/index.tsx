@@ -1,5 +1,11 @@
 import styled from "@emotion/styled";
-import { Box, styled as MUIStyled } from "@mui/material";
+import {
+  Box,
+  Breadcrumbs,
+  styled as MUIStyled,
+  Link as MuiLink,
+  Tooltip,
+} from "@mui/material";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
@@ -13,6 +19,7 @@ import {
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
+import Link from "next/link";
 
 type Props = {};
 
@@ -26,56 +33,6 @@ const TribeHeading = (props: Props) => {
 
   return (
     <Container>
-      <Toaster />
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          ml: 4,
-        }}
-      >
-        {/* <Typography variant="h6">{tribe.name}</Typography> */}
-        <PrimaryButton
-          sx={{ borderRadius: 1, mr: 4 }}
-          variant="outlined"
-          endIcon={<PeopleOutlineIcon />}
-          onClick={() => {
-            navigator.clipboard.writeText(window.location.href).then(
-              function () {
-                notify("Link copied to clipboard");
-              },
-              function (err) {
-                notify("Error copying link");
-              }
-            );
-          }}
-        >
-          Invite
-        </PrimaryButton>
-        {!(user && tribe.members.includes(user?.id)) && (
-          <PrimaryButton
-            variant="outlined"
-            loading={isLoading}
-            disabled={!isAuthenticated}
-            sx={{ borderRadius: 1 }}
-            onClick={async () => {
-              if (!isAuthenticated) {
-                await authenticate();
-              }
-              setIsLoading(true);
-              joinTribe(Moralis, id).then((res: boolean) => {
-                setIsMember(res);
-                if (res) {
-                  notify("Joined Tribe Successfully!");
-                }
-              });
-            }}
-          >
-            Join Tribe
-          </PrimaryButton>
-        )}
-      </Box>
       <Box
         sx={{
           display: "flex",
@@ -99,13 +56,57 @@ const TribeHeading = (props: Props) => {
           </StyledAnchor>
         )}
       </Box>
-      <StyledTabs value={tab} onChange={handleTabChange}>
-        <StyledTab label="Overview" />
-        <StyledTab
-          label="Settings"
-          disabled={user ? tribe.roles[user?.id] !== "admin" : true}
-        />
-      </StyledTabs>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          ml: 4,
+        }}
+      >
+        {/* <Typography variant="h6">{tribe.name}</Typography> */}
+        <PrimaryButton
+          sx={{ borderRadius: 1, my: 4, mr: 2 }}
+          variant="outlined"
+          color="secondary"
+          endIcon={<PeopleOutlineIcon />}
+          onClick={() => {
+            navigator.clipboard.writeText(window.location.href).then(
+              function () {
+                notify("Link copied to clipboard");
+              },
+              function (err) {
+                notify("Error copying link");
+              }
+            );
+          }}
+        >
+          Invite
+        </PrimaryButton>
+        {!(user && tribe.members.includes(user?.id)) && (
+          <PrimaryButton
+            variant="outlined"
+            color="secondary"
+            loading={isLoading}
+            sx={{ borderRadius: 1 }}
+            onClick={async () => {
+              if (!isAuthenticated) {
+                notify("Connect Wallet to join tribe", "error");
+                return;
+              }
+              setIsLoading(true);
+              joinTribe(Moralis, id).then((res: boolean) => {
+                setIsMember(res);
+                if (res) {
+                  notify("Joined Tribe Successfully!");
+                }
+              });
+            }}
+          >
+            Join Tribe
+          </PrimaryButton>
+        )}
+      </Box>
     </Container>
   );
 };

@@ -9,9 +9,9 @@ import {
   LabelChipButton,
   PrimaryButton,
 } from "../../elements/styledComponents";
-import { useBoard } from "../taskBoard";
 import { PopoverContainer } from "./datePopover";
-import { notifyError } from "../settingsTab";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { notify } from "../settingsTab";
 
 type Props = {
   open: boolean;
@@ -24,7 +24,7 @@ const LabelPopover = ({ open, anchorEl, handleClose, task }: Props) => {
   const [labels, setLabels] = useState(task.tags);
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
 
   return (
     <Popover
@@ -56,19 +56,21 @@ const LabelPopover = ({ open, anchorEl, handleClose, task }: Props) => {
         />
         <PrimaryButton
           variant="outlined"
-          sx={{ mt: 4 }}
+          sx={{ mt: 4, borderRadius: 1 }}
           loading={isLoading}
+          color="secondary"
           onClick={() => {
             setIsLoading(true);
             updateTaskLabels(Moralis, labels, task.taskId)
               .then((res: BoardData) => {
-                setData(res);
+                setSpace(res);
                 setIsLoading(false);
                 handleClose("label");
               })
               .catch((err: any) => {
-                notifyError(
-                  "Sorry! There was an error while updating task labels."
+                notify(
+                  "Sorry! There was an error while updating task labels.",
+                  "error"
                 );
               });
           }}

@@ -88,8 +88,8 @@ Moralis.Cloud.define("startEpoch", async (request) => {
     epoch.set("memberStats", initMembersStats); // list
     epoch.set("type", request.params.type);
     epoch.set("strategy", request.params.strategy);
-    epoch.set("passThreshold", parseInt(request.params.passThreshold));
-    epoch.set("budget", parseInt(request.params.budget));
+    epoch.set("passThreshold", parseFloat(request.params.passThreshold));
+    epoch.set("budget", parseFloat(request.params.budget));
     epoch.set("token", request.params.token);
     epoch.set("chain", request.params.chain);
     epoch.set("epochNumber", epochCount + 1);

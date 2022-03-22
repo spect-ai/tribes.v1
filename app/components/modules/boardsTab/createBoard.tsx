@@ -18,32 +18,31 @@ import {
   Select,
   Autocomplete,
   Grid,
+  createFilterOptions,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState, useEffect } from "react";
-import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
-import { initBoard } from "../../../adapters/moralis";
+import {
+  ModalHeading,
+  PrimaryButton,
+  StyledAccordian,
+} from "../../elements/styledComponents";
+import { createSpaceFromTrello, initBoard } from "../../../adapters/moralis";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Chain, Member, Registry } from "../../../types";
-import { getFlattenedNetworks } from "../../../utils/utils";
-import { registryTemp } from "../../../constants";
-import { notifyError } from "../settingsTab";
+import { Chain, Column, Member, Registry, Token } from "../../../types";
+import { notify } from "../settingsTab";
+import { useGlobal } from "../../../context/globalContext";
+import TokenGateForm from "../../elements/tokenGateForm";
 
 type Props = {
   isOpen: boolean;
   handleClose: () => void;
 };
 
-function createData(username: string, role: string) {
-  return {
-    username,
-    role,
-  };
-}
 interface SpaceMember {
   [key: string]: Member;
 }
@@ -53,18 +52,28 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   const { Moralis } = useMoralis();
   const router = useRouter();
   const [name, setName] = useState("");
+  const [token, setToken] = useState<Token>();
+  const {
+    state: { registry },
+  } = useGlobal();
   const [chain, setChain] = useState({
-    chainId: "137",
-    name: "polygon",
+    chainId: window.ethereum.networkVersion,
+    name: registry[window.ethereum.networkVersion]?.name,
   } as Chain);
-  const [tokenAddress, setTokenAddress] = useState("");
   const [tokenLimit, setTokenLimit] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(
     Array(tribe.members?.length).fill(true)
   );
-  const [roles, setRoles] = useState(tribe.roles as { [key: string]: string });
+  const [roles, setRoles] = useState(tribe.roles as { [key: string]: number });
   const [isPrivate, setIsPrivate] = useState(false);
+  const [trelloBoardId, setTrelloBoardId] = useState("");
+  const [columnMap, setColumnMap] = useState({});
+  const [columnOrder, setColumnOrder] = useState([]);
+  const [trelloBoard, setTrelloBoard] = useState<any>({} as any);
+  const [trelloTasks, setTrelloTasks] = useState([]);
+
+  const [isFetching, setIsFetching] = useState(false);
 
   const toggleCheckboxValue = (index: number) => {
     setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
@@ -80,10 +89,11 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
     }
     return members;
   };
+
   return (
     <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
       <Grow in={isOpen} timeout={500}>
-        <Box sx={modalStyle}>
+        <ModalContainer>
           <ModalHeading>
             <Typography sx={{ color: "#99ccff" }}>Create Space</Typography>
             <Box sx={{ flex: "1 1 auto" }} />
@@ -107,11 +117,12 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               sx={{ mb: 2 }}
             /> */}
 
-            <Accordion disableGutters>
+            <StyledAccordian disableGutters>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"
                 id="panel1a-header"
+                sx={{ fontWeight: "bold" }}
               >
                 Members
               </AccordionSummary>
@@ -127,6 +138,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                               Array(tribe.members.length).fill(e.target.checked)
                             );
                           }}
+                          color="default"
                         />
                       </TableCell>
                       <TableCell align="right" sx={{ color: "#99ccff" }}>
@@ -153,7 +165,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                           padding="checkbox"
                         >
                           <Checkbox
-                            color="primary"
+                            color="secondary"
                             inputProps={{
                               "aria-label": "select all desserts",
                             }}
@@ -169,16 +181,20 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                         </TableCell>
                         <TableCell align="right">
                           <Select
-                            value={roles[member] || "member"}
+                            value={roles[member] || 1}
                             fullWidth
                             sx={{ width: "80%", textAlign: "center" }}
                             size="small"
                             onChange={(e) => {
-                              setRoles({ ...roles, [member]: e.target.value });
+                              setRoles({
+                                ...roles,
+                                [member]: e.target.value as number,
+                              });
                             }}
                           >
-                            <MenuItem value={"member"}>Member</MenuItem>
-                            <MenuItem value={"admin"}>Admin</MenuItem>
+                            <MenuItem value={1}>Member</MenuItem>
+                            <MenuItem value={2}>Contributor</MenuItem>
+                            <MenuItem value={3}>Steward</MenuItem>
                           </Select>
                         </TableCell>
                       </TableRow>
@@ -186,9 +202,12 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                   </TableBody>
                 </Table>
               </AccordionDetails>
-            </Accordion>
-            <Accordion disableGutters>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            </StyledAccordian>
+            <StyledAccordian disableGutters>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{ fontWeight: "bold" }}
+              >
                 Token Gating
               </AccordionSummary>
               <AccordionDetails>
@@ -196,52 +215,143 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                   Enable token gating to allow addresses with the token limit to
                   automatically join space without any prior permission
                 </Typography>
-                <Autocomplete
-                  options={getFlattenedNetworks(registryTemp as Registry)}
-                  getOptionLabel={(option) => option.name}
-                  value={chain}
-                  disableClearable
-                  onChange={(event, newValue) => {
-                    setChain(newValue as Chain);
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      size="small"
-                      fullWidth
-                      sx={{ my: 4 }}
-                    />
-                  )}
+                <TokenGateForm
+                  chain={chain}
+                  setChain={setChain}
+                  token={token as Token}
+                  setToken={setToken}
+                  tokenLimit={tokenLimit}
+                  setTokenLimit={setTokenLimit}
                 />
+              </AccordionDetails>
+            </StyledAccordian>
+            <StyledAccordian disableGutters>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                sx={{ fontWeight: "bold" }}
+              >
+                Import Board
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography>Import board from trello</Typography>
                 <Box sx={{ display: "flex" }}>
                   <TextField
+                    placeholder="Trello Board Id"
+                    size="small"
+                    value={trelloBoardId}
+                    onChange={(event) => {
+                      setTrelloBoardId(event.target.value);
+                    }}
+                  />
+                  <PrimaryButton
+                    variant="outlined"
+                    size="small"
+                    color="secondary"
                     fullWidth
-                    placeholder="Token Address"
-                    size="small"
-                    value={tokenAddress}
-                    onChange={(e) => setTokenAddress(e.target.value)}
-                  />
-                  <TextField
-                    sx={{ width: "25%", ml: 2 }}
-                    placeholder="Limit"
-                    type={"number"}
-                    size="small"
-                    inputProps={{ min: 1 }}
-                    value={tokenLimit}
-                    onChange={(e) => setTokenLimit(e.target.value)}
-                  />
+                    loading={isFetching}
+                    sx={{ borderRadius: 1, mx: 4, width: "25%" }}
+                    onClick={async () => {
+                      setIsFetching(true);
+                      const board = await fetch(
+                        `https://api.trello.com/1/boards/${trelloBoardId}`
+                      );
+                      const boardJson = await board.json();
+                      const columns = await fetch(
+                        `https://api.trello.com/1/boards/${trelloBoardId}/lists`
+                      );
+
+                      const columnsJson = await columns.json();
+                      const cards = await fetch(
+                        `https://api.trello.com/1/boards/${trelloBoardId}/cards`
+                      );
+
+                      const cardsJson = await cards.json();
+                      const columnOrder = columnsJson.map(
+                        (column: any) => column.id
+                      );
+                      let columnMap: {
+                        [key: string]: Column;
+                      } = {};
+                      columnsJson.map((column: any) => {
+                        columnMap[column.id] = {
+                          id: column.id,
+                          title: column.name,
+                          taskIds: [],
+                          cardType: 1,
+                          createCard: { 0: false, 1: false, 2: true, 3: true },
+                          moveCard: { 0: false, 1: false, 2: true, 3: true },
+                        };
+                      });
+                      cardsJson.map((card: any) => {
+                        columnMap[card.idList].taskIds.push(card.id);
+                      });
+                      const tasks = cardsJson.map((task: any) => {
+                        return {
+                          id: task.id,
+                          title: task.name,
+                          description: task.desc,
+                          value: 0,
+                        };
+                      });
+                      setColumnOrder(columnOrder);
+                      setColumnMap(columnMap);
+                      setTrelloBoard(boardJson);
+                      setName(boardJson.name);
+                      setTrelloTasks(tasks);
+                      setIsFetching(false);
+                    }}
+                  >
+                    Fetch
+                  </PrimaryButton>
                 </Box>
               </AccordionDetails>
-            </Accordion>
+            </StyledAccordian>
             <Grid container alignItems="center" marginTop={2}>
               <Grid item xs={3}>
                 <PrimaryButton
                   loading={isLoading}
                   variant="outlined"
+                  color="secondary"
                   sx={{ borderRadius: 1 }}
                   onClick={() => {
                     const members = getMembers();
                     setIsLoading(true);
+                    if (trelloBoard?.name) {
+                      createSpaceFromTrello(
+                        Moralis,
+                        trelloBoard.name,
+                        tribe.teamId,
+                        columnMap,
+                        columnOrder,
+                        isPrivate,
+                        members as Array<string>,
+                        trelloTasks,
+                        roles,
+                        {
+                          chain,
+                          token: token as Token,
+                          tokenLimit: parseFloat(tokenLimit),
+                        }
+                      )
+                        .then((res: any) => {
+                          if (res) {
+                            router.push(
+                              `/tribe/${tribe.teamId}/space/${res.id}`,
+                              undefined
+                            );
+                          }
+                          setIsLoading(false);
+                        })
+                        .catch((err: any) => {
+                          console.log(err);
+                          notify(
+                            "Sorry! There was an error while creating space",
+                            "error"
+                          );
+                          setIsLoading(false);
+                        });
+                      return;
+                    }
                     initBoard(
                       Moralis,
                       name,
@@ -250,7 +360,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                       tribe.teamId,
                       {
                         chain,
-                        tokenAddress,
+                        token: token as Token,
                         tokenLimit: parseFloat(tokenLimit),
                       },
                       isPrivate
@@ -258,7 +368,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                       .then((res: any) => {
                         if (res) {
                           router.push(
-                            `/tribe/${tribe.teamId}/board/${res.id}`,
+                            `/tribe/${tribe.teamId}/space/${res.id}`,
                             undefined
                           );
                         }
@@ -266,8 +376,9 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                       })
                       .catch((err: any) => {
                         console.log(err);
-                        notifyError(
-                          "Sorry! There was an error while creating space"
+                        notify(
+                          "Sorry! There was an error while creating space",
+                          "error"
                         );
                         setIsLoading(false);
                       });
@@ -285,6 +396,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                   onChange={(e) => {
                     setIsPrivate(e.target.checked);
                   }}
+                  color="default"
                 />
               </Grid>
               <Grid item xs={1}>
@@ -292,24 +404,25 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               </Grid>
             </Grid>
           </ModalContent>
-        </Box>
+        </ModalContainer>
       </Grow>
     </Modal>
   );
 };
 
-const modalStyle = {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
   position: "absolute" as "absolute",
-  top: "15%",
-  left: "30%",
+  top: "10%",
+  left: "25%",
   transform: "translate(-50%, -50%)",
-  width: "40rem",
-  bgcolor: "background.paper",
+  width: "50rem",
   border: "2px solid #000",
+  backgroundColor: theme.palette.background.default,
   boxShadow: 24,
-  overflowY: "auto",
-  maxHeight: "80vh",
-};
+  overflow: "auto",
+  maxHeight: "calc(100% - 128px)",
+}));
 
 const ModalContent = styled("div")(({ theme }) => ({
   display: "flex",

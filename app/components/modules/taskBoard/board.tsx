@@ -8,8 +8,6 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
-import { useBoard } from ".";
-import Column from "./column";
 import AddIcon from "@mui/icons-material/Add";
 import {
   addColumn,
@@ -21,7 +19,9 @@ import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { reorder } from "../../../utils/utils";
 import { BoardData } from "../../../types";
-import { notify, notifyError } from "../settingsTab";
+import { notify } from "../settingsTab";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import Column from "../column";
 
 type Props = {
   expanded: boolean;
@@ -31,7 +31,7 @@ type Props = {
 };
 
 const Board = ({ expanded, handleChange }: Props) => {
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
   const router = useRouter();
   const { Moralis, user } = useMoralis();
 
@@ -40,13 +40,14 @@ const Board = ({ expanded, handleChange }: Props) => {
     if (!destination) {
       return;
     }
-    const task = data.tasks[draggableId];
+    const task = space.tasks[draggableId];
     if (
+      type !== "column" &&
       !(
         task.access.assignee ||
         task.access.creator ||
         task.access.reviewer ||
-        data.roles[user?.id as string] === "admin"
+        space.roles[user?.id as string] === 3
       )
     ) {
       notify("Sorry! You don't have access to this task", "error");
@@ -60,40 +61,41 @@ const Board = ({ expanded, handleChange }: Props) => {
     }
     if (type === "column") {
       const newColumnOrder = reorder(
-        data.columnOrder,
+        space.columnOrder,
         source.index,
         destination.index
       );
-      const tempData = Object.assign({}, data);
-      setData({
-        ...data,
+      const tempData = Object.assign({}, space);
+      setSpace({
+        ...space,
         columnOrder: newColumnOrder,
       });
       updateColumnOrder(Moralis, bid as string, newColumnOrder)
         .then((res: any) => {
-          setData(res as BoardData);
+          setSpace(res as BoardData);
         })
         .catch((err: any) => {
-          setData(tempData);
-          notifyError(
-            "Sorry! There was an error while changing the column order."
+          setSpace(tempData);
+          notify(
+            "Sorry! There was an error while changing the column order.",
+            "error"
           );
         });
       return;
     }
 
-    const start = data.columns[source.droppableId];
-    const finish = data.columns[destination.droppableId];
+    const start = space.columns[source.droppableId];
+    const finish = space.columns[destination.droppableId];
 
     if (start === finish) {
       const newList = reorder(start.taskIds, source.index, destination.index);
-      const tempData = Object.assign({}, data);
-      setData({
-        ...data,
+      const tempData = Object.assign({}, space);
+      setSpace({
+        ...space,
         columns: {
-          ...data.columns,
+          ...space.columns,
           [result.source.droppableId]: {
-            ...data.columns[result.source.droppableId],
+            ...space.columns[result.source.droppableId],
             taskIds: newList,
           },
         },
@@ -107,11 +109,11 @@ const Board = ({ expanded, handleChange }: Props) => {
         newList
       )
         .then((res: any) => {
-          setData(res as BoardData);
+          setSpace(res as BoardData);
         })
         .catch((err: any) => {
-          setData(tempData);
-          notifyError("Sorry! There was an error while moving tasks.");
+          setSpace(tempData);
+          notify("Sorry! There was an error while moving tasks.", "error");
         });
     } else {
       const startTaskIds = Array.from(start.taskIds); // copy
@@ -127,11 +129,11 @@ const Board = ({ expanded, handleChange }: Props) => {
         ...finish,
         taskIds: finishTaskIds,
       };
-      const tempData = Object.assign({}, data);
-      setData({
-        ...data,
+      const tempData = Object.assign({}, space);
+      setSpace({
+        ...space,
         columns: {
-          ...data.columns,
+          ...space.columns,
           [newStart.id]: newStart,
           [newFinish.id]: newFinish,
         },
@@ -146,17 +148,17 @@ const Board = ({ expanded, handleChange }: Props) => {
         newFinish
       )
         .then((res: any) => {
-          setData(res as BoardData);
+          setSpace(res as BoardData);
           if (newFinish.id === "column-3") {
             updateTaskStatus(Moralis, draggableId, 205).then((res: any) => {
               console.log("updateTaskStatus", res);
-              setData(res as BoardData);
+              setSpace(res as BoardData);
             });
           }
         })
         .catch((err: any) => {
-          setData(tempData);
-          notifyError("Sorry! There was an error while moving tasks.");
+          setSpace(tempData);
+          notify("Sorry! There was an error while moving tasks.", "error");
         });
     }
   };
@@ -167,9 +169,11 @@ const Board = ({ expanded, handleChange }: Props) => {
       <Droppable droppableId="all-columns" direction="horizontal" type="column">
         {(provided, snapshot) => (
           <Container {...provided.droppableProps} ref={provided.innerRef}>
-            {data.columnOrder.map((columnId, index) => {
-              const column = data.columns[columnId];
-              const tasks = column.taskIds?.map((taskId) => data.tasks[taskId]);
+            {space.columnOrder.map((columnId, index) => {
+              const column = space.columns[columnId];
+              const tasks = column.taskIds?.map(
+                (taskId) => space.tasks[taskId]
+              );
               return (
                 <Column
                   key={columnId}
@@ -183,39 +187,40 @@ const Board = ({ expanded, handleChange }: Props) => {
             {provided.placeholder}
             <Button
               variant="contained"
-              color="secondary"
               startIcon={<AddIcon />}
               sx={{
                 textTransform: "none",
-                height: "8%",
+                height: "5%",
                 minWidth: "16rem",
-                borderRadius: "0.5rem",
+                borderRadius: 1,
                 margin: "0.3rem 2rem 1rem 0rem",
               }}
-              disabled={data.roles[user?.id as string] !== "admin"}
+              disabled={space.roles[user?.id as string] !== 3}
               onClick={() => {
-                const newColumnId = Object.keys(data.columns).length;
-                const tempData = Object.assign({}, data);
-                setData({
-                  ...data,
+                const newColumnId = Object.keys(space.columns).length;
+                const tempData = Object.assign({}, space);
+                setSpace({
+                  ...space,
                   columns: {
-                    ...data.columns,
+                    ...space.columns,
                     [`column-${newColumnId}`]: {
                       id: `column-${newColumnId}`,
                       title: "",
                       taskIds: [],
-                      status: "",
-                      color: "",
+                      cardType: 1,
+                      createCard: { 0: false, 1: false, 2: true, 3: true },
+                      moveCard: { 0: false, 1: true, 2: true, 3: true },
                     },
                   },
-                  columnOrder: [...data.columnOrder, `column-${newColumnId}`],
+                  columnOrder: [...space.columnOrder, `column-${newColumnId}`],
                 });
                 addColumn(Moralis, bid as string)
-                  .then((res: BoardData) => setData(res))
+                  .then((res: BoardData) => setSpace(res))
                   .catch((err: any) => {
-                    setData(tempData);
-                    notifyError(
-                      "Sorry! There was an error while adding column"
+                    setSpace(tempData);
+                    notify(
+                      "Sorry! There was an error while adding column",
+                      "error"
                     );
                   });
               }}
@@ -232,8 +237,8 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   padding: 0 0.5rem;
-  height: 70vh;
-  max-width: calc(100vw - 9rem);
+  height: calc(100vh - 3.8rem);
+  max-width: calc(100vw - 7.2rem);
   overflow-x: auto;
   overflow-y: hidden;
 `;

@@ -19,6 +19,17 @@ export const smartTrim = (string: string, maxLength: number) => {
   )}`;
 };
 
+export const normalTrim = (string: string, maxLength: number) => {
+  if (!string) {
+    return;
+  }
+  if (maxLength < 1) return string;
+  if (string.length <= maxLength) return string;
+  if (maxLength === 1) return `${string.substring(0, 1)}...`;
+
+  return `${string.substring(0, maxLength)}...`;
+};
+
 export function formatTimeLeft(date: Date) {
   const deadline = new Date(date);
   const now = Date.now();
@@ -98,8 +109,7 @@ export function getFlattenedNetworks(registry: Registry) {
 
 export function getFlattenedTokens(registry: Registry, chainId: string) {
   var tokens: Array<Token> = [];
-  console.log(registry, chainId);
-  for (var tokenAddress of registry[chainId].tokenAddresses) {
+  for (var tokenAddress of registry[chainId]?.tokenAddresses) {
     tokens.push({
       address: tokenAddress,
       symbol: registry[chainId].tokens[tokenAddress].symbol,
@@ -110,7 +120,8 @@ export function getFlattenedTokens(registry: Registry, chainId: string) {
 
 export function getFlattenedCurrencies(registry: Registry, chainId: string) {
   var currencies = getFlattenedTokens(registry, chainId);
-  currencies = [...currencies, { symbol: registry[chainId].nativeCurrency }];
+  // @ts-ignore
+  // currencies = [...currencies, { symbol: registry[chainId].nativeCurrency }];
   return currencies;
 }
 
@@ -127,5 +138,5 @@ export function downloadCSV(content: Array<Array<any>>, filename: string) {
 }
 
 export function capitalizeFirstLetter(word: string) {
-  return word.charAt(0).toUpperCase() + word.slice(1);
+  return word?.charAt(0).toUpperCase() + word?.slice(1);
 }

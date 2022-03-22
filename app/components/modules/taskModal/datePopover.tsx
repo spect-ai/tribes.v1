@@ -1,14 +1,12 @@
 import { DateTimePicker, LocalizationProvider } from "@mui/lab";
 import { Popover, TextField } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import dayjs from "dayjs";
-import DateAdapter from "@mui/lab/AdapterDayjs";
 import styled from "@emotion/styled";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { BoardData, Task } from "../../../types";
-import { useBoard } from "../taskBoard";
 import { updateTaskDeadline } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   open: boolean;
@@ -19,7 +17,7 @@ type Props = {
 
 const DatePopover = ({ open, anchorEl, handleClose, task }: Props) => {
   const [date, setDate] = useState("");
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
   const { Moralis } = useMoralis();
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
@@ -58,8 +56,9 @@ const DatePopover = ({ open, anchorEl, handleClose, task }: Props) => {
         />
         <PrimaryButton
           variant="outlined"
-          sx={{ mt: 4 }}
+          sx={{ mt: 4, borderRadius: 1 }}
           loading={isLoading}
+          color="secondary"
           onClick={() => {
             setIsLoading(true);
             updateTaskDeadline(
@@ -67,7 +66,7 @@ const DatePopover = ({ open, anchorEl, handleClose, task }: Props) => {
               new Date(date).toUTCString(),
               task.taskId
             ).then((res: BoardData) => {
-              setData(res);
+              setSpace(res);
               setIsLoading(false);
               handleClose("date");
             });

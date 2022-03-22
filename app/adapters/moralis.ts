@@ -1,4 +1,13 @@
-import { Team, Epoch, Member, Chain, Token, TokenGate } from "../types/index";
+import {
+  Team,
+  Epoch,
+  Member,
+  Chain,
+  Token,
+  TokenGate,
+  DefaultPayment,
+  Column,
+} from "../types/index";
 
 export function getOrCreateUser(Moralis: any) {
   return Moralis.Cloud.run("getOrCreateUser");
@@ -29,16 +38,15 @@ export function initBoard(
   Moralis: any,
   name: string,
   members: Array<string>,
-  roles: object,
+  roles: { [key: string]: number },
   teamId: string,
   tokenGating: {
     chain: Chain;
-    tokenAddress: string;
+    token: Token;
     tokenLimit: number;
   },
   isPrivate: boolean
 ) {
-  console.log(members);
   const params = {
     name: name,
     teamId: teamId,
@@ -50,6 +58,36 @@ export function initBoard(
   return Moralis.Cloud.run("initBoard", params);
 }
 
+export function createSpaceFromTrello(
+  Moralis: any,
+  name: string,
+  teamId: string,
+  columnMap: { [key: string]: Column },
+  columnOrder: string[],
+  isPrivate: boolean,
+  members: string[],
+  tasks: any[],
+  roles: { [key: string]: number },
+  tokenGating: {
+    chain: Chain;
+    token: Token;
+    tokenLimit: number;
+  }
+) {
+  const params = {
+    name: name,
+    teamId: teamId,
+    columnMap: columnMap,
+    columnOrder: columnOrder,
+    isPrivate: isPrivate,
+    members: members,
+    tasks: tasks,
+    roles: roles,
+    tokenGating: tokenGating,
+  };
+  return Moralis.Cloud.run("createSpaceFromTrello", params);
+}
+
 export function getEssentialBoardsInfo(Moralis: any, teamId: string) {
   const params = {
     teamId: teamId,
@@ -57,7 +95,7 @@ export function getEssentialBoardsInfo(Moralis: any, teamId: string) {
   return Moralis.Cloud.run("getEssentialBoardsInfo", params);
 }
 
-export function getBoard(Moralis: any, boardId: string) {
+export function getSpace(Moralis: any, boardId: string) {
   const params = {
     boardId: boardId,
   };
@@ -413,17 +451,13 @@ export function updateBoard(
   Moralis: any,
   boardId: string,
   name: string,
-  chain: Chain,
-  token: Token,
+  defaultPayment: DefaultPayment,
   tokenGating: TokenGate
 ) {
   const params = {
     boardId: boardId,
     name: name,
-    defaultPayment: {
-      chain: chain,
-      token: token,
-    },
+    defaultPayment: defaultPayment,
     tokenGating: tokenGating,
   };
   return Moralis.Cloud.run("updateBoard", params);
@@ -557,7 +591,7 @@ export function updateBoardMembers(
   Moralis: any,
   boardId: string,
   members: string[],
-  roles: { [key: string]: string }
+  roles: { [key: string]: number }
 ) {
   const params = {
     boardId: boardId,
@@ -574,9 +608,10 @@ export function archiveTask(Moralis: any, taskId: string) {
   return Moralis.Cloud.run("archiveTask", params);
 }
 
-export function joinSpace(Moralis: any, boardId: string) {
+export function joinSpace(Moralis: any, boardId: string, chainId: string) {
   const params = {
     boardId: boardId,
+    chainIdHex: chainId,
   };
   return Moralis.Cloud.run("joinSpace", params);
 }
@@ -593,4 +628,78 @@ export function moveCards(
     noPassColumnId: noPassColumnId,
   };
   return Moralis.Cloud.run("moveCardsAfterEpoch", params);
+}
+
+export function updateThemeFromSpace(
+  Moralis: any,
+  boardId: string,
+  teamId: string,
+  theme: number
+) {
+  const params = {
+    boardId: boardId,
+    teamId: teamId,
+    theme: theme,
+  };
+  return Moralis.Cloud.run("updateThemeFromSpace", params);
+}
+
+export function addERC20Token(
+  address: string,
+  chainId: string,
+  symbol: string,
+  name: string,
+  Moralis: any
+) {
+  const params = {
+    address: address,
+    chainId: chainId,
+    symbol: symbol,
+    name: name,
+  };
+  return Moralis.Cloud.run("addERC20Token", params);
+}
+
+export function getBatchPayInfo(
+  Moralis: any,
+  taskIds: Array<string>,
+  distributor: string,
+  chainId: string
+) {
+  const params = {
+    taskIds: taskIds,
+    distributor: distributor,
+    chainIdHex: chainId,
+  };
+  return Moralis.Cloud.run("getBatchPayInfo", params);
+}
+
+export function updateTribeMembers(
+  Moralis: any,
+  teamId: string,
+  members: string[],
+  roles: { [key: string]: number }
+) {
+  const params = {
+    teamId: teamId,
+    members: members,
+    roles: roles,
+  };
+  return Moralis.Cloud.run("updateTribeMembers", params);
+}
+
+export function updateColumnPermissions(
+  Moralis: any,
+  boardId: string,
+  columnId: string,
+  createCardRoles: { [key: number]: boolean },
+  moveCardRoles: { [key: number]: boolean }
+) {
+  const params = {
+    boardId: boardId,
+    columnId: columnId,
+    createCardRoles: createCardRoles,
+    moveCardRoles: moveCardRoles,
+  };
+  return Moralis.Cloud.run("updateColumnPermissions", params);
 }

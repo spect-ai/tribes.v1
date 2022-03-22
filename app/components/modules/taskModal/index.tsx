@@ -1,10 +1,10 @@
 import { Box, Fade, Modal } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { getTask } from "../../../adapters/moralis";
 import { Column, Task } from "../../../types";
-import { notifyError } from "../settingsTab";
-import { useBoard } from "../taskBoard";
+import { notify } from "../settingsTab";
 import EditTask from "./editTask";
 import SkeletonLoader from "./skeletonLoader";
 
@@ -20,7 +20,7 @@ const TaskModal = ({ isOpen, handleClose, taskId, column }: Props) => {
   const [task, setTask] = useState<Task>({} as Task);
   const { Moralis } = useMoralis();
   const [submissionPR, setSubmissionPR] = useState<any>();
-  const { data, setData } = useBoard();
+  const { space, setSpace } = useSpace();
 
   useEffect(() => {
     setLoading(true);
@@ -31,9 +31,9 @@ const TaskModal = ({ isOpen, handleClose, taskId, column }: Props) => {
       })
       .catch((err: any) => {
         console.log(err);
-        notifyError(`Sorry! There was an error while getting task`);
+        notify(`Sorry! There was an error while getting task`, "error");
       });
-  }, [data]);
+  }, [space]);
 
   return (
     <div>

@@ -1,60 +1,55 @@
 import {
-  Accordion,
   AccordionDetails,
   AccordionSummary,
   Autocomplete,
-  Grid,
   Grow,
   IconButton,
   Modal,
-  styled,
+  styled as MUIStyled,
   TextField,
   Tooltip,
   Typography,
+  useTheme,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
-import { PrimaryButton } from "../../elements/styledComponents";
-import { getTeam, updateBoard } from "../../../adapters/moralis";
+import {
+  PrimaryButton,
+  StyledAccordian,
+} from "../../elements/styledComponents";
+import { updateBoard } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { useBoard } from "../taskBoard";
 import { BoardData, Chain, Registry, Team, Token } from "../../../types";
 import ConfirmModal from "./confirmModal";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import {
-  getFlattenedCurrencies,
-  getFlattenedNetworks,
-} from "../../../utils/utils";
-import { registryTemp } from "../../../constants";
+import { getFlattenedNetworks } from "../../../utils/utils";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { SidebarButton } from "../exploreSidebar";
+import { useRouter } from "next/router";
+import styled from "@emotion/styled";
+import { notify } from "../settingsTab";
+import { useGlobal } from "../../../context/globalContext";
+import TokenGateForm from "../../elements/tokenGateForm";
+import DefaultPaymentForm from "../../elements/defaultPaymentForm";
 
 type Props = {};
 
 const BoardSettings = (props: Props) => {
-  const { data, setData } = useBoard();
-  console.log(data);
-  const { Moralis } = useMoralis();
-  const [name, setName] = useState(data.name);
+  const { space, setSpace, setThemeChanged, themeChanged, setRefreshEpochs } =
+    useSpace();
+  const {
+    state: { registry },
+  } = useGlobal();
+  const { Moralis, user } = useMoralis();
+  const [name, setName] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [chain, setChain] = useState<Chain>(
-    data.defaultPayment?.chain || { chainId: "137", name: "polygon" }
-  );
-  const [tokenAddress, setTokenAddress] = useState(
-    data.defaultPayment?.token?.address
-  );
-  const [tokenName, setTokenName] = useState(
-    data.defaultPayment?.token?.symbol
-  );
-  const [tokenGatechain, setTokenGateChain] = useState(
-    data.tokenGating?.chain as Chain
-  );
-  const [tokenGateAddress, setTokenGateAddress] = useState(
-    data.tokenGating?.tokenAddress
-  );
-  const [tokenGateLimit, setTokenGateLLimit] = useState(
-    data.tokenGating?.tokenLimit
-  );
+  const [defaultToken, setDefaultToken] = useState<Token>({} as Token);
+  const [defaultChain, setDefaultChain] = useState<Chain>({} as Chain);
+  const [tokenGatechain, setTokenGateChain] = useState<Chain>({} as Chain);
+  const [tokenGateToken, setTokenGateToken] = useState<Token>({} as Token);
+  const [tokenGateLimit, setTokenGateLimit] = useState<string>("");
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -63,50 +58,73 @@ const BoardSettings = (props: Props) => {
   const handleConfirmClose = () => {
     setIsConfirmOpen(false);
   };
+
+  const router = useRouter();
+  const id = router.query.id as string;
+  const bid = router.query.bid as string;
+  const { palette } = useTheme();
+  useEffect(() => {
+    setName(space.name);
+    setTokenGateChain(space.tokenGating?.chain);
+    setTokenGateToken(space.tokenGating?.token);
+    setTokenGateLimit(space.tokenGating?.tokenLimit);
+    setDefaultChain(space.defaultPayment?.chain);
+    setDefaultToken(space.defaultPayment?.token);
+  }, [space]);
   return (
     <>
-      <Tooltip title="Settings">
-        <IconButton
-          sx={{ mb: 0.5, p: 2 }}
-          size="small"
-          onClick={() => setIsOpen(true)}
+      <SidebarButton
+        palette={palette}
+        selected={isOpen}
+        onClick={() => setIsOpen(true)}
+      >
+        <Tooltip
+          title="Space Settings"
+          placement="right"
+          arrow
+          sx={{ m: 0, p: 0 }}
         >
-          <SettingsIcon fontSize="small" />
-        </IconButton>
-      </Tooltip>
+          <SettingsIcon
+            sx={{
+              fontSize: 28,
+              color: isOpen ? palette.secondary.main : palette.divider,
+            }}
+          />
+        </Tooltip>
+      </SidebarButton>
       {isConfirmOpen && (
         <ConfirmModal isOpen={isConfirmOpen} handleClose={handleConfirmClose} />
       )}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
-          <Box sx={modalStyle}>
+          <ModalContainer>
             <Heading>
-              <div>Settings</div>
+              <Typography>Settings</Typography>
               <Box sx={{ flex: "1 1 auto" }} />
               <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
             </Heading>
             <ModalContent>
-              <Accordion disableGutters>
+              <StyledAccordian disableGutters>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
                   id="panel1a-header"
                 >
-                  <Typography>Board Info</Typography>
+                  <Typography>Space Info</Typography>
                 </AccordionSummary>
 
                 <AccordionDetails>
                   <TextField
-                    placeholder="Board Name"
+                    placeholder="Space Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     fullWidth
-                  ></TextField>
+                  />
                 </AccordionDetails>
-              </Accordion>
-              <Accordion disableGutters>
+              </StyledAccordian>
+              <StyledAccordian disableGutters>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Typography>Default Payment</Typography>
                 </AccordionSummary>
@@ -115,161 +133,131 @@ const BoardSettings = (props: Props) => {
                   <Typography>
                     Default payment for all the new tasks created
                   </Typography>
-                  <Autocomplete
-                    options={getFlattenedNetworks(registryTemp as Registry)}
-                    getOptionLabel={(option) => option.name}
-                    value={chain}
-                    disableClearable
-                    onChange={(event, newValue) => {
-                      setChain(newValue as Chain);
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        size="small"
-                        fullWidth
-                        sx={{ my: 4 }}
-                      />
-                    )}
+                  <DefaultPaymentForm
+                    chain={defaultChain}
+                    setChain={setDefaultChain}
+                    token={defaultToken}
+                    setToken={setDefaultToken}
                   />
-                  <Box sx={{ display: "flex" }}>
-                    <TextField
-                      size="small"
-                      fullWidth
-                      sx={{ mr: 4 }}
-                      value={tokenAddress}
-                      onChange={async (e) => {
-                        setTokenAddress(e.target.value);
-                        if (e.target.value.length === 42) {
-                          const options = {
-                            chain: chain.name,
-                            addresses: e.target.value,
-                          };
-                          const token =
-                            await Moralis.Web3API.token.getTokenMetadata(
-                              options as any
-                            );
-                          setTokenName(token[0].symbol);
-                        }
-                      }}
-                    />
-                    <TextField
-                      size="small"
-                      sx={{ mb: 4, width: "45%" }}
-                      value={tokenName}
-                      InputProps={{ readOnly: true }}
-                    />
-                  </Box>
                 </AccordionDetails>
-              </Accordion>
-              <Accordion disableGutters>
+              </StyledAccordian>
+              <StyledAccordian disableGutters>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   Token Gating
                 </AccordionSummary>
                 <AccordionDetails>
                   <Typography>
                     Enable token gating to allow addresses with the token limit
-                    to automatically join space without any prior permission
+                    to automatically join space without any prior permissions
                   </Typography>
-                  <Autocomplete
-                    options={getFlattenedNetworks(registryTemp as Registry)}
-                    getOptionLabel={(option) => option.name}
-                    value={tokenGatechain}
-                    disableClearable
-                    onChange={(event, newValue) => {
-                      setTokenGateChain(newValue as Chain);
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        size="small"
-                        fullWidth
-                        sx={{ my: 4 }}
-                      />
-                    )}
+                  <TokenGateForm
+                    chain={tokenGatechain || space?.tokenGating?.chain}
+                    setChain={setTokenGateChain}
+                    token={tokenGateToken || space?.tokenGating?.token}
+                    setToken={setTokenGateToken}
+                    tokenLimit={tokenGateLimit}
+                    setTokenLimit={setTokenGateLimit}
                   />
-                  <Box sx={{ display: "flex" }}>
-                    <TextField
-                      fullWidth
-                      placeholder="Token Address"
-                      size="small"
-                      value={tokenGateAddress}
-                      onChange={(e) => setTokenGateAddress(e.target.value)}
-                    />
-                    <TextField
-                      sx={{ width: "25%", ml: 2 }}
-                      placeholder="Limit"
-                      type={"number"}
-                      size="small"
-                      inputProps={{ min: 1 }}
-                      value={tokenGateLimit}
-                      onChange={(e) =>
-                        setTokenGateLLimit(Number(e.target.value))
-                      }
-                    />
-                  </Box>
                 </AccordionDetails>
-              </Accordion>
-              <Accordion disableGutters>
+              </StyledAccordian>
+              {/* <StyledAccordian disableGutters>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls="panel1a-content"
                   id="panel1a-header"
                 >
-                  <Typography>Integrations (Coming Soon)</Typography>
+                  <Typography>Theme</Typography>
                 </AccordionSummary>
-
-                <AccordionDetails>
-                  <Grid container spacing={1}>
-                    <Grid item xs={12}>
-                      <PrimaryButton
-                        disabled
-                        startIcon={<i className="fa-brands fa-github"></i>}
-                      >
-                        Connect with Github
-                      </PrimaryButton>
-                    </Grid>
-                    <Grid item xs={12}>
-                      <PrimaryButton
-                        disabled
-                        startIcon={
-                          <i
-                            className="fa-brands fa-discord"
-                            style={{ fontSize: 17 }}
-                          ></i>
+                <OptionsButton color="inherit">
+                  <ThemeColor color="#000f29" />
+                  <Typography
+                    fontSize={14}
+                    sx={{ width: "70%" }}
+                    onClick={() => {
+                      updateThemeFromSpace(Moralis, bid, id, 0).then(
+                        (res: BoardData) => {
+                          setSpace(res);
+                          localStorage.setItem("theme", "0");
+                          setThemeChanged(!themeChanged);
                         }
-                      >
-                        Connect with Discord
-                      </PrimaryButton>
-                    </Grid>
-                  </Grid>
-                </AccordionDetails>
-              </Accordion>
+                      );
+                    }}
+                  >
+                    Classic Dark
+                  </Typography>
+                </OptionsButton>
+                <OptionsButton color="inherit">
+                  <ThemeColor color="#38006b" />
+                  <Typography
+                    fontSize={14}
+                    sx={{ width: "70%" }}
+                    onClick={() => {
+                      updateThemeFromSpace(Moralis, bid, id, 1).then(
+                        (res: BoardData) => {
+                          setSpace(res);
+                          localStorage.setItem("theme", "1");
+                          setThemeChanged(!themeChanged);
+                        }
+                      );
+                    }}
+                  >
+                    Warm Purple
+                  </Typography>
+                </OptionsButton>
+                <OptionsButton color="inherit">
+                  <ThemeColor color="#0288d1" />
+                  <Typography
+                    fontSize={14}
+                    sx={{ width: "70%" }}
+                    onClick={() => {
+                      updateThemeFromSpace(Moralis, bid, id, 2).then(
+                        (res: BoardData) => {
+                          setSpace(res);
+                          console.log(res);
+                          localStorage.setItem("theme", "2");
+                          setThemeChanged(!themeChanged);
+                        }
+                      );
+                    }}
+                  >
+                    Ocean Blue
+                  </Typography>
+                </OptionsButton>
+                <AccordionDetails></AccordionDetails>
+              </StyledAccordian> */}
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <PrimaryButton
                   variant="outlined"
+                  color="secondary"
                   sx={{ width: "50%", mt: 2, mr: 4, borderRadius: 1 }}
                   loading={isLoading}
                   onClick={() => {
+                    if (
+                      space.roles[user?.id as string] &&
+                      space.roles[user?.id as string] !== 3
+                    ) {
+                      notify("Only stewards can update settings", "error");
+                      return;
+                    }
                     setIsLoading(true);
                     updateBoard(
                       Moralis,
-                      data.objectId,
+                      space.objectId,
                       name,
-                      chain,
                       {
-                        address: tokenAddress,
-                        symbol: tokenName,
+                        chain: defaultChain,
+                        token: defaultToken,
                       },
                       {
                         chain: tokenGatechain,
-                        tokenAddress: tokenGateAddress,
+                        token: tokenGateToken,
                         tokenLimit: tokenGateLimit,
                       }
                     ).then((res: any) => {
                       console.log(res);
-                      setData(res as BoardData);
+                      setSpace(res as BoardData);
                       setIsLoading(false);
+                      setRefreshEpochs(true);
                       handleClose();
                     });
                   }}
@@ -280,33 +268,42 @@ const BoardSettings = (props: Props) => {
                   variant="outlined"
                   sx={{ width: "50%", mt: 2, borderRadius: 1 }}
                   color="error"
-                  onClick={() => setIsConfirmOpen(true)}
+                  onClick={() => {
+                    if (
+                      space.roles[user?.id as string] &&
+                      space.roles[user?.id as string] !== 3
+                    ) {
+                      notify("Only stewards can update settings", "error");
+                      return;
+                    }
+                    setIsConfirmOpen(true);
+                  }}
                 >
                   Delete Space
                 </PrimaryButton>
               </Box>
             </ModalContent>
-          </Box>
+          </ModalContainer>
         </Grow>
       </Modal>
     </>
   );
 };
-
-const modalStyle = {
+// @ts-ignore
+const ModalContainer = MUIStyled(Box)(({ theme }) => ({
   position: "absolute" as "absolute",
   top: "10%",
   left: "25%",
   transform: "translate(-50%, -50%)",
   width: "50rem",
-  bgcolor: "background.paper",
   border: "2px solid #000",
+  backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: "auto",
   maxHeight: "calc(100% - 128px)",
-};
+}));
 
-const Heading = styled("div")(({ theme }) => ({
+const Heading = MUIStyled("div")(({ theme }) => ({
   fontWeight: 500,
   fontSize: 16,
   color: theme.palette.text.secondary,
@@ -318,10 +315,19 @@ const Heading = styled("div")(({ theme }) => ({
   paddingLeft: 32,
 }));
 
-const ModalContent = styled("div")(({ theme }) => ({
+const ModalContent = MUIStyled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   padding: 32,
 }));
+
+const ThemeColor = styled.div<{ color: string }>`
+  background-color: ${({ color }) => color};
+  border-radius: 2px;
+  height: 18px;
+  width: 18px;
+  margin-right: 8px;
+  border: 1px solid #5a6972;
+`;
 
 export default BoardSettings;

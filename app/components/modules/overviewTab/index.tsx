@@ -8,7 +8,6 @@ import {
   Typography,
 } from "@mui/material";
 import styled from "@emotion/styled";
-import { muiTheme } from "../../../constants/muiTheme";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { getMD5String } from "../../../utils/utils";
 import Board from "../boardsTab";
@@ -46,7 +45,9 @@ const Overview = () => {
                   mt: 4,
                 }}
               >
-                <Title>Contributors</Title>
+                <Typography variant="h6" color="text.secondary">
+                  Contributors
+                </Typography>
                 <AvatarGroup max={6} sx={{ width: "fit-content" }}>
                   {tribe?.members?.map((memberId, idx) => (
                     <Tooltip
@@ -107,18 +108,12 @@ const DescriptionContainer = styled.div`
   padding-bottom: 16px;
 `;
 
-const Title = styled.div`
-  font-size: 20px;
-  margin-bottom: 10;
-  margin-top: 10;
-  color: ${muiTheme.palette.text.secondary};
-`;
+// color: ${classicDark.palette.text.secondary};
 
 const Value = styled.div`
   font-size: 16px;
   margin-bottom: 8;
   margin-top: 8;
-  color: ${muiTheme.palette.text.primary};
 `;
 
 export default Overview;

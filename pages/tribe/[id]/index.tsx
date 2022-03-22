@@ -1,3 +1,12 @@
+import styled from "@emotion/styled";
+import {
+  Box,
+  createTheme,
+  Theme,
+  ThemeProvider,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -9,14 +18,18 @@ import {
 } from "react-moralis";
 import { ResolveCallOptions } from "react-moralis/lib/hooks/internal/_useResolveAsyncCall";
 import { getTaskEpoch } from "../../../app/adapters/moralis";
+import NotFound from "../../../app/components/elements/notFound";
+import ExploreSidebar from "../../../app/components/modules/exploreSidebar";
+import TribeNavbar from "../../../app/components/modules/tribeNavbar";
 import TribeTemplate from "../../../app/components/templates/tribe";
+import { getTheme } from "../../../app/constants/muiTheme";
 import {
   setNavbarLogo,
   setNavbarTitle,
   useGlobal,
 } from "../../../app/context/globalContext";
-import { Epoch, Task, Team } from "../../../app/types";
-import { getMD5String } from "../../../app/utils/utils";
+import { Team } from "../../../app/types";
+import { PageContainer } from "./space/[bid]";
 
 interface Props {}
 
@@ -48,25 +61,32 @@ const TribePage: NextPage<Props> = (props: Props) => {
   const context = useProviderTribe();
   const { state } = useGlobal();
   const { setLoading, getTeam, setTribe, isMember } = context;
-  const { dispatch } = useGlobal();
-  const { isAuthenticated } = useMoralis();
-  console.log("reg:", state.registry);
+  const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
+  const { isAuthenticated, isInitialized, user, isUserUpdating } = useMoralis();
+  const [notFound, setNotFound] = useState(false);
+
   useEffect(() => {
-    setLoading(true);
-    console.log("useEffect tribe");
-    getTeam({
-      onSuccess: (res: any) => {
-        console.log(res);
-        setNavbarLogo(dispatch, res.logo);
-        setNavbarTitle(dispatch, res.name);
-        setTribe(res as Team);
-        setLoading(false);
-      },
-      params: {
-        teamId: id,
-      },
-    });
-  }, [id, isMember, isAuthenticated]);
+    if (isInitialized && id) {
+      setTheme(createTheme(getTheme(0)));
+      setLoading(true);
+      getTeam({
+        onSuccess: (res: any) => {
+          console.log(res);
+          setTribe(res as Team);
+          setTheme(createTheme(getTheme(res.theme)));
+          setLoading(false);
+        },
+        onError: (err: any) => {
+          console.log(err);
+          setNotFound(true);
+          setLoading(false);
+        },
+        params: {
+          teamId: id,
+        },
+      });
+    }
+  }, [id, isMember, isAuthenticated, isInitialized]);
   return (
     <>
       <Head>
@@ -74,9 +94,18 @@ const TribePage: NextPage<Props> = (props: Props) => {
         <meta name="description" content="Manage DAO with ease" />
         <link rel="icon" href="/logo2.svg" />
       </Head>
-      <TribeContext.Provider value={context}>
-        <TribeTemplate />
-      </TribeContext.Provider>
+      <ThemeProvider theme={theme}>
+        <TribeContext.Provider value={context}>
+          <PageContainer theme={createTheme(getTheme(0))}>
+            {!notFound && <TribeNavbar />}
+            <Box sx={{ display: "flex", flexDirection: "row" }}>
+              <ExploreSidebar />
+              {!notFound && <TribeTemplate />}
+              {notFound && <NotFound text="Tribe not found" />}
+            </Box>
+          </PageContainer>
+        </TribeContext.Provider>
+      </ThemeProvider>
     </>
   );
 };

@@ -1,7 +1,8 @@
 async function getTaskByTaskId(taskId) {
   const taskQuery = new Moralis.Query("Task");
   taskQuery.equalTo("taskId", taskId);
-  return await taskQuery.first({ useMasterKey: true });
+  logger.info(`taskId: ${taskId}`);
+  return taskQuery.first({ useMasterKey: true });
 }
 
 async function getTasksByTaskIds(taskIds) {
@@ -50,6 +51,42 @@ async function getTaskCountInBoard(boardId) {
   return await taskQuery.count({ useMasterKey: true });
 }
 
+function handleCreateTask(
+  task,
+  taskId,
+  defaultPayment,
+  boardId,
+  title,
+  value,
+  userId,
+  description
+) {
+  task.set("taskId", taskId);
+  task.set("token", {
+    address: defaultPayment?.token?.address,
+    symbol: defaultPayment?.token?.symbol,
+  });
+  task.set("chain", {
+    chainId: defaultPayment?.chain?.chainId,
+    name: defaultPayment?.chain?.name,
+  });
+  task.set("boardId", boardId);
+  task.set("title", title);
+  task.set("value", parseFloat(value));
+  task.set("creator", userId);
+  task.set("reviewer", [userId]);
+  task.set("assignee", []);
+  task.set("description", description);
+  task.set("activity", [
+    {
+      actor: userId,
+      action: 100,
+      timestamp: new Date(),
+    },
+  ]);
+  return task;
+}
+
 function getTaskObjByTaskParseObj(task) {
   return {
     objectId: task.id,
@@ -71,9 +108,11 @@ function getTaskObjByTaskParseObj(task) {
 }
 
 Moralis.Cloud.define("getTask", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
   try {
     if (request.params.taskId) {
       const task = await getTaskObjByTaskId(request.params.taskId);
+      logger.info(`getTask: ${JSON.stringify(task)}`);
       if (!task) throw `Task ${request.params.taskId} not found`;
 
       // Get space to check if user can view it
@@ -109,34 +148,19 @@ Moralis.Cloud.define("addTask", async (request) => {
       columns[request.params.columnId].taskIds = taskIds.concat([taskId]);
       board.set("columns", columns);
       const defaultPayment = board.get("defaultPayment");
-      logger.info(defaultPayment);
+      logger.info(`defaultPayment ${JSON.stringify(defaultPayment)}`);
       var task = new Moralis.Object("Task");
-      task.set("taskId", taskId);
-      task.set("token", {
-        address: defaultPayment?.token?.address,
-        symbol: defaultPayment?.token?.symbol,
-      });
-      task.set("chain", {
-        chainId: defaultPayment?.chain?.chainId,
-        name: defaultPayment?.chain?.name,
-      });
-      task.set("boardId", request.params.boardId);
-      task.set("title", request.params.title);
-      task.set("value", parseFloat(request.params.value));
-      task.set("creator", request.user.id);
-      task.set("reviewer", [request.user.id]);
-      task.set("assignee", []);
-      task.set("description", request.params.description);
-      task.set("activity", [
-        {
-          actor: request.user.id,
-          action: 100,
-          timestamp: new Date(),
-        },
-      ]);
-      task.set("issueLink", request.params.issueLink);
-      task.set("status", 100);
-
+      task = handleCreateTask(
+        task,
+        taskId,
+        defaultPayment,
+        request.params.boardId,
+        request.params.title,
+        request.params.value,
+        request.user.id,
+        request.params.description
+      );
+      logger.info(`task ${JSON.stringify(task)}`);
       await Moralis.Object.saveAll([task], { useMasterKey: true });
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return await getSpace(request.params.boardId, request.user.id);
@@ -153,6 +177,9 @@ Moralis.Cloud.define("addTask", async (request) => {
 
 Moralis.Cloud.define("updateTaskColumn", async (request) => {
   const logger = Moralis.Cloud.getLogger();
+  if (request.params.sourceId === request.params.destinationId) {
+    throw "Source and destination column are the same";
+  }
   try {
     await handleColumnChange(
       request.params.boardId,
@@ -478,6 +505,7 @@ async function handleColumnChange(
     );
     const board = await getBoardByObjectId(boardId);
     const task = await getTaskByTaskId(taskId);
+    logger.info(`task ${JSON.stringify(task)}`);
     if (!canMoveTask(callerId, task, sourceId, destinationId, board))
       throw "Unfortunately you dont have the right access to move task";
     var columnsData = board.get("columns");
@@ -521,10 +549,19 @@ async function getTokenRewardAmounts(chainId, boardId) {
         boardId: boardId,
         status: 205,
         value: { $gt: 0 },
-        nativeCurrencyPayment: { $ne: true },
-        $expr: {
-          $eq: ["$chain.chainId", chainId],
-        },
+        // nativeCurrencyPayment: { $ne: true },
+        $and: [
+          {
+            $expr: {
+              $eq: ["$chain.chainId", chainId],
+            },
+          },
+          {
+            $expr: {
+              $ne: ["$token.address", "0x0"],
+            },
+          },
+        ],
       },
     },
     {
@@ -549,10 +586,18 @@ async function getCurrencyRewardAmounts(chainId, boardId) {
         boardId: boardId,
         status: 205,
         value: { $gt: 0 },
-        nativeCurrencyPayment: { $eq: true },
-        $expr: {
-          $eq: ["$chain.chainId", chainId],
-        },
+        $and: [
+          {
+            $expr: {
+              $eq: ["$chain.chainId", chainId],
+            },
+          },
+          {
+            $expr: {
+              $eq: ["$token.address", "0x0"],
+            },
+          },
+        ],
       },
     },
     {
@@ -575,11 +620,20 @@ async function getTaskIdsWithPendingTokenPayments(chainId, boardId) {
       match: {
         boardId: boardId,
         status: 205,
-        nativeCurrencyPayment: { $ne: true },
+        // nativeCurrencyPayment: { $ne: true }, we dont really need this we using 0x0 address
         value: { $gt: 0 },
-        $expr: {
-          $eq: ["$chain.chainId", chainId],
-        },
+        $and: [
+          {
+            $expr: {
+              $eq: ["$chain.chainId", chainId],
+            },
+          },
+          {
+            $expr: {
+              $ne: ["$token.address", "0x0"],
+            },
+          },
+        ],
       },
     },
     {
@@ -600,11 +654,19 @@ async function getTaskIdsWithPendingCurrencyPayments(chainId, boardId) {
       match: {
         boardId: boardId,
         status: 205,
-        nativeCurrencyPayment: { $eq: true },
         value: { $gt: 0 },
-        $expr: {
-          $eq: ["$chain.chainId", chainId],
-        },
+        $and: [
+          {
+            $expr: {
+              $eq: ["$chain.chainId", chainId],
+            },
+          },
+          {
+            $expr: {
+              $eq: ["$token.address", "0x0"],
+            },
+          },
+        ],
       },
     },
     {
@@ -617,89 +679,6 @@ async function getTaskIdsWithPendingCurrencyPayments(chainId, boardId) {
   logger.info(`taskIds ${JSON.stringify(taskIds)}`);
   return taskIds.map((a) => a.taskId);
 }
-
-Moralis.Cloud.define("getBatchPayAmount", async (request) => {
-  try {
-    var res = {
-      contributors: [],
-      tokenAddresses: [],
-      tokenValues: [],
-      uniqueTokenAddresses: [],
-      aggregatedTokenValues: [],
-      currencyContributors: [],
-      currencyValues: [],
-      taskIdsWithTokenPayment: [],
-      taskIdsWithCurrencyPayment: [],
-    };
-
-    // Get task Ids pending payment
-    res.taskIdsWithTokenPayment = await getTaskIdsWithPendingTokenPayments(
-      request.params.chainId,
-      request.params.boardId
-    );
-    logger.info(
-      `res.taskIdsWithTokenPayment ${JSON.stringify(
-        res.taskIdsWithTokenPayment
-      )}`
-    );
-    res.taskIdsWithCurrencyPayment =
-      await getTaskIdsWithPendingCurrencyPayments(
-        request.params.chainId,
-        request.params.boardId
-      );
-
-    // Get and process token rewards
-    const tokenRewardAmounts = await getTokenRewardAmounts(
-      request.params.chainId,
-      request.params.boardId
-    );
-    logger.info(`tokenRewardAmounts ${JSON.stringify(tokenRewardAmounts)}`);
-
-    var aggregatedTokenValues = {};
-
-    for (var rewardAmount of tokenRewardAmounts) {
-      if (rewardAmount.objectId.assigneeId.length > 0) {
-        res.contributors.push(rewardAmount.objectId.assigneeId[0]);
-        res.tokenAddresses.push(rewardAmount.objectId.tokenAddress);
-        res.tokenValues.push(rewardAmount.value);
-
-        if (!(rewardAmount.objectId.tokenAddress in aggregatedTokenValues)) {
-          aggregatedTokenValues[rewardAmount.objectId.tokenAddress] = 0;
-        }
-        aggregatedTokenValues[rewardAmount.objectId.tokenAddress] +=
-          rewardAmount.value;
-      }
-    }
-    logger.info(
-      `aggregatedTokenValues ${JSON.stringify(aggregatedTokenValues)}`
-    );
-
-    res.uniqueTokenAddresses = Object.keys(aggregatedTokenValues);
-    res.aggregatedTokenValues = Object.values(aggregatedTokenValues);
-
-    // Get and process currency rewards
-    const currencyRewardAmounts = await getCurrencyRewardAmounts(
-      request.params.chainId,
-      request.params.boardId
-    );
-
-    for (var rewardAmount of currencyRewardAmounts) {
-      if (rewardAmount.objectId.assigneeId.length > 0) {
-        res.currencyContributors.push(rewardAmount.objectId.assigneeId[0]);
-        res.currencyValues.push(rewardAmount.value);
-      }
-    }
-
-    logger.info(`res ${JSON.stringify(res)}`);
-
-    return res;
-  } catch (err) {
-    logger.info(
-      `Error while getting batch pay amounts for board ${request.params.boardId}: ${err}`
-    );
-    throw `Error while getting batch pay amounts ${err}`;
-  }
-});
 
 Moralis.Cloud.define("assignToMe", async (request) => {
   try {
@@ -762,3 +741,146 @@ Moralis.Cloud.define("archiveTask", async (request) => {
   await Moralis.Object.saveAll(task, { useMasterKey: true });
   return await getSpace(task.get("boardId"), request.user.id);
 });
+
+Moralis.Cloud.define("getBatchPayInfo", async (request) => {
+  try {
+    // Result data structure
+    var paymentInfo = {
+      approval: {
+        required: false,
+        uniqueTokenAddresses: [],
+        aggregatedTokenValues: [],
+      },
+      tokens: {
+        type: "tokens",
+        contributors: [],
+        tokenAddresses: [],
+        tokenValues: [],
+        cardIds: [],
+      },
+      currency: {
+        type: "currency",
+        contributors: [],
+        tokenAddresses: null,
+        tokenValues: [],
+        cardIds: [],
+      },
+    };
+    var tasks = await getTasksByTaskIds(request.params.taskIds);
+    logger.info(`tasks ${JSON.stringify(tasks)}`);
+    var tokenAddressToMinAllowanceRequired = {};
+    var tokenAddressToContributorToValue = {};
+    var contributorToCurrencyValue = {};
+
+    // Aggregate values
+    for (var task of tasks) {
+      var assignee = task.get("assignee");
+
+      if (assignee?.length > 0 && task.get("value") > 0) {
+        var contributor = task.get("assignee")[0];
+        var value = task.get("value");
+        var token = task.get("token");
+        if ("address" in token && token?.address !== "0x0") {
+          paymentInfo.tokens.cardIds.push(task.get("taskId"));
+          if (!(token.address in tokenAddressToContributorToValue)) {
+            tokenAddressToContributorToValue[token.address] = {};
+          }
+          if (
+            !(contributor in tokenAddressToContributorToValue[token.address])
+          ) {
+            tokenAddressToContributorToValue[token.address][contributor] =
+              value;
+          } else {
+            tokenAddressToContributorToValue[token.address][contributor] +=
+              value;
+          }
+
+          logger.info(
+            `tokenAddressToContributorToValue ${JSON.stringify(
+              tokenAddressToContributorToValue
+            )}`
+          );
+          if (token.address in tokenAddressToMinAllowanceRequired)
+            tokenAddressToMinAllowanceRequired[token.address] += value;
+          else tokenAddressToMinAllowanceRequired[token.address] = value;
+        } else {
+          paymentInfo.currency.cardIds.push(task.get("taskId"));
+          if (contributor in contributorToCurrencyValue)
+            contributorToCurrencyValue[contributor] += value;
+          else contributorToCurrencyValue[contributor] = value;
+        }
+      }
+    }
+
+    // Get if approval required
+    tokenAddressToMinAllowanceRequired = await getApprovalInfo(
+      tokenAddressToMinAllowanceRequired,
+      request.user.get("ethAddress"),
+      request.params.distributor,
+      request.params.chainIdHex
+    );
+
+    // Flatten approval data
+    paymentInfo.approval.uniqueTokenAddresses = Object.keys(
+      tokenAddressToMinAllowanceRequired
+    );
+    paymentInfo.approval.aggregatedTokenValues = Object.values(
+      tokenAddressToMinAllowanceRequired
+    );
+    if (paymentInfo.approval.uniqueTokenAddresses.length > 0)
+      paymentInfo.approval.required = true;
+
+    // Flatten currency data
+    paymentInfo.currency.contributors = Object.keys(contributorToCurrencyValue);
+    paymentInfo.currency.tokenValues = Object.values(
+      contributorToCurrencyValue
+    );
+
+    // Flatten token data
+    for (const [tokenAddress, contributorToValue] of Object.entries(
+      tokenAddressToContributorToValue
+    )) {
+      for (const [contributor, value] of Object.entries(contributorToValue)) {
+        paymentInfo.tokens.tokenAddresses.push(tokenAddress);
+        paymentInfo.tokens.contributors.push(contributor);
+        paymentInfo.tokens.tokenValues.push(value);
+      }
+    }
+
+    return paymentInfo;
+  } catch (err) {
+    logger.error(
+      `Error while adding task in board ${request.params.boardId}: ${err}`
+    );
+    throw err;
+  }
+});
+
+async function getApprovalInfo(
+  tokenAddressToMinAllowanceRequired,
+  callerAddress,
+  spenderAddress,
+  chainIdHex
+) {
+  var res = {};
+
+  for (const [tokenAddress, minAllowance] of Object.entries(
+    tokenAddressToMinAllowanceRequired
+  )) {
+    var minAllowanceInWei = await Moralis.Cloud.units({
+      method: "toWei",
+      value: minAllowance,
+    });
+    var allowance = await getAllowance(
+      chainIdHex,
+      tokenAddress,
+      callerAddress,
+      spenderAddress
+    );
+    logger.info(`allowance ${JSON.stringify(allowance)}`);
+    if (allowance < minAllowanceInWei) {
+      res[tokenAddress] = minAllowanceInWei;
+    }
+  }
+  return res;
+}

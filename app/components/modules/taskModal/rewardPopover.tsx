@@ -5,15 +5,13 @@ import { useMoralis } from "react-moralis";
 import { updateTaskReward } from "../../../adapters/moralis";
 import { BoardData, Chain, Registry, Task, Token } from "../../../types";
 import { PrimaryButton } from "../../elements/styledComponents";
-import { useBoard } from "../taskBoard";
 import { PopoverContainer } from "./datePopover";
 import { useGlobal } from "../../../context/globalContext";
 import {
   getFlattenedNetworks,
-  getFlattenedTokens,
   getFlattenedCurrencies,
 } from "../../../utils/utils";
-import { registryTemp } from "../../../constants";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   open: boolean;
@@ -31,7 +29,7 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
   const [value, setValue] = useState(task.value?.toString());
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
-  const { data, setData } = useBoard();
+  const { setSpace } = useSpace();
   return (
     <Popover
       open={open}
@@ -44,13 +42,14 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
     >
       <PopoverContainer>
         <Autocomplete
-          options={getFlattenedNetworks(registryTemp as Registry)}
+          options={getFlattenedNetworks(registry as Registry)}
           getOptionLabel={(option) => option.name}
+          disableClearable
           value={chain}
           onChange={(event, newValue) => {
             setChain(newValue as Chain);
             let tokens = getFlattenedCurrencies(
-              registryTemp as Registry,
+              registry as Registry,
               newValue?.chainId as string
             );
             if (tokens.length > 0) setToken(tokens[0]);
@@ -68,10 +67,8 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
           )}
         />
         <Autocomplete
-          options={getFlattenedCurrencies(
-            registryTemp as Registry,
-            chain.chainId
-          )}
+          options={getFlattenedCurrencies(registry as Registry, chain.chainId)}
+          disableClearable
           getOptionLabel={(option) => option.symbol}
           value={token}
           onChange={(event, newValue) => {
@@ -102,6 +99,8 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
         />
         <PrimaryButton
           variant="outlined"
+          color="secondary"
+          sx={{ borderRadius: 1 }}
           loading={isLoading}
           onClick={() => {
             setIsLoading(true);
@@ -112,7 +111,7 @@ const RewardPopover = ({ open, anchorEl, handleClose, task }: Props) => {
               parseFloat(value),
               task.taskId
             ).then((res: BoardData) => {
-              setData(res);
+              setSpace(res);
               setIsLoading(false);
               handleClose("reward");
             });

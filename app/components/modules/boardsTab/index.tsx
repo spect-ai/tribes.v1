@@ -17,20 +17,20 @@ const Board = (props: Props) => {
   const handleClose = () => setIsOpen(false);
   return (
     <Container>
-      <CreateBoard isOpen={isOpen} handleClose={handleClose} />
-      {!tribe?.boards?.length &&
-        !(user && tribe.members.includes(user?.id)) && (
-          <Typography variant="h6">No spaces created</Typography>
-        )}
+      {isOpen && <CreateBoard isOpen={isOpen} handleClose={handleClose} />}
+      {!tribe?.boards?.length && !(user && tribe.members.includes(user?.id)) && (
+        <Typography variant="h6" color="text.primary" sx={{ width: "100%" }}>
+          No spaces found
+        </Typography>
+      )}
       <Grid container spacing={2}>
         {tribe?.boards?.map((board: BoardData, index: number) => (
           <Grid item xs={3} key={index}>
             <BoardButton
               variant="contained"
-              color="secondary"
               onClick={() => {
                 router.push(
-                  `/tribe/${tribe.teamId}/board/${board._id}`,
+                  `/tribe/${tribe.teamId}/space/${board._id}`,
                   undefined
                 );
               }}
@@ -41,10 +41,10 @@ const Board = (props: Props) => {
         ))}
 
         <Grid item xs={3}>
-          {user && tribe.roles[user.id] === "admin" && (
+          {user && tribe.roles[user.id] === 3 && (
             <CreateBoardButton
               variant="outlined"
-              disabled={tribe.roles[user?.id] !== "admin"}
+              disabled={tribe.roles[user?.id] !== 3}
               onClick={() => setIsOpen(true)}
             >
               <ButtonText>Create new space</ButtonText>

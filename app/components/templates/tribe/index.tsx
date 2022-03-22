@@ -6,6 +6,7 @@ import Settings from "../../modules/settingsTab";
 import Overview from "../../modules/overviewTab";
 import SkeletonLoader from "./skeletonLoader";
 import { Box, Fade, Grow } from "@mui/material";
+import TribeMembers from "../../modules/tribeMembers";
 type Props = {};
 
 const TribeTemplate = (props: Props) => {
@@ -28,6 +29,13 @@ const TribeTemplate = (props: Props) => {
             {tab == 1 && (
               <Grow timeout={500} in={tab == 1}>
                 <TabContainer>
+                  <TribeMembers />
+                </TabContainer>
+              </Grow>
+            )}
+            {tab == 2 && (
+              <Grow timeout={500} in={tab == 2}>
+                <TabContainer>
                   <Settings />
                 </TabContainer>
               </Grow>
@@ -46,6 +54,7 @@ const TabContainer = styled.div`
 const OuterDiv = styled.div`
   margin-left: 1rem;
   margin-right: 1rem;
+  width: 100%;
 `;
 
 export default TribeTemplate;

@@ -84,13 +84,27 @@ export function getPendingApprovals(
   values: number[],
   chainId: string
 ) {
-  console.log(`chainId ${chainId}`);
-  console.log(addresses);
-  console.log(values);
-
+  if (addresses[0] === "0x0") {
+    return true;
+  }
   let contract = getDistributorContract(chainId);
   var valuesInWei = values.map((v) => ethers.utils.parseEther(v.toString()));
   return contract.pendingApprovals(addresses, valuesInWei);
+}
+
+export async function isApprovalRequired(
+  callerAddress: string,
+  tokenAddress: string,
+  value: number,
+  chainId: string
+) {
+  let distributorContract = getDistributorContract(chainId);
+  let erc20Contract = getERC20Contract(tokenAddress);
+  const allowance = await erc20Contract.allowance(
+    callerAddress,
+    distributorContract.address
+  );
+  return allowance < ethers.utils.parseEther(value.toString());
 }
 
 export async function batchPayTokens(

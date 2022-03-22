@@ -6,10 +6,11 @@ export interface State {
   error?: Error;
   contracts?: Contracts;
   logo?: string;
-  registry?: Registry;
+  registry: Registry;
   title?: string;
 }
 
 export const initialState: State = {
   loading: false,
+  registry: {},
 };

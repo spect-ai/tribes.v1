@@ -15,7 +15,7 @@ import {
   Container,
 } from "@mui/material";
 import React, { useState } from "react";
-import { useBoard } from "../taskBoard";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   setCards: Function;
@@ -34,25 +34,25 @@ const CreateEpochTaskList = ({
   isCardChecked,
   setIsCardChecked,
 }: Props) => {
-  const { data } = useBoard();
+  const { space } = useSpace();
   const [isOpen, setIsOpen] = useState(true);
 
   const toggleCheckboxValue = (index: number) => {
     setIsCardChecked(isCardChecked.map((v, i) => (i === index ? !v : v)));
   };
-  console.log(data.columns[data.columnOrder[0]].taskIds.length);
+  console.log(space.columns[space.columnOrder[0]].taskIds.length);
   return (
     <>
       <Autocomplete
-        options={data.columnOrder}
-        getOptionLabel={(option) => data.columns[option]?.title}
+        options={space.columnOrder}
+        getOptionLabel={(option) => space.columns[option]?.title}
         value={cardColumn}
         disableClearable
         onChange={(event, newValue) => {
           setCardColumn(newValue);
-          setCards(data.columns[newValue]?.taskIds);
+          setCards(space.columns[newValue]?.taskIds);
           setIsCardChecked(
-            Array(data.columns[newValue].taskIds.length).fill(true)
+            Array(space.columns[newValue].taskIds.length).fill(true)
           );
         }}
         renderInput={(params) => (
@@ -74,13 +74,14 @@ const CreateEpochTaskList = ({
                 <TableRow>
                   <TableCell padding="checkbox">
                     <Checkbox
+                      color="default"
                       inputProps={{
                         "aria-label": "select all desserts",
                       }}
                       checked={isCardChecked.every((elem) => elem === true)}
                       onChange={(e) => {
                         setIsCardChecked(
-                          Array(data.columns[cardColumn].taskIds.length).fill(
+                          Array(space.columns[cardColumn].taskIds.length).fill(
                             e.target.checked
                           )
                         );
@@ -109,7 +110,7 @@ const CreateEpochTaskList = ({
                     <TableCell component="th" scope="row" padding="checkbox">
                       {
                         <Checkbox
-                          color="primary"
+                          color="secondary"
                           inputProps={{
                             "aria-label": "select all desserts",
                           }}
@@ -121,12 +122,12 @@ const CreateEpochTaskList = ({
                       }
                     </TableCell>
                     <TableCell align="right">
-                      {data.tasks[card].title}
+                      {space.tasks[card].title}
                     </TableCell>
                     <TableCell align="right">
-                      {data.tasks[card].value || "Not set"}{" "}
-                      {data.tasks[card].value
-                        ? data.tasks[card].token.symbol
+                      {space.tasks[card].value || "Not set"}{" "}
+                      {space.tasks[card].value
+                        ? space.tasks[card].token.symbol
                         : ""}
                     </TableCell>
                   </TableRow>

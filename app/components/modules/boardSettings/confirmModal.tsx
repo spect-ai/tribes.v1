@@ -13,9 +13,9 @@ import { PrimaryButton } from "../../elements/styledComponents";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import SettingsIcon from "@mui/icons-material/Settings";
-import { useBoard } from "../taskBoard";
 import { deleteBoard } from "../../../adapters/moralis";
-import { notifyError } from "../settingsTab";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { notify } from "../settingsTab";
 
 type Props = {
   isOpen: boolean;
@@ -23,7 +23,7 @@ type Props = {
 };
 
 const ConfirmModal = ({ isOpen, handleClose }: Props) => {
-  const { data } = useBoard();
+  const { space } = useSpace();
   const { Moralis } = useMoralis();
   const router = useRouter();
   const id = router.query.id as string;
@@ -36,7 +36,7 @@ const ConfirmModal = ({ isOpen, handleClose }: Props) => {
           <Box sx={modalStyle}>
             <ModalContent>
               <Typography variant="h6" sx={{ mb: 2 }} color="text.primary">
-                Are you sure you want to delete {data.name}?
+                Are you sure you want to delete {space.name}?
               </Typography>
               <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
                 <PrimaryButton
@@ -53,21 +53,22 @@ const ConfirmModal = ({ isOpen, handleClose }: Props) => {
                   loading={isLoading}
                   onClick={() => {
                     setIsLoading(true);
-                    deleteBoard(Moralis, data.objectId)
+                    deleteBoard(Moralis, space.objectId)
                       .then((res: any) => {
                         handleClose();
                         router.push(`/tribe/${id}`);
                         setIsLoading(false);
                       })
                       .catch((err: any) => {
-                        notifyError(
-                          `Sorry! There was an error while deleting board.`
+                        notify(
+                          `Sorry! There was an error while deleting board.`,
+                          "error"
                         );
                         setIsLoading(false);
                       });
                   }}
                 >
-                  Delete Board
+                  Delete Space
                 </PrimaryButton>
               </Box>
             </ModalContent>

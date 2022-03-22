@@ -85,35 +85,38 @@ const NumericVoting = ({
                 {details[choiceId].choice}
               </TableCell>
               <TableCell align="right">
-                <TextField
-                  id="filled-hidden-label-normal"
-                  value={votesGiven[choiceId]}
-                  type="number"
-                  placeholder="Value"
-                  inputProps={{
-                    readOnly: !active,
-                  }}
-                  size="small"
-                  error={votesRemaining < 0}
-                  sx={{ width: "30%" }}
-                  onChange={(event) => {
-                    handleVotesRemaining(
-                      epochId,
-                      choiceId,
-                      parseInt(event.target.value)
-                    );
-                    handleVotesGiven(
-                      epochId,
-                      choiceId,
-                      parseInt(event.target.value)
-                    );
-                  }}
-                />
+                {votesGiven && (
+                  <TextField
+                    id="filled-hidden-label-normal"
+                    value={votesGiven[choiceId]}
+                    type="number"
+                    placeholder="Value"
+                    inputProps={{
+                      readOnly: !active,
+                      min: 0,
+                    }}
+                    size="small"
+                    error={votesRemaining < 0}
+                    sx={{ width: "30%" }}
+                    onChange={(event) => {
+                      handleVotesRemaining(
+                        epochId,
+                        choiceId,
+                        parseInt(event.target.value)
+                      );
+                      handleVotesGiven(
+                        epochId,
+                        choiceId,
+                        parseInt(event.target.value)
+                      );
+                    }}
+                  />
+                )}
               </TableCell>
               {!active && (
                 <TableCell align="right">
                   {choiceId in values && values[choiceId]
-                    ? values[choiceId].toFixed(2)
+                    ? values[choiceId].toFixed(3)
                     : 0}{" "}
                   {tokenSymbol}
                 </TableCell>

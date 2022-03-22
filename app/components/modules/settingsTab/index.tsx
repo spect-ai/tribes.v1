@@ -33,14 +33,6 @@ export const notify = (text: string, type?: string) => {
     });
   }
 };
-
-export const notifyError = (text: string) =>
-  toast.error(text, {
-    duration: 4000,
-    position: "top-center",
-    style: { fontSize: "1rem" },
-  });
-
 const Settings = () => {
   const { tribe, setTribe } = useTribe();
   const { Moralis } = useMoralis();
@@ -50,7 +42,6 @@ const Settings = () => {
     control,
     formState: { errors },
     setValue,
-    getValues,
   } = useForm<SettingFormInput>({
     defaultValues: {
       logo: tribe.logo,
@@ -68,7 +59,7 @@ const Settings = () => {
         notify("Updated Tribe!");
       })
       .catch((err: any) =>
-        notifyError("Sorry! There was an error while updating tribe.")
+        notify("Sorry! There was an error while updating tribe.", "error")
       );
   };
 
@@ -109,6 +100,7 @@ const Settings = () => {
                   minRows="3"
                   fullWidth
                   placeholder="Description"
+                  multiline
                   label={tribe.description ? "Description" : ""}
                 />
               )}
@@ -263,8 +255,9 @@ const Settings = () => {
             <PrimaryButton
               type="submit"
               variant="outlined"
+              color="secondary"
               fullWidth
-              sx={{ width: "50%" }}
+              sx={{ width: "20%", borderRadius: 2 }}
               loading={isLoading}
             >
               Save
@@ -283,6 +276,7 @@ const MainContainer = styled.div`
   flex-direction: row;
   width: 100%;
   margin-top: 10px;
+  margin-bottom: 2rem;
 `;
 
 const SettingContainer = styled.div`

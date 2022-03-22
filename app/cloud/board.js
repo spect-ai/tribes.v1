@@ -90,7 +90,7 @@ function joinSpaceAsMember(space, userId) {
   const members = space.get("members");
   const roles = space.get("roles");
   members.push(userId);
-  roles[userId] = "member";
+  roles[userId] = 1;
   space.set("members", members);
   space.set("roles", roles);
   return space;
@@ -107,6 +107,40 @@ function getBoardObjFromBoardParseObj(board) {
     createdAt: board.get("createdAt"),
     updatedAt: board.get("updatedAt"),
   };
+}
+
+function handleCreateBoard(
+  board,
+  name,
+  teamId,
+  columnMap,
+  columnOrder,
+  isPrivate,
+  members,
+  roles,
+  tokenGating
+) {
+  board.set("name", name);
+  board.set("teamId", teamId);
+  board.set("columns", columnMap);
+  board.set("columnOrder", columnOrder);
+  board.set("private", isPrivate);
+  board.set("defaultPayment", {
+    chain: {
+      chainId: "137",
+      name: "polygon",
+    },
+    token: {
+      address: "0x0",
+      symbol: "MATIC",
+    },
+  });
+
+  // TODO: Make this customizable
+  board.set("members", members);
+  board.set("roles", roles);
+  board.set("tokenGating", tokenGating);
+  return board;
 }
 
 Moralis.Cloud.define("getBoard", async (request) => {
@@ -139,7 +173,6 @@ Moralis.Cloud.define("initBoard", async (request) => {
     logger.info(JSON.stringify(team));
     if (isMember(request.user.id, team)) {
       var initColumns = ["To Do", "In Progress", "In Review", "Done"];
-      var initBoardStatusList = ["Open", "In Progress", "Submitted", "Closed"];
       var columnIds = [];
       var columnIdToColumnMap = {};
 
@@ -150,35 +183,25 @@ Moralis.Cloud.define("initBoard", async (request) => {
           id: columnId,
           title: initColumns[i],
           taskIds: [],
-          status: initBoardStatusList[i],
+          cardType: 1,
+          createCard: { 0: false, 1: false, 2: true, 3: true },
+          moveCard: { 0: false, 1: true, 2: true, 3: true },
         };
         logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
       }
       var board = new Moralis.Object("Board");
-      board.set("name", request.params.name);
-      board.set("teamId", request.params.teamId);
-      board.set("columns", columnIdToColumnMap);
-      board.set("columnOrder", columnIds);
-      board.set("statusList", initBoardStatusList);
-      board.set("private", request.params.isPrivate);
-      board.set("defaultPayment", {
-        chain: {
-          chainId: "137",
-          name: "polygon",
-        },
-        token: {
-          address: "0x0",
-          symbol: "MATIC",
-        },
-      });
-
-      // TODO: Make this customizable
-      board.set("members", request.params.members);
-      board.set("roles", request.params.roles);
-      board.set("tokenGating", request.params.tokenGating);
-
+      board = handleCreateBoard(
+        board,
+        request.params.name,
+        request.params.teamId,
+        columnIdToColumnMap,
+        columnIds,
+        request.params.isPrivate,
+        request.params.members,
+        request.params.roles,
+        request.params.tokenGating
+      );
       logger.error(`Creating new board ${JSON.stringify(board)}`);
-
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return board;
     } else {
@@ -190,6 +213,66 @@ Moralis.Cloud.define("initBoard", async (request) => {
       `Error while creating board with name ${request.params.name}: ${err}`
     );
     throw `Error while creating board: ${err}`;
+  }
+});
+
+Moralis.Cloud.define("createSpaceFromTrello", async (request) => {
+  try {
+    const logger = Moralis.Cloud.getLogger();
+    const team = await getTribeByTeamId(request.params.teamId);
+    logger.info(JSON.stringify(team));
+    if (isMember(request.user.id, team)) {
+      // for (let i = 0; i < initColumns.length; i++) {
+      //   var columnId = `column-${i}`;
+      //   columnIds.push(columnId);
+      //   columnIdToColumnMap[columnIds[i]] = {
+      //     id: columnId,
+      //     title: initColumns[i],
+      //     taskIds: [],
+      //     cardType: 1,
+      //     createCard: { 0: false, 1: false, 2: true, 3: true },
+      //     moveCard: { 0: false, 1: false, 2: true, 3: true },
+      //   };
+      // }
+      var board = new Moralis.Object("Board");
+      board = handleCreateBoard(
+        board,
+        request.params.name,
+        request.params.teamId,
+        request.params.columnMap,
+        request.params.columnOrder,
+        request.params.isPrivate,
+        request.params.members,
+        request.params.roles,
+        request.params.tokenGating
+      );
+      await Moralis.Object.saveAll([board], { useMasterKey: true });
+
+      logger.info(`Creating new board ${JSON.stringify(board)}`);
+      // board = await board.save({ useMasterKey: true });
+
+      for (let i = 0; i < request.params.tasks.length; i++) {
+        var task = new Moralis.Object("Task");
+        logger.info(request.params.tasks[i].title);
+        task = handleCreateTask(
+          task,
+          request.params.tasks[i].id, // need to fix this, duplicate tasks are being created with trello id
+          board.get("defaultPayment"),
+          board.id,
+          request.params.tasks[i].title,
+          request.params.tasks[i].value,
+          request.user.id,
+          request.params.tasks[i].description
+        );
+        await Moralis.Object.saveAll([task], { useMasterKey: true });
+      }
+      return board;
+    }
+  } catch (err) {
+    logger.error(
+      `Error while creating space from trello ${request.params.teamId}: ${err}`
+    );
+    throw `Error while creating space from trello ${request.params.teamId}: ${err}`;
   }
 });
 
@@ -256,7 +339,14 @@ Moralis.Cloud.define("addColumn", async (request) => {
     var columns = board.get("columns");
     const columnId = `column-${Object.keys(columns).length}`;
     const newColumnOrder = [...columnOrder, columnId];
-    columns[columnId] = { id: columnId, title: "", taskIds: [] };
+    columns[columnId] = {
+      id: columnId,
+      title: "",
+      taskIds: [],
+      cardType: 1,
+      createCard: { 0: false, 1: false, 2: true, 3: true },
+      moveCard: { 0: false, 1: true, 2: true, 3: true },
+    };
     logger.info(`columnId ${JSON.stringify(columnId)}`);
     logger.info(`Adding column ${JSON.stringify(newColumnOrder)}`);
     board.set("columnOrder", newColumnOrder);
@@ -345,35 +435,48 @@ Moralis.Cloud.define("joinSpace", async (request) => {
   try {
     const boardQuery = new Moralis.Query("Board");
     boardQuery.equalTo("objectId", request.params.boardId);
-    let board = await boardQuery.first();
+    const web3 = Moralis.web3ByChain(request.params.chainIdHex);
+    let board = await boardQuery.first({ useMasterKey: true });
     if (board.get("members").indexOf(request.user.id) !== -1) {
-      return false; // replace with throw maybe?
+      throw "User already in space";
     }
     if (
       !(
-        board.get("tokenGating").tokenAddress &&
+        board.get("tokenGating").token.address &&
         board.get("tokenGating").tokenLimit > 0
       )
     ) {
-      return false; // replace with throw maybe?
+      throw "Token gating not set up";
     }
     let tribe = await getTribeByTeamId(board.get("teamId"));
-    const options = {
-      chain: board.get("tokenGating").chain.name,
-      address: request.user.get("ethAddress"),
-    };
-    const balances = await Moralis.Web3API.account.getTokenBalances(options);
-    const token = balances.filter(
-      (b) =>
-        b.token_address.toLowerCase() ===
-        board.get("tokenGating").tokenAddress.toLowerCase()
+    const tokenGating = board.get("tokenGating");
+
+    if (tokenGating.token.address === "0x0") {
+      const balance = await getNativeCurrencyBalance(
+        tokenGating.chain.name,
+        request.user.get("ethAddress")
+      );
+      if (web3.utils.fromWei(balance.balance) >= tokenGating.tokenLimit) {
+        if (tribe.get("members").indexOf(request.user.id) === -1) {
+          tribe = joinTribeAsMember(tribe, request.user.id);
+        }
+        board = joinSpaceAsMember(board, request.user.id);
+        await Moralis.Object.saveAll([tribe, board], { useMasterKey: true });
+        return await getSpace(request.params.boardId, request.user.id);
+      } else {
+        throw `Not enough balance to join this space. Need atleast ${tokenGating.tokenLimit} ${tokenGating.token.symbol} `;
+      }
+    }
+    const balances = await getTokenBalances(
+      tokenGating.chain.name,
+      request.user.get("ethAddress")
     );
-    logger.info(`token ${JSON.stringify(token)}`);
-    const web3 = Moralis.web3ByChain("0x1");
+    const token = balances.filter(
+      (b) => b.token_address.toLowerCase() === tokenGating.token.address
+    );
     if (
       token[0] &&
-      web3.utils.fromWei(token[0].balance.toString()) >=
-        board.get("tokenGating").tokenLimit
+      web3.utils.fromWei(token[0].balance.toString()) >= tokenGating.tokenLimit
     ) {
       if (tribe.get("members").indexOf(request.user.id) === -1) {
         tribe = joinTribeAsMember(tribe, request.user.id);
@@ -382,12 +485,51 @@ Moralis.Cloud.define("joinSpace", async (request) => {
       await Moralis.Object.saveAll([tribe, board], { useMasterKey: true });
       return await getSpace(request.params.boardId, request.user.id);
     } else {
-      throw "Not enough balance to join this space";
+      throw `Not enough balance to join this space. Need atleast ${tokenGating.tokenLimit} ${tokenGating.token.symbol} `;
     }
   } catch (err) {
     logger.error(
       `Error while joining space with space id ${request.params.boardId} : ${err}`
     );
     throw `Error while joining space ${err}`;
+  }
+});
+
+Moralis.Cloud.define("updateThemeFromSpace", async (request) => {
+  try {
+    const tribeQuery = new Moralis.Query("Team");
+    tribeQuery.equalTo("teamId", request.params.teamId);
+    let tribe = await tribeQuery.first();
+    tribe.set("theme", request.params.theme);
+    await Moralis.Object.saveAll([tribe], { useMasterKey: true });
+    const boardObj = await getBoardObjWithTasksByObjectId(
+      request.params.boardId,
+      request.user.id
+    );
+    return boardObj[0];
+  } catch (err) {
+    logger.error(
+      `Error while updating theme on board id ${request.params.boardId}: ${err}`
+    );
+    throw `Error while updating theme ${err}`;
+  }
+});
+
+Moralis.Cloud.define("updateColumnPermissions", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const board = await getBoardByObjectId(request.params.boardId);
+    const columns = board.get("columns");
+    columns[request.params.columnId].createCard =
+      request.params.createCardRoles;
+    columns[request.params.columnId].moveCard = request.params.moveCardRoles;
+    board.set("columns", columns);
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+    return await getSpace(request.params.boardId, request.user.id);
+  } catch (err) {
+    logger.error(
+      `Error while updating board ${request.params.boardId}: ${err}`
+    );
+    throw `Error while updating board ${request.params.boardId}: ${err}`;
   }
 });

@@ -3,8 +3,8 @@ import { PrimaryButton } from "../../elements/styledComponents";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useRouter } from "next/router";
 import { Epoch } from "../../../types";
-import { useBoard } from "../taskBoard";
 import { downloadCSV } from "../../../utils/utils";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 
 type Props = {
   epoch: Epoch;
@@ -12,7 +12,7 @@ type Props = {
 
 const CsvExport = ({ epoch }: Props) => {
   const router = useRouter();
-  const { data, setData } = useBoard();
+  const { space } = useSpace();
   const bid = router.query.bid as string;
 
   const handleExport = (epoch: Epoch) => {
@@ -22,8 +22,8 @@ const CsvExport = ({ epoch }: Props) => {
       ];
       for (var choice of epoch.choices) {
         rows.push([
-          data.memberDetails[choice].username,
-          data.memberDetails[choice].ethAddress,
+          space.memberDetails[choice].username,
+          space.memberDetails[choice].ethAddress,
           epoch.memberStats[choice].votesAllocated,
           Object.values(epoch.memberStats[choice].votesGiven).reduce(
             (a, b) => (a as number) + (b as number)
@@ -64,6 +64,7 @@ const CsvExport = ({ epoch }: Props) => {
     <PrimaryButton
       endIcon={<DownloadIcon />}
       variant="outlined"
+      color="secondary"
       sx={{
         borderRadius: 1,
       }}
