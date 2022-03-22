@@ -116,26 +116,6 @@ const Board = ({ expanded, handleChange }: Props) => {
           notify("Sorry! There was an error while moving tasks.", "error");
         });
     } else {
-      if (
-        !start.moveCard[space.roles[user?.id as string]] &&
-        !start.moveCard[0]
-      ) {
-        notify(
-          "You don't have permission to move cards from this column",
-          "error"
-        );
-        return;
-      }
-      if (
-        !finish.createCard[space.roles[user?.id as string]] &&
-        !finish.createCard[0]
-      ) {
-        notify(
-          "You don't have permission to move cards to this column",
-          "error"
-        );
-        return;
-      }
       const startTaskIds = Array.from(start.taskIds); // copy
       startTaskIds.splice(source.index, 1);
       const newStart = {
@@ -229,7 +209,7 @@ const Board = ({ expanded, handleChange }: Props) => {
                       taskIds: [],
                       cardType: 1,
                       createCard: { 0: false, 1: false, 2: true, 3: true },
-                      moveCard: { 0: false, 1: false, 2: true, 3: true },
+                      moveCard: { 0: false, 1: true, 2: true, 3: true },
                     },
                   },
                   columnOrder: [...space.columnOrder, `column-${newColumnId}`],

@@ -21,7 +21,10 @@ import {
   StyledAccordian,
 } from "../../elements/styledComponents";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { updateColumnPermissions } from "../../../adapters/moralis";
+import {
+  updateColumnPermissions,
+  removeColumn,
+} from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { notify } from "../settingsTab";
 
@@ -148,116 +151,56 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
                     labelPlacement="end"
                   />
                 </Box>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography sx={{ mr: 8, width: "30%" }}>
-                    Can move cards
-                  </Typography>
-                  <FormControlLabel
-                    value="end"
-                    control={
-                      <Checkbox
-                        color="default"
-                        checked={moveCardRoles[0]}
-                        onChange={(event) => {
-                          setMoveCardRoles({
-                            ...moveCardRoles,
-                            0: event.target.checked,
-                          });
-                        }}
-                      />
-                    }
-                    label="Anyone"
-                    labelPlacement="end"
-                  />
-                  <FormControlLabel
-                    value="end"
-                    control={
-                      <Checkbox
-                        color="default"
-                        checked={moveCardRoles[1]}
-                        onChange={(event) => {
-                          setMoveCardRoles({
-                            ...moveCardRoles,
-                            1: event.target.checked,
-                          });
-                        }}
-                      />
-                    }
-                    label="Member"
-                    labelPlacement="end"
-                  />
-                  <FormControlLabel
-                    value="end"
-                    control={
-                      <Checkbox
-                        color="default"
-                        checked={moveCardRoles[2]}
-                        onChange={(event) => {
-                          setMoveCardRoles({
-                            ...moveCardRoles,
-                            2: event.target.checked,
-                          });
-                        }}
-                      />
-                    }
-                    label="Contributor"
-                    labelPlacement="end"
-                  />
-                  <FormControlLabel
-                    value="end"
-                    control={
-                      <Checkbox
-                        color="default"
-                        checked={moveCardRoles[3]}
-                        onChange={(event) => {
-                          setMoveCardRoles({
-                            ...moveCardRoles,
-                            3: event.target.checked,
-                          });
-                        }}
-                      />
-                    }
-                    label="Steward"
-                    labelPlacement="end"
-                  />
-                </Box>
               </AccordionDetails>
             </StyledAccordian>
-            <PrimaryButton
-              variant="outlined"
-              color="secondary"
-              sx={{ width: "50%", mt: 2, mr: 4, borderRadius: 1 }}
-              loading={isLoading}
-              onClick={() => {
-                setIsLoading(true);
-                updateColumnPermissions(
-                  Moralis,
-                  space.objectId,
-                  column.id,
-                  createCardRoles,
-                  moveCardRoles
-                )
-                  .then((res: BoardData) => {
-                    notify("Save complete");
-                    setSpace(res);
-                    setIsLoading(false);
-                    handleClose();
-                  })
-                  .catch((err: any) => {
-                    setIsLoading(false);
-                    console.log(err);
-                    notify(err.message);
-                  });
-              }}
-            >
-              Save
-            </PrimaryButton>
+            <Box sx={{ display: "flex" }}>
+              <PrimaryButton
+                variant="outlined"
+                color="secondary"
+                sx={{ width: "50%", mt: 2, mr: 4, borderRadius: 1 }}
+                loading={isLoading}
+                onClick={() => {
+                  setIsLoading(true);
+                  updateColumnPermissions(
+                    Moralis,
+                    space.objectId,
+                    column.id,
+                    createCardRoles,
+                    moveCardRoles
+                  )
+                    .then((res: BoardData) => {
+                      notify("Save complete");
+                      setSpace(res);
+                      setIsLoading(false);
+                      handleClose();
+                    })
+                    .catch((err: any) => {
+                      setIsLoading(false);
+                      console.log(err);
+                      notify(err.message);
+                    });
+                }}
+              >
+                Save
+              </PrimaryButton>
+              <PrimaryButton
+                variant="outlined"
+                color="error"
+                sx={{ width: "50%", mt: 2, mr: 4, borderRadius: 1 }}
+                onClick={() => {
+                  removeColumn(Moralis, space.objectId, column.id)
+                    .then((res: BoardData) => {
+                      setSpace(res);
+                    })
+                    .catch((err: any) => {
+                      console.log(err);
+                      notify(err.message, "error");
+                    });
+                }}
+              >
+                Delete
+              </PrimaryButton>
+            </Box>
           </Content>
         </ModalContainer>
       </Grow>

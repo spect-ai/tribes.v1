@@ -185,7 +185,7 @@ Moralis.Cloud.define("initBoard", async (request) => {
           taskIds: [],
           cardType: 1,
           createCard: { 0: false, 1: false, 2: true, 3: true },
-          moveCard: { 0: false, 1: false, 2: true, 3: true },
+          moveCard: { 0: false, 1: true, 2: true, 3: true },
         };
         logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
       }
@@ -339,7 +339,14 @@ Moralis.Cloud.define("addColumn", async (request) => {
     var columns = board.get("columns");
     const columnId = `column-${Object.keys(columns).length}`;
     const newColumnOrder = [...columnOrder, columnId];
-    columns[columnId] = { id: columnId, title: "", taskIds: [] };
+    columns[columnId] = {
+      id: columnId,
+      title: "",
+      taskIds: [],
+      cardType: 1,
+      createCard: { 0: false, 1: false, 2: true, 3: true },
+      moveCard: { 0: false, 1: true, 2: true, 3: true },
+    };
     logger.info(`columnId ${JSON.stringify(columnId)}`);
     logger.info(`Adding column ${JSON.stringify(newColumnOrder)}`);
     board.set("columnOrder", newColumnOrder);
