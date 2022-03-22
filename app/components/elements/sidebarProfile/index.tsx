@@ -6,11 +6,12 @@ import { SidebarButton } from "../styledComponents";
 import LoginIcon from "@mui/icons-material/Login";
 import styled from "@emotion/styled";
 import { getMD5String } from "../../../utils/utils";
+import { getOrCreateUser } from "../../../adapters/moralis";
 
 type Props = {};
 
 const SidebarProfile = (props: Props) => {
-  const { user, isAuthenticated, authenticate, isAuthenticating } =
+  const { Moralis, user, isAuthenticated, authenticate, isAuthenticating } =
     useMoralis();
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -31,7 +32,13 @@ const SidebarProfile = (props: Props) => {
           sx={{ mt: 2 }}
           color="inherit"
           loading={isAuthenticating}
-          onClick={() => authenticate()}
+          onClick={() =>
+            authenticate()
+              .then((res) => {
+                getOrCreateUser(Moralis).then((res: any) => console.log(res));
+              })
+              .catch((err) => console.log(err))
+          }
         >
           <LoginIcon />
           <Typography sx={{ textTransform: "none", fontSize: 14, ml: 2 }}>
