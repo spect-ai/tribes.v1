@@ -220,3 +220,30 @@ export type DefaultPayment = {
   chain: Chain;
   token: Token;
 };
+
+export type DiscordResult = {
+  accent_color: string;
+  avatar: string;
+  banner: string;
+  banner_color: string;
+  discriminator: string;
+  flags: number;
+  id: string;
+  locale: string;
+  mfa_enabled: boolean;
+  public_flags: number;
+  username: string;
+  email: string;
+  verified: boolean;
+};
+
+export type CurrentUser = {
+  avatar: string;
+  createdAt: string;
+  is_discord: boolean;
+  objectId: string;
+  tribes: string[];
+  updatedAt: string;
+  userId: string;
+  username: string;
+};

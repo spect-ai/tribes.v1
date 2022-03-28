@@ -21,6 +21,12 @@ async function getUserByUserId(userId) {
   return await userInfoQuery.first({ useMasterKey: true });
 }
 
+async function getUserByObjId(objectId) {
+  const userInfoQuery = new Moralis.Query("UserInfo");
+  userInfoQuery.equalTo("objectId", objectId);
+  return await userInfoQuery.first({ useMasterKey: true });
+}
+
 async function getUserDetailsByUserIds(userIds) {
   const userQuery = new Moralis.Query("User");
   const pipeline = [

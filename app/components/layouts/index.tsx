@@ -7,8 +7,10 @@ import { getTheme } from "../../constants/muiTheme";
 import GlobalContextProvider, {
   initContracts,
   initRegistry,
+  updateUser,
   useGlobal,
 } from "../../context/globalContext";
+import { useDiscord } from "../../hooks/useDiscord";
 interface Props {
   children: React.ReactNode;
 }
@@ -47,12 +49,22 @@ const Main = styled.main`
 
 const Layout = ({ children }: Props) => {
   const { Moralis, isInitialized } = useMoralis();
+  const { refreshDiscordUser } = useDiscord();
   const { dispatch, state } = useGlobal();
 
   useEffect(() => {
     if (isInitialized) {
-      initContracts(dispatch);
-      initRegistry(dispatch, Moralis);
+      // initContracts(dispatch);
+      // initRegistry(dispatch, Moralis);
+      console.log("layoput");
+      refreshDiscordUser(localStorage.getItem("objectId") as string).then(
+        (res) => {
+          if (res) {
+            console.log(res);
+          }
+          updateUser(dispatch, res);
+        }
+      );
     }
   }, [isInitialized]);
   return (

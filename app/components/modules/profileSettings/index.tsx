@@ -18,6 +18,7 @@ import { getMD5String } from "../../../utils/utils";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { OptionsButton } from "../themePopover";
 import { ButtonText } from "../exploreSidebar";
+import { useGlobal } from "../../../context/globalContext";
 
 type Props = {};
 
@@ -28,7 +29,10 @@ const ProfileSettings = (props: Props) => {
   const [userEmail, setuserEmail] = useState(user?.get("email"));
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
+  const {
+    state: { currentUser },
+  } = useGlobal();
+  console.log(currentUser);
   const handleClose = () => setIsOpen(false);
   return (
     <>
@@ -49,15 +53,10 @@ const ProfileSettings = (props: Props) => {
             <ModalContent>
               <FieldContainer>
                 <Avatar
-                  src={
-                    user?.get("profilePicture")?._url ||
-                    `https://www.gravatar.com/avatar/${getMD5String(
-                      user?.id as string
-                    )}?d=identicon&s=64`
-                  }
+                  src={`https://cdn.discordapp.com/avatars/${currentUser?.userId}/${currentUser?.avatar}.png`}
                   sx={{ height: 60, width: 60 }}
                 />
-                <input
+                {/* <input
                   accept="image/*"
                   hidden
                   id="contained-button-file"
@@ -76,49 +75,31 @@ const ProfileSettings = (props: Props) => {
                   }}
                 />
                 <label htmlFor="contained-button-file">
-                  {/*// @ts-ignore */}
                   <PrimaryButton component="span" sx={{ borderRadius: 1 }}>
                     Edit
                   </PrimaryButton>
-                </label>
+                </label> */}
               </FieldContainer>
               <FieldContainer>
                 <TextField
-                  value={userName}
-                  onChange={(e) => setuserName(e.target.value)}
+                  value={currentUser?.username}
                   fullWidth
                   placeholder="Username"
                   size="small"
+                  inputProps={{ readOnly: true }}
+                  color="secondary"
                 />
               </FieldContainer>
               <FieldContainer>
                 <TextField
                   placeholder="Email"
-                  value={userEmail}
-                  onChange={(e) => setuserEmail(e.target.value)}
+                  value={currentUser?.EmailId}
                   fullWidth
                   size="small"
+                  inputProps={{ readOnly: true }}
+                  color="secondary"
                 />
               </FieldContainer>
-              <PrimaryButton
-                variant="outlined"
-                color="secondary"
-                sx={{ width: "50%", mt: 2, borderRadius: 1 }}
-                loading={isLoading}
-                onClick={() => {
-                  setIsLoading(true);
-                  if (user) {
-                    user.set("username", userName);
-                    user.set("email", userEmail);
-                    user.save().then((res: any) => {
-                      setIsLoading(false);
-                      handleClose();
-                    });
-                  }
-                }}
-              >
-                Save
-              </PrimaryButton>
             </ModalContent>
           </ModalContainer>
         </Grow>

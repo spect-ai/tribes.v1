@@ -42,6 +42,18 @@ const SpaceNavbar = (props: Props) => {
             {space.name}
           </Link>
         </Breadcrumbs>
+        <PrimaryButton
+          variant="outlined"
+          sx={{ borderRadius: 1, ml: 2 }}
+          color="secondary"
+          onClick={() => {
+            router.push(
+              "https://discord.com/api/oauth2/authorize?client_id=942494607239958609&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fredirect&response_type=code&scope=identify%20email"
+            );
+          }}
+        >
+          Connect Discord
+        </PrimaryButton>
         {!space.members?.includes(user?.id as string) &&
           parseFloat(space.tokenGating?.tokenLimit) > 0 && (
             <Tooltip title="You can join space if you have enough tokens">
