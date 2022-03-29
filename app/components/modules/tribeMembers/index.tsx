@@ -28,7 +28,7 @@ const TribeMembers = (props: Props) => {
     });
     let adminExists;
     members.map((member: string) => {
-      if (roles[member] === 2) {
+      if (roles[member] === 3) {
         adminExists = true;
         return;
       }
