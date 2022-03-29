@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { createTheme, Typography } from "@mui/material";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { PageContainer } from "../../../pages/tribe/[id]/space/[bid]";
@@ -11,6 +12,7 @@ import GlobalContextProvider, {
   useGlobal,
 } from "../../context/globalContext";
 import { useDiscord } from "../../hooks/useDiscord";
+import { useMoralisFunction } from "../../hooks/useMoralisFunction";
 interface Props {
   children: React.ReactNode;
 }
@@ -50,23 +52,35 @@ const Main = styled.main`
 const Layout = ({ children }: Props) => {
   const { Moralis, isInitialized } = useMoralis();
   const { refreshDiscordUser } = useDiscord();
+  const { runMoralisFunction } = useMoralisFunction();
   const { dispatch, state } = useGlobal();
+
+  const router = useRouter();
 
   useEffect(() => {
     if (isInitialized) {
-      // initContracts(dispatch);
-      // initRegistry(dispatch, Moralis);
-      console.log("layoput");
-      refreshDiscordUser(localStorage.getItem("objectId") as string).then(
-        (res) => {
-          if (res) {
+      initContracts(dispatch);
+      initRegistry(dispatch, Moralis);
+      console.log(router.query.userId);
+      if (router.query.userId) {
+        runMoralisFunction("getUserInfo", { userId: router.query.userId }).then(
+          (res) => {
             console.log(res);
+            localStorage.setItem("objectId", res.objectId);
+            updateUser(dispatch, res);
           }
-          updateUser(dispatch, res);
-        }
-      );
+        );
+      }
+      if (localStorage.getItem("objectId") !== "undefined") {
+        refreshDiscordUser(localStorage.getItem("objectId") as string).then(
+          (res) => {
+            console.log(res);
+            updateUser(dispatch, res);
+          }
+        );
+      }
     }
-  }, [isInitialized]);
+  }, [isInitialized, router.query.userId]);
   return (
     <>
       <OuterDiv>

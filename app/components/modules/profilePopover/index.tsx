@@ -6,6 +6,7 @@ import ProfileSettings from "../profileSettings";
 import { OptionsButton, SidebarPopoverContainer } from "../themePopover";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { ButtonText } from "../exploreSidebar";
+import { updateUser, useGlobal } from "../../../context/globalContext";
 
 type Props = {
   open: boolean;
@@ -17,6 +18,7 @@ const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
   const { palette } = useTheme();
   const { logout } = useMoralis();
   const router = useRouter();
+  const { dispatch } = useGlobal();
   const id = router.query.id;
   return (
     <Popover
@@ -33,12 +35,9 @@ const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
         <OptionsButton
           color="inherit"
           onClick={() => {
-            logout();
-            if (id) {
-              router.push(`/tribe/${id}`);
-            } else {
-              router.push("/");
-            }
+            localStorage.removeItem("objectId");
+            updateUser(dispatch, {});
+            router.push("/");
             handleClose();
           }}
         >

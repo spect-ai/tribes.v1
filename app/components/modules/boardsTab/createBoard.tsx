@@ -117,7 +117,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               sx={{ mb: 2 }}
             /> */}
 
-            <StyledAccordian disableGutters>
+            {/* <StyledAccordian disableGutters>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1a-content"
@@ -305,7 +305,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                   </PrimaryButton>
                 </Box>
               </AccordionDetails>
-            </StyledAccordian>
+            </StyledAccordian> */}
             <Grid container alignItems="center" marginTop={2}>
               <Grid item xs={3}>
                 <PrimaryButton
@@ -314,7 +314,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                   color="secondary"
                   sx={{ borderRadius: 1 }}
                   onClick={() => {
-                    const members = getMembers();
+                    // const members = getMembers();
                     setIsLoading(true);
                     if (trelloBoard?.name) {
                       createSpaceFromTrello(
@@ -355,8 +355,8 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                     initBoard(
                       Moralis,
                       name,
-                      members as Array<string>,
-                      roles,
+                      [],
+                      {},
                       tribe.teamId,
                       {
                         chain,
@@ -416,7 +416,7 @@ const ModalContainer = styled(Box)(({ theme }) => ({
   top: "10%",
   left: "25%",
   transform: "translate(-50%, -50%)",
-  width: "50rem",
+  width: "35rem",
   border: "2px solid #000",
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,

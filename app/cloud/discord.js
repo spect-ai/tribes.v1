@@ -82,8 +82,8 @@ Moralis.Cloud.define("getOrCreateDiscordUser", async (request) => {
       request.params.username,
       request.params.avatar,
       request.params.email,
-      request.params.access_token,
-      request.params.refresh_token
+      request.params.accessToken,
+      request.params.refreshToken
     );
     logger.info(
       `userInfo ${JSON.stringify(userInfo)} ${request.params.access_token}`
@@ -99,11 +99,27 @@ Moralis.Cloud.define("getOrCreateDiscordUser", async (request) => {
   }
 });
 
+Moralis.Cloud.define("getUserInfo", async (request) => {
+  const userobj = await getUserObj(request.params.userId);
+  return userobj[0];
+});
+
 Moralis.Cloud.define("getRefreshToken", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     var userInfo = await getUserByObjId(request.params.objectId);
     return userInfo.get("refresh_token");
+  } catch (err) {
+    logger.error(`Error while storing tokens ${err}`);
+    return false;
+  }
+});
+
+Moralis.Cloud.define("getAccessToken", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    var userInfo = await getUserByObjId(request.params.objectId);
+    return userInfo.get("access_token");
   } catch (err) {
     logger.error(`Error while storing tokens ${err}`);
     return false;

@@ -36,7 +36,7 @@ const ExploreTemplate = (props: Props) => {
               <DAOCard
                 image={tribe.logo}
                 title={tribe.name}
-                members={tribe.members.length}
+                members={tribe.members?.length}
                 teamId={tribe.teamId}
               />
             </Grid>

@@ -19,6 +19,8 @@ import { getTheme } from "../../../../app/constants/muiTheme";
 import SpaceNavbar from "../../../../app/components/modules/spaceNavbar";
 import ExploreSidebar from "../../../../app/components/modules/exploreSidebar";
 import NotFound from "../../../../app/components/elements/notFound";
+import { useDiscord } from "../../../../app/hooks/useDiscord";
+import { useGlobal } from "../../../../app/context/globalContext";
 
 interface Props {}
 interface SpaceContextType {
@@ -39,6 +41,10 @@ const SpaceContext = createContext<SpaceContextType>({} as SpaceContextType);
 const SpacePage: NextPage<Props> = (props: Props) => {
   const { Moralis, isInitialized, user } = useMoralis();
   const context = useProviderSpace();
+  const { getUserGuildRole } = useDiscord();
+  const {
+    state: { currentUser },
+  } = useGlobal();
   const { setSpace, setIsLoading, themeChanged } = context;
   const [notFound, setNotFound] = useState(false);
 
@@ -54,6 +60,11 @@ const SpacePage: NextPage<Props> = (props: Props) => {
       getSpace(Moralis, bid as string)
         .then((res: BoardData) => {
           console.log(res);
+          getUserGuildRole(currentUser?.objectId as string, res.guildId).then(
+            (role) => {
+              console.log(role);
+            }
+          );
           setSpace(res);
           setTheme(createTheme(getTheme(res.team[0].theme)));
           setIsLoading(false);

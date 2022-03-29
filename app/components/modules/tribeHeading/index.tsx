@@ -83,7 +83,7 @@ const TribeHeading = (props: Props) => {
         >
           Invite
         </PrimaryButton>
-        {!(user && tribe.members.includes(user?.id)) && (
+        {/* {!(user && tribe.members?.includes(user?.id)) && (
           <PrimaryButton
             variant="outlined"
             color="secondary"
@@ -105,7 +105,7 @@ const TribeHeading = (props: Props) => {
           >
             Join Tribe
           </PrimaryButton>
-        )}
+        )} */}
       </Box>
     </Container>
   );

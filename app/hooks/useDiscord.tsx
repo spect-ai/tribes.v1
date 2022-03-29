@@ -45,7 +45,6 @@ export function useDiscord() {
 
   const refreshDiscordUser = async (objectId: string) => {
     if (objectId === "undefined") return;
-    console.log(objectId);
     const refresh_token = await runMoralisFunction("getRefreshToken", {
       objectId,
     });
@@ -54,7 +53,7 @@ export function useDiscord() {
       method: "POST",
       body: new URLSearchParams({
         client_id: "942494607239958609",
-        client_secret: "Flci7Du4jcxDxjucavVmmiTThDxzW7qE",
+        client_secret: "hDFeUWJfa4nEQJpNzhYZdvq60rLEWl4F",
         grant_type: "refresh_token",
         refresh_token,
         redirect_uri: `http://localhost:3000/redirect`,
@@ -84,8 +83,25 @@ export function useDiscord() {
     return res;
   };
 
+  const getUserGuildRole = async (objectId: string, guild: string) => {
+    const access_token = await runMoralisFunction("getAccessToken", {
+      objectId,
+    });
+    const userGuildsResult = await fetch(
+      `https://discord.com/api/users/@me/guilds/${guild}/member`,
+      {
+        headers: {
+          authorization: `access_token ${access_token}`,
+        },
+      }
+    );
+    const userGuilds = await userGuildsResult.json();
+    return userGuilds;
+  };
+
   return {
     initializeDiscordUser,
     refreshDiscordUser,
+    getUserGuildRole,
   };
 }

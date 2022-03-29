@@ -186,6 +186,7 @@ export interface BoardData {
   tokenGating: TokenGate;
   private: boolean;
   creatingEpoch: boolean;
+  guildId: string;
 }
 
 export type TokenInfo = {

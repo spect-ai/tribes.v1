@@ -20,7 +20,7 @@ async function getBoardObjByObjectId(objectId, callerId) {
 
   var board = await boardQuery.aggregate(pipeline, { useMasterKey: true });
   if (board.length === 0) throw "Board doesnt exist";
-  if (callerId) board[0].access = getSpaceAccess(callerId, board[0]);
+  // if (callerId) board[0].access = getSpaceAccess(callerId, board[0]);
   return board;
 }
 
@@ -30,8 +30,8 @@ async function getBoardObjWithTasksByObjectId(objectId, callerId) {
     var tasks = await getTaskObjByBoardId(objectId);
     var boardTasks = {};
     for (var task of tasks) {
-      const access = getFieldLevelAccess(task, callerId);
-      task.access = access;
+      // const access = getFieldLevelAccess(task, callerId);
+      // task.access = access;
       boardTasks[task.taskId] = task;
     }
     board[0].tasks = boardTasks;
@@ -67,18 +67,18 @@ async function getSpace(boardId, callerId) {
     logger.info(`boardobj ${JSON.stringify(boardObj)}`);
 
     if (boardObj.length === 0) throw "Board not found";
-    const canReadSpace = canRead(boardObj[0], callerId);
-    if (!canReadSpace) throw "You dont have access to view this space";
+    // const canReadSpace = canRead(boardObj[0], callerId);
+    // if (!canReadSpace) throw "You dont have access to view this space";
 
-    const epochs = await getEpochsBySpaceId(boardObj[0].objectId, callerId);
-    var userIds = getAllAssociatedUsersIds(
-      boardObj[0],
-      Object.values(boardObj[0].tasks),
-      epochs
-    );
-    boardObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
-      userIds
-    );
+    // const epochs = await getEpochsBySpaceId(boardObj[0].objectId, callerId);
+    // var userIds = getAllAssociatedUsersIds(
+    //   boardObj[0],
+    //   Object.values(boardObj[0].tasks),
+    //   epochs
+    // );
+    // boardObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
+    //   userIds
+    // );
     return boardObj[0];
   } catch (err) {
     logger.error(`Error while getting board - ${err}`);
@@ -115,10 +115,10 @@ function handleCreateBoard(
   teamId,
   columnMap,
   columnOrder,
-  isPrivate,
-  members,
-  roles,
-  tokenGating
+  isPrivate
+  // members,
+  // roles,
+  // tokenGating
 ) {
   board.set("name", name);
   board.set("teamId", teamId);
@@ -137,9 +137,9 @@ function handleCreateBoard(
   });
 
   // TODO: Make this customizable
-  board.set("members", members);
-  board.set("roles", roles);
-  board.set("tokenGating", tokenGating);
+  // board.set("members", members);
+  // board.set("roles", roles);
+  // board.set("tokenGating", tokenGating);
   return board;
 }
 
@@ -171,43 +171,43 @@ Moralis.Cloud.define("initBoard", async (request) => {
     const logger = Moralis.Cloud.getLogger();
     const team = await getTribeByTeamId(request.params.teamId);
     logger.info(JSON.stringify(team));
-    if (isMember(request.user.id, team)) {
-      var initColumns = ["To Do", "In Progress", "In Review", "Done"];
-      var columnIds = [];
-      var columnIdToColumnMap = {};
+    // if (isMember(request.user.id, team)) {
+    var initColumns = ["To Do", "In Progress", "In Review", "Done"];
+    var columnIds = [];
+    var columnIdToColumnMap = {};
 
-      for (let i = 0; i < 4; i++) {
-        var columnId = `column-${i}`;
-        columnIds.push(columnId);
-        columnIdToColumnMap[columnIds[i]] = {
-          id: columnId,
-          title: initColumns[i],
-          taskIds: [],
-          cardType: 1,
-          createCard: { 0: false, 1: false, 2: true, 3: true },
-          moveCard: { 0: false, 1: true, 2: true, 3: true },
-        };
-        logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
-      }
-      var board = new Moralis.Object("Board");
-      board = handleCreateBoard(
-        board,
-        request.params.name,
-        request.params.teamId,
-        columnIdToColumnMap,
-        columnIds,
-        request.params.isPrivate,
-        request.params.members,
-        request.params.roles,
-        request.params.tokenGating
-      );
-      logger.error(`Creating new board ${JSON.stringify(board)}`);
-      await Moralis.Object.saveAll([board], { useMasterKey: true });
-      return board;
-    } else {
-      logger.info(`User ${request.user.id} is not a member of the tribe`);
-      throw `User ${request.user.id} is not a member of the tribe`;
+    for (let i = 0; i < 4; i++) {
+      var columnId = `column-${i}`;
+      columnIds.push(columnId);
+      columnIdToColumnMap[columnIds[i]] = {
+        id: columnId,
+        title: initColumns[i],
+        taskIds: [],
+        cardType: 1,
+        createCard: { 0: false, 1: false, 2: true, 3: true },
+        moveCard: { 0: false, 1: true, 2: true, 3: true },
+      };
+      logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
     }
+    var board = new Moralis.Object("Board");
+    board = handleCreateBoard(
+      board,
+      request.params.name,
+      request.params.teamId,
+      columnIdToColumnMap,
+      columnIds,
+      request.params.isPrivate
+      // request.params.members,
+      // request.params.roles,
+      // request.params.tokenGating
+    );
+    logger.error(`Creating new board ${JSON.stringify(board)}`);
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+    return board;
+    // } else {
+    //   logger.info(`User ${request.user.id} is not a member of the tribe`);
+    //   throw `User ${request.user.id} is not a member of the tribe`;
+    // }
   } catch (err) {
     logger.error(
       `Error while creating board with name ${request.params.name}: ${err}`
@@ -526,6 +526,64 @@ Moralis.Cloud.define("updateColumnPermissions", async (request) => {
     board.set("columns", columns);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
     return await getSpace(request.params.boardId, request.user.id);
+  } catch (err) {
+    logger.error(
+      `Error while updating board ${request.params.boardId}: ${err}`
+    );
+    throw `Error while updating board ${request.params.boardId}: ${err}`;
+  }
+});
+
+Moralis.Cloud.define("linkDiscordToSpace", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const board = await getBoardByObjectId(request.params.objectId);
+    board.set("guildId", request.params.guild_id);
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+    const boardQuery = new Moralis.Query("Board");
+    const pipeline = [
+      { match: { objectId: request.params.objectId } },
+      {
+        lookup: {
+          from: "Team",
+          localField: "teamId",
+          foreignField: "teamId",
+          as: "team",
+        },
+      },
+    ];
+
+    var res = await boardQuery.aggregate(pipeline, { useMasterKey: true });
+    return res;
+  } catch (err) {
+    logger.error(
+      `Error while updating board ${request.params.boardId}: ${err}`
+    );
+    throw `Error while updating board ${request.params.boardId}: ${err}`;
+  }
+});
+
+Moralis.Cloud.define("setSpaceRoleMapping", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const board = await getBoardByObjectId(request.params.objectId);
+    board.set("roleMapping", request.params.roleMapping);
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+    const boardQuery = new Moralis.Query("Board");
+    const pipeline = [
+      { match: { objectId: request.params.objectId } },
+      {
+        lookup: {
+          from: "Team",
+          localField: "teamId",
+          foreignField: "teamId",
+          as: "team",
+        },
+      },
+    ];
+
+    var res = await boardQuery.aggregate(pipeline, { useMasterKey: true });
+    return res;
   } catch (err) {
     logger.error(
       `Error while updating board ${request.params.boardId}: ${err}`
