@@ -38,7 +38,6 @@ async function getTaskObjByBoardId(boardId) {
         description: 0,
         submission: 0,
         activity: 0,
-        chain: 0,
       },
     },
   ];
@@ -776,7 +775,7 @@ Moralis.Cloud.define("getBatchPayInfo", async (request) => {
     for (var task of tasks) {
       var assignee = task.get("assignee");
 
-      if (assignee?.length > 0 && task.get("value") > 0) {
+      if (assignee?.length > 0 && task.get("value") && task.get("value") > 0) {
         var contributor = task.get("assignee")[0];
         var value = task.get("value");
         var token = task.get("token");
