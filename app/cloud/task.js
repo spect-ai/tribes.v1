@@ -848,9 +848,7 @@ Moralis.Cloud.define("getBatchPayInfo", async (request) => {
 
     return paymentInfo;
   } catch (err) {
-    logger.error(
-      `Error while adding task in board ${request.params.boardId}: ${err}`
-    );
+    logger.error(`Error while getting batch pay info: ${err}`);
     throw err;
   }
 });
