@@ -124,11 +124,19 @@ const PaymentModal = ({}: Props) => {
           >
             <Grid item xs={3}>
               <Box style={{ display: "flex" }}>
+                <Typography
+                  color="text.primary"
+                  variant="body2"
+                  marginTop="10px"
+                  marginRight="10px"
+                >
+                  Currently showing cards with rewards on
+                </Typography>
                 <Avatar
                   src={registry[window.ethereum.networkVersion]?.pictureUrl}
                   sx={{
-                    width: "2rem",
-                    height: "2rem",
+                    width: "1.5rem",
+                    height: "1.5rem",
                     objectFit: "cover",
                     my: 1,
                   }}
