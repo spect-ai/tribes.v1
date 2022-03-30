@@ -108,6 +108,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               onChange={(e) => setName(e.target.value)}
               fullWidth
               sx={{ mb: 2 }}
+              color="secondary"
             />
             {/* <TextField
               placeholder="Space Description"

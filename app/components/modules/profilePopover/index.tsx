@@ -31,12 +31,24 @@ const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
       }}
     >
       <SidebarPopoverContainer palette={palette}>
+        <OptionsButton
+          color="inherit"
+          onClick={() => {
+            router.push(
+              "https://discord.com/api/oauth2/authorize?client_id=942494607239958609&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F&response_type=code&scope=identify%20email%20guilds.members.read%20guilds"
+            );
+          }}
+        >
+          <i className="fa-brands fa-discord"></i>
+          <ButtonText>Link Discord</ButtonText>
+        </OptionsButton>
         <ProfileSettings />
         <OptionsButton
           color="inherit"
           onClick={() => {
-            localStorage.removeItem("objectId");
+            // localStorage.removeItem("objectId");
             updateUser(dispatch, {});
+            logout();
             router.push("/");
             handleClose();
           }}

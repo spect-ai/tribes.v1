@@ -33,15 +33,17 @@ const SidebarProfile = (props: Props) => {
   const { palette } = useTheme();
   return (
     <Profile>
-      {!currentUser?.username && (
+      {!isAuthenticated && (
         <SidebarButton
           sx={{ mt: 2 }}
           color="inherit"
           loading={isAuthenticating}
           onClick={() => {
-            router.push(
-              "https://discord.com/api/oauth2/authorize?client_id=942494607239958609&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fdiscord%2Fuser&response_type=code&scope=identify%20guilds%20guilds.members.read"
-            );
+            authenticate()
+              .then((res) => {
+                getOrCreateUser(Moralis).then((res: any) => console.log(res));
+              })
+              .catch((err) => console.log(err));
           }}
         >
           <LoginIcon />
@@ -50,7 +52,7 @@ const SidebarProfile = (props: Props) => {
           </Typography>
         </SidebarButton>
       )}
-      {currentUser?.username && (
+      {isAuthenticated && (
         <SidebarButton
           sx={{ mt: 2 }}
           color="inherit"
@@ -59,10 +61,8 @@ const SidebarProfile = (props: Props) => {
           <Avatar
             variant="rounded"
             sx={{ p: 0, m: 0, width: 32, height: 32 }}
-            src={`https://cdn.discordapp.com/avatars/${currentUser?.userId}/${currentUser?.avatar}.png`}
-          >
-            {user?.get("username")[0]}
-          </Avatar>
+            src={`https://cdn.discordapp.com/avatars/${currentUser?.discordId}/${currentUser?.avatar}.png`}
+          />
         </SidebarButton>
       )}
       <ProfilePopover

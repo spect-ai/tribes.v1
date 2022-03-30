@@ -50,7 +50,7 @@ const Main = styled.main`
 `;
 
 const Layout = ({ children }: Props) => {
-  const { Moralis, isInitialized } = useMoralis();
+  const { Moralis, isInitialized, user, isAuthenticated } = useMoralis();
   const { refreshDiscordUser } = useDiscord();
   const { runMoralisFunction } = useMoralisFunction();
   const { dispatch, state } = useGlobal();
@@ -61,26 +61,36 @@ const Layout = ({ children }: Props) => {
     if (isInitialized) {
       initContracts(dispatch);
       initRegistry(dispatch, Moralis);
-      console.log(router.query.userId);
-      if (router.query.userId) {
-        runMoralisFunction("getUserInfo", { userId: router.query.userId }).then(
-          (res) => {
-            console.log(res);
-            localStorage.setItem("objectId", res.objectId);
-            updateUser(dispatch, res);
-          }
-        );
-      }
-      if (localStorage.getItem("objectId") !== "undefined") {
-        refreshDiscordUser(localStorage.getItem("objectId") as string).then(
-          (res) => {
-            console.log(res);
-            updateUser(dispatch, res);
-          }
-        );
-      }
     }
-  }, [isInitialized, router.query.userId]);
+  }, [isInitialized]);
+
+  useEffect(() => {
+    if (isInitialized && isAuthenticated) {
+      console.log("initalizewd", user);
+      runMoralisFunction("refreshDiscordUser", {}).then((res) => {
+        if (res.objectId) {
+          console.log(res);
+          updateUser(dispatch, res);
+        } else {
+          console.error(res);
+        }
+      });
+    }
+  }, [isInitialized, isAuthenticated]);
+
+  useEffect(() => {
+    if (router.query.code) {
+      console.log("linking user");
+      runMoralisFunction("linkDiscordUser", { code: router.query.code }).then(
+        (res) => {
+          console.log(res);
+          updateUser(dispatch, res);
+          router.push("/");
+        }
+      );
+    }
+  }, [router.query.code]);
+
   return (
     <>
       <OuterDiv>
@@ -98,4 +108,20 @@ const Layout = ({ children }: Props) => {
   );
 };
 
+// console.log(router.query.userId);
+// if (router.query.userId) {
+//   runMoralisFunction("getUserInfo", { userId: router.query.userId }).then(
+//     (res) => {
+//       console.log(res);
+//       localStorage.setItem("objectId", res.objectId);
+//       updateUser(dispatch, res);
+//     }
+//   );
+// }
+// if (localStorage.getItem("objectId") !== "undefined") {
+//   refreshDiscordUser(localStorage.getItem("objectId") as string).then((res) => {
+//     console.log(res);
+//     updateUser(dispatch, res);
+//   });
+// }
 export default Layout;

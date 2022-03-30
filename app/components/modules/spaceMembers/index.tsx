@@ -42,6 +42,7 @@ const SpaceMembers = (props: Props) => {
     //   .catch((err: any) => {
     //     notify(`Sorry! There was an error while loading members.`, "error");
     //   });
+    setRoles(space.roles);
   }, []);
 
   const onSave = () => {
@@ -77,39 +78,29 @@ const SpaceMembers = (props: Props) => {
   return (
     <Container>
       <Toaster />
-      {/* <MemberTable
-        isChecked={isChecked}
-        setIsChecked={setIsChecked}
-        members={tribe.members}
-        memberDetails={tribe.memberDetails}
-        roles={roles}
-        setRoles={setRoles}
-        entity={space}
-      /> */}
-      {/* {space.roles[user?.id as string] === 3 && (
-        <PrimaryButton
-          variant="outlined"
-          color="secondary"
-          sx={{ borderRadius: 1, width: "20%", mt: 2 }}
-          fullWidth
-          onClick={onSave}
-          loading={isLoading}
-        >
-          Save
-        </PrimaryButton>
-      )} */}
-      <SpaceRoleMapping isOpen={isOpen} handleClose={handleClose} />
       <PrimaryButton
         variant="outlined"
         color="secondary"
-        sx={{ borderRadius: 1, width: "20%", mt: 2 }}
+        size="small"
+        sx={{ borderRadius: 1, width: "20%", mt: 4, ml: 8 }}
         fullWidth
+        disabled={!space.guildId}
         onClick={() => {
           setIsOpen(true);
         }}
       >
-        Import Members from Discord
+        Set Roles from Discord
       </PrimaryButton>
+      <MemberTable
+        isChecked={isChecked}
+        setIsChecked={setIsChecked}
+        members={space.members}
+        memberDetails={space.memberDetails}
+        roles={roles}
+        setRoles={setRoles}
+        entity={space}
+      />
+      <SpaceRoleMapping isOpen={isOpen} handleClose={handleClose} />
     </Container>
   );
 };

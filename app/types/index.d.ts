@@ -29,6 +29,8 @@ export type Member = {
   votesGiven: Object<string, number>;
   votesReceived: number;
   value: number;
+  discordId: string;
+  avatar: string;
 };
 
 export type MemberStats = {
@@ -178,6 +180,10 @@ export interface BoardData {
   roles: {
     [key: string]: number;
   };
+  roleMapping: {
+    [key: string]: number;
+  };
+  userRole: number;
   epochs: Epoch[];
   _id: string;
   _createdAt: string;
@@ -241,10 +247,14 @@ export type DiscordResult = {
 export type CurrentUser = {
   avatar: string;
   createdAt: string;
-  is_discord: boolean;
+  is_discord_linked: boolean;
   objectId: string;
   tribes: string[];
   updatedAt: string;
   userId: string;
   username: string;
+  tribes: string[];
+  userId: string;
+  email: string;
+  discordId: string;
 };

@@ -10,7 +10,6 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { AnyStyledComponent } from "styled-components";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 import { ModalHeading, PrimaryButton } from "../styledComponents";
@@ -32,6 +31,7 @@ const SpaceRoleMapping = ({ isOpen, handleClose }: Props) => {
   const [stewardRoles, setStewardRoles] = useState<Role[]>([]);
   const [contributorRoles, setContributorRoles] = useState<Role[]>([]);
   const [memberRoles, setMemberRoles] = useState<Role[]>([]);
+  const [isLoading, setisLoading] = useState(false);
   const getGuildRoles = async () => {
     const res = await fetch(
       `http://localhost:3001/api/test?guildId=${space.guildId}`,
@@ -44,8 +44,14 @@ const SpaceRoleMapping = ({ isOpen, handleClose }: Props) => {
     console.log(data.roles);
   };
   useEffect(() => {
-    getGuildRoles();
-  }, []);
+    if (isOpen) {
+      getGuildRoles();
+    }
+  }, [isOpen]);
+
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
@@ -126,26 +132,19 @@ const SpaceRoleMapping = ({ isOpen, handleClose }: Props) => {
               variant="outlined"
               color="secondary"
               sx={{ borderRadius: 1 }}
+              loading={isLoading}
               fullWidth
               onClick={() => {
                 let newRoles: any = {};
+                setisLoading(true);
                 stewardRoles.forEach((role) => {
-                  newRoles[role.id as any] = {
-                    id: role.id,
-                    name: role.name,
-                  };
+                  newRoles[role.id as any] = 3;
                 });
                 contributorRoles.forEach((role) => {
-                  newRoles[role.id as any] = {
-                    id: role.id,
-                    name: role.name,
-                  };
+                  newRoles[role.id as any] = 2;
                 });
                 memberRoles.forEach((role) => {
-                  newRoles[role.id as any] = {
-                    id: role.id,
-                    name: role.name,
-                  };
+                  newRoles[role.id as any] = 1;
                 });
                 console.log(newRoles);
                 runMoralisFunction("setSpaceRoleMapping", {
@@ -153,6 +152,8 @@ const SpaceRoleMapping = ({ isOpen, handleClose }: Props) => {
                   objectId: space.objectId,
                 }).then((res) => {
                   console.log(res);
+                  setisLoading(false);
+                  handleClose();
                 });
               }}
             >

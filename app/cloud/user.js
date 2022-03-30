@@ -1,6 +1,7 @@
-async function getCreatedUser(userInfo, userId) {
+async function getCreatedUser(userInfo, userId, ethAddress) {
   userInfo.set("userId", userId);
   userInfo.set("tribes", []);
+  userInfo.set("ethAddress", ethAddress);
   return userInfo;
 }
 
@@ -28,15 +29,16 @@ async function getUserByObjId(objectId) {
 }
 
 async function getUserDetailsByUserIds(userIds) {
-  const userQuery = new Moralis.Query("User");
+  const userQuery = new Moralis.Query("UserInfo");
   const pipeline = [
-    { match: { objectId: { $in: userIds } } },
+    { match: { userId: { $in: userIds } } },
     {
       project: {
-        objectId: 1,
+        userId: 1,
         username: 1,
-        profilePicture: 1,
+        avatar: 1,
         ethAddress: 1,
+        discordId: 1,
       },
     },
   ];
@@ -47,7 +49,7 @@ async function getUserIdToUserDetailsMapByUserIds(userIds) {
   const userDetails = await getUserDetailsByUserIds(userIds);
   var userDetailsMap = {};
   for (var userDetail of userDetails)
-    userDetailsMap[userDetail.objectId] = userDetail;
+    userDetailsMap[userDetail.userId] = userDetail;
   return userDetailsMap;
 }
 
@@ -108,8 +110,11 @@ Moralis.Cloud.define("getOrCreateUser", async (request) => {
     if (!userInfo) {
       var userCount = await getUserCount();
       userInfo = new Moralis.Object("UserInfo");
-      userInfo = await getCreatedUser(userInfo, request.user.id);
-
+      userInfo = await getCreatedUser(
+        userInfo,
+        request.user.id,
+        request.user.get("ethAddress")
+      );
       request.user.set("username", `fren${userCount}`);
       await Moralis.Object.saveAll([userInfo, request.user], {
         useMasterKey: true,

@@ -19,6 +19,7 @@ const ExploreTemplate = (props: Props) => {
         flexDirection: "column",
         alignItems: "center",
         width: "100%",
+        mb: 8,
       }}
     >
       <Box

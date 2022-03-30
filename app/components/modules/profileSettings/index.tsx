@@ -32,7 +32,6 @@ const ProfileSettings = (props: Props) => {
   const {
     state: { currentUser },
   } = useGlobal();
-  console.log(currentUser);
   const handleClose = () => setIsOpen(false);
   return (
     <>
@@ -53,7 +52,7 @@ const ProfileSettings = (props: Props) => {
             <ModalContent>
               <FieldContainer>
                 <Avatar
-                  src={`https://cdn.discordapp.com/avatars/${currentUser?.userId}/${currentUser?.avatar}.png`}
+                  src={`https://cdn.discordapp.com/avatars/${currentUser?.discordId}/${currentUser?.avatar}.png`}
                   sx={{ height: 60, width: 60 }}
                 />
                 {/* <input
@@ -93,7 +92,7 @@ const ProfileSettings = (props: Props) => {
               <FieldContainer>
                 <TextField
                   placeholder="Email"
-                  value={currentUser?.EmailId}
+                  value={currentUser?.email}
                   fullWidth
                   size="small"
                   inputProps={{ readOnly: true }}

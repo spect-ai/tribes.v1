@@ -7,14 +7,13 @@ async function getCreatedDiscordUser(
   access_token,
   refresh_token
 ) {
-  userInfo.set("userId", userId);
-  userInfo.set("tribes", []);
+  userInfo.set("discordId", userId);
   userInfo.set("username", username);
   userInfo.set("avatar", avatar);
-  userInfo.set("EmailId", email);
-  userInfo.set("access_token", access_token);
-  userInfo.set("refresh_token", refresh_token);
-  userInfo.set("is_discord", true);
+  userInfo.set("email", email);
+  userInfo.set("discord_access_token", access_token);
+  userInfo.set("discord_refresh_token", refresh_token);
+  userInfo.set("is_discord_linked", true);
   return userInfo;
 }
 
@@ -24,104 +23,102 @@ async function getUserObj(userId) {
     { match: { userId: userId } },
     {
       project: {
-        access_token: 0,
-        refresh_token: 0,
+        discord_access_token: 0,
+        discord_refresh_token: 0,
       },
     },
   ];
   return await userQuery.aggregate(pipeline, { useMasterKey: true });
 }
 
-// Moralis.Cloud.define("getDiscordToken", async (request) => {
-//   const logger = Moralis.Cloud.getLogger();
-//   logger.info(`code param ${request.params.code}`);
-
-//   const params = new URLSearchParams();
-//   params.append("client_id", "942494607239958609");
-//   params.append("client_secret", "Flci7Du4jcxDxjucavVmmiTThDxzW7qE");
-//   params.append("grant_type", "authorization_code");
-//   params.append("code", request.params.code);
-//   params.append("redirect_uri", "http://localhost:3000/redirect");
-//   params.append("scope", "identify");
-//   logger.info(`params ${params}`);
-//   return Moralis.Cloud.httpRequest({
-//     method: "POST",
-//     url: "https://discord.com/api/oauth2/token",
-//     body: "client_id=942494607239958609&client_secret=Flci7Du4jcxDxjucavVmmiTThDxzW7qE&code=X8CprCIu9DaljvGW6aZ5Xg8nDmZRRJ&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fredirect&scope=identify",
-//     headers: {
-//       "Content-Type": "application/x-www-form-urlencoded",
-//     },
-//   })
-//     .then((httpResponse) => {
-//       logger.log(` httpresponse ${JSON.stringify(httpResponse)}`);
-//       logger.log(`text ${JSON.stringify(httpResponse.text)}`);
-//     })
-//     .catch((error) => {
-//       logger.info(error);
-//       throw `Error while getting Github token ${JSON.stringify(error)}`;
-//     });
-// });
-
-Moralis.Cloud.define("getOrCreateDiscordUser", async (request) => {
+Moralis.Cloud.define("linkDiscordUser", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
-    logger.info(`getOrCreateDiscordUser ${JSON.stringify(request.params)}`);
-    if (!request.params.userId) {
-      throw `No userId provided`;
+    if (!request.user) {
+      throw "User not Authenticated";
     }
-    var userInfo = await getUserByUserId(request.params.userId);
+    if (!request.params.code) {
+      throw `No code provided`;
+    }
+    logger.info(`getOrCreateDiscordUser ${JSON.stringify(request.params)}`);
+    const res = await Moralis.Cloud.httpRequest({
+      url: "http://f19d-49-207-226-235.ngrok.io/api/auth/discord/user/login",
+      params: {
+        code: request.params.code,
+      },
+    });
+    if (!res.data.userData.id) {
+      throw "Something went wrong while getting user data from discord";
+    }
+    var userInfo = await getUserByUserId(request.user.id);
     if (!userInfo) {
-      userInfo = new Moralis.Object("UserInfo");
-
-      // userInfo.set("access_token", request.params.access_token);
-      // userInfo.set("refresh_token", request.params.refresh_token);
+      throw "User not found in userinfo table";
     }
     userInfo = await getCreatedDiscordUser(
       userInfo,
-      request.params.userId,
-      request.params.username,
-      request.params.avatar,
-      request.params.email,
-      request.params.accessToken,
-      request.params.refreshToken
+      res.data.userData.id,
+      res.data.userData.username,
+      res.data.userData.avatar,
+      res.data.userData.email,
+      res.data.oauthData.access_token,
+      res.data.oauthData.refresh_token
     );
-    logger.info(
-      `userInfo ${JSON.stringify(userInfo)} ${request.params.access_token}`
-    );
-    await Moralis.Object.saveAll([userInfo], {
+    request.user.set("discordId", res.data.userData.id);
+    await Moralis.Object.saveAll([userInfo, request.user], {
       useMasterKey: true,
     });
-    const userobj = await getUserObj(request.params.userId);
+    const userobj = await getUserObj(request.user.id);
     return userobj[0];
   } catch (err) {
-    logger.error(`Error while creating team ${err}`);
-    return false;
+    logger.error(`Error while creating user ${err}`);
+    return err;
   }
 });
 
-Moralis.Cloud.define("getUserInfo", async (request) => {
-  const userobj = await getUserObj(request.params.userId);
-  return userobj[0];
-});
-
-Moralis.Cloud.define("getRefreshToken", async (request) => {
+Moralis.Cloud.define("refreshDiscordUser", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
-    var userInfo = await getUserByObjId(request.params.objectId);
-    return userInfo.get("refresh_token");
+    if (!request.user) {
+      throw "User not Authenticated";
+    }
+    var userInfo = await getUserByUserId(request.user.id);
+    if (!userInfo) {
+      throw "User not found in userinfo table";
+    }
+    if (!userInfo.get("is_discord_linked")) {
+      throw "User has not linked his discord account";
+    }
+    logger.info(`refreshDiscordUser ${JSON.stringify(request.params)}`);
+    const res = await Moralis.Cloud.httpRequest({
+      url: "http://f19d-49-207-226-235.ngrok.io/api/auth/discord/user/refresh",
+      params: {
+        refresh_token: userInfo.get("discord_refresh_token"),
+      },
+    });
+    if (!res.data.userData.id) {
+      throw "Something went wrong while refreshing user data from discord";
+    }
+    var userInfo = await getUserByUserId(request.user.id);
+    if (!userInfo) {
+      throw "User not found in userinfo table";
+    }
+    userInfo = await getCreatedDiscordUser(
+      userInfo,
+      res.data.userData.id,
+      res.data.userData.username,
+      res.data.userData.avatar,
+      res.data.userData.email,
+      res.data.oauthData.access_token,
+      res.data.oauthData.refresh_token
+    );
+    request.user.set("discordId", res.data.userData.id);
+    await Moralis.Object.saveAll([userInfo, request.user], {
+      useMasterKey: true,
+    });
+    const userobj = await getUserObj(request.user.id);
+    return userobj[0];
   } catch (err) {
-    logger.error(`Error while storing tokens ${err}`);
-    return false;
-  }
-});
-
-Moralis.Cloud.define("getAccessToken", async (request) => {
-  const logger = Moralis.Cloud.getLogger();
-  try {
-    var userInfo = await getUserByObjId(request.params.objectId);
-    return userInfo.get("access_token");
-  } catch (err) {
-    logger.error(`Error while storing tokens ${err}`);
-    return false;
+    logger.error(`Error while creating user ${err}`);
+    return err;
   }
 });

@@ -82,7 +82,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
       <Draggable
         draggableId={id}
         index={index}
-        // isDragDisabled={space.roles[user?.id as string] !== 3}
+        isDragDisabled={space.roles[user?.id as string] !== 3}
       >
         {(provided, snapshot) => (
           <Container
@@ -109,14 +109,14 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       value={columnTitle}
                       onChange={(e) => setColumnTitle(e.target.value)}
                       onBlur={updateColumn}
-                      // readOnly={space.roles[user?.id as string] !== 3}
+                      readOnly={space.roles[user?.id as string] !== 3}
                     />
                     <Box sx={{ flex: "1 1 auto" }} />
                     <IconButton
                       sx={{ mb: 0.5, p: 1 }}
                       size="small"
                       onClick={() => setIsOpen(true)}
-                      // disabled={space.roles[user?.id as string] !== 3}
+                      disabled={space.roles[user?.id as string] !== 3}
                     >
                       <SettingsIcon fontSize="small" />
                     </IconButton>

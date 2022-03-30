@@ -65,7 +65,7 @@ const TribeHeading = (props: Props) => {
         }}
       >
         {/* <Typography variant="h6">{tribe.name}</Typography> */}
-        <PrimaryButton
+        {/* <PrimaryButton
           sx={{ borderRadius: 1, my: 4, mr: 2 }}
           variant="outlined"
           color="secondary"
@@ -82,7 +82,7 @@ const TribeHeading = (props: Props) => {
           }}
         >
           Invite
-        </PrimaryButton>
+        </PrimaryButton> */}
         {/* {!(user && tribe.members?.includes(user?.id)) && (
           <PrimaryButton
             variant="outlined"

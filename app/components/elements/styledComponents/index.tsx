@@ -132,7 +132,7 @@ export const ModalHeading = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  borderBottom: "1px solid #99ccff",
+  borderBottom: "1px solid #5a6972",
   padding: 16,
   paddingLeft: 32,
 }));

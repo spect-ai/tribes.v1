@@ -98,6 +98,7 @@ const CreateTribeModal = (props: Props) => {
                 fullWidth
                 value={name}
                 onChange={(evt) => setName(evt.target.value)}
+                color="secondary"
               />
               <PrimaryButton
                 variant="outlined"

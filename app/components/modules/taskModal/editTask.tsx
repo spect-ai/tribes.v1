@@ -104,6 +104,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
     }
+    console.log(task);
   }, []);
 
   return (
@@ -179,14 +180,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
               <Tooltip title={space.memberDetails[task.reviewer[0]].username}>
                 <Avatar
                   sx={{ height: 32, width: 32 }}
-                  src={
-                    space.memberDetails[task.reviewer[0]].profilePicture
-                      ? space.memberDetails[task.reviewer[0]].profilePicture
-                          ._url
-                      : `https://www.gravatar.com/avatar/${getMD5String(
-                          task.reviewer[0]
-                        )}?d=identicon&s=32`
-                  }
+                  src={`https://cdn.discordapp.com/avatars/${
+                    space.memberDetails[task.reviewer[0]].discordId
+                  }/${space.memberDetails[task.reviewer[0]].avatar}.png`}
                 />
               </Tooltip>
             </InnerInfo>
@@ -203,14 +199,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
               <Tooltip title={space.memberDetails[task.assignee[0]]?.username}>
                 <Avatar
                   sx={{ height: 32, width: 32 }}
-                  src={
-                    space.memberDetails[task.assignee[0]].profilePicture
-                      ? space.memberDetails[task.assignee[0]].profilePicture
-                          ._url
-                      : `https://www.gravatar.com/avatar/${getMD5String(
-                          task.assignee[0]
-                        )}?d=identicon&s=32`
-                  }
+                  src={`https://cdn.discordapp.com/avatars/${
+                    space.memberDetails[task.assignee[0]].discordId
+                  }/${space.memberDetails[task.assignee[0]].avatar}.png`}
                 />
               </Tooltip>
             </InnerInfo>
@@ -303,13 +294,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
               <ListItem key={`${activity.timestamp}`}>
                 <Avatar
                   sx={{ width: 24, height: 24, mr: 2 }}
-                  src={
-                    space.memberDetails[activity.actor].profilePicture
-                      ? space.memberDetails[activity.actor].profilePicture._url
-                      : `https://www.gravatar.com/avatar/${getMD5String(
-                          space.memberDetails[activity.actor].username
-                        )}?d=identicon&s=32`
-                  }
+                  src={`https://cdn.discordapp.com/avatars/${
+                    space.memberDetails[activity.actor].discordId
+                  }/${space.memberDetails[activity.actor].avatar}.png`}
                 />
                 <ListItemText
                   primary={`${space.memberDetails[activity.actor].username} ${

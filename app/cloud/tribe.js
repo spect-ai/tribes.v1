@@ -1,14 +1,14 @@
 async function getCreatedTribe(
   tribe,
   teamId,
-  name
-  // members, // List - [objectId]
-  // roles // Object - {"userId":"role"}
+  name,
+  members, // List - [objectId]
+  roles // Object - {"userId":"role"}
 ) {
   tribe.set("teamId", teamId);
   tribe.set("name", name);
-  // tribe.set("members", members);
-  // tribe.set("roles", roles);
+  tribe.set("members", members);
+  tribe.set("roles", roles);
   tribe.set("isPublic", true);
   tribe.set("theme", 0);
   return tribe;
@@ -85,9 +85,9 @@ Moralis.Cloud.define("getTeam", async (request) => {
     const team = await getTribeObjByTeamId(request.params.teamId);
     logger.info(`getTeam ${request.params.team}`);
     if (team.length === 0) throw "Team not found";
-    // team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
-    //   team[0].members
-    // );
+    team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
+      team[0].members
+    );
     var resSpaces = [];
     for (var space of team[0].boards) {
       // if (canRead(space, request.user?.id)) {
@@ -339,12 +339,12 @@ Moralis.Cloud.define("createTribe", async (request) => {
     team = await getCreatedTribe(
       team,
       teamId,
-      request.params.name
-      // (members = [request.user.id]),
-      // roles
+      request.params.name,
+      [request.user.id],
+      roles
     );
     // Add tribe to tribe creator's user info
-    const userInfo = await getUserByUserId(request.params.userId);
+    const userInfo = await getUserByUserId(request.user.id);
 
     teamMemberships = userInfo.get("tribes").concat([teamId]);
     userInfo.set("tribes", teamMemberships);

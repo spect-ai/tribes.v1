@@ -56,13 +56,7 @@ const Overview = () => {
                     >
                       <Avatar
                         alt=""
-                        src={
-                          tribe.memberDetails[memberId].profilePicture
-                            ? tribe.memberDetails[memberId].profilePicture._url
-                            : `https://www.gravatar.com/avatar/${getMD5String(
-                                memberId
-                              )}?d=identicon&s=32`
-                        }
+                        src={`https://cdn.discordapp.com/avatars/${tribe.memberDetails[memberId].discordId}/${tribe.memberDetails[memberId].avatar}.png`}
                       />
                     </Tooltip>
                   ))}
