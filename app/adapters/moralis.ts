@@ -517,7 +517,7 @@ export function startEpoch(
   passThreshold: number
 ) {
   const durationInMilliseconds = duration * 86400000; // day => milliseconds
-  if (token.hasOwnProperty("address")) var nativeCurrencyPayment = false;
+  if (token.address !== "0x0") var nativeCurrencyPayment = false;
   else var nativeCurrencyPayment = true;
 
   const params = {

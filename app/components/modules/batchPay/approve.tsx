@@ -102,7 +102,7 @@ const Approve = ({
                           objectFit: "cover",
                           my: 1,
                         }}
-                        src={registry[chainId].tokens[address].pictureUrl}
+                        src={registry[chainId].tokens[address]?.pictureUrl}
                       >
                         {registry[chainId].tokens[address].symbol[0]}
                       </Avatar>

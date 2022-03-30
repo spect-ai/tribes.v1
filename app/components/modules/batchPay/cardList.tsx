@@ -42,10 +42,15 @@ const CardList = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const getValidCardIds = (columnId: string) => {
-    var cardIds =
-      space.columns[space.columnOrder[space.columnOrder.length - 1]].taskIds;
+    var cardIds = space.columns[columnId].taskIds;
+
     return cardIds
       .filter((a) => space.tasks[a].value > 0)
+      .filter((a) => space.tasks[a].chain?.chainId)
+      .filter(
+        (a) => space.tasks[a].chain?.chainId === window.ethereum.networkVersion
+      )
+      .filter((a) => space.tasks[a].value)
       .filter((a) => space.tasks[a].status !== 400)
       .filter((a) => space.tasks[a].status !== 300)
       .filter((a) => space.tasks[a].assignee?.length > 0) as string[];
@@ -89,10 +94,9 @@ const CardList = ({
         disableClearable
         onChange={(event, newValue) => {
           setCardColumn(newValue);
-          setCards(space.columns[newValue]?.taskIds);
-          setIsCardChecked(
-            Array(space.columns[newValue].taskIds.length).fill(true)
-          );
+          const validCardIds = getValidCardIds(newValue);
+          setCards(validCardIds);
+          setIsCardChecked(Array(validCardIds.length).fill(true));
         }}
         renderInput={(params) => (
           <TextField
