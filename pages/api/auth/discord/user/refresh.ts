@@ -18,7 +18,7 @@ export default async function handler(
       client_secret: "KlYQynvlUWjfWVlvh0BI8zfqrivf4CtC",
       refresh_token: req.query.refresh_token as string,
       grant_type: "refresh_token",
-      redirect_uri: `http://localhost:3000/`,
+      redirect_uri: `https://dev.spect.network/`,
       scope: "identify guilds guilds.members.read email",
     }),
     headers: {
