@@ -17,7 +17,7 @@ export default async function handler(
       client_secret: "KlYQynvlUWjfWVlvh0BI8zfqrivf4CtC",
       code: req.query.code as string,
       grant_type: "authorization_code",
-      redirect_uri: `https://dev.spect.network/`,
+      redirect_uri: `https://dev.spect.network/api/auth/discord/user/login`,
       scope: "identify guilds",
     }),
     headers: {
