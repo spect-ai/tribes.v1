@@ -78,7 +78,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   ) => {
     var temp = Object.assign({}, votesGiven); // Shallow copy
     temp[epochid][choiceId] = value;
-    console.log(temp);
     setVotesGiven(temp);
   };
 
