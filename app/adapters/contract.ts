@@ -40,10 +40,14 @@ export async function distributeEther(
 ) {
   let contract = getDistributorContract(chainId);
   var valuesInWei = [];
+  var contributorsWithPositiveAllocation = [];
   var totalValue = 0;
-  for (var val of values) {
-    valuesInWei.push(ethers.utils.parseEther(`${val}`));
-    totalValue += val;
+  for (let i = 0; i < values.length; i++) {
+    if (values[i] > 0) {
+      valuesInWei.push(ethers.utils.parseEther(`${values[i]}`));
+      contributorsWithPositiveAllocation.push(contributors[i]);
+      totalValue += values[i];
+    }
   }
 
   let overrides: any = {
@@ -51,7 +55,7 @@ export async function distributeEther(
   };
 
   const tx = await contract.distributeEther(
-    contributors,
+    contributorsWithPositiveAllocation,
     valuesInWei,
     taskId,
     overrides
@@ -128,7 +132,6 @@ export async function batchPayTokens(
     valuesInWei,
     taskIds
   );
-  console.log(`done`);
   return tx.wait();
 }
 
