@@ -19,5 +19,5 @@ export default async function handler(
     }
   );
   console.log(r);
-  res.redirect(state.redirect);
+  res.redirect("/");
 }

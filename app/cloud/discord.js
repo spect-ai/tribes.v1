@@ -90,7 +90,7 @@ Moralis.Cloud.define("refreshDiscordUser", async (request) => {
     }
     logger.info(`refreshDiscordUser ${JSON.stringify(request.params)}`);
     const res = await Moralis.Cloud.httpRequest({
-      url: "http://2a09-49-207-192-21.ngrok.io/api/auth/discord/user/refresh",
+      url: "https://dev.spect.network/api/auth/discord/user/refresh",
       params: {
         refresh_token: userInfo.get("discord_refresh_token"),
       },
