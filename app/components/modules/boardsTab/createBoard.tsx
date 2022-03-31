@@ -318,39 +318,39 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                     // const members = getMembers();
                     setIsLoading(true);
                     if (trelloBoard?.name) {
-                      createSpaceFromTrello(
-                        Moralis,
-                        trelloBoard.name,
-                        tribe.teamId,
-                        columnMap,
-                        columnOrder,
-                        isPrivate,
-                        members as Array<string>,
-                        trelloTasks,
-                        roles,
-                        {
-                          chain,
-                          token: token as Token,
-                          tokenLimit: parseFloat(tokenLimit),
-                        }
-                      )
-                        .then((res: any) => {
-                          if (res) {
-                            router.push(
-                              `/tribe/${tribe.teamId}/space/${res.id}`,
-                              undefined
-                            );
-                          }
-                          setIsLoading(false);
-                        })
-                        .catch((err: any) => {
-                          console.log(err);
-                          notify(
-                            "Sorry! There was an error while creating space",
-                            "error"
-                          );
-                          setIsLoading(false);
-                        });
+                      // createSpaceFromTrello(
+                      //   Moralis,
+                      //   trelloBoard.name,
+                      //   tribe.teamId,
+                      //   columnMap,
+                      //   columnOrder,
+                      //   isPrivate,
+                      //   members as Array<string>,
+                      //   trelloTasks,
+                      //   roles,
+                      //   {
+                      //     chain,
+                      //     token: token as Token,
+                      //     tokenLimit: parseFloat(tokenLimit),
+                      //   }
+                      // )
+                      //   .then((res: any) => {
+                      //     if (res) {
+                      //       router.push(
+                      //         `/tribe/${tribe.teamId}/space/${res.id}`,
+                      //         undefined
+                      //       );
+                      //     }
+                      //     setIsLoading(false);
+                      //   })
+                      //   .catch((err: any) => {
+                      //     console.log(err);
+                      //     notify(
+                      //       "Sorry! There was an error while creating space",
+                      //       "error"
+                      //     );
+                      //     setIsLoading(false);
+                      //   });
                       return;
                     }
                     initBoard(
