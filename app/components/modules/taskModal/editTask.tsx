@@ -100,6 +100,16 @@ const EditTask = ({ task, handleClose, column }: Props) => {
         setIsLoading(false);
       });
   };
+
+  const handlePaymentError = (err: any) => {
+    console.log(err);
+    if (window.ethereum.networkVersion !== task.chain.chainId)
+      notify(`Please switch to ${task.chain?.name} network`, "error");
+    else {
+      notify(err.message, "error");
+    }
+  };
+
   useEffect(() => {
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
@@ -500,7 +510,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                               handleTaskStatusUpdate([task.taskId]);
                               handleClose();
                             })
-                            .catch((err: any) => alert(err))
+                            .catch((err: any) => {
+                              handlePaymentError(err);
+                            })
                         : batchPayTokens(
                             [task.token.address as string],
                             [space.memberDetails[task.assignee[0]].ethAddress],
@@ -512,7 +524,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                               handleTaskStatusUpdate([task.taskId]);
                               handleClose();
                             })
-                            .catch((err: any) => alert(err));
+                            .catch((err: any) => {
+                              handlePaymentError(err);
+                            });
                     }}
                   >
                     <Typography sx={{ width: "50%", fontSize: 15 }}>
