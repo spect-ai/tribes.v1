@@ -168,24 +168,6 @@ const PaymentModal = ({}: Props) => {
               );
             })}
           </Stepper>
-          {activeStep === -1 && (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                p: 16,
-              }}
-            >
-              <Typography color="text.primary" sx={{ my: 2 }}>
-                No pending tasks found on the current chain
-              </Typography>
-              <Chip
-                icon={<FmdBadIcon />}
-                label={`Your default chain is ${space.defaultPayment.chain.name}`}
-              />
-            </Box>
-          )}
           {activeStep === 0 && isOpen && !isLoading && (
             <CardList
               setPaymentInfo={setPaymentInfo}
