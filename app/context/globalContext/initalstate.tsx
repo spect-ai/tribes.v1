@@ -1,13 +1,12 @@
 import Moralis from "moralis/types";
-import { Contracts, Registry } from "../../types";
+import { Contracts, CurrentUser, Registry } from "../../types";
 
 export interface State {
   loading: boolean;
   error?: Error;
   contracts?: Contracts;
-  logo?: string;
+  currentUser?: CurrentUser;
   registry: Registry;
-  title?: string;
 }
 
 export const initialState: State = {

@@ -19,6 +19,9 @@ import { getTheme } from "../../../../app/constants/muiTheme";
 import SpaceNavbar from "../../../../app/components/modules/spaceNavbar";
 import ExploreSidebar from "../../../../app/components/modules/exploreSidebar";
 import NotFound from "../../../../app/components/elements/notFound";
+import { useDiscord } from "../../../../app/hooks/useDiscord";
+import { useGlobal } from "../../../../app/context/globalContext";
+import { useMoralisFunction } from "../../../../app/hooks/useMoralisFunction";
 
 interface Props {}
 interface SpaceContextType {
@@ -39,6 +42,10 @@ const SpaceContext = createContext<SpaceContextType>({} as SpaceContextType);
 const SpacePage: NextPage<Props> = (props: Props) => {
   const { Moralis, isInitialized, user } = useMoralis();
   const context = useProviderSpace();
+  const { runMoralisFunction } = useMoralisFunction();
+  const {
+    state: { currentUser },
+  } = useGlobal();
   const { setSpace, setIsLoading, themeChanged } = context;
   const [notFound, setNotFound] = useState(false);
 
@@ -51,20 +58,26 @@ const SpacePage: NextPage<Props> = (props: Props) => {
     setTheme(createTheme(getTheme(0)));
     setIsLoading(true);
     if (isInitialized && bid) {
-      getSpace(Moralis, bid as string)
-        .then((res: BoardData) => {
-          console.log(res);
-          setSpace(res);
-          setTheme(createTheme(getTheme(res.team[0].theme)));
-          setIsLoading(false);
-        })
-        .catch((err: any) => {
-          console.log(err);
-          setNotFound(true);
-          setIsLoading(false);
-        });
+      // getSpace(Moralis, bid as string)
+      //   .then((res: BoardData) => {
+      // console.log(res);
+
+      // setSpace(res);
+      // setTheme(createTheme(getTheme(res.team[0].theme)));
+      // setIsLoading(false);
+      //   })
+      //   .catch((err: any) => {
+      //     console.log(err);
+      //     setNotFound(true);
+      //     setIsLoading(false);
+      //   });
+      runMoralisFunction("getSpace", { boardId: bid }).then((res) => {
+        console.log(res);
+        setSpace(res);
+        setIsLoading(false);
+      });
     }
-  }, [isInitialized, bid, themeChanged]);
+  }, [isInitialized, bid]);
   return (
     <>
       <Head>

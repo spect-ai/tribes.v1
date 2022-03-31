@@ -62,18 +62,6 @@ const TribeMembers = (props: Props) => {
         setRoles={setRoles}
         entity={tribe}
       />
-      {tribe.roles[user?.id as string] === 3 && (
-        <PrimaryButton
-          variant="outlined"
-          color="secondary"
-          sx={{ borderRadius: 1, width: "20%", mt: 2 }}
-          fullWidth
-          onClick={onSave}
-          loading={isLoading}
-        >
-          Save
-        </PrimaryButton>
-      )}
     </Container>
   );
 };

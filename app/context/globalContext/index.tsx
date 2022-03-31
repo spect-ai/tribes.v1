@@ -51,28 +51,11 @@ const initRegistry = async (dispatch: React.Dispatch<Action>, Moralis: any) => {
   });
 };
 
-const setNavbarLogo = async (
-  dispatch: React.Dispatch<Action>,
-  logo: string
-) => {
+const updateUser = async (dispatch: React.Dispatch<Action>, user: any) => {
   try {
     dispatch({
-      type: "SET_LOGO",
-      logo: logo,
-    });
-  } catch (error: any) {
-    dispatch({ type: "SET_ERROR", error });
-  }
-};
-
-const setNavbarTitle = async (
-  dispatch: React.Dispatch<Action>,
-  title: string
-) => {
-  try {
-    dispatch({
-      type: "SET_TITLE",
-      title: title,
+      type: "SET_USER",
+      user,
     });
   } catch (error: any) {
     dispatch({ type: "SET_ERROR", error });
@@ -90,10 +73,4 @@ const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
 const useGlobal = () => useContext(GlobalContext);
 
 export default GlobalContextProvider;
-export {
-  useGlobal,
-  initContracts,
-  setNavbarLogo,
-  setNavbarTitle,
-  initRegistry,
-};
+export { useGlobal, initContracts, initRegistry, updateUser };

@@ -195,7 +195,7 @@ const Board = ({ expanded, handleChange }: Props) => {
                 borderRadius: 1,
                 margin: "0.3rem 2rem 1rem 0rem",
               }}
-              disabled={space.roles[user?.id as string] !== 3}
+              // disabled={space.roles[user?.id as string] !== 3}
               onClick={() => {
                 const newColumnId = Object.keys(space.columns).length;
                 const tempData = Object.assign({}, space);

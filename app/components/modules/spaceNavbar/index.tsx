@@ -42,6 +42,21 @@ const SpaceNavbar = (props: Props) => {
             {space.name}
           </Link>
         </Breadcrumbs>
+        {!space.guildId && (
+          <PrimaryButton
+            variant="outlined"
+            sx={{ borderRadius: 1, ml: 2 }}
+            color="secondary"
+            onClick={() => {
+              router.push(
+                `https://discord.com/oauth2/authorize?client_id=942494607239958609&permissions=17448306704&redirect_uri=http://localhost:3000/api/auth/discord/bot&response_type=code&scope=bot&state=%7B%22objectId%22%3A%22${bid}%22%2C%22redirect%22%3A%22%2Ftribe%2F${id}%2Fspace%2F${bid}%22%7D`
+              );
+            }}
+          >
+            Connect Discord
+          </PrimaryButton>
+        )}
+        {/* https://discord.com/oauth2/authorize?client_id=942494607239958609&permissions=17448306704&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fdiscord%2Fbot%26response_type%3Dcode%26scope%3Dbot%26state%3D%7B%22objectId%22%3A%22${bid}%22%2C%22redirect%22%3A%22%2Ftribe%2F${id}%2Fspace%2F${bid}%22%7D */}
         {!space.members?.includes(user?.id as string) &&
           parseFloat(space.tokenGating?.tokenLimit) > 0 && (
             <Tooltip title="You can join space if you have enough tokens">

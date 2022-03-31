@@ -65,9 +65,9 @@ const BoardSettings = (props: Props) => {
   const { palette } = useTheme();
   useEffect(() => {
     setName(space.name);
-    setTokenGateChain(space.tokenGating?.chain);
-    setTokenGateToken(space.tokenGating?.token);
-    setTokenGateLimit(space.tokenGating?.tokenLimit);
+    // setTokenGateChain(space.tokenGating?.chain);
+    // setTokenGateToken(space.tokenGating?.token);
+    // setTokenGateLimit(space.tokenGating?.tokenLimit);
     setDefaultChain(space.defaultPayment?.chain);
     setDefaultToken(space.defaultPayment?.token);
   }, [space]);
@@ -141,7 +141,7 @@ const BoardSettings = (props: Props) => {
                   />
                 </AccordionDetails>
               </StyledAccordian>
-              <StyledAccordian disableGutters>
+              {/* <StyledAccordian disableGutters>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   Token Gating
                 </AccordionSummary>
@@ -159,7 +159,7 @@ const BoardSettings = (props: Props) => {
                     setTokenLimit={setTokenGateLimit}
                   />
                 </AccordionDetails>
-              </StyledAccordian>
+              </StyledAccordian> */}
               {/* <StyledAccordian disableGutters>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}

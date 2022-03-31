@@ -29,6 +29,8 @@ export type Member = {
   votesGiven: Object<string, number>;
   votesReceived: number;
   value: number;
+  discordId: string;
+  avatar: string;
 };
 
 export type MemberStats = {
@@ -178,6 +180,10 @@ export interface BoardData {
   roles: {
     [key: string]: number;
   };
+  roleMapping: {
+    [key: string]: number;
+  };
+  userRole: number;
   epochs: Epoch[];
   _id: string;
   _createdAt: string;
@@ -186,6 +192,7 @@ export interface BoardData {
   tokenGating: TokenGate;
   private: boolean;
   creatingEpoch: boolean;
+  guildId: string;
 }
 
 export type TokenInfo = {
@@ -219,4 +226,35 @@ export type TokenGate = {
 export type DefaultPayment = {
   chain: Chain;
   token: Token;
+};
+
+export type DiscordResult = {
+  accent_color: string;
+  avatar: string;
+  banner: string;
+  banner_color: string;
+  discriminator: string;
+  flags: number;
+  id: string;
+  locale: string;
+  mfa_enabled: boolean;
+  public_flags: number;
+  username: string;
+  email: string;
+  verified: boolean;
+};
+
+export type CurrentUser = {
+  avatar: string;
+  createdAt: string;
+  is_discord_linked: boolean;
+  objectId: string;
+  tribes: string[];
+  updatedAt: string;
+  userId: string;
+  username: string;
+  tribes: string[];
+  userId: string;
+  email: string;
+  discordId: string;
 };

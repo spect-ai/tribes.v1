@@ -6,6 +6,7 @@ import ProfileSettings from "../profileSettings";
 import { OptionsButton, SidebarPopoverContainer } from "../themePopover";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { ButtonText } from "../exploreSidebar";
+import { updateUser, useGlobal } from "../../../context/globalContext";
 
 type Props = {
   open: boolean;
@@ -17,6 +18,7 @@ const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
   const { palette } = useTheme();
   const { logout } = useMoralis();
   const router = useRouter();
+  const { dispatch } = useGlobal();
   const id = router.query.id;
   return (
     <Popover
@@ -29,16 +31,25 @@ const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
       }}
     >
       <SidebarPopoverContainer palette={palette}>
+        <OptionsButton
+          color="inherit"
+          onClick={() => {
+            router.push(
+              "https://discord.com/api/oauth2/authorize?client_id=942494607239958609&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2F&response_type=code&scope=identify%20email%20guilds.members.read%20guilds"
+            );
+          }}
+        >
+          <i className="fa-brands fa-discord"></i>
+          <ButtonText>Link Discord</ButtonText>
+        </OptionsButton>
         <ProfileSettings />
         <OptionsButton
           color="inherit"
           onClick={() => {
+            // localStorage.removeItem("objectId");
+            updateUser(dispatch, {});
             logout();
-            if (id) {
-              router.push(`/tribe/${id}`);
-            } else {
-              router.push("/");
-            }
+            router.push("/");
             handleClose();
           }}
         >

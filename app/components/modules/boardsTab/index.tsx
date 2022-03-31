@@ -18,11 +18,11 @@ const Board = (props: Props) => {
   return (
     <Container>
       {isOpen && <CreateBoard isOpen={isOpen} handleClose={handleClose} />}
-      {!tribe?.boards?.length && !(user && tribe.members.includes(user?.id)) && (
+      {/* {!tribe?.boards?.length && !(user && tribe.members.includes(user?.id)) && (
         <Typography variant="h6" color="text.primary" sx={{ width: "100%" }}>
           No spaces found
         </Typography>
-      )}
+      )} */}
       <Grid container spacing={2}>
         {tribe?.boards?.map((board: BoardData, index: number) => (
           <Grid item xs={3} key={index}>
@@ -41,16 +41,16 @@ const Board = (props: Props) => {
         ))}
 
         <Grid item xs={3}>
-          {user && tribe.roles[user.id] === 3 && (
-            <CreateBoardButton
-              variant="outlined"
-              disabled={tribe.roles[user?.id] !== 3}
-              onClick={() => setIsOpen(true)}
-            >
-              <ButtonText>Create new space</ButtonText>
-              <AddCircleOutlineIcon sx={{ color: "#eaeaea" }} />
-            </CreateBoardButton>
-          )}
+          {/* {user && tribe.roles[user.id] === 3 && ( */}
+          <CreateBoardButton
+            variant="outlined"
+            // disabled={tribe.roles[user?.id] !== 3}
+            onClick={() => setIsOpen(true)}
+          >
+            <ButtonText>Create new space</ButtonText>
+            <AddCircleOutlineIcon sx={{ color: "#eaeaea" }} />
+          </CreateBoardButton>
+          {/* )} */}
         </Grid>
       </Grid>
     </Container>

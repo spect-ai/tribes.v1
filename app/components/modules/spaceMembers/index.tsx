@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast";
 import { notify } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import MemberTable from "../../elements/memberTable";
+import SpaceRoleMapping from "../../elements/spaceRoleMapping";
 
 type Props = {};
 
@@ -20,24 +21,28 @@ const SpaceMembers = (props: Props) => {
   const [isChecked, setIsChecked] = useState([] as boolean[]);
   const [roles, setRoles] = useState({} as { [key: string]: number });
 
+  const [isOpen, setIsOpen] = useState(false);
+  const handleClose = () => setIsOpen(false);
+
   useEffect(() => {
-    getTeam(Moralis, space.teamId)
-      .then((res: Team) => {
-        setTribe(res);
-        const membersArray = res.members.map((member: string) => {
-          return space.members.indexOf(member) !== -1;
-        });
-        let roles = {};
-        res.members.map((member: string) => {
-          // @ts-ignore
-          roles[member] = space.roles[member] || 0;
-        });
-        setRoles(roles);
-        setIsChecked(membersArray);
-      })
-      .catch((err: any) => {
-        notify(`Sorry! There was an error while loading members.`, "error");
-      });
+    // getTeam(Moralis, space.teamId)
+    //   .then((res: Team) => {
+    //     setTribe(res);
+    //     const membersArray = res.members.map((member: string) => {
+    //       return space.members.indexOf(member) !== -1;
+    //     });
+    //     let roles = {};
+    //     res.members.map((member: string) => {
+    //       // @ts-ignore
+    //       roles[member] = space.roles[member] || 0;
+    //     });
+    //     setRoles(roles);
+    //     setIsChecked(membersArray);
+    //   })
+    //   .catch((err: any) => {
+    //     notify(`Sorry! There was an error while loading members.`, "error");
+    //   });
+    setRoles(space.roles);
   }, []);
 
   const onSave = () => {
@@ -73,27 +78,29 @@ const SpaceMembers = (props: Props) => {
   return (
     <Container>
       <Toaster />
+      <PrimaryButton
+        variant="outlined"
+        color="secondary"
+        size="small"
+        sx={{ borderRadius: 1, width: "20%", mt: 4, ml: 8 }}
+        fullWidth
+        disabled={!space.guildId}
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
+        Set Roles from Discord
+      </PrimaryButton>
       <MemberTable
         isChecked={isChecked}
         setIsChecked={setIsChecked}
-        members={tribe.members}
-        memberDetails={tribe.memberDetails}
+        members={space.members}
+        memberDetails={space.memberDetails}
         roles={roles}
         setRoles={setRoles}
         entity={space}
       />
-      {space.roles[user?.id as string] === 3 && (
-        <PrimaryButton
-          variant="outlined"
-          color="secondary"
-          sx={{ borderRadius: 1, width: "20%", mt: 2 }}
-          fullWidth
-          onClick={onSave}
-          loading={isLoading}
-        >
-          Save
-        </PrimaryButton>
-      )}
+      <SpaceRoleMapping isOpen={isOpen} handleClose={handleClose} />
     </Container>
   );
 };

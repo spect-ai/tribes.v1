@@ -44,8 +44,12 @@ const CardList = ({
   const getValidCardIds = (columnId: string) => {
     var cardIds =
       space.columns[space.columnOrder[space.columnOrder.length - 1]].taskIds;
+
+    console.log(cardIds);
+    console.log(space.tasks);
+    console.log(space.tasks[cardIds[0]]);
     return cardIds
-      .filter((a) => space.tasks[a].value > 0)
+      .filter((a) => console.log(space.tasks, a))
       .filter((a) => space.tasks[a].status !== 400)
       .filter((a) => space.tasks[a].status !== 300)
       .filter((a) => space.tasks[a].assignee?.length > 0) as string[];
