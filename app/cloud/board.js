@@ -91,17 +91,19 @@ async function getSpace(boardId, callerId, firstLoad = false) {
       let tribeRoles = tribe.get("roles");
 
       if (boardObj[0].roleMapping) {
-        if (res.data.userData.roles) {
+        if (res.data.userData.roles.length > 0) {
           logger.info(`board roles ${JSON.stringify(boardObj[0].roleMapping)}`);
           if (
             boardObj[0].roleMapping[
-              res.data.userData.roles[0] || boardObj[0].guildId
+              res.data.userData.roles[res.data.userData.roles.length - 1] ||
+                boardObj[0].guildId
             ]
           ) {
             logger.info(`inside role`);
             boardRoles[callerId] =
               boardObj[0].roleMapping[
-                res.data.userData.roles[0] || boardObj[0].guildId
+                res.data.userData.roles[res.data.userData.roles.length - 1] ||
+                  boardObj[0].guildId
               ];
             if (!board.get("members").includes(callerId)) {
               board.set("members", board.get("members").concat(callerId));

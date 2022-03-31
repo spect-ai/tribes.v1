@@ -50,7 +50,7 @@ interface TribeContextType {
 export const TribeContext = createContext<TribeContextType>(
   {} as TribeContextType
 );
-
+console.log("starting tribe page", new Date());
 const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();
   const { id } = router.query;

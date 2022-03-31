@@ -41,7 +41,7 @@ interface ExploreContextType {
 export const ExploreContext = createContext<ExploreContextType>(
   {} as ExploreContextType
 );
-
+console.log("starting index page", new Date());
 const Home: NextPage = () => {
   const { Moralis, isInitialized, isAuthenticated } = useMoralis();
   const context = useProviderExplore();
