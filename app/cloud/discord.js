@@ -42,7 +42,7 @@ Moralis.Cloud.define("linkDiscordUser", async (request) => {
     }
     logger.info(`getOrCreateDiscordUser ${JSON.stringify(request.params)}`);
     const res = await Moralis.Cloud.httpRequest({
-      url: "http://f19d-49-207-226-235.ngrok.io/api/auth/discord/user/login",
+      url: "https://dev.spect.network/api/auth/discord/user/login",
       params: {
         code: request.params.code,
       },
@@ -90,7 +90,7 @@ Moralis.Cloud.define("refreshDiscordUser", async (request) => {
     }
     logger.info(`refreshDiscordUser ${JSON.stringify(request.params)}`);
     const res = await Moralis.Cloud.httpRequest({
-      url: "http://f19d-49-207-226-235.ngrok.io/api/auth/discord/user/refresh",
+      url: "http://2a09-49-207-192-21.ngrok.io/api/auth/discord/user/refresh",
       params: {
         refresh_token: userInfo.get("discord_refresh_token"),
       },

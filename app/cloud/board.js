@@ -71,7 +71,7 @@ async function getSpace(boardId, callerId, firstLoad = false) {
     if (boardObj.length === 0) throw "Board not found";
     if (firstLoad) {
       const res = await Moralis.Cloud.httpRequest({
-        url: "http://f19d-49-207-226-235.ngrok.io/api/auth/discord/user/guildrole",
+        url: "https://dev.spect.network/api/auth/discord/user/guildrole",
         params: {
           access_token: userInfo.get("discord_access_token"),
           guild: boardObj[0].guildId,
