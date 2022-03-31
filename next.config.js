@@ -12,6 +12,9 @@ const nextConfig = {
   images: {
     domains: ["ipfs.moralis.io"],
   },
+  httpAgentOptions: {
+    keepAlive: false,
+  },
 };
 
 module.exports = nextConfig;
