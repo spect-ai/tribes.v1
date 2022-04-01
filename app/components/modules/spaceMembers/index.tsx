@@ -1,4 +1,4 @@
-import { useTheme } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { getTeam, updateBoardMembers } from "../../../adapters/moralis";
@@ -20,9 +20,6 @@ const SpaceMembers = (props: Props) => {
   const { Moralis, user } = useMoralis();
   const [isChecked, setIsChecked] = useState([] as boolean[]);
   const [roles, setRoles] = useState({} as { [key: string]: number });
-
-  const [isOpen, setIsOpen] = useState(false);
-  const handleClose = () => setIsOpen(false);
 
   useEffect(() => {
     // getTeam(Moralis, space.teamId)
@@ -78,19 +75,9 @@ const SpaceMembers = (props: Props) => {
   return (
     <Container>
       <Toaster />
-      <PrimaryButton
-        variant="outlined"
-        color="secondary"
-        size="small"
-        sx={{ borderRadius: 1, width: "20%", mt: 4, ml: 8 }}
-        fullWidth
-        disabled={!space.guildId}
-        onClick={() => {
-          setIsOpen(true);
-        }}
-      >
-        Set Roles from Discord
-      </PrimaryButton>
+      <Box sx={{ ml: 8 }}>
+        {space.roles[user?.id as string] === 3 && <SpaceRoleMapping />}
+      </Box>
       <MemberTable
         isChecked={isChecked}
         setIsChecked={setIsChecked}
@@ -100,7 +87,6 @@ const SpaceMembers = (props: Props) => {
         setRoles={setRoles}
         entity={space}
       />
-      <SpaceRoleMapping isOpen={isOpen} handleClose={handleClose} />
     </Container>
   );
 };

@@ -15,6 +15,7 @@ import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import {
+  ModalHeading,
   PrimaryButton,
   StyledAccordian,
 } from "../../elements/styledComponents";
@@ -98,13 +99,13 @@ const BoardSettings = (props: Props) => {
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
           <ModalContainer>
-            <Heading>
+            <ModalHeading>
               <Typography>Settings</Typography>
               <Box sx={{ flex: "1 1 auto" }} />
               <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
-            </Heading>
+            </ModalHeading>
             <ModalContent>
               <StyledAccordian disableGutters>
                 <AccordionSummary
@@ -301,18 +302,6 @@ const ModalContainer = MUIStyled(Box)(({ theme }) => ({
   boxShadow: 24,
   overflow: "auto",
   maxHeight: "calc(100% - 128px)",
-}));
-
-const Heading = MUIStyled("div")(({ theme }) => ({
-  fontWeight: 500,
-  fontSize: 16,
-  color: theme.palette.text.secondary,
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  borderBottom: "1px solid #99ccff",
-  padding: 16,
-  paddingLeft: 32,
 }));
 
 const ModalContent = MUIStyled("div")(({ theme }) => ({

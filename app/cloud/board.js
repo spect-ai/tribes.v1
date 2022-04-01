@@ -65,11 +65,9 @@ async function getSpace(boardId, callerId, firstLoad = false) {
   try {
     var userInfo = await getUserByUserId(callerId);
     let boardObj = await getBoardObjWithTasksByObjectId(boardId, callerId);
-    logger.info(`boardobj ${JSON.stringify(boardObj)}`);
-    logger.info(`guild ${boardObj[0].guildId}`);
 
     if (boardObj.length === 0) throw "Board not found";
-    if (firstLoad) {
+    if (firstLoad && callerId && userInfo.get("is_discord_linked")) {
       const res = await Moralis.Cloud.httpRequest({
         url: "https://spect-discord-bot.herokuapp.com/api/userRoles",
         params: {
@@ -607,6 +605,9 @@ Moralis.Cloud.define("updateColumnPermissions", async (request) => {
 Moralis.Cloud.define("linkDiscordToSpace", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
+    if (request.params.guild_id === "undefined") {
+      throw "Guild id not provided";
+    }
     const board = await getBoardByObjectId(request.params.objectId);
     board.set("guildId", request.params.guild_id);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
@@ -627,9 +628,9 @@ Moralis.Cloud.define("linkDiscordToSpace", async (request) => {
     return res;
   } catch (err) {
     logger.error(
-      `Error while updating board ${request.params.boardId}: ${err}`
+      `Error linking discord to space ${request.params.boardId}: ${err}`
     );
-    throw `Error while updating board ${request.params.boardId}: ${err}`;
+    throw `Error linking discord to space ${request.params.boardId}: ${err}`;
   }
 });
 

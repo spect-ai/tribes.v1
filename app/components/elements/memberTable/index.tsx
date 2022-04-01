@@ -128,7 +128,12 @@ const MemberTable = ({
     <Container>
       <MembersSection>
         <Typography color="text.secondary">Stewards</Typography>
-        <Box sx={{ display: "flex" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+          }}
+        >
           {members?.map((member, index) => {
             if (roles[member] === 3) {
               return (
@@ -146,7 +151,7 @@ const MemberTable = ({
       </MembersSection>
       <MembersSection>
         <Typography color="text.secondary">Contributors</Typography>
-        <Box sx={{ display: "flex" }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap" }}>
           {members?.map((member, index) => {
             if (roles[member] === 2) {
               return (
@@ -164,7 +169,7 @@ const MemberTable = ({
       </MembersSection>
       <MembersSection>
         <Typography color="text.secondary">Members</Typography>
-        <Box sx={{ display: "flex" }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap" }}>
           {members?.map((member, index) => {
             if (roles[member] === 1) {
               return (
@@ -196,5 +201,7 @@ const MembersSection = styled.div`
 const MemberButton = styled(PrimaryButton)<ButtonProps>(({ theme }) => ({
   color: theme.palette.getContrastText("#000f29"),
   borderRadius: 24,
+  marginRight: "0.6rem",
+  marginTop: "0.3rem",
 }));
 export default MemberTable;

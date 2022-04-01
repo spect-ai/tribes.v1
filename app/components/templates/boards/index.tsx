@@ -1,5 +1,8 @@
 import styled from "@emotion/styled";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useMoralis } from "react-moralis";
+import { useGlobal } from "../../../context/globalContext";
+import DiscordIntegrationModal from "../../modules/discordIntegrationModal";
 import TaskBoard from "../../modules/taskBoard";
 
 type Props = {};
@@ -11,8 +14,30 @@ const OuterDiv = styled.div`
 `;
 
 const BoardsTemplate = (props: Props) => {
+  const [isOpen, setisOpen] = useState(false);
+  const { isAuthenticated } = useMoralis();
+  const {
+    state: { currentUser, loading },
+  } = useGlobal();
+  const handleClose = () => {
+    setisOpen(false);
+  };
+  useEffect(() => {
+    if (!loading && isAuthenticated && !currentUser?.is_discord_linked) {
+      setisOpen(true);
+    }
+    if (currentUser?.is_discord_linked) {
+      setisOpen(false);
+    }
+  }, [isAuthenticated, loading, currentUser]);
+
   return (
     <OuterDiv>
+      <DiscordIntegrationModal
+        isOpen={isOpen}
+        handleClose={handleClose}
+        user={true}
+      />
       <TaskBoard />
     </OuterDiv>
   );

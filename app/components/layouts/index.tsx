@@ -83,6 +83,8 @@ const Layout = ({ children }: Props) => {
           console.error(err);
           updateLoading(dispatch, false);
         });
+    } else if (isInitialized && !isAuthenticated) {
+      updateLoading(dispatch, false);
     }
   }, [isInitialized, isAuthenticated]);
 
