@@ -35,7 +35,7 @@ const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
           color="inherit"
           onClick={() => {
             router.push(
-              "https://discord.com/api/oauth2/authorize?client_id=942494607239958609&redirect_uri=https%3A%2F%2Fdev.spect.network%2F&response_type=code&scope=identify%20email%20guilds.join%20guilds.members.read"
+              "https://discord.com/api/oauth2/authorize?client_id=942494607239958609&redirect_uri=https%3A%2F%2Ftribes-v1.vercel.app%2F&response_type=code&scope=identify%20email%20guilds.members.read%20guilds"
             );
           }}
         >

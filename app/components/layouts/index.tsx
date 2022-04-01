@@ -12,7 +12,6 @@ import GlobalContextProvider, {
   updateUser,
   useGlobal,
 } from "../../context/globalContext";
-import { useDiscord } from "../../hooks/useDiscord";
 import { useMoralisFunction } from "../../hooks/useMoralisFunction";
 interface Props {
   children: React.ReactNode;
@@ -52,9 +51,8 @@ const Main = styled.main`
 
 const Layout = ({ children }: Props) => {
   const { Moralis, isInitialized, user, isAuthenticated } = useMoralis();
-  const { refreshDiscordUser } = useDiscord();
   const { runMoralisFunction } = useMoralisFunction();
-  const { dispatch, state } = useGlobal();
+  const { dispatch } = useGlobal();
 
   const router = useRouter();
 

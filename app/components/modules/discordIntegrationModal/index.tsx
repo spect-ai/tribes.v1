@@ -59,12 +59,12 @@ const DiscordIntegrationModal = ({ isOpen, handleClose, user }: Props) => {
         <ModalContent>
           <Typography color="secondary" sx={{ textAlign: "center" }}>
             {user
-              ? "You need to link your discord account before you can join any space"
+              ? "You need to link your discord account before you proceed"
               : "You need to connect discord before you proceed"}
           </Typography>
           {user ? (
             <a
-              href={`https://discord.com/api/oauth2/authorize?client_id=942494607239958609&redirect_uri=https%3A%2F%2Fdev.spect.network%2F&response_type=code&scope=identify%20email%20guilds.join%20guilds.members.read`}
+              href={`https://discord.com/api/oauth2/authorize?client_id=942494607239958609&redirect_uri=https%3A%2F%2Ftribes-v1.vercel.app%2F&response_type=code&scope=identify%20email%20guilds.members.read%20guilds`}
               target="_blank"
               rel="noreferrer"
               style={{

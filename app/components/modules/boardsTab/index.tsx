@@ -6,6 +6,8 @@ import { useTribe } from "../../../../pages/tribe/[id]";
 import { useMoralis } from "react-moralis";
 import { useRouter } from "next/router";
 import { BoardData } from "../../../types";
+import { useGlobal } from "../../../context/globalContext";
+import DiscordIntegrationModal from "../discordIntegrationModal";
 
 type Props = {};
 
@@ -14,9 +16,21 @@ const Board = (props: Props) => {
   const { tribe } = useTribe();
   const { user, isAuthenticated } = useMoralis();
   const [isOpen, setIsOpen] = useState(false);
+  const [discordModalOpen, setDiscordModalOpen] = useState(false);
+  const handleDiscordModalClose = () => {
+    setDiscordModalOpen(false);
+  };
   const handleClose = () => setIsOpen(false);
+  const {
+    state: { currentUser },
+  } = useGlobal();
   return (
     <Container>
+      <DiscordIntegrationModal
+        isOpen={discordModalOpen}
+        handleClose={handleDiscordModalClose}
+        user={true}
+      />
       {isOpen && <CreateBoard isOpen={isOpen} handleClose={handleClose} />}
       {/* {!tribe?.boards?.length && !(user && tribe.members.includes(user?.id)) && (
         <Typography variant="h6" color="text.primary" sx={{ width: "100%" }}>
@@ -41,16 +55,22 @@ const Board = (props: Props) => {
         ))}
 
         <Grid item xs={3}>
-          {/* {user && tribe.roles[user.id] === 3 && ( */}
-          <CreateBoardButton
-            variant="outlined"
-            // disabled={tribe.roles[user?.id] !== 3}
-            onClick={() => setIsOpen(true)}
-          >
-            <ButtonText>Create new space</ButtonText>
-            <AddCircleOutlineIcon sx={{ color: "#eaeaea" }} />
-          </CreateBoardButton>
-          {/* )} */}
+          {user && tribe.roles[user.id] === 3 && (
+            <CreateBoardButton
+              variant="outlined"
+              disabled={tribe.roles[user?.id] !== 3}
+              onClick={() => {
+                if (isAuthenticated && !currentUser?.is_discord_linked) {
+                  setDiscordModalOpen(true);
+                } else {
+                  setIsOpen(true);
+                }
+              }}
+            >
+              <ButtonText>Create new space</ButtonText>
+              <AddCircleOutlineIcon sx={{ color: "#eaeaea" }} />
+            </CreateBoardButton>
+          )}
         </Grid>
       </Grid>
     </Container>

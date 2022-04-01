@@ -14,20 +14,20 @@ const OuterDiv = styled.div`
 `;
 
 const BoardsTemplate = (props: Props) => {
-  const [isOpen, setisOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated } = useMoralis();
   const {
     state: { currentUser, loading },
   } = useGlobal();
   const handleClose = () => {
-    setisOpen(false);
+    setIsOpen(false);
   };
   useEffect(() => {
     if (!loading && isAuthenticated && !currentUser?.is_discord_linked) {
-      setisOpen(true);
+      setIsOpen(true);
     }
     if (currentUser?.is_discord_linked) {
-      setisOpen(false);
+      setIsOpen(false);
     }
   }, [isAuthenticated, loading, currentUser]);
 

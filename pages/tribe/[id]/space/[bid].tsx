@@ -19,7 +19,6 @@ import { getTheme } from "../../../../app/constants/muiTheme";
 import SpaceNavbar from "../../../../app/components/modules/spaceNavbar";
 import ExploreSidebar from "../../../../app/components/modules/exploreSidebar";
 import NotFound from "../../../../app/components/elements/notFound";
-import { useDiscord } from "../../../../app/hooks/useDiscord";
 import { useGlobal } from "../../../../app/context/globalContext";
 import { useMoralisFunction } from "../../../../app/hooks/useMoralisFunction";
 
