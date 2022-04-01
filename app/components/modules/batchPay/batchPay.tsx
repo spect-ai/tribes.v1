@@ -145,8 +145,8 @@ const BatchPay = ({
                       Promise.all(promises).then(() => {
                         setIsLoading(false);
                         handleNextStep();
+                        notify("Payment done succesfully!");
                       });
-                      notify("Payment done succesfully!");
                     })
                     .catch((err: any) => {
                       notify(err.message, "error");
@@ -179,10 +179,7 @@ const BatchPay = ({
                       });
                     })
                     .catch((err: any) => {
-                      notify(
-                        "Error occured, possibly insufficient balance",
-                        "error"
-                      );
+                      notify(err.message, "error");
                       setIsLoading(false);
                     });
               }}

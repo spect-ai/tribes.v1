@@ -124,11 +124,19 @@ const PaymentModal = ({}: Props) => {
           >
             <Grid item xs={3}>
               <Box style={{ display: "flex" }}>
+                <Typography
+                  color="text.primary"
+                  variant="body2"
+                  marginTop="10px"
+                  marginRight="10px"
+                >
+                  Currently showing cards with rewards on
+                </Typography>
                 <Avatar
                   src={registry[window.ethereum.networkVersion]?.pictureUrl}
                   sx={{
-                    width: "2rem",
-                    height: "2rem",
+                    width: "1.5rem",
+                    height: "1.5rem",
                     objectFit: "cover",
                     my: 1,
                   }}
@@ -160,24 +168,6 @@ const PaymentModal = ({}: Props) => {
               );
             })}
           </Stepper>
-          {activeStep === -1 && (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                p: 16,
-              }}
-            >
-              <Typography color="text.primary" sx={{ my: 2 }}>
-                No pending tasks found on the current chain
-              </Typography>
-              <Chip
-                icon={<FmdBadIcon />}
-                label={`Your default chain is ${space.defaultPayment.chain.name}`}
-              />
-            </Box>
-          )}
           {activeStep === 0 && isOpen && !isLoading && (
             <CardList
               setPaymentInfo={setPaymentInfo}

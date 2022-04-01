@@ -30,7 +30,6 @@ import {
   getFlattenedNetworks,
   getFlattenedCurrencies,
 } from "../../../utils/utils";
-import { registryTemp } from "../../../constants";
 import { notify } from "../settingsTab";
 import CreateEpochTaskList from "./createEpochTaskList";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
@@ -71,7 +70,6 @@ const CreateEpoch = (props: Props) => {
   );
   const [isOpen, setIsOpen] = useState(false);
   const { palette } = useTheme();
-
   const {
     handleSubmit,
     control,
@@ -81,12 +79,12 @@ const CreateEpoch = (props: Props) => {
   } = useForm<EpochFormInput>();
 
   const [chain, setChain] = useState({
-    chainId: "80001",
-    name: "mumbai",
+    chainId: space?.defaultPayment?.chain?.chainId,
+    name: space?.defaultPayment?.chain?.name,
   } as Chain);
   const [token, setToken] = useState(
-    registryTemp["80001"].tokens[
-      "0x9c3c9283d3e44854697cd22d3faa240cfb032889"
+    registry[space?.defaultPayment?.chain?.chainId].tokens[
+      space?.defaultPayment?.token?.address
     ] as Token
   );
 
@@ -143,7 +141,6 @@ const CreateEpoch = (props: Props) => {
   };
 
   const onSubmit: SubmitHandler<EpochFormInput> = async (values) => {
-    console.log(values);
     const temp = Object.assign({}, space);
     temp.creatingEpoch = true;
     setSpace(temp);
@@ -359,7 +356,7 @@ const CreateEpoch = (props: Props) => {
                         <Controller
                           name="budgetToken"
                           control={control}
-                          defaultValue={space.defaultPayment.token}
+                          defaultValue={token}
                           render={({ field, fieldState }) => (
                             <Autocomplete
                               {...field}
@@ -367,15 +364,16 @@ const CreateEpoch = (props: Props) => {
                                 registry as Registry,
                                 chain.chainId
                               )}
+                              value={token}
                               onChange={(event, newValue) => {
-                                field.onChange(newValue);
+                                setToken(newValue as Token);
                               }}
                               getOptionLabel={(option) => option.symbol}
                               renderInput={(params) => (
                                 <TextField
                                   {...params}
                                   id="filled-hidden-label-normal"
-                                  placeholder="Network Token"
+                                  placeholder="Token"
                                   size="small"
                                 />
                               )}
@@ -387,32 +385,29 @@ const CreateEpoch = (props: Props) => {
                         <Controller
                           name="budgetChain"
                           control={control}
-                          defaultValue={space.defaultPayment.chain}
+                          defaultValue={chain}
                           render={({ field, fieldState }) => (
                             <Autocomplete
                               {...field}
                               options={getFlattenedNetworks(
-                                registryTemp as Registry
+                                registry as Registry
                               )}
+                              value={chain}
                               onChange={(event, newValue) => {
-                                field.onChange(newValue);
+                                setChain(newValue as Chain);
+                                let tokens = getFlattenedCurrencies(
+                                  registry as Registry,
+                                  newValue?.chainId as string
+                                );
+                                if (tokens.length > 0) setToken(tokens[0]);
+                                else setToken({} as Token);
                               }}
                               getOptionLabel={(option) => option.name}
-                              // value={chain}
-                              // onChange={(event, newValue) => {
-                              //   setChain(newValue as Chain);
-                              //   let tokens = getFlattenedCurrencies(
-                              //     registryTemp as Registry,
-                              //     newValue?.chainId as string
-                              //   );
-                              //   if (tokens.length > 0) setToken(tokens[0]);
-                              //   else setToken({} as Token);
-                              // }}
                               renderInput={(params) => (
                                 <TextField
                                   {...params}
                                   id="filled-hidden-label-normal"
-                                  placeholder="Network Chain"
+                                  placeholder="Network"
                                   size="small"
                                 />
                               )}
