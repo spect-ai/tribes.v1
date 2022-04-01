@@ -62,6 +62,21 @@ const updateUser = async (dispatch: React.Dispatch<Action>, user: any) => {
   }
 };
 
+const updateLoading = async (
+  dispatch: React.Dispatch<Action>,
+  loading: boolean
+) => {
+  if (loading) {
+    dispatch({
+      type: "START_ASYNC",
+    });
+  } else {
+    dispatch({
+      type: "END_ASYNC",
+    });
+  }
+};
+
 const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const value = { state, dispatch };
@@ -73,4 +88,4 @@ const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
 const useGlobal = () => useContext(GlobalContext);
 
 export default GlobalContextProvider;
-export { useGlobal, initContracts, initRegistry, updateUser };
+export { useGlobal, initContracts, initRegistry, updateUser, updateLoading };

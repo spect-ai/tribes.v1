@@ -34,7 +34,7 @@ const SpaceRoleMapping = ({ isOpen, handleClose }: Props) => {
   const [isLoading, setisLoading] = useState(false);
   const getGuildRoles = async () => {
     const res = await fetch(
-      `https://spect-discord-bot.herokuapp.com/api/test?guildId=${space.guildId}`,
+      `https://spect-discord-bot.herokuapp.com/api/guildRoles?guildId=${space.guildId}`,
       {
         method: "GET",
       }

@@ -49,7 +49,7 @@ const SpaceNavbar = (props: Props) => {
             color="secondary"
             onClick={() => {
               router.push(
-                `https://discord.com/oauth2/authorize?client_id=942494607239958609&permissions=17448306704&redirect_uri=https://dev.spect.network/api/auth/discord/bot&response_type=code&scope=bot&state=%7B%22objectId%22%3A%22${bid}%22%2C%22redirect%22%3A%22%2Ftribe%2F${id}%2Fspace%2F${bid}%22%7D`
+                `https://discord.com/oauth2/authorize?client_id=942494607239958609&permissions=17448306704&redirect_uri=https://spect-discord-bot.herokuapp.com/api/linkDiscordBot&response_type=code&scope=bot&state=%7B%22objectId%22%3A%22${bid}%22%2C%22redirect%22%3A%22%2Ftribe%2F${id}%2Fspace%2F${bid}%22%7D`
               );
             }}
           >

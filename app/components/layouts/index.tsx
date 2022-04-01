@@ -8,6 +8,7 @@ import { getTheme } from "../../constants/muiTheme";
 import GlobalContextProvider, {
   initContracts,
   initRegistry,
+  updateLoading,
   updateUser,
   useGlobal,
 } from "../../context/globalContext";
@@ -67,14 +68,21 @@ const Layout = ({ children }: Props) => {
   useEffect(() => {
     if (isInitialized && isAuthenticated) {
       console.log("initalizewd", user);
-      runMoralisFunction("refreshDiscordUser", {}).then((res) => {
-        if (res.objectId) {
-          console.log(res);
-          updateUser(dispatch, res);
-        } else {
-          console.error(res);
-        }
-      });
+      updateLoading(dispatch, true);
+      runMoralisFunction("refreshDiscordUser", {})
+        .then((res) => {
+          if (res.objectId) {
+            console.log(res);
+            updateUser(dispatch, res);
+          } else {
+            console.error(res);
+          }
+          updateLoading(dispatch, false);
+        })
+        .catch((err) => {
+          console.error(err);
+          updateLoading(dispatch, false);
+        });
     }
   }, [isInitialized, isAuthenticated]);
 

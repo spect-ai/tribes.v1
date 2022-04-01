@@ -42,7 +42,7 @@ Moralis.Cloud.define("linkDiscordUser", async (request) => {
     }
     logger.info(`getOrCreateDiscordUser ${JSON.stringify(request.params)}`);
     const res = await Moralis.Cloud.httpRequest({
-      url: "https://dev.spect.network/api/auth/discord/user/login",
+      url: "https://spect-discord-bot.herokuapp.com/api/connectDiscord",
       params: {
         code: request.params.code,
       },
@@ -70,7 +70,7 @@ Moralis.Cloud.define("linkDiscordUser", async (request) => {
     const userobj = await getUserObj(request.user.id);
     return userobj[0];
   } catch (err) {
-    logger.error(`Error while creating user ${err}`);
+    logger.error(`Error while creating user ${JSON.stringify(err)}`);
     return err;
   }
 });
@@ -90,7 +90,7 @@ Moralis.Cloud.define("refreshDiscordUser", async (request) => {
     }
     logger.info(`refreshDiscordUser ${JSON.stringify(request.params)}`);
     const res = await Moralis.Cloud.httpRequest({
-      url: "https://dev.spect.network/api/auth/discord/user/refresh",
+      url: "https://spect-discord-bot.herokuapp.com/api/refreshDiscordUser",
       params: {
         refresh_token: userInfo.get("discord_refresh_token"),
       },

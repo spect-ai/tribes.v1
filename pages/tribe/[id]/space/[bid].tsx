@@ -44,7 +44,7 @@ const SpacePage: NextPage<Props> = (props: Props) => {
   const context = useProviderSpace();
   const { runMoralisFunction } = useMoralisFunction();
   const {
-    state: { currentUser },
+    state: { currentUser, loading },
   } = useGlobal();
   const { setSpace, setIsLoading, themeChanged } = context;
   const [notFound, setNotFound] = useState(false);
@@ -57,27 +57,15 @@ const SpacePage: NextPage<Props> = (props: Props) => {
   useEffect(() => {
     setTheme(createTheme(getTheme(0)));
     setIsLoading(true);
-    if (isInitialized && bid) {
-      // getSpace(Moralis, bid as string)
-      //   .then((res: BoardData) => {
-      // console.log(res);
-
-      // setSpace(res);
-      // setTheme(createTheme(getTheme(res.team[0].theme)));
-      // setIsLoading(false);
-      //   })
-      //   .catch((err: any) => {
-      //     console.log(err);
-      //     setNotFound(true);
-      //     setIsLoading(false);
-      //   });
+    console.log(loading);
+    if (!loading && bid) {
       runMoralisFunction("getSpace", { boardId: bid }).then((res) => {
         console.log(res);
         setSpace(res);
         setIsLoading(false);
       });
     }
-  }, [isInitialized, bid]);
+  }, [loading, bid]);
   return (
     <>
       <Head>
