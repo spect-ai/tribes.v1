@@ -87,7 +87,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
     <>
       <Head>
         <title>Spect.Tribes</title>
-        <meta name="description" content="Manage DAO with ease" />
+        <meta name="description" content="Manage DAO with ease " />
         <link rel="icon" href="/logo2.svg" />
       </Head>
       <ThemeProvider theme={theme}>
