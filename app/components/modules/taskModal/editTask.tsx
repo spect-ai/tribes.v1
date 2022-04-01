@@ -8,6 +8,7 @@ import {
   IconButton,
   Typography,
   Tooltip,
+  Chip,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
@@ -49,6 +50,7 @@ import PublishIcon from "@mui/icons-material/Publish";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { approve } from "../../../adapters/contract";
 
 type Props = {
   task: Task;
@@ -64,6 +66,20 @@ const converter = new Showdown.Converter({
   tasklists: true,
 });
 
+function doShowPayButton(user: any, task: Task) {
+  if (user?.get("distributorApproved")) {
+    return (
+      task.token?.address === "0x0" ||
+      (task.chain?.chainId in user?.get("distributorApproved") &&
+        user
+          ?.get("distributorApproved")
+          [task.chain?.chainId].includes(task.token?.address))
+    );
+  } else {
+    return false;
+  }
+}
+
 const EditTask = ({ task, handleClose, column }: Props) => {
   const { space, setSpace } = useSpace();
   const { Moralis, user } = useMoralis();
@@ -71,6 +87,10 @@ const EditTask = ({ task, handleClose, column }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState({} as any);
   const [description, setDescription] = useState(task.description);
+  const [showPayButton, setShowPayButton] = useState(
+    doShowPayButton(user, task)
+  );
+
   const handleClick =
     (field: string) => (event: React.MouseEvent<HTMLButtonElement>) => {
       setAnchorEl(event.currentTarget);
@@ -100,6 +120,16 @@ const EditTask = ({ task, handleClose, column }: Props) => {
         setIsLoading(false);
       });
   };
+
+  const handlePaymentError = (err: any) => {
+    console.log(err);
+    if (window.ethereum.networkVersion !== task.chain.chainId)
+      notify(`Please switch to ${task.chain?.name} network`, "error");
+    else {
+      notify(err.message, "error");
+    }
+  };
+
   useEffect(() => {
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
@@ -226,6 +256,11 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                 {task.value} {task.token.symbol}
               </Typography>
             </InnerInfo>
+          </Info>
+        ) : null}
+        {task.status === 300 ? (
+          <Info>
+            <Chip sx={{ marginTop: "8px" }} label="Paid" color="success" />
           </Info>
         ) : null}
       </TaskModalInfoContainer>
@@ -495,10 +530,11 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     task={task}
                   />
                 )}
-                {space.roles[user?.id as string] === 3 && (
+                {space.roles[user?.id as string] === 3 && showPayButton && (
                   <TaskButton
                     variant="outlined"
                     color="secondary"
+                    disabled={task.status === 300}
                     onClick={() => {
                       task.token.symbol ===
                       registryTemp[task.chain.chainId].nativeCurrency
@@ -513,7 +549,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                               handleTaskStatusUpdate([task.taskId]);
                               handleClose();
                             })
-                            .catch((err: any) => alert(err))
+                            .catch((err: any) => {
+                              handlePaymentError(err);
+                            })
                         : batchPayTokens(
                             [task.token.address as string],
                             [space.memberDetails[task.assignee[0]].ethAddress],
@@ -525,7 +563,9 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                               handleTaskStatusUpdate([task.taskId]);
                               handleClose();
                             })
-                            .catch((err: any) => alert(err));
+                            .catch((err: any) => {
+                              handlePaymentError(err);
+                            });
                     }}
                   >
                     <Typography sx={{ width: "50%", fontSize: 15 }}>
@@ -534,11 +574,62 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                     <PaidIcon />
                   </TaskButton>
                 )}
-                {/*!task.access.creator && (
-                  <TaskButton variant="outlined" color="primary">
-                    Vote
+                {space.roles[user?.id as string] === 3 && !showPayButton && (
+                  <TaskButton
+                    variant="outlined"
+                    color="secondary"
+                    onClick={() => {
+                      if (
+                        task.chain?.chainId !== window.ethereum.networkVersion
+                      ) {
+                        handlePaymentError({});
+                      } else {
+                        approve(
+                          task.chain.chainId,
+                          task.token.address as string
+                        )
+                          .then((res: any) => {
+                            setShowPayButton(true);
+                            if (user) {
+                              if (
+                                user?.get("distributorApproved") &&
+                                task.chain.chainId in
+                                  user?.get("distributorApproved")
+                              ) {
+                                user
+                                  ?.get("distributorApproved")
+                                  [task.chain.chainId].push(
+                                    task.token.address as string
+                                  );
+                              } else if (user?.get("distributorApproved")) {
+                                user?.set("distributorApproved", {
+                                  ...user?.get("distributorApproved"),
+                                  [task.chain.chainId]: [
+                                    task.token.address as string,
+                                  ],
+                                });
+                              } else {
+                                user?.set("distributorApproved", {
+                                  [task.chain.chainId]: [
+                                    task.token.address as string,
+                                  ],
+                                });
+                              }
+                              user.save();
+                            }
+                          })
+                          .catch((err: any) => {
+                            handlePaymentError(err);
+                          });
+                      }
+                    }}
+                  >
+                    <Typography sx={{ width: "50%", fontSize: 15 }}>
+                      Approve Token
+                    </Typography>
+                    <PaidIcon />
                   </TaskButton>
-                )*/}
+                )}
                 {!task.assignee.length && (
                   <TaskButton
                     variant="outlined"

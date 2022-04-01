@@ -105,13 +105,14 @@ Moralis.Cloud.define("getOrCreateUser", async (request) => {
       userInfo = await getCreatedUser(userInfo, request.user.id);
 
       request.user.set("username", `fren${userCount}`);
+
       await Moralis.Object.saveAll([userInfo, request.user], {
         useMasterKey: true,
       });
     }
     return request.user;
   } catch (err) {
-    logger.error(`Error while creating team ${err}`);
+    logger.error(`Error while gettig user ${err}`);
     return false;
   }
 });

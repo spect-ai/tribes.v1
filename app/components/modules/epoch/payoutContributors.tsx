@@ -27,6 +27,7 @@ import { completeEpochPayment } from "../../../adapters/moralis";
 import { notify } from "../settingsTab";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { isApprovalRequired } from "../../../adapters/contract";
+import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 
 interface Props {
   epoch: Epoch;
@@ -101,31 +102,40 @@ const PayoutContributors = ({ epoch }: Props) => {
         color="secondary"
         onClick={() => {
           setIsLoading(true);
-          if (epoch.token.address === "0x0") {
-            setActiveStep(2);
+          console.log(epoch.chain.chainId);
+          console.log(window.ethereum.networkVersion);
+
+          if (epoch.chain.chainId !== window.ethereum.networkVersion) {
+            setActiveStep(-1);
             setIsLoading(false);
             setIsOpen(true);
           } else {
-            isApprovalRequired(
-              user?.get("ethAddress"),
-              epoch.token.address,
-              epoch.budget,
-              window.ethereum.networkVersion
-            ).then((reqd: boolean) => {
-              console.log(reqd);
-              if (reqd) {
-                const temp = Object.assign({}, approvalInfo);
-                temp.required = true;
-                setApprovalInfo(temp);
-                setActiveStep(0);
-                setSteps(["Approve Tokens", "Batch Pay Tokens"]);
-                setShowStepper(true);
-              } else {
-                setActiveStep(1);
-              }
+            if (epoch.token.address === "0x0") {
+              setActiveStep(2);
               setIsLoading(false);
               setIsOpen(true);
-            });
+            } else {
+              isApprovalRequired(
+                user?.get("ethAddress"),
+                epoch.token.address,
+                epoch.budget,
+                window.ethereum.networkVersion
+              ).then((reqd: boolean) => {
+                console.log(reqd);
+                if (reqd) {
+                  const temp = Object.assign({}, approvalInfo);
+                  temp.required = true;
+                  setApprovalInfo(temp);
+                  setActiveStep(0);
+                  setSteps(["Approve Tokens", "Batch Pay Tokens"]);
+                  setShowStepper(true);
+                } else {
+                  setActiveStep(1);
+                }
+                setIsLoading(false);
+                setIsOpen(true);
+              });
+            }
           }
         }}
       >
@@ -143,11 +153,19 @@ const PayoutContributors = ({ epoch }: Props) => {
           >
             <Grid item xs={3}>
               <Box style={{ display: "flex" }}>
+                <Typography
+                  color="text.primary"
+                  variant="body2"
+                  marginTop="10px"
+                  marginRight="10px"
+                >
+                  Currently on
+                </Typography>
                 <Avatar
                   src={registry[window.ethereum.networkVersion]?.pictureUrl}
                   sx={{
-                    width: "2rem",
-                    height: "2rem",
+                    width: "1.5rem",
+                    height: "1.5rem",
                     objectFit: "cover",
                     my: 1,
                   }}
@@ -180,6 +198,26 @@ const PayoutContributors = ({ epoch }: Props) => {
                 );
               })}
             </Stepper>
+          )}
+          {activeStep === -1 && isOpen && !isLoading && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                p: 16,
+              }}
+            >
+              <Typography color="text.primary" sx={{ my: 2 }}>
+                {`Please change your network to pay for this epoch`}
+              </Typography>
+              <Chip
+                icon={<ChangeCircleIcon />}
+                label={`Connect to ${
+                  registry[epoch.chain.chainId]?.name
+                } network`}
+              />
+            </Box>
           )}
           {activeStep === 0 && isOpen && !isLoading && (
             <Approve

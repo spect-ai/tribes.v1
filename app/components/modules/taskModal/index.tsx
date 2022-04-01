@@ -6,6 +6,7 @@ import { getTask } from "../../../adapters/moralis";
 import { Column, Task } from "../../../types";
 import { notify } from "../settingsTab";
 import EditTask from "./editTask";
+import EditTaskNew from "./editTaskNew";
 import SkeletonLoader from "./skeletonLoader";
 
 type Props = {
@@ -64,7 +65,7 @@ const TaskModal = ({ isOpen, handleClose, taskId, column }: Props) => {
 
 const taskModalStyle = {
   position: "absolute" as "absolute",
-  top: "50%",
+  top: "40%",
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "fit-content",

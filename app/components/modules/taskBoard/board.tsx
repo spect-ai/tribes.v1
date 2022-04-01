@@ -50,7 +50,7 @@ const Board = ({ expanded, handleChange }: Props) => {
         space.roles[user?.id as string] === 3
       )
     ) {
-      notify("Sorry! You don't have access to this task", "error");
+      notify("Looks like you don't have access to move this task", "error");
       return;
     }
     if (

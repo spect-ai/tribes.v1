@@ -141,9 +141,6 @@ const CreateEpoch = (props: Props) => {
   };
 
   const onSubmit: SubmitHandler<EpochFormInput> = async (values) => {
-    console.log(`values`);
-
-    console.log(values);
     const temp = Object.assign({}, space);
     temp.creatingEpoch = true;
     setSpace(temp);
@@ -153,7 +150,6 @@ const CreateEpoch = (props: Props) => {
     values.type === "Member" &&
       members.length <= 1 &&
       notify("At least 2 members required", "error");
-    console.log(token);
     startEpoch(
       Moralis,
       space.teamId,
@@ -165,8 +161,8 @@ const CreateEpoch = (props: Props) => {
       members as Member[],
       choices,
       values.budgetValue as number,
-      values.budgetToken,
-      values.budgetChain,
+      token,
+      chain,
       parseInt(passThreshold)
     )
       .then((res: any) => {
@@ -360,7 +356,7 @@ const CreateEpoch = (props: Props) => {
                         <Controller
                           name="budgetToken"
                           control={control}
-                          defaultValue={space.defaultPayment.token}
+                          defaultValue={token}
                           render={({ field, fieldState }) => (
                             <Autocomplete
                               {...field}
@@ -368,15 +364,16 @@ const CreateEpoch = (props: Props) => {
                                 registry as Registry,
                                 chain.chainId
                               )}
+                              value={token}
                               onChange={(event, newValue) => {
-                                field.onChange(newValue);
+                                setToken(newValue as Token);
                               }}
                               getOptionLabel={(option) => option.symbol}
                               renderInput={(params) => (
                                 <TextField
                                   {...params}
                                   id="filled-hidden-label-normal"
-                                  placeholder="Network Token"
+                                  placeholder="Token"
                                   size="small"
                                 />
                               )}
@@ -388,22 +385,29 @@ const CreateEpoch = (props: Props) => {
                         <Controller
                           name="budgetChain"
                           control={control}
-                          defaultValue={space.defaultPayment.chain}
+                          defaultValue={chain}
                           render={({ field, fieldState }) => (
                             <Autocomplete
                               {...field}
                               options={getFlattenedNetworks(
                                 registry as Registry
                               )}
+                              value={chain}
                               onChange={(event, newValue) => {
-                                field.onChange(newValue);
+                                setChain(newValue as Chain);
+                                let tokens = getFlattenedCurrencies(
+                                  registry as Registry,
+                                  newValue?.chainId as string
+                                );
+                                if (tokens.length > 0) setToken(tokens[0]);
+                                else setToken({} as Token);
                               }}
                               getOptionLabel={(option) => option.name}
                               renderInput={(params) => (
                                 <TextField
                                   {...params}
                                   id="filled-hidden-label-normal"
-                                  placeholder="Network Chain"
+                                  placeholder="Network"
                                   size="small"
                                 />
                               )}
