@@ -116,18 +116,6 @@ Moralis.Cloud.define("getOrCreateUser", async (request) => {
         request.user.get("ethAddress")
       );
       request.user.set("username", `fren${userCount}`);
-      request.user.set("distributorApproved", {
-        1: [],
-        4: [],
-        137: [],
-        80001: [],
-        43113: [],
-        43114: [],
-        250: [],
-        42161: [],
-        100: [],
-        10: [],
-      });
 
       await Moralis.Object.saveAll([userInfo, request.user], {
         useMasterKey: true,
