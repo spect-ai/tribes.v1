@@ -66,6 +66,20 @@ const converter = new Showdown.Converter({
   tasklists: true,
 });
 
+function doShowPayButton(user: any, task: Task) {
+  if (user?.get("distributorApproved")) {
+    return (
+      task.token?.address === "0x0" ||
+      (task.chain?.chainId in user?.get("distributorApproved") &&
+        user
+          ?.get("distributorApproved")
+          [task.chain?.chainId].includes(task.token?.address))
+    );
+  } else {
+    return false;
+  }
+}
+
 const EditTask = ({ task, handleClose, column }: Props) => {
   const { space, setSpace } = useSpace();
   const { Moralis, user } = useMoralis();
@@ -74,10 +88,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
   const [open, setOpen] = useState({} as any);
   const [description, setDescription] = useState(task.description);
   const [showPayButton, setShowPayButton] = useState(
-    task.chain.chainId in user?.get("distributorApproved") &&
-      user
-        ?.get("distributorApproved")
-        [task.chain?.chainId].includes(task.token?.address)
+    doShowPayButton(user, task)
   );
 
   const handleClick =
@@ -581,17 +592,24 @@ const EditTask = ({ task, handleClose, column }: Props) => {
                             setShowPayButton(true);
                             if (user) {
                               if (
+                                user?.get("distributorApproved") &&
                                 task.chain.chainId in
-                                user?.get("distributorApproved")
+                                  user?.get("distributorApproved")
                               ) {
                                 user
-                                  .get("distributorApproved")
+                                  ?.get("distributorApproved")
                                   [task.chain.chainId].push(
                                     task.token.address as string
                                   );
-                              } else {
-                                user.set("distributorApproved", {
+                              } else if (user?.get("distributorApproved")) {
+                                user?.set("distributorApproved", {
                                   ...user?.get("distributorApproved"),
+                                  [task.chain.chainId]: [
+                                    task.token.address as string,
+                                  ],
+                                });
+                              } else {
+                                user?.set("distributorApproved", {
                                   [task.chain.chainId]: [
                                     task.token.address as string,
                                   ],
