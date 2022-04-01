@@ -89,7 +89,7 @@ async function getSpace(boardId, callerId, firstLoad = false) {
       let tribeRoles = tribe.get("roles");
 
       if (boardObj[0].roleMapping) {
-        if (res.data.userData.roles.length > 0) {
+        if (res.data.userData.roles) {
           logger.info(`board roles ${JSON.stringify(boardObj[0].roleMapping)}`);
           if (
             boardObj[0].roleMapping[
