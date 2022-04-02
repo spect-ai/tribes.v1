@@ -61,6 +61,18 @@ async function getEssentialBoardObjByTeamId(teamId) {
   return await boardQuery.aggregate(pipeline);
 }
 
+function getUserRole(roles, roleMapping) {
+  if (!roles) return false;
+  var userRole = null;
+  for (var i = 0; i < roles.length; i++) {
+    if (roleMapping[roles[i]]) {
+      userRole = roleMapping[roles[i]];
+      break;
+    }
+  }
+  return userRole;
+}
+
 async function getSpace(boardId, callerId, firstLoad = false) {
   try {
     var userInfo = await getUserByUserId(callerId);
@@ -71,54 +83,48 @@ async function getSpace(boardId, callerId, firstLoad = false) {
       const res = await Moralis.Cloud.httpRequest({
         url: "https://spect-discord-bot.herokuapp.com/api/userRoles",
         params: {
-          access_token: userInfo.get("discord_access_token"),
-          guild: boardObj[0].guildId,
+          userId: userInfo.get("discordId"),
+          guildId: boardObj[0].guildId,
         },
       });
       logger.info(
         `----------------------------------------------- ${JSON.stringify(
-          res.data?.userData
+          res.data.guildRoles
         )}`
       );
-      if (!res.data?.userData) {
+      if (!res.data) {
         throw "Something went wrong while getting user data from discord";
       }
       const board = await getBoardByObjectId(boardId);
       const tribe = await getTribeByTeamId(board.get("teamId"));
       let boardRoles = board.get("roles");
       let tribeRoles = tribe.get("roles");
-
+      logger.info(`role mapping ${JSON.stringify(boardObj[0].roleMapping)}`);
       if (boardObj[0].roleMapping) {
-        if (res.data.userData.roles) {
-          logger.info(`board roles ${JSON.stringify(boardObj[0].roleMapping)}`);
-          if (
-            boardObj[0].roleMapping[
-              res.data.userData.roles[res.data.userData.roles.length - 1] ||
-                boardObj[0].guildId
-            ]
-          ) {
-            logger.info(`inside role`);
-            boardRoles[callerId] =
-              boardObj[0].roleMapping[
-                res.data.userData.roles[res.data.userData.roles.length - 1] ||
-                  boardObj[0].guildId
-              ];
-            if (!board.get("members").includes(callerId)) {
-              board.set("members", board.get("members").concat(callerId));
-            }
-            if (!tribe.get("members").includes(callerId)) {
-              tribe.set("members", tribe.get("members").concat(callerId));
-              tribeRoles[callerId] = 1;
-              tribe.set("roles", tribeRoles);
-              userInfo.set(
-                "tribes",
-                userInfo.get("tribes").concat(tribe.get("teamId"))
-              );
-            }
-            board.set("roles", boardRoles);
+        const userRole = getUserRole(
+          res.data.guildRoles,
+          boardObj[0].roleMapping
+        );
+        if (userRole) {
+          boardRoles[callerId] = userRole;
+          logger.info(`userRole ${userRole}`);
+          if (!board.get("members").includes(callerId)) {
+            board.set("members", board.get("members").concat(callerId));
           }
+          if (!tribe.get("members").includes(callerId)) {
+            tribe.set("members", tribe.get("members").concat(callerId));
+            tribeRoles[callerId] = 1;
+            tribe.set("roles", tribeRoles);
+            userInfo.set(
+              "tribes",
+              userInfo.get("tribes").concat(tribe.get("teamId"))
+            );
+          }
+          board.set("roles", boardRoles);
         } else {
+          logger.info("inside else");
           if (board.get("members").includes(callerId)) {
+            logger.info("inside if inside else");
             board.set(
               "members",
               board.get("members").filter((x) => x !== callerId)

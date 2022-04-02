@@ -53,17 +53,25 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
     setIsFetching(false);
     setRoles(data.roles);
     const roleMapping = space.roleMapping;
+    console.log({ roleMapping });
+    var a: any = [],
+      b: any = [],
+      c: any = [];
     if (space.roleMapping) {
       data.roles.forEach((role: any) => {
         if (space.roleMapping[role.id] === 3) {
-          setStewardRoles([...stewardRoles, role]);
+          a.push(role);
         } else if (space.roleMapping[role.id] === 2) {
-          setContributorRoles([...contributorRoles, role]);
+          b.push(role);
         } else if (space.roleMapping[role.id] === 1) {
-          setMemberRoles([...memberRoles, role]);
+          c.push(role);
         }
       });
+      setStewardRoles(a);
+      setContributorRoles(b);
+      setMemberRoles(c);
     }
+    console.log({ a, b, c });
   };
   useEffect(() => {
     if (isOpen) {
