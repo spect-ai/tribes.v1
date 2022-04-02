@@ -28,7 +28,8 @@ const TaskBoard = (props: Props) => {
   };
 
   useEffect(() => {
-    if (!isLoading && !space.guildId) {
+    console.log(space);
+    if (!isLoading && !space.guildId && space.roles[user?.id as string] === 3) {
       setIsOpen(true);
     }
   }, [isLoading]);

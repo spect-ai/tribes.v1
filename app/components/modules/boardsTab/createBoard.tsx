@@ -67,13 +67,6 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   );
   const [roles, setRoles] = useState(tribe.roles as { [key: string]: number });
   const [isPrivate, setIsPrivate] = useState(false);
-  const [trelloBoardId, setTrelloBoardId] = useState("");
-  const [columnMap, setColumnMap] = useState({});
-  const [columnOrder, setColumnOrder] = useState([]);
-  const [trelloBoard, setTrelloBoard] = useState<any>({} as any);
-  const [trelloTasks, setTrelloTasks] = useState([]);
-
-  const [isFetching, setIsFetching] = useState(false);
 
   const toggleCheckboxValue = (index: number) => {
     setIsChecked(isChecked.map((v, i) => (i === index ? !v : v)));
@@ -315,44 +308,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                   color="secondary"
                   sx={{ borderRadius: 1 }}
                   onClick={() => {
-                    // const members = getMembers();
                     setIsLoading(true);
-                    if (trelloBoard?.name) {
-                      // createSpaceFromTrello(
-                      //   Moralis,
-                      //   trelloBoard.name,
-                      //   tribe.teamId,
-                      //   columnMap,
-                      //   columnOrder,
-                      //   isPrivate,
-                      //   members as Array<string>,
-                      //   trelloTasks,
-                      //   roles,
-                      //   {
-                      //     chain,
-                      //     token: token as Token,
-                      //     tokenLimit: parseFloat(tokenLimit),
-                      //   }
-                      // )
-                      //   .then((res: any) => {
-                      //     if (res) {
-                      //       router.push(
-                      //         `/tribe/${tribe.teamId}/space/${res.id}`,
-                      //         undefined
-                      //       );
-                      //     }
-                      //     setIsLoading(false);
-                      //   })
-                      //   .catch((err: any) => {
-                      //     console.log(err);
-                      //     notify(
-                      //       "Sorry! There was an error while creating space",
-                      //       "error"
-                      //     );
-                      //     setIsLoading(false);
-                      //   });
-                      return;
-                    }
                     initBoard(
                       Moralis,
                       name,

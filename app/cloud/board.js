@@ -176,6 +176,12 @@ function getBoardObjFromBoardParseObj(board) {
   };
 }
 
+function handleImportTasks(board, columnMap, columnOrder) {
+  board.set("columns", columnMap);
+  board.set("columnOrder", columnOrder);
+  return board;
+}
+
 function handleCreateBoard(
   board,
   name,
@@ -184,8 +190,8 @@ function handleCreateBoard(
   columnOrder,
   isPrivate,
   members,
-  roles
-  // tokenGating
+  roles,
+  tokenGating
 ) {
   board.set("name", name);
   board.set("teamId", teamId);
@@ -206,7 +212,7 @@ function handleCreateBoard(
   // TODO: Make this customizable
   board.set("members", members);
   board.set("roles", roles);
-  // board.set("tokenGating", tokenGating);
+  board.set("tokenGating", tokenGating);
   return board;
 }
 
@@ -284,58 +290,36 @@ Moralis.Cloud.define("initBoard", async (request) => {
   }
 });
 
-Moralis.Cloud.define("createSpaceFromTrello", async (request) => {
+Moralis.Cloud.define("importTasksFromTrello", async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();
-    const team = await getTribeByTeamId(request.params.teamId);
-    logger.info(JSON.stringify(team));
-    if (isMember(request.user.id, team)) {
-      // for (let i = 0; i < initColumns.length; i++) {
-      //   var columnId = `column-${i}`;
-      //   columnIds.push(columnId);
-      //   columnIdToColumnMap[columnIds[i]] = {
-      //     id: columnId,
-      //     title: initColumns[i],
-      //     taskIds: [],
-      //     cardType: 1,
-      //     createCard: { 0: false, 1: false, 2: true, 3: true },
-      //     moveCard: { 0: false, 1: false, 2: true, 3: true },
-      //   };
-      // }
-      var board = new Moralis.Object("Board");
-      board = handleCreateBoard(
-        board,
-        request.params.name,
-        request.params.teamId,
-        request.params.columnMap,
-        request.params.columnOrder,
-        request.params.isPrivate,
-        request.params.members,
-        request.params.roles,
-        request.params.tokenGating
+    let board = await getBoardByObjectId(request.params.boardId);
+    board = handleImportTasks(
+      board,
+      request.params.columnMap,
+      request.params.columnOrder
+    );
+    await Moralis.Object.saveAll([board], { useMasterKey: true });
+
+    logger.info(`importing trello ${JSON.stringify(board)}`);
+    // board = await board.save({ useMasterKey: true });
+
+    for (let i = 0; i < request.params.tasks.length; i++) {
+      var task = new Moralis.Object("Task");
+      logger.info(request.params.tasks[i].title);
+      task = handleCreateTask(
+        task,
+        request.params.tasks[i].id, // need to fix this, duplicate tasks are being created with trello id
+        board.get("defaultPayment"),
+        request.params.boardId,
+        request.params.tasks[i].title,
+        request.params.tasks[i].value,
+        request.user.id,
+        request.params.tasks[i].description
       );
-      await Moralis.Object.saveAll([board], { useMasterKey: true });
-
-      logger.info(`Creating new board ${JSON.stringify(board)}`);
-      // board = await board.save({ useMasterKey: true });
-
-      for (let i = 0; i < request.params.tasks.length; i++) {
-        var task = new Moralis.Object("Task");
-        logger.info(request.params.tasks[i].title);
-        task = handleCreateTask(
-          task,
-          request.params.tasks[i].id, // need to fix this, duplicate tasks are being created with trello id
-          board.get("defaultPayment"),
-          board.id,
-          request.params.tasks[i].title,
-          request.params.tasks[i].value,
-          request.user.id,
-          request.params.tasks[i].description
-        );
-        await Moralis.Object.saveAll([task], { useMasterKey: true });
-      }
-      return board;
+      await Moralis.Object.saveAll([task], { useMasterKey: true });
     }
+    return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
     logger.error(
       `Error while creating space from trello ${request.params.teamId}: ${err}`
@@ -611,50 +595,22 @@ Moralis.Cloud.define("linkDiscordToSpace", async (request) => {
     const board = await getBoardByObjectId(request.params.objectId);
     board.set("guildId", request.params.guild_id);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    const boardQuery = new Moralis.Query("Board");
-    const pipeline = [
-      { match: { objectId: request.params.objectId } },
-      {
-        lookup: {
-          from: "Team",
-          localField: "teamId",
-          foreignField: "teamId",
-          as: "team",
-        },
-      },
-    ];
-
-    var res = await boardQuery.aggregate(pipeline, { useMasterKey: true });
-    return res;
+    return true;
   } catch (err) {
     logger.error(
       `Error linking discord to space ${request.params.boardId}: ${err}`
     );
-    throw `Error linking discord to space ${request.params.boardId}: ${err}`;
+    return false;
   }
 });
 
 Moralis.Cloud.define("setSpaceRoleMapping", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
-    const board = await getBoardByObjectId(request.params.objectId);
+    const board = await getBoardByObjectId(request.params.boardId);
     board.set("roleMapping", request.params.roleMapping);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    const boardQuery = new Moralis.Query("Board");
-    const pipeline = [
-      { match: { objectId: request.params.objectId } },
-      {
-        lookup: {
-          from: "Team",
-          localField: "teamId",
-          foreignField: "teamId",
-          as: "team",
-        },
-      },
-    ];
-
-    var res = await boardQuery.aggregate(pipeline, { useMasterKey: true });
-    return res;
+    return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
     logger.error(
       `Error while updating board ${request.params.boardId}: ${err}`

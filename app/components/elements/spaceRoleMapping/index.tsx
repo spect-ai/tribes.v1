@@ -35,7 +35,12 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
   const [isLoading, setisLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
-  const handleClose = () => setIsOpen(false);
+  const handleClose = () => {
+    setIsOpen(false);
+    setStewardRoles([]);
+    setContributorRoles([]);
+    setMemberRoles([]);
+  };
   const getGuildRoles = async () => {
     setIsFetching(true);
     const res = await fetch(
@@ -47,11 +52,8 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
     const data = await res.json();
     setIsFetching(false);
     setRoles(data.roles);
-    console.log(data.roles);
-    console.log(space);
+    const roleMapping = space.roleMapping;
     if (space.roleMapping) {
-      console.log(space.roleMapping);
-      console.log("hi");
       data.roles.forEach((role: any) => {
         if (space.roleMapping[role.id] === 3) {
           setStewardRoles([...stewardRoles, role]);
@@ -64,7 +66,9 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
     }
   };
   useEffect(() => {
-    getGuildRoles();
+    if (isOpen) {
+      getGuildRoles();
+    }
   }, [isOpen]);
   return (
     <>
@@ -196,9 +200,10 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
                     console.log(newRoles);
                     runMoralisFunction("setSpaceRoleMapping", {
                       roleMapping: newRoles,
-                      objectId: space.objectId,
+                      boardId: space.objectId,
                     }).then((res) => {
                       console.log(res);
+                      setSpace(res);
                       setisLoading(false);
                       if (handleModalClose) {
                         handleClose();
