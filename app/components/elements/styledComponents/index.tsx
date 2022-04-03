@@ -29,6 +29,7 @@ export const CardButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
   color: theme.palette.text.primary,
   textTransform: "none",
   marginBottom: "6px",
+  marginRight: "5px",
 }));
 
 type BProps = {

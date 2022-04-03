@@ -57,31 +57,29 @@ const DatePopover = ({ task }: Props) => {
           Due Date
         </Typography>
         <CardButton
-          variant="contained"
+          variant="outlined"
           onClick={handleClick()}
+          color="secondary"
           sx={{
-            backgroundColor: "#2e2f59",
             padding: "6px",
+            minWidth: "3rem",
           }}
         >
           <Avatar
             variant="rounded"
-            sx={{ p: 0.1, mr: 2, width: 20, height: 20 }}
+            sx={{
+              p: 0.1,
+              mr: 2,
+              width: 20,
+              height: 20,
+              backgroundColor: "transparent",
+            }}
           >
-            <DateRangeIcon
-              sx={{ backgroundColor: "#2e2f59", color: "text.primary" }}
-            />
+            <DateRangeIcon sx={{ color: "text.primary" }} />
           </Avatar>
           <Typography
             sx={{
               fontSize: 14,
-              maxWidth: "10rem",
-              minWidth: "3rem",
-              minHeight: "1.3rem",
-              maxHeight: "1.3rem",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              fontWeight: "100",
             }}
           >
             {task.deadline ? (

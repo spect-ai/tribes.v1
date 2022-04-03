@@ -1,4 +1,4 @@
-import { Box, Fade, Modal } from "@mui/material";
+import { Box, Fade, Modal, styled } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
@@ -39,7 +39,7 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
     <div>
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Fade in={isOpen} timeout={500}>
-          <Box sx={cardModalStyle}>
+          <ModalContainer>
             {loading ? (
               <SkeletonLoader />
             ) : (
@@ -55,24 +55,26 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
                 </div>
               </Fade>
             )}
-          </Box>
+          </ModalContainer>
         </Fade>
       </Modal>
     </div>
   );
 };
 
-const cardModalStyle = {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
   position: "absolute" as "absolute",
-  top: "40%",
+  top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "fit-content",
-  bgcolor: "background.paper",
+  width: "55rem",
+  border: "2px solid #000",
+  backgroundColor: theme.palette.background.default,
   boxShadow: 24,
-  p: 4,
   overflow: "auto",
-  maxHeight: "calc(100% - 128px)",
-};
+  maxHeight: "40rem",
+  padding: "1.5rem",
+}));
 
 export default CardModal;

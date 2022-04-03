@@ -47,6 +47,10 @@ import CardTypePopover from "./cardTypePopover";
 import LabelPopover from "./labelPopover";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
+import dynamic from "next/dynamic";
+let BlockEditor = dynamic(() => import("../blockEditor"), {
+  ssr: false,
+});
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
@@ -136,65 +140,31 @@ const TaskCard = ({ task, handleClose, column }: Props) => {
           readOnly={!(task.access.creator || task.access.reviewer)}
         />
         <Box sx={{ flex: "1 1 auto" }} />
-        <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
+        {/* <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <ExpandMoreIcon />
         </IconButton>
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <OpenInFullIcon />
-        </IconButton>
+        </IconButton> */}
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>
-      <TaskModalInfoContainer>
+      <Box sx={{ width: "fit-content" }}>
+        <CardTypePopover task={task} />
+      </Box>
+      <Box sx={{ display: "flex", flexWrap: "wrap" }}>
         <MemberPopover type={"reviewer"} task={task} />
         <MemberPopover type={"assignee"} task={task} />
         <RewardPopover task={task} />
         <DatePopover task={task} />
         <LabelPopover task={task} />
-        <CardTypePopover task={task} />
-      </TaskModalInfoContainer>
+      </Box>
       <TaskModalBodyContainer>
-        <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
+        <Divider textAlign="left" sx={{ mr: 3, color: "#99ccff" }}>
           Description
         </Divider>{" "}
-        <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
-          <ReactMde
-            value={description}
-            onChange={(value) => setDescription(value)}
-            selectedTab={selectedTab}
-            onTabChange={setSelectedTab}
-            generateMarkdownPreview={(markdown) =>
-              Promise.resolve(converter.makeHtml(markdown))
-            }
-            childProps={{
-              writeButton: {
-                tabIndex: -1,
-              },
-            }}
-            readOnly={!(task.access.creator || task.access.reviewer)}
-          />
-          {(task.access.creator || task.access.reviewer) && (
-            <PrimaryButton
-              variant="outlined"
-              sx={{ mt: 4, borderRadius: 1 }}
-              color="secondary"
-              size="small"
-              loading={isLoading}
-              onClick={() => {
-                setIsLoading(true);
-                updateTaskDescription(Moralis, description, task.taskId).then(
-                  (res: BoardData) => {
-                    setSpace(res);
-                    setIsLoading(false);
-                  }
-                );
-              }}
-            >
-              Save
-            </PrimaryButton>
-          )}
-        </Box>
+        <BlockEditor />
       </TaskModalBodyContainer>
 
       <ActivityContainer>
@@ -235,7 +205,7 @@ const TaskModalTitleContainer = styled.div`
 
 const TaskModalBodyContainer = styled.div`
   margin-top: 2px;
-  color: #99ccff;
+  color: #eaeaea;
   font-size: 0.85rem;
 `;
 
@@ -247,16 +217,9 @@ const ActivityContainer = styled.div`
   overflow-y: auto;
 `;
 
-const TaskModalInfoContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  width: 70rem;
-  height: 35rem;
 `;
 
 export default TaskCard;

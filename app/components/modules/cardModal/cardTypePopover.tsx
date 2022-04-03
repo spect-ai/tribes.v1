@@ -52,32 +52,22 @@ const CardTypePopover = ({ task }: Props) => {
           mx: 1,
         }}
       >
-        <Typography
-          sx={{ fontSize: 12, color: "text.secondary", width: "100%" }}
-        >
-          Type
-        </Typography>
         <CardButton
-          variant="contained"
+          variant="outlined"
           onClick={handleClick()}
+          color="secondary"
+          size="small"
           sx={{
-            backgroundColor: "#2e2f59",
-            padding: "6px",
-            maxWidth: "8rem",
+            padding: "2px",
+            minWidth: "3rem",
           }}
         >
           <Typography
             sx={{
               fontSize: 14,
-              maxWidth: "6rem",
-              minWidth: "3rem",
-              minHeight: "1.3rem",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              fontWeight: "100",
             }}
           >
-            {type}
+            {type || "Task"}
           </Typography>
         </CardButton>
       </Box>

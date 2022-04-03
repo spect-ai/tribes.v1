@@ -1,4 +1,4 @@
-import { Box, Fade, Modal } from "@mui/material";
+import { Box, Fade, Modal, styled } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
@@ -6,7 +6,7 @@ import { getTask } from "../../../adapters/moralis";
 import { Column, Task } from "../../../types";
 import { notify } from "../settingsTab";
 import EditTask from "./editTask";
-import EditTaskNew from "./editTaskNew";
+// import EditTaskNew from "./editTaskNew";
 import SkeletonLoader from "./skeletonLoader";
 
 type Props = {
@@ -40,7 +40,7 @@ const TaskModal = ({ isOpen, handleClose, taskId, column }: Props) => {
     <div>
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Fade in={isOpen} timeout={500}>
-          <Box sx={taskModalStyle}>
+          <ModalContainer>
             {loading ? (
               <SkeletonLoader />
             ) : (
@@ -56,24 +56,25 @@ const TaskModal = ({ isOpen, handleClose, taskId, column }: Props) => {
                 </div>
               </Fade>
             )}
-          </Box>
+          </ModalContainer>
         </Fade>
       </Modal>
     </div>
   );
 };
 
-const taskModalStyle = {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
   position: "absolute" as "absolute",
-  top: "40%",
-  left: "50%",
+  top: "10%",
+  left: "25%",
   transform: "translate(-50%, -50%)",
-  width: "fit-content",
-  bgcolor: "background.paper",
+  width: "50rem",
+  border: "2px solid #000",
+  backgroundColor: theme.palette.background.default,
   boxShadow: 24,
-  p: 4,
   overflow: "auto",
   maxHeight: "calc(100% - 128px)",
-};
+}));
 
 export default TaskModal;

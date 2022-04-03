@@ -29,3 +29,37 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #eaeaea;
 }
+
+.ce-block__content {
+  margin: 0% 5%;
+  max-width: fit-content;
+}
+
+.ce-block--selected {
+  color: #00194a;
+}
+
+.ce-toolbar__content {
+  margin: 0% 5%;
+  max-width: fit-content;
+}
+
+.ce-settings {
+  right: -100px;
+}
+
+.ce-toolbar__settings-btn {
+  color: #99ccff;
+}
+
+.ce-toolbar__plus {
+  color: #99ccff;
+}
+
+.ce-toolbox__button {
+  color: #99ccff;
+}
+
+.codex-editor__redactor {
+  padding-bottom: 2rem !important;
+}

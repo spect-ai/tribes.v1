@@ -63,27 +63,30 @@ const RewardPopover = ({ task }: Props) => {
           Reward
         </Typography>
         <CardButton
-          variant="contained"
+          variant="outlined"
           onClick={handleClick()}
+          color="secondary"
           sx={{
-            backgroundColor: "#2e2f59",
             padding: "6px",
+            minWidth: "3rem",
           }}
         >
-          <Avatar variant="rounded" sx={{ p: 0, mr: 2, width: 20, height: 20 }}>
-            <PaidIcon
-              sx={{ backgroundColor: "#2e2f59", color: "text.primary" }}
-            />
+          <Avatar
+            variant="rounded"
+            sx={{
+              p: 0,
+              mr: 2,
+              width: 20,
+              height: 20,
+              backgroundColor: "transparent",
+            }}
+          >
+            <PaidIcon sx={{ color: "text.primary" }} />
           </Avatar>
           {task.value && task.value > 0 ? (
             <Typography
               sx={{
                 fontSize: 14,
-                maxWidth: "6rem",
-                minWidth: "3rem",
-                minHeight: "1.3rem",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
               }}
             >
               {`${task.value} ${task.token?.symbol}`}
@@ -92,12 +95,6 @@ const RewardPopover = ({ task }: Props) => {
             <Typography
               sx={{
                 fontSize: 14,
-                maxWidth: "6rem",
-                minWidth: "3rem",
-                minHeight: "1.3rem",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                fontWeight: "100",
               }}
             >
               {`Set reward`}

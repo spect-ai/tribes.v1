@@ -1,23 +1,27 @@
 import styled from "@emotion/styled";
 
-export const PopoverContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 16px 8px;
-  width: 18rem;
-`;
+import { Box, styled as MUIStyled } from "@mui/material";
+
+// export const PopoverContainer = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   padding: 16px 8px;
+//   width: 18rem;
+// `;
+
+// @ts-ignore
+export const PopoverContainer = MUIStyled(Box)(({ theme }) => ({
+  width: "18rem",
+  backgroundColor: theme.palette.primary.main,
+  boxShadow: 24,
+  overflow: "auto",
+  padding: "16px 8px",
+  display: "flex",
+  flexDirection: "column",
+}));
 
 export const LabelChip = styled.div`
-  background-color: ${(props: any) => props.color};
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 12px;
   color: #eaeaea;
-  padding-left: 6px;
-  padding-right: 6px;
-  padding-top: 2px;
-  padding-top: 2px;
-
-  border-radius: 4px;
-  margin-right: 4px;
-  max-height: 1.5rem;
+  margin: 0px 4px;
 `;

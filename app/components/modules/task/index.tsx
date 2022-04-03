@@ -23,14 +23,12 @@ const TaskContainer = ({ task, index, column }: Props) => {
   const { palette } = useTheme();
   return (
     <>
-      {isOpen && (
-        <CardModal
-          isOpen={isOpen}
-          handleClose={handleClose}
-          taskId={task.taskId}
-          column={column}
-        />
-      )}
+      <CardModal
+        isOpen={isOpen}
+        handleClose={handleClose}
+        taskId={task.taskId}
+        column={column}
+      />
       <Draggable draggableId={task.taskId} index={index}>
         {(provided, snapshot) => (
           <TaskCard

@@ -55,11 +55,12 @@ const LabelPopover = ({ task }: Props) => {
         </Typography>
         <Box sx={{ display: "flex", flexDirection: "row" }}>
           <CardButton
-            variant="contained"
+            variant="outlined"
             onClick={handleClick()}
+            color="secondary"
             sx={{
               padding: "6px",
-              backgroundColor: task.tags?.length === 0 && "#2e2f59",
+              minWidth: "3rem",
             }}
           >
             {task.tags?.map((tag, index) => (
@@ -67,7 +68,7 @@ const LabelPopover = ({ task }: Props) => {
                 color={labelsMapping[tag as keyof typeof labelsMapping]}
                 key={index}
               >
-                {tag}
+                #{tag}
               </LabelChip>
             ))}
 

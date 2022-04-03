@@ -62,36 +62,35 @@ const MemberPopover = ({ type, task }: Props) => {
           {type === "reviewer" ? "Reviewer" : "Assignee"}
         </Typography>
         <CardButton
-          variant="contained"
+          variant="outlined"
           onClick={handleClick()}
+          color="secondary"
           sx={{
-            backgroundColor: "#2e2f59",
             padding: "6px",
-            maxWidth: "8rem",
+            minWidth: "3rem",
           }}
         >
           <Avatar
             variant="rounded"
-            sx={{ p: 0, mr: 2, width: 20, height: 20 }}
+            sx={{
+              p: 0,
+              mr: 2,
+              width: 20,
+              height: 20,
+              backgroundColor: "transparent",
+            }}
             src={
               type === "reviewer"
                 ? space.memberDetails[task.reviewer[0]]?.profilePicture?._url
                 : space.memberDetails[task.assignee[0]]?.profilePicture?._url
             }
           >
-            <PersonIcon
-              sx={{ backgroundColor: "#2e2f59", color: "text.primary" }}
-            />
+            <PersonIcon sx={{ color: "text.primary" }} />
           </Avatar>
           <Typography
             sx={{
               fontSize: 14,
-              maxWidth: "6rem",
               minWidth: "3rem",
-              minHeight: "1.3rem",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              fontWeight: "100",
             }}
           >
             {type === "reviewer"

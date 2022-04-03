@@ -173,7 +173,7 @@ const EditTask = ({ task, handleClose, column }: Props) => {
         {task.deadline && (
           <Info>
             <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
-              Due Date
+              Due Dateeee
             </Typography>
             <InnerInfo>
               <Typography sx={{ fontSize: 14 }} color="text.primary">
