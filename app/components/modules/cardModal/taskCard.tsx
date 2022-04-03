@@ -8,12 +8,17 @@ import {
   IconButton,
   Typography,
   Tooltip,
-  Palette,
+  Chip,
+  Button,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
 import Divider from "@mui/material/Divider";
-import { PrimaryButton, TaskButton } from "../../elements/styledComponents";
+import {
+  FieldContainer,
+  PrimaryButton,
+  CardButton,
+} from "../../elements/styledComponents";
 import CloseIcon from "@mui/icons-material/Close";
 import { BoardData, Column, Task } from "../../../types";
 import { formatTime, getMD5String } from "../../../utils/utils";
@@ -30,27 +35,18 @@ import * as Showdown from "showdown";
 import { labelsMapping, registryTemp } from "../../../constants";
 import { actionMap, monthMap } from "../../../constants";
 import { distributeEther, batchPayTokens } from "../../../adapters/contract";
-import DatePopover from "./datePopover";
-import LabelPopover from "./labelPopover";
-import MemberPopover from "./memberPopover";
-import RewardPopover from "./rewardPopover";
-import SubmissionPopover from "./submissionPopover";
-import MovePopover from "./movePopover";
 import { LinkPreview } from "@dhaiwat10/react-link-preview";
-
-import EventIcon from "@mui/icons-material/Event";
-import LabelIcon from "@mui/icons-material/Label";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
-import PaidIcon from "@mui/icons-material/Paid";
-import ArrowCircleRightIcon from "@mui/icons-material/ArrowCircleRight";
-import HailIcon from "@mui/icons-material/Hail";
-import DeleteIcon from "@mui/icons-material/Delete";
-import PublishIcon from "@mui/icons-material/Publish";
 import { notify } from "../settingsTab";
 import { Toaster } from "react-hot-toast";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-
+import { approve } from "../../../adapters/contract";
+import MemberPopover from "./memberPopover";
+import RewardPopover from "./rewardPopover";
+import DatePopover from "./datePopover";
+import CardTypePopover from "./cardTypePopover";
+import LabelPopover from "./labelPopover";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
@@ -65,13 +61,31 @@ const converter = new Showdown.Converter({
   tasklists: true,
 });
 
-const EditTaskNew = ({ task, handleClose, column }: Props) => {
+function doShowPayButton(user: any, task: Task) {
+  if (user?.get("distributorApproved")) {
+    return (
+      task.token?.address === "0x0" ||
+      (task.chain?.chainId in user?.get("distributorApproved") &&
+        user
+          ?.get("distributorApproved")
+          [task.chain?.chainId].includes(task.token?.address))
+    );
+  } else {
+    return false;
+  }
+}
+
+const TaskCard = ({ task, handleClose, column }: Props) => {
   const { space, setSpace } = useSpace();
   const { Moralis, user } = useMoralis();
   const [isLoading, setIsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState({} as any);
   const [description, setDescription] = useState(task.description);
+  const [showPayButton, setShowPayButton] = useState(
+    doShowPayButton(user, task)
+  );
+
   const handleClick =
     (field: string) => (event: React.MouseEvent<HTMLButtonElement>) => {
       setAnchorEl(event.currentTarget);
@@ -86,21 +100,8 @@ const EditTaskNew = ({ task, handleClose, column }: Props) => {
 
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
   const [title, setTitle] = useState(task.title);
+  const [isLoadingTask, setIsLoadingTask] = useState(false);
 
-  const handleTaskStatusUpdate = (taskIds: string[]) => {
-    completePayment(Moralis, taskIds)
-      .then((res: any) => {
-        console.log(res);
-        setSpace(res);
-      })
-      .catch((err: any) => {
-        notify(
-          "Sorry! There was an error while updating task status to paid. However, the payment has gone through.",
-          "error"
-        );
-        setIsLoading(false);
-      });
-  };
   useEffect(() => {
     if (!(task.access.creator || task.access.reviewer)) {
       setSelectedTab("preview");
@@ -136,99 +137,22 @@ const EditTaskNew = ({ task, handleClose, column }: Props) => {
         />
         <Box sx={{ flex: "1 1 auto" }} />
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
+          <ExpandMoreIcon />
+        </IconButton>
+        <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
+          <OpenInFullIcon />
+        </IconButton>
+        <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>
       <TaskModalInfoContainer>
-        {task.deadline && (
-          <Info>
-            <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
-              Due Date
-            </Typography>
-            <InnerInfo>
-              <Typography sx={{ fontSize: 14 }} color="text.primary">
-                {task.deadline?.getDate()}{" "}
-                {monthMap[task.deadline?.getMonth() as keyof typeof monthMap]}{" "}
-                {task.deadline && formatTime(task.deadline)}
-              </Typography>
-            </InnerInfo>
-          </Info>
-        )}
-        {task.tags && (
-          <Info>
-            <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
-              Labels
-            </Typography>
-            <InnerInfo>
-              {task.tags?.map((tag, index) => (
-                <LabelChip
-                  color={labelsMapping[tag as keyof typeof labelsMapping]}
-                  key={index}
-                >
-                  {tag}
-                </LabelChip>
-              ))}
-            </InnerInfo>
-          </Info>
-        )}
-        {task.reviewer.length && (
-          <Info>
-            <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
-              Reviewer
-            </Typography>
-            <InnerInfo>
-              <Tooltip title={space.memberDetails[task.reviewer[0]].username}>
-                <Avatar
-                  sx={{ height: 32, width: 32 }}
-                  src={
-                    space.memberDetails[task.reviewer[0]].profilePicture
-                      ? space.memberDetails[task.reviewer[0]].profilePicture
-                          ._url
-                      : `https://www.gravatar.com/avatar/${getMD5String(
-                          task.reviewer[0]
-                        )}?d=identicon&s=32`
-                  }
-                />
-              </Tooltip>
-            </InnerInfo>
-          </Info>
-        )}
-
-        {task.assignee.length > 0 && (
-          <Info>
-            <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
-              Assignee
-            </Typography>
-
-            <InnerInfo>
-              <Tooltip title={space.memberDetails[task.assignee[0]]?.username}>
-                <Avatar
-                  sx={{ height: 32, width: 32 }}
-                  src={
-                    space.memberDetails[task.assignee[0]].profilePicture
-                      ? space.memberDetails[task.assignee[0]].profilePicture
-                          ._url
-                      : `https://www.gravatar.com/avatar/${getMD5String(
-                          task.assignee[0]
-                        )}?d=identicon&s=32`
-                  }
-                />
-              </Tooltip>
-            </InnerInfo>
-          </Info>
-        )}
-        {task.value ? (
-          <Info>
-            <Typography sx={{ color: "rgb(153, 204, 255)", fontSize: 12 }}>
-              Reward
-            </Typography>
-            <InnerInfo>
-              <Typography sx={{ fontSize: 14 }} color="text.primary">
-                {task.value} {task.token.symbol}
-              </Typography>
-            </InnerInfo>
-          </Info>
-        ) : null}
+        <MemberPopover type={"reviewer"} task={task} />
+        <MemberPopover type={"assignee"} task={task} />
+        <RewardPopover task={task} />
+        <DatePopover task={task} />
+        <LabelPopover task={task} />
+        <CardTypePopover task={task} />
       </TaskModalInfoContainer>
       <TaskModalBodyContainer>
         <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
@@ -272,25 +196,6 @@ const EditTaskNew = ({ task, handleClose, column }: Props) => {
           )}
         </Box>
       </TaskModalBodyContainer>
-      {task.submission?.link && (
-        <ActivityContainer>
-          <Divider
-            textAlign="left"
-            color="text.secondary"
-            sx={{ mr: 3, mb: 1 }}
-          >
-            Submissions
-          </Divider>{" "}
-          <LinkPreview
-            url={task.submission.link}
-            width="40rem"
-            imageHeight={"0rem"}
-            backgroundColor={"transparent"}
-            primaryTextColor={"#eaeaea"}
-            borderColor="#5a6972"
-          />
-        </ActivityContainer>
-      )}
 
       <ActivityContainer>
         <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
@@ -347,27 +252,6 @@ const TaskModalInfoContainer = styled.div`
   flex-direction: row;
 `;
 
-const Info = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-right: 1rem;
-`;
-
-const InnerInfo = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const LabelChip = styled.div`
-  background-color: ${(props: any) => props.color};
-  font-size: 14px;
-  font-weight: 600;
-  color: #eaeaea;
-  padding: 4px 6px;
-  border-radius: 4px;
-  margin-right: 4px;
-`;
-
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -375,20 +259,4 @@ const Container = styled.div`
   height: 35rem;
 `;
 
-export const StakeholderButton = styled.div<{
-  palette: Palette;
-  selected: boolean;
-}>`
-  &:hover {
-    color: ${(props) => props.palette.secondary.main};
-    border-left: 2px solid ${(props) => props.palette.secondary.main};
-  }
-  transition: all 0.5s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 8px 0px;
-`;
-
-export default EditTaskNew;
+export default TaskCard;

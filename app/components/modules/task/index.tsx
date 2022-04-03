@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import DateRangeIcon from "@mui/icons-material/DateRange";
-import TaskModal from "../taskModal";
+import CardModal from "../cardModal";
 import { labelsMapping, monthMap } from "../../../constants";
 import { Column, Task } from "../../../types";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
@@ -24,7 +24,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
   return (
     <>
       {isOpen && (
-        <TaskModal
+        <CardModal
           isOpen={isOpen}
           handleClose={handleClose}
           taskId={task.taskId}

@@ -25,6 +25,12 @@ export const TaskButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
   marginBottom: "6px",
 }));
 
+export const CardButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
+  color: theme.palette.text.primary,
+  textTransform: "none",
+  marginBottom: "6px",
+}));
+
 type BProps = {
   buttonColor: string;
 };
