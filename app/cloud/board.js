@@ -139,10 +139,10 @@ async function getSpace(boardId, callerId, firstLoad = false) {
           }
         }
       }
+      await Moralis.Object.saveAll([board, tribe, userInfo], {
+        useMasterKey: true,
+      });
     }
-    await Moralis.Object.saveAll([board, tribe, userInfo], {
-      useMasterKey: true,
-    });
     boardObj = await getBoardObjWithTasksByObjectId(boardId, callerId);
 
     boardObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
