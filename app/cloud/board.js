@@ -79,7 +79,12 @@ async function getSpace(boardId, callerId, firstLoad = false) {
     let boardObj = await getBoardObjWithTasksByObjectId(boardId, callerId);
 
     if (boardObj.length === 0) throw "Board not found";
-    if (firstLoad && callerId && userInfo.get("is_discord_linked")) {
+    if (
+      firstLoad &&
+      callerId &&
+      userInfo.get("is_discord_linked") &&
+      boardObj[0].guildId
+    ) {
       const res = await Moralis.Cloud.httpRequest({
         url: "https://spect-discord-bot.herokuapp.com/api/userRoles",
         params: {
@@ -134,11 +139,11 @@ async function getSpace(boardId, callerId, firstLoad = false) {
           }
         }
       }
-      await Moralis.Object.saveAll([board, tribe, userInfo], {
-        useMasterKey: true,
-      });
-      boardObj = await getBoardObjWithTasksByObjectId(boardId, callerId);
     }
+    await Moralis.Object.saveAll([board, tribe, userInfo], {
+      useMasterKey: true,
+    });
+    boardObj = await getBoardObjWithTasksByObjectId(boardId, callerId);
 
     boardObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
       boardObj[0].members
