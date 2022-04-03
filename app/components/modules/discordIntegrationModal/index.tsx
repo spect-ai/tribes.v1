@@ -31,7 +31,7 @@ const DiscordIntegrationModal = ({ isOpen, handleClose, user }: Props) => {
   const waitForDiscordLink = async () => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 6000));
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 15; i++) {
       await new Promise((resolve) => setTimeout(resolve, 4000));
       runMoralisFunction("getSpace", { boardId: bid }).then(
         (res: BoardData) => {
