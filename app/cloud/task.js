@@ -395,7 +395,7 @@ Moralis.Cloud.define("updateTaskStatus", async (request) => {
     logger.error(
       `Error while updating task status with task Id ${request.params.taskId}: ${err}`
     );
-    throw `Error while updating task status ${err}`;
+    throw `${err}`;
   }
 });
 
@@ -418,6 +418,8 @@ function handleTitleUpdate(task, userId, title) {
 function handleDescriptionUpdate(task, userId, description) {
   if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
     task.set("description", description);
+  } else {
+    throw `Unauthorized to update description`;
   }
   return task;
 }
@@ -448,6 +450,8 @@ function handleRewardUpdate(task, userId, value, token, chain, currencyFlag) {
 function handleTagUpdate(task, userId, tags) {
   if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
     task.set("tags", tags);
+  } else {
+    throw `Unauthorized to update tags`;
   }
   return task;
 }
@@ -468,11 +472,9 @@ function handleAssigneeUpdate(task, callerId, assigneeId) {
 
 function handleReviewerUpdate(task, callerId, reviewerId) {
   if (isTaskCreator(task, callerId) || isTaskReviewer(task, callerId)) {
-    logger.info(`dadadadad`);
-
     reviewerId && task.set("reviewer", [reviewerId]);
-  }
-  return task;
+    return task;
+  } else throw `Unauthorized to update reviewer`;
 }
 
 function handleSubmissionUpdate(task, userId, link, name) {
