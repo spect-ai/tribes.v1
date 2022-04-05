@@ -26,6 +26,7 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
     setLoading(true);
     getTask(Moralis, taskId)
       .then((task: Task) => {
+        console.log(task);
         setTask(task);
         setLoading(false);
       })
@@ -33,7 +34,7 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
         console.log(err);
         notify(`Sorry! There was an error while getting task`, "error");
       });
-  }, [space]);
+  }, []);
 
   return (
     <div>
@@ -65,15 +66,16 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
   position: "absolute" as "absolute",
-  top: "50%",
+  top: "40%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  width: "55rem",
+  width: "65rem",
   border: "2px solid #000",
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: "auto",
   maxHeight: "40rem",
+  minHeight: "30rem",
   padding: "1.5rem",
 }));
 

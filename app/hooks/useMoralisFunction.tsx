@@ -1,9 +1,5 @@
 import { useEffect } from "react";
-import {
-  MoralisCloudFunctionParameters,
-  useMoralis,
-  useMoralisCloudFunction,
-} from "react-moralis";
+import { useMoralis } from "react-moralis";
 
 export function useMoralisFunction() {
   const { Moralis } = useMoralis();

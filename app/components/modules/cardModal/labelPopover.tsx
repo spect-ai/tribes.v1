@@ -7,8 +7,7 @@ import {
   Typography,
   Avatar,
 } from "@mui/material";
-import React, { useState } from "react";
-import { useMoralis } from "react-moralis";
+import React, { useEffect, useState } from "react";
 import { updateTaskLabels } from "../../../adapters/moralis";
 import { labelsMapping } from "../../../constants";
 import { BoardData, Task } from "../../../types";
@@ -19,15 +18,18 @@ import { notify } from "../settingsTab";
 import LabelIcon from "@mui/icons-material/Label";
 import { LabelChip } from "./styles";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+
 type Props = {
   task: Task;
+  setTask: (task: Task) => void;
 };
 
-const LabelPopover = ({ task }: Props) => {
+const LabelPopover = ({ task, setTask }: Props) => {
   const [labels, setLabels] = useState(task.tags);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { Moralis } = useMoralis();
+  const { runMoralisFunction } = useMoralisFunction();
   const { space, setSpace } = useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -38,6 +40,29 @@ const LabelPopover = ({ task }: Props) => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handleSave = () => {
+    const prevTask = Object.assign({}, task);
+    const temp = Object.assign({}, task);
+    temp.tags = labels;
+    setTask(temp);
+    handleClose();
+    runMoralisFunction("updateCard", {
+      updates: {
+        tags: labels,
+        taskId: task.taskId,
+      },
+    })
+      .then((res) => {
+        console.log(res);
+        setSpace(res);
+      })
+      .catch((err: any) => {
+        setTask(prevTask);
+        notify(`${err.message}`, "error");
+      });
+  };
+
   return (
     <>
       <Box
@@ -63,7 +88,7 @@ const LabelPopover = ({ task }: Props) => {
               minWidth: "3rem",
             }}
           >
-            {task.tags?.map((tag, index) => (
+            {task?.tags?.map((tag, index) => (
               <LabelChip
                 color={labelsMapping[tag as keyof typeof labelsMapping]}
                 key={index}
@@ -72,7 +97,7 @@ const LabelPopover = ({ task }: Props) => {
               </LabelChip>
             ))}
 
-            {task.tags?.length === 0 && (
+            {(!task.tags || task.tags?.length === 0) && (
               <>
                 <Avatar
                   variant="rounded"
@@ -111,7 +136,7 @@ const LabelPopover = ({ task }: Props) => {
       >
         <PopoverContainer>
           <Autocomplete
-            options={Object.keys(labelsMapping)} // Get options from members
+            options={Object.keys(labelsMapping)}
             multiple
             value={labels}
             onChange={(event, newValue) => {
@@ -130,23 +155,8 @@ const LabelPopover = ({ task }: Props) => {
           <PrimaryButton
             variant="outlined"
             sx={{ mt: 4, borderRadius: 1 }}
-            loading={isLoading}
             color="secondary"
-            onClick={() => {
-              setIsLoading(true);
-              updateTaskLabels(Moralis, labels, task.taskId)
-                .then((res: BoardData) => {
-                  setSpace(res);
-                  setIsLoading(false);
-                  handleClose();
-                })
-                .catch((err: any) => {
-                  notify(
-                    "Sorry! There was an error while updating task labels.",
-                    "error"
-                  );
-                });
-            }}
+            onClick={handleSave}
           >
             Save
           </PrimaryButton>

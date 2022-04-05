@@ -7,7 +7,7 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import React, { useState, Fragment } from "react";
+import React, { useState, useEffect } from "react";
 import { useMoralis } from "react-moralis";
 import { updateTaskReward } from "../../../adapters/moralis";
 import { BoardData, Chain, Registry, Task, Token } from "../../../types";
@@ -20,12 +20,15 @@ import {
 } from "../../../utils/utils";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import PaidIcon from "@mui/icons-material/Paid";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { notify } from "../settingsTab";
 
 type Props = {
   task: Task;
+  setTask: (task: Task) => void;
 };
 
-const RewardPopover = ({ task }: Props) => {
+const RewardPopover = ({ task, setTask }: Props) => {
   const {
     state: { registry },
   } = useGlobal();
@@ -36,6 +39,7 @@ const RewardPopover = ({ task }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
   const { setSpace } = useSpace();
+  const { runMoralisFunction } = useMoralisFunction();
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -46,6 +50,40 @@ const RewardPopover = ({ task }: Props) => {
   const handleClose = () => {
     setOpen(false);
   };
+
+  const handleSave = () => {
+    const prevTask = Object.assign({}, task);
+    const temp = Object.assign({}, task);
+    temp.chain = chain;
+    temp.token = token;
+    temp.value = parseFloat(value);
+    setTask(temp);
+    handleClose();
+    runMoralisFunction("updateCard", {
+      updates: {
+        reward: {
+          chain: chain,
+          token: token,
+          value: parseFloat(value),
+        },
+        taskId: task.taskId,
+      },
+    })
+      .then((res) => {
+        console.log(res);
+        setSpace(res);
+      })
+      .catch((err: any) => {
+        setTask(prevTask);
+        notify(`${err.message}`, "error");
+      });
+  };
+
+  useEffect(() => {
+    setChain(task.chain);
+    setToken(task.token);
+    setValue(task.value?.toString());
+  }, [task]);
 
   return (
     <>
@@ -176,20 +214,7 @@ const RewardPopover = ({ task }: Props) => {
             color="secondary"
             sx={{ borderRadius: 1 }}
             loading={isLoading}
-            onClick={() => {
-              setIsLoading(true);
-              updateTaskReward(
-                Moralis,
-                chain,
-                token,
-                parseFloat(value),
-                task.taskId
-              ).then((res: BoardData) => {
-                setSpace(res);
-                setIsLoading(false);
-                handleClose();
-              });
-            }}
+            onClick={handleSave}
           >
             Save
           </PrimaryButton>

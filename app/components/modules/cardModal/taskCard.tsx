@@ -45,6 +45,8 @@ import RewardPopover from "./rewardPopover";
 import DatePopover from "./datePopover";
 import CardTypePopover from "./cardTypePopover";
 import LabelPopover from "./labelPopover";
+import ColumnPopover from "./columnPopover";
+import TabularDetails from "./tabularDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import dynamic from "next/dynamic";
@@ -79,7 +81,7 @@ function doShowPayButton(user: any, task: Task) {
   }
 }
 
-const TaskCard = ({ task, handleClose, column }: Props) => {
+const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
   const { space, setSpace } = useSpace();
   const { Moralis, user } = useMoralis();
   const [isLoading, setIsLoading] = useState(false);
@@ -150,50 +152,60 @@ const TaskCard = ({ task, handleClose, column }: Props) => {
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>
-      <Box sx={{ width: "fit-content" }}>
+      <Box sx={{ width: "fit-content", display: "flex", flexWrap: "wrap" }}>
         <CardTypePopover task={task} />
+        <ColumnPopover task={task} column={column} />
       </Box>
-      <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-        <MemberPopover type={"reviewer"} task={task} />
-        <MemberPopover type={"assignee"} task={task} />
-        <RewardPopover task={task} />
-        <DatePopover task={task} />
-        <LabelPopover task={task} />
-      </Box>
-      <TaskModalBodyContainer>
-        <Divider textAlign="left" sx={{ mr: 3, color: "#99ccff" }}>
-          Description
-        </Divider>{" "}
-        <BlockEditor />
-      </TaskModalBodyContainer>
 
-      <ActivityContainer>
-        <Divider textAlign="left" color="text.secondary" sx={{ mr: 3 }}>
-          Activity
-        </Divider>{" "}
-        {task.activity.map((activity: any) => (
-          <ListItem key={`${activity.timestamp}`}>
-            <Avatar
-              sx={{ width: 24, height: 24, mr: 2 }}
-              src={
-                space.memberDetails[activity.actor].profilePicture
-                  ? space.memberDetails[activity.actor].profilePicture._url
-                  : `https://www.gravatar.com/avatar/${getMD5String(
-                      space.memberDetails[activity.actor].username
-                    )}?d=identicon&s=32`
-              }
-            />
-            <ListItemText
-              primary={`${space.memberDetails[activity.actor].username} ${
-                actionMap[activity.action as keyof typeof actionMap]
-              } on ${activity.timestamp.getDate()}  ${
-                // @ts-ignore
-                monthMap[activity.timestamp.getMonth() as number]
-              }`}
-            />
-          </ListItem>
-        ))}
-      </ActivityContainer>
+      <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+        <MemberPopover type={"reviewer"} task={task} setTask={setTask} />
+        <MemberPopover type={"assignee"} task={task} setTask={setTask} />
+        <RewardPopover task={task} setTask={setTask} />
+        <DatePopover task={task} setTask={setTask} />
+        <LabelPopover task={task} setTask={setTask} />
+      </Box>
+
+      <TaskModalBodyContainer>
+        {/*<BlockEditor />*/}
+        <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
+          <ReactMde
+            value={description}
+            onChange={(value) => setDescription(value)}
+            selectedTab={selectedTab}
+            onTabChange={setSelectedTab}
+            generateMarkdownPreview={(markdown) =>
+              Promise.resolve(converter.makeHtml(markdown))
+            }
+            childProps={{
+              writeButton: {
+                tabIndex: -1,
+              },
+            }}
+            readOnly={!(task.access.creator || task.access.reviewer)}
+          />
+          {(task.access.creator || task.access.reviewer) && (
+            <PrimaryButton
+              variant="outlined"
+              sx={{ mt: 4, borderRadius: 1 }}
+              color="secondary"
+              size="small"
+              loading={isLoading}
+              onClick={() => {
+                setIsLoading(true);
+                updateTaskDescription(Moralis, description, task.taskId).then(
+                  (res: BoardData) => {
+                    setSpace(res);
+                    setIsLoading(false);
+                  }
+                );
+              }}
+            >
+              Save
+            </PrimaryButton>
+          )}
+        </Box>
+        <TabularDetails task={task} showTabs={[0, 1, 2]} />
+      </TaskModalBodyContainer>
     </Container>
   );
 };
@@ -207,14 +219,6 @@ const TaskModalBodyContainer = styled.div`
   margin-top: 2px;
   color: #eaeaea;
   font-size: 0.85rem;
-`;
-
-const ActivityContainer = styled.div`
-  margin-top: 2px;
-  color: #99ccff;
-  font-size: 0.85rem;
-  max-height: 10rem;
-  overflow-y: auto;
 `;
 
 const Container = styled.div`

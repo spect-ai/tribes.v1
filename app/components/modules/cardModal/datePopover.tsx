@@ -12,18 +12,26 @@ import { actionMap, monthMap } from "../../../constants";
 import { formatTime, getMD5String } from "../../../utils/utils";
 import PaidIcon from "@mui/icons-material/Paid";
 import { PopoverContainer } from "./styles";
+import { notify } from "../settingsTab";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 
 type Props = {
   task: Task;
+  setTask: (task: Task) => void;
 };
 
-const DatePopover = ({ task }: Props) => {
+function toLocalDate(date: Date) {
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+}
+
+const DatePopover = ({ task, setTask }: Props) => {
   const [date, setDate] = useState("");
   const [open, setOpen] = useState(false);
   const { space, setSpace } = useSpace();
   const { Moralis } = useMoralis();
   const [isLoading, setIsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const { runMoralisFunction } = useMoralisFunction();
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -33,13 +41,35 @@ const DatePopover = ({ task }: Props) => {
     setOpen(false);
   };
 
+  const handleSave = () => {
+    const prevTask = Object.assign({}, task);
+    const temp = Object.assign({}, task);
+    temp.deadline = new Date(date);
+    setTask(temp);
+    handleClose();
+    runMoralisFunction("updateCard", {
+      updates: {
+        deadline: new Date(date).toUTCString(),
+        taskId: task.taskId,
+      },
+    })
+      .then((res) => {
+        console.log(res);
+        setSpace(res);
+      })
+      .catch((err: any) => {
+        setTask(prevTask);
+        notify(`${err.message}`, "error");
+      });
+  };
+
   useEffect(() => {
     if (task.deadline) {
       const offset = task.deadline.getTimezoneOffset();
-      task.deadline = new Date(task.deadline.getTime() - offset * 60 * 1000);
-      setDate(task.deadline.toISOString().slice(0, -8));
+      const deadline = new Date(task.deadline.getTime() - offset * 60 * 1000);
+      setDate(deadline.toISOString().slice(0, -8));
     }
-  }, []);
+  }, [task]);
 
   return (
     <>
@@ -126,18 +156,7 @@ const DatePopover = ({ task }: Props) => {
             sx={{ mt: 4, borderRadius: 1 }}
             loading={isLoading}
             color="secondary"
-            onClick={() => {
-              setIsLoading(true);
-              updateTaskDeadline(
-                Moralis,
-                new Date(date).toUTCString(),
-                task.taskId
-              ).then((res: BoardData) => {
-                setSpace(res);
-                setIsLoading(false);
-                handleClose();
-              });
-            }}
+            onClick={handleSave}
           >
             Save
           </PrimaryButton>

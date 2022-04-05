@@ -16,19 +16,22 @@ import { PopoverContainer } from "./styles";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { notify } from "../settingsTab";
 import PersonIcon from "@mui/icons-material/Person";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 
 type Props = {
   type: string;
   task: Task;
+  setTask: (task: Task) => void;
 };
 
-const MemberPopover = ({ type, task }: Props) => {
+const MemberPopover = ({ type, task, setTask }: Props) => {
   const [member, setMember] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
   const { space, setSpace } = useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
+  const { runMoralisFunction } = useMoralisFunction();
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -36,6 +39,46 @@ const MemberPopover = ({ type, task }: Props) => {
   };
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleSave = () => {
+    const prevTask = Object.assign({}, task);
+    const temp = Object.assign({}, task);
+    if (type === "reviewer") {
+      temp.reviewer = [member];
+      runMoralisFunction("updateCard", {
+        updates: {
+          reviewer: member ? [member] : [],
+          taskId: task.taskId,
+        },
+      })
+        .then((res: any) => {
+          console.log(res);
+          setSpace(res);
+        })
+        .catch((err: any) => {
+          setTask(prevTask);
+          notify(`${err.message}`, "error");
+        });
+    } else {
+      temp.assignee = [member];
+      runMoralisFunction("updateCard", {
+        updates: {
+          assignee: member ? [member] : [],
+          taskId: task.taskId,
+        },
+      })
+        .then((res: any) => {
+          console.log(res);
+          setSpace(res);
+        })
+        .catch((err: any) => {
+          setTask(prevTask);
+          notify(`${err.message}`, "error");
+        });
+    }
+    setTask(temp);
+    handleClose();
   };
 
   useEffect(() => {
@@ -133,22 +176,7 @@ const MemberPopover = ({ type, task }: Props) => {
             color="secondary"
             sx={{ mt: 4, borderRadius: 1 }}
             loading={isLoading}
-            onClick={() => {
-              setIsLoading(true);
-              // we store array of assignee and reviewer to be able to handle multiple assignees and reviewers later
-              updateTaskMember(Moralis, member, type, task.taskId)
-                .then((res: BoardData) => {
-                  setSpace(res);
-                  setIsLoading(false);
-                  handleClose();
-                })
-                .catch((err: any) => {
-                  notify(
-                    `Sorry! There was an error while updating ${type}.`,
-                    "error"
-                  );
-                });
-            }}
+            onClick={handleSave}
           >
             Save
           </PrimaryButton>
