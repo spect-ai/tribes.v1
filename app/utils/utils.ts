@@ -140,3 +140,56 @@ export function downloadCSV(content: Array<Array<any>>, filename: string) {
 export function capitalizeFirstLetter(word: string) {
   return word?.charAt(0).toUpperCase() + word?.slice(1);
 }
+
+export const uid = () => {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+};
+
+export const setCaretToEnd = (element: any) => {
+  const range = document.createRange();
+  const selection = window.getSelection();
+  if (element) {
+    range.selectNodeContents(element);
+    range.collapse(false);
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    element.focus();
+  }
+};
+
+export const getCaretCoordinates = (fromStart = true) => {
+  let x, y;
+  const isSupported = typeof window.getSelection !== "undefined";
+  if (isSupported) {
+    const selection = window.getSelection();
+    const range = selection?.getRangeAt(0).cloneRange();
+    var span = document.createElement("span");
+    const modal = document.getElementById("cardModal");
+
+    console.log(modal?.scrollTop);
+    const modalRect = modal?.getClientRects()[0];
+    console.log({ modalRect });
+    if (span.getClientRects) {
+      span.appendChild(document.createTextNode("\u200b"));
+      range?.insertNode(span);
+      const rect = span.getClientRects()[0];
+      console.log({ rect });
+      if (rect) {
+        // @ts-ignore
+        x = rect.left - modalRect.left;
+        // @ts-ignore
+        y = rect.top + 20 + modal?.scrollTop;
+      }
+      var spanParent = span.parentNode;
+      spanParent?.removeChild(span);
+    }
+    // console.log(selection);
+    // if (selection?.rangeCount !== 0) {
+    //   const range = selection?.getRangeAt(0).cloneRange();
+    //   range?.collapse(false);
+    //   const rect = range?.getClientRects()[0];
+
+    // }
+  }
+  return { x, y };
+};

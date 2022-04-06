@@ -50,6 +50,7 @@ import TabularDetails from "./tabularDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import dynamic from "next/dynamic";
+import Editor from "../editor";
 let BlockEditor = dynamic(() => import("../blockEditor"), {
   ssr: false,
 });
@@ -168,7 +169,7 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
       <TaskModalBodyContainer>
         {/*<BlockEditor />*/}
         <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
-          <ReactMde
+          {/* <ReactMde
             value={description}
             onChange={(value) => setDescription(value)}
             selectedTab={selectedTab}
@@ -182,8 +183,9 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
               },
             }}
             readOnly={!(task.access.creator || task.access.reviewer)}
-          />
-          {(task.access.creator || task.access.reviewer) && (
+          /> */}
+          <Editor />
+          {/* {(task.access.creator || task.access.reviewer) && (
             <PrimaryButton
               variant="outlined"
               sx={{ mt: 4, borderRadius: 1 }}
@@ -202,7 +204,7 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
             >
               Save
             </PrimaryButton>
-          )}
+          )} */}
         </Box>
         <TabularDetails task={task} showTabs={[0, 1, 2]} />
       </TaskModalBodyContainer>
