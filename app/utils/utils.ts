@@ -178,7 +178,7 @@ export const getCaretCoordinates = (fromStart = true) => {
         // @ts-ignore
         x = rect.left - modalRect.left;
         // @ts-ignore
-        y = rect.top + 20 + modal?.scrollTop;
+        y = rect.top + modal?.scrollTop;
       }
       var spanParent = span.parentNode;
       spanParent?.removeChild(span);

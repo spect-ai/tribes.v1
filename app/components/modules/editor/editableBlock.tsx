@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ContentEditable from "react-contenteditable";
 import { getCaretCoordinates, setCaretToEnd } from "../../../utils/utils";
-import SelectMenu from "./selectMenu";
 import styles from "./styles.module.scss";
 import { Draggable } from "react-beautiful-dnd";
 import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
@@ -33,6 +32,7 @@ const EditableBlock = ({
   const [tag, setTag] = useState("p");
   const [placeholder, setPlaceholder] = useState(false);
   const [previousKey, setPreviousKey] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
   const [isSelectMenuOpen, setIsSelectMenuOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState({} as any);
   const [tagSelectorMenuPosition, setTagSelectorMenuPosition] = useState(
@@ -120,6 +120,29 @@ const EditableBlock = ({
     setPreviousKey(e.key);
   };
 
+  const handleFocus = () => {
+    // If a placeholder is set, we remove it when the block gets focused
+    if (placeholder) {
+      setHtml("");
+      setPlaceholder(false);
+      setIsTyping(true);
+    } else {
+      setIsTyping(true);
+    }
+  };
+
+  const handleBlur = (e: any) => {
+    // Show placeholder if block is still the only one and empty
+    const hasPlaceholder = addPlaceholder({
+      block: contentEditableRef.current,
+      position: position,
+      content: html,
+    });
+    if (!hasPlaceholder) {
+      setIsTyping(false);
+    }
+  };
+
   // Show a placeholder for blank pages
   const addPlaceholder = ({ block, position, content }: any) => {
     const isFirstBlockWithoutHtml = position === 1 && !content;
@@ -182,6 +205,7 @@ const EditableBlock = ({
           position={tagSelectorMenuPosition}
           closeMenu={closeTagSelectorMenu}
           handleSelection={handleTagSelection}
+          isOpen={isSelectMenuOpen}
         />
       )}
       <Draggable draggableId={id} index={position}>
@@ -215,6 +239,8 @@ const EditableBlock = ({
               }}
               onKeyDown={onKeyDownHandler}
               onKeyUp={onKeyUpHandler}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
             />
           </div>
         )}
