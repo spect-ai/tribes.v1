@@ -161,7 +161,7 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
           <MarkdownEditor task={task} setTask={setTask} />
         </Box>
         <Box sx={{ marginBottom: "16px" }}>
-          <TabularDetails task={task} showTabs={[0, 1, 2]} />
+          <TabularDetails task={task} setTask={setTask} />
         </Box>
       </TaskModalBodyContainer>
     </Container>

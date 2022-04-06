@@ -5,7 +5,7 @@ Moralis.Cloud.define("updateCard", async (request) => {
 
     var task = await getTaskByTaskId(request.params.updates?.taskId);
     validateUpdatePayload(request.params.updates, task, request.user.id);
-    task = await handleUpdates(request.params.updates, task);
+    task = await handleUpdates(request.params.updates, task, request.user.id);
     await Moralis.Object.saveAll(task, { useMasterKey: true });
     logger.info(`Updated task ${JSON.stringify(task)}`);
     return await getSpace(task.get("boardId"), request.user.id);
@@ -53,7 +53,7 @@ function validateColumnChangePayload(updates, task) {
   }
 }
 
-async function handleUpdates(updates, task) {
+async function handleUpdates(updates, task, callerId) {
   if (updates.hasOwnProperty("title")) {
     task.set("title", updates.title);
   }
@@ -89,16 +89,25 @@ async function handleUpdates(updates, task) {
       { link: updates.submission.link, name: updates.submission.name },
     ]);
   }
-  if (updates.hasOwnProperty("proposals")) {
-    task.set("proposals", [
-      ...task.get("proposals"),
-      {
-        from: callerId,
-        title: updates.proposals.title,
-        description: updates.proposals.description,
-      },
-    ]);
+  if (updates.hasOwnProperty("proposal")) {
+    task.get("proposals")
+      ? task.set("proposals", [
+          ...task.get("proposals"),
+          {
+            id: crypto.randomUUID(),
+            userId: callerId,
+            description: updates.proposal.description,
+          },
+        ])
+      : task.set("proposals", [
+          {
+            id: crypto.randomUUID(),
+            userId: callerId,
+            description: updates.proposal.description,
+          },
+        ]);
   }
+
   if (updates.hasOwnProperty("selectedProposals")) {
     task.set("selectedProposals", updates.selectedProposals);
   }

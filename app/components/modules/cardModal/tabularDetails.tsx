@@ -1,49 +1,61 @@
-import styled from "@emotion/styled";
-import {
-  Autocomplete,
-  Popover,
-  TextField,
-  Avatar,
-  Typography,
-  Box,
-} from "@mui/material";
-import React, { useState, Fragment } from "react";
-import { useMoralis } from "react-moralis";
-import { BoardData, Chain, Registry, Task, Token } from "../../../types";
-import {
-  PrimaryButton,
-  CardButton,
-  StyledTab,
-  StyledTabs,
-} from "../../elements/styledComponents";
-import { PopoverContainer } from "./styles";
+import React, { useEffect, useState } from "react";
 import { useGlobal } from "../../../context/globalContext";
+import { Task } from "../../../types";
+import { StyledTab, StyledTabs } from "../../elements/styledComponents";
+import Proposals from "./proposals";
+import Submission from "./submission";
+import Activity from "./activity";
+import { useMoralis } from "react-moralis";
 
 type Props = {
   task: Task;
-  showTabs: Array<number>;
+  setTask: (task: Task) => void;
 };
 
-const tabs = ["Proposals", "Submission", "Activity"];
+const tabMap: any = {
+  Proposals: 0,
+  Submission: 1,
+  Activity: 2,
+};
 
-const TabularDetails = ({ task, showTabs }: Props) => {
+const TabularDetails = ({ task, setTask }: Props) => {
   const {
     state: { registry },
   } = useGlobal();
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
-  const [tab, setTab] = useState(showTabs[0]);
+  const [tabs, setTabs] = useState([
+    "Proposals",
+    "Submissions",
+    "Activity",
+  ] as string[]);
+  const [tab, setTab] = useState(0);
+
+  useEffect(() => {
+    /*
+    var temp = [];
+    if (task.type === "Bounty") {
+      temp.push("Proposals");
+    }
+    if (task.access.creator || task.access.creator || task.access.reviewer) {
+      temp.push("Submissions");
+    }
+    temp.push("Activity");
+    setTabs(temp);*/
+  }, [task]);
+
   return (
     <>
       <StyledTabs value={tab} onChange={handleTabChange} sx={{}}>
         {tabs.map((tab, index) => {
           console.log(tab);
-          return (
-            showTabs.includes(index) && <StyledTab key={index} label={tab} />
-          );
+          return <StyledTab key={index} label={tab} />;
         })}
       </StyledTabs>
+      {tab === 0 && <Proposals task={task} setTask={setTask} />}
+      {tab === 1 && <Submission task={task} setTask={setTask} />}
+      {tab === 2 && <Activity task={task} setTask={setTask} />}
     </>
   );
 };

@@ -134,11 +134,28 @@ export interface Task {
     creator: boolean;
     reviewer: boolean;
     assignee: boolean;
+    applicant: boolean;
+    canApply: boolean;
   };
   issueLink?: string;
   boardId: string;
   createdAt: string;
   type: string;
+  submissions: Array<Submission>;
+  proposals: Array<Proposal>;
+}
+
+export interface Submission {
+  userId: string;
+  submissionId: string;
+  link: string;
+  name: string;
+}
+
+export interface Proposal {
+  userId: string;
+  id: string;
+  description: string;
 }
 
 export interface Contracts {
