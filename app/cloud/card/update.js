@@ -5,7 +5,7 @@ Moralis.Cloud.define("updateCard", async (request) => {
 
     var task = await getTaskByTaskId(request.params.updates?.taskId);
     validateUpdatePayload(request.params.updates, task, request.user.id);
-    task = handleUpdates(request.params.updates, task);
+    task = await handleUpdates(request.params.updates, task);
     await Moralis.Object.saveAll(task, { useMasterKey: true });
     logger.info(`Updated task ${JSON.stringify(task)}`);
     return await getSpace(task.get("boardId"), request.user.id);
@@ -20,6 +20,7 @@ Moralis.Cloud.define("updateCard", async (request) => {
 function validateUpdatePayload(updates, task, callerId) {
   if (!task) throw "Card not found";
   authorized(updates, task, callerId);
+  validateColumnChangePayload(updates, task);
 }
 
 function authorized(updates, task, callerId) {
@@ -42,7 +43,17 @@ function authorized(updates, task, callerId) {
   }
 }
 
-function handleUpdates(updates, task) {
+function validateColumnChangePayload(updates, task) {
+  if (updates.hasOwnProperty("columnChange")) {
+    if (
+      !updates.columnChange.hasOwnProperty("sourceId") ||
+      !updates.columnChange.hasOwnProperty("destinationId")
+    )
+      throw "Payload must contain sourceId and destinationId";
+  }
+}
+
+async function handleUpdates(updates, task) {
   if (updates.hasOwnProperty("title")) {
     task.set("title", updates.title);
   }
@@ -91,5 +102,60 @@ function handleUpdates(updates, task) {
   if (updates.hasOwnProperty("selectedProposals")) {
     task.set("selectedProposals", updates.selectedProposals);
   }
+  if (updates.hasOwnProperty("columnChange")) {
+    const response = await handleColumnUpdate(
+      task.get("boardId"),
+      task.get("taskId"),
+      updates.columnChange.sourceId,
+      updates.columnChange.destinationId
+    );
+  }
   return task;
+}
+
+async function handleColumnUpdate(boardId, taskId, sourceId, destinationId) {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const board = await getBoardByObjectId(boardId);
+
+    logger.info(
+      `Handling column update for task ${boardId} ${taskId} ${sourceId} ${destinationId}`
+    );
+    var columns = board.get("columns");
+    const newSource = removeTaskFromColumn(columns[sourceId], taskId);
+    logger.info(`newSource: ${JSON.stringify(newSource)}`);
+
+    const newDestination = addTaskToColumn(columns[destinationId], taskId);
+    logger.info(`newDestination: ${JSON.stringify(newDestination)}`);
+
+    columns = {
+      ...columns,
+      [newSource.id]: newSource,
+      [newDestination.id]: newDestination,
+    };
+    logger.info(`columns: ${JSON.stringify(columns)}`);
+    board.set("columns", columns);
+    return await Moralis.Object.saveAll([board], { useMasterKey: true });
+  } catch (err) {
+    throw `${err}`;
+  }
+}
+
+function removeTaskFromColumn(column, taskId) {
+  const index = column.taskIds.indexOf(taskId);
+  const taskIds = Array.from(column.taskIds); // copy
+  taskIds.splice(index, 1);
+  return {
+    ...column,
+    taskIds: taskIds,
+  };
+}
+
+function addTaskToColumn(column, taskId) {
+  const taskIds = Array.from(column.taskIds); // copy
+  taskIds.push(taskId);
+  return {
+    ...column,
+    taskIds: taskIds,
+  };
 }

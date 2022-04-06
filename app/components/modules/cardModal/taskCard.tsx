@@ -22,22 +22,8 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { BoardData, Column, Task } from "../../../types";
 import { formatTime, getMD5String } from "../../../utils/utils";
-import {
-  assignToMe,
-  updateTaskDescription,
-  updateTaskTitle,
-  completePayment,
-  archiveTask,
-} from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import ReactMde from "react-mde";
-import * as Showdown from "showdown";
-import { labelsMapping, registryTemp } from "../../../constants";
-import { actionMap, monthMap } from "../../../constants";
-import { distributeEther, batchPayTokens } from "../../../adapters/contract";
-import { LinkPreview } from "@dhaiwat10/react-link-preview";
 import { notify } from "../settingsTab";
-import { Toaster } from "react-hot-toast";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { approve } from "../../../adapters/contract";
 import MemberPopover from "./memberPopover";
@@ -46,10 +32,13 @@ import DatePopover from "./datePopover";
 import CardTypePopover from "./cardTypePopover";
 import LabelPopover from "./labelPopover";
 import ColumnPopover from "./columnPopover";
+import MarkdownEditor from "./markdownEditor";
 import TabularDetails from "./tabularDetails";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import dynamic from "next/dynamic";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+
 let BlockEditor = dynamic(() => import("../blockEditor"), {
   ssr: false,
 });
@@ -60,12 +49,6 @@ type Props = {
   submissionPR: any;
   column: Column;
 };
-const converter = new Showdown.Converter({
-  tables: true,
-  simplifiedAutoLink: true,
-  strikethrough: true,
-  tasklists: true,
-});
 
 function doShowPayButton(user: any, task: Task) {
   if (user?.get("distributorApproved")) {
@@ -87,10 +70,10 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState({} as any);
-  const [description, setDescription] = useState(task.description);
   const [showPayButton, setShowPayButton] = useState(
     doShowPayButton(user, task)
   );
+  const { runMoralisFunction } = useMoralisFunction();
 
   const handleClick =
     (field: string) => (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -104,15 +87,35 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
     return space.members.indexOf(user?.id as string) !== -1;
   };
 
-  const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
   const [title, setTitle] = useState(task.title);
   const [isLoadingTask, setIsLoadingTask] = useState(false);
 
-  useEffect(() => {
-    if (!(task.access.creator || task.access.reviewer)) {
-      setSelectedTab("preview");
+  const handleSave = () => {
+    if (task.access.creator || task.access.reviewer) {
+      const prevTask = Object.assign({}, task);
+      const temp = Object.assign({}, task);
+      temp.title = title;
+      setTask(temp);
+      runMoralisFunction("updateCard", {
+        updates: {
+          title: title,
+          taskId: task.taskId,
+        },
+      })
+        .then((res: any) => {
+          console.log(res);
+          setSpace(res);
+        })
+        .catch((err: any) => {
+          setTask(prevTask);
+          notify(`${err.message}`, "error");
+        });
     }
-  }, []);
+  };
+
+  useEffect(() => {
+    setTitle(task.title);
+  }, [task]);
 
   return (
     <Container>
@@ -125,20 +128,7 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
           fullWidth
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          onBlur={() => {
-            if (task.access.creator || task.access.reviewer) {
-              updateTaskTitle(Moralis, title, task.taskId)
-                .then((res: BoardData) => {
-                  setSpace(res);
-                })
-                .catch((err: any) => {
-                  notify(
-                    "Sorry! There was an error while updating task title.",
-                    "error"
-                  );
-                });
-            }
-          }}
+          onBlur={handleSave}
           readOnly={!(task.access.creator || task.access.reviewer)}
         />
         <Box sx={{ flex: "1 1 auto" }} />
@@ -153,11 +143,11 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
         </IconButton>
       </TaskModalTitleContainer>
       <Box sx={{ width: "fit-content", display: "flex", flexWrap: "wrap" }}>
-        <CardTypePopover task={task} />
+        <CardTypePopover task={task} setTask={setTask} />
         <ColumnPopover task={task} column={column} />
       </Box>
 
-      <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", marginBottom: "16px" }}>
         <MemberPopover type={"reviewer"} task={task} setTask={setTask} />
         <MemberPopover type={"assignee"} task={task} setTask={setTask} />
         <RewardPopover task={task} setTask={setTask} />
@@ -167,44 +157,12 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
 
       <TaskModalBodyContainer>
         {/*<BlockEditor />*/}
-        <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
-          <ReactMde
-            value={description}
-            onChange={(value) => setDescription(value)}
-            selectedTab={selectedTab}
-            onTabChange={setSelectedTab}
-            generateMarkdownPreview={(markdown) =>
-              Promise.resolve(converter.makeHtml(markdown))
-            }
-            childProps={{
-              writeButton: {
-                tabIndex: -1,
-              },
-            }}
-            readOnly={!(task.access.creator || task.access.reviewer)}
-          />
-          {(task.access.creator || task.access.reviewer) && (
-            <PrimaryButton
-              variant="outlined"
-              sx={{ mt: 4, borderRadius: 1 }}
-              color="secondary"
-              size="small"
-              loading={isLoading}
-              onClick={() => {
-                setIsLoading(true);
-                updateTaskDescription(Moralis, description, task.taskId).then(
-                  (res: BoardData) => {
-                    setSpace(res);
-                    setIsLoading(false);
-                  }
-                );
-              }}
-            >
-              Save
-            </PrimaryButton>
-          )}
+        <Box sx={{ marginBottom: "16px" }}>
+          <MarkdownEditor task={task} setTask={setTask} />
         </Box>
-        <TabularDetails task={task} showTabs={[0, 1, 2]} />
+        <Box sx={{ marginBottom: "16px" }}>
+          <TabularDetails task={task} showTabs={[0, 1, 2]} />
+        </Box>
       </TaskModalBodyContainer>
     </Container>
   );

@@ -1,22 +1,17 @@
-import styled from "@emotion/styled";
 import {
   Autocomplete,
+  Box,
   Popover,
   TextField,
   Typography,
-  Box,
-  Avatar,
 } from "@mui/material";
-import { type } from "os";
-import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { updateTaskMember } from "../../../adapters/moralis";
-import { Column, Task } from "../../../types";
-import { PrimaryButton, CardButton } from "../../elements/styledComponents";
-import { PopoverContainer } from "./styles";
+import React, { useState } from "react";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { Column, Task } from "../../../types";
+import { CardButton, PrimaryButton } from "../../elements/styledComponents";
 import { notify } from "../settingsTab";
-import PersonIcon from "@mui/icons-material/Person";
+import { PopoverContainer } from "./styles";
 
 type Props = {
   task: Task;
@@ -24,18 +19,42 @@ type Props = {
 };
 
 const ColumnPopover = ({ task, column }: Props) => {
-  const [status, setStatus] = useState(column?.title);
+  const [currStatus, setCurrStatus] = useState(column.id);
+  const [status, setStatus] = useState(column.id);
   const [isLoading, setIsLoading] = useState(false);
-  const { Moralis } = useMoralis();
   const { space, setSpace } = useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
+  const { runMoralisFunction } = useMoralisFunction();
+
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleSave = () => {
+    const prevStatus = currStatus;
+    setCurrStatus(status);
+    runMoralisFunction("updateCard", {
+      updates: {
+        columnChange: {
+          sourceId: column.id,
+          destinationId: status,
+        },
+        taskId: task.taskId,
+      },
+    })
+      .then((res: any) => {
+        console.log(res);
+        setSpace(res);
+      })
+      .catch((err: any) => {
+        setCurrStatus(prevStatus);
+        notify(`${err.message}`, "error");
+      });
   };
   return (
     <>
@@ -62,7 +81,7 @@ const ColumnPopover = ({ task, column }: Props) => {
               fontSize: 14,
             }}
           >
-            {status}
+            {space.columns[currStatus].title}
           </Typography>
         </CardButton>
       </Box>
@@ -78,12 +97,13 @@ const ColumnPopover = ({ task, column }: Props) => {
       >
         <PopoverContainer>
           <Autocomplete
-            options={Object.values(space.columns).map((column) => column.title)}
+            options={space.columnOrder}
             value={status}
-            //getOptionLabel={(option) => space.memberDetails[option].username}
+            getOptionLabel={(option) => space.columns[option].title}
             onChange={(event, newValue) => {
               setStatus(newValue as any);
             }}
+            disableClearable
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -99,7 +119,7 @@ const ColumnPopover = ({ task, column }: Props) => {
             color="secondary"
             sx={{ mt: 4, borderRadius: 1 }}
             loading={isLoading}
-            onClick={() => {}}
+            onClick={handleSave}
           >
             Save
           </PrimaryButton>

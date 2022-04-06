@@ -1,31 +1,27 @@
-import styled from "@emotion/styled";
 import {
   Autocomplete,
+  Box,
   Popover,
   TextField,
   Typography,
-  Box,
-  Avatar,
 } from "@mui/material";
-import { type } from "os";
 import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { updateTaskMember } from "../../../adapters/moralis";
-import { BoardData, Task } from "../../../types";
-import { PrimaryButton, CardButton } from "../../elements/styledComponents";
-import { PopoverContainer } from "./styles";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { Task } from "../../../types";
+import { CardButton, PrimaryButton } from "../../elements/styledComponents";
 import { notify } from "../settingsTab";
-import PersonIcon from "@mui/icons-material/Person";
+import { PopoverContainer } from "./styles";
 
 type Props = {
   task: Task;
+  setTask: (task: Task) => void;
 };
 
-const CardTypePopover = ({ task }: Props) => {
-  const [type, setType] = useState("Bounty");
+const CardTypePopover = ({ task, setTask }: Props) => {
+  const [type, setType] = useState(task?.type || "Task");
   const [isLoading, setIsLoading] = useState(false);
-  const { Moralis } = useMoralis();
+  const { runMoralisFunction } = useMoralisFunction();
   const { space, setSpace } = useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
@@ -38,8 +34,30 @@ const CardTypePopover = ({ task }: Props) => {
     setOpen(false);
   };
 
+  const handleSave = () => {
+    const prevTask = Object.assign({}, task);
+    const temp = Object.assign({}, task);
+    temp.type = type;
+    setTask(temp);
+    handleClose();
+    runMoralisFunction("updateCard", {
+      updates: {
+        cardType: type,
+        taskId: task.taskId,
+      },
+    })
+      .then((res: any) => {
+        console.log(res);
+        setSpace(res);
+      })
+      .catch((err: any) => {
+        setTask(prevTask);
+        notify(`${err.message}`, "error");
+      });
+  };
+
   useEffect(() => {
-    setType(task?.type);
+    task?.type ? setType(task.type) : setType("Task");
   }, [task]);
 
   return (
@@ -67,7 +85,7 @@ const CardTypePopover = ({ task }: Props) => {
               fontSize: 14,
             }}
           >
-            {type || "Task"}
+            {task.type || "Task"}
           </Typography>
         </CardButton>
       </Box>
@@ -85,10 +103,10 @@ const CardTypePopover = ({ task }: Props) => {
           <Autocomplete
             options={["Task", "Bounty"]} // Get options from members
             value={type as any}
-            //getOptionLabel={(option) => space.memberDetails[option].username}
             onChange={(event, newValue) => {
               setType(newValue as string);
             }}
+            disableClearable
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -104,7 +122,7 @@ const CardTypePopover = ({ task }: Props) => {
             color="secondary"
             sx={{ mt: 4, borderRadius: 1 }}
             loading={isLoading}
-            onClick={() => {}}
+            onClick={handleSave}
           >
             Save
           </PrimaryButton>

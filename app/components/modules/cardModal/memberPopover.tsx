@@ -46,6 +46,8 @@ const MemberPopover = ({ type, task, setTask }: Props) => {
     const temp = Object.assign({}, task);
     if (type === "reviewer") {
       temp.reviewer = [member];
+      setTask(temp);
+      handleClose();
       runMoralisFunction("updateCard", {
         updates: {
           reviewer: member ? [member] : [],
@@ -62,6 +64,8 @@ const MemberPopover = ({ type, task, setTask }: Props) => {
         });
     } else {
       temp.assignee = [member];
+      setTask(temp);
+      handleClose();
       runMoralisFunction("updateCard", {
         updates: {
           assignee: member ? [member] : [],
@@ -77,8 +81,6 @@ const MemberPopover = ({ type, task, setTask }: Props) => {
           notify(`${err.message}`, "error");
         });
     }
-    setTask(temp);
-    handleClose();
   };
 
   useEffect(() => {
