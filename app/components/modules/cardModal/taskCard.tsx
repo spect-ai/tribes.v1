@@ -18,9 +18,6 @@ import MemberPopover from "./memberPopover";
 import RewardPopover from "./rewardPopover";
 import TabularDetails from "./tabularDetails";
 
-let BlockEditor = dynamic(() => import("../blockEditor"), {
-  ssr: false,
-});
 type Props = {
   task: Task;
   setTask: (task: Task) => void;

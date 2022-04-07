@@ -9,8 +9,10 @@ import TaskCard from "./taskCard";
 import SkeletonLoader from "./skeletonLoader";
 
 type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
+  isOpen: boolean;
+  handleClose: () => void;
+  taskId: string;
+  column: Column;
 };
 
 const Activity = ({ isOpen, handleClose, taskId, column }: Props) => {
