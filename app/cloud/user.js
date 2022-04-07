@@ -82,6 +82,12 @@ function getAllAssociatedUsersIds(board, tasks, epochs) {
   for (var task of tasks) {
     taskMembers = taskMembers.concat(task.assignee).concat(task.reviewer);
     taskMembers.push(task.creator);
+    logger.info(`task ${JSON.stringify(task)}`);
+    if (task.proposals) {
+      for (var proposal of task.proposals) {
+        taskMembers.push(proposal.userId);
+      }
+    }
   }
 
   var epochMembers = [];

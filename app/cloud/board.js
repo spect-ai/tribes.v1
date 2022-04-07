@@ -30,7 +30,22 @@ async function getBoardObjWithTasksByObjectId(objectId, callerId) {
     var tasks = await getTaskObjByBoardId(objectId);
     var boardTasks = {};
     for (var task of tasks) {
-      const access = getFieldLevelAccess(task, callerId);
+      const access = getCardAccess(task, callerId);
+      task.access = access;
+      boardTasks[task.taskId] = task;
+    }
+    board[0].tasks = boardTasks;
+  }
+  return board;
+}
+
+async function getBoardObjWithTasksAndProposalsByObjectId(objectId, callerId) {
+  var board = await getBoardObjByObjectId(objectId, callerId);
+  if (board.length > 0) {
+    var tasks = await getTaskObjByBoardIdWithProposals(objectId);
+    var boardTasks = {};
+    for (var task of tasks) {
+      const access = getCardAccess(task, callerId);
       task.access = access;
       boardTasks[task.taskId] = task;
     }
@@ -143,20 +158,24 @@ async function getSpace(boardId, callerId, firstLoad = false) {
         useMasterKey: true,
       });
     }
-    boardObj = await getBoardObjWithTasksByObjectId(boardId, callerId);
+    boardObj = await getBoardObjWithTasksAndProposalsByObjectId(
+      boardId,
+      callerId
+    );
+
+    const canReadSpace = canRead(boardObj[0], callerId);
+    if (!canReadSpace) throw "You dont have access to view this space";
+
+    const epochs = await getEpochsBySpaceId(boardObj[0].objectId, callerId);
+    var userIds = getAllAssociatedUsersIds(
+      boardObj[0],
+      Object.values(boardObj[0].tasks),
+      epochs
+    );
 
     boardObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
-      boardObj[0].members
+      userIds
     );
-    // const canReadSpace = canRead(boardObj[0], callerId);
-    // if (!canReadSpace) throw "You dont have access to view this space";
-
-    // const epochs = await getEpochsBySpaceId(boardObj[0].objectId, callerId);
-    // var userIds = getAllAssociatedUsersIds(
-    //   boardObj[0],
-    //   Object.values(boardObj[0].tasks),
-    //   epochs
-    // );
     return boardObj[0];
   } catch (err) {
     logger.error(`Error while getting board - ${err}`);

@@ -38,6 +38,28 @@ async function getTaskObjByBoardId(boardId) {
         description: 0,
         submission: 0,
         activity: 0,
+        proposals: 0,
+        selectedProposals: 0,
+      },
+    },
+  ];
+  return await taskQuery.aggregate(pipeline, { useMasterKey: true });
+}
+
+async function getTaskObjByBoardIdWithProposals(boardId) {
+  const taskQuery = new Moralis.Query("Task");
+  const pipeline = [
+    {
+      match: {
+        boardId: boardId,
+        status: { $ne: 400 },
+      },
+    },
+    {
+      project: {
+        description: 0,
+        submission: 0,
+        activity: 0,
       },
     },
   ];
@@ -107,34 +129,6 @@ function getTaskObjByTaskParseObj(task) {
     status: task.get("status"),
   };
 }
-
-Moralis.Cloud.define("getTask", async (request) => {
-  const logger = Moralis.Cloud.getLogger();
-  try {
-    if (request.params.taskId) {
-      const task = await getTaskObjByTaskId(request.params.taskId);
-      logger.info(`getTask: ${JSON.stringify(task)}`);
-      if (!task) throw `Task ${request.params.taskId} not found`;
-
-      // Get space to check if user can view it
-      const space = await getBoardObjByObjectId(task.boardId, request.user?.id);
-      const canReadSpace = canRead(space[0], request.user?.id);
-      if (!canReadSpace) throw "You dont have access to view this space";
-
-      // Get access level of caller
-      const access = getFieldLevelAccess(task, request.user?.id);
-      task.access = access;
-      logger.info(`access ${JSON.stringify(access)}`);
-
-      return task;
-    }
-  } catch (err) {
-    logger.error(
-      `Error while getting task from board ${request.params.taskId}: ${err}`
-    );
-    throw err;
-  }
-});
 
 Moralis.Cloud.define("updateTaskColumn", async (request) => {
   const logger = Moralis.Cloud.getLogger();

@@ -26,7 +26,7 @@ const TabularDetails = ({ task, setTask }: Props) => {
     setTab(newValue);
   };
   const [tabs, setTabs] = useState([
-    "Proposals",
+    "Applicants",
     "Submissions",
     "Activity",
   ] as string[]);

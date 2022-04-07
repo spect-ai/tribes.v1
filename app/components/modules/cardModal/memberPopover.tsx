@@ -159,7 +159,7 @@ const MemberPopover = ({ type, task, setTask }: Props) => {
           <Autocomplete
             options={space.members} // Get options from members
             value={member as any}
-            getOptionLabel={(option) => space.memberDetails[option].username}
+            getOptionLabel={(option) => space.memberDetails[option]?.username}
             onChange={(event, newValue) => {
               setMember(newValue as string);
             }}

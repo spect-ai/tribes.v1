@@ -143,6 +143,8 @@ export interface Task {
   type: string;
   submissions: Array<Submission>;
   proposals: Array<Proposal>;
+  numProposals: number;
+  selectedProposals: Array<string>;
 }
 
 export interface Submission {

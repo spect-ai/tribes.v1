@@ -90,26 +90,18 @@ async function handleUpdates(updates, task, callerId) {
     ]);
   }
   if (updates.hasOwnProperty("proposal")) {
-    task.get("proposals")
-      ? task.set("proposals", [
-          ...task.get("proposals"),
-          {
-            id: crypto.randomUUID(),
-            userId: callerId,
-            description: updates.proposal.description,
-          },
-        ])
-      : task.set("proposals", [
-          {
-            id: crypto.randomUUID(),
-            userId: callerId,
-            description: updates.proposal.description,
-          },
-        ]);
+    task = handleProposalUpdate(task, updates, callerId);
   }
 
   if (updates.hasOwnProperty("selectedProposals")) {
-    task.set("selectedProposals", updates.selectedProposals);
+    const proposalIdx = task
+      .get("proposals")
+      .findIndex((p) => p.id === updates.selectedProposals[0]);
+    if (proposalIdx === -1) throw "Proposal not found";
+    else {
+      task.set("selectedProposals", updates.selectedProposals);
+      task.set("assignee", [task.get("proposals")[proposalIdx].userId]);
+    }
   }
   if (updates.hasOwnProperty("columnChange")) {
     const response = await handleColumnUpdate(
@@ -148,6 +140,50 @@ async function handleColumnUpdate(boardId, taskId, sourceId, destinationId) {
   } catch (err) {
     throw `${err}`;
   }
+}
+
+function handleProposalUpdate(task, updates, callerId) {
+  if (task.get("proposals")) {
+    var existingProposalIndex = task
+      .get("proposals")
+      .findIndex((proposal) => proposal.userId === callerId);
+    logger.info(
+      `existingProposalIndex: ${JSON.stringify(existingProposalIndex)}`
+    );
+    if (existingProposalIndex !== -1) {
+      // User has already submitted a proposal
+      const updatedProposal = {
+        id: task.get("proposals")[existingProposalIndex].id,
+        userId: callerId,
+        description: updates.proposal.description,
+        lastUpdated: new Date(),
+      };
+      task.get("proposals").splice(existingProposalIndex, 1);
+      task.set("proposals", [...task.get("proposals"), updatedProposal]);
+    } else {
+      // User has not submitted a proposal yet
+      task.set("proposals", [
+        ...task.get("proposals"),
+        {
+          id: crypto.randomUUID(),
+          userId: callerId,
+          description: updates.proposal.description,
+          lastUpdated: new Date(),
+        },
+      ]);
+    }
+  } else {
+    // Proposal field is null or undefined (for smooth backward compatibility)
+    task.set("proposals", [
+      {
+        id: crypto.randomUUID(),
+        userId: callerId,
+        description: updates.proposal.description,
+      },
+    ]);
+  }
+
+  return task;
 }
 
 function removeTaskFromColumn(column, taskId) {
