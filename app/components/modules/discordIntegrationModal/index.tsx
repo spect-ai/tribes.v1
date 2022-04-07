@@ -64,7 +64,11 @@ const DiscordIntegrationModal = ({ isOpen, handleClose, user }: Props) => {
           </Typography>
           {user ? (
             <a
-              href={`https://discord.com/api/oauth2/authorize?client_id=942494607239958609&redirect_uri=https%3A%2F%2Ftribes.spect.network%2F&response_type=code&scope=identify`}
+              href={`https://discord.com/api/oauth2/authorize?client_id=942494607239958609&redirect_uri=${
+                process.env.ENV === "local"
+                  ? "http%3A%2F%2Flocalhost%3A3000%2F"
+                  : "https%3A%2F%2Ftribes.spect.network%2F"
+              }&response_type=code&scope=identify`}
               target="_blank"
               rel="noreferrer"
               style={{
