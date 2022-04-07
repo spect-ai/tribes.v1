@@ -8,9 +8,9 @@ import { Grow } from "@mui/material";
 const MENU_HEIGHT = 150;
 const allowedTags = [
   {
-    id: "page-title",
+    id: "title",
     tag: "h1",
-    label: "Page Title",
+    label: "Title",
   },
   {
     id: "heading",
@@ -23,9 +23,9 @@ const allowedTags = [
     label: "Subheading",
   },
   {
-    id: "paragraph",
+    id: "text",
     tag: "p",
-    label: "Paragraph",
+    label: "Simple Text",
   },
   {
     id: "image",
@@ -33,26 +33,22 @@ const allowedTags = [
     label: "Image",
   },
   {
-    id: "unorderedlist",
-    tag: "li",
-    label: "Bullet List",
+    id: "bulletList",
+    tag: "p",
+    type: "ul",
+    label: "List",
   },
   {
-    id: "orderedlist",
-    tag: "ol",
-    label: "Numbered List",
-  },
-  {
-    id: "link",
-    tag: "a",
-    label: "Link",
+    id: "embed",
+    tag: "embed",
+    label: "Embed",
   },
 ];
 
 type props = {
   position: any;
   closeMenu: () => void;
-  handleSelection: (tag: string) => void;
+  handleSelection: (tag: string, parent?: string) => void;
   isOpen: boolean;
 };
 
@@ -76,8 +72,11 @@ const TagSelectorMenu = ({
 
   // Filter tagList based on given command
   useEffect(() => {
-    console.log({ tagList });
-    setTagList(matchSorter(allowedTags, command, { keys: ["tag"] }));
+    if (command) {
+      setTagList(matchSorter(allowedTags, command, { keys: ["id"] }));
+    } else {
+      setTagList(allowedTags);
+    }
   }, [command, isOpen]);
 
   // Attach listener to allow tag selection via keyboard
@@ -86,7 +85,7 @@ const TagSelectorMenu = ({
       const handleKeyDown = (e: any) => {
         if (e.key === "Enter") {
           e.preventDefault();
-          handleSelection(tagList[selectedTag].tag);
+          handleSelection(tagList[selectedTag].tag, tagList[selectedTag].type);
         } else if (e.key === "Tab" || e.key === "ArrowDown") {
           e.preventDefault();
           const newSelectedTag =

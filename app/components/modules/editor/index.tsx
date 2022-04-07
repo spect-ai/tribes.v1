@@ -1,32 +1,54 @@
 import styled from "@emotion/styled";
 import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 import usePrevious from "../../../hooks/usePrevious";
 import { setCaretToEnd, uid } from "../../../utils/utils";
 import EditableBlock from "./editableBlock";
 
-type Props = {};
+type Props = {
+  taskId: string;
+};
 
-const Editor = (props: Props) => {
-  const initialBlock = { id: uid(), html: "", tag: "p" };
+const Editor = ({ taskId }: Props) => {
+  const initialBlock = {
+    id: uid(),
+    html: "",
+    tag: "p",
+    type: "",
+    imageUrl: "",
+    embedUrl: "",
+  };
   const [blocks, setBlocks] = useState([initialBlock]);
   const [currentBlockId, setCurrentBlockId] = useState("");
+  const { runMoralisFunction } = useMoralisFunction();
   const prevBlocks = usePrevious(blocks);
 
-  const updatePageHandler = (updatedBlock: any) => {
+  const updateBlockHandler = (updatedBlock: any) => {
     const index = blocks.map((b) => b.id).indexOf(updatedBlock.id);
+    console.log({ updatedBlock });
     const updatedBlocks = [...blocks];
     updatedBlocks[index] = {
       ...updatedBlocks[index],
       tag: updatedBlock.tag,
       html: updatedBlock.html,
+      imageUrl: updatedBlock.imageUrl,
+      embedUrl: updatedBlock.embedUrl,
     };
     setBlocks(updatedBlocks);
   };
 
   const addBlockHandler = (currentBlock: any) => {
     setCurrentBlockId(currentBlock.id);
-    const newBlock = { id: uid(), html: "", tag: "p" };
+    console.log({ blocks });
+    const newBlock = {
+      id: uid(),
+      html: "",
+      tag: "p",
+      type: `${currentBlock.type}`,
+      imageUrl: "",
+      embedUrl: "",
+    };
     const index = blocks.map((b) => b.id).indexOf(currentBlock.id);
     const updatedBlocks = [...blocks];
     updatedBlocks.splice(index + 1, 0, newBlock);
@@ -34,8 +56,22 @@ const Editor = (props: Props) => {
       ...updatedBlocks[index],
       tag: currentBlock.tag,
       html: currentBlock.html,
+      type: currentBlock.type,
+      imageUrl: currentBlock.imageUrl,
     };
     setBlocks(updatedBlocks);
+    console.log("update sent");
+    console.log({ updatedBlocks });
+    runMoralisFunction("addBlockTaskDescription", {
+      taskId,
+      blocks: updatedBlocks,
+    })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((res) => {
+        console.log(res);
+      });
   };
 
   const deleteBlockHandler = (currentBlock: any) => {
@@ -96,6 +132,17 @@ const Editor = (props: Props) => {
     }
   }, [blocks, prevBlocks, currentBlockId]);
 
+  useEffect(() => {
+    runMoralisFunction("getTaskDescription", { taskId })
+      .then((res) => {
+        setBlocks(res.blocks);
+        console.log({ res });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
+
   return (
     <Container>
       <DragDropContext onDragEnd={onDragEndHandler}>
@@ -109,13 +156,11 @@ const Editor = (props: Props) => {
                     key={block.id}
                     position={position}
                     id={block.id}
-                    tag={block.tag}
-                    html={block.html}
-                    pageId={"id"}
+                    block={block}
                     blocks={blocks}
                     addBlock={addBlockHandler}
                     deleteBlock={deleteBlockHandler}
-                    updatePage={updatePageHandler}
+                    updateBlock={updateBlockHandler}
                   />
                 );
               })}

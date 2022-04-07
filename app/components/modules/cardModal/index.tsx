@@ -74,8 +74,8 @@ const ModalContainer = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: "auto",
-  height: "30rem",
-  padding: "3rem",
+  height: "33rem",
+  padding: "1.5rem 3rem",
 }));
 
 export default CardModal;

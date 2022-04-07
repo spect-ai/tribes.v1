@@ -165,31 +165,39 @@ export const getCaretCoordinates = (fromStart = true) => {
     const range = selection?.getRangeAt(0).cloneRange();
     var span = document.createElement("span");
     const modal = document.getElementById("cardModal");
-
-    console.log(modal?.scrollTop);
     const modalRect = modal?.getClientRects()[0];
-    console.log({ modalRect });
     if (span.getClientRects) {
       span.appendChild(document.createTextNode("\u200b"));
       range?.insertNode(span);
       const rect = span.getClientRects()[0];
-      console.log({ rect });
       if (rect) {
-        // @ts-ignore
-        x = rect.left - modalRect.left;
-        // @ts-ignore
-        y = rect.top + modal?.scrollTop;
+        if (rect.top > 350) {
+          // @ts-ignore
+          x = rect.left - modalRect.left;
+          // @ts-ignore
+          y = rect.top + modal?.scrollTop;
+        } else {
+          // @ts-ignore
+          x = rect.left - modalRect.left;
+          // @ts-ignore
+          y = rect.top + modal?.scrollTop + 100;
+        }
       }
       var spanParent = span.parentNode;
       spanParent?.removeChild(span);
     }
-    // console.log(selection);
-    // if (selection?.rangeCount !== 0) {
-    //   const range = selection?.getRangeAt(0).cloneRange();
-    //   range?.collapse(false);
-    //   const rect = range?.getClientRects()[0];
-
-    // }
   }
   return { x, y };
 };
+
+export function isValidHttpUrl(string: string) {
+  let url;
+
+  try {
+    url = new URL(string);
+  } catch (_) {
+    return false;
+  }
+
+  return url.protocol === "http:" || url.protocol === "https:";
+}

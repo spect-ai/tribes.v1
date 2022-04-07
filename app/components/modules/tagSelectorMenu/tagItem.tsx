@@ -4,7 +4,7 @@ import styles from "./styles.module.scss";
 type Props = {
   selected: boolean;
   tag: any;
-  handleSelection: (tag: string) => void;
+  handleSelection: (tag: string, type?: string) => void;
 };
 
 const TagItem = ({ selected, tag, handleSelection }: Props) => {
@@ -29,7 +29,7 @@ const TagItem = ({ selected, tag, handleSelection }: Props) => {
       }
       role="button"
       tabIndex={0}
-      onClick={() => handleSelection(tag.tag)}
+      onClick={() => handleSelection(tag.tag, tag.type)}
     >
       {tag.label}
     </div>

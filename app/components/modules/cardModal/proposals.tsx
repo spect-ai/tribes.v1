@@ -245,9 +245,9 @@ const Proposals = ({ task, setTask }: Props) => {
                       onClick={() => {
                         handlePick(proposal.id, index, proposal.userId);
                       }}
-                      disabled={task.selectedProposals.includes(proposal.id)}
+                      disabled={task.selectedProposals?.includes(proposal.id)}
                     >
-                      {task.selectedProposals.includes(proposal.id)
+                      {task.selectedProposals?.includes(proposal.id)
                         ? `Picked`
                         : `Pick`}
                     </PrimaryButton>

@@ -278,3 +278,12 @@ export type CurrentUser = {
   email: string;
   discordId: string;
 };
+
+export type Block = {
+  id: string;
+  tag: string;
+  type: string;
+  html: string;
+  imageUrl: string;
+  embedUrl: string;
+};
