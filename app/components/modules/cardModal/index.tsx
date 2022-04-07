@@ -40,7 +40,7 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
     <div>
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Fade in={isOpen} timeout={500}>
-          <ModalContainer>
+          <ModalContainer id="cardModal">
             {loading ? (
               <SkeletonLoader />
             ) : (
@@ -66,7 +66,7 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
   position: "absolute" as "absolute",
-  top: "40%",
+  top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
   width: "55rem",
@@ -74,9 +74,8 @@ const ModalContainer = styled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: "auto",
-  maxHeight: "40rem",
-  minHeight: "30rem",
-  padding: "1.5rem",
+  height: "30rem",
+  padding: "3rem",
 }));
 
 export default CardModal;

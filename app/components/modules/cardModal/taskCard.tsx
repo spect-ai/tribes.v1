@@ -1,43 +1,21 @@
-import {
-  Box,
-  ListItem,
-  Grid,
-  Avatar,
-  ListItemText,
-  InputBase,
-  IconButton,
-  Typography,
-  Tooltip,
-  Chip,
-  Button,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-import Divider from "@mui/material/Divider";
-import {
-  FieldContainer,
-  PrimaryButton,
-  CardButton,
-} from "../../elements/styledComponents";
 import CloseIcon from "@mui/icons-material/Close";
-import { BoardData, Column, Task } from "../../../types";
-import { formatTime, getMD5String } from "../../../utils/utils";
+import { Box, IconButton, InputBase } from "@mui/material";
+import dynamic from "next/dynamic";
+import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
-import { notify } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { approve } from "../../../adapters/contract";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { Column, Task } from "../../../types";
+import { notify } from "../settingsTab";
+import CardTypePopover from "./cardTypePopover";
+import ColumnPopover from "./columnPopover";
+import DatePopover from "./datePopover";
+import LabelPopover from "./labelPopover";
+import MarkdownEditor from "./markdownEditor";
 import MemberPopover from "./memberPopover";
 import RewardPopover from "./rewardPopover";
-import DatePopover from "./datePopover";
-import CardTypePopover from "./cardTypePopover";
-import LabelPopover from "./labelPopover";
-import ColumnPopover from "./columnPopover";
-import MarkdownEditor from "./markdownEditor";
 import TabularDetails from "./tabularDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import OpenInFullIcon from "@mui/icons-material/OpenInFull";
-import dynamic from "next/dynamic";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 
 let BlockEditor = dynamic(() => import("../blockEditor"), {
   ssr: false,
