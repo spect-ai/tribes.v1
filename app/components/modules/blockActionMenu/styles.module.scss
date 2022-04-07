@@ -1,0 +1,30 @@
+$tertiary: #000f38;
+$secondary: #f5f5f5;
+$box-shadow: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px,
+  rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px;
+
+.menuWrapper {
+  position: absolute;
+  width: auto;
+  height: 2.5rem;
+  z-index: 11;
+}
+
+.menu {
+  width: auto;
+  height: 100%;
+  box-shadow: $box-shadow;
+  border-radius: 0.2rem;
+  display: flex;
+  align-items: center;
+}
+
+.menuItem {
+  width: auto;
+  min-width: 2rem;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
+}

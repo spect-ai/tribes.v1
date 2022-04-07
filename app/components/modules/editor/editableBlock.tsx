@@ -18,6 +18,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import SimpleErrorBoundary from "../../elements/simpleErrorBoundary";
 import dynamic from "next/dynamic";
 import { Block } from "../../../types";
+import BlockActionMenu from "../blockActionMenu";
 
 let ReactTinyLink: any = dynamic(
   () => import("react-tiny-link").then((mod) => mod.ReactTinyLink),
@@ -27,7 +28,7 @@ let ReactTinyLink: any = dynamic(
 );
 
 type Props = {
-  updateBlock: (args: any) => void;
+  updateBlock: (block: Block, sync: boolean) => void;
   addBlock: (args: any) => void;
   deleteBlock: (args: any) => void;
   position: number;
@@ -45,58 +46,54 @@ const EditableBlock = ({
   addBlock,
   deleteBlock,
 }: Props) => {
-  const [html, setHtml] = useState("");
+  const [html, setHtml] = useState(block.html || "");
   const [htmlBackup, setHtmlBackup] = useState("");
-  const [tag, setTag] = useState("p");
-  const [imageUrl, setImageUrl] = useState("");
-  const [embedUrl, setEmbedUrl] = useState("");
-  const [type, setType] = useState<string | undefined>("");
+  const [tag, setTag] = useState(block.tag || "p");
+  const [imageUrl, setImageUrl] = useState(block.imageUrl || "");
+  const [embedUrl, setEmbedUrl] = useState(block.embedUrl || "");
+  const [type, setType] = useState<string | undefined>(block.type || "");
   const [placeholder, setPlaceholder] = useState(false);
   const [previousKey, setPreviousKey] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isSelectMenuOpen, setIsSelectMenuOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState({} as any);
   const [tagSelectorMenuPosition, setTagSelectorMenuPosition] = useState(
     {} as any
   );
+  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
+  const [actionMenuPosition, setActionMenuPosition] = useState({} as any);
+
   const contentEditableRef = React.createRef<HTMLElement | any>();
   const fileInputRef = React.createRef<HTMLInputElement>();
 
   const { Moralis } = useMoralis();
 
   useEffect(() => {
-    setHtml(block.html);
-    setTag(block.tag);
-    setImageUrl(block.imageUrl);
-    setEmbedUrl(block.embedUrl);
-    setType(block.type);
-  }, []);
-
-  useEffect(() => {
-    updateBlock({
-      html,
-      tag,
-      id,
-      imageUrl,
-      embedUrl,
-    });
-  }, [tag, embedUrl, imageUrl]);
-
-  useEffect(() => {
+    // setHtml(block.html);
+    // setTag(block.tag);
+    // setImageUrl(block.imageUrl);
+    // setEmbedUrl(block.embedUrl);
+    // setType(block.type);
     const hasPlaceholder = addPlaceholder({
       block: contentEditableRef.current,
       position: position,
-      content: html,
+      content: block.html,
     });
-    // if (!hasPlaceholder) {
-    //   this.setState({
-    //     ...this.state,
-    //     html: this.props.html,
-    //     tag: this.props.tag,
-    //     imageUrl: this.props.imageUrl,
-    //   });
-    // }
   }, []);
+
+  useEffect(() => {
+    console.log("aa");
+    updateBlock(
+      {
+        html,
+        tag,
+        id,
+        type: type as string,
+        imageUrl,
+        embedUrl,
+      },
+      false
+    );
+  }, [tag, embedUrl, imageUrl]);
 
   const onKeyUpHandler = (e: any) => {
     if (e.key === "/") {
@@ -107,7 +104,6 @@ const EditableBlock = ({
   const onKeyDownHandler = (e: any) => {
     if (e.key === "/") {
       setHtmlBackup(html);
-      setAnchorEl(e.currentTarget);
     }
     if (e.key === "Enter" && previousKey !== "Shift" && !isSelectMenuOpen) {
       e.preventDefault();
@@ -174,6 +170,7 @@ const EditableBlock = ({
   };
 
   const handleBlur = (e: any) => {
+    console.log("blure");
     // Show placeholder if block is still the only one and empty
     const hasPlaceholder = addPlaceholder({
       block: contentEditableRef.current,
@@ -182,13 +179,17 @@ const EditableBlock = ({
     });
     if (!hasPlaceholder) {
       setIsTyping(false);
-      updateBlock({
-        html,
-        tag,
-        id,
-        imageUrl,
-        embedUrl,
-      });
+      updateBlock(
+        {
+          html,
+          tag,
+          id,
+          type: type as string,
+          imageUrl,
+          embedUrl,
+        },
+        true
+      );
     }
   };
 
@@ -205,9 +206,11 @@ const EditableBlock = ({
 
   // Show a placeholder for blank pages
   const addPlaceholder = ({ block, position, content }: any) => {
+    console.log({ block, content });
     const isFirstBlockWithoutHtml = position === 1 && !content;
     const isFirstBlockWithoutSibling = !block.parentElement.nextElementSibling;
     if (isFirstBlockWithoutHtml && isFirstBlockWithoutSibling) {
+      console.log("placeholder");
       setHtml(`Add some details, press "/" for commands.`);
       setTag("h3");
       setPlaceholder(true);
@@ -277,8 +280,55 @@ const EditableBlock = ({
     }
   };
 
+  const calculateActionMenuPosition = (parent: any, initiator: string) => {
+    switch (initiator) {
+      case "TEXT_SELECTION":
+        const { x: endX, y: endY } = getCaretCoordinates(false); // fromEnd
+        const { x: startX, y: startY } = getCaretCoordinates(true); // fromStart
+        const middleX =
+          (startX as number) + ((endX as number) - (startX as number)) / 2;
+        return { x: middleX, y: startY };
+      case "DRAG_HANDLE_CLICK":
+        const x =
+          parent.offsetLeft - parent.scrollLeft + parent.clientLeft - 90;
+        const y = parent.offsetTop - parent.scrollTop + parent.clientTop + 35;
+        return { x: x, y: y };
+      default:
+        return { x: null, y: null };
+    }
+  };
+
+  const openActionMenu = (parent: any, trigger: string) => {
+    const { x, y } = calculateActionMenuPosition(parent, trigger);
+    setActionMenuPosition({ x, y });
+    setIsActionMenuOpen(true);
+    // Add listener asynchronously to avoid conflicts with
+    // the double click of the text selection
+    setTimeout(() => {
+      document.addEventListener("click", closeActionMenu, false);
+    }, 100);
+  };
+
+  const closeActionMenu = () => {
+    setActionMenuPosition({
+      x: null as unknown as number,
+      y: null as unknown as number,
+    });
+    setIsActionMenuOpen(false);
+    document.removeEventListener("click", closeActionMenu, false);
+  };
+
   return (
     <>
+      {isActionMenuOpen && (
+        <BlockActionMenu
+          position={actionMenuPosition}
+          actions={{
+            deleteBlock: () => deleteBlock({ id }),
+            // turnInto: () => openTagSelectorMenu("ACTION_MENU"),
+          }}
+        />
+      )}
       {isSelectMenuOpen && (
         <TagSelectorMenu
           position={tagSelectorMenuPosition}
@@ -305,6 +355,7 @@ const EditableBlock = ({
                 role="button"
                 tabIndex={0}
                 className={styles.dragHandle}
+                onClick={(e) => openActionMenu(e.target, "DRAG_HANDLE_CLICK")}
                 {...provided.dragHandleProps}
               >
                 <DragIndicatorIcon />

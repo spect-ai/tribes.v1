@@ -98,7 +98,7 @@ function handleCreateTask(
   task.set("creator", userId);
   task.set("reviewer", [userId]);
   task.set("assignee", []);
-  task.set("description", description);
+  // task.set("description", description);
   task.set("activity", [
     {
       actor: userId,

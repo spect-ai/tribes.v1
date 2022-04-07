@@ -7,6 +7,7 @@ import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 import { Column, Task } from "../../../types";
+import Editor from "../editor";
 import { notify } from "../settingsTab";
 import CardTypePopover from "./cardTypePopover";
 import ColumnPopover from "./columnPopover";
@@ -134,10 +135,8 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
       </Box>
 
       <TaskModalBodyContainer>
-        {/*<BlockEditor />*/}
-        <Box sx={{ marginBottom: "16px" }}>
-          <MarkdownEditor task={task} setTask={setTask} />
-        </Box>
+        <Editor taskId={task.taskId} />
+
         <Box sx={{ marginBottom: "16px" }}>
           <TabularDetails task={task} setTask={setTask} />
         </Box>

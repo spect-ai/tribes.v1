@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 import usePrevious from "../../../hooks/usePrevious";
+import { Block } from "../../../types";
 import { setCaretToEnd, uid } from "../../../utils/utils";
 import EditableBlock from "./editableBlock";
 
@@ -24,9 +25,22 @@ const Editor = ({ taskId }: Props) => {
   const { runMoralisFunction } = useMoralisFunction();
   const prevBlocks = usePrevious(blocks);
 
-  const updateBlockHandler = (updatedBlock: any) => {
+  const syncBlocksToMoralis = (blocks: Block[]) => {
+    // console.log({ blocks });
+    runMoralisFunction("addBlockTaskDescription", {
+      taskId,
+      blocks,
+    })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((res) => {
+        console.log(res);
+      });
+  };
+
+  const updateBlockHandler = (updatedBlock: any, sync?: boolean) => {
     const index = blocks.map((b) => b.id).indexOf(updatedBlock.id);
-    console.log({ updatedBlock });
     const updatedBlocks = [...blocks];
     updatedBlocks[index] = {
       ...updatedBlocks[index],
@@ -36,6 +50,10 @@ const Editor = ({ taskId }: Props) => {
       embedUrl: updatedBlock.embedUrl,
     };
     setBlocks(updatedBlocks);
+    console.log({ updatedBlocks });
+    if (sync) {
+      syncBlocksToMoralis(updatedBlocks);
+    }
   };
 
   const addBlockHandler = (currentBlock: any) => {
@@ -60,18 +78,7 @@ const Editor = ({ taskId }: Props) => {
       imageUrl: currentBlock.imageUrl,
     };
     setBlocks(updatedBlocks);
-    console.log("update sent");
-    console.log({ updatedBlocks });
-    runMoralisFunction("addBlockTaskDescription", {
-      taskId,
-      blocks: updatedBlocks,
-    })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((res) => {
-        console.log(res);
-      });
+    syncBlocksToMoralis(updatedBlocks);
   };
 
   const deleteBlockHandler = (currentBlock: any) => {
@@ -82,6 +89,8 @@ const Editor = ({ taskId }: Props) => {
       const updatedBlocks = [...blocks];
       updatedBlocks.splice(index, 1);
       setBlocks(updatedBlocks);
+      syncBlocksToMoralis(updatedBlocks);
+
       // // If the deleted block was an image block, we have to delete
       // // the image file on the server
       // if (deletedBlock.tag === "img" && deletedBlock.imageUrl) {
@@ -103,11 +112,12 @@ const Editor = ({ taskId }: Props) => {
     const removedBlocks = updatedBlocks.splice(source.index - 1, 1);
     updatedBlocks.splice(destination.index - 1, 0, removedBlocks[0]);
     setBlocks(updatedBlocks);
+    syncBlocksToMoralis(updatedBlocks);
   };
 
   useEffect(() => {
     // If a new block was added, move the caret to it
-    if (prevBlocks && prevBlocks.length + 1 === blocks.length) {
+    if (prevBlocks && prevBlocks.length + 1 === blocks?.length) {
       const nextBlockPosition =
         blocks.map((b) => b.id).indexOf(currentBlockId) + 2;
       const nextBlock = document.querySelector(
@@ -119,7 +129,7 @@ const Editor = ({ taskId }: Props) => {
       }
     }
     // If a block was deleted, move the caret to the end of the last block
-    if (prevBlocks && prevBlocks.length - 1 === blocks.length) {
+    if (prevBlocks && prevBlocks.length - 1 === blocks?.length) {
       const lastBlockPosition = prevBlocks
         .map((b: any) => b.id)
         .indexOf(currentBlockId);
@@ -133,10 +143,14 @@ const Editor = ({ taskId }: Props) => {
   }, [blocks, prevBlocks, currentBlockId]);
 
   useEffect(() => {
+    console.log("use efefct");
     runMoralisFunction("getTaskDescription", { taskId })
       .then((res) => {
-        setBlocks(res.blocks);
         console.log({ res });
+        if (res.blocks) {
+          console.log(res.blocks);
+          setBlocks(res.blocks);
+        }
       })
       .catch((err) => {
         console.log(err);
@@ -149,8 +163,9 @@ const Editor = ({ taskId }: Props) => {
         <Droppable droppableId={"id"}>
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              {blocks.map((block) => {
+              {blocks?.map((block) => {
                 const position = blocks.map((b) => b.id).indexOf(block.id) + 1;
+                console.log({ block });
                 return (
                   <EditableBlock
                     key={block.id}
