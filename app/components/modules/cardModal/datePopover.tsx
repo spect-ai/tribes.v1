@@ -1,19 +1,15 @@
-import { DateTimePicker, LocalizationProvider } from "@mui/lab";
-import { Popover, TextField, Box, Avatar, Typography } from "@mui/material";
+import DateRangeIcon from "@mui/icons-material/DateRange";
+import { Avatar, Box, Popover, TextField, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import styled from "@emotion/styled";
-import { PrimaryButton, CardButton } from "../../elements/styledComponents";
-import { BoardData, Task } from "../../../types";
-import { updateTaskDeadline } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import DateRangeIcon from "@mui/icons-material/DateRange";
-import { actionMap, monthMap } from "../../../constants";
-import { formatTime, getMD5String } from "../../../utils/utils";
-import PaidIcon from "@mui/icons-material/Paid";
-import { PopoverContainer } from "./styles";
-import { notify } from "../settingsTab";
+import { monthMap } from "../../../constants";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { Task } from "../../../types";
+import { formatTime } from "../../../utils/utils";
+import { CardButton, PrimaryButton } from "../../elements/styledComponents";
+import { notify } from "../settingsTab";
+import { PopoverContainer } from "./styles";
 
 type Props = {
   task: Task;
@@ -55,7 +51,8 @@ const DatePopover = ({ task, setTask }: Props) => {
     })
       .then((res) => {
         console.log(res);
-        setSpace(res);
+        setSpace(res.space);
+        setTask(res.task);
       })
       .catch((err: any) => {
         setTask(prevTask);

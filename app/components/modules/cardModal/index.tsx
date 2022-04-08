@@ -26,6 +26,7 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
     setLoading(true);
     getTask(Moralis, taskId)
       .then((task: Task) => {
+        console.log(`task`);
         console.log(task);
         setTask(task);
         setLoading(false);

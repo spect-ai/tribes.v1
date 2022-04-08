@@ -7,7 +7,9 @@ import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 import { BoardData, Task } from "../../../types";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { notify } from "../settingsTab";
-import * as Showdown from "showdown";
+import Editor from "../editor";
+import { Block } from "../../../types";
+import { uid } from "../../../utils/utils";
 
 type Props = {
   task: Task;
@@ -18,51 +20,71 @@ const Submission = ({ task, setTask }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
-  const [description, setDescription] = useState(task.description);
-  const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
-
-  const handleSave = () => {
-    const prevTask = Object.assign({}, task);
-    const temp = Object.assign({}, task);
-    temp.description = description;
-    setTask(temp);
+  const taskId = task.taskId;
+  const syncBlocksToMoralis = (blocks: Block[]) => {
+    // console.log({ blocks });
     runMoralisFunction("updateCard", {
       updates: {
-        proposal: description,
+        submission: blocks,
         taskId: task.taskId,
       },
     })
-      .then((res: any) => {
+      .then((res) => {
         console.log(res);
-        setSpace(res);
+        setSpace(res.space);
+        setTask(res.task);
       })
-      .catch((err: any) => {
-        setTask(prevTask);
-        notify(`${err.message}`, "error");
+      .catch((res) => {
+        console.log(res);
       });
   };
 
-  useEffect(() => {
-    setDescription(task.description);
-  }, [task]);
-
-  useEffect(() => {
-    if (!(task.access.creator || task.access.reviewer)) {
-      setSelectedTab("preview");
-    }
-  }, []);
+  const handleAsk = () => {
+    runMoralisFunction("updateCard", {
+      updates: {
+        status: 200,
+        taskId: task.taskId,
+      },
+    })
+      .then((res) => {
+        setSpace(res.space);
+        setTask(res.task);
+      })
+      .catch((res) => {
+        console.log(res);
+      });
+  };
 
   return (
     <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
+      {
+        <Editor
+          syncBlocksToMoralis={syncBlocksToMoralis}
+          initialBlock={
+            task.submissions?.length > 0
+              ? task.submissions[0]
+              : [
+                  {
+                    id: uid(),
+                    html: "",
+                    tag: "p",
+                    type: "",
+                    imageUrl: "",
+                    embedUrl: "",
+                  },
+                ]
+          }
+        />
+      }
       <PrimaryButton
         variant="outlined"
         sx={{ mt: 4, borderRadius: 1 }}
         color="secondary"
         size="small"
         loading={isLoading}
-        onClick={handleSave}
+        onClick={handleAsk}
       >
-        Submit Proposal
+        Ask for Review
       </PrimaryButton>
     </Box>
   );

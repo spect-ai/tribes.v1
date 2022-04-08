@@ -6,9 +6,14 @@ Moralis.Cloud.define("updateCard", async (request) => {
     var task = await getTaskByTaskId(request.params.updates?.taskId);
     validateUpdatePayload(request.params.updates, task, request.user.id);
     task = await handleUpdates(request.params.updates, task, request.user.id);
-    await Moralis.Object.saveAll(task, { useMasterKey: true });
+    const res = await Moralis.Object.saveAll(task, { useMasterKey: true });
+    logger.info(`Response after save task ${JSON.stringify(res)}`);
     logger.info(`Updated task ${JSON.stringify(task)}`);
-    return await getSpace(task.get("boardId"), request.user.id);
+    const space = await getSpace(task.get("boardId"), request.user.id);
+    return {
+      space: space,
+      task: addFieldsToTask(mapParseObjectToObject(res), request.user.id),
+    };
   } catch (err) {
     logger.error(
       `Error while updating task status with task Id ${request.params.updates?.taskId}: ${err}`
@@ -38,7 +43,7 @@ function authorized(updates, task, callerId) {
       throw "Only card creator or reviewer can update card";
   }
   if (updates.hasOwnProperty("submission")) {
-    if (isTaskAssignee(task, callerId))
+    if (!isTaskAssignee(task, callerId))
       throw "Only assignee can add submission";
   }
 }
@@ -68,12 +73,15 @@ async function handleUpdates(updates, task, callerId) {
   }
   if (updates.hasOwnProperty("reviewer")) {
     task.set("reviewer", updates.reviewer);
+    handleActivityUpdate(task, 106, updates, callerId);
   }
   if (updates.hasOwnProperty("assignee")) {
     task.set("assignee", updates.assignee);
+    handleActivityUpdate(task, 105, updates, callerId);
   }
   if (updates.hasOwnProperty("tags")) {
     task.set("tags", updates.tags);
+    handleActivityUpdate(task, 102, updates, callerId);
   }
   if (updates.hasOwnProperty("deadline")) {
     task.set("deadline", new Date(updates.deadline));
@@ -82,12 +90,11 @@ async function handleUpdates(updates, task, callerId) {
     task.set("value", parseFloat(updates.reward.value));
     task.set("token", updates.reward.token);
     task.set("chain", updates.reward.chain);
+    handleActivityUpdate(task, 104, updates, callerId);
   }
   if (updates.hasOwnProperty("submission")) {
-    task.set("submissions", [
-      ...task.get("submissions"),
-      { link: updates.submission.link, name: updates.submission.name },
-    ]);
+    task.set("submissions", [updates.submission]);
+    handleActivityUpdate(task, 200, updates, callerId);
   }
   if (updates.hasOwnProperty("proposal")) {
     task = handleProposalUpdate(task, updates, callerId);
@@ -101,6 +108,8 @@ async function handleUpdates(updates, task, callerId) {
     else {
       task.set("selectedProposals", updates.selectedProposals);
       task.set("assignee", [task.get("proposals")[proposalIdx].userId]);
+      updates.selectedApplicant = task.get("proposals")[proposalIdx].userId;
+      handleActivityUpdate(task, 152, updates, callerId);
     }
   }
   if (updates.hasOwnProperty("columnChange")) {
@@ -110,6 +119,7 @@ async function handleUpdates(updates, task, callerId) {
       updates.columnChange.sourceId,
       updates.columnChange.destinationId
     );
+    if (response) handleActivityUpdate(task, 400, updates, callerId);
   }
   return task;
 }
@@ -203,4 +213,15 @@ function addTaskToColumn(column, taskId) {
     ...column,
     taskIds: taskIds,
   };
+}
+
+function handleActivityUpdate(task, action, updates, callerId) {
+  updates.action = action;
+  updates.actor = callerId;
+  updates.timestamp = new Date();
+  updates.taskType = task.get("type");
+  if (task.get("activity"))
+    task.set("activity", [...task.get("activity"), updates]);
+  else task.set("activity", [updates]);
+  return task;
 }

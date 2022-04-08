@@ -11,20 +11,7 @@ Moralis.Cloud.define("getTask", async (request) => {
       const canReadSpace = canRead(space[0], request.user?.id);
       if (!canReadSpace) throw "You dont have access to view this space";
 
-      // Get access level of caller
-      const access = getCardAccess(task, request.user?.id);
-      task.access = access;
-      logger.info(`access ${JSON.stringify(access)}`);
-
-      // Get proposals that can be viewed by user
-      task.numProposals = task.proposals?.length;
-      task.proposals = getViewableProposals(
-        task.proposals,
-        task.access,
-        request.user?.id
-      );
-
-      logger.info(`Viewable proposals ${JSON.stringify(task.proposals)}`);
+      task = addFieldsToTask(task, request.user?.id);
 
       return task;
     }
@@ -45,4 +32,18 @@ function getViewableProposals(proposals, taskAccess, callerId) {
   } else {
     return proposals;
   }
+}
+
+function addFieldsToTask(task, callerId) {
+  // Get access level of caller
+  const access = getCardAccess(task, callerId);
+  task.access = access;
+  logger.info(`access ${JSON.stringify(access)}`);
+
+  // Get proposals that can be viewed by user
+  task.numProposals = task.proposals?.length;
+  task.proposals = getViewableProposals(task.proposals, task.access, callerId);
+
+  logger.info(`Viewable proposals ${JSON.stringify(task.proposals)}`);
+  return task;
 }

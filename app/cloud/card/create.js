@@ -24,7 +24,7 @@ Moralis.Cloud.define("addTask", async (request) => {
         request.params.description,
         columns[request.params.columnId].defaultCardType
       );
-      logger.info(`task ${JSON.stringify(task)}`);
+      logger.info(`Creating task ${JSON.stringify(task)}`);
       await Moralis.Object.saveAll([task], { useMasterKey: true });
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return await getSpace(request.params.boardId, request.user.id);

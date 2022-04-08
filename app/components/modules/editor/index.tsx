@@ -8,36 +8,14 @@ import { setCaretToEnd, uid } from "../../../utils/utils";
 import EditableBlock from "./editableBlock";
 
 type Props = {
-  taskId: string;
+  syncBlocksToMoralis: Function;
+  initialBlock: Block[];
 };
 
-const Editor = ({ taskId }: Props) => {
-  const initialBlock = {
-    id: uid(),
-    html: "",
-    tag: "p",
-    type: "",
-    imageUrl: "",
-    embedUrl: "",
-  };
-  const [blocks, setBlocks] = useState([initialBlock]);
+const Editor = ({ syncBlocksToMoralis, initialBlock }: Props) => {
+  const [blocks, setBlocks] = useState(initialBlock);
   const [currentBlockId, setCurrentBlockId] = useState("");
-  const { runMoralisFunction } = useMoralisFunction();
   const prevBlocks = usePrevious(blocks);
-
-  const syncBlocksToMoralis = (blocks: Block[]) => {
-    // console.log({ blocks });
-    runMoralisFunction("addBlockTaskDescription", {
-      taskId,
-      blocks,
-    })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((res) => {
-        console.log(res);
-      });
-  };
 
   const updateBlockHandler = (updatedBlock: any, sync?: boolean) => {
     const index = blocks.map((b) => b.id).indexOf(updatedBlock.id);
@@ -142,6 +120,8 @@ const Editor = ({ taskId }: Props) => {
     }
   }, [blocks, prevBlocks, currentBlockId]);
 
+  // Moved it outside so editor can be used in multiple places
+  /*
   useEffect(() => {
     console.log("use efefct");
     runMoralisFunction("getTaskDescription", { taskId })
@@ -155,7 +135,7 @@ const Editor = ({ taskId }: Props) => {
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  }, []);*/
 
   return (
     <Container>

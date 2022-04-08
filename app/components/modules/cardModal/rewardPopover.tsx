@@ -1,27 +1,25 @@
-import styled from "@emotion/styled";
+import PaidIcon from "@mui/icons-material/Paid";
 import {
   Autocomplete,
+  Avatar,
+  Box,
   Popover,
   TextField,
-  Avatar,
   Typography,
-  Box,
 } from "@mui/material";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
-import { updateTaskReward } from "../../../adapters/moralis";
-import { BoardData, Chain, Registry, Task, Token } from "../../../types";
-import { PrimaryButton, CardButton } from "../../elements/styledComponents";
-import { PopoverContainer } from "./styles";
-import { useGlobal } from "../../../context/globalContext";
-import {
-  getFlattenedNetworks,
-  getFlattenedCurrencies,
-} from "../../../utils/utils";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import PaidIcon from "@mui/icons-material/Paid";
+import { useGlobal } from "../../../context/globalContext";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { Chain, Registry, Task, Token } from "../../../types";
+import {
+  getFlattenedCurrencies,
+  getFlattenedNetworks,
+} from "../../../utils/utils";
+import { CardButton, PrimaryButton } from "../../elements/styledComponents";
 import { notify } from "../settingsTab";
+import { PopoverContainer } from "./styles";
 
 type Props = {
   task: Task;
@@ -71,7 +69,8 @@ const RewardPopover = ({ task, setTask }: Props) => {
     })
       .then((res) => {
         console.log(res);
-        setSpace(res);
+        setSpace(res.space);
+        setTask(res.task);
       })
       .catch((err: any) => {
         setTask(prevTask);

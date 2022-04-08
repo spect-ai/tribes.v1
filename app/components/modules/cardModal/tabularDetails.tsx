@@ -23,39 +23,46 @@ const TabularDetails = ({ task, setTask }: Props) => {
     state: { registry },
   } = useGlobal();
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTab(newValue);
+    setTabIdx(newValue);
   };
   const [tabs, setTabs] = useState([
     "Applicants",
     "Submissions",
     "Activity",
   ] as string[]);
-  const [tab, setTab] = useState(0);
+  const [tabIdx, setTabIdx] = useState(0);
 
   useEffect(() => {
-    /*
     var temp = [];
     if (task.type === "Bounty") {
-      temp.push("Proposals");
+      temp.push("Applicants");
     }
-    if (task.access.creator || task.access.creator || task.access.reviewer) {
+    if (
+      task?.access?.creator ||
+      task?.access?.assignee ||
+      task?.access?.reviewer
+    ) {
       temp.push("Submissions");
     }
     temp.push("Activity");
-    setTabs(temp);*/
+    setTabs(temp);
   }, [task]);
 
   return (
     <>
-      <StyledTabs value={tab} onChange={handleTabChange} sx={{}}>
+      <StyledTabs value={tabIdx} onChange={handleTabChange} sx={{}}>
         {tabs.map((tab, index) => {
           console.log(tab);
           return <StyledTab key={index} label={tab} />;
         })}
       </StyledTabs>
-      {tab === 0 && <Proposals task={task} setTask={setTask} />}
-      {tab === 1 && <Submission task={task} setTask={setTask} />}
-      {tab === 2 && <Activity task={task} setTask={setTask} />}
+      {tabs[tabIdx] === "Applicants" && (
+        <Proposals task={task} setTask={setTask} />
+      )}
+      {tabs[tabIdx] === "Submissions" && (
+        <Submission task={task} setTask={setTask} />
+      )}
+      {tabs[tabIdx] === "Activity" && <Activity task={task} />}
     </>
   );
 };

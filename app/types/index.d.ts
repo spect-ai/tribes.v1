@@ -141,10 +141,11 @@ export interface Task {
   boardId: string;
   createdAt: string;
   type: string;
-  submissions: Array<Submission>;
+  submissions: Array<Block[]>;
   proposals: Array<Proposal>;
   numProposals: number;
   selectedProposals: Array<string>;
+  updates: Array<object>;
 }
 
 export interface Submission {

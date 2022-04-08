@@ -15,10 +15,11 @@ import { PopoverContainer } from "./styles";
 
 type Props = {
   task: Task;
+  setTask: (task: Task) => void;
   column: Column;
 };
 
-const ColumnPopover = ({ task, column }: Props) => {
+const ColumnPopover = ({ task, setTask, column }: Props) => {
   const [currStatus, setCurrStatus] = useState(column.id);
   const [status, setStatus] = useState(column.id);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +50,8 @@ const ColumnPopover = ({ task, column }: Props) => {
     })
       .then((res: any) => {
         console.log(res);
-        setSpace(res);
+        setSpace(res.space);
+        setTask(res.task);
       })
       .catch((err: any) => {
         setCurrStatus(prevStatus);

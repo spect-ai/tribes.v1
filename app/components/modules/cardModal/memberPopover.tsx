@@ -1,22 +1,20 @@
+import PersonIcon from "@mui/icons-material/Person";
 import {
   Autocomplete,
+  Avatar,
+  Box,
   Popover,
   TextField,
   Typography,
-  Box,
-  Avatar,
 } from "@mui/material";
-import { type } from "os";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
-import { updateTaskMember } from "../../../adapters/moralis";
-import { BoardData, Task } from "../../../types";
-import { PrimaryButton, CardButton } from "../../elements/styledComponents";
-import { PopoverContainer } from "./styles";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { notify } from "../settingsTab";
-import PersonIcon from "@mui/icons-material/Person";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { Task } from "../../../types";
+import { CardButton, PrimaryButton } from "../../elements/styledComponents";
+import { notify } from "../settingsTab";
+import { PopoverContainer } from "./styles";
 
 type Props = {
   type: string;
@@ -56,7 +54,8 @@ const MemberPopover = ({ type, task, setTask }: Props) => {
       })
         .then((res: any) => {
           console.log(res);
-          setSpace(res);
+          setSpace(res.space);
+          setTask(res.task);
         })
         .catch((err: any) => {
           setTask(prevTask);
@@ -74,7 +73,8 @@ const MemberPopover = ({ type, task, setTask }: Props) => {
       })
         .then((res: any) => {
           console.log(res);
-          setSpace(res);
+          setSpace(res.space);
+          setTask(res.task);
         })
         .catch((err: any) => {
           setTask(prevTask);

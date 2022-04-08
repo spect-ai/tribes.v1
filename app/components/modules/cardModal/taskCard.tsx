@@ -16,7 +16,10 @@ import LabelPopover from "./labelPopover";
 import MarkdownEditor from "./markdownEditor";
 import MemberPopover from "./memberPopover";
 import RewardPopover from "./rewardPopover";
+import OptionsPopover from "./optionsPopover";
 import TabularDetails from "./tabularDetails";
+import { Block } from "../../../types";
+import { uid } from "../../../utils/utils";
 
 type Props = {
   task: Task;
@@ -42,20 +45,28 @@ function doShowPayButton(user: any, task: Task) {
 
 const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
   const { space, setSpace } = useSpace();
-  const { Moralis, user } = useMoralis();
-  const [isLoading, setIsLoading] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const { user } = useMoralis();
   const [open, setOpen] = useState({} as any);
-  const [showPayButton, setShowPayButton] = useState(
-    doShowPayButton(user, task)
-  );
   const { runMoralisFunction } = useMoralisFunction();
 
-  const handleClick =
-    (field: string) => (event: React.MouseEvent<HTMLButtonElement>) => {
-      setAnchorEl(event.currentTarget);
-      setOpen({ [field]: true });
-    };
+  console.log(task);
+
+  const syncBlocksToMoralis = (blocks: Block[]) => {
+    // console.log({ blocks });
+    runMoralisFunction("updateCard", {
+      updates: {
+        taskId: task.taskId,
+        description: blocks,
+      },
+    })
+      .then((res) => {
+        setSpace(res.space);
+        setTask(res.task);
+      })
+      .catch((res) => {
+        console.log(res);
+      });
+  };
   const handleClosePopover = (field: string) => {
     setOpen({ [field]: false });
   };
@@ -80,7 +91,8 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
       })
         .then((res: any) => {
           console.log(res);
-          setSpace(res);
+          setSpace(res.space);
+          setTask(res.task);
         })
         .catch((err: any) => {
           setTask(prevTask);
@@ -105,22 +117,19 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onBlur={handleSave}
-          readOnly={!(task.access.creator || task.access.reviewer)}
+          readOnly={!(task?.access?.creator || task?.access?.reviewer)}
         />
         <Box sx={{ flex: "1 1 auto" }} />
-        {/* <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
-          <ExpandMoreIcon />
-        </IconButton>
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
-          <OpenInFullIcon />
-        </IconButton> */}
+          <OptionsPopover task={task} setTask={setTask} />
+        </IconButton>{" "}
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>
       <Box sx={{ width: "fit-content", display: "flex", flexWrap: "wrap" }}>
         <CardTypePopover task={task} setTask={setTask} />
-        <ColumnPopover task={task} column={column} />
+        <ColumnPopover task={task} setTask={setTask} column={column} />
       </Box>
 
       <Box sx={{ display: "flex", flexWrap: "wrap", marginBottom: "16px" }}>
@@ -132,7 +141,23 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
       </Box>
 
       <TaskModalBodyContainer>
-        <Editor taskId={task.taskId} />
+        <Editor
+          syncBlocksToMoralis={syncBlocksToMoralis}
+          initialBlock={
+            task.description
+              ? task.description
+              : [
+                  {
+                    id: uid(),
+                    html: "",
+                    tag: "p",
+                    type: "",
+                    imageUrl: "",
+                    embedUrl: "",
+                  },
+                ]
+          }
+        />
 
         <Box sx={{ marginBottom: "16px" }}>
           <TabularDetails task={task} setTask={setTask} />

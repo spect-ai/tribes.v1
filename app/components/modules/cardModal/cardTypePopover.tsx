@@ -42,13 +42,15 @@ const CardTypePopover = ({ task, setTask }: Props) => {
     handleClose();
     runMoralisFunction("updateCard", {
       updates: {
-        cardType: type,
+        type: type,
         taskId: task.taskId,
       },
     })
       .then((res: any) => {
+        console.log(`res card type`);
         console.log(res);
-        setSpace(res);
+        setSpace(res.space);
+        setTask(res.task);
       })
       .catch((err: any) => {
         setTask(prevTask);

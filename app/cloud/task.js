@@ -99,14 +99,9 @@ function handleCreateTask(
   task.set("reviewer", [userId]);
   task.set("assignee", []);
   // task.set("description", description);
-  task.set("activity", [
-    {
-      actor: userId,
-      action: 100,
-      timestamp: new Date(),
-    },
-  ]);
-  cardType ? task.set("cardType", cardType) : task.set("cardType", "Task");
+  cardType ? task.set("type", cardType) : task.set("type", "Task");
+  task = handleActivityUpdate(task, 100, {}, userId);
+
   return task;
 }
 
@@ -437,14 +432,6 @@ function handleSubmissionUpdate(task, userId, link, name) {
   // if (isTaskAssignee(task, userId)) {
   task.set("submission", { link: link, name: name });
   // }
-  return task;
-}
-
-function handleActivityUpdate(task, userId, action) {
-  task.set("activity", [
-    { actor: userId, action: action, timestamp: new Date() },
-    ...task.get("activity"),
-  ]);
   return task;
 }
 

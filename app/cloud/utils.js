@@ -37,3 +37,7 @@ async function isValidToken(tokenAddress, chainId) {
 function onlyUnique(value, index, self) {
   return self.indexOf(value) === index;
 }
+
+function mapParseObjectToObject(parseObj) {
+  return JSON.parse(JSON.stringify(parseObj));
+}

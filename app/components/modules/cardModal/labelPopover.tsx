@@ -55,7 +55,8 @@ const LabelPopover = ({ task, setTask }: Props) => {
     })
       .then((res) => {
         console.log(res);
-        setSpace(res);
+        setSpace(res.space);
+        setTask(res.task);
       })
       .catch((err: any) => {
         setTask(prevTask);
