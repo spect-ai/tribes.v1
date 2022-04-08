@@ -57,6 +57,7 @@ export interface Team {
   logo: string;
   boards: BoardData[];
   theme: number;
+  guildId: string;
 }
 
 export interface Epoch {
@@ -274,7 +275,6 @@ export type CurrentUser = {
   updatedAt: string;
   userId: string;
   username: string;
-  tribes: string[];
   userId: string;
   email: string;
   discordId: string;

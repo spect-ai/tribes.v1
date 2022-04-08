@@ -56,7 +56,10 @@ const Overview = () => {
                     >
                       <Avatar
                         alt=""
-                        src={`https://cdn.discordapp.com/avatars/${tribe.memberDetails[memberId].discordId}/${tribe.memberDetails[memberId].avatar}.png`}
+                        src={
+                          tribe.memberDetails[memberId].profilePicture?._url ||
+                          `https://cdn.discordapp.com/avatars/${tribe.memberDetails[memberId].discordId}/${tribe.memberDetails[memberId].avatar}.png`
+                        }
                       />
                     </Tooltip>
                   ))}

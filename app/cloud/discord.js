@@ -40,7 +40,7 @@ Moralis.Cloud.define("linkDiscordUser", async (request) => {
     if (!request.params.code) {
       throw `No code provided`;
     }
-    logger.info(`getOrCreateDiscordUser ${JSON.stringify(request.params)}`);
+    logger.info(`linkDiscordUser ${JSON.stringify(request.params)}`);
     const res = await Moralis.Cloud.httpRequest({
       url: "https://spect-discord-bot.herokuapp.com/api/connectDiscord",
       params: {
@@ -64,11 +64,14 @@ Moralis.Cloud.define("linkDiscordUser", async (request) => {
       res.data.oauthData.refresh_token
     );
     request.user.set("discordId", res.data.userData.id);
+    request.user.set("username", res.data.userData.username);
+    request.user.set("avatar", res.data.userData.avatar);
     await Moralis.Object.saveAll([userInfo, request.user], {
       useMasterKey: true,
     });
-    const userobj = await getUserObj(request.user.id);
-    return userobj[0];
+    // const userobj = await getUserObj(request.user.id);
+    // return userobj[0];
+    return true;
   } catch (err) {
     logger.error(`Error while creating user ${JSON.stringify(err)}`);
     return err;
@@ -111,7 +114,7 @@ Moralis.Cloud.define("refreshDiscordUser", async (request) => {
       res.data.oauthData.access_token,
       res.data.oauthData.refresh_token
     );
-    request.user.set("discordId", res.data.userData.id);
+
     await Moralis.Object.saveAll([userInfo, request.user], {
       useMasterKey: true,
     });
@@ -120,5 +123,23 @@ Moralis.Cloud.define("refreshDiscordUser", async (request) => {
   } catch (err) {
     logger.error(`Error while creating user ${err}`);
     return err;
+  }
+});
+
+Moralis.Cloud.define("linkDiscordToTribe", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    if (request.params.guild_id === "undefined") {
+      throw "Guild id not provided";
+    }
+    const tribe = await getTribeByTeamId(request.params.teamId);
+    tribe.set("guildId", request.params.guild_id);
+    await Moralis.Object.saveAll([tribe], { useMasterKey: true });
+    return true;
+  } catch (err) {
+    logger.error(
+      `Error linking discord to tribe ${request.params.teamId}: ${err}`
+    );
+    return false;
   }
 });

@@ -44,12 +44,17 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
   const getGuildRoles = async () => {
     setIsFetching(true);
     const res = await fetch(
-      `https://spect-discord-bot.herokuapp.com/api/guildRoles?guildId=${space.guildId}`,
+      `${
+        process.env.DEV_ENV === "local"
+          ? "http://localhost:3001/"
+          : "https://spect-discord-bot.herokuapp.com/"
+      }api/guildRoles?guildId=${space.team[0].guildId}`,
       {
         method: "GET",
       }
     );
     const data = await res.json();
+    console.log({ data });
     setIsFetching(false);
     setRoles(data.roles);
     const roleMapping = space.roleMapping;
@@ -84,14 +89,14 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
         variant="outlined"
         color="secondary"
         sx={{ borderRadius: 1, my: 4 }}
-        disabled={!space.guildId}
+        disabled={!space.team[0].guildId}
         onClick={() => {
           setIsOpen(true);
         }}
       >
         Set Roles from Discord
       </PrimaryButton>
-      {space.guildId && roles?.length > 0 && (
+      {roles?.length > 0 && (
         <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
           <Grow in={isOpen} timeout={500}>
             <ModalContainer>

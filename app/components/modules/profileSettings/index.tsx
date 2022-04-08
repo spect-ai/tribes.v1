@@ -7,8 +7,10 @@ import {
   TextField,
   Typography,
   styled as MUIStyled,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PrimaryButton, SidebarButton } from "../../elements/styledComponents";
 import CloseIcon from "@mui/icons-material/Close";
 import { Box } from "@mui/system";
@@ -19,20 +21,28 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import { OptionsButton } from "../themePopover";
 import { ButtonText } from "../exploreSidebar";
 import { useGlobal } from "../../../context/globalContext";
+import { useProfileInfo } from "../../../hooks/useProfileInfo";
 
 type Props = {};
 
 const ProfileSettings = (props: Props) => {
   const { Moralis, user } = useMoralis();
+  const { avatar } = useProfileInfo();
 
-  const [userName, setuserName] = useState(user?.get("username"));
-  const [userEmail, setuserEmail] = useState(user?.get("email"));
+  const [username, setUsername] = useState(user?.get("username"));
+  const [picture, setPicture] = useState("");
+  // const [userEmail, setuserEmail] = useState(user?.get("email"));
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const {
     state: { currentUser },
   } = useGlobal();
   const handleClose = () => setIsOpen(false);
+
+  useEffect(() => {
+    setPicture(avatar);
+  }, [avatar]);
+
   return (
     <>
       <OptionsButton color="inherit" onClick={() => setIsOpen(true)}>
@@ -50,12 +60,30 @@ const ProfileSettings = (props: Props) => {
               </IconButton>
             </Heading>
             <ModalContent>
+              <Backdrop
+                sx={{
+                  color: "#eaeaea",
+                  zIndex: (theme) => theme.zIndex.drawer + 1,
+                }}
+                open={isLoading}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <CircularProgress color="inherit" />
+                  <Typography sx={{ mt: 2, mb: 1, color: "#eaeaea" }}>
+                    {"Updating profile..."}
+                  </Typography>
+                </Box>
+              </Backdrop>
               <FieldContainer>
-                <Avatar
-                  src={`https://cdn.discordapp.com/avatars/${currentUser?.discordId}/${currentUser?.avatar}.png`}
-                  sx={{ height: 60, width: 60 }}
-                />
-                {/* <input
+                <Avatar src={picture} sx={{ height: 60, width: 60 }} />
+                <input
                   accept="image/*"
                   hidden
                   id="contained-button-file"
@@ -69,27 +97,33 @@ const ProfileSettings = (props: Props) => {
                       user?.set("profilePicture", moralisFile);
                       user?.save().then((res: any) => {
                         setIsLoading(false);
+                        setPicture(res.get("profilePicture")._url);
                       });
                     }
                   }}
                 />
                 <label htmlFor="contained-button-file">
-                  <PrimaryButton component="span" sx={{ borderRadius: 1 }}>
+                  {/* @ts-ignore */}
+                  <PrimaryButton sx={{ borderRadius: 1 }} component="span">
                     Edit
                   </PrimaryButton>
-                </label> */}
+                </label>
               </FieldContainer>
               <FieldContainer>
                 <TextField
-                  value={currentUser?.username}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   fullWidth
                   placeholder="Username"
                   size="small"
-                  inputProps={{ readOnly: true }}
                   color="secondary"
+                  onBlur={() => {
+                    user?.set("username", username);
+                    user?.save();
+                  }}
                 />
               </FieldContainer>
-              <FieldContainer>
+              {/* <FieldContainer>
                 <TextField
                   placeholder="Email"
                   value={currentUser?.email}
@@ -98,7 +132,7 @@ const ProfileSettings = (props: Props) => {
                   inputProps={{ readOnly: true }}
                   color="secondary"
                 />
-              </FieldContainer>
+              </FieldContainer> */}
             </ModalContent>
           </ModalContainer>
         </Grow>

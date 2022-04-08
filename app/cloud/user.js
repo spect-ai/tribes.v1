@@ -29,16 +29,17 @@ async function getUserByObjId(objectId) {
 }
 
 async function getUserDetailsByUserIds(userIds) {
-  const userQuery = new Moralis.Query("UserInfo");
+  const userQuery = new Moralis.Query("User");
   const pipeline = [
-    { match: { userId: { $in: userIds } } },
+    { match: { objectId: { $in: userIds } } },
     {
       project: {
-        userId: 1,
+        objectId: 1,
         username: 1,
         avatar: 1,
         ethAddress: 1,
         discordId: 1,
+        profilePicture: 1,
       },
     },
   ];
@@ -49,7 +50,7 @@ async function getUserIdToUserDetailsMapByUserIds(userIds) {
   const userDetails = await getUserDetailsByUserIds(userIds);
   var userDetailsMap = {};
   for (var userDetail of userDetails)
-    userDetailsMap[userDetail.userId] = userDetail;
+    userDetailsMap[userDetail.objectId] = userDetail;
   return userDetailsMap;
 }
 

@@ -88,76 +88,10 @@ function getUserRole(roles, roleMapping) {
   return userRole;
 }
 
-async function getSpace(boardId, callerId, firstLoad = false) {
+async function getSpace(boardId, callerId) {
   try {
-    var userInfo = await getUserByUserId(callerId);
     let boardObj = await getBoardObjWithTasksByObjectId(boardId, callerId);
-
     if (boardObj.length === 0) throw "Board not found";
-    if (
-      firstLoad &&
-      callerId &&
-      userInfo.get("is_discord_linked") &&
-      boardObj[0].guildId
-    ) {
-      const res = await Moralis.Cloud.httpRequest({
-        url: "https://spect-discord-bot.herokuapp.com/api/userRoles",
-        params: {
-          userId: userInfo.get("discordId"),
-          guildId: boardObj[0].guildId,
-        },
-      });
-      logger.info(
-        `----------------------------------------------- ${JSON.stringify(
-          res.data.guildRoles
-        )}`
-      );
-      if (!res.data) {
-        throw "Something went wrong while getting user data from discord";
-      }
-      const board = await getBoardByObjectId(boardId);
-      const tribe = await getTribeByTeamId(board.get("teamId"));
-      let boardRoles = board.get("roles");
-      let tribeRoles = tribe.get("roles");
-      logger.info(`role mapping ${JSON.stringify(boardObj[0].roleMapping)}`);
-      if (boardObj[0].roleMapping) {
-        const userRole = getUserRole(
-          res.data.guildRoles,
-          boardObj[0].roleMapping
-        );
-        if (userRole) {
-          boardRoles[callerId] = userRole;
-          logger.info(`userRole ${userRole}`);
-          if (!board.get("members").includes(callerId)) {
-            board.set("members", board.get("members").concat(callerId));
-          }
-          if (!tribe.get("members").includes(callerId)) {
-            tribe.set("members", tribe.get("members").concat(callerId));
-            tribeRoles[callerId] = 1;
-            tribe.set("roles", tribeRoles);
-            userInfo.set(
-              "tribes",
-              userInfo.get("tribes").concat(tribe.get("teamId"))
-            );
-          }
-          board.set("roles", boardRoles);
-        } else {
-          logger.info("inside else");
-          if (board.get("members").includes(callerId)) {
-            logger.info("inside if inside else");
-            board.set(
-              "members",
-              board.get("members").filter((x) => x !== callerId)
-            );
-            delete boardRoles[callerId];
-            board.set("roles", boardRoles);
-          }
-        }
-      }
-      await Moralis.Object.saveAll([board, tribe, userInfo], {
-        useMasterKey: true,
-      });
-    }
     boardObj = await getBoardObjWithTasksAndProposalsByObjectId(
       boardId,
       callerId
@@ -247,7 +181,7 @@ function handleCreateBoard(
 }
 
 Moralis.Cloud.define("getSpace", async (request) => {
-  return await getSpace(request.params.boardId, request.user?.id, true);
+  return await getSpace(request.params.boardId, request.user?.id);
 });
 
 Moralis.Cloud.define("getEssentialBoardsInfo", async (request) => {
@@ -513,69 +447,69 @@ Moralis.Cloud.define("updateBoardMembers", async (request) => {
   }
 });
 
-Moralis.Cloud.define("joinSpace", async (request) => {
-  try {
-    const boardQuery = new Moralis.Query("Board");
-    boardQuery.equalTo("objectId", request.params.boardId);
-    const web3 = Moralis.web3ByChain(request.params.chainIdHex);
-    let board = await boardQuery.first({ useMasterKey: true });
-    if (board.get("members").indexOf(request.user.id) !== -1) {
-      throw "User already in space";
-    }
-    if (
-      !(
-        board.get("tokenGating").token.address &&
-        board.get("tokenGating").tokenLimit > 0
-      )
-    ) {
-      throw "Token gating not set up";
-    }
-    let tribe = await getTribeByTeamId(board.get("teamId"));
-    const tokenGating = board.get("tokenGating");
+// Moralis.Cloud.define("joinSpace", async (request) => {
+//   try {
+//     const boardQuery = new Moralis.Query("Board");
+//     boardQuery.equalTo("objectId", request.params.boardId);
+//     const web3 = Moralis.web3ByChain(request.params.chainIdHex);
+//     let board = await boardQuery.first({ useMasterKey: true });
+//     if (board.get("members").indexOf(request.user.id) !== -1) {
+//       throw "User already in space";
+//     }
+//     if (
+//       !(
+//         board.get("tokenGating").token.address &&
+//         board.get("tokenGating").tokenLimit > 0
+//       )
+//     ) {
+//       throw "Token gating not set up";
+//     }
+//     let tribe = await getTribeByTeamId(board.get("teamId"));
+//     const tokenGating = board.get("tokenGating");
 
-    if (tokenGating.token.address === "0x0") {
-      const balance = await getNativeCurrencyBalance(
-        tokenGating.chain.name,
-        request.user.get("ethAddress")
-      );
-      if (web3.utils.fromWei(balance.balance) >= tokenGating.tokenLimit) {
-        if (tribe.get("members").indexOf(request.user.id) === -1) {
-          tribe = joinTribeAsMember(tribe, request.user.id);
-        }
-        board = joinSpaceAsMember(board, request.user.id);
-        await Moralis.Object.saveAll([tribe, board], { useMasterKey: true });
-        return await getSpace(request.params.boardId, request.user.id);
-      } else {
-        throw `Not enough balance to join this space. Need atleast ${tokenGating.tokenLimit} ${tokenGating.token.symbol} `;
-      }
-    }
-    const balances = await getTokenBalances(
-      tokenGating.chain.name,
-      request.user.get("ethAddress")
-    );
-    const token = balances.filter(
-      (b) => b.token_address.toLowerCase() === tokenGating.token.address
-    );
-    if (
-      token[0] &&
-      web3.utils.fromWei(token[0].balance.toString()) >= tokenGating.tokenLimit
-    ) {
-      if (tribe.get("members").indexOf(request.user.id) === -1) {
-        tribe = joinTribeAsMember(tribe, request.user.id);
-      }
-      board = joinSpaceAsMember(board, request.user.id);
-      await Moralis.Object.saveAll([tribe, board], { useMasterKey: true });
-      return await getSpace(request.params.boardId, request.user.id);
-    } else {
-      throw `Not enough balance to join this space. Need atleast ${tokenGating.tokenLimit} ${tokenGating.token.symbol} `;
-    }
-  } catch (err) {
-    logger.error(
-      `Error while joining space with space id ${request.params.boardId} : ${err}`
-    );
-    throw `Error while joining space ${err}`;
-  }
-});
+//     if (tokenGating.token.address === "0x0") {
+//       const balance = await getNativeCurrencyBalance(
+//         tokenGating.chain.name,
+//         request.user.get("ethAddress")
+//       );
+//       if (web3.utils.fromWei(balance.balance) >= tokenGating.tokenLimit) {
+//         if (tribe.get("members").indexOf(request.user.id) === -1) {
+//           tribe = joinTribeAsMember(tribe, request.user.id);
+//         }
+//         board = joinSpaceAsMember(board, request.user.id);
+//         await Moralis.Object.saveAll([tribe, board], { useMasterKey: true });
+//         return await getSpace(request.params.boardId, request.user.id);
+//       } else {
+//         throw `Not enough balance to join this space. Need atleast ${tokenGating.tokenLimit} ${tokenGating.token.symbol} `;
+//       }
+//     }
+//     const balances = await getTokenBalances(
+//       tokenGating.chain.name,
+//       request.user.get("ethAddress")
+//     );
+//     const token = balances.filter(
+//       (b) => b.token_address.toLowerCase() === tokenGating.token.address
+//     );
+//     if (
+//       token[0] &&
+//       web3.utils.fromWei(token[0].balance.toString()) >= tokenGating.tokenLimit
+//     ) {
+//       if (tribe.get("members").indexOf(request.user.id) === -1) {
+//         tribe = joinTribeAsMember(tribe, request.user.id);
+//       }
+//       board = joinSpaceAsMember(board, request.user.id);
+//       await Moralis.Object.saveAll([tribe, board], { useMasterKey: true });
+//       return await getSpace(request.params.boardId, request.user.id);
+//     } else {
+//       throw `Not enough balance to join this space. Need atleast ${tokenGating.tokenLimit} ${tokenGating.token.symbol} `;
+//     }
+//   } catch (err) {
+//     logger.error(
+//       `Error while joining space with space id ${request.params.boardId} : ${err}`
+//     );
+//     throw `Error while joining space ${err}`;
+//   }
+// });
 
 Moralis.Cloud.define("updateThemeFromSpace", async (request) => {
   try {
@@ -616,24 +550,6 @@ Moralis.Cloud.define("updateColumnPermissions", async (request) => {
   }
 });
 
-Moralis.Cloud.define("linkDiscordToSpace", async (request) => {
-  const logger = Moralis.Cloud.getLogger();
-  try {
-    if (request.params.guild_id === "undefined") {
-      throw "Guild id not provided";
-    }
-    const board = await getBoardByObjectId(request.params.objectId);
-    board.set("guildId", request.params.guild_id);
-    await Moralis.Object.saveAll([board], { useMasterKey: true });
-    return true;
-  } catch (err) {
-    logger.error(
-      `Error linking discord to space ${request.params.boardId}: ${err}`
-    );
-    return false;
-  }
-});
-
 Moralis.Cloud.define("setSpaceRoleMapping", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
@@ -648,3 +564,142 @@ Moralis.Cloud.define("setSpaceRoleMapping", async (request) => {
     throw `Error while updating board ${request.params.boardId}: ${err}`;
   }
 });
+
+Moralis.Cloud.define("joinSpace", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const callerId = request.user.id;
+    const userInfo = await getUserByUserId(callerId);
+    const board = await getBoardByObjectId(request.params.boardId);
+    let boardObj = await getBoardObjWithTasksByObjectId(
+      request.params.boardId,
+      callerId
+    );
+    const tribe = await getTribeByTeamId(board.get("teamId"));
+    const res = await Moralis.Cloud.httpRequest({
+      url: "https://spect-discord-bot.herokuapp.com/api/userRoles",
+      params: {
+        userId: request.user.get("discordId"),
+        guildId: tribe.get("guildId"),
+      },
+    });
+    logger.info(
+      `----------------------------------------------- ${JSON.stringify(
+        res.data.guildRoles
+      )}`
+    );
+    if (!res.data) {
+      throw "Something went wrong while getting user data from discord";
+    }
+    let boardRoles = board.get("roles");
+    let tribeRoles = tribe.get("roles");
+    if (boardObj[0].roleMapping) {
+      const userRole = getUserRole(
+        res.data.guildRoles,
+        boardObj[0].roleMapping
+      );
+      if (userRole) {
+        boardRoles[callerId] = userRole;
+        logger.info(`userRole ${userRole}`);
+        if (!board.get("members").includes(callerId)) {
+          board.set("members", board.get("members").concat(callerId));
+        }
+        if (!tribe.get("members").includes(callerId)) {
+          tribe.set("members", tribe.get("members").concat(callerId));
+          tribeRoles[callerId] = 1;
+          tribe.set("roles", tribeRoles);
+          userInfo.set(
+            "tribes",
+            userInfo.get("tribes").concat(tribe.get("teamId"))
+          );
+        }
+        board.set("roles", boardRoles);
+      } else {
+        logger.info("inside else");
+        throw "User doesn't have any role in this guild";
+        // if (board.get("members").includes(callerId)) {
+        //   logger.info("inside if inside else");
+        //   board.set(
+        //     "members",
+        //     board.get("members").filter((x) => x !== callerId)
+        //   );
+        //   delete boardRoles[callerId];
+        //   board.set("roles", boardRoles);
+      }
+    }
+    await Moralis.Object.saveAll([board, tribe, userInfo], {
+      useMasterKey: true,
+    });
+    return await getSpace(request.params.boardId, request.user?.id);
+  } catch (err) {
+    logger.error(
+      `Error while updating board ${request.params.boardId}: ${err}`
+    );
+    throw `Error while updating board ${request.params.boardId}: ${err}`;
+  }
+});
+
+// if (
+//   firstLoad &&
+//   callerId &&
+//   userInfo.get("is_discord_linked") &&
+//   boardObj[0].guildId
+// ) {
+//   const res = await Moralis.Cloud.httpRequest({
+//     url: "http://e62a-49-207-195-67.ngrok.io/api/userRoles",
+//     params: {
+//       userId: userInfo.get("discordId"),
+//       guildId: boardObj[0].guildId,
+//     },
+//   });
+//   logger.info(
+//     `----------------------------------------------- ${JSON.stringify(
+//       res.data.guildRoles
+//     )}`
+//   );
+//   if (!res.data) {
+//     throw "Something went wrong while getting user data from discord";
+//   }
+//   const board = await getBoardByObjectId(boardId);
+//   const tribe = await getTribeByTeamId(board.get("teamId"));
+//   let boardRoles = board.get("roles");
+//   let tribeRoles = tribe.get("roles");
+//   logger.info(`role mapping ${JSON.stringify(boardObj[0].roleMapping)}`);
+//   if (boardObj[0].roleMapping) {
+//     const userRole = getUserRole(
+//       res.data.guildRoles,
+//       boardObj[0].roleMapping
+//     );
+//     if (userRole) {
+//       boardRoles[callerId] = userRole;
+//       logger.info(`userRole ${userRole}`);
+//       if (!board.get("members").includes(callerId)) {
+//         board.set("members", board.get("members").concat(callerId));
+//       }
+//       if (!tribe.get("members").includes(callerId)) {
+//         tribe.set("members", tribe.get("members").concat(callerId));
+//         tribeRoles[callerId] = 1;
+//         tribe.set("roles", tribeRoles);
+//         userInfo.set(
+//           "tribes",
+//           userInfo.get("tribes").concat(tribe.get("teamId"))
+//         );
+//       }
+//       board.set("roles", boardRoles);
+//     } else {
+//       logger.info("inside else");
+//       if (board.get("members").includes(callerId)) {
+//         logger.info("inside if inside else");
+//         board.set(
+//           "members",
+//           board.get("members").filter((x) => x !== callerId)
+//         );
+//         delete boardRoles[callerId];
+//         board.set("roles", boardRoles);
+//       }
+//     }
+//   }
+//   await Moralis.Object.saveAll([board, tribe, userInfo], {
+//     useMasterKey: true,
+//   });
+// }

@@ -60,11 +60,7 @@ const Board = (props: Props) => {
               variant="outlined"
               disabled={tribe.roles[user?.id] !== 3}
               onClick={() => {
-                if (isAuthenticated && !currentUser?.is_discord_linked) {
-                  setDiscordModalOpen(true);
-                } else {
-                  setIsOpen(true);
-                }
+                setIsOpen(true);
               }}
             >
               <ButtonText>Create new space</ButtonText>

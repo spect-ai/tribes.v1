@@ -9,12 +9,15 @@ import { getMD5String } from "../../../utils/utils";
 import { getOrCreateUser } from "../../../adapters/moralis";
 import { useGlobal } from "../../../context/globalContext";
 import { useRouter } from "next/router";
+import { useProfileInfo } from "../../../hooks/useProfileInfo";
 
 type Props = {};
 
 const SidebarProfile = (props: Props) => {
   const { Moralis, user, isAuthenticated, authenticate, isAuthenticating } =
     useMoralis();
+  const { avatar } = useProfileInfo();
+
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const router = useRouter();
@@ -61,7 +64,7 @@ const SidebarProfile = (props: Props) => {
           <Avatar
             variant="rounded"
             sx={{ p: 0, m: 0, width: 32, height: 32 }}
-            src={`https://cdn.discordapp.com/avatars/${currentUser?.discordId}/${currentUser?.avatar}.png`}
+            src={avatar}
           />
         </SidebarButton>
       )}

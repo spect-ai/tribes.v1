@@ -180,6 +180,7 @@ const Board = ({ expanded, handleChange }: Props) => {
             variant="outlined"
             sx={{ borderRadius: 1, ml: 2 }}
             color="secondary"
+            size="small"
             onClick={() => {
               setIsOpen(true);
             }}

@@ -64,35 +64,15 @@ const Layout = ({ children }: Props) => {
   }, [isInitialized]);
 
   useEffect(() => {
-    if (isInitialized && isAuthenticated) {
-      console.log("initalizewd", user);
-      updateLoading(dispatch, true);
-      runMoralisFunction("refreshDiscordUser", {})
-        .then((res) => {
-          if (res.objectId) {
-            console.log(res);
-            updateUser(dispatch, res);
-          } else {
-            console.error(res);
-          }
-          updateLoading(dispatch, false);
-        })
-        .catch((err) => {
-          console.error(err);
-          updateLoading(dispatch, false);
-        });
-    } else if (isInitialized && !isAuthenticated) {
-      updateLoading(dispatch, false);
-    }
-  }, [isInitialized, isAuthenticated]);
-
-  useEffect(() => {
     if (router.query.code) {
       console.log("linking user");
       runMoralisFunction("linkDiscordUser", { code: router.query.code }).then(
         (res) => {
           console.log(res);
-          updateUser(dispatch, res);
+          // updateUser(dispatch, res);
+          user?.fetch().then((res) => {
+            console.log(res);
+          });
           router.push("/");
         }
       );
