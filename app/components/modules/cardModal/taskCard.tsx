@@ -49,8 +49,6 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
   const [open, setOpen] = useState({} as any);
   const { runMoralisFunction } = useMoralisFunction();
 
-  console.log(task);
-
   const syncBlocksToMoralis = (blocks: Block[]) => {
     // console.log({ blocks });
     runMoralisFunction("updateCard", {

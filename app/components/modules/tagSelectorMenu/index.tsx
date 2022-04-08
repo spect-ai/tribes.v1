@@ -43,6 +43,11 @@ const allowedTags = [
     tag: "embed",
     label: "Embed",
   },
+  {
+    id: "divider",
+    tag: "divider",
+    label: "Divider",
+  },
 ];
 
 type props = {
@@ -85,7 +90,12 @@ const TagSelectorMenu = ({
       const handleKeyDown = (e: any) => {
         if (e.key === "Enter") {
           e.preventDefault();
-          handleSelection(tagList[selectedTag].tag, tagList[selectedTag].type);
+          if (tagList[selectedTag]) {
+            handleSelection(
+              tagList[selectedTag].tag,
+              tagList[selectedTag].type
+            );
+          }
         } else if (e.key === "Tab" || e.key === "ArrowDown") {
           e.preventDefault();
           const newSelectedTag =

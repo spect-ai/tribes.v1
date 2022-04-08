@@ -102,10 +102,18 @@ const LabelPopover = ({ task, setTask }: Props) => {
               <>
                 <Avatar
                   variant="rounded"
-                  sx={{ p: 0, mr: 2, width: 20, height: 20 }}
+                  sx={{
+                    p: 0,
+                    mr: 2,
+                    width: 20,
+                    height: 20,
+                    backgroundColor: "transparent",
+                  }}
                 >
                   <LabelIcon
-                    sx={{ backgroundColor: "#2e2f59", color: "text.primary" }}
+                    sx={{
+                      color: "text.primary",
+                    }}
                   />
                 </Avatar>
                 <Typography

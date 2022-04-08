@@ -28,7 +28,6 @@ const Editor = ({ syncBlocksToMoralis, initialBlock }: Props) => {
       embedUrl: updatedBlock.embedUrl,
     };
     setBlocks(updatedBlocks);
-    console.log({ updatedBlocks });
     if (sync) {
       syncBlocksToMoralis(updatedBlocks);
     }
@@ -36,7 +35,6 @@ const Editor = ({ syncBlocksToMoralis, initialBlock }: Props) => {
 
   const addBlockHandler = (currentBlock: any) => {
     setCurrentBlockId(currentBlock.id);
-    console.log({ blocks });
     const newBlock = {
       id: uid(),
       html: "",
@@ -145,7 +143,6 @@ const Editor = ({ syncBlocksToMoralis, initialBlock }: Props) => {
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {blocks?.map((block) => {
                 const position = blocks.map((b) => b.id).indexOf(block.id) + 1;
-                console.log({ block });
                 return (
                   <EditableBlock
                     key={block.id}

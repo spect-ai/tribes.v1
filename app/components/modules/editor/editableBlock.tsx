@@ -12,7 +12,7 @@ import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import TagSelectorMenu from "../tagSelectorMenu";
 import { useMoralis } from "react-moralis";
 // import { ReactTinyLink } from "react-tiny-link";
-import { TextField } from "@mui/material";
+import { Divider, TextField, Typography } from "@mui/material";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { ErrorBoundary } from "react-error-boundary";
 import SimpleErrorBoundary from "../../elements/simpleErrorBoundary";
@@ -81,7 +81,6 @@ const EditableBlock = ({
   }, []);
 
   useEffect(() => {
-    console.log("aa");
     updateBlock(
       {
         html,
@@ -170,7 +169,6 @@ const EditableBlock = ({
   };
 
   const handleBlur = (e: any) => {
-    console.log("blure");
     // Show placeholder if block is still the only one and empty
     const hasPlaceholder = addPlaceholder({
       block: contentEditableRef.current,
@@ -199,18 +197,15 @@ const EditableBlock = ({
       const imageFile = fileInputRef.current?.files[0];
       const file = new Moralis.File(imageFile.name, imageFile);
       await file.saveIPFS();
-      console.log(file);
       setImageUrl((file as any).ipfs());
     }
   };
 
   // Show a placeholder for blank pages
   const addPlaceholder = ({ block, position, content }: any) => {
-    console.log({ block, content });
     const isFirstBlockWithoutHtml = position === 1 && !content;
-    const isFirstBlockWithoutSibling = !block.parentElement.nextElementSibling;
+    const isFirstBlockWithoutSibling = !block?.parentElement.nextElementSibling;
     if (isFirstBlockWithoutHtml && isFirstBlockWithoutSibling) {
-      console.log("placeholder");
       setHtml(`Add some details, press "/" for commands.`);
       setTag("h3");
       setPlaceholder(true);
@@ -243,26 +238,13 @@ const EditableBlock = ({
   };
 
   const handleTagSelection = async (tag: string, type?: string) => {
-    if (tag === "img") {
+    if (["img", "embed", "divider"].includes(tag)) {
       await setTag(tag);
       closeTagSelectorMenu();
       addBlock({
         id,
         html: "",
-        tag: "img",
-        imageUrl: "",
-        embedUrl: "",
-        type: "",
-        ref: contentEditableRef.current,
-      });
-    }
-    if (tag === "embed") {
-      await setTag(tag);
-      closeTagSelectorMenu();
-      addBlock({
-        id,
-        html: "",
-        tag: "embed",
+        tag,
         imageUrl: "",
         embedUrl: "",
         type: "",
@@ -348,7 +330,6 @@ const EditableBlock = ({
               FallbackComponent={SimpleErrorBoundary}
               onReset={() => {
                 // reset the state of your app so the error doesn't happen again
-                console.log("hi");
               }}
             >
               <span
@@ -360,7 +341,7 @@ const EditableBlock = ({
               >
                 <DragIndicatorIcon />
               </span>
-              {!["img", "embed"].includes(tag) && (
+              {!["img", "embed", "divider"].includes(tag) && (
                 <ContentEditable
                   data-position={position}
                   data-tag={tag}
@@ -463,14 +444,20 @@ const EditableBlock = ({
                       minLine={1}
                       url={embedUrl}
                     />
-                    // <LinkPreview
-                    //   url={embedUrl}
-                    //   width="40rem"
-                    //   imageHeight={"4rem"}
-                    //   borderColor="#5a6972"
-                    // />
                   )}
                 </div>
+              )}
+              {tag === "divider" && (
+                <Divider
+                  sx={{
+                    width: "100%",
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography variant="h5">* * *</Typography>
+                </Divider>
               )}
             </ErrorBoundary>
           </div>

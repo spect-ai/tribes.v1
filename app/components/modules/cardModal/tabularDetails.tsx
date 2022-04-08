@@ -52,7 +52,6 @@ const TabularDetails = ({ task, setTask }: Props) => {
     <>
       <StyledTabs value={tabIdx} onChange={handleTabChange} sx={{}}>
         {tabs.map((tab, index) => {
-          console.log(tab);
           return <StyledTab key={index} label={tab} />;
         })}
       </StyledTabs>
