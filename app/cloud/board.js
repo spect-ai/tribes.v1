@@ -640,8 +640,12 @@ Moralis.Cloud.define("joinSpace", async (request) => {
 Moralis.Cloud.define("generateInviteLink", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
+    const board = await getBoardByObjectId(request.params.boardId);
     if (!request.user) {
       throw "User not authenticated";
+    }
+    if (board.get("roles")[request.user.id] !== 3) {
+      throw "You do not have permission to invite people";
     }
     const invite = new Moralis.Object("Invite");
     invite.set("boardId", request.params.boardId);
@@ -676,9 +680,6 @@ Moralis.Cloud.define("joinSpaceFromInvite", async (request) => {
     const board = await getBoardByObjectId(request.params.boardId);
     if (board.get("members").includes(request.user.id)) {
       throw "User already a member of this board";
-    }
-    if (board.get("roles")[request.user.id] !== 3) {
-      throw "You do not have permission to invite people";
     }
     const tribe = await getTribeByTeamId(board.get("teamId"));
     const userInfo = await getUserByUserId(request.user.id);
