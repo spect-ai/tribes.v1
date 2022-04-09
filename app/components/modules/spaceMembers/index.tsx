@@ -10,6 +10,7 @@ import { notify } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import MemberTable from "../../elements/memberTable";
 import SpaceRoleMapping from "../../elements/spaceRoleMapping";
+import InviteMemberModal from "../inviteMemberModal";
 
 type Props = {};
 
@@ -75,9 +76,11 @@ const SpaceMembers = (props: Props) => {
   return (
     <Container>
       <Toaster />
-      <Box sx={{ ml: 8 }}>
+      <Box sx={{ ml: 8, display: "flex" }}>
         {space.roles[user?.id as string] === 3 && <SpaceRoleMapping />}
+        {space.roles[user?.id as string] === 3 && <InviteMemberModal />}
       </Box>
+
       <MemberTable
         isChecked={isChecked}
         setIsChecked={setIsChecked}

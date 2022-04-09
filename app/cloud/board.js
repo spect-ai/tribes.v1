@@ -1,3 +1,9 @@
+async function getInviteByObjectId(objectId) {
+  const inviteQuery = new Moralis.Query("Invite");
+  inviteQuery.equalTo("objectId", objectId);
+  return await inviteQuery.first({ useMasterKey: true });
+}
+
 async function getBoardByObjectId(objectId) {
   const boardQuery = new Moralis.Query("Board");
   boardQuery.equalTo("objectId", objectId);
@@ -617,14 +623,6 @@ Moralis.Cloud.define("joinSpace", async (request) => {
       } else {
         logger.info("inside else");
         throw "User doesn't have any role in this guild";
-        // if (board.get("members").includes(callerId)) {
-        //   logger.info("inside if inside else");
-        //   board.set(
-        //     "members",
-        //     board.get("members").filter((x) => x !== callerId)
-        //   );
-        //   delete boardRoles[callerId];
-        //   board.set("roles", boardRoles);
       }
     }
     await Moralis.Object.saveAll([board, tribe, userInfo], {
@@ -639,67 +637,90 @@ Moralis.Cloud.define("joinSpace", async (request) => {
   }
 });
 
-// if (
-//   firstLoad &&
-//   callerId &&
-//   userInfo.get("is_discord_linked") &&
-//   boardObj[0].guildId
-// ) {
-//   const res = await Moralis.Cloud.httpRequest({
-//     url: "http://e62a-49-207-195-67.ngrok.io/api/userRoles",
-//     params: {
-//       userId: userInfo.get("discordId"),
-//       guildId: boardObj[0].guildId,
-//     },
-//   });
-//   logger.info(
-//     `----------------------------------------------- ${JSON.stringify(
-//       res.data.guildRoles
-//     )}`
-//   );
-//   if (!res.data) {
-//     throw "Something went wrong while getting user data from discord";
-//   }
-//   const board = await getBoardByObjectId(boardId);
-//   const tribe = await getTribeByTeamId(board.get("teamId"));
-//   let boardRoles = board.get("roles");
-//   let tribeRoles = tribe.get("roles");
-//   logger.info(`role mapping ${JSON.stringify(boardObj[0].roleMapping)}`);
-//   if (boardObj[0].roleMapping) {
-//     const userRole = getUserRole(
-//       res.data.guildRoles,
-//       boardObj[0].roleMapping
-//     );
-//     if (userRole) {
-//       boardRoles[callerId] = userRole;
-//       logger.info(`userRole ${userRole}`);
-//       if (!board.get("members").includes(callerId)) {
-//         board.set("members", board.get("members").concat(callerId));
-//       }
-//       if (!tribe.get("members").includes(callerId)) {
-//         tribe.set("members", tribe.get("members").concat(callerId));
-//         tribeRoles[callerId] = 1;
-//         tribe.set("roles", tribeRoles);
-//         userInfo.set(
-//           "tribes",
-//           userInfo.get("tribes").concat(tribe.get("teamId"))
-//         );
-//       }
-//       board.set("roles", boardRoles);
-//     } else {
-//       logger.info("inside else");
-//       if (board.get("members").includes(callerId)) {
-//         logger.info("inside if inside else");
-//         board.set(
-//           "members",
-//           board.get("members").filter((x) => x !== callerId)
-//         );
-//         delete boardRoles[callerId];
-//         board.set("roles", boardRoles);
-//       }
-//     }
-//   }
-//   await Moralis.Object.saveAll([board, tribe, userInfo], {
-//     useMasterKey: true,
-//   });
-// }
+Moralis.Cloud.define("generateInviteLink", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    if (!request.user) {
+      throw "User not authenticated";
+    }
+    const invite = new Moralis.Object("Invite");
+    invite.set("boardId", request.params.boardId);
+    invite.set("role", request.params.role);
+    invite.set("uses", request.params.uses);
+    invite.set("expiry", request.params.expiry);
+    const inviteRes = await Moralis.Object.saveAll([invite], {
+      useMasterKey: true,
+    });
+    return inviteRes;
+  } catch (err) {
+    logger.error(
+      `Error while generating invite link on board id ${request.params.boardId}: ${err}`
+    );
+    throw `Error while generating invite link ${err}`;
+  }
+});
+
+Moralis.Cloud.define("joinSpaceFromInvite", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    if (!request.user) {
+      throw "User not authenticated";
+    }
+    if (!request.params.inviteCode) {
+      throw "Invite code not provided";
+    }
+    const invite = await getInviteByObjectId(request.params.inviteCode);
+    if (!invite) {
+      throw "Invite code not found";
+    }
+    const board = await getBoardByObjectId(request.params.boardId);
+    if (board.get("members").includes(request.user.id)) {
+      throw "User already a member of this board";
+    }
+    if (board.get("roles")[request.user.id] !== 3) {
+      throw "You do not have permission to invite people";
+    }
+    const tribe = await getTribeByTeamId(board.get("teamId"));
+    const userInfo = await getUserByUserId(request.user.id);
+    if (checkIfUserInviteValid(invite)) {
+      invite.set("uses", invite.get("uses") - 1);
+      let boardRoles = board.get("roles");
+      let tribeRoles = tribe.get("roles");
+      boardRoles[request.user.id] = invite.get("role");
+      board.set("members", board.get("members").concat(request.user.id));
+      board.set("roles", boardRoles);
+      if (!tribe.get("members").includes(request.user.id)) {
+        tribe.set("members", tribe.get("members").concat(request.user.id));
+        tribeRoles[request.user.id] = 1;
+        tribe.set("roles", tribeRoles);
+        userInfo.set(
+          "tribes",
+          userInfo.get("tribes").concat(tribe.get("teamId"))
+        );
+      }
+      await Moralis.Object.saveAll([invite, board, tribe, userInfo], {
+        useMasterKey: true,
+      });
+    }
+    return await getSpace(request.params.boardId, request.user.id);
+  } catch (err) {
+    logger.error(
+      `Error while generating invite link on board id ${request.params.boardId}: ${err}`
+    );
+    throw `${err}`;
+  }
+});
+
+function checkIfUserInviteValid(invite) {
+  const now = new Date();
+  const expiry = new Date(
+    invite.get("createdAt").getTime() + invite.get("expiry") * 1000
+  );
+  if (now > expiry && invite.get("expiry") !== 0) {
+    throw "Invite link expired";
+  }
+  if (invite.get("uses") === 0) {
+    throw "Invite link used up";
+  }
+  return true;
+}

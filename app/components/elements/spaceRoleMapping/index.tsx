@@ -15,6 +15,7 @@ import React, { useEffect, useState } from "react";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 import { ModalHeading, PrimaryButton } from "../styledComponents";
+import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
 
 type Props = {
   handleModalClose?: () => void;
@@ -88,7 +89,8 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
       <PrimaryButton
         variant="outlined"
         color="secondary"
-        sx={{ borderRadius: 1, my: 4 }}
+        sx={{ my: 4 }}
+        startIcon={<PeopleOutlineIcon />}
         disabled={!space.team[0].guildId}
         onClick={() => {
           setIsOpen(true);

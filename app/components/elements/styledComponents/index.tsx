@@ -14,7 +14,7 @@ import {
 export const PrimaryButton = styled(LoadingButton)<ButtonProps>(
   ({ theme }) => ({
     color: theme.palette.getContrastText(theme.palette.background.paper),
-    borderRadius: "20px",
+    borderRadius: "2",
     textTransform: "none",
   })
 );
