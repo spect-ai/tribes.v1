@@ -23,12 +23,16 @@ const Activity = ({ task }: Props) => {
               display: "flex",
               flexDirection: "row",
               justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <Box
               sx={{
+                display: "flex",
+                flexDirection: "row",
                 width: "5%",
-                justifyContent: "start",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
               <Box>{activityIcons[activity.action]}</Box>
@@ -36,14 +40,23 @@ const Activity = ({ task }: Props) => {
             <Box
               sx={{
                 display: "flex",
-                flexDirection: "column",
+                flexDirection: "row",
                 width: "75%",
-                justifyContent: "start",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
               <ListItemText primary={generateActivityLine(activity)} />
             </Box>
-            <Box sx={{ width: "20%" }}>
+            <Box
+              sx={{
+                width: "20%",
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <ListItemText
                 sx={{
                   fontSize: "0.7rem",
@@ -55,7 +68,7 @@ const Activity = ({ task }: Props) => {
                   monthMap[
                     activity.timestamp?.getMonth() as keyof typeof monthMap
                   ]
-                }  ${activity.timestamp?.getDate()}, ${activity.timestamp.toLocaleTimeString(
+                }  ${activity?.timestamp?.getDate()}, ${activity?.timestamp?.toLocaleTimeString(
                   [],
                   {
                     hour: "2-digit",

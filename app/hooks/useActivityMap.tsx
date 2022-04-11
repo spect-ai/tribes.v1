@@ -76,6 +76,10 @@ export function useActivityMap() {
           space.memberDetails[update.actor].username
         } asked for a review`;
       case 201:
+        return `${
+          space.memberDetails[update.actor].username
+        } asked for a revision`;
+      case 202:
         return `${space.memberDetails[update.actor].username} added comments`;
       case 205:
         return `${space.memberDetails[update.actor].username} closed ${

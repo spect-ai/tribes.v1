@@ -118,23 +118,6 @@ const Editor = ({ syncBlocksToMoralis, initialBlock }: Props) => {
     }
   }, [blocks, prevBlocks, currentBlockId]);
 
-  // Moved it outside so editor can be used in multiple places
-  /*
-  useEffect(() => {
-    console.log("use efefct");
-    runMoralisFunction("getTaskDescription", { taskId })
-      .then((res) => {
-        console.log({ res });
-        if (res.blocks) {
-          console.log(res.blocks);
-          setBlocks(res.blocks);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }, []);*/
-
   return (
     <Container>
       <DragDropContext onDragEnd={onDragEndHandler}>

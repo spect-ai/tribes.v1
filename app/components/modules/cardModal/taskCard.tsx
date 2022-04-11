@@ -118,9 +118,7 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
           readOnly={!(task?.access?.creator || task?.access?.reviewer)}
         />
         <Box sx={{ flex: "1 1 auto" }} />
-        <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
-          <OptionsPopover task={task} setTask={setTask} />
-        </IconButton>{" "}
+        <OptionsPopover task={task} setTask={setTask} />
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <CloseIcon />
         </IconButton>

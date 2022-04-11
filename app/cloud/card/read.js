@@ -3,7 +3,6 @@ Moralis.Cloud.define("getTask", async (request) => {
   try {
     if (request.params.taskId) {
       var task = await getTaskObjByTaskId(request.params.taskId);
-      logger.info(`getTask: ${JSON.stringify(task)}`);
       if (!task) throw `Task ${request.params.taskId} not found`;
 
       // Get space to check if user can view it
@@ -38,12 +37,10 @@ function addFieldsToTask(task, callerId) {
   // Get access level of caller
   const access = getCardAccess(task, callerId);
   task.access = access;
-  logger.info(`access ${JSON.stringify(access)}`);
 
   // Get proposals that can be viewed by user
   task.numProposals = task.proposals?.length;
   task.proposals = getViewableProposals(task.proposals, task.access, callerId);
 
-  logger.info(`Viewable proposals ${JSON.stringify(task.proposals)}`);
   return task;
 }
