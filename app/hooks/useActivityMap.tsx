@@ -13,12 +13,12 @@ import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useSpace } from "../../pages/tribe/[id]/space/[bid]";
-
+import AddTaskIcon from "@mui/icons-material/AddTask";
 export function useActivityMap() {
   const { space, setSpace } = useSpace();
 
-  const activityIcons = {
-    100: <AddCircleOutlineIcon />,
+  const activityIcons: any = {
+    100: <AddTaskIcon />,
     101: <DateRangeIcon />,
     102: <LabelIcon />,
     104: <PaidIcon />,
@@ -38,35 +38,61 @@ export function useActivityMap() {
   const generateActivityLine = (update: any) => {
     switch (update.action) {
       case 100:
-        return `${update.actor} created ${update.taskType}`;
+        return `${space.memberDetails[update.actor].username} created ${
+          update.taskType
+        }`;
       case 101:
-        return `${update.actor} updated due date to ${update.deadline}`;
+        return `${
+          space.memberDetails[update.actor].username
+        } updated due date to ${update.deadline}`;
       case 102:
-        return `${update.actor} updated tags to `;
+        return `${space.memberDetails[update.actor].username} updated tags to `;
       case 104:
-        `${update.actor} updated reward to ${update.reward?.value} ${update.reward?.token?.symbol} on ${update.reward?.chain?.name}`;
+        `${space.memberDetails[update.actor].username} updated reward to ${
+          update.reward?.value
+        } ${update.reward?.token?.symbol} on ${update.reward?.chain?.name}`;
       case 105:
-        return `${update.actor} assigned ${update.taskType} `;
+        return `${space.memberDetails[update.actor].username} assigned ${
+          update.taskType
+        } `;
       case 106:
-        return `${update.actor} updated reviewer `;
+        return `${
+          space.memberDetails[update.actor].username
+        } updated reviewer `;
       case 150:
-        return `${update.actor} applied to ${update.taskType}`;
+        return `${space.memberDetails[update.actor].username} applied to ${
+          update.taskType
+        }`;
       case 151:
-        return `${update.actor} updated application to ${update.taskType}`;
+        return `${
+          space.memberDetails[update.actor].username
+        } updated application to ${update.taskType}`;
       case 152:
-        return `${update.actor} picked ${update.selectedApplicant}'s application to ${update.taskType}`;
+        return `${space.memberDetails[update.actor].username} picked ${
+          update.selectedApplicant
+        }'s application to ${update.taskType}`;
       case 200:
-        return `${update.actor} asked for a review`;
+        return `${
+          space.memberDetails[update.actor].username
+        } asked for a review`;
       case 201:
-        return `${update.actor} added comments`;
+        return `${space.memberDetails[update.actor].username} added comments`;
       case 205:
-        return `${update.actor} closed ${update.taskType}`;
+        return `${space.memberDetails[update.actor].username} closed ${
+          update.taskType
+        }`;
       case 300:
-        return `${update.actor} paid for the ${update.taskType}`;
+        return `${space.memberDetails[update.actor].username} paid for the ${
+          update.taskType
+        }`;
       case 301:
-        return `${update.actor} added feedback`;
+        return `${space.memberDetails[update.actor].username} added feedback`;
       case 400:
-        return `${update.actor} moved ${update.taskType} from ${update.columnChange.sourceId} to ${update.columnChange.destinationId}`;
+        return `${space.memberDetails[update.actor].username} moved ${
+          update.taskType
+        } from ${update.columnChange.sourceId} to ${
+          update.columnChange.destinationId
+        }`;
     }
   };
   return {
