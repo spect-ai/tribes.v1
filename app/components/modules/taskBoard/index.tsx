@@ -28,7 +28,6 @@ const TaskBoard = (props: Props) => {
   };
 
   useEffect(() => {
-    console.log("rolemappping", space.roleMapping);
     if (!isLoading && space.team[0].guildId && !space.roleMapping) {
       setIsOpen(true);
     }

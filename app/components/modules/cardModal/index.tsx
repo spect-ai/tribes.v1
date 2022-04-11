@@ -35,7 +35,7 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
         console.log(err);
         notify(`Sorry! There was an error while getting task`, "error");
       });
-  }, []);
+  }, [taskId]);
 
   return (
     <div>

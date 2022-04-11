@@ -80,7 +80,6 @@ function handleCreateTask(
   title,
   value,
   userId,
-  description,
   cardType
 ) {
   task.set("taskId", taskId);

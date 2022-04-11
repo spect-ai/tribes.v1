@@ -23,6 +23,8 @@ import CreateTask from "../task/createTask";
 import TaskContainer from "../task";
 import CreateGithubTask from "../task/createGithubTask";
 import ColumnSettings from "../columnSettings";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import CardModal from "../cardModal";
 
 type Props = {
   tasks: Task[];
@@ -37,9 +39,13 @@ const Column = ({ tasks, id, column, index }: Props) => {
   const { space, setSpace } = useSpace();
   const { bid } = router.query;
 
-  const [showCreateTask, setShowCreateTask] = useState(false);
-  const [showCreateGithubTask, setShowCreateGithubTask] = useState(false);
+  // const [showCreateTask, setShowCreateTask] = useState(false);
+  // const [showCreateGithubTask, setShowCreateGithubTask] = useState(false);
+  const [isTaskOpen, setIsTaskOpen] = useState(false);
+  const handleTaskClose = () => setIsTaskOpen(false);
+  const [taskId, setTaskId] = useState("");
   const [currentColumnTitle, setCurrentColumnTitle] = useState(column.title);
+  const { runMoralisFunction } = useMoralisFunction();
   const [columnTitle, setColumnTitle] = useState(column.title);
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -79,6 +85,12 @@ const Column = ({ tasks, id, column, index }: Props) => {
           column={column}
         />
       )}
+      <CardModal
+        isOpen={isTaskOpen}
+        handleClose={handleTaskClose}
+        taskId={taskId}
+        column={column}
+      />
       <Draggable
         draggableId={id}
         index={index}
@@ -147,23 +159,26 @@ const Column = ({ tasks, id, column, index }: Props) => {
                             );
                             return;
                           }
-                          setShowCreateTask(true);
-                          setTimeout(() => {
-                            document
-                              .getElementById("taskCancelButton")
-                              ?.scrollIntoView({
-                                behavior: "smooth",
-                                block: "end",
-                                inline: "nearest",
-                              });
-                          }, 10);
+                          // setShowCreateTask(true);
+                          runMoralisFunction("addTask", {
+                            boardId: bid as string,
+                            columnId: id,
+                            title: "",
+                            value: 0,
+                          }).then((res: any) => {
+                            console.log(res);
+                            setSpace(res.space as BoardData);
+                            setTaskId(res.taskId);
+                            setIsTaskOpen(true);
+                            // setShowCreateTask(false);
+                          });
                         }}
                         fullWidth
                         size="small"
                       >
                         Add Card
                       </Button>
-                      <Button
+                      {/* <Button
                         sx={{
                           textTransform: "none",
                           textAlign: "left",
@@ -190,7 +205,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                         disableElevation
                       >
                         Import Card
-                      </Button>
+                      </Button> */}
                     </>
                   </Box>
                   <TaskList>
@@ -206,7 +221,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                         );
                     })}
                     {provided.placeholder}
-                    <CreateTask
+                    {/* <CreateTask
                       showCreateTask={showCreateTask}
                       setShowCreateTask={setShowCreateTask}
                       columnId={id}
@@ -217,7 +232,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                         setShowCreateTask={setShowCreateGithubTask}
                         columnId={id}
                       />
-                    )}
+                    )} */}
                   </TaskList>
                 </TaskListContainer>
               )}

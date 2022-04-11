@@ -26,7 +26,6 @@ const SpaceNavbar = (props: Props) => {
   const bid = router.query.bid as string;
   const { user, Moralis } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
-  console.log(user?.id);
   return (
     <StyledNav>
       <NavbarContainer>

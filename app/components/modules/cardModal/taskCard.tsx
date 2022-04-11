@@ -107,7 +107,7 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
     <Container>
       <TaskModalTitleContainer>
         <InputBase
-          placeholder="Add Title"
+          placeholder="Add Task Title..."
           sx={{
             fontSize: "20px",
           }}

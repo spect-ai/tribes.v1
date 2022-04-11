@@ -21,13 +21,16 @@ Moralis.Cloud.define("addTask", async (request) => {
         request.params.title,
         request.params.value,
         request.user.id,
-        request.params.description,
         columns[request.params.columnId].defaultCardType
       );
       logger.info(`Creating task ${JSON.stringify(task)}`);
-      await Moralis.Object.saveAll([task], { useMasterKey: true });
-      await Moralis.Object.saveAll([board], { useMasterKey: true });
-      return await getSpace(request.params.boardId, request.user.id);
+      // await Moralis.Object.saveAll([task], { useMasterKey: true }); why save separately??
+      await Moralis.Object.saveAll([board, task], { useMasterKey: true });
+      const res = {};
+      const space = await getSpace(request.params.boardId, request.user.id);
+      res.space = space;
+      res.taskId = taskId;
+      return res;
     } else {
       throw "User doesnt have access to create task";
     }
