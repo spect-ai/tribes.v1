@@ -1,14 +1,70 @@
+// These are all fields that can be directly updated without any pre-processing
+const easyUpdates = [
+  "title",
+  "type",
+  "description",
+  "tags",
+  "reviewer",
+  "assignee",
+  "chain",
+  "token",
+];
+
+// These are fields that need to converted to the date type
+const dateUpdates = ["deadline"];
+
+// These are fields that need to be converted to the integer type
+const integerUpdates = ["status"];
+
+// These are fields that need to be converted to the float type
+const floatUpdates = ["value"];
+
+// Array updates that require appends. Must be in the format: [{content: "",}]
+const contentArrayUpdates = ["submissions", "proposals"];
+
+const datatypes = {
+  title: "string",
+  type: "string",
+  reviewer: "array",
+  assignee: "array",
+  tags: "array",
+  chain: "object",
+  token: "object",
+  value: "number",
+  deadline: "date",
+  status: "number",
+  proposals: "arrayOfObjects",
+  selectedProposals: "array",
+  description: "arrayOfObjects",
+  submission: "arrayOfObjects",
+};
+
+// Map of update property to action code
+const updatePropertyActivityMap = {
+  type: 99,
+  reviewer: 106,
+  assignee: 105,
+  tags: 102,
+  reward: 104,
+  submission: 200,
+  status: {
+    review: 200,
+    revision: 201,
+    done: 205,
+  },
+  columnChange: 400,
+  selectedProposals: 152,
+};
+
 Moralis.Cloud.define("updateCard", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     if (!request.params.updates?.taskId) throw "Payload must contain taskId";
 
     var task = await getTaskByTaskId(request.params.updates?.taskId);
-    validateUpdatePayload(request.params.updates, task, request.user.id);
+    validate(request.params.updates, task, request.user.id);
     task = await handleUpdates(request.params.updates, task, request.user.id);
     const res = await Moralis.Object.saveAll(task, { useMasterKey: true });
-    logger.info(`Response after save task ${JSON.stringify(res)}`);
-    logger.info(`Updated task ${JSON.stringify(task)}`);
     const space = await getSpace(task.get("boardId"), request.user.id);
     return {
       space: space,
@@ -22,17 +78,16 @@ Moralis.Cloud.define("updateCard", async (request) => {
   }
 });
 
-function validateUpdatePayload(updates, task, callerId) {
+function validate(updates, task, callerId) {
   if (!task) throw "Card not found";
   authorized(updates, task, callerId);
-  validateColumnChangePayload(updates, task);
+  validatePayload(updates, task);
 }
 
 function authorized(updates, task, callerId) {
   if (
     updates.hasOwnProperty("title") ||
     updates.hasOwnProperty("description") ||
-    updates.hasOwnProperty("status") ||
     updates.hasOwnProperty("reviewer") ||
     updates.hasOwnProperty("tags") ||
     updates.hasOwnProperty("reward") ||
@@ -48,7 +103,7 @@ function authorized(updates, task, callerId) {
   }
 }
 
-function validateColumnChangePayload(updates, task) {
+function validatePayload(updates, task) {
   if (updates.hasOwnProperty("columnChange")) {
     if (
       !updates.columnChange.hasOwnProperty("sourceId") ||
@@ -59,140 +114,14 @@ function validateColumnChangePayload(updates, task) {
 }
 
 async function handleUpdates(updates, task, callerId) {
-  if (updates.hasOwnProperty("title")) {
-    task.set("title", updates.title);
-  }
-  if (updates.hasOwnProperty("type")) {
-    task.set("type", updates.type);
-  }
-  if (updates.hasOwnProperty("description")) {
-    task.set("description", updates.description);
-  }
-  if (updates.hasOwnProperty("status")) {
-    task.set("status", updates.status);
-  }
-  if (updates.hasOwnProperty("reviewer")) {
-    task.set("reviewer", updates.reviewer);
-    handleActivityUpdate(task, 106, updates, callerId);
-  }
-  if (updates.hasOwnProperty("assignee")) {
-    task.set("assignee", updates.assignee);
-    handleActivityUpdate(task, 105, updates, callerId);
-  }
-  if (updates.hasOwnProperty("tags")) {
-    task.set("tags", updates.tags);
-    handleActivityUpdate(task, 102, updates, callerId);
-  }
-  if (updates.hasOwnProperty("deadline")) {
-    task.set("deadline", new Date(updates.deadline));
-  }
-  if (updates.hasOwnProperty("reward")) {
-    task.set("value", parseFloat(updates.reward.value));
-    task.set("token", updates.reward.token);
-    task.set("chain", updates.reward.chain);
-    handleActivityUpdate(task, 104, updates, callerId);
-  }
-  if (updates.hasOwnProperty("submission")) {
-    task.set("submissions", [updates.submission]);
-    handleActivityUpdate(task, 200, updates, callerId);
-  }
-  if (updates.hasOwnProperty("proposal")) {
-    task = handleProposalUpdate(task, updates, callerId);
-  }
-
-  if (updates.hasOwnProperty("selectedProposals")) {
-    const proposalIdx = task
-      .get("proposals")
-      .findIndex((p) => p.id === updates.selectedProposals[0]);
-    if (proposalIdx === -1) throw "Proposal not found";
-    else {
-      task.set("selectedProposals", updates.selectedProposals);
-      task.set("assignee", [task.get("proposals")[proposalIdx].userId]);
-      updates.selectedApplicant = task.get("proposals")[proposalIdx].userId;
-      handleActivityUpdate(task, 152, updates, callerId);
-    }
-  }
-  if (updates.hasOwnProperty("columnChange")) {
-    const response = await handleColumnUpdate(
-      task.get("boardId"),
-      task.get("taskId"),
-      updates.columnChange.sourceId,
-      updates.columnChange.destinationId
-    );
-    if (response) handleActivityUpdate(task, 400, updates, callerId);
-  }
-  return task;
-}
-
-async function handleColumnUpdate(boardId, taskId, sourceId, destinationId) {
-  const logger = Moralis.Cloud.getLogger();
-  try {
-    const board = await getBoardByObjectId(boardId);
-
-    logger.info(
-      `Handling column update for task ${boardId} ${taskId} ${sourceId} ${destinationId}`
-    );
-    var columns = board.get("columns");
-    const newSource = removeTaskFromColumn(columns[sourceId], taskId);
-    logger.info(`newSource: ${JSON.stringify(newSource)}`);
-
-    const newDestination = addTaskToColumn(columns[destinationId], taskId);
-    logger.info(`newDestination: ${JSON.stringify(newDestination)}`);
-
-    columns = {
-      ...columns,
-      [newSource.id]: newSource,
-      [newDestination.id]: newDestination,
-    };
-    logger.info(`columns: ${JSON.stringify(columns)}`);
-    board.set("columns", columns);
-    return await Moralis.Object.saveAll([board], { useMasterKey: true });
-  } catch (err) {
-    throw `${err}`;
-  }
-}
-
-function handleProposalUpdate(task, updates, callerId) {
-  if (task.get("proposals")) {
-    var existingProposalIndex = task
-      .get("proposals")
-      .findIndex((proposal) => proposal.userId === callerId);
-    logger.info(
-      `existingProposalIndex: ${JSON.stringify(existingProposalIndex)}`
-    );
-    if (existingProposalIndex !== -1) {
-      // User has already submitted a proposal
-      const updatedProposal = {
-        id: task.get("proposals")[existingProposalIndex].id,
-        userId: callerId,
-        description: updates.proposal.description,
-        lastUpdated: new Date(),
-      };
-      task.get("proposals").splice(existingProposalIndex, 1);
-      task.set("proposals", [...task.get("proposals"), updatedProposal]);
-    } else {
-      // User has not submitted a proposal yet
-      task.set("proposals", [
-        ...task.get("proposals"),
-        {
-          id: crypto.randomUUID(),
-          userId: callerId,
-          description: updates.proposal.description,
-          lastUpdated: new Date(),
-        },
-      ]);
-    }
-  } else {
-    // Proposal field is null or undefined (for smooth backward compatibility)
-    task.set("proposals", [
-      {
-        id: crypto.randomUUID(),
-        userId: callerId,
-        description: updates.proposal.description,
-      },
-    ]);
-  }
-
+  task = handleActivityUpdates(task, updates, callerId);
+  task = handleEasyFieldUpdates(task, updates, easyUpdates);
+  task = handleDateUpdates(task, updates, dateUpdates);
+  task = handleIntegerUpdates(task, updates, integerUpdates);
+  task = handleFloatUpdates(task, updates, floatUpdates);
+  task = handleContentArrayUpdate(task, updates, callerId, contentArrayUpdates);
+  task = handleSelectedProposalUpdate(task, updates);
+  handleColumnUpdate(task.get("boardId"), task.get("taskId"), updates);
   return task;
 }
 
@@ -215,13 +144,195 @@ function addTaskToColumn(column, taskId) {
   };
 }
 
-function handleActivityUpdate(task, action, updates, callerId) {
-  updates.action = action;
-  updates.actor = callerId;
-  updates.timestamp = new Date();
-  updates.taskType = task.get("type");
-  if (task.get("activity"))
-    task.set("activity", [...task.get("activity"), updates]);
-  else task.set("activity", [updates]);
+async function handleColumnUpdate(boardId, taskId, updates) {
+  if (updates.hasOwnProperty("columnChange")) {
+    const sourceId = updates.columnChange.sourceId;
+    const destinationId = updates.columnChange.destinationId;
+    const logger = Moralis.Cloud.getLogger();
+    try {
+      const board = await getBoardByObjectId(boardId);
+
+      logger.info(
+        `Handling column update for task ${boardId} ${taskId} ${sourceId} ${destinationId}`
+      );
+      var columns = board.get("columns");
+      const newSource = removeTaskFromColumn(columns[sourceId], taskId);
+      logger.info(`newSource: ${JSON.stringify(newSource)}`);
+
+      const newDestination = addTaskToColumn(columns[destinationId], taskId);
+      logger.info(`newDestination: ${JSON.stringify(newDestination)}`);
+
+      columns = {
+        ...columns,
+        [newSource.id]: newSource,
+        [newDestination.id]: newDestination,
+      };
+      logger.info(`columns: ${JSON.stringify(columns)}`);
+      board.set("columns", columns);
+      return await Moralis.Object.saveAll([board], { useMasterKey: true });
+    } catch (err) {
+      throw `${err}`;
+    }
+  }
+}
+
+function handleSelectedProposalUpdate(task, updates) {
+  if (updates.hasOwnProperty("selectedProposals")) {
+    const proposalIdx = task
+      .get("proposals")
+      .findIndex((p) => p.id === updates.selectedProposals[0]);
+    if (proposalIdx === -1) throw "Proposal not found";
+    else {
+      task.set("selectedProposals", updates.selectedProposals);
+      task.set("assignee", [task.get("proposals")[proposalIdx].userId]);
+      updates.selectedApplicant = task.get("proposals")[proposalIdx].userId;
+    }
+  }
   return task;
+}
+
+function handleContentArrayUpdate(task, updates, callerId, fields) {
+  for (const [key, value] of Object.entries(updates)) {
+    if (fields.includes(key)) {
+      if (task.get(key)) {
+        // Get user's existing proposal
+        var existingIndex = task
+          .get(key)
+          .findIndex((obj) => obj.userId === callerId);
+        logger.info(`existingIndex: ${JSON.stringify(existingIndex)}`);
+        if (existingIndex !== -1) {
+          // User has already submitted a proposal
+          const updatedObj = {
+            id: task.get(key)[existingIndex].id,
+            userId: callerId,
+            content: value.content,
+            lastUpdated: new Date(),
+          };
+          task.get(key).splice(existingIndex, 1);
+          task.set(key, [...task.get(key), updatedObj]);
+        } else {
+          // User has not submitted a proposal yet
+          task.set(key, [
+            ...task.get(key),
+            {
+              id: crypto.randomUUID(),
+              userId: callerId,
+              content: value.content,
+              lastUpdated: new Date(),
+            },
+          ]);
+        }
+      } else {
+        // Proposal field is null or undefined (for smooth backward compatibility)
+        task.set(key, [
+          {
+            id: crypto.randomUUID(),
+            userId: callerId,
+            description: updates.content,
+          },
+        ]);
+      }
+    }
+  }
+
+  return task;
+}
+
+function handleEasyFieldUpdates(task, updates, fields) {
+  for (const [key, value] of Object.entries(updates)) {
+    if (fields.includes(key)) {
+      task.set(key, value);
+    }
+  }
+  return task;
+}
+
+function handleDateUpdates(task, updates, fields) {
+  for (const [key, value] of Object.entries(updates)) {
+    if (fields.includes(key)) {
+      task.set(key, new Date(value));
+    }
+  }
+  return task;
+}
+
+function handleIntegerUpdates(task, updates, fields) {
+  for (const [key, value] of Object.entries(updates)) {
+    if (fields.includes(key)) {
+      task.set(key, parseInt(value));
+    }
+  }
+  return task;
+}
+
+function handleFloatUpdates(task, updates, fields) {
+  for (const [key, value] of Object.entries(updates)) {
+    if (fields.includes(key)) {
+      task.set(key, parseFloat(value));
+    }
+  }
+  return task;
+}
+
+function handleActivityUpdate(task, updates, property, callerId) {
+  if (updatePropertyActivityMap.hasOwnProperty(property)) {
+    updates.action = updatePropertyActivityMap[property];
+    updates.actor = callerId;
+    updates.timestamp = new Date();
+    updates.taskType = task.get("type");
+    updates.changeLog = { prev: task.get(property), next: updates[property] };
+    if (task.get("activity"))
+      task.set("activity", [...task.get("activity"), updates]);
+    else task.set("activity", [updates]);
+  }
+  return task;
+}
+
+function handleActivityUpdates(task, updates, callerId) {
+  for (const [key, value] of Object.entries(updates)) {
+    if (updatePropertyActivityMap.hasOwnProperty(key)) {
+      task = handleActivityUpdate(task, updates, key, callerId);
+    }
+  }
+  return task;
+}
+
+function isDifferentEasyField(task, updates, key) {
+  if (datatypes[key] === "array") {
+    return !arrayHasSameElements(task.get(key), updates[key]);
+  } else {
+    return task.get(key) !== updates[key];
+  }
+}
+
+function isDifferentReward(task, updates) {
+  return (
+    task.get("value") !== updates.reward.value ||
+    !objectHasSameElements(task.get("chain"), updates.reward.chain) ||
+    !objectHasSameElements(task.get("token"), updates.reward.token)
+  );
+}
+
+function isDifferentDeadline(task, updates) {
+  return task.get("deadline") !== new Date(updates.deadline);
+}
+
+function arrayHasSameElements(array1, array2) {
+  logger.info(`array1: ${JSON.stringify(array1)}`);
+  logger.info(`array2: ${JSON.stringify(array2)}`);
+  if (array1?.length !== array2?.length) return false;
+  for (const element of array1) {
+    if (!array2.includes(element)) return false;
+  }
+  return true;
+}
+
+function objectHasSameElements(obj1, obj2) {
+  logger.info(`obj1: ${JSON.stringify(obj1)}`);
+  logger.info(`obj2: ${JSON.stringify(obj2)}`);
+  if (Object.keys(obj1).length !== Object.keys(obj2).length) return false;
+  for (const key of Object.keys(obj1)) {
+    if (obj1[key] !== obj2[key]) return false;
+  }
+  return true;
 }

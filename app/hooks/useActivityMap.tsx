@@ -14,10 +14,13 @@ import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { useSpace } from "../../pages/tribe/[id]/space/[bid]";
 import AddTaskIcon from "@mui/icons-material/AddTask";
+import CategoryIcon from "@mui/icons-material/Category";
+
 export function useActivityMap() {
   const { space, setSpace } = useSpace();
 
   const activityIcons: any = {
+    99: <CategoryIcon />,
     100: <AddTaskIcon />,
     101: <DateRangeIcon />,
     102: <LabelIcon />,
@@ -36,7 +39,14 @@ export function useActivityMap() {
   };
 
   const generateActivityLine = (update: any) => {
+    console.log(update);
     switch (update.action) {
+      case 99:
+        return `${
+          space.memberDetails[update.actor].username
+        } changed the card type from "${update.changeLog?.prev}" to "${
+          update.changeLog?.next
+        }"`;
       case 100:
         return `${space.memberDetails[update.actor].username} created ${
           update.taskType
@@ -46,15 +56,21 @@ export function useActivityMap() {
           space.memberDetails[update.actor].username
         } updated due date to ${update.deadline}`;
       case 102:
-        return `${space.memberDetails[update.actor].username} updated tags to `;
+        return `${
+          space.memberDetails[update.actor].username
+        } updated tags to "${update.changeLog?.next?.join(", ")}"`;
       case 104:
         `${space.memberDetails[update.actor].username} updated reward to ${
           update.reward?.value
         } ${update.reward?.token?.symbol} on ${update.reward?.chain?.name}`;
       case 105:
-        return `${space.memberDetails[update.actor].username} assigned ${
-          update.taskType
-        } `;
+        return space.memberDetails[update?.changeLog?.next[0]]?.username
+          ? `${space.memberDetails[update.actor].username} assigned ${
+              update.taskType
+            } to ${space.memberDetails[update?.changeLog?.next[0]]?.username}`
+          : `${space.memberDetails[update.actor].username} unassigned ${
+              update.taskType
+            }`;
       case 106:
         return `${
           space.memberDetails[update.actor].username
@@ -94,9 +110,9 @@ export function useActivityMap() {
       case 400:
         return `${space.memberDetails[update.actor].username} moved ${
           update.taskType
-        } from ${update.columnChange.sourceId} to ${
-          update.columnChange.destinationId
-        }`;
+        } from "${space.columns[update.columnChange?.sourceId]?.title}" to "${
+          space.columns[update.columnChange?.destinationId]?.title
+        }"`;
     }
   };
   return {

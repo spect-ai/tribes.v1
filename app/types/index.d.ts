@@ -142,7 +142,7 @@ export interface Task {
   boardId: string;
   createdAt: string;
   type: string;
-  submissions: Array<Block[]>;
+  submissions: Array<SubmissionData>;
   proposals: Array<Proposal>;
   numProposals: number;
   selectedProposals: Array<string>;
@@ -159,7 +159,15 @@ export interface Submission {
 export interface Proposal {
   userId: string;
   id: string;
-  description: string;
+  content: string;
+  lastUpdated?: ?Date;
+}
+
+export interface SubmissionData {
+  userId: string;
+  id: string;
+  content: Block[];
+  lastUpdated?: Date;
 }
 
 export interface Contracts {

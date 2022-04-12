@@ -281,15 +281,12 @@ Moralis.Cloud.define("moveCardsAfterEpoch", async (request) => {
 
     if (epoch.get("type") === "Card") {
       for (var cardId of epoch.get("choices")) {
-        logger.info(`cardId ${cardId}`);
         if (
           (epoch.get("votesFor")[cardId] * 100) /
             (epoch.get("votesFor")[cardId] +
               epoch.get("votesAgainst")[cardId]) >=
           epoch.get("passThreshold")
         ) {
-          logger.info(`ady`);
-
           await handleColumnChange(
             epoch.get("spaceId"),
             cardId,
@@ -297,10 +294,7 @@ Moralis.Cloud.define("moveCardsAfterEpoch", async (request) => {
             request.params.passColumnId,
             request.user.id
           );
-          logger.info(`ayo`);
         } else {
-          logger.info(`hffg`);
-
           await handleColumnChange(
             epoch.get("spaceId"),
             cardId,
@@ -308,7 +302,6 @@ Moralis.Cloud.define("moveCardsAfterEpoch", async (request) => {
             request.params.noPassColumnId,
             request.user.id
           );
-          logger.info(`adadad`);
         }
       }
     }

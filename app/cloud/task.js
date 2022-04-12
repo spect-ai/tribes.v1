@@ -72,38 +72,6 @@ async function getTaskCountInBoard(boardId) {
   return await taskQuery.count({ useMasterKey: true });
 }
 
-function handleCreateTask(
-  task,
-  taskId,
-  defaultPayment,
-  boardId,
-  title,
-  value,
-  userId,
-  cardType
-) {
-  task.set("taskId", taskId);
-  task.set("token", {
-    address: defaultPayment?.token?.address,
-    symbol: defaultPayment?.token?.symbol,
-  });
-  task.set("chain", {
-    chainId: defaultPayment?.chain?.chainId,
-    name: defaultPayment?.chain?.name,
-  });
-  task.set("boardId", boardId);
-  task.set("title", title);
-  task.set("value", parseFloat(value));
-  task.set("creator", userId);
-  task.set("reviewer", [userId]);
-  task.set("assignee", []);
-  // task.set("description", description);
-  cardType ? task.set("type", cardType) : task.set("type", "Task");
-  task = handleActivityUpdate(task, 100, {}, userId);
-
-  return task;
-}
-
 function getTaskObjByTaskParseObj(task) {
   return {
     objectId: task.id,

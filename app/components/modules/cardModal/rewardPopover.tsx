@@ -59,11 +59,9 @@ const RewardPopover = ({ task, setTask }: Props) => {
     handleClose();
     runMoralisFunction("updateCard", {
       updates: {
-        reward: {
-          chain: chain,
-          token: token,
-          value: parseFloat(value),
-        },
+        chain: chain,
+        token: token,
+        value: parseFloat(value),
         taskId: task.taskId,
       },
     })

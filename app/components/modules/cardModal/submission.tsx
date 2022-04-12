@@ -28,7 +28,9 @@ const Submission = ({ task, setTask }: Props) => {
     // console.log({ blocks });
     runMoralisFunction("updateCard", {
       updates: {
-        submission: blocks,
+        submissions: {
+          content: blocks,
+        },
         taskId: task.taskId,
       },
     })
@@ -101,8 +103,8 @@ const Submission = ({ task, setTask }: Props) => {
         <Editor
           syncBlocksToMoralis={syncBlocksToMoralis}
           initialBlock={
-            task.submissions?.length > 0
-              ? task.submissions[0]
+            task.submissions.length > 0
+              ? task.submissions[0]?.content
               : [
                   {
                     id: uid(),

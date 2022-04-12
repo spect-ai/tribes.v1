@@ -35,7 +35,6 @@ const Proposals = ({ task, setTask }: Props) => {
   const { user } = useMoralis();
   const [proposalOnEdit, setProposalOnEdit] = useState("");
   const [editMode, setEditMode] = useState(false);
-  console.log(task);
   const handleSave = () => {
     setIsLoading(true);
     const prevTask = Object.assign({}, task);
@@ -43,7 +42,7 @@ const Proposals = ({ task, setTask }: Props) => {
     temp.proposals = [
       {
         id: "",
-        description: proposalOnEdit as string,
+        content: proposalOnEdit as string,
         userId: user?.id as string,
       },
     ];
@@ -51,8 +50,8 @@ const Proposals = ({ task, setTask }: Props) => {
     setEditMode(false);
     runMoralisFunction("updateCard", {
       updates: {
-        proposal: {
-          description: proposalOnEdit,
+        proposals: {
+          content: proposalOnEdit,
         },
         taskId: task.taskId,
       },
@@ -60,7 +59,8 @@ const Proposals = ({ task, setTask }: Props) => {
       .then((res: any) => {
         console.log(res);
         notify("Applied to bounty!", "success");
-        setSpace(res);
+        setSpace(res.space);
+        setTask(res.task);
         setIsLoading(false);
       })
       .catch((err: any) => {
@@ -86,7 +86,8 @@ const Proposals = ({ task, setTask }: Props) => {
       .then((res: any) => {
         console.log(res);
         notify("Selected proposal!", "success");
-        setSpace(res);
+        setSpace(res.space);
+        setTask(res.task);
         setIsLoading(false);
       })
       .catch((err: any) => {
@@ -209,7 +210,7 @@ const Proposals = ({ task, setTask }: Props) => {
             onChange={(event) => {
               setProposalOnEdit(event.target.value);
             }}
-            defaultValue={proposal.description}
+            defaultValue={proposal.content}
             InputProps={{
               readOnly: !editMode,
               endAdornment: (
