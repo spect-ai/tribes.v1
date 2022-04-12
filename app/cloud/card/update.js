@@ -119,6 +119,7 @@ async function handleUpdates(updates, task, callerId) {
       updates.columnChange.sourceId,
       updates.columnChange.destinationId
     );
+    // task.set("columnId", updates.columnChange.destinationId);
     if (response) handleActivityUpdate(task, 400, updates, callerId);
   }
   return task;

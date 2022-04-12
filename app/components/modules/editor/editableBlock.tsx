@@ -35,6 +35,7 @@ type Props = {
   id: string;
   blocks: Block[];
   block: Block;
+  readOnly: boolean;
 };
 
 const EditableBlock = ({
@@ -42,6 +43,7 @@ const EditableBlock = ({
   position,
   block,
   blocks,
+  readOnly,
   updateBlock,
   addBlock,
   deleteBlock,
@@ -319,7 +321,7 @@ const EditableBlock = ({
           isOpen={isSelectMenuOpen}
         />
       )}
-      <Draggable draggableId={id} index={position}>
+      <Draggable draggableId={id} index={position} isDragDisabled={readOnly}>
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
@@ -336,7 +338,12 @@ const EditableBlock = ({
                 role="button"
                 tabIndex={0}
                 className={styles.dragHandle}
-                onClick={(e) => openActionMenu(e.target, "DRAG_HANDLE_CLICK")}
+                onClick={(e) => {
+                  if (readOnly) {
+                    return;
+                  }
+                  openActionMenu(e.target, "DRAG_HANDLE_CLICK");
+                }}
                 {...provided.dragHandleProps}
               >
                 <DragIndicatorIcon />
@@ -345,6 +352,7 @@ const EditableBlock = ({
                 <ContentEditable
                   data-position={position}
                   data-tag={tag}
+                  disabled={readOnly}
                   className={[
                     styles.block,
                     placeholder ? styles.placeholder : null,
@@ -377,6 +385,7 @@ const EditableBlock = ({
                   <input
                     id={`${id}_fileInput`}
                     name={tag}
+                    disabled={readOnly}
                     type="file"
                     onChange={handleImageUpload}
                     ref={fileInputRef}
@@ -415,9 +424,11 @@ const EditableBlock = ({
                       placeholder="Add link"
                       sx={{ width: "50%" }}
                       color="secondary"
+                      disabled={readOnly}
                       InputProps={{
                         endAdornment: (
                           <PrimaryButton
+                            disabled={readOnly}
                             onClick={(event) => {
                               const value = (
                                 event.currentTarget

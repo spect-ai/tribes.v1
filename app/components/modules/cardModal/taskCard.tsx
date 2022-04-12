@@ -110,6 +110,7 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
           placeholder="Add Task Title..."
           sx={{
             fontSize: "20px",
+            ml: 1,
           }}
           fullWidth
           value={title}

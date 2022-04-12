@@ -136,6 +136,7 @@ const Editor = ({ syncBlocksToMoralis, initialBlock }: Props) => {
                     addBlock={addBlockHandler}
                     deleteBlock={deleteBlockHandler}
                     updateBlock={updateBlockHandler}
+                    readOnly={/*some condition here*/ false}
                   />
                 );
               })}
