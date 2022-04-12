@@ -22,6 +22,7 @@ const TribeNavbar = (props: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
   const router = useRouter();
+  const { user } = useMoralis();
   const id = router.query.id as string;
   const waitForDiscordLink = async () => {
     setIsLoading(true);
@@ -71,7 +72,7 @@ const TribeNavbar = (props: Props) => {
             {tribe.name}
           </Link>
         </Breadcrumbs>
-        {!tribe.guildId && (
+        {!tribe.guildId && tribe.roles[user?.id as string] === 3 && (
           <a
             href={`https://discord.com/oauth2/authorize?client_id=942494607239958609&permissions=17448306704&redirect_uri=${
               process.env.DEV_ENV === "local"
@@ -102,7 +103,7 @@ const TribeNavbar = (props: Props) => {
         <StyledTab label="Members" />
         <StyledTab
           label="Settings"
-          // disabled={tribe.roles[user?.id as string] !== 3}
+          disabled={tribe.roles[user?.id as string] !== 3}
         />
       </StyledTabs>
       <SidebarProfile />

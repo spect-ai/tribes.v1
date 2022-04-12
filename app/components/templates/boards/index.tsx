@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { Column } from "../../../types";
+import CardModal from "../../modules/cardModal";
 import { notify } from "../../modules/settingsTab";
 import TaskBoard from "../../modules/taskBoard";
 
@@ -18,9 +20,13 @@ const OuterDiv = styled.div`
 const BoardsTemplate = (props: Props) => {
   const router = useRouter();
   const inviteCode = router.query.inviteCode as string;
+  const taskId = router.query.taskId as string;
   const { isAuthenticated, authenticate } = useMoralis();
   const { setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
+  const [isOpen, setIsOpen] = useState(false);
+  const handleClose = () => setIsOpen(false);
+  const [column, setColumn] = useState<Column>({} as Column);
   useEffect(() => {
     if (inviteCode) {
       if (!isAuthenticated) {
@@ -45,8 +51,22 @@ const BoardsTemplate = (props: Props) => {
     }
   }, [inviteCode, isAuthenticated]);
 
+  // useEffect(() => {
+  //   if(taskId){
+
+  //   }
+  // }, [taskId])
+
+  // task-vkz0WTQHgUTSK7d4nsFHHo0u-15
+
   return (
     <OuterDiv>
+      <CardModal
+        isOpen={isOpen}
+        handleClose={handleClose}
+        taskId={taskId}
+        column={column}
+      />
       <TaskBoard />
     </OuterDiv>
   );
