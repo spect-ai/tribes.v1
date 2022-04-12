@@ -134,51 +134,46 @@ const Column = ({ tasks, id, column, index }: Props) => {
                     </IconButton>
                   </TaskTitleContainer>
                   <Box sx={{ display: "flex", flexDirection: "row" }}>
-                    <>
-                      <Button
-                        sx={{
-                          textTransform: "none",
-                          textAlign: "left",
-                          justifyContent: "flex-start",
-                          ml: 1,
-                          color: palette.text.primary,
-                        }}
-                        variant="contained"
-                        disableElevation
-                        startIcon={<AddIcon />}
-                        onClick={() => {
-                          if (
-                            !column.createCard[
-                              space.roles[user?.id as string]
-                            ] &&
-                            !column.createCard[0]
-                          ) {
-                            notify(
-                              "Your role doesn't have permission to create tasks in this column",
-                              "error"
-                            );
-                            return;
-                          }
-                          // setShowCreateTask(true);
-                          runMoralisFunction("addTask", {
-                            boardId: bid as string,
-                            columnId: id,
-                            title: "",
-                            value: 0,
-                          }).then((res: any) => {
-                            console.log(res);
-                            setSpace(res.space as BoardData);
-                            setTaskId(res.taskId);
-                            setIsTaskOpen(true);
-                            // setShowCreateTask(false);
-                          });
-                        }}
-                        fullWidth
-                        size="small"
-                      >
-                        Add Card
-                      </Button>
-                      {/* <Button
+                    <Button
+                      sx={{
+                        textTransform: "none",
+                        textAlign: "center",
+                        alignItems: "center",
+                        color: palette.text.primary,
+                        mx: 1,
+                        mb: 1,
+                      }}
+                      variant="contained"
+                      disableElevation
+                      startIcon={<AddIcon />}
+                      onClick={() => {
+                        if (
+                          !column.createCard[space.roles[user?.id as string]] &&
+                          !column.createCard[0]
+                        ) {
+                          notify(
+                            "Your role doesn't have permission to create tasks in this column",
+                            "error"
+                          );
+                          return;
+                        }
+                        // setShowCreateTask(true);
+                        runMoralisFunction("addTask", {
+                          boardId: bid as string,
+                          columnId: id,
+                          title: "",
+                          value: 0,
+                        }).then((res: any) => {
+                          console.log(res);
+                          setSpace(res.space as BoardData);
+                          setTaskId(res.taskId);
+                          setIsTaskOpen(true);
+                          // setShowCreateTask(false);
+                        });
+                      }}
+                      fullWidth
+                    ></Button>
+                    {/* <Button
                         sx={{
                           textTransform: "none",
                           textAlign: "left",
@@ -206,7 +201,6 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       >
                         Import Card
                       </Button> */}
-                    </>
                   </Box>
                   <TaskList>
                     {tasks?.map((task, index) => {
@@ -277,9 +271,9 @@ const Container = styled.div<{ isDragging: boolean; palette: Palette }>`
     props.isDragging
       ? `0.5px solid ${props.palette.primary.light}`
       : "0.5px solid transparent"};
-  &:hover {
-    border: 0.1px solid ${(props) => props.palette.secondary.dark};
-  }
+  // &:hover {
+  //   border: 0.1px solid ${(props) => props.palette.secondary.dark};
+  // }
   min-width: 16rem;
   transition: 0.5s ease-in-out;
 `;

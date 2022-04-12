@@ -62,6 +62,7 @@ const Board = (props: Props) => {
               onClick={() => {
                 setIsOpen(true);
               }}
+              color="secondary"
             >
               <ButtonText>Create new space</ButtonText>
               <AddCircleOutlineIcon sx={{ color: "#eaeaea" }} />

@@ -7,6 +7,7 @@ import { Column, Task } from "../../../types";
 import { notify } from "../settingsTab";
 import TaskCard from "./taskCard";
 import SkeletonLoader from "./skeletonLoader";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 
 type Props = {
   isOpen: boolean;
@@ -18,24 +19,26 @@ type Props = {
 const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
   const [loading, setLoading] = useState(false);
   const [task, setTask] = useState<Task>({} as Task);
-  const { Moralis } = useMoralis();
+  const { isInitialized } = useMoralis();
   const [submissionPR, setSubmissionPR] = useState<any>();
   const { space, setSpace } = useSpace();
+  const { runMoralisFunction } = useMoralisFunction();
 
   useEffect(() => {
-    setLoading(true);
-    getTask(Moralis, taskId)
-      .then((task: Task) => {
-        console.log(`task`);
-        console.log(task);
-        setTask(task);
-        setLoading(false);
-      })
-      .catch((err: any) => {
-        console.log(err);
-        notify(`Sorry! There was an error while getting task`, "error");
-      });
-  }, [taskId]);
+    if (isInitialized) {
+      setLoading(true);
+      runMoralisFunction("getTask", { taskId })
+        .then((task: Task) => {
+          console.log({ task });
+          setTask(task);
+          setLoading(false);
+        })
+        .catch((err: any) => {
+          console.log(err);
+          notify(`Sorry! There was an error while getting task`, "error");
+        });
+    }
+  }, [taskId, isInitialized]);
 
   return (
     <div>

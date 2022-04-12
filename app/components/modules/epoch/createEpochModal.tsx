@@ -20,7 +20,11 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { Box } from "@mui/system";
-import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
+import {
+  ModalHeading,
+  PrimaryButton,
+  StyledAccordian,
+} from "../../elements/styledComponents";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useMoralis } from "react-moralis";
@@ -197,7 +201,7 @@ const CreateEpoch = (props: Props) => {
       )}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
-          <Box sx={modalStyle}>
+          <ModalContainer>
             <ModalHeading>
               <Typography sx={{ color: "#99ccff" }}>Start Epoch</Typography>
               <Box sx={{ flex: "1 1 auto" }} />
@@ -218,6 +222,7 @@ const CreateEpoch = (props: Props) => {
                       fullWidth
                       sx={{ mb: 2 }}
                       size="small"
+                      color="secondary"
                       error={fieldState.error ? true : false}
                     />
                   )}
@@ -254,6 +259,7 @@ const CreateEpoch = (props: Props) => {
                           sx={{ mb: 2 }}
                           placeholder="Epoch Type"
                           size="small"
+                          color="secondary"
                           error={fieldState.error ? true : false}
                         />
                       )}
@@ -278,6 +284,7 @@ const CreateEpoch = (props: Props) => {
                       }}
                       type={"number"}
                       size="small"
+                      color="secondary"
                       error={fieldState.error ? true : false}
                     />
                   )}
@@ -306,6 +313,7 @@ const CreateEpoch = (props: Props) => {
                           sx={{ mb: 2 }}
                           placeholder="Strategy"
                           size="small"
+                          color="secondary"
                           error={fieldState.error ? true : false}
                         />
                       )}
@@ -327,6 +335,7 @@ const CreateEpoch = (props: Props) => {
                         placeholder="Pass Threshold (%)"
                         type={"number"}
                         size="small"
+                        color="secondary"
                       />
                     )}
                   />
@@ -347,6 +356,7 @@ const CreateEpoch = (props: Props) => {
                               placeholder="Budget"
                               type={"number"}
                               size="small"
+                              color="secondary"
                               error={fieldState.error ? true : false}
                             />
                           )}
@@ -368,6 +378,7 @@ const CreateEpoch = (props: Props) => {
                               onChange={(event, newValue) => {
                                 setToken(newValue as Token);
                               }}
+                              disableClearable
                               getOptionLabel={(option) => option.symbol}
                               renderInput={(params) => (
                                 <TextField
@@ -375,6 +386,7 @@ const CreateEpoch = (props: Props) => {
                                   id="filled-hidden-label-normal"
                                   placeholder="Token"
                                   size="small"
+                                  color="secondary"
                                 />
                               )}
                             />
@@ -392,6 +404,7 @@ const CreateEpoch = (props: Props) => {
                               options={getFlattenedNetworks(
                                 registry as Registry
                               )}
+                              disableClearable
                               value={chain}
                               onChange={(event, newValue) => {
                                 setChain(newValue as Chain);
@@ -409,6 +422,7 @@ const CreateEpoch = (props: Props) => {
                                   id="filled-hidden-label-normal"
                                   placeholder="Network"
                                   size="small"
+                                  color="secondary"
                                 />
                               )}
                             />
@@ -419,7 +433,7 @@ const CreateEpoch = (props: Props) => {
                   </Box>
                 )}
 
-                <Accordion disableGutters>
+                <StyledAccordian disableGutters>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
@@ -513,7 +527,7 @@ const CreateEpoch = (props: Props) => {
                       </TableBody>
                     </Table>
                   </AccordionDetails>
-                </Accordion>
+                </StyledAccordian>
 
                 {type === "Card" && (
                   <CreateEpochTaskList
@@ -536,25 +550,26 @@ const CreateEpoch = (props: Props) => {
                 </PrimaryButton>
               </form>
             </ModalContent>
-          </Box>
+          </ModalContainer>
         </Grow>
       </Modal>
     </>
   );
 };
 
-const modalStyle = {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
   position: "absolute" as "absolute",
   top: "10%",
-  left: "30%",
+  left: "35%",
   transform: "translate(-50%, -50%)",
-  width: "35rem",
-  bgcolor: "background.paper",
+  width: "40rem",
   border: "2px solid #000",
+  backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: "auto",
   maxHeight: "calc(100% - 128px)",
-};
+}));
 
 const ModalContent = styled("div")(({ theme }) => ({
   display: "flex",
