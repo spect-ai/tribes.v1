@@ -103,7 +103,7 @@ const Submission = ({ task, setTask }: Props) => {
         <Editor
           syncBlocksToMoralis={syncBlocksToMoralis}
           initialBlock={
-            task.submissions.length > 0
+            task.submissions?.length > 0
               ? task.submissions[0]?.content
               : [
                   {

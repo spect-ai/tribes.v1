@@ -48,6 +48,7 @@ const updatePropertyActivityMap = {
   reward: 104,
   submission: 200,
   status: {
+    //
     review: 200,
     revision: 201,
     done: 205,
@@ -275,22 +276,36 @@ function handleFloatUpdates(task, updates, fields) {
 }
 
 function handleActivityUpdate(task, updates, property, callerId) {
-  if (updatePropertyActivityMap.hasOwnProperty(property)) {
-    updates.action = updatePropertyActivityMap[property];
-    updates.actor = callerId;
-    updates.timestamp = new Date();
-    updates.taskType = task.get("type");
-    updates.changeLog = { prev: task.get(property), next: updates[property] };
-    if (task.get("activity"))
-      task.set("activity", [...task.get("activity"), updates]);
-    else task.set("activity", [updates]);
-  }
+  updates.action = updatePropertyActivityMap[property];
+  updates.actor = callerId;
+  updates.timestamp = new Date();
+  updates.taskType = task.get("type");
+  updates.changeLog = { prev: task.get(property), next: updates[property] };
+  if (task.get("activity"))
+    task.set("activity", [...task.get("activity"), updates]);
+  else task.set("activity", [updates]);
+
+  return task;
+}
+
+function handleStatusActivityUpdate(task, updates, callerId, statusCode) {
+  updates.action = parseInt(statusCode);
+  updates.actor = callerId;
+  updates.timestamp = new Date();
+  updates.taskType = task.get("type");
+  updates.changeLog = { prev: task.get("status"), next: updates["status"] };
+  if (task.get("activity"))
+    task.set("activity", [...task.get("activity"), updates]);
+  else task.set("activity", [updates]);
   return task;
 }
 
 function handleActivityUpdates(task, updates, callerId) {
+  var reward = {};
   for (const [key, value] of Object.entries(updates)) {
-    if (updatePropertyActivityMap.hasOwnProperty(key)) {
+    if (key === "status") {
+      handleStatusActivityUpdate(task, updates, callerId, value);
+    } else if (updatePropertyActivityMap.hasOwnProperty(key)) {
       task = handleActivityUpdate(task, updates, key, callerId);
     }
   }

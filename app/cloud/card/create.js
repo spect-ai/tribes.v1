@@ -75,7 +75,7 @@ function handleCreateTask(
       action: 100,
       actor: userId,
       timestamp: new Date(),
-      taskType: cardType,
+      taskType: cardType ? cardType : "Task",
       changeLog: { prev: null, next: null },
     },
   ]);

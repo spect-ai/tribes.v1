@@ -49,7 +49,7 @@ export function useActivityMap() {
         }"`;
       case 100:
         return `${space.memberDetails[update.actor].username} created ${
-          update.taskType
+          update?.changeLog?.next
         }`;
       case 101:
         return `${
