@@ -1,4 +1,3 @@
-import MD5 from "crypto-js/md5";
 import { monthMap } from "../constants";
 import { Registry, Chain, Token } from "../types";
 
@@ -56,10 +55,6 @@ export function getRemainingVotes(
   return (
     prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2)
   );
-}
-
-export function getMD5String(string: string) {
-  return MD5(string).toString();
 }
 
 export function activityFormatter(status: number, date: Date, actor: string) {

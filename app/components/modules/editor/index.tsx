@@ -11,7 +11,7 @@ type Props = {
   syncBlocksToMoralis: Function;
   initialBlock: Block[];
   placeholderText: string;
-  readonly: boolean;
+  readonly?: boolean;
 };
 
 const Editor = ({
@@ -144,7 +144,7 @@ const Editor = ({
                     deleteBlock={deleteBlockHandler}
                     updateBlock={updateBlockHandler}
                     placeholderText={placeholderText}
-                    readOnly={readonly}
+                    readOnly={readonly || false}
                   />
                 );
               })}

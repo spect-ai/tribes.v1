@@ -5,7 +5,6 @@ import ProfilePopover from "../../modules/profilePopover";
 import { SidebarButton } from "../styledComponents";
 import LoginIcon from "@mui/icons-material/Login";
 import styled from "@emotion/styled";
-import { getMD5String } from "../../../utils/utils";
 import { getOrCreateUser } from "../../../adapters/moralis";
 import { useGlobal } from "../../../context/globalContext";
 import { useRouter } from "next/router";

@@ -13,7 +13,7 @@ import {
 import React, { useState } from "react";
 import { NavbarButton } from "../../elements/styledComponents";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { getMD5String, smartTrim } from "../../../utils/utils";
+import { smartTrim } from "../../../utils/utils";
 import { useMoralis } from "react-moralis";
 import PersonIcon from "@mui/icons-material/Person";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -59,14 +59,7 @@ const ProfileMenu = (props: Props) => {
         onClick={handleClick}
         loading={isAuthenticating}
       >
-        <NavbarAvatar
-          src={
-            user?.get("profilePicture")?._url ||
-            `https://www.gravatar.com/avatar/${getMD5String(
-              user?.id || ""
-            )}?d=identicon&s=32`
-          }
-        />
+        <NavbarAvatar src={user?.get("profilePicture")?._url} />
         <Typography sx={{ ml: 1, fontSize: 14 }}>
           {smartTrim(user?.get("ethAddress"), 10)}
         </Typography>

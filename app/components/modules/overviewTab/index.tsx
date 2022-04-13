@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 import styled from "@emotion/styled";
 import { useTribe } from "../../../../pages/tribe/[id]";
-import { getMD5String } from "../../../utils/utils";
 import Board from "../boardsTab";
 
 const Overview = () => {

@@ -13,7 +13,6 @@ import CardTypePopover from "./cardTypePopover";
 import ColumnPopover from "./columnPopover";
 import DatePopover from "./datePopover";
 import LabelPopover from "./labelPopover";
-import MarkdownEditor from "./markdownEditor";
 import MemberPopover from "./memberPopover";
 import RewardPopover from "./rewardPopover";
 import OptionsPopover from "./optionsPopover";
