@@ -23,7 +23,7 @@ type Props = {
   setTask: (task: Task) => void;
 };
 
-const MemberPopover = ({ type, task, setTask }: Props) => {
+const CardMemberPopover = ({ type, task, setTask }: Props) => {
   const [member, setMember] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
@@ -210,4 +210,4 @@ const MemberPopover = ({ type, task, setTask }: Props) => {
   );
 };
 
-export default MemberPopover;
+export default CardMemberPopover;

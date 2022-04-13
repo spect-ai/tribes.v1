@@ -13,7 +13,7 @@ import CardTypePopover from "./cardTypePopover";
 import ColumnPopover from "./columnPopover";
 import DatePopover from "./datePopover";
 import LabelPopover from "./labelPopover";
-import MemberPopover from "./memberPopover";
+import CardMemberPopover from "./cardMemberPopover";
 import RewardPopover from "./rewardPopover";
 import OptionsPopover from "./optionsPopover";
 import TabularDetails from "./tabularDetails";
@@ -131,8 +131,8 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
       </Box>
 
       <Box sx={{ display: "flex", flexWrap: "wrap", marginBottom: "16px" }}>
-        <MemberPopover type={"reviewer"} task={task} setTask={setTask} />
-        <MemberPopover type={"assignee"} task={task} setTask={setTask} />
+        <CardMemberPopover type={"reviewer"} task={task} setTask={setTask} />
+        <CardMemberPopover type={"assignee"} task={task} setTask={setTask} />
         <RewardPopover task={task} setTask={setTask} />
         <DatePopover task={task} setTask={setTask} />
         <LabelPopover task={task} setTask={setTask} />

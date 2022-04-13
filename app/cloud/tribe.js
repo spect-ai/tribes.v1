@@ -359,3 +359,29 @@ Moralis.Cloud.define("createTribe", async (request) => {
     throw err;
   }
 });
+
+Moralis.Cloud.define("changeTribeRole", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const team = await getTribeByTeamId(request.params.teamId);
+    if (hasAccess(request.user.id, team, 3)) {
+      const roles = team.get("roles");
+      roles[request.params.userId] = request.params.role;
+      team.set("roles", roles);
+      await Moralis.Object.saveAll([team], { useMasterKey: true });
+      let teamObj = await getTribeObjByTeamId(request.params.teamId);
+      teamObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
+        teamObj[0].members
+      );
+      return teamObj[0];
+    } else {
+      logger.info(
+        `User ${request.user.id} doesnt have access to update member roles`
+      );
+      throw "User doesnt have access to update member roles";
+    }
+  } catch (err) {
+    logger.error(`Error while creating team ${err}`);
+    return err;
+  }
+});

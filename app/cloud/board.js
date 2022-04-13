@@ -725,3 +725,25 @@ function checkIfUserInviteValid(invite) {
   }
   return true;
 }
+
+Moralis.Cloud.define("changeSpaceRole", async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const board = await getBoardByObjectId(request.params.boardId);
+    if (hasAccess(request.user.id, board, 3)) {
+      const roles = board.get("roles");
+      roles[request.params.userId] = request.params.role;
+      board.set("roles", roles);
+      await Moralis.Object.saveAll([board], { useMasterKey: true });
+      return await getSpace(request.params.boardId, request.user.id);
+    } else {
+      logger.info(
+        `User ${request.user.id} doesnt have access to update member roles`
+      );
+      throw "User doesnt have access to update member roles";
+    }
+  } catch (err) {
+    logger.error(`Error while creating team ${err}`);
+    return err;
+  }
+});

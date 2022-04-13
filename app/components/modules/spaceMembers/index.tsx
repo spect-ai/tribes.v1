@@ -23,55 +23,8 @@ const SpaceMembers = (props: Props) => {
   const [roles, setRoles] = useState({} as { [key: string]: number });
 
   useEffect(() => {
-    // getTeam(Moralis, space.teamId)
-    //   .then((res: Team) => {
-    //     setTribe(res);
-    //     const membersArray = res.members.map((member: string) => {
-    //       return space.members.indexOf(member) !== -1;
-    //     });
-    //     let roles = {};
-    //     res.members.map((member: string) => {
-    //       // @ts-ignore
-    //       roles[member] = space.roles[member] || 0;
-    //     });
-    //     setRoles(roles);
-    //     setIsChecked(membersArray);
-    //   })
-    //   .catch((err: any) => {
-    //     notify(`Sorry! There was an error while loading members.`, "error");
-    //   });
     setRoles(space.roles);
-  }, []);
-
-  const onSave = () => {
-    setIsLoading(true);
-    const members = tribe.members.filter((member: string, index: number) => {
-      return isChecked[index];
-    });
-    let adminExists;
-    members.map((member: string) => {
-      if (roles[member] === 3) {
-        adminExists = true;
-        return;
-      }
-    });
-    if (!adminExists) {
-      notify(`You must have at least one admin.`, "error");
-      setIsLoading(false);
-      return;
-    }
-    updateBoardMembers(Moralis, space.objectId, members, roles)
-      .then((res: BoardData) => {
-        setIsLoading(false);
-        setSpace(res);
-        notify("Members updated successfully");
-      })
-      .catch((err: any) => {
-        console.log(err);
-        notify("Sorry! There was an error while updating members.", "error");
-        setIsLoading(false);
-      });
-  };
+  }, [space]);
 
   return (
     <Container>

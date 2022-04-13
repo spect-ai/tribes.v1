@@ -18,38 +18,8 @@ const TribeMembers = (props: Props) => {
   const [isChecked, setIsChecked] = useState<boolean[]>([] as boolean[]);
   const [roles, setRoles] = useState({} as { [key: string]: number });
   useEffect(() => {
-    setIsChecked(Array(tribe.members.length).fill(true));
     setRoles(tribe.roles);
-  }, []);
-  const onSave = () => {
-    setIsLoading(true);
-    const members = tribe.members.filter((member: string, index: number) => {
-      return isChecked[index];
-    });
-    let adminExists;
-    members.map((member: string) => {
-      if (roles[member] === 3) {
-        adminExists = true;
-        return;
-      }
-    });
-    if (!adminExists) {
-      notify(`You must have at least one admin.`, "error");
-      setIsLoading(false);
-      return;
-    }
-    updateTribeMembers(Moralis, tribe.teamId, members, roles)
-      .then((res: Team) => {
-        setIsLoading(false);
-        setTribe(res);
-        notify("Members updated successfully");
-      })
-      .catch((err: any) => {
-        console.log(err);
-        notify("Sorry! There was an error while updating members.", "error");
-        setIsLoading(false);
-      });
-  };
+  }, [tribe]);
   return (
     <Container>
       <Toaster />

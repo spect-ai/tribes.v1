@@ -1,11 +1,7 @@
-function hasAccess(userId, team, requiredAccess) {
-  // const members = team.get("members");
-  // for (var member of members) {
-  //   if (member["userId"] === userId) {
-  //     return member["role"] === requiredAccess;
-  //   }
-  // }
-  return true;
+function hasAccess(userId, entity, requiredAccess) {
+  const roles = entity.get("roles");
+  if (!roles[userId]) return false;
+  return roles[userId] === requiredAccess;
 }
 
 function isMember(userId, entity) {
