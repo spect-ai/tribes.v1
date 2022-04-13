@@ -30,7 +30,6 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
   const [open, setOpen] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
   const { editAbleComponents } = useCardDynamism(task);
-  console.log(editAbleComponents);
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
     if (editAbleComponents["column"]) {

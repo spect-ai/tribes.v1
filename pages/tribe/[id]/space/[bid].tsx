@@ -56,10 +56,8 @@ const SpacePage: NextPage<Props> = (props: Props) => {
   useEffect(() => {
     setTheme(createTheme(getTheme(0)));
     setIsLoading(true);
-    console.log(loading);
     if (!loading && bid) {
       runMoralisFunction("getSpace", { boardId: bid }).then((res) => {
-        console.log(res);
         setSpace(res);
         setIsLoading(false);
       });

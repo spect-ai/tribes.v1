@@ -89,7 +89,6 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
         },
       })
         .then((res: any) => {
-          console.log(res);
           setSpace(res.space);
           setTask(res.task);
         })

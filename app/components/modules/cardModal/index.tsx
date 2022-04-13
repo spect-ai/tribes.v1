@@ -25,11 +25,10 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
   const { runMoralisFunction } = useMoralisFunction();
 
   useEffect(() => {
-    if (isInitialized) {
+    if (isInitialized && isOpen) {
       setLoading(true);
       runMoralisFunction("getTask", { taskId })
         .then((task: Task) => {
-          console.log({ task });
           setTask(task);
           setLoading(false);
         })
@@ -38,7 +37,7 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
           notify(`Sorry! There was an error while getting task`, "error");
         });
     }
-  }, [taskId, isInitialized]);
+  }, [taskId, isInitialized, isOpen]);
 
   return (
     <div>

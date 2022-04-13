@@ -51,14 +51,6 @@ const BoardsTemplate = (props: Props) => {
     }
   }, [inviteCode, isAuthenticated]);
 
-  // useEffect(() => {
-  //   if(taskId){
-
-  //   }
-  // }, [taskId])
-
-  // task-vkz0WTQHgUTSK7d4nsFHHo0u-15
-
   return (
     <OuterDiv>
       <CardModal
