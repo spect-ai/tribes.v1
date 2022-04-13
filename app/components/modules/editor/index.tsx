@@ -10,9 +10,14 @@ import EditableBlock from "./editableBlock";
 type Props = {
   syncBlocksToMoralis: Function;
   initialBlock: Block[];
+  placeholderText: string;
 };
 
-const Editor = ({ syncBlocksToMoralis, initialBlock }: Props) => {
+const Editor = ({
+  syncBlocksToMoralis,
+  initialBlock,
+  placeholderText,
+}: Props) => {
   const [blocks, setBlocks] = useState(initialBlock);
   const [currentBlockId, setCurrentBlockId] = useState("");
   const prevBlocks = usePrevious(blocks);
@@ -136,6 +141,7 @@ const Editor = ({ syncBlocksToMoralis, initialBlock }: Props) => {
                     addBlock={addBlockHandler}
                     deleteBlock={deleteBlockHandler}
                     updateBlock={updateBlockHandler}
+                    placeholderText={placeholderText}
                     readOnly={/*some condition here*/ false}
                   />
                 );

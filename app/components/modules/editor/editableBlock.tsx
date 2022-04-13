@@ -36,6 +36,7 @@ type Props = {
   blocks: Block[];
   block: Block;
   readOnly: boolean;
+  placeholderText: string;
 };
 
 const EditableBlock = ({
@@ -47,6 +48,7 @@ const EditableBlock = ({
   updateBlock,
   addBlock,
   deleteBlock,
+  placeholderText,
 }: Props) => {
   const [html, setHtml] = useState(block.html || "");
   const [htmlBackup, setHtmlBackup] = useState("");
@@ -208,7 +210,7 @@ const EditableBlock = ({
     const isFirstBlockWithoutHtml = position === 1 && !content;
     const isFirstBlockWithoutSibling = !block?.parentElement.nextElementSibling;
     if (isFirstBlockWithoutHtml && isFirstBlockWithoutSibling) {
-      setHtml(`Add some details, press "/" for commands.`);
+      setHtml(placeholderText);
       setTag("h3");
       setPlaceholder(true);
       return true;

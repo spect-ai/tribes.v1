@@ -154,6 +154,7 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
                   },
                 ]
           }
+          placeholderText={`Add details, press "/" for commands`}
         />
 
         <Box sx={{ marginBottom: "16px" }}>

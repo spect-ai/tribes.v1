@@ -98,7 +98,7 @@ const Submission = ({ task, setTask }: Props) => {
   };
 
   return (
-    <Box sx={{ color: "#eaeaea", height: "auto", mr: 3, ml: 3 }}>
+    <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
       {
         <Editor
           syncBlocksToMoralis={syncBlocksToMoralis}
@@ -116,6 +116,7 @@ const Submission = ({ task, setTask }: Props) => {
                   },
                 ]
           }
+          placeholderText={`Add submission, press "/" for commands`}
         />
       }
       {
