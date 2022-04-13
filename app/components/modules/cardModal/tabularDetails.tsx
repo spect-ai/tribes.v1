@@ -33,19 +33,12 @@ const TabularDetails = ({ task, setTask }: Props) => {
   const [tabIdx, setTabIdx] = useState(0);
 
   useEffect(() => {
-    var temp = [];
     if (task.type === "Bounty") {
-      temp.push("Applicants");
+      setTabs(["Applicants", "Submissions", "Activity"]);
+    } else if (task.type === "Task") {
+      setTabs(["Comments", "Activity"]);
     }
-    if (
-      task?.access?.creator ||
-      task?.access?.assignee ||
-      task?.access?.reviewer
-    ) {
-      temp.push("Submissions");
-    }
-    temp.push("Activity");
-    setTabs(temp);
+    setTabIdx(0);
   }, [task]);
 
   return (

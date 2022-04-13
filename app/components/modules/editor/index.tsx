@@ -11,12 +11,14 @@ type Props = {
   syncBlocksToMoralis: Function;
   initialBlock: Block[];
   placeholderText: string;
+  readonly: boolean;
 };
 
 const Editor = ({
   syncBlocksToMoralis,
   initialBlock,
   placeholderText,
+  readonly,
 }: Props) => {
   const [blocks, setBlocks] = useState(initialBlock);
   const [currentBlockId, setCurrentBlockId] = useState("");
@@ -129,7 +131,7 @@ const Editor = ({
         <Droppable droppableId={"id"}>
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
-              {blocks?.map((block) => {
+              {blocks?.map((block, index) => {
                 const position = blocks.map((b) => b.id).indexOf(block.id) + 1;
                 return (
                   <EditableBlock
@@ -142,7 +144,7 @@ const Editor = ({
                     deleteBlock={deleteBlockHandler}
                     updateBlock={updateBlockHandler}
                     placeholderText={placeholderText}
-                    readOnly={/*some condition here*/ false}
+                    readOnly={readonly}
                   />
                 );
               })}

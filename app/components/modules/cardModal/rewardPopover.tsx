@@ -6,12 +6,14 @@ import {
   Popover,
   TextField,
   Typography,
+  Tooltip,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { useGlobal } from "../../../context/globalContext";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { useCardDynamism } from "../../../hooks/useCardDynamism";
 import { Chain, Registry, Task, Token } from "../../../types";
 import {
   getFlattenedCurrencies,
@@ -33,20 +35,29 @@ const RewardPopover = ({ task, setTask }: Props) => {
   const [token, setToken] = useState(task.token);
   const [chain, setChain] = useState(task.chain);
   const [open, setOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [value, setValue] = useState(task.value?.toString());
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
   const { setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
+  const { editAbleComponents } = useCardDynamism(task);
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    setOpen(true);
+    if (editAbleComponents["reward"]) {
+      setOpen(true);
+    } else {
+      setFeedbackOpen(true);
+    }
   };
   const handleClose = () => {
     setOpen(false);
+  };
+  const handleFeedbackClose = () => {
+    setFeedbackOpen(false);
   };
 
   const handleSave = () => {
@@ -137,6 +148,21 @@ const RewardPopover = ({ task, setTask }: Props) => {
           )}
         </CardButton>
       </Box>
+      <Popover
+        open={feedbackOpen}
+        anchorEl={anchorEl}
+        onClose={() => handleFeedbackClose()}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <PopoverContainer>
+          <Typography variant="body2">
+            Only card reviewer or creator and space steward can edit reward
+          </Typography>
+        </PopoverContainer>
+      </Popover>
       <Popover
         open={open}
         anchorEl={anchorEl}

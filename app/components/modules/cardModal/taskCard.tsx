@@ -20,6 +20,7 @@ import OptionsPopover from "./optionsPopover";
 import TabularDetails from "./tabularDetails";
 import { Block } from "../../../types";
 import { uid } from "../../../utils/utils";
+import { useCardDynamism } from "../../../hooks/useCardDynamism";
 
 type Props = {
   task: Task;
@@ -48,6 +49,7 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
   const { user } = useMoralis();
   const [open, setOpen] = useState({} as any);
   const { runMoralisFunction } = useMoralisFunction();
+  const { editAbleComponents } = useCardDynamism(task);
 
   const syncBlocksToMoralis = (blocks: Block[]) => {
     // console.log({ blocks });
@@ -155,6 +157,7 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
                 ]
           }
           placeholderText={`Add details, press "/" for commands`}
+          readonly={!editAbleComponents["description"]}
         />
 
         <Box sx={{ marginBottom: "16px" }}>

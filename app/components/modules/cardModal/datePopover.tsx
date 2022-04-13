@@ -10,6 +10,7 @@ import { formatTime } from "../../../utils/utils";
 import { CardButton, PrimaryButton } from "../../elements/styledComponents";
 import { notify } from "../settingsTab";
 import { PopoverContainer } from "./styles";
+import { useCardDynamism } from "../../../hooks/useCardDynamism";
 
 type Props = {
   task: Task;
@@ -23,18 +24,27 @@ function toLocalDate(date: Date) {
 const DatePopover = ({ task, setTask }: Props) => {
   const [date, setDate] = useState("");
   const [open, setOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const { space, setSpace } = useSpace();
   const { Moralis } = useMoralis();
   const [isLoading, setIsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const { runMoralisFunction } = useMoralisFunction();
+  const { editAbleComponents } = useCardDynamism(task);
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    setOpen(true);
+    if (editAbleComponents["dueDate"]) {
+      setOpen(true);
+    } else {
+      setFeedbackOpen(true);
+    }
   };
   const handleClose = () => {
     setOpen(false);
+  };
+  const handleFeedbackClose = () => {
+    setFeedbackOpen(false);
   };
 
   const handleSave = () => {
@@ -123,6 +133,22 @@ const DatePopover = ({ task, setTask }: Props) => {
           </Typography>
         </CardButton>
       </Box>
+      <Popover
+        open={feedbackOpen}
+        anchorEl={anchorEl}
+        onClose={() => handleFeedbackClose()}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <PopoverContainer>
+          <Typography variant="body2">
+            Only card assignee, reviewer or creator and space steward can edit
+            due date
+          </Typography>
+        </PopoverContainer>
+      </Popover>
       <Popover
         open={open}
         anchorEl={anchorEl}

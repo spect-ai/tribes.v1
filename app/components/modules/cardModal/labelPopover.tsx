@@ -19,6 +19,7 @@ import LabelIcon from "@mui/icons-material/Label";
 import { LabelChip } from "./styles";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { useCardDynamism } from "../../../hooks/useCardDynamism";
 
 type Props = {
   task: Task;
@@ -32,13 +33,22 @@ const LabelPopover = ({ task, setTask }: Props) => {
   const { runMoralisFunction } = useMoralisFunction();
   const { space, setSpace } = useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const { editAbleComponents } = useCardDynamism(task);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    setOpen(true);
+    if (editAbleComponents["label"]) {
+      setOpen(true);
+    } else {
+      setFeedbackOpen(true);
+    }
   };
   const handleClose = () => {
     setOpen(false);
+  };
+  const handleFeedbackClose = () => {
+    setFeedbackOpen(false);
   };
 
   const handleSave = () => {
@@ -134,6 +144,21 @@ const LabelPopover = ({ task, setTask }: Props) => {
           </CardButton>
         </Box>
       </Box>
+      <Popover
+        open={feedbackOpen}
+        anchorEl={anchorEl}
+        onClose={() => handleFeedbackClose()}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <PopoverContainer>
+          <Typography variant="body2">
+            Only card reviewer or creator and space steward can edit labels
+          </Typography>
+        </PopoverContainer>
+      </Popover>
       <Popover
         open={open}
         anchorEl={anchorEl}

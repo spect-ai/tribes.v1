@@ -12,6 +12,7 @@ import { Task } from "../../../types";
 import { CardButton, PrimaryButton } from "../../elements/styledComponents";
 import { notify } from "../settingsTab";
 import { PopoverContainer } from "./styles";
+import { useCardDynamism } from "../../../hooks/useCardDynamism";
 
 type Props = {
   task: Task;
@@ -25,13 +26,21 @@ const CardTypePopover = ({ task, setTask }: Props) => {
   const { space, setSpace } = useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
-
+  const { editAbleComponents } = useCardDynamism(task);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    setOpen(true);
+    if (editAbleComponents["type"]) {
+      setOpen(true);
+    } else {
+      setFeedbackOpen(true);
+    }
   };
   const handleClose = () => {
     setOpen(false);
+  };
+  const handleFeedbackClose = () => {
+    setFeedbackOpen(false);
   };
 
   const handleSave = () => {
@@ -91,7 +100,21 @@ const CardTypePopover = ({ task, setTask }: Props) => {
           </Typography>
         </CardButton>
       </Box>
-
+      <Popover
+        open={feedbackOpen}
+        anchorEl={anchorEl}
+        onClose={() => handleFeedbackClose()}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "left",
+        }}
+      >
+        <PopoverContainer>
+          <Typography variant="body2">
+            Only card reviewer or creator and space steward can edit card type
+          </Typography>
+        </PopoverContainer>
+      </Popover>
       <Popover
         open={open}
         anchorEl={anchorEl}
