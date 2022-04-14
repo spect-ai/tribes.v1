@@ -30,6 +30,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
         isOpen={isOpen}
         handleClose={handleClose}
         taskId={task.taskId}
+        columnId={column.id}
       />
       <Draggable draggableId={task.taskId} index={index}>
         {(provided, snapshot) => (

@@ -24,6 +24,7 @@ import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import Column from "../column";
 import { PrimaryButton } from "../../elements/styledComponents";
 import TrelloImport from "../importTrello";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 
 type Props = {
   expanded: boolean;
@@ -36,7 +37,7 @@ const Board = ({ expanded, handleChange }: Props) => {
   const { space, setSpace } = useSpace();
   const router = useRouter();
   const { Moralis, user } = useMoralis();
-
+  const { runMoralisFunction } = useMoralisFunction();
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => {
     setIsOpen(false);
@@ -107,14 +108,14 @@ const Board = ({ expanded, handleChange }: Props) => {
           },
         },
       });
-      updateColumnTasks(
-        Moralis,
-        bid as string,
-        result.source.droppableId,
-        result.source.droppableId,
-        newList,
-        newList
-      )
+      runMoralisFunction("updateColumnTasks", {
+        boardId: bid,
+        sourceId: result.source.droppableId,
+        destinationId: result.source.droppableId,
+        source: newList,
+        destination: newList,
+        taskId: draggableId,
+      })
         .then((res: any) => {
           setSpace(res as BoardData);
         })
@@ -145,23 +146,23 @@ const Board = ({ expanded, handleChange }: Props) => {
           [newFinish.id]: newFinish,
         },
       });
-
-      updateColumnTasks(
-        Moralis,
-        bid as string,
-        newStart.id,
-        newFinish.id,
-        newStart,
-        newFinish
-      )
+      runMoralisFunction("updateColumnTasks", {
+        boardId: bid,
+        sourceId: newStart.id,
+        destinationId: newFinish.id,
+        source: newStart,
+        destination: newFinish,
+        taskId: draggableId,
+      })
         .then((res: any) => {
           setSpace(res as BoardData);
-          if (newFinish.id === "column-3") {
-            updateTaskStatus(Moralis, draggableId, 205).then((res: any) => {
-              console.log("updateTaskStatus", res);
-              setSpace(res as BoardData);
-            });
-          }
+          // do we need this now?????
+          // if (newFinish.id === "column-3") {
+          //   updateTaskStatus(Moralis, draggableId, 205).then((res: any) => {
+          //     console.log("updateTaskStatus", res);
+          //     setSpace(res as BoardData);
+          //   });
+          // }
         })
         .catch((err: any) => {
           setSpace(tempData);

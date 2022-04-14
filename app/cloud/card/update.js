@@ -132,7 +132,7 @@ async function handleUpdates(updates, task, callerId) {
   task = handleFloatUpdates(task, updates, floatUpdates);
   task = handleContentArrayUpdate(task, updates, callerId, contentArrayUpdates);
   task = handleSelectedProposalUpdate(task, updates);
-  handleColumnUpdate(task.get("boardId"), task.get("taskId"), updates);
+  handleColumnUpdate(task.get("boardId"), task.get("taskId"), updates, task);
   return task;
 }
 
@@ -155,7 +155,7 @@ function addTaskToColumn(column, taskId) {
   };
 }
 
-async function handleColumnUpdate(boardId, taskId, updates) {
+async function handleColumnUpdate(boardId, taskId, updates, task) {
   if (updates.hasOwnProperty("columnChange")) {
     const sourceId = updates.columnChange.sourceId;
     const destinationId = updates.columnChange.destinationId;
@@ -180,7 +180,10 @@ async function handleColumnUpdate(boardId, taskId, updates) {
       };
       logger.info(`columns: ${JSON.stringify(columns)}`);
       board.set("columns", columns);
-      return await Moralis.Object.saveAll([board], { useMasterKey: true });
+      task.set("columnId", destinationId);
+      return await Moralis.Object.saveAll([board, task], {
+        useMasterKey: true,
+      });
     } catch (err) {
       throw `${err}`;
     }

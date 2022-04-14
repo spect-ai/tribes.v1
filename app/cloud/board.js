@@ -323,6 +323,7 @@ Moralis.Cloud.define("updateColumnTasks", async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();
     const board = await getBoardByObjectId(request.params.boardId);
+    const task = await getTaskByTaskId(request.params.taskId);
     var columns = board.get("columns");
     if (request.params.sourceId === request.params.destinationId) {
       columns[request.params.sourceId]["taskIds"] = request.params.source;
@@ -332,7 +333,8 @@ Moralis.Cloud.define("updateColumnTasks", async (request) => {
     }
     board.set("columns", columns);
     logger.info(`Updating column tasks ${JSON.stringify(columns)}`);
-    await Moralis.Object.saveAll([board], { useMasterKey: true });
+    task.set("columnId", request.params.destinationId);
+    await Moralis.Object.saveAll([board, task], { useMasterKey: true });
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
     logger.error(

@@ -3,9 +3,13 @@ Moralis.Cloud.define("getTask", async (request) => {
   try {
     if (request.params.taskId) {
       // temp fix to add columnid to the task
-      // var _task = await getTaskByTaskId(request.params.taskId);
-      // _task.set("columnId", request.params.columnId);
-      // await Moralis.Object.saveAll(_task, { useMasterKey: true });
+      /* remove later */
+      if (request.params.columnId) {
+        var _task = await getTaskByTaskId(request.params.taskId);
+        _task.set("columnId", request.params.columnId);
+        await Moralis.Object.saveAll(_task, { useMasterKey: true });
+      }
+      /* remove later */
 
       var task = await getTaskObjByTaskId(request.params.taskId);
       if (!task) throw `Task ${request.params.taskId} not found`;
