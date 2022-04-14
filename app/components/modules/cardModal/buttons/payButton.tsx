@@ -1,31 +1,18 @@
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import React, { useState, useEffect } from "react";
-import { Task } from "../../../../types";
-import {
-  Box,
-  IconButton,
-  InputBase,
-  Popover,
-  List,
-  ListItemIcon,
-  ListItemText,
-  ListItemButton,
-  ListSubheader,
-} from "@mui/material";
-import { PopoverContainer } from "../styles";
 import PaidIcon from "@mui/icons-material/Paid";
-import SwitchAccessShortcutIcon from "@mui/icons-material/SwitchAccessShortcut";
-import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
-import VideoStableIcon from "@mui/icons-material/VideoStable";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import ArchiveIcon from "@mui/icons-material/Archive";
-import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
-import { approve } from "../../../../adapters/contract";
+import { ListItemButton, ListItemText } from "@mui/material";
+import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
-import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
-import { distributeEther, batchPayTokens } from "../../../../adapters/contract";
-import { notify } from "../../settingsTab";
+import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
+import {
+  approve,
+  batchPayTokens,
+  distributeEther,
+} from "../../../../adapters/contract";
 import { useGlobal } from "../../../../context/globalContext";
+import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
+import { Task } from "../../../../types";
+import { notify } from "../../settingsTab";
+import { useCardDynamism } from "../../../../hooks/useCardDynamism";
 
 type Props = {
   task: Task;
@@ -33,38 +20,22 @@ type Props = {
   handleClose: () => void;
 };
 
-function doShowPayButton(user: any, task: Task) {
-  console.log(task.token?.address);
-  if (user?.get("distributorApproved")) {
-    console.log(task.token?.address === "0x0");
-    return (
-      task.token?.address === "0x0" ||
-      (task.chain?.chainId in user?.get("distributorApproved") &&
-        user
-          ?.get("distributorApproved")
-          [task.chain?.chainId].includes(task.token?.address))
-    );
-  } else {
-    console.log(task.token?.address === "0x0");
-    return task.token?.address === "0x0";
-  }
-}
-
 const PayButton = ({ task, setTask, handleClose }: Props) => {
   const { space, setSpace } = useSpace();
   const { user } = useMoralis();
-  const [showPayButton, setShowPayButton] = useState(
-    doShowPayButton(user, task)
-  );
   const { state } = useGlobal();
   const { registry } = state;
   const { runMoralisFunction } = useMoralisFunction();
+  const { viewableComponents } = useCardDynamism(task);
+  const [payButtonText, setPayButtonText] = useState(
+    viewableComponents["pay"] === "showPay" ? "Pay" : "Approve"
+  );
 
-  const handleTaskStatusUpdate = (tx: string) => {
+  const handleTaskStatusUpdate = (transactionHash: string) => {
     runMoralisFunction("updateCard", {
       updates: {
         status: 300,
-        tx: tx,
+        transactionHash: transactionHash,
         taskId: task.taskId,
       },
     })
@@ -87,88 +58,98 @@ const PayButton = ({ task, setTask, handleClose }: Props) => {
     }
   };
 
+  const handleClick = () => {
+    if (viewableComponents["pay"] === "showPay") {
+      setPayButtonText("Paying...");
+      task.token.symbol === registry[task.chain.chainId].nativeCurrency
+        ? distributeEther(
+            [space.memberDetails[task.assignee[0]].ethAddress],
+            [task.value],
+            task.taskId,
+            window.ethereum.networkVersion
+          )
+            .then((res: any) => {
+              console.log(res);
+              setPayButtonText("Paid");
+              handleTaskStatusUpdate(res.transactionHash);
+              handleClose();
+            })
+            .catch((err: any) => {
+              setPayButtonText("Pay");
+              handlePaymentError(err);
+            })
+        : batchPayTokens(
+            [task.token.address as string],
+            [space.memberDetails[task.assignee[0]].ethAddress],
+            [task.value],
+            task.taskId,
+            window.ethereum.networkVersion
+          )
+            .then((res: any) => {
+              console.log(res);
+
+              setPayButtonText("Paid");
+              handleTaskStatusUpdate(res.transactionHash);
+              handleClose();
+            })
+            .catch((err: any) => {
+              setPayButtonText("Pay");
+              handlePaymentError(err);
+            });
+    } else if (viewableComponents["pay"] === "showApprove") {
+      if (task.chain?.chainId !== window.ethereum.networkVersion) {
+        handlePaymentError({});
+      } else {
+        setPayButtonText("Approving...");
+        approve(task.chain.chainId, task.token.address as string)
+          .then((res: any) => {
+            setPayButtonText("Approved");
+            if (user) {
+              if (
+                user?.get("distributorApproved") &&
+                task.chain.chainId in user?.get("distributorApproved")
+              ) {
+                user
+                  ?.get("distributorApproved")
+                  [task.chain.chainId].push(task.token.address as string);
+              } else if (user?.get("distributorApproved")) {
+                user?.set("distributorApproved", {
+                  ...user?.get("distributorApproved"),
+                  [task.chain.chainId]: [task.token.address as string],
+                });
+              } else {
+                user?.set("distributorApproved", {
+                  [task.chain.chainId]: [task.token.address as string],
+                });
+              }
+              user.save();
+            }
+            setPayButtonText("Pay");
+          })
+          .catch((err: any) => {
+            handlePaymentError(err);
+            setPayButtonText("Approve");
+          });
+      }
+    }
+  };
+
   useEffect(() => {
-    setShowPayButton(doShowPayButton(user, task));
-  }, [task]);
+    setPayButtonText(
+      viewableComponents["pay"] === "showPay" ? "Pay" : "Approve"
+    );
+  }, [viewableComponents?.pay]);
 
   return (
     <>
-      {showPayButton && (
+      {!(viewableComponents["pay"] === "hide") && (
         <ListItemButton
           onClick={() => {
-            task.token.symbol === registry[task.chain.chainId].nativeCurrency
-              ? distributeEther(
-                  [space.memberDetails[task.assignee[0]].ethAddress],
-                  [task.value],
-                  task.taskId,
-                  window.ethereum.networkVersion
-                )
-                  .then((res: any) => {
-                    console.log(res);
-                    //handleTaskStatusUpdate(as);
-                    handleClose();
-                  })
-                  .catch((err: any) => {
-                    handlePaymentError(err);
-                  })
-              : batchPayTokens(
-                  [task.token.address as string],
-                  [space.memberDetails[task.assignee[0]].ethAddress],
-                  [task.value],
-                  task.taskId,
-                  window.ethereum.networkVersion
-                )
-                  .then((res: any) => {
-                    //handleTaskStatusUpdate([task.taskId]);
-                    handleClose();
-                  })
-                  .catch((err: any) => {
-                    handlePaymentError(err);
-                  });
+            handleClick();
           }}
         >
           <PaidIcon sx={{ width: "2rem", mr: 2 }} />
-          <ListItemText primary="Pay" />
-        </ListItemButton>
-      )}
-      {!showPayButton && (
-        <ListItemButton
-          onClick={() => {
-            if (task.chain?.chainId !== window.ethereum.networkVersion) {
-              handlePaymentError({});
-            } else {
-              approve(task.chain.chainId, task.token.address as string)
-                .then((res: any) => {
-                  setShowPayButton(true);
-                  if (user) {
-                    if (
-                      user?.get("distributorApproved") &&
-                      task.chain.chainId in user?.get("distributorApproved")
-                    ) {
-                      user
-                        ?.get("distributorApproved")
-                        [task.chain.chainId].push(task.token.address as string);
-                    } else if (user?.get("distributorApproved")) {
-                      user?.set("distributorApproved", {
-                        ...user?.get("distributorApproved"),
-                        [task.chain.chainId]: [task.token.address as string],
-                      });
-                    } else {
-                      user?.set("distributorApproved", {
-                        [task.chain.chainId]: [task.token.address as string],
-                      });
-                    }
-                    user.save();
-                  }
-                })
-                .catch((err: any) => {
-                  handlePaymentError(err);
-                });
-            }
-          }}
-        >
-          <PaidIcon sx={{ width: "2rem", mr: 2 }} />
-          <ListItemText primary="Approve Token" />
+          <ListItemText primary={payButtonText} />
         </ListItemButton>
       )}
     </>

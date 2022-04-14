@@ -30,7 +30,7 @@ const DatePopover = ({ task, setTask }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents } = useCardDynamism(task);
+  const { editAbleComponents, cannotEditReason } = useCardDynamism(task);
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -143,10 +143,7 @@ const DatePopover = ({ task, setTask }: Props) => {
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">
-            Only card assignee, reviewer or creator and space steward can edit
-            due date
-          </Typography>
+          <Typography variant="body2">{cannotEditReason["dueDate"]}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover

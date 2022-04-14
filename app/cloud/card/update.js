@@ -8,6 +8,7 @@ const easyUpdates = [
   "assignee",
   "chain",
   "token",
+  "transactionHash",
 ];
 
 // These are fields that need to converted to the date type
@@ -20,7 +21,7 @@ const integerUpdates = ["status"];
 const floatUpdates = ["value"];
 
 // Array updates that require appends. Must be in the format: [{content: "",}]
-const contentArrayUpdates = ["submissions", "proposals"];
+const contentArrayUpdates = ["submissions", "proposals", "comments"];
 
 const datatypes = {
   title: "string",
@@ -52,6 +53,7 @@ const updatePropertyActivityMap = {
     review: 200,
     revision: 201,
     done: 205,
+    paid: 300,
   },
   columnChange: 400,
   selectedProposals: 152,
@@ -63,12 +65,13 @@ Moralis.Cloud.define("updateCard", async (request) => {
     if (!request.params.updates?.taskId) throw "Payload must contain taskId";
 
     var task = await getTaskByTaskId(request.params.updates?.taskId);
-    validate(request.params.updates, task, request.user.id);
+    const space = await getSpace(task.get("boardId"), request.user.id);
+
+    validate(request.params.updates, task, request.user.id, space);
     task = await handleUpdates(request.params.updates, task, request.user.id);
     const res = await Moralis.Object.saveAll(task, { useMasterKey: true });
-    const space = await getSpace(task.get("boardId"), request.user.id);
     return {
-      space: space,
+      space: await getSpace(task.get("boardId"), request.user.id),
       task: addFieldsToTask(mapParseObjectToObject(res), request.user.id),
     };
   } catch (err) {
@@ -79,13 +82,13 @@ Moralis.Cloud.define("updateCard", async (request) => {
   }
 });
 
-function validate(updates, task, callerId) {
+function validate(updates, task, callerId, space) {
   if (!task) throw "Card not found";
-  authorized(updates, task, callerId);
+  authorized(updates, task, callerId, space);
   validatePayload(updates, task);
 }
 
-function authorized(updates, task, callerId) {
+function authorized(updates, task, callerId, space) {
   if (
     updates.hasOwnProperty("title") ||
     updates.hasOwnProperty("description") ||
@@ -95,7 +98,13 @@ function authorized(updates, task, callerId) {
     updates.hasOwnProperty("type") ||
     updates.hasOwnProperty("selectedProposals")
   ) {
-    if (!(isTaskCreator(task, callerId) || isTaskReviewer(task, callerId)))
+    if (
+      !(
+        isTaskCreator(task, callerId) ||
+        isTaskReviewer(task, callerId) ||
+        (space.roles[callerId] && space.roles[callerId] === 3)
+      )
+    )
       throw "Only card creator or reviewer can update card";
   }
   if (updates.hasOwnProperty("submission")) {

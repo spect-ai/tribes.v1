@@ -101,7 +101,7 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
     <Container>
       <TaskModalTitleContainer>
         <InputBase
-          placeholder="Add Task Title..."
+          placeholder="Add Card Title..."
           sx={{
             fontSize: "20px",
             ml: 1,
@@ -148,7 +148,11 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
                   },
                 ]
           }
-          placeholderText={`Add details, press "/" for commands`}
+          placeholderText={
+            editAbleComponents["description"]
+              ? `Add details, press "/" for commands`
+              : `No details provided yet`
+          }
           readonly={!editAbleComponents["description"]}
         />
 

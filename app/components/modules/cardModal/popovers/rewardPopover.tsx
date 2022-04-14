@@ -40,7 +40,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents } = useCardDynamism(task);
+  const { editAbleComponents, cannotEditReason } = useCardDynamism(task);
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -157,9 +157,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">
-            Only card reviewer or creator and space steward can edit reward
-          </Typography>
+          <Typography variant="body2">{cannotEditReason["reward"]}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover

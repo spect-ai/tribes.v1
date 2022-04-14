@@ -8,30 +8,17 @@ export function useCardDynamism(task: Task) {
   const { user } = useMoralis();
   const [viewableComponents, setViewableComponents] = useState({} as any);
   const [editAbleComponents, setEditableComponents] = useState({} as any);
-
-  const cardInfoFields = [
-    "title",
-    "description",
-    "tags",
-    "type",
-    "due Date",
-    "reward",
-    "reviewer",
-    "column",
-  ];
+  const [cannotEditReason, setCannotEditReason] = useState({} as any);
 
   useEffect(() => {
-    setViewableComponents(getViewableComponents(task));
-    setEditableComponents(getEditableComponents(task));
+    setViewableComponents(getViewableComponents());
+    setEditableComponents(getEditableComponents());
+    setCannotEditReason(getCannotEditReason());
   }, [task]);
 
-  const getViewableComponents = (task: Task) => {
+  const getViewableComponents = () => {
     return {
-      label: isLabelsViewable(task),
-      dueDate: isDeadlineViewable(task),
-      reward: isRewardViewable(task),
-      assignee: isAssigneeViewable(task),
-      pay: true,
+      pay: getPayButtonView(),
       proposalGate: false,
       submissionGate: false,
       duplicate: isSpaceSteward(),
@@ -39,58 +26,109 @@ export function useCardDynamism(task: Task) {
     };
   };
 
-  const getEditableComponents = (task: Task) => {
-    const isStewardOfCard = isCardSteward(task);
+  const getEditableComponents = () => {
+    const editable = isGeneralEditable();
     return {
-      title: isStewardOfCard,
-      description: isStewardOfCard,
-      label: isStewardOfCard,
-      type: isStewardOfCard,
-      dueDate: isCardStakeholder(task),
-      reward: isStewardOfCard,
-      reviewer: isStewardOfCard,
-      column: isStewardOfCard,
-      assignee: isAssigneeEditable(task),
+      title: editable,
+      description: editable,
+      label: editable,
+      type: editable,
+      dueDate: isDeadlineEditable(),
+      reward: editable,
+      reviewer: editable,
+      column: isCardSteward(),
+      assignee: isAssigneeEditable(),
     };
   };
 
-  const isLabelsViewable = (task: Task) => {
-    return (task.tags && task.tags?.length > 0) || isCardSteward(task);
+  const getCannotEditReason = () => {
+    return {
+      title: getReason("title"),
+      description: getReason("description"),
+      label: getReason("label"),
+      type: getReason("type"),
+      dueDate: getReason("dueDate"),
+      reward: getReason("reward"),
+      reviewer: getReason("reviewer"),
+      column: getReason("column"),
+      assignee: getReason("assignee"),
+    };
   };
 
-  const isRewardViewable = (task: Task) => {
-    return (task.value && task.value > 0) || isCardSteward(task);
-  };
+  function getPayButtonView() {
+    if (
+      !task.value ||
+      task.value === 0 ||
+      !isCardSteward() ||
+      task.status === 300 // Paid already
+    ) {
+      return "hide";
+    }
+    if (user?.get("distributorApproved")) {
+      if (
+        task.token?.address === "0x0" ||
+        (task.chain?.chainId in user?.get("distributorApproved") &&
+          user
+            ?.get("distributorApproved")
+            [task.chain?.chainId].includes(task.token?.address))
+      )
+        return "showPay";
+      else return "showApprove";
+    } else {
+      if (task.token?.address === "0x0") return "showPay";
+      else return "showApprove";
+    }
+  }
 
-  const isAssigneeViewable = (task: Task) => {
-    return (task.assignee && task.assignee.length > 0) || isCardSteward(task);
-  };
-
-  const isDeadlineViewable = (task: Task) => {
-    return task.deadline || isCardSteward(task);
+  const getReason = (field: string) => {
+    console.log(task);
+    if (task.status === 300) {
+      return "Cannot edit, already paid for card";
+    } else {
+      switch (field) {
+        case "reward" ||
+          "description" ||
+          "title" ||
+          "reviewer" ||
+          "column" ||
+          "type":
+          return `Only card reviewer or creator and space steward can edit ${field}`;
+        case "assignee" || "dueDate":
+          return `Only card assignee, reviewer or creator and space steward can edit ${field}`;
+      }
+    }
   };
 
   const isSpaceSteward = () => {
     return user?.id && space.roles[user?.id] === 3;
   };
 
-  const isCardSteward = (task: Task) => {
+  const isCardSteward = () => {
     return task?.access?.creator || task?.access?.reviewer || isSpaceSteward();
   };
 
-  const isCardStakeholder = (task: Task) => {
-    return isCardSteward(task) || task?.access?.assignee;
+  const isCardStakeholder = () => {
+    return isCardSteward() || task?.access?.assignee;
   };
 
-  const isAssigneeEditable = (task: Task) => {
+  const isDeadlineEditable = () => {
+    return isCardStakeholder() && !(task.status === 300);
+  };
+
+  const isGeneralEditable = () => {
+    return isCardSteward() && !(task.status === 300);
+  };
+
+  const isAssigneeEditable = () => {
+    if (task.status === 300) return false;
     if (task?.assignee?.length > 0) {
-      return isCardStakeholder(task);
+      return isCardStakeholder();
     } else {
       return true;
     }
   };
 
-  const getProposalView = (task: Task) => {
+  const getProposalView = () => {
     if (
       task?.access?.creator ||
       task?.access?.reviewer ||
@@ -121,5 +159,6 @@ export function useCardDynamism(task: Task) {
   return {
     viewableComponents,
     editAbleComponents,
+    cannotEditReason,
   };
 }

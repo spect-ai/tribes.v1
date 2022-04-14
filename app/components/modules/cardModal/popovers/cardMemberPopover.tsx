@@ -31,7 +31,7 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents } = useCardDynamism(task);
+  const { editAbleComponents, cannotEditReason } = useCardDynamism(task);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -163,9 +163,7 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">
-            Only card reviewer or creator and space steward can edit labels
-          </Typography>
+          <Typography variant="body2">{cannotEditReason[type]}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover

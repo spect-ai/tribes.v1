@@ -26,7 +26,7 @@ const CardTypePopover = ({ task, setTask }: Props) => {
   const { space, setSpace } = useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
-  const { editAbleComponents } = useCardDynamism(task);
+  const { editAbleComponents, cannotEditReason } = useCardDynamism(task);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -110,9 +110,7 @@ const CardTypePopover = ({ task, setTask }: Props) => {
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">
-            Only card reviewer or creator and space steward can edit card type
-          </Typography>
+          <Typography variant="body2">{cannotEditReason["type"]}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover
