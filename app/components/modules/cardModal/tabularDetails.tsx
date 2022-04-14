@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useGlobal } from "../../../context/globalContext";
 import { Task } from "../../../types";
 import { StyledTab, StyledTabs } from "../../elements/styledComponents";
-import Proposals from "./proposals";
-import Submission from "./submission";
-import Activity from "./activity";
+import Proposals from "./content/proposals";
+import Submission from "./content/submission";
+import Activity from "./content/activity";
 import { useMoralis } from "react-moralis";
 
 type Props = {

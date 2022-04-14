@@ -5,34 +5,32 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { Column, Task } from "../../../types";
-import { CardButton, PrimaryButton } from "../../elements/styledComponents";
-import { notify } from "../settingsTab";
-import { PopoverContainer } from "./styles";
-import { useCardDynamism } from "../../../hooks/useCardDynamism";
+import React, { useEffect, useState } from "react";
+import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
+import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
+import { Task } from "../../../../types";
+import { CardButton, PrimaryButton } from "../../../elements/styledComponents";
+import { notify } from "../../settingsTab";
+import { PopoverContainer } from "../styles";
+import { useCardDynamism } from "../../../../hooks/useCardDynamism";
 
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
-  column: Column;
 };
 
-const ColumnPopover = ({ task, setTask, column }: Props) => {
-  const [currStatus, setCurrStatus] = useState(column.id);
-  const [status, setStatus] = useState(column.id);
+const CardTypePopover = ({ task, setTask }: Props) => {
+  const [type, setType] = useState(task?.type || "Task");
   const [isLoading, setIsLoading] = useState(false);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const { runMoralisFunction } = useMoralisFunction();
   const { space, setSpace } = useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
-  const { runMoralisFunction } = useMoralisFunction();
   const { editAbleComponents } = useCardDynamism(task);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    if (editAbleComponents["column"]) {
+    if (editAbleComponents["type"]) {
       setOpen(true);
     } else {
       setFeedbackOpen(true);
@@ -44,28 +42,35 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
   const handleFeedbackClose = () => {
     setFeedbackOpen(false);
   };
+
   const handleSave = () => {
-    const prevStatus = currStatus;
-    setCurrStatus(status);
+    const prevTask = Object.assign({}, task);
+    const temp = Object.assign({}, task);
+    temp.type = type;
+    setTask(temp);
+    handleClose();
     runMoralisFunction("updateCard", {
       updates: {
-        columnChange: {
-          sourceId: column.id,
-          destinationId: status,
-        },
+        type: type,
         taskId: task.taskId,
       },
     })
       .then((res: any) => {
+        console.log(`res card type`);
         console.log(res);
         setSpace(res.space);
         setTask(res.task);
       })
       .catch((err: any) => {
-        setCurrStatus(prevStatus);
+        setTask(prevTask);
         notify(`${err.message}`, "error");
       });
   };
+
+  useEffect(() => {
+    task?.type ? setType(task.type) : setType("Task");
+  }, [task]);
+
   return (
     <>
       <Box
@@ -91,7 +96,7 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
               fontSize: 14,
             }}
           >
-            {space.columns[currStatus].title}
+            {task.type || "Task"}
           </Typography>
         </CardButton>
       </Box>
@@ -106,7 +111,7 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
       >
         <PopoverContainer>
           <Typography variant="body2">
-            Only card reviewer or creator and space steward can change column
+            Only card reviewer or creator and space steward can edit card type
           </Typography>
         </PopoverContainer>
       </Popover>
@@ -121,11 +126,10 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
       >
         <PopoverContainer>
           <Autocomplete
-            options={space.columnOrder}
-            value={status}
-            getOptionLabel={(option) => space.columns[option].title}
+            options={["Task", "Bounty"]} // Get options from members
+            value={type as any}
             onChange={(event, newValue) => {
-              setStatus(newValue as any);
+              setType(newValue as string);
             }}
             disableClearable
             renderInput={(params) => (
@@ -153,4 +157,4 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
   );
 };
 
-export default ColumnPopover;
+export default CardTypePopover;

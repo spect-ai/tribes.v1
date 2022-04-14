@@ -10,18 +10,18 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { useGlobal } from "../../../context/globalContext";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { useCardDynamism } from "../../../hooks/useCardDynamism";
-import { Chain, Registry, Task, Token } from "../../../types";
+import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
+import { useGlobal } from "../../../../context/globalContext";
+import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
+import { useCardDynamism } from "../../../../hooks/useCardDynamism";
+import { Chain, Registry, Task, Token } from "../../../../types";
 import {
   getFlattenedCurrencies,
   getFlattenedNetworks,
-} from "../../../utils/utils";
-import { CardButton, PrimaryButton } from "../../elements/styledComponents";
-import { notify } from "../settingsTab";
-import { PopoverContainer } from "./styles";
+} from "../../../../utils/utils";
+import { CardButton, PrimaryButton } from "../../../elements/styledComponents";
+import { notify } from "../../settingsTab";
+import { PopoverContainer } from "../styles";
 
 type Props = {
   task: Task;
@@ -38,7 +38,6 @@ const RewardPopover = ({ task, setTask }: Props) => {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [value, setValue] = useState(task.value?.toString());
   const [isLoading, setIsLoading] = useState(false);
-  const { Moralis } = useMoralis();
   const { setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
   const { editAbleComponents } = useCardDynamism(task);
@@ -143,7 +142,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
                 fontSize: 14,
               }}
             >
-              {`Set reward`}
+              No reward{" "}
             </Typography>
           )}
         </CardButton>

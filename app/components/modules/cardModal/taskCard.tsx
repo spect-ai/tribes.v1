@@ -9,13 +9,13 @@ import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 import { Column, Task } from "../../../types";
 import Editor from "../editor";
 import { notify } from "../settingsTab";
-import CardTypePopover from "./cardTypePopover";
-import ColumnPopover from "./columnPopover";
-import DatePopover from "./datePopover";
-import LabelPopover from "./labelPopover";
-import CardMemberPopover from "./cardMemberPopover";
-import RewardPopover from "./rewardPopover";
-import OptionsPopover from "./optionsPopover";
+import CardTypePopover from "./popovers/cardTypePopover";
+import ColumnPopover from "./popovers/columnPopover";
+import DatePopover from "./popovers/datePopover";
+import LabelPopover from "./popovers/labelPopover";
+import CardMemberPopover from "./popovers/cardMemberPopover";
+import RewardPopover from "./popovers/rewardPopover";
+import OptionsPopover from "./popovers/optionsPopover";
 import TabularDetails from "./tabularDetails";
 import { Block } from "../../../types";
 import { uid } from "../../../utils/utils";
@@ -65,12 +65,6 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
       .catch((res) => {
         console.log(res);
       });
-  };
-  const handleClosePopover = (field: string) => {
-    setOpen({ [field]: false });
-  };
-  const isSpaceMember = () => {
-    return space.members.indexOf(user?.id as string) !== -1;
   };
 
   const [title, setTitle] = useState(task.title);

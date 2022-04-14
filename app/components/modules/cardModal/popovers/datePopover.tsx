@@ -2,15 +2,15 @@ import DateRangeIcon from "@mui/icons-material/DateRange";
 import { Avatar, Box, Popover, TextField, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { monthMap } from "../../../constants";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { Task } from "../../../types";
-import { formatTime } from "../../../utils/utils";
-import { CardButton, PrimaryButton } from "../../elements/styledComponents";
-import { notify } from "../settingsTab";
-import { PopoverContainer } from "./styles";
-import { useCardDynamism } from "../../../hooks/useCardDynamism";
+import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
+import { monthMap } from "../../../../constants";
+import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
+import { Task } from "../../../../types";
+import { formatTime } from "../../../../utils/utils";
+import { CardButton, PrimaryButton } from "../../../elements/styledComponents";
+import { notify } from "../../settingsTab";
+import { PopoverContainer } from "../styles";
+import { useCardDynamism } from "../../../../hooks/useCardDynamism";
 
 type Props = {
   task: Task;
@@ -127,7 +127,7 @@ const DatePopover = ({ task, setTask }: Props) => {
               </Typography>
             ) : (
               <Typography sx={{ fontSize: 14 }} color="text.primary">
-                Set due date
+                No deadline
               </Typography>
             )}
           </Typography>

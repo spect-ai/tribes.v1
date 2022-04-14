@@ -8,18 +8,18 @@ import {
   Avatar,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import { updateTaskLabels } from "../../../adapters/moralis";
-import { labelsMapping } from "../../../constants";
-import { BoardData, Task } from "../../../types";
-import { CardButton, PrimaryButton } from "../../elements/styledComponents";
-import { PopoverContainer } from "./styles";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { notify } from "../settingsTab";
+import { updateTaskLabels } from "../../../../adapters/moralis";
+import { labelsMapping } from "../../../../constants";
+import { BoardData, Task } from "../../../../types";
+import { CardButton, PrimaryButton } from "../../../elements/styledComponents";
+import { PopoverContainer } from "../styles";
+import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
+import { notify } from "../../settingsTab";
 import LabelIcon from "@mui/icons-material/Label";
-import { LabelChip } from "./styles";
+import { LabelChip } from "../styles";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { useCardDynamism } from "../../../hooks/useCardDynamism";
+import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
+import { useCardDynamism } from "../../../../hooks/useCardDynamism";
 
 type Props = {
   task: Task;
@@ -137,7 +137,7 @@ const LabelPopover = ({ task, setTask }: Props) => {
                     fontWeight: "100",
                   }}
                 >
-                  Add labels
+                  No labels
                 </Typography>
               </>
             )}

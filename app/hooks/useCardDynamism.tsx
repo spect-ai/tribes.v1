@@ -27,6 +27,10 @@ export function useCardDynamism(task: Task) {
 
   const getViewableComponents = (task: Task) => {
     return {
+      label: isLabelsViewable(task),
+      dueDate: isDeadlineViewable(task),
+      reward: isRewardViewable(task),
+      assignee: isAssigneeViewable(task),
       pay: true,
       proposalGate: false,
       submissionGate: false,
@@ -48,6 +52,22 @@ export function useCardDynamism(task: Task) {
       column: isStewardOfCard,
       assignee: isAssigneeEditable(task),
     };
+  };
+
+  const isLabelsViewable = (task: Task) => {
+    return (task.tags && task.tags?.length > 0) || isCardSteward(task);
+  };
+
+  const isRewardViewable = (task: Task) => {
+    return (task.value && task.value > 0) || isCardSteward(task);
+  };
+
+  const isAssigneeViewable = (task: Task) => {
+    return (task.assignee && task.assignee.length > 0) || isCardSteward(task);
+  };
+
+  const isDeadlineViewable = (task: Task) => {
+    return task.deadline || isCardSteward(task);
   };
 
   const isSpaceSteward = () => {

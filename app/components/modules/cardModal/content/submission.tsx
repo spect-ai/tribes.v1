@@ -2,16 +2,16 @@ import CircleIcon from "@mui/icons-material/Circle";
 import { Box } from "@mui/material";
 import React, { useState } from "react";
 import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { Block, Task } from "../../../types";
-import { uid } from "../../../utils/utils";
-import { PrimaryButton } from "../../elements/styledComponents";
-import Editor from "../editor";
+import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
+import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
+import { Block, Task } from "../../../../types";
+import { uid } from "../../../../utils/utils";
+import { PrimaryButton } from "../../../elements/styledComponents";
+import Editor from "../../editor";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DoneIcon from "@mui/icons-material/Done";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
-import { notify } from "../settingsTab";
+import { notify } from "../../settingsTab";
 
 type Props = {
   task: Task;

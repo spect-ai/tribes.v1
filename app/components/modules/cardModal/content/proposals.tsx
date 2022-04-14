@@ -8,11 +8,11 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { BoardData, Task } from "../../../types";
-import { PrimaryButton } from "../../elements/styledComponents";
-import { notify } from "../settingsTab";
+import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
+import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
+import { BoardData, Task } from "../../../../types";
+import { PrimaryButton } from "../../../elements/styledComponents";
+import { notify } from "../../settingsTab";
 
 type Props = {
   task: Task;
