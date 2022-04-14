@@ -137,12 +137,12 @@ Moralis.Cloud.define("getMyTeams", async (request) => {
 Moralis.Cloud.define("createTeam", async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
-    // const whitelisted = await isWhitelisted(request.user.get("ethAddress"));
-    // if (!whitelisted)
-    //   throw {
-    //     code: 101,
-    //     message: "Please fill out the waitlist to create tribe",
-    //   };
+    const whitelisted = await isWhitelisted(request.user.get("ethAddress"));
+    if (!whitelisted)
+      throw {
+        code: 101,
+        message: "Please fill out the waitlist to create tribe",
+      };
 
     var team = new Moralis.Object("Team");
     const teamId = crypto.randomUUID();
@@ -154,15 +154,15 @@ Moralis.Cloud.define("createTeam", async (request) => {
     team = await getCreatedTribe(
       team,
       teamId,
-      request.params.name
-      // (members = [request.user.id]),
-      // roles
+      request.params.name,
+      (members = [request.user.id]),
+      roles
     );
     // Add tribe to tribe creator's user info
-    // const userInfo = await getUserByUserId(request.user.id);
+    const userInfo = await getUserByUserId(request.user.id);
 
-    // teamMemberships = userInfo.get("tribes").concat([teamId]);
-    // userInfo.set("tribes", teamMemberships);
+    teamMemberships = userInfo.get("tribes").concat([teamId]);
+    userInfo.set("tribes", teamMemberships);
 
     await Moralis.Object.saveAll([team], { useMasterKey: true });
 
