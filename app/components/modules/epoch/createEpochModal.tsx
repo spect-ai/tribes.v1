@@ -66,8 +66,10 @@ const CreateEpoch = (props: Props) => {
   const [type, setType] = useState("");
   const [passThreshold, setPassThreshold] = useState("");
   const [cardColumn, setCardColumn] = useState(space.columnOrder[0]);
-  const [cards, setCards] = useState([]);
-  const [isCardChecked, setIsCardChecked] = useState([]);
+  const [cards, setCards] = useState<string[]>([] as string[]);
+  const [isCardChecked, setIsCardChecked] = useState<boolean[]>(
+    [] as boolean[]
+  );
   const [isOpen, setIsOpen] = useState(false);
   const { palette } = useTheme();
   const {

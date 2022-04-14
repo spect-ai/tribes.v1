@@ -145,6 +145,7 @@ export interface Task {
   numProposals: number;
   selectedProposals: Array<string>;
   updates: Array<object>;
+  columnId: string;
 }
 
 export interface Submission {

@@ -89,7 +89,6 @@ const Column = ({ tasks, id, column, index }: Props) => {
         isOpen={isTaskOpen}
         handleClose={handleTaskClose}
         taskId={taskId}
-        column={column}
       />
       <Draggable
         draggableId={id}

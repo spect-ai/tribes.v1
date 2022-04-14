@@ -21,7 +21,8 @@ Moralis.Cloud.define("addTask", async (request) => {
         request.params.title,
         request.params.value,
         request.user.id,
-        columns[request.params.columnId].defaultCardType
+        columns[request.params.columnId].defaultCardType,
+        request.params.columnId
       );
       logger.info(`Creating task ${JSON.stringify(task)}`);
       // await Moralis.Object.saveAll([task], { useMasterKey: true }); why save separately??
@@ -50,7 +51,8 @@ function handleCreateTask(
   title,
   value,
   userId,
-  cardType
+  cardType,
+  columnId
 ) {
   task.set("taskId", taskId);
   task.set("token", {
@@ -69,6 +71,7 @@ function handleCreateTask(
   task.set("assignee", []);
   task.set("tags", []);
   // task.set("description", description);
+  task.set("columnId", columnId);
   cardType ? task.set("type", cardType) : task.set("type", "Task");
   task.set("activity", [
     {

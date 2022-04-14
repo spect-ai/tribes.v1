@@ -13,10 +13,9 @@ type Props = {
   isOpen: boolean;
   handleClose: () => void;
   taskId: string;
-  column: Column;
 };
 
-const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
+const CardModal = ({ isOpen, handleClose, taskId }: Props) => {
   const [loading, setLoading] = useState(false);
   const [task, setTask] = useState<Task>({} as Task);
   const { isInitialized } = useMoralis();
@@ -25,10 +24,11 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
   const { runMoralisFunction } = useMoralisFunction();
 
   useEffect(() => {
-    if (isInitialized && isOpen) {
+    if (isInitialized && isOpen && taskId) {
       setLoading(true);
       runMoralisFunction("getTask", { taskId })
         .then((task: Task) => {
+          console.log(task);
           setTask(task);
           setLoading(false);
         })
@@ -54,7 +54,6 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
                     setTask={setTask}
                     handleClose={handleClose}
                     submissionPR={submissionPR}
-                    column={column}
                   />
                 </div>
               </Fade>

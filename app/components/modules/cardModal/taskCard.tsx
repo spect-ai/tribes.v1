@@ -20,13 +20,13 @@ import TabularDetails from "./tabularDetails";
 import { Block } from "../../../types";
 import { uid } from "../../../utils/utils";
 import { useCardDynamism } from "../../../hooks/useCardDynamism";
+import IosShareIcon from "@mui/icons-material/IosShare";
 
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
   handleClose: () => void;
   submissionPR: any;
-  column: Column;
 };
 
 function doShowPayButton(user: any, task: Task) {
@@ -43,7 +43,7 @@ function doShowPayButton(user: any, task: Task) {
   }
 }
 
-const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
+const TaskCard = ({ task, setTask, handleClose }: Props) => {
   const { space, setSpace } = useSpace();
   const { user } = useMoralis();
   const [open, setOpen] = useState({} as any);
@@ -113,6 +113,16 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
           readOnly={!(task?.access?.creator || task?.access?.reviewer)}
         />
         <Box sx={{ flex: "1 1 auto" }} />
+        <IconButton
+          sx={{ m: 0, px: 2.5 }}
+          onClick={() => {
+            const link = `${window.location.href}?taskId=${task.taskId}`;
+            navigator.clipboard.writeText(link);
+            notify("Task Link copied");
+          }}
+        >
+          <IosShareIcon fontSize="small" />
+        </IconButton>
         <OptionsPopover task={task} setTask={setTask} />
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <CloseIcon />
@@ -120,7 +130,11 @@ const TaskCard = ({ task, setTask, handleClose, column }: Props) => {
       </TaskModalTitleContainer>
       <Box sx={{ width: "fit-content", display: "flex", flexWrap: "wrap" }}>
         <CardTypePopover task={task} setTask={setTask} />
-        <ColumnPopover task={task} setTask={setTask} column={column} />
+        <ColumnPopover
+          task={task}
+          setTask={setTask}
+          column={space.columns[task.columnId]}
+        />
       </Box>
 
       <Box sx={{ display: "flex", flexWrap: "wrap", marginBottom: "16px" }}>

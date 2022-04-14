@@ -19,16 +19,18 @@ const OuterDiv = styled.div`
 
 const BoardsTemplate = (props: Props) => {
   const router = useRouter();
-  const inviteCode = router.query.inviteCode as string;
-  const taskId = router.query.taskId as string;
+  const { inviteCode, taskId, id, bid } = router.query;
   const { isAuthenticated, authenticate } = useMoralis();
-  const { setSpace } = useSpace();
+  const { setSpace, isLoading } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
   const [isOpen, setIsOpen] = useState(false);
-  const handleClose = () => setIsOpen(false);
+  const handleClose = () => {
+    setIsOpen(false);
+    router.push(`/tribe/${id}/space/${bid}`);
+  };
   const [column, setColumn] = useState<Column>({} as Column);
   useEffect(() => {
-    if (inviteCode) {
+    if (inviteCode && !isLoading) {
       if (!isAuthenticated) {
         authenticate();
         return;
@@ -49,15 +51,20 @@ const BoardsTemplate = (props: Props) => {
           notify(err.message, "error");
         });
     }
-  }, [inviteCode, isAuthenticated]);
+  }, [inviteCode, isAuthenticated, isLoading]);
+
+  useEffect(() => {
+    if (taskId && !isLoading) {
+      setIsOpen(true);
+    }
+  }, [taskId, isLoading]);
 
   return (
     <OuterDiv>
       <CardModal
         isOpen={isOpen}
         handleClose={handleClose}
-        taskId={taskId}
-        column={column}
+        taskId={taskId as string}
       />
       <TaskBoard />
     </OuterDiv>

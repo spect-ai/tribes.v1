@@ -10,6 +10,7 @@ import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import { smartTrim } from "../../../utils/utils";
 import { Palette, useTheme } from "@mui/material";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { useRouter } from "next/router";
 
 type Props = {
   task: Task;
@@ -18,6 +19,8 @@ type Props = {
 };
 const TaskContainer = ({ task, index, column }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const { bid, id } = router.query;
   const handleClose = () => setIsOpen(false);
   const { space, setSpace } = useSpace();
   const { palette } = useTheme();
@@ -27,7 +30,6 @@ const TaskContainer = ({ task, index, column }: Props) => {
         isOpen={isOpen}
         handleClose={handleClose}
         taskId={task.taskId}
-        column={column}
       />
       <Draggable draggableId={task.taskId} index={index}>
         {(provided, snapshot) => (
@@ -36,7 +38,9 @@ const TaskContainer = ({ task, index, column }: Props) => {
             {...provided.dragHandleProps}
             ref={provided.innerRef}
             isDragging={snapshot.isDragging}
-            onClick={() => setIsOpen(true)}
+            onClick={() => {
+              setIsOpen(true);
+            }}
             palette={palette}
           >
             <Container>

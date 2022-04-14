@@ -5,7 +5,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
 import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
 import { Column, Task } from "../../../../types";
@@ -21,8 +21,8 @@ type Props = {
 };
 
 const ColumnPopover = ({ task, setTask, column }: Props) => {
-  const [currStatus, setCurrStatus] = useState(column.id);
-  const [status, setStatus] = useState(column.id);
+  const [currStatus, setCurrStatus] = useState<string>("");
+  const [status, setStatus] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const { space, setSpace } = useSpace();
@@ -66,6 +66,15 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
         notify(`${err.message}`, "error");
       });
   };
+
+  useEffect(() => {
+    console.log(column);
+    if (column) {
+      setCurrStatus(column.id);
+      setStatus(column.id);
+    }
+  }, [column]);
+
   return (
     <>
       <Box
@@ -91,7 +100,7 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
               fontSize: 14,
             }}
           >
-            {space.columns[currStatus].title}
+            {space.columns[currStatus as string]?.title}
           </Typography>
         </CardButton>
       </Box>
