@@ -42,7 +42,10 @@ const CardList = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const getValidCardIds = (columnId: string) => {
-    var cardIds = space.columns[columnId].taskIds;
+    // var cardIds = space.columns[columnId].taskIds;
+    var cardIds = space.columns[columnId].taskIds.filter((taskId) => {
+      return space.tasks[taskId];
+    });
 
     return cardIds
       .filter((a) => space.tasks[a].value > 0)

@@ -57,9 +57,10 @@ const Settings = () => {
         setIsLoading(false);
         notify("Updated Tribe!");
       })
-      .catch((err: any) =>
-        notify("Sorry! There was an error while updating tribe.", "error")
-      );
+      .catch((err: any) => {
+        notify(err.message, "error");
+        setIsLoading(false);
+      });
   };
 
   return (
@@ -81,6 +82,7 @@ const Settings = () => {
                   fullWidth
                   placeholder="Name"
                   label="Tribe name"
+                  color="secondary"
                 />
               )}
             />
@@ -101,6 +103,7 @@ const Settings = () => {
                   placeholder="Description"
                   multiline
                   label={tribe.description ? "Description" : ""}
+                  color="secondary"
                 />
               )}
             />
@@ -154,6 +157,7 @@ const Settings = () => {
                     size="small"
                     fullWidth
                     placeholder="https://discord.gg/invitecode"
+                    color="secondary"
                   />
                 )}
               />
@@ -180,6 +184,7 @@ const Settings = () => {
                     size="small"
                     fullWidth
                     placeholder="https://twitter.com/profile"
+                    color="secondary"
                   />
                 )}
               />
@@ -206,6 +211,7 @@ const Settings = () => {
                     size="small"
                     fullWidth
                     placeholder="https://my-site.com"
+                    color="secondary"
                   />
                 )}
               />

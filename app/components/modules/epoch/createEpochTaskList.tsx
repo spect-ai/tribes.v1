@@ -40,7 +40,6 @@ const CreateEpochTaskList = ({
   const toggleCheckboxValue = (index: number) => {
     setIsCardChecked(isCardChecked.map((v, i) => (i === index ? !v : v)));
   };
-  console.log(space.columns[space.columnOrder[0]].taskIds.length);
   return (
     <>
       <Autocomplete
@@ -50,10 +49,11 @@ const CreateEpochTaskList = ({
         disableClearable
         onChange={(event, newValue) => {
           setCardColumn(newValue);
-          setCards(space.columns[newValue]?.taskIds);
-          setIsCardChecked(
-            Array(space.columns[newValue].taskIds.length).fill(true)
-          );
+          const cards = space.columns[newValue]?.taskIds.filter((taskId) => {
+            return space.tasks[taskId];
+          });
+          setCards(cards);
+          setIsCardChecked(Array(cards.length).fill(true));
         }}
         renderInput={(params) => (
           <TextField
@@ -98,40 +98,48 @@ const CreateEpochTaskList = ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {cards?.map((card, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      "&:last-child td, &:last-child th": {
-                        border: 0,
-                      },
-                    }}
-                  >
-                    <TableCell component="th" scope="row" padding="checkbox">
-                      {
-                        <Checkbox
-                          color="secondary"
-                          inputProps={{
-                            "aria-label": "select all desserts",
-                          }}
-                          checked={isCardChecked.at(index)}
-                          onClick={() => {
-                            toggleCheckboxValue(index);
-                          }}
-                        />
-                      }
-                    </TableCell>
-                    <TableCell align="right">
-                      {space.tasks[card].title}
-                    </TableCell>
-                    <TableCell align="right">
-                      {space.tasks[card].value || "Not set"}{" "}
-                      {space.tasks[card].value
-                        ? space.tasks[card].token.symbol
-                        : ""}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {cards?.map((card, index) => {
+                  if (space.tasks[card]) {
+                    return (
+                      <TableRow
+                        key={index}
+                        sx={{
+                          "&:last-child td, &:last-child th": {
+                            border: 0,
+                          },
+                        }}
+                      >
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          padding="checkbox"
+                        >
+                          {
+                            <Checkbox
+                              color="secondary"
+                              inputProps={{
+                                "aria-label": "select all desserts",
+                              }}
+                              checked={isCardChecked.at(index)}
+                              onClick={() => {
+                                toggleCheckboxValue(index);
+                              }}
+                            />
+                          }
+                        </TableCell>
+                        <TableCell align="right">
+                          {space.tasks[card].title}
+                        </TableCell>
+                        <TableCell align="right">
+                          {space.tasks[card].value || "Not set"}{" "}
+                          {space.tasks[card].value
+                            ? space.tasks[card].token.symbol
+                            : ""}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
+                })}
               </TableBody>
             </Table>
           </AccordionDetails>

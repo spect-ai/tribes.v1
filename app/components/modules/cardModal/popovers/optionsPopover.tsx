@@ -31,10 +31,29 @@ const OptionsPopover = ({ task, setTask }: Props) => {
     setOpen(false);
   };
   const { viewableComponents } = useCardDynamism(task);
+  const { runMoralisFunction } = useMoralisFunction();
+  const { space, setSpace } = useSpace();
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
     setOpen(true);
+  };
+
+  const archiveCard = () => {
+    runMoralisFunction("updateCard", {
+      updates: {
+        taskId: task.taskId,
+        status: 500,
+      },
+    })
+      .then((res) => {
+        console.log({ res });
+        setSpace(res.space);
+        setTask(res.task);
+      })
+      .catch((res) => {
+        console.log(res);
+      });
   };
 
   return (
@@ -84,7 +103,7 @@ const OptionsPopover = ({ task, setTask }: Props) => {
             </ListItemButton>
           )}
           {viewableComponents["archive"] && (
-            <ListItemButton>
+            <ListItemButton onClick={archiveCard}>
               <ArchiveIcon sx={{ width: "2rem", mr: 2 }} />
               <ListItemText primary="Archive" />
             </ListItemButton>

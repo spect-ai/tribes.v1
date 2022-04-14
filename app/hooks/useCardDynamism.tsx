@@ -81,7 +81,6 @@ export function useCardDynamism(task: Task) {
   }
 
   const getReason = (field: string) => {
-    console.log(task);
     if (task.status === 300) {
       return "Cannot edit, already paid for card";
     } else {

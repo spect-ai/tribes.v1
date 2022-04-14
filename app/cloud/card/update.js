@@ -96,7 +96,8 @@ function authorized(updates, task, callerId, space) {
     updates.hasOwnProperty("tags") ||
     updates.hasOwnProperty("reward") ||
     updates.hasOwnProperty("type") ||
-    updates.hasOwnProperty("selectedProposals")
+    updates.hasOwnProperty("selectedProposals") ||
+    updates.hasOwnProperty("status")
   ) {
     if (
       !(

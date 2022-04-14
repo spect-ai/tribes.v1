@@ -18,7 +18,7 @@ import {
   Grid,
   useTheme,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box } from "@mui/system";
 import {
   ModalHeading,
@@ -66,12 +66,8 @@ const CreateEpoch = (props: Props) => {
   const [type, setType] = useState("");
   const [passThreshold, setPassThreshold] = useState("");
   const [cardColumn, setCardColumn] = useState(space.columnOrder[0]);
-  const [cards, setCards] = useState(
-    space.columns[space.columnOrder[0]].taskIds as string[]
-  );
-  const [isCardChecked, setIsCardChecked] = useState(
-    Array(space.columns[space.columnOrder[0]].taskIds.length).fill(true)
-  );
+  const [cards, setCards] = useState([]);
+  const [isCardChecked, setIsCardChecked] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const { palette } = useTheme();
   const {
@@ -144,6 +140,16 @@ const CreateEpoch = (props: Props) => {
     setIsOpen(false);
   };
 
+  useEffect(() => {
+    const cards = space.columns[space.columnOrder[0]].taskIds.filter(
+      (taskId) => {
+        return space.tasks[taskId];
+      }
+    );
+    setCards(cards);
+    setIsCardChecked(Array(cards.length).fill(true));
+  }, [isOpen]);
+
   const onSubmit: SubmitHandler<EpochFormInput> = async (values) => {
     const temp = Object.assign({}, space);
     temp.creatingEpoch = true;
@@ -151,9 +157,10 @@ const CreateEpoch = (props: Props) => {
     const members = getMembers();
     const choices =
       values.type === "Member" ? getMemberChoices() : getCardChoices();
-    values.type === "Member" &&
-      members.length <= 1 &&
+    if (values.type === "Member" && members.length <= 1) {
       notify("At least 2 members required", "error");
+      return;
+    }
     startEpoch(
       Moralis,
       space.teamId,

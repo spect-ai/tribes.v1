@@ -192,6 +192,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
                 fullWidth
                 sx={{ mb: 4 }}
                 placeholder="Network Chain"
+                color="secondary"
               />
             )}
           />
@@ -214,6 +215,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
                 fullWidth
                 sx={{ mb: 4 }}
                 placeholder="Network Chain"
+                color="secondary"
               />
             )}
           />
@@ -228,6 +230,8 @@ const RewardPopover = ({ task, setTask }: Props) => {
             sx={{ mb: 4 }}
             type="number"
             placeholder="Value"
+            inputProps={{ min: 0 }}
+            color="secondary"
           />
           <PrimaryButton
             variant="outlined"

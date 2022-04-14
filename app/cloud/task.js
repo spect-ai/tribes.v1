@@ -30,7 +30,7 @@ async function getTaskObjByBoardId(boardId) {
     {
       match: {
         boardId: boardId,
-        status: { $ne: 400 },
+        status: { $ne: 500 }, // need to discuss status for archived cards
       },
     },
     {
@@ -52,7 +52,7 @@ async function getTaskObjByBoardIdWithProposals(boardId) {
     {
       match: {
         boardId: boardId,
-        status: { $ne: 400 },
+        status: { $ne: 500 },
       },
     },
     {

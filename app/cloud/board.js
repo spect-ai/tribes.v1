@@ -96,8 +96,11 @@ function getUserRole(roles, roleMapping) {
 
 async function getSpace(boardId, callerId) {
   try {
+    // we are getting tasks twice........ CHECK THIS
     let boardObj = await getBoardObjWithTasksByObjectId(boardId, callerId);
+
     if (boardObj.length === 0) throw "Board not found";
+    // we are getting tasks twice........ CHECK THIS
     boardObj = await getBoardObjWithTasksAndProposalsByObjectId(
       boardId,
       callerId
