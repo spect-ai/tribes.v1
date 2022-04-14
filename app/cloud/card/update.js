@@ -20,8 +20,11 @@ const integerUpdates = ["status"];
 // These are fields that need to be converted to the float type
 const floatUpdates = ["value"];
 
-// Array updates that require appends. Must be in the format: [{content: "",}]
-const contentArrayUpdates = ["submissions", "proposals", "comments"];
+// Array updates that require appends. One person can only create and edit one element (their own). Must be in the format: [{content: "",}]
+const contentArrayUpdates = ["submissions", "proposals"];
+
+// Array updates that require appends and updates. One person can create multile elements and edit their own elements. Must be in the format: [{content: "",}]
+const contentArrayMultiElementUpdates = ["comments"];
 
 const datatypes = {
   title: "string",
@@ -106,12 +109,28 @@ function authorized(updates, task, callerId, space) {
         (space.roles[callerId] && space.roles[callerId] === 3)
       )
     )
-      throw "Only card creator or reviewer can update card";
+      throw "Only card creator, reviewer and space steward can update card info";
   }
   if (updates.hasOwnProperty("submission")) {
     if (!isTaskAssignee(task, callerId))
       throw "Only assignee can add submission";
   }
+
+  /*
+  if (updates.hasOwnProperty("assignee")) {
+    if (
+      !(
+        isTaskCreator(task, callerId) ||
+        isTaskReviewer(task, callerId) ||
+        (space.roles[callerId] && space.roles[callerId] === 3) ||
+        (task.assignee.length > 0 && isTaskAssignee(task, callerId)) ||
+        (task.type === "Task" &&
+          task.assignee.length === 0 &&
+          callerId === updates.assignee[0])
+      )
+    )
+      throw "Only card creator, reviewer and space steward can update assignee";
+  }*/
 }
 
 function validatePayload(updates, task) {

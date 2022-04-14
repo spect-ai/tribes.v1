@@ -23,6 +23,9 @@ export function useCardDynamism(task: Task) {
       submissionGate: false,
       duplicate: isSpaceSteward(),
       archive: isSpaceSteward(),
+      assignee: isAssigneeViewable(),
+      reviewer: true,
+      assignToMe: isAssignToMeViewable(),
     };
   };
 
@@ -85,14 +88,16 @@ export function useCardDynamism(task: Task) {
       return "Cannot edit, already paid for card";
     } else {
       switch (field) {
-        case "reward" ||
-          "description" ||
-          "title" ||
-          "reviewer" ||
-          "column" ||
-          "type":
+        case "reward":
+        case "description":
+        case "title":
+        case "reviewer":
+        case "column":
+        case "type":
+        case "label":
           return `Only card reviewer or creator and space steward can edit ${field}`;
-        case "assignee" || "dueDate":
+        case "assignee":
+        case "dueDate":
           return `Only card assignee, reviewer or creator and space steward can edit ${field}`;
       }
     }
@@ -127,6 +132,20 @@ export function useCardDynamism(task: Task) {
     }
   };
 
+  const isAssigneeViewable = () => {
+    if (task?.assignee?.length > 0) {
+      return true;
+    } else {
+      return isCardSteward();
+    }
+  };
+
+  const isAssignToMeViewable = () => {
+    if (task?.assignee?.length === 0) {
+      return task.type === "Task";
+    } else return false;
+  };
+
   const getProposalView = () => {
     if (
       task?.access?.creator ||
@@ -158,6 +177,6 @@ export function useCardDynamism(task: Task) {
   return {
     viewableComponents,
     editAbleComponents,
-    cannotEditReason,
+    getReason,
   };
 }

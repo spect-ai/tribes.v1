@@ -40,7 +40,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const { setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents, cannotEditReason } = useCardDynamism(task);
+  const { editAbleComponents, getReason } = useCardDynamism(task);
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
@@ -157,7 +157,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">{cannotEditReason["reward"]}</Typography>
+          <Typography variant="body2">{getReason("reward")}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover

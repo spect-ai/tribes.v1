@@ -26,7 +26,7 @@ const CardTypePopover = ({ task, setTask }: Props) => {
   const { space, setSpace } = useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
-  const { editAbleComponents, cannotEditReason } = useCardDynamism(task);
+  const { editAbleComponents, getReason } = useCardDynamism(task);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -110,7 +110,7 @@ const CardTypePopover = ({ task, setTask }: Props) => {
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">{cannotEditReason["type"]}</Typography>
+          <Typography variant="body2">{getReason("type")}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover

@@ -196,3 +196,11 @@ export function isValidHttpUrl(string: string) {
 
   return url.protocol === "http:" || url.protocol === "https:";
 }
+
+export function delay(delayInms: number) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(2);
+    }, delayInms);
+  });
+}

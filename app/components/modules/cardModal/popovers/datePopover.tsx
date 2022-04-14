@@ -30,7 +30,7 @@ const DatePopover = ({ task, setTask }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents, cannotEditReason } = useCardDynamism(task);
+  const { editAbleComponents, getReason } = useCardDynamism(task);
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -143,7 +143,7 @@ const DatePopover = ({ task, setTask }: Props) => {
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">{cannotEditReason["dueDate"]}</Typography>
+          <Typography variant="body2">{getReason("dueDate")}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover

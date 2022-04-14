@@ -31,8 +31,10 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents, cannotEditReason } = useCardDynamism(task);
+  const { editAbleComponents, viewableComponents, getReason } =
+    useCardDynamism(task);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
     if (editAbleComponents[type]) {
@@ -101,58 +103,61 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
 
   return (
     <>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          mt: 2,
-          mx: 1,
-        }}
-      >
-        <Typography
-          sx={{ fontSize: 12, color: "text.secondary", width: "100%" }}
-        >
-          {type === "reviewer" ? "Reviewer" : "Assignee"}
-        </Typography>
-        <CardButton
-          variant="outlined"
-          onClick={handleClick()}
-          color="secondary"
+      {viewableComponents[type] && (
+        <Box
           sx={{
-            padding: "6px",
-            minWidth: "3rem",
+            display: "flex",
+            flexDirection: "column",
+            mt: 2,
+            mx: 1,
           }}
         >
-          <Avatar
-            variant="rounded"
-            sx={{
-              p: 0,
-              mr: 2,
-              width: 20,
-              height: 20,
-              backgroundColor: "transparent",
-            }}
-            src={
-              type === "reviewer"
-                ? space.memberDetails[task.reviewer[0]]?.profilePicture?._url
-                : space.memberDetails[task.assignee[0]]?.profilePicture?._url
-            }
-          >
-            <PersonIcon sx={{ color: "text.primary" }} />
-          </Avatar>
           <Typography
+            sx={{ fontSize: 12, color: "text.secondary", width: "100%" }}
+          >
+            {type === "reviewer" ? "Reviewer" : "Assignee"}
+          </Typography>
+          <CardButton
+            variant="outlined"
+            onClick={handleClick()}
+            color="secondary"
             sx={{
-              fontSize: 14,
+              padding: "6px",
               minWidth: "3rem",
             }}
           >
-            {type === "reviewer"
-              ? space.memberDetails[task.reviewer[0]]?.username ||
-                "Add reviewer"
-              : space.memberDetails[task.assignee[0]]?.username || "Unassigned"}
-          </Typography>
-        </CardButton>
-      </Box>
+            <Avatar
+              variant="rounded"
+              sx={{
+                p: 0,
+                mr: 2,
+                width: 20,
+                height: 20,
+                backgroundColor: "transparent",
+              }}
+              src={
+                type === "reviewer"
+                  ? space.memberDetails[task.reviewer[0]]?.profilePicture?._url
+                  : space.memberDetails[task.assignee[0]]?.profilePicture?._url
+              }
+            >
+              <PersonIcon sx={{ color: "text.primary" }} />
+            </Avatar>
+            <Typography
+              sx={{
+                fontSize: 14,
+                minWidth: "3rem",
+              }}
+            >
+              {type === "reviewer"
+                ? space.memberDetails[task.reviewer[0]]?.username ||
+                  "Add reviewer"
+                : space.memberDetails[task.assignee[0]]?.username ||
+                  "Unassigned"}
+            </Typography>
+          </CardButton>
+        </Box>
+      )}
       <Popover
         open={feedbackOpen}
         anchorEl={anchorEl}
@@ -163,7 +168,7 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">{cannotEditReason[type]}</Typography>
+          <Typography variant="body2">{getReason(type)}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover

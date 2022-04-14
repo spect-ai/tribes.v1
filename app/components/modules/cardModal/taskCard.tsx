@@ -21,6 +21,7 @@ import { Block } from "../../../types";
 import { uid } from "../../../utils/utils";
 import { useCardDynamism } from "../../../hooks/useCardDynamism";
 import IosShareIcon from "@mui/icons-material/IosShare";
+import AssignToMe from "./buttons/assignToMe";
 
 type Props = {
   task: Task;
@@ -28,20 +29,6 @@ type Props = {
   handleClose: () => void;
   submissionPR: any;
 };
-
-function doShowPayButton(user: any, task: Task) {
-  if (user?.get("distributorApproved")) {
-    return (
-      task.token?.address === "0x0" ||
-      (task.chain?.chainId in user?.get("distributorApproved") &&
-        user
-          ?.get("distributorApproved")
-          [task.chain?.chainId].includes(task.token?.address))
-    );
-  } else {
-    return false;
-  }
-}
 
 const TaskCard = ({ task, setTask, handleClose }: Props) => {
   const { space, setSpace } = useSpace();
@@ -113,6 +100,7 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
           readOnly={!(task?.access?.creator || task?.access?.reviewer)}
         />
         <Box sx={{ flex: "1 1 auto" }} />
+        <AssignToMe task={task} setTask={setTask} />
         <IconButton
           sx={{ m: 0, px: 2.5 }}
           onClick={() => {

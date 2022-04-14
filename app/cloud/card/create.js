@@ -69,9 +69,11 @@ function handleCreateTask(
   task.set("creator", userId);
   task.set("reviewer", [userId]);
   task.set("assignee", []);
+  task.set("status", 100);
   task.set("tags", []);
   // task.set("description", description);
   task.set("columnId", columnId);
+  task.set("status", 100);
   cardType ? task.set("type", cardType) : task.set("type", "Task");
   task.set("activity", [
     {
@@ -79,7 +81,7 @@ function handleCreateTask(
       actor: userId,
       timestamp: new Date(),
       taskType: cardType ? cardType : "Task",
-      changeLog: { prev: null, next: null },
+      changeLog: { prev: null, next: cardType ? cardType : "Task" },
     },
   ]);
   return task;

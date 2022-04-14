@@ -33,7 +33,7 @@ const LabelPopover = ({ task, setTask }: Props) => {
   const { runMoralisFunction } = useMoralisFunction();
   const { space, setSpace } = useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const { editAbleComponents, cannotEditReason } = useCardDynamism(task);
+  const { editAbleComponents, getReason } = useCardDynamism(task);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -154,7 +154,7 @@ const LabelPopover = ({ task, setTask }: Props) => {
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">{cannotEditReason["label"]}</Typography>
+          <Typography variant="body2">{getReason("label")}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover
