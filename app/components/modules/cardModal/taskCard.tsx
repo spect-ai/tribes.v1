@@ -35,7 +35,7 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
   const { user } = useMoralis();
   const [open, setOpen] = useState({} as any);
   const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents } = useCardDynamism(task);
+  const { editAbleComponents, viewableComponents } = useCardDynamism(task);
 
   const syncBlocksToMoralis = (blocks: Block[]) => {
     // console.log({ blocks });
@@ -111,7 +111,9 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
         >
           <IosShareIcon fontSize="small" />
         </IconButton>
-        <OptionsPopover task={task} setTask={setTask} />
+        {viewableComponents["optionPopover"] && (
+          <OptionsPopover task={task} setTask={setTask} />
+        )}
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <CloseIcon />
         </IconButton>

@@ -25,6 +25,7 @@ export function useCardDynamism(task: Task) {
       reviewer: true,
       assignToMe: isAssignToMeViewable(),
       addComment: isSpaceSteward() || isCardStakeholder(),
+      optionPopover: isSpaceSteward() || isCardStakeholder(),
     };
   };
 

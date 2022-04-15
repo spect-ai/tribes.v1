@@ -10,8 +10,10 @@ Moralis.Cloud.define("addTask", async (request) => {
       var taskIds = columns[request.params.columnId].taskIds;
       columns[request.params.columnId].taskIds = taskIds.concat([taskId]);
       board.set("columns", columns);
-      const defaultPayment = board.get("defaultPayment");
-      logger.info(`defaultPayment ${JSON.stringify(defaultPayment)}`);
+      const defaultPayment =
+        request.params.token && request.params.chain
+          ? { chain: request.params.chain, token: request.params.token }
+          : board.get("defaultPayment");
       var task = new Moralis.Object("Task");
       task = handleCreateTask(
         task,
@@ -21,8 +23,14 @@ Moralis.Cloud.define("addTask", async (request) => {
         request.params.title,
         request.params.value,
         request.user.id,
-        columns[request.params.columnId].defaultCardType,
-        request.params.columnId
+        request.params.type
+          ? request.params.type
+          : columns[request.params.columnId].defaultCardType,
+        request.params.columnId,
+        request.params.tags,
+        request.params.description,
+        request.params.assignee,
+        request.params.deadline
       );
       logger.info(`Creating task ${JSON.stringify(task)}`);
       // await Moralis.Object.saveAll([task], { useMasterKey: true }); why save separately??
@@ -52,7 +60,11 @@ function handleCreateTask(
   value,
   userId,
   cardType,
-  columnId
+  columnId,
+  tags,
+  description,
+  assignee,
+  deadline
 ) {
   task.set("taskId", taskId);
   task.set("token", {
@@ -68,13 +80,14 @@ function handleCreateTask(
   task.set("value", parseFloat(value));
   task.set("creator", userId);
   task.set("reviewer", [userId]);
-  task.set("assignee", []);
+  assignee ? task.set("assignee", assignee) : task.set("assignee", []);
   task.set("status", 100);
-  task.set("tags", []);
-  // task.set("description", description);
+  tags ? task.set("tags", tags) : task.set("tags", []);
+  if (description) task.set("description", description);
   task.set("columnId", columnId);
   task.set("status", 100);
   cardType ? task.set("type", cardType) : task.set("type", "Task");
+  if (deadline) task.set("deadline", new Date(deadline));
   task.set("activity", [
     {
       action: 100,

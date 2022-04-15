@@ -18,6 +18,7 @@ import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
 import { Task } from "../../../../types";
 import PayButton from "../buttons/payButton";
 import { useCardDynamism } from "../../../../hooks/useCardDynamism";
+import { notify } from "../../settingsTab";
 
 type Props = {
   task: Task;
@@ -53,6 +54,32 @@ const OptionsPopover = ({ task, setTask }: Props) => {
       })
       .catch((res) => {
         console.log(res);
+      });
+  };
+
+  const duplicateCard = () => {
+    handleClose();
+    runMoralisFunction("addTask", {
+      boardId: task.boardId,
+      columnId: task.columnId,
+      title: task.title,
+      value: task.value,
+      token: task.token,
+      chain: task.chain,
+      type: task.type,
+      tags: task.tags,
+      description: task.description,
+      assignee: task.assignee,
+      deadline: task.deadline,
+    })
+      .then((res) => {
+        console.log({ res });
+        setSpace(res.space);
+        notify("Card has been duplicated", "success");
+      })
+      .catch((err) => {
+        console.log(err);
+        notify(`${err.message}`, "error");
       });
   };
 
@@ -97,7 +124,7 @@ const OptionsPopover = ({ task, setTask }: Props) => {
           )}
 
           {viewableComponents["duplicate"] && (
-            <ListItemButton>
+            <ListItemButton onClick={duplicateCard}>
               <ContentCopyIcon sx={{ width: "2rem", mr: 2 }} />
               <ListItemText primary="Duplicate" />
             </ListItemButton>
