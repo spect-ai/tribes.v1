@@ -2,16 +2,24 @@ import { useState, useEffect } from "react";
 import { useSpace } from "../../pages/tribe/[id]/space/[bid]";
 import { useMoralis } from "react-moralis";
 import { Task } from "../types";
+import { useAccess } from "./useAccess";
 
 export function useCardDynamism(task: Task) {
   const { space } = useSpace();
   const { user } = useMoralis();
+  const { isSpaceSteward, isCardSteward, isCardStakeholder } = useAccess(task);
   const [viewableComponents, setViewableComponents] = useState({} as any);
   const [editAbleComponents, setEditableComponents] = useState({} as any);
-
+  const [proposalEditMode, setProposalEditMode] = useState(false);
+  const [tabs, setTabs] = useState([] as string[]);
+  const [tabIdx, setTabIdx] = useState(0);
   useEffect(() => {
+    console.log(`ldldldl`);
     setViewableComponents(getViewableComponents());
     setEditableComponents(getEditableComponents());
+    setTabs(getTabs());
+    setTabIdx(0);
+    console.log(getViewableComponents());
   }, [task]);
 
   const getViewableComponents = () => {
@@ -26,6 +34,7 @@ export function useCardDynamism(task: Task) {
       assignToMe: isAssignToMeViewable(),
       addComment: isSpaceSteward() || isCardStakeholder(),
       optionPopover: isSpaceSteward() || isCardStakeholder(),
+      applyButton: isApplyButtonViewable(),
     };
   };
 
@@ -89,18 +98,6 @@ export function useCardDynamism(task: Task) {
     }
   };
 
-  const isSpaceSteward = () => {
-    return user?.id && space.roles[user?.id] === 3;
-  };
-
-  const isCardSteward = () => {
-    return task?.access?.creator || task?.access?.reviewer || isSpaceSteward();
-  };
-
-  const isCardStakeholder = () => {
-    return isCardSteward() || task?.access?.assignee;
-  };
-
   const isDeadlineEditable = () => {
     return isCardStakeholder() && !(task.status === 300);
   };
@@ -132,6 +129,38 @@ export function useCardDynamism(task: Task) {
     } else return false;
   };
 
+  const getTabs = () => {
+    if (task.type === "Task") {
+      return ["Comments", "Activity"];
+    } else if (task.type === "Bounty") {
+      // No assignee yet
+      if (task.status === 100) {
+        if (task.access?.reviewer) {
+          return ["Applicants", "Activity"];
+        } else if (task.proposals?.length > 0 || proposalEditMode) {
+          return ["Application", "Activity"];
+        } else {
+          return ["Activity"]; // Only return application tab if there are any
+        }
+      } else {
+        return task.submissions?.length > 0
+          ? ["Submissions", "Activity", "Applicants"]
+          : ["Applicants", "Activity", "Submissions"]; // If submission exists, move submission tab to the front
+      }
+    } else return [];
+  };
+
+  const isApplyButtonViewable = () => {
+    if (task.type === "Bounty") {
+      if (task.access?.reviewer || task.access?.creator) {
+        return false;
+      }
+      return task.status === 100 && task.proposals?.length === 0;
+    } else {
+      return false;
+    }
+  };
+
   const getProposalView = () => {
     if (
       task?.access?.creator ||
@@ -139,7 +168,7 @@ export function useCardDynamism(task: Task) {
       (user?.id && space.roles[user?.id] === 3)
     ) {
       if ([400].includes(task?.status)) {
-        return "adminView";
+        return "stewardView";
       } else {
         return "pick";
       }
@@ -158,11 +187,26 @@ export function useCardDynamism(task: Task) {
     }
   };
 
-  const getSubmissionView = (task: Task) => {};
+  const getSubmissionView = () => {
+    if (task?.status === 100) {
+      return "hide";
+    }
+  };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabIdx(newValue);
+  };
 
   return {
     viewableComponents,
     editAbleComponents,
     getReason,
+    getTabs,
+    proposalEditMode,
+    setProposalEditMode,
+    tabs,
+    setTabs,
+    handleTabChange,
+    tabIdx,
   };
 }

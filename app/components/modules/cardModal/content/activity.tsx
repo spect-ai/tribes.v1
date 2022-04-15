@@ -19,11 +19,12 @@ const Activity = ({ task }: Props) => {
         <ListItem key={index}>
           <Box
             sx={{
-              width: "80%",
+              width: "100%",
               display: "flex",
               flexDirection: "row",
               justifyContent: "center",
               alignItems: "center",
+              mt: 4,
             }}
           >
             <Box

@@ -53,10 +53,13 @@ const updatePropertyActivityMap = {
   submission: 200,
   status: {
     //
+    created: 100,
+    assigned: 105,
     review: 200,
     revision: 201,
     done: 205,
     paid: 300,
+    archived: 500,
   },
   columnChange: 400,
   selectedProposals: 152,
@@ -256,7 +259,9 @@ function handleContentArrayUpdate(task, updates, callerId, fields) {
             id: task.get(key)[existingIndex].id,
             userId: callerId,
             content: value.content,
-            lastUpdated: new Date(),
+            createdAt: task.get(key)[existingIndex].createdAt,
+            updatedAt: new Date(),
+            edited: true,
           };
           task.get(key).splice(existingIndex, 1);
           task.set(key, [...task.get(key), updatedObj]);
@@ -268,7 +273,9 @@ function handleContentArrayUpdate(task, updates, callerId, fields) {
               id: crypto.randomUUID(),
               userId: callerId,
               content: value.content,
-              lastUpdated: new Date(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              edited: false,
             },
           ]);
         }
@@ -278,7 +285,10 @@ function handleContentArrayUpdate(task, updates, callerId, fields) {
           {
             id: crypto.randomUUID(),
             userId: callerId,
-            description: updates.content,
+            content: updates.content,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            edited: false,
           },
         ]);
       }

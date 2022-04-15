@@ -160,7 +160,9 @@ export interface Proposal {
   userId: string;
   id: string;
   content: string;
-  lastUpdated?: ?Date;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  edited: boolean;
 }
 
 export interface Comment {
@@ -176,7 +178,9 @@ export interface SubmissionData {
   userId: string;
   id: string;
   content: Block[];
-  lastUpdated?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
+  edited: boolean;
 }
 
 export interface Contracts {
