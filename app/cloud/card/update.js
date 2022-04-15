@@ -115,8 +115,19 @@ function authorized(updates, task, callerId, space) {
     if (!isTaskAssignee(task, callerId))
       throw "Only assignee can add submission";
   }
+  if (updates.hasOwnProperty("comments")) {
+    if (
+      !(
+        isTaskCreator(task, callerId) ||
+        isTaskReviewer(task, callerId) ||
+        isTaskAssignee(task, callerId) ||
+        space.roles.hasOwnProperty(callerId)
+      )
+    )
+      throw "Only card creator, reviewer, assignee and space steward can add comments";
+  }
 
-  /*
+  /* TODO: Need to think about this
   if (updates.hasOwnProperty("assignee")) {
     if (
       !(
@@ -150,6 +161,12 @@ async function handleUpdates(updates, task, callerId) {
   task = handleIntegerUpdates(task, updates, integerUpdates);
   task = handleFloatUpdates(task, updates, floatUpdates);
   task = handleContentArrayUpdate(task, updates, callerId, contentArrayUpdates);
+  task = handleContentArrayMultiElementUpdate(
+    task,
+    updates,
+    callerId,
+    contentArrayMultiElementUpdates
+  );
   task = handleSelectedProposalUpdate(task, updates);
   handleColumnUpdate(task.get("boardId"), task.get("taskId"), updates, task);
   return task;
@@ -264,6 +281,75 @@ function handleContentArrayUpdate(task, updates, callerId, fields) {
             description: updates.content,
           },
         ]);
+      }
+    }
+  }
+
+  return task;
+}
+
+function handleContentArrayMultiElementUpdate(task, updates, callerId, fields) {
+  for (const [key, value] of Object.entries(updates)) {
+    logger.info(`value: ${JSON.stringify(value)}`);
+    if (fields.includes(key)) {
+      if (value.mode === "add") {
+        // User is creating new element
+        if (task.get(key)) {
+          task.set(key, [
+            ...task.get(key),
+            {
+              id: crypto.randomUUID(),
+              userId: callerId,
+              content: value.content,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              edited: false,
+            },
+          ]);
+        } else {
+          // This takes care of the case where the field is null or undefined (for smooth backward compatibility)
+          task.set(key, [
+            {
+              id: crypto.randomUUID(),
+              userId: callerId,
+              content: value.content,
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              edited: false,
+            },
+          ]);
+        }
+      } else if (value.mode === "edit") {
+        var existingIndex = task
+          .get(key)
+          .findIndex((obj) => obj.id === value.id && obj.userId === callerId);
+        if (existingIndex !== -1) {
+          // User has indeed created an element with the given id
+          const updatedObj = {
+            id: value.id,
+            userId: callerId,
+            content: value.content,
+            updatedAt: new Date(),
+            createdAt: task.get(key)[existingIndex].createdAt,
+            edited: true,
+          };
+          task.get(key).splice(existingIndex, 1);
+          task.set(key, [...task.get(key), updatedObj]);
+        } else {
+          // User has not created an element with the given id
+          throw "Resource not found or caller does not have permission to update it";
+        }
+      } else if (value.mode === "delete") {
+        var existingIndex = task
+          .get(key)
+          .findIndex((obj) => obj.id === value.id && obj.userId === callerId);
+        if (existingIndex !== -1) {
+          // User has indeed created an element with the given id
+          task.get(key).splice(existingIndex, 1);
+        } else {
+          // User has not created an element with the given id
+          throw "Resource not found or caller does not have permission to update it";
+        }
       }
     }
   }

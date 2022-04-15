@@ -8,12 +8,10 @@ export function useCardDynamism(task: Task) {
   const { user } = useMoralis();
   const [viewableComponents, setViewableComponents] = useState({} as any);
   const [editAbleComponents, setEditableComponents] = useState({} as any);
-  const [cannotEditReason, setCannotEditReason] = useState({} as any);
 
   useEffect(() => {
     setViewableComponents(getViewableComponents());
     setEditableComponents(getEditableComponents());
-    setCannotEditReason(getCannotEditReason());
   }, [task]);
 
   const getViewableComponents = () => {
@@ -26,6 +24,7 @@ export function useCardDynamism(task: Task) {
       assignee: isAssigneeViewable(),
       reviewer: true,
       assignToMe: isAssignToMeViewable(),
+      addComment: isSpaceSteward() || isCardStakeholder(),
     };
   };
 
@@ -41,20 +40,6 @@ export function useCardDynamism(task: Task) {
       reviewer: editable,
       column: isCardSteward(),
       assignee: isAssigneeEditable(),
-    };
-  };
-
-  const getCannotEditReason = () => {
-    return {
-      title: getReason("title"),
-      description: getReason("description"),
-      label: getReason("label"),
-      type: getReason("type"),
-      dueDate: getReason("dueDate"),
-      reward: getReason("reward"),
-      reviewer: getReason("reviewer"),
-      column: getReason("column"),
-      assignee: getReason("assignee"),
     };
   };
 

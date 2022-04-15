@@ -146,6 +146,7 @@ export interface Task {
   selectedProposals: Array<string>;
   updates: Array<object>;
   columnId: string;
+  comments: Array<Comment>;
 }
 
 export interface Submission {
@@ -160,6 +161,15 @@ export interface Proposal {
   id: string;
   content: string;
   lastUpdated?: ?Date;
+}
+
+export interface Comment {
+  userId: string;
+  id: string;
+  content: Block[];
+  createdAt: Date;
+  updatedAt: Date;
+  edited: boolean;
 }
 
 export interface SubmissionData {

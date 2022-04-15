@@ -35,15 +35,20 @@ export function formatTimeLeft(date: Date) {
   return msToTime(deadline.getTime() - now);
 }
 
+export function formatTimeCreated(date: Date) {
+  const now = Date.now();
+  return msToTime(now - new Date(date).getTime());
+}
+
 function msToTime(ms: number) {
   let seconds = parseInt((ms / 1000).toFixed(0));
   let minutes = parseInt((ms / (1000 * 60)).toFixed(0));
   let hours = parseInt((ms / (1000 * 60 * 60)).toFixed(0));
   let days = (ms / (1000 * 60 * 60 * 24)).toFixed(0);
   if (seconds < 0) return "Expired";
-  else if (seconds < 60) return seconds + " Sec";
-  else if (minutes < 60) return minutes + " Min";
-  else if (hours < 24) return hours + " Hrs";
+  else if (seconds < 60) return seconds + " sec";
+  else if (minutes < 60) return minutes + `${minutes === 1 ? " min" : " mins"}`;
+  else if (hours < 24) return hours + `${hours > 1 ? " hours" : " hour"}`;
   else return days + " Days";
 }
 

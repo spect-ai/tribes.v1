@@ -6,6 +6,7 @@ import Proposals from "./content/proposals";
 import Submission from "./content/submission";
 import Activity from "./content/activity";
 import { useMoralis } from "react-moralis";
+import Comments from "./content/comments";
 
 type Props = {
   task: Task;
@@ -55,6 +56,9 @@ const TabularDetails = ({ task, setTask }: Props) => {
         <Submission task={task} setTask={setTask} />
       )}
       {tabs[tabIdx] === "Activity" && <Activity task={task} />}
+      {tabs[tabIdx] === "Comments" && (
+        <Comments task={task} setTask={setTask} />
+      )}
     </>
   );
 };

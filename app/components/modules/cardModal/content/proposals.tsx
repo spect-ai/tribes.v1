@@ -186,7 +186,7 @@ const Proposals = ({ task, setTask }: Props) => {
               }}
             >
               <Avatar
-                sx={{ p: 0, mr: 4, width: 32, height: 32 }}
+                sx={{ p: 0, mr: 2, width: 32, height: 32 }}
                 src={`https://cdn.discordapp.com/avatars/${
                   space.memberDetails[proposal.userId]?.discordId
                 }/${space.memberDetails[proposal.userId]?.avatar}.png`}
