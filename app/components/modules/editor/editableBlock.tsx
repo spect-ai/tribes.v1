@@ -12,7 +12,14 @@ import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import TagSelectorMenu from "../tagSelectorMenu";
 import { useMoralis } from "react-moralis";
 // import { ReactTinyLink } from "react-tiny-link";
-import { Divider, TextField, Typography } from "@mui/material";
+import {
+  Backdrop,
+  Box,
+  CircularProgress,
+  Divider,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { PrimaryButton } from "../../elements/styledComponents";
 import { ErrorBoundary } from "react-error-boundary";
 import SimpleErrorBoundary from "../../elements/simpleErrorBoundary";
@@ -70,6 +77,9 @@ const EditableBlock = ({
   const fileInputRef = React.createRef<HTMLInputElement>();
 
   const { Moralis } = useMoralis();
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  const [click, setClick] = useState(false);
 
   useEffect(() => {
     // setHtml(block.html);
@@ -97,6 +107,20 @@ const EditableBlock = ({
       false
     );
   }, [tag, embedUrl, imageUrl]);
+
+  // const onMouseDownHandler = (e: any) => setClick(true);
+
+  // const onMouseMoveHandler = (e: any) => {
+  //   if (click) {
+  //     console.log("....... click");
+  //     setDisabled(true);
+  //   }
+  // };
+
+  // const onMouseUpHandler = (e: any) => {
+  //   setDisabled(false);
+  //   setClick(false);
+  // };
 
   const onKeyUpHandler = (e: any) => {
     if (e.key === "/") {
@@ -163,12 +187,11 @@ const EditableBlock = ({
 
   const handleFocus = () => {
     // If a placeholder is set, we remove it when the block gets focused
+    setIsTyping(true);
+    console.log("focus");
     if (placeholder) {
       setHtml("");
       setPlaceholder(false);
-      setIsTyping(true);
-    } else {
-      setIsTyping(true);
     }
   };
 
@@ -197,11 +220,13 @@ const EditableBlock = ({
 
   const handleImageUpload = async () => {
     if (fileInputRef.current && fileInputRef.current?.files) {
+      setIsUploadingImage(true);
       // const pageId = this.props.pageId;
       const imageFile = fileInputRef.current?.files[0];
       const file = new Moralis.File(imageFile.name, imageFile);
       await file.saveIPFS();
       setImageUrl((file as any).ipfs());
+      setIsUploadingImage(false);
     }
   };
 
@@ -306,6 +331,27 @@ const EditableBlock = ({
 
   return (
     <>
+      <Backdrop
+        sx={{
+          color: "#eaeaea",
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+        }}
+        open={isUploadingImage}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <CircularProgress color="inherit" />
+          <Typography sx={{ mt: 2, mb: 1, color: "#eaeaea" }}>
+            {"Uploading image please wait...."}
+          </Typography>
+        </Box>
+      </Backdrop>
       {isActionMenuOpen && (
         <BlockActionMenu
           position={actionMenuPosition}
@@ -354,7 +400,7 @@ const EditableBlock = ({
                 <ContentEditable
                   data-position={position}
                   data-tag={tag}
-                  disabled={readOnly}
+                  disabled={disabled}
                   className={[
                     styles.block,
                     placeholder ? styles.placeholder : null,
@@ -372,6 +418,9 @@ const EditableBlock = ({
                   onKeyUp={onKeyUpHandler}
                   onFocus={handleFocus}
                   onBlur={handleBlur}
+                  // onMouseDown={onMouseDownHandler}
+                  // onMouseUp={onMouseUpHandler}
+                  // onMouseMove={onMouseMoveHandler}
                 />
               )}
               {tag === "img" && (

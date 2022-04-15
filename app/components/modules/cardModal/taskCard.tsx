@@ -1,12 +1,11 @@
 import styled from "@emotion/styled";
 import CloseIcon from "@mui/icons-material/Close";
 import { Box, IconButton, InputBase } from "@mui/material";
-import dynamic from "next/dynamic";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { Column, Task } from "../../../types";
+import { Task } from "../../../types";
 import Editor from "../editor";
 import { notify } from "../settingsTab";
 import CardTypePopover from "./popovers/cardTypePopover";

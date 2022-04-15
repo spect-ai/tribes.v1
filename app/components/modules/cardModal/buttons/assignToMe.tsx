@@ -63,6 +63,7 @@ const AssignToMe = ({ task, setTask }: Props) => {
               minWidth: "3rem",
             }}
             startIcon={<HailIcon sx={{ my: 2, ml: 2 }} />}
+            size="small"
           >
             <Typography
               sx={{

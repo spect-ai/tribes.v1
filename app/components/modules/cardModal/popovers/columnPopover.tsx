@@ -68,7 +68,6 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
   };
 
   useEffect(() => {
-    console.log(column);
     if (column) {
       setCurrStatus(column.id);
       setStatus(column.id);
