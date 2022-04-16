@@ -39,25 +39,24 @@ export function useActivityMap() {
   };
 
   const generateActivityLine = (update: any) => {
-    console.log(update);
     switch (update.action) {
       case 99:
         return `${
-          space.memberDetails[update.actor].username
+          space.memberDetails[update.actor]?.username
         } changed the card type from "${update.changeLog?.prev}" to "${
           update.changeLog?.next
         }"`;
       case 100:
         return `${
-          space.memberDetails[update.actor].username
+          space.memberDetails[update.actor]?.username
         } created card of type "${update?.changeLog?.next}"`;
       case 101:
         return `${
-          space.memberDetails[update.actor].username
+          space.memberDetails[update.actor]?.username
         } updated due date to ${update.deadline}`;
       case 102:
         return `${
-          space.memberDetails[update.actor].username
+          space.memberDetails[update.actor]?.username
         } updated tags to "${update.changeLog?.next?.join(", ")}"`;
       case 104:
         `${space.memberDetails[update.actor].username} updated reward to ${
@@ -71,7 +70,7 @@ export function useActivityMap() {
           update?.changeLog?.next?.length > 0
         )
           return `${
-            space.memberDetails[update.actor].username
+            space.memberDetails[update.actor]?.username
           } changed assignee from ${
             space.memberDetails[update?.changeLog?.prev[0]]?.username
           }
@@ -81,23 +80,23 @@ export function useActivityMap() {
           update?.changeLog?.next?.length === 0
         )
           return `${
-            space.memberDetails[update.actor].username
+            space.memberDetails[update.actor]?.username
           } removed assignee`;
         else if (
           !update?.changeLog?.prev ||
           update?.changeLog?.prev?.length === 0
         )
           return `${
-            space.memberDetails[update.actor].username
+            space.memberDetails[update.actor]?.username
           } assigned card to ${
             space.memberDetails[update?.changeLog?.next[0]]?.username
           }`;
       case 106:
         return `${
-          space.memberDetails[update.actor].username
+          space.memberDetails[update.actor]?.username
         } updated reviewer `;
       case 150:
-        return `${space.memberDetails[update.actor].username} applied to ${
+        return `${space.memberDetails[update.actor]?.username} applied to ${
           update.taskType
         }`;
       case 151:
@@ -105,31 +104,31 @@ export function useActivityMap() {
           space.memberDetails[update.actor].username
         } updated application to ${update.taskType}`;
       case 152:
-        return `${space.memberDetails[update.actor].username} picked ${
+        return `${space.memberDetails[update.actor]?.username} picked ${
           update.selectedApplicant
         }'s application to ${update.taskType}`;
       case 200:
         return `${
-          space.memberDetails[update.actor].username
+          space.memberDetails[update.actor]?.username
         } asked for a review`;
       case 201:
         return `${
-          space.memberDetails[update.actor].username
+          space.memberDetails[update.actor]?.username
         } asked for a revision`;
       case 202:
-        return `${space.memberDetails[update.actor].username} added comments`;
+        return `${space.memberDetails[update.actor]?.username} added comments`;
       case 205:
-        return `${space.memberDetails[update.actor].username} closed ${
+        return `${space.memberDetails[update.actor]?.username} closed ${
           update.taskType
         }`;
       case 300:
-        return `${space.memberDetails[update.actor].username} paid for the ${
+        return `${space.memberDetails[update.actor]?.username} paid for the ${
           update.taskType
         }`;
       case 301:
-        return `${space.memberDetails[update.actor].username} added feedback`;
+        return `${space.memberDetails[update.actor]?.username} added feedback`;
       case 400:
-        return `${space.memberDetails[update.actor].username} moved ${
+        return `${space.memberDetails[update.actor]?.username} moved ${
           update.taskType
         } from "${space.columns[update.columnChange?.sourceId]?.title}" to "${
           space.columns[update.columnChange?.destinationId]?.title

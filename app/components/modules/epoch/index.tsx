@@ -362,87 +362,88 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                             {epoch.type === "Member" ? (
                               <PayoutContributors epoch={epoch} />
                             ) : (
-                              <Box sx={{ alignItems: "center" }}>
-                                <Typography variant="body2">
-                                  Move cards that passed to
-                                </Typography>
-                                <Autocomplete
-                                  options={space.columnOrder}
-                                  getOptionLabel={(option) =>
-                                    option && space.columns[option].title
-                                  }
-                                  value={passColumn}
-                                  onChange={(event, newValue) => {
-                                    setPassColumn(newValue as string);
-                                  }}
-                                  renderInput={(params) => (
-                                    <TextField
-                                      {...params}
-                                      id="filled-hidden-label-normal"
-                                      placeholder="Column"
-                                      size="small"
-                                      margin="dense"
-                                    />
-                                  )}
-                                />
-                                <Typography variant="body2">
-                                  {`Move cards that didn't pass to`}
-                                </Typography>
-                                <Autocomplete
-                                  options={space.columnOrder}
-                                  getOptionLabel={(option) =>
-                                    option && space.columns[option].title
-                                  }
-                                  value={noPassColumn}
-                                  onChange={(event, newValue) => {
-                                    setNoPassColumn(newValue as string);
-                                  }}
-                                  renderInput={(params) => (
-                                    <TextField
-                                      {...params}
-                                      id="filled-hidden-label-normal"
-                                      placeholder="Column"
-                                      size="small"
-                                      margin="dense"
-                                    />
-                                  )}
-                                />
-                                <PrimaryButton
-                                  endIcon={<PaidIcon />}
-                                  color="secondary"
-                                  variant="outlined"
-                                  sx={{
-                                    mx: 4,
-                                    mt: 4,
-                                    ml: 8,
-                                    borderRadius: 1,
-                                  }}
-                                  size="small"
-                                  onClick={() => {
-                                    setIsLoading(true);
-                                    moveCards(
-                                      Moralis,
-                                      epoch.objectId,
-                                      passColumn,
-                                      noPassColumn
-                                    )
-                                      .then((res: any) => {
-                                        setSpace(res);
-                                        handleTabChange({} as any, 0);
-                                        setIsLoading(false);
-                                      })
-                                      .catch((err: any) => {
-                                        notify(
-                                          "Sorry! There was an error while moving cards.",
-                                          "error"
-                                        );
-                                        setIsLoading(false);
-                                      });
-                                  }}
-                                >
-                                  Move cards
-                                </PrimaryButton>
-                              </Box>
+                              <div></div>
+                              // <Box sx={{ alignItems: "center" }}>
+                              //   <Typography variant="body2">
+                              //     Move cards that passed to
+                              //   </Typography>
+                              //   <Autocomplete
+                              //     options={space.columnOrder}
+                              //     getOptionLabel={(option) =>
+                              //       option && space.columns[option].title
+                              //     }
+                              //     value={passColumn}
+                              //     onChange={(event, newValue) => {
+                              //       setPassColumn(newValue as string);
+                              //     }}
+                              //     renderInput={(params) => (
+                              //       <TextField
+                              //         {...params}
+                              //         id="filled-hidden-label-normal"
+                              //         placeholder="Column"
+                              //         size="small"
+                              //         margin="dense"
+                              //       />
+                              //     )}
+                              //   />
+                              //   <Typography variant="body2">
+                              //     {`Move cards that didn't pass to`}
+                              //   </Typography>
+                              //   <Autocomplete
+                              //     options={space.columnOrder}
+                              //     getOptionLabel={(option) =>
+                              //       option && space.columns[option].title
+                              //     }
+                              //     value={noPassColumn}
+                              //     onChange={(event, newValue) => {
+                              //       setNoPassColumn(newValue as string);
+                              //     }}
+                              //     renderInput={(params) => (
+                              //       <TextField
+                              //         {...params}
+                              //         id="filled-hidden-label-normal"
+                              //         placeholder="Column"
+                              //         size="small"
+                              //         margin="dense"
+                              //       />
+                              //     )}
+                              //   />
+                              //   <PrimaryButton
+                              //     endIcon={<PaidIcon />}
+                              //     color="secondary"
+                              //     variant="outlined"
+                              //     sx={{
+                              //       mx: 4,
+                              //       mt: 4,
+                              //       ml: 8,
+                              //       borderRadius: 1,
+                              //     }}
+                              //     size="small"
+                              //     onClick={() => {
+                              //       setIsLoading(true);
+                              //       moveCards(
+                              //         Moralis,
+                              //         epoch.objectId,
+                              //         passColumn,
+                              //         noPassColumn
+                              //       )
+                              //         .then((res: any) => {
+                              //           setSpace(res);
+                              //           handleTabChange({} as any, 0);
+                              //           setIsLoading(false);
+                              //         })
+                              //         .catch((err: any) => {
+                              //           notify(
+                              //             "Sorry! There was an error while moving cards.",
+                              //             "error"
+                              //           );
+                              //           setIsLoading(false);
+                              //         });
+                              //     }}
+                              //   >
+                              //     Move cards
+                              //   </PrimaryButton>
+                              // </Box>
                             )}
                             {epoch.type === "Member" && (
                               <CsvExport epoch={epoch} />

@@ -78,7 +78,7 @@ const ModalContainer = styled(Box)(({ theme }) => ({
   boxShadow: 24,
   overflowY: "auto",
   overflowX: "hidden",
-  height: "33rem",
+  height: "35rem",
   padding: "1.5rem 3rem",
 }));
 

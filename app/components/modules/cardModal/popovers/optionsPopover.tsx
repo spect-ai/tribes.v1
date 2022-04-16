@@ -19,6 +19,7 @@ import { Task } from "../../../../types";
 import PayButton from "../buttons/payButton";
 import { useCardDynamism } from "../../../../hooks/useCardDynamism";
 import { notify } from "../../settingsTab";
+import IosShareIcon from "@mui/icons-material/IosShare";
 
 type Props = {
   task: Task;
@@ -108,6 +109,16 @@ const OptionsPopover = ({ task, setTask }: Props) => {
           component="nav"
           aria-labelledby="nested-list-subheader"
         >
+          <ListItemButton
+            onClick={() => {
+              const link = `${window.location.href}?taskId=${task.taskId}`;
+              navigator.clipboard.writeText(link);
+              notify("Task Link copied");
+            }}
+          >
+            <IosShareIcon sx={{ width: "2rem", mr: 2 }} />
+            <ListItemText primary="Share Task" />
+          </ListItemButton>
           <PayButton task={task} setTask={setTask} handleClose={handleClose} />
 
           {viewableComponents["proposalGate"] && (

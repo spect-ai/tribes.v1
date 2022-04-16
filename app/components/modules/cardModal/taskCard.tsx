@@ -19,7 +19,6 @@ import TabularDetails from "./tabularDetails";
 import { Block } from "../../../types";
 import { uid } from "../../../utils/utils";
 import { useCardDynamism } from "../../../hooks/useCardDynamism";
-import IosShareIcon from "@mui/icons-material/IosShare";
 import AssignToMe from "./buttons/assignToMe";
 
 type Props = {
@@ -100,16 +99,7 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
         />
         <Box sx={{ flex: "1 1 auto" }} />
         <AssignToMe task={task} setTask={setTask} />
-        <IconButton
-          sx={{ m: 0, px: 2.5 }}
-          onClick={() => {
-            const link = `${window.location.href}?taskId=${task.taskId}`;
-            navigator.clipboard.writeText(link);
-            notify("Task Link copied");
-          }}
-        >
-          <IosShareIcon fontSize="small" />
-        </IconButton>
+
         {viewableComponents["optionPopover"] && (
           <OptionsPopover task={task} setTask={setTask} />
         )}

@@ -127,25 +127,6 @@ const Column = ({ tasks, id, column, index }: Props) => {
                     <IconButton
                       sx={{ mb: 0.5, p: 1 }}
                       size="small"
-                      onClick={() => setIsOpen(true)}
-                      disabled={space.roles[user?.id as string] !== 3}
-                    >
-                      <SettingsIcon fontSize="small" />
-                    </IconButton>
-                  </TaskTitleContainer>
-                  <Box sx={{ display: "flex", flexDirection: "row" }}>
-                    <Button
-                      sx={{
-                        textTransform: "none",
-                        textAlign: "center",
-                        alignItems: "center",
-                        color: palette.text.primary,
-                        mx: 1,
-                        mb: 1,
-                      }}
-                      variant="contained"
-                      disableElevation
-                      startIcon={<AddIcon />}
                       onClick={() => {
                         if (
                           !column.createCard[space.roles[user?.id as string]] &&
@@ -171,8 +152,20 @@ const Column = ({ tasks, id, column, index }: Props) => {
                           // setShowCreateTask(false);
                         });
                       }}
-                      fullWidth
-                    ></Button>
+                      disabled={space.roles[user?.id as string] !== 3}
+                    >
+                      <AddIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      sx={{ mb: 0.5, p: 1 }}
+                      size="small"
+                      onClick={() => setIsOpen(true)}
+                      disabled={space.roles[user?.id as string] !== 3}
+                    >
+                      <SettingsIcon fontSize="small" />
+                    </IconButton>
+                  </TaskTitleContainer>
+                  <Box sx={{ display: "flex", flexDirection: "row" }}>
                     {/* <Button
                         sx={{
                           textTransform: "none",

@@ -26,6 +26,7 @@ import SimpleErrorBoundary from "../../elements/simpleErrorBoundary";
 import dynamic from "next/dynamic";
 import { Block } from "../../../types";
 import BlockActionMenu from "../blockActionMenu";
+import { notify } from "../settingsTab";
 
 let ReactTinyLink: any = dynamic(
   () => import("react-tiny-link").then((mod) => mod.ReactTinyLink),
@@ -82,11 +83,6 @@ const EditableBlock = ({
   const [click, setClick] = useState(false);
 
   useEffect(() => {
-    // setHtml(block.html);
-    // setTag(block.tag);
-    // setImageUrl(block.imageUrl);
-    // setEmbedUrl(block.embedUrl);
-    // setType(block.type);
     const hasPlaceholder = addPlaceholder({
       block: contentEditableRef.current,
       position: position,
@@ -106,7 +102,21 @@ const EditableBlock = ({
       },
       false
     );
-  }, [tag, embedUrl, imageUrl]);
+  }, [tag]);
+
+  useEffect(() => {
+    updateBlock(
+      {
+        html,
+        tag,
+        id,
+        type: type as string,
+        imageUrl,
+        embedUrl,
+      },
+      true
+    );
+  }, [embedUrl, imageUrl]);
 
   // const onMouseDownHandler = (e: any) => setClick(true);
 
@@ -388,6 +398,7 @@ const EditableBlock = ({
                 className={styles.dragHandle}
                 onClick={(e) => {
                   if (readOnly) {
+                    notify("You can't edit this block", "error");
                     return;
                   }
                   openActionMenu(e.target, "DRAG_HANDLE_CLICK");
@@ -400,7 +411,7 @@ const EditableBlock = ({
                 <ContentEditable
                   data-position={position}
                   data-tag={tag}
-                  disabled={disabled}
+                  disabled={readOnly}
                   className={[
                     styles.block,
                     placeholder ? styles.placeholder : null,

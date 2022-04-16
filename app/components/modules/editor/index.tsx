@@ -159,7 +159,7 @@ const Editor = ({
 
 const Container = styled.div`
   margin-top: 1.5rem;
-  margin-bottom: 2.5rem;
+  min-height: 8rem;
 `;
 
 export default Editor;

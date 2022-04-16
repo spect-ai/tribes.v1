@@ -20,6 +20,7 @@ Moralis.Cloud.define("getTask", async (request) => {
       if (!canReadSpace) throw "You dont have access to view this space";
 
       task = addFieldsToTask(task, request.user?.id);
+      task.activity.reverse();
 
       return task;
     }
