@@ -9,6 +9,7 @@ import Members from "../spaceMembers";
 import NoAccess from "../epoch/noAccess";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import DiscordIntegrationModal from "../discordIntegrationModal";
+import TaskFilter from "../tasksFilter";
 
 type Props = {};
 
@@ -55,6 +56,7 @@ const TaskBoard = (props: Props) => {
         {tab === 0 && (
           <Grow in={tab === 0} timeout={500}>
             <div>
+              <TaskFilter />
               <Board
                 expanded={panelExpanded === "board"}
                 handleChange={handleChange}

@@ -38,6 +38,7 @@ interface SpaceContextType {
 
 const SpaceContext = createContext<SpaceContextType>({} as SpaceContextType);
 console.log("starting space page", new Date());
+
 const SpacePage: NextPage<Props> = (props: Props) => {
   const { Moralis, isInitialized, user } = useMoralis();
   const context = useProviderSpace();
@@ -58,6 +59,8 @@ const SpacePage: NextPage<Props> = (props: Props) => {
     setIsLoading(true);
     if (!loading && bid) {
       runMoralisFunction("getSpace", { boardId: bid }).then((res) => {
+        console.log("Tasks: ", res.tasks);
+        console.log("Member Details: ", res.memberDetails);
         setSpace(res);
         setIsLoading(false);
       });
