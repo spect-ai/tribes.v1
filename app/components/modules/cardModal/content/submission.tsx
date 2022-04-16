@@ -1,5 +1,5 @@
 import CircleIcon from "@mui/icons-material/Circle";
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
@@ -12,6 +12,8 @@ import VisibilityIcon from "@mui/icons-material/Visibility";
 import DoneIcon from "@mui/icons-material/Done";
 import StarHalfIcon from "@mui/icons-material/StarHalf";
 import { notify } from "../../settingsTab";
+import { useAccess } from "../../../../hooks/useAccess";
+import { useCardStatus } from "../../../../hooks/useCardStatus";
 
 type Props = {
   task: Task;
@@ -23,9 +25,14 @@ const Submission = ({ task, setTask }: Props) => {
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
   const { user } = useMoralis();
+  const { isCardSteward, isCardAssignee } = useAccess(task);
+  const { isAssigned, isInReview, isInRevision, isClosed, isPaid } =
+    useCardStatus(task);
+  const [feedback, setFeedback] = useState("");
 
   const syncBlocksToMoralis = (blocks: Block[]) => {
     // console.log({ blocks });
+    setFeedback("Saving draft");
     runMoralisFunction("updateCard", {
       updates: {
         submissions: {
@@ -38,9 +45,11 @@ const Submission = ({ task, setTask }: Props) => {
         console.log(res);
         setSpace(res.space);
         setTask(res.task);
+        setFeedback("Saved draft");
       })
-      .catch((res) => {
-        console.log(res);
+      .catch((err) => {
+        setFeedback("Failed to save draft");
+        console.log(err);
       });
   };
 
@@ -99,7 +108,9 @@ const Submission = ({ task, setTask }: Props) => {
 
   return (
     <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
-      {
+      {((isCardSteward() &&
+        (isInReview() || isInRevision() || isClosed() || isPaid())) ||
+        isCardAssignee()) && (
         <Editor
           syncBlocksToMoralis={syncBlocksToMoralis}
           initialBlock={
@@ -117,11 +128,33 @@ const Submission = ({ task, setTask }: Props) => {
                 ]
           }
           placeholderText={`Add submission, press "/" for commands`}
+          readonly={
+            (isCardSteward() as boolean) ||
+            (isClosed() as boolean) ||
+            (isPaid() as boolean)
+          }
         />
-      }
+      )}
+      {isInRevision() && (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            mt: 4,
+            alignItems: "center",
+          }}
+        >
+          <StarHalfIcon
+            sx={{ display: "flex", alignItems: "center", width: "20px" }}
+          />
+          <Typography variant="body2" sx={{ ml: 2, alignItems: "center" }}>
+            Submission is in Revision
+          </Typography>
+        </Box>
+      )}
       {
         //Assignee view
-        task.assignee?.includes(user?.id as string) && (
+        isCardAssignee() && (isInRevision() || isAssigned()) && (
           <Box sx={{ display: "flex", flexDirection: "row", mt: 4 }}>
             <PrimaryButton
               variant="outlined"
@@ -144,9 +177,27 @@ const Submission = ({ task, setTask }: Props) => {
           </Box>
         )
       }
+
+      {isCardAssignee() && isInReview() && (
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            mt: 4,
+            alignItems: "center",
+          }}
+        >
+          <VisibilityIcon
+            sx={{ display: "flex", alignItems: "center", width: "20px" }}
+          />
+          <Typography variant="body2" sx={{ ml: 2, alignItems: "center" }}>
+            Submission is in Review
+          </Typography>
+        </Box>
+      )}
       {
         //Reviewer view
-        task.reviewer?.includes(user?.id as string) && (
+        isCardSteward() && isInReview() && (
           <Box sx={{ display: "flex", flexDirection: "row", mt: 4 }}>
             <PrimaryButton
               variant="outlined"
@@ -161,7 +212,6 @@ const Submission = ({ task, setTask }: Props) => {
               size="small"
               loading={isLoading}
               onClick={handleDone}
-              disabled={task.status !== 200}
               startIcon={<DoneIcon />}
             >
               Looks good!
@@ -179,7 +229,6 @@ const Submission = ({ task, setTask }: Props) => {
               size="small"
               loading={isLoading}
               onClick={handleRevision}
-              disabled={task.status !== 200}
               startIcon={<StarHalfIcon />}
             >
               Needs some work
@@ -187,6 +236,13 @@ const Submission = ({ task, setTask }: Props) => {
           </Box>
         )
       }
+      {isCardSteward() && isAssigned() && (
+        <Box sx={{ display: "flex", flexDirection: "row", mt: 4 }}>
+          <Typography variant="body1" sx={{ mr: 4 }}>
+            No submissions yet
+          </Typography>
+        </Box>
+      )}
     </Box>
   );
 };

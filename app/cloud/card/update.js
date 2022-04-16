@@ -324,7 +324,7 @@ function handleContentArrayUpdate(task, updates, callerId, fields) {
           {
             id: crypto.randomUUID(),
             userId: callerId,
-            content: updates.content,
+            content: value.content,
             createdAt: new Date(),
             updatedAt: new Date(),
             edited: false,
@@ -458,7 +458,7 @@ function handleActivityUpdate(task, updates, property, callerId) {
 function determineLogFieldForStatusActivityUpdate(status) {
   status === 105
     ? "assignee"
-    : status === 200 || status === 201 || 205
+    : status === 200 || status === 201 || status === 205
     ? "submission"
     : status === 300
     ? "transactionHash"

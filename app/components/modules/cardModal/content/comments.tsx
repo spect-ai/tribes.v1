@@ -74,28 +74,6 @@ const Comments = ({ task, setTask }: Props) => {
   const syncBlocksToMoralis = (blocks: Block[]) => {
     setIsLoading(true);
     const temp = Object.assign({}, task);
-    if (mode === "add") {
-      temp.comments = [
-        ...(temp.comments as any),
-        {
-          id: uid(),
-          content: blocks,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          userId: user?.id,
-          edited: false,
-        },
-      ];
-    } else if (mode === "edit") {
-      temp.comments = temp.comments.map((comment) => {
-        if (comment.id === editId) {
-          comment.content = blocks;
-          comment.updatedAt = new Date();
-          comment.edited = true;
-        }
-        return comment;
-      });
-    }
     setTask(temp);
     runMoralisFunction("updateCard", {
       updates: {

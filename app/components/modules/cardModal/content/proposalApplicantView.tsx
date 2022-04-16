@@ -17,7 +17,7 @@ import { PrimaryButton } from "../../../elements/styledComponents";
 import { notify } from "../../settingsTab";
 import { uid, formatTimeCreated } from "../../../../utils/utils";
 import { useProfileInfo } from "../../../../hooks/useProfileInfo";
-
+import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
@@ -169,7 +169,7 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
             disableUnderline: true, // <== added this
           }}
         />
-        {editMode && (
+        {editMode && task.assignee?.length === 0 && (
           <PrimaryButton
             variant="outlined"
             sx={{
@@ -192,7 +192,7 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
             Apply
           </PrimaryButton>
         )}
-        {!editMode && (
+        {!editMode && task.assignee?.length === 0 && (
           <PrimaryButton
             variant="outlined"
             sx={{
@@ -211,6 +211,45 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
             Edit
           </PrimaryButton>
         )}
+        {task.assignee?.length > 0 &&
+          user &&
+          task.assignee?.includes(user?.id) && (
+            <>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "start",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography sx={{ color: "success.main" }}>
+                    Congrats
+                  </Typography>
+                  <ThumbUpOffAltIcon
+                    sx={{
+                      color: "success.main",
+                      ml: 2,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  />
+                </Box>
+
+                <Typography sx={{ color: "text.primary" }}>
+                  Your application was picked. You have been assigned to this
+                  bounty.
+                </Typography>
+              </Box>
+            </>
+          )}
       </Box>
     </Box>
   );

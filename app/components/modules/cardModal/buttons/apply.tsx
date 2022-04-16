@@ -16,7 +16,6 @@ const Apply = ({ task, setTask }: Props) => {
     useCardDynamism(task);
   const { user } = useMoralis();
   const [buttonText, setButtonText] = useState("Apply");
-  console.log(proposalEditMode);
   const handleClick = () => {
     console.log(`aalal`);
     const temp = Object.assign({}, task);

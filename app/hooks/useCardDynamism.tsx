@@ -134,7 +134,7 @@ export function useCardDynamism(task: Task) {
     } else if (task.type === "Bounty") {
       // No assignee yet
       if (task.status === 100) {
-        if (task.access?.reviewer) {
+        if (isCardSteward()) {
           return ["Applicants", "Activity"];
         } else if (task.proposals?.length > 0 || proposalEditMode) {
           return ["Application", "Activity"];
@@ -142,9 +142,11 @@ export function useCardDynamism(task: Task) {
           return ["Activity"]; // Only return application tab if there are any
         }
       } else {
-        return task.submissions?.length > 0
-          ? ["Submissions", "Activity", "Applicants"]
-          : ["Applicants", "Activity", "Submissions"]; // If submission exists, move submission tab to the front
+        if (isCardSteward()) {
+          return ["Submissions", "Activity", "Applicants"];
+        } else {
+          return ["Submissions", "Activity", "Application"];
+        }
       }
     } else return [];
   };
@@ -157,32 +159,6 @@ export function useCardDynamism(task: Task) {
       return task.status === 100 && task.proposals?.length === 0;
     } else {
       return false;
-    }
-  };
-
-  const getProposalView = () => {
-    if (
-      task?.access?.creator ||
-      task?.access?.reviewer ||
-      (user?.id && space.roles[user?.id] === 3)
-    ) {
-      if ([400].includes(task?.status)) {
-        return "stewardView";
-      } else {
-        return "pick";
-      }
-    } else if (task?.access?.applicant) {
-      if ([400].includes(task?.status)) {
-        return "applicantView";
-      } else {
-        return "apply";
-      }
-    } else {
-      if ([400].includes(task?.status)) {
-        return "generalView";
-      } else {
-        return "generalApply";
-      }
     }
   };
 
