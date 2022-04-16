@@ -51,6 +51,7 @@ const updatePropertyActivityMap = {
   tags: 102,
   reward: 104,
   submission: 200,
+  deadline: 101,
   status: {
     //
     created: 100,
@@ -70,18 +71,27 @@ Moralis.Cloud.define("updateCard", async (request) => {
     if (!request.params.updates?.taskId) throw "Payload must contain taskId";
 
     var task = await getTaskByTaskId(request.params.updates?.taskId);
-    const space = await getSpace(task.get("boardId"), request.user.id);
+    var space = await getBoardByObjectId(task.get("boardId"));
 
     validate(request.params.updates, task, request.user.id, space);
-    task = await handleUpdates(request.params.updates, task, request.user.id);
-    const res = await Moralis.Object.saveAll(task, { useMasterKey: true });
+    [space, task] = await handleUpdates(
+      request.params.updates,
+      task,
+      space,
+      request.user.id
+    );
+    logger.info(`Updating card ${task.get("taskId")} and space ${space.id}`);
+    const res = await Moralis.Object.saveAll([space, task], {
+      useMasterKey: true,
+    });
+    logger.info(`res: ${JSON.stringify(res)}`);
     return {
       space: await getSpace(task.get("boardId"), request.user.id),
-      task: addFieldsToTask(mapParseObjectToObject(res), request.user.id),
+      task: addFieldsToTask(mapParseObjectToObject(res[1]), request.user.id),
     };
   } catch (err) {
     logger.error(
-      `Error while updating task status with task Id ${request.params.updates?.taskId}: ${err}`
+      `Error while updating card with card Id ${request.params.updates?.taskId}: ${err}`
     );
     throw `${err}`;
   }
@@ -106,7 +116,8 @@ function authorized(updates, task, callerId, space) {
       !(
         isTaskCreator(task, callerId) ||
         isTaskReviewer(task, callerId) ||
-        (space.roles[callerId] && space.roles[callerId] === 3)
+        (space.get("roles").hasOwnProperty(callerId) &&
+          space.get("roles")[callerId] === 3)
       )
     )
       throw "Only card creator, reviewer and space steward can update card info";
@@ -121,7 +132,7 @@ function authorized(updates, task, callerId, space) {
         isTaskCreator(task, callerId) ||
         isTaskReviewer(task, callerId) ||
         isTaskAssignee(task, callerId) ||
-        space.roles.hasOwnProperty(callerId)
+        space.get("roles").hasOwnProperty(callerId)
       )
     )
       throw "Only card creator, reviewer, assignee and space steward can add comments";
@@ -134,33 +145,33 @@ function authorized(updates, task, callerId, space) {
         !(
           isTaskReviewer(task, callerId) ||
           isTaskCreator(task, callerId) ||
-          space.roles[callerId] === 3
+          space.get("roles")[callerId] === 3
         )
       )
         throw "Only card reviewer, creator and space steward can assign bounty";
       else if (
         task.type === "Task" &&
-        [1, 2, 3].includes(space.roles[callerId])
+        [1, 2, 3].includes(space.get("roles")[callerId])
       )
         throw "Only space member can assign task";
     } else if (updates.status === 200) {
       if (!isTaskAssignee(task, callerId))
-        throw "Only assignee can ask for a review";
+        throw "Only card assignee can ask for a review";
     } else if (updates.status === 201) {
       if (
         !(
           isTaskReviewer(task, callerId) ||
           isTaskCreator(task, callerId) ||
-          space.roles[callerId] === 3
+          space.get("roles")[callerId] === 3
         )
       )
-        throw "Only card creator, reviewer and space steward can ask for review";
+        throw "Only card creator, reviewer and space steward can ask for revision";
     } else if (updates.status === 205) {
       if (
         !(
           isTaskReviewer(task, callerId) ||
           isTaskCreator(task, callerId) ||
-          space.roles[callerId] === 3
+          space.get("roles")[callerId] === 3
         )
       )
         throw "Only card creator, reviewer and space steward can close card";
@@ -169,7 +180,7 @@ function authorized(updates, task, callerId, space) {
         !(
           isTaskReviewer(task, callerId) ||
           isTaskCreator(task, callerId) ||
-          space.roles[callerId] === 3
+          space.get("roles")[callerId] === 3
         )
       )
         throw "Only card creator, reviewer and space steward can set card as paid";
@@ -178,7 +189,7 @@ function authorized(updates, task, callerId, space) {
         !(
           isTaskReviewer(task, callerId) ||
           isTaskCreator(task, callerId) ||
-          space.roles[callerId] === 3
+          space.get("roles")[callerId] === 3
         )
       )
         throw "Only card creator, reviewer and space steward can archive card";
@@ -212,7 +223,7 @@ function validatePayload(updates, task) {
   }
 }
 
-async function handleUpdates(updates, task, callerId) {
+async function handleUpdates(updates, task, space, callerId) {
   task = handleActivityUpdates(task, updates, callerId);
   task = handleEasyFieldUpdates(task, updates, easyUpdates);
   task = handleDateUpdates(task, updates, dateUpdates);
@@ -225,8 +236,12 @@ async function handleUpdates(updates, task, callerId) {
     callerId,
     contentArrayMultiElementUpdates
   );
-  handleColumnUpdate(task.get("boardId"), task.get("taskId"), updates, task);
-  return task;
+  if (updates.hasOwnProperty("columnChange")) {
+    [space, task] = await handleColumnUpdate(space, task, updates);
+  } else {
+    [space, task] = await handleAutomation(task, updates, space);
+  }
+  return [space, task];
 }
 
 function removeTaskFromColumn(column, taskId) {
@@ -248,39 +263,39 @@ function addTaskToColumn(column, taskId) {
   };
 }
 
-async function handleColumnUpdate(boardId, taskId, updates, task) {
+async function handleColumnUpdate(space, task, updates) {
   if (updates.hasOwnProperty("columnChange")) {
     const sourceId = updates.columnChange.sourceId;
     const destinationId = updates.columnChange.destinationId;
-    const logger = Moralis.Cloud.getLogger();
-    try {
-      const board = await getBoardByObjectId(boardId);
+    logger.info(
+      `Handling column update for task ${space.id} ${task.get(
+        "taskId"
+      )} ${sourceId} ${destinationId}`
+    );
+    var columns = space.get("columns");
+    const newSource = removeTaskFromColumn(
+      columns[sourceId],
+      task.get("taskId")
+    );
+    logger.info(`newSource: ${JSON.stringify(newSource)}`);
 
-      logger.info(
-        `Handling column update for task ${boardId} ${taskId} ${sourceId} ${destinationId}`
-      );
-      var columns = board.get("columns");
-      const newSource = removeTaskFromColumn(columns[sourceId], taskId);
-      logger.info(`newSource: ${JSON.stringify(newSource)}`);
+    const newDestination = addTaskToColumn(
+      columns[destinationId],
+      task.get("taskId")
+    );
+    logger.info(`newDestination: ${JSON.stringify(newDestination)}`);
 
-      const newDestination = addTaskToColumn(columns[destinationId], taskId);
-      logger.info(`newDestination: ${JSON.stringify(newDestination)}`);
-
-      columns = {
-        ...columns,
-        [newSource.id]: newSource,
-        [newDestination.id]: newDestination,
-      };
-      logger.info(`columns: ${JSON.stringify(columns)}`);
-      board.set("columns", columns);
-      task.set("columnId", destinationId);
-      return await Moralis.Object.saveAll([board, task], {
-        useMasterKey: true,
-      });
-    } catch (err) {
-      throw `${err}`;
-    }
+    columns = {
+      ...columns,
+      [newSource.id]: newSource,
+      [newDestination.id]: newDestination,
+    };
+    logger.info(`columns: ${JSON.stringify(columns)}`);
+    space.set("columns", columns);
+    task.set("columnId", destinationId);
   }
+
+  return [space, task];
 }
 
 function handleContentArrayUpdate(task, updates, callerId, fields) {
@@ -339,7 +354,6 @@ function handleContentArrayUpdate(task, updates, callerId, fields) {
 
 function handleContentArrayMultiElementUpdate(task, updates, callerId, fields) {
   for (const [key, value] of Object.entries(updates)) {
-    logger.info(`value: ${JSON.stringify(value)}`);
     if (fields.includes(key)) {
       if (value.mode === "add") {
         // User is creating new element
@@ -466,8 +480,8 @@ function determineLogFieldForStatusActivityUpdate(status) {
 }
 
 function handleStatusActivityUpdate(task, updates, callerId, statusCode) {
-  if (statusCode === 200 || statusCode === 201 || statusCode === 205) {
-    const logField = determineLogFieldForStatusActivityUpdate(statusCode);
+  const logField = determineLogFieldForStatusActivityUpdate(statusCode);
+  if ([200, 201, 205, 300, 500].includes(statusCode)) {
     updates.action = parseInt(statusCode);
     updates.actor = callerId;
     updates.timestamp = new Date();
@@ -495,6 +509,37 @@ function handleActivityUpdates(task, updates, callerId) {
   return task;
 }
 
+async function handleAutomation(task, updates, space) {
+  let column;
+  if (updates.status === 200) {
+    column = Object.values(space.get("columns")).find(
+      (column) => column.title === "In Review"
+    );
+  } else if (updates.status === 201) {
+    column = Object.values(space.get("columns")).find(
+      (column) => column.title === "In Progress"
+    );
+  } else if ([205, 300, 500].includes(updates.status)) {
+    column = Object.values(space.get("columns")).find(
+      (column) => column.title === "Done"
+    );
+  }
+
+  // task.get is added for smooth backward compatibility
+  if (column && task.get("columnId")) {
+    if (column.id === task.get("columnId")) {
+      logger.info(`task ${task.get("taskId")} already in review column`);
+    } else {
+      updates.columnChange = {
+        sourceId: task.get("columnId"),
+        destinationId: column.id,
+      };
+      [space, task] = await handleColumnUpdate(space, task, updates);
+    }
+  }
+  return [space, task];
+}
+
 function isDifferentEasyField(task, updates, key) {
   if (datatypes[key] === "array") {
     return !arrayHasSameElements(task.get(key), updates[key]);
@@ -513,24 +558,4 @@ function isDifferentReward(task, updates) {
 
 function isDifferentDeadline(task, updates) {
   return task.get("deadline") !== new Date(updates.deadline);
-}
-
-function arrayHasSameElements(array1, array2) {
-  logger.info(`array1: ${JSON.stringify(array1)}`);
-  logger.info(`array2: ${JSON.stringify(array2)}`);
-  if (array1?.length !== array2?.length) return false;
-  for (const element of array1) {
-    if (!array2.includes(element)) return false;
-  }
-  return true;
-}
-
-function objectHasSameElements(obj1, obj2) {
-  logger.info(`obj1: ${JSON.stringify(obj1)}`);
-  logger.info(`obj2: ${JSON.stringify(obj2)}`);
-  if (Object.keys(obj1).length !== Object.keys(obj2).length) return false;
-  for (const key of Object.keys(obj1)) {
-    if (obj1[key] !== obj2[key]) return false;
-  }
-  return true;
 }

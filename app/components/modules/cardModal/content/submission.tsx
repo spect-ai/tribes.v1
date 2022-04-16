@@ -63,9 +63,11 @@ const Submission = ({ task, setTask }: Props) => {
       .then((res) => {
         setSpace(res.space);
         setTask(res.task);
+        notify("Asked for review", "success");
       })
       .catch((res) => {
         console.log(res);
+        notify(`${res.message}`, "error");
       });
   };
 

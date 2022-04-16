@@ -60,6 +60,7 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
         console.log(res);
         setSpace(res.space);
         setTask(res.task);
+        handleClose();
       })
       .catch((err: any) => {
         setCurrStatus(prevStatus);

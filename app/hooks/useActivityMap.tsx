@@ -59,7 +59,7 @@ export function useActivityMap() {
           space.memberDetails[update.actor]?.username
         } updated tags to "${update.changeLog?.next?.join(", ")}"`;
       case 104:
-        `${space.memberDetails[update.actor].username} updated reward to ${
+        `${space.memberDetails[update.actor]?.username} updated reward to ${
           update.reward?.value
         } ${update.reward?.token?.symbol} on ${update.reward?.chain?.name}`;
       case 105:
@@ -99,14 +99,6 @@ export function useActivityMap() {
         return `${space.memberDetails[update.actor]?.username} applied to ${
           update.taskType
         }`;
-      case 151:
-        return `${
-          space.memberDetails[update.actor].username
-        } updated application to ${update.taskType}`;
-      case 152:
-        return `${space.memberDetails[update.actor]?.username} picked ${
-          update.selectedApplicant
-        }'s application to ${update.taskType}`;
       case 200:
         return `${
           space.memberDetails[update.actor]?.username
