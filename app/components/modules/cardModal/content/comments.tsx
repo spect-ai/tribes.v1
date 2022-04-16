@@ -395,6 +395,14 @@ const Comments = ({ task, setTask }: Props) => {
           </PrimaryButton>
         </>
       )}
+      {mode !== "edit" && !isLoading && !viewableComponents["addComment"] && (
+        <Typography
+          variant="body1"
+          sx={{ display: "flex", alignItems: "center", ml: 2 }}
+        >
+          No comments have been added yet.
+        </Typography>
+      )}
     </Box>
   );
 };

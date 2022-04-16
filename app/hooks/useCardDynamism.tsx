@@ -7,19 +7,18 @@ import { useAccess } from "./useAccess";
 export function useCardDynamism(task: Task) {
   const { space } = useSpace();
   const { user } = useMoralis();
-  const { isSpaceSteward, isCardSteward, isCardStakeholder } = useAccess(task);
+  const { isSpaceSteward, isCardSteward, isCardStakeholder, isSpaceMember } =
+    useAccess(task);
   const [viewableComponents, setViewableComponents] = useState({} as any);
   const [editAbleComponents, setEditableComponents] = useState({} as any);
   const [proposalEditMode, setProposalEditMode] = useState(false);
   const [tabs, setTabs] = useState([] as string[]);
   const [tabIdx, setTabIdx] = useState(0);
   useEffect(() => {
-    console.log(`ldldldl`);
     setViewableComponents(getViewableComponents());
     setEditableComponents(getEditableComponents());
     setTabs(getTabs());
     setTabIdx(0);
-    console.log(getViewableComponents());
   }, [task]);
 
   const getViewableComponents = () => {
@@ -125,7 +124,7 @@ export function useCardDynamism(task: Task) {
 
   const isAssignToMeViewable = () => {
     if (task?.assignee?.length === 0) {
-      return task.type === "Task";
+      return task.type === "Task" && isSpaceMember();
     } else return false;
   };
 

@@ -1,6 +1,6 @@
 import HailIcon from "@mui/icons-material/Hail";
 import { Box, Typography } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
 import { useCardDynamism } from "../../../../hooks/useCardDynamism";
@@ -27,6 +27,7 @@ const AssignToMe = ({ task, setTask }: Props) => {
     setButtonText("Assigning...");
     runMoralisFunction("updateCard", {
       updates: {
+        status: 105,
         assignee: user ? [user?.id] : [],
         taskId: task.taskId,
       },
@@ -42,6 +43,10 @@ const AssignToMe = ({ task, setTask }: Props) => {
         notify(`${err.message}`, "error");
       });
   };
+
+  useEffect(() => {
+    setButtonText("Assign to me");
+  }, [task]);
 
   return (
     <>

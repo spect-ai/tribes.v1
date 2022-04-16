@@ -54,15 +54,14 @@ const updatePropertyActivityMap = {
   status: {
     //
     created: 100,
-    assigned: 105,
-    review: 200,
+    //assigned: 105,  // Not needed as payload will always contain assignee
+    // review: 200,   // Not needed as payload will always contain assignee
     revision: 201,
     done: 205,
     paid: 300,
     archived: 500,
   },
   columnChange: 400,
-  selectedProposals: 152,
 };
 
 Moralis.Cloud.define("updateCard", async (request) => {
@@ -101,9 +100,7 @@ function authorized(updates, task, callerId, space) {
     updates.hasOwnProperty("reviewer") ||
     updates.hasOwnProperty("tags") ||
     updates.hasOwnProperty("reward") ||
-    updates.hasOwnProperty("type") ||
-    updates.hasOwnProperty("selectedProposals") ||
-    updates.hasOwnProperty("status")
+    updates.hasOwnProperty("type")
   ) {
     if (
       !(
@@ -128,6 +125,64 @@ function authorized(updates, task, callerId, space) {
       )
     )
       throw "Only card creator, reviewer, assignee and space steward can add comments";
+  }
+
+  if (updates.hasOwnProperty("status")) {
+    if (updates.status === 105) {
+      if (
+        task.type === "Bounty" &&
+        !(
+          isTaskReviewer(task, callerId) ||
+          isTaskCreator(task, callerId) ||
+          space.roles[callerId] === 3
+        )
+      )
+        throw "Only card reviewer, creator and space steward can assign bounty";
+      else if (
+        task.type === "Task" &&
+        [1, 2, 3].includes(space.roles[callerId])
+      )
+        throw "Only space member can assign task";
+    } else if (updates.status === 200) {
+      if (!isTaskAssignee(task, callerId))
+        throw "Only assignee can ask for a review";
+    } else if (updates.status === 201) {
+      if (
+        !(
+          isTaskReviewer(task, callerId) ||
+          isTaskCreator(task, callerId) ||
+          space.roles[callerId] === 3
+        )
+      )
+        throw "Only card creator, reviewer and space steward can ask for review";
+    } else if (updates.status === 205) {
+      if (
+        !(
+          isTaskReviewer(task, callerId) ||
+          isTaskCreator(task, callerId) ||
+          space.roles[callerId] === 3
+        )
+      )
+        throw "Only card creator, reviewer and space steward can close card";
+    } else if (updates.status === 300) {
+      if (
+        !(
+          isTaskReviewer(task, callerId) ||
+          isTaskCreator(task, callerId) ||
+          space.roles[callerId] === 3
+        )
+      )
+        throw "Only card creator, reviewer and space steward can set card as paid";
+    } else if (updates.status === 500) {
+      if (
+        !(
+          isTaskReviewer(task, callerId) ||
+          isTaskCreator(task, callerId) ||
+          space.roles[callerId] === 3
+        )
+      )
+        throw "Only card creator, reviewer and space steward can archive card";
+    }
   }
 
   /* TODO: Need to think about this
@@ -170,7 +225,6 @@ async function handleUpdates(updates, task, callerId) {
     callerId,
     contentArrayMultiElementUpdates
   );
-  task = handleSelectedProposalUpdate(task, updates);
   handleColumnUpdate(task.get("boardId"), task.get("taskId"), updates, task);
   return task;
 }
@@ -227,21 +281,6 @@ async function handleColumnUpdate(boardId, taskId, updates, task) {
       throw `${err}`;
     }
   }
-}
-
-function handleSelectedProposalUpdate(task, updates) {
-  if (updates.hasOwnProperty("selectedProposals")) {
-    const proposalIdx = task
-      .get("proposals")
-      .findIndex((p) => p.id === updates.selectedProposals[0]);
-    if (proposalIdx === -1) throw "Proposal not found";
-    else {
-      task.set("selectedProposals", updates.selectedProposals);
-      task.set("assignee", [task.get("proposals")[proposalIdx].userId]);
-      updates.selectedApplicant = task.get("proposals")[proposalIdx].userId;
-    }
-  }
-  return task;
 }
 
 function handleContentArrayUpdate(task, updates, callerId, fields) {
@@ -416,15 +455,31 @@ function handleActivityUpdate(task, updates, property, callerId) {
   return task;
 }
 
+function determineLogFieldForStatusActivityUpdate(status) {
+  status === 105
+    ? "assignee"
+    : status === 200 || status === 201 || 205
+    ? "submission"
+    : status === 300
+    ? "transactionHash"
+    : "";
+}
+
 function handleStatusActivityUpdate(task, updates, callerId, statusCode) {
-  updates.action = parseInt(statusCode);
-  updates.actor = callerId;
-  updates.timestamp = new Date();
-  updates.taskType = task.get("type");
-  updates.changeLog = { prev: task.get("status"), next: updates["status"] };
-  if (task.get("activity"))
-    task.set("activity", [...task.get("activity"), updates]);
-  else task.set("activity", [updates]);
+  if (statusCode === 200 || statusCode === 201 || statusCode === 205) {
+    const logField = determineLogFieldForStatusActivityUpdate(statusCode);
+    updates.action = parseInt(statusCode);
+    updates.actor = callerId;
+    updates.timestamp = new Date();
+    updates.taskType = task.get("type");
+    updates.changeLog = {
+      prev: { status: task.get("status"), field: task.get(logField) },
+      next: { status: updates["status"], field: updates[logField] },
+    };
+    if (task.get("activity"))
+      task.set("activity", [...task.get("activity"), updates]);
+    else task.set("activity", [updates]);
+  }
   return task;
 }
 

@@ -97,29 +97,35 @@ function getUserRole(roles, roleMapping) {
 async function getSpace(boardId, callerId) {
   try {
     // we are getting tasks twice........ CHECK THIS
-    let boardObj = await getBoardObjWithTasksByObjectId(boardId, callerId);
-
-    if (boardObj.length === 0) throw "Board not found";
-    // we are getting tasks twice........ CHECK THIS
-    boardObj = await getBoardObjWithTasksAndProposalsByObjectId(
+    let boardObjCompact = await getBoardObjWithTasksByObjectId(
       boardId,
       callerId
     );
 
-    const canReadSpace = canRead(boardObj[0], callerId);
+    if (boardObjCompact.length === 0) throw "Board not found";
+    // we are getting tasks twice........ CHECK THIS
+    var boardObjDetailed = await getBoardObjWithTasksAndProposalsByObjectId(
+      boardId,
+      callerId
+    );
+
+    const canReadSpace = canRead(boardObjDetailed[0], callerId);
     if (!canReadSpace) throw "You dont have access to view this space";
 
-    const epochs = await getEpochsBySpaceId(boardObj[0].objectId, callerId);
+    const epochs = await getEpochsBySpaceId(
+      boardObjDetailed[0].objectId,
+      callerId
+    );
     var userIds = getAllAssociatedUsersIds(
-      boardObj[0],
-      Object.values(boardObj[0].tasks),
+      boardObjDetailed[0],
+      Object.values(boardObjDetailed[0].tasks),
       epochs
     );
 
-    boardObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
+    boardObjCompact[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
       userIds
     );
-    return boardObj[0];
+    return boardObjCompact[0];
   } catch (err) {
     logger.error(`Error while getting board - ${err}`);
     throw err;

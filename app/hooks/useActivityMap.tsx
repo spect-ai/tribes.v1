@@ -48,9 +48,9 @@ export function useActivityMap() {
           update.changeLog?.next
         }"`;
       case 100:
-        return `${space.memberDetails[update.actor].username} created ${
-          update?.changeLog?.next
-        }`;
+        return `${
+          space.memberDetails[update.actor].username
+        } created card of type "${update?.changeLog?.next}"`;
       case 101:
         return `${
           space.memberDetails[update.actor].username
@@ -64,13 +64,34 @@ export function useActivityMap() {
           update.reward?.value
         } ${update.reward?.token?.symbol} on ${update.reward?.chain?.name}`;
       case 105:
-        return space.memberDetails[update?.changeLog?.next[0]]?.username
-          ? `${space.memberDetails[update.actor].username} assigned ${
-              update.taskType
-            } to ${space.memberDetails[update?.changeLog?.next[0]]?.username}`
-          : `${space.memberDetails[update.actor].username} unassigned ${
-              update.taskType
-            }`;
+        if (
+          update?.changeLog?.prev &&
+          update?.changeLog?.prev?.length > 0 &&
+          update?.changeLog?.next &&
+          update?.changeLog?.next?.length > 0
+        )
+          return `${
+            space.memberDetails[update.actor].username
+          } changed assignee from ${
+            space.memberDetails[update?.changeLog?.prev[0]]?.username
+          }
+      to ${space.memberDetails[update?.changeLog?.next[0]]?.username}`;
+        else if (
+          !update?.changeLog?.next ||
+          update?.changeLog?.next?.length === 0
+        )
+          return `${
+            space.memberDetails[update.actor].username
+          } removed assignee`;
+        else if (
+          !update?.changeLog?.prev ||
+          update?.changeLog?.prev?.length === 0
+        )
+          return `${
+            space.memberDetails[update.actor].username
+          } assigned card to ${
+            space.memberDetails[update?.changeLog?.next[0]]?.username
+          }`;
       case 106:
         return `${
           space.memberDetails[update.actor].username

@@ -26,22 +26,22 @@ const ProposalsStewardView = ({ task, setTask }: Props) => {
   const { user } = useMoralis();
   const [proposalOnEdit, setProposalOnEdit] = useState("");
   const [editMode, setEditMode] = useState(false);
-
+  console.log(space);
   const handlePick = (proposalId: string, index: number, assignee: string) => {
     const prevTask = Object.assign({}, task);
     const temp = Object.assign({}, task);
-    temp.selectedProposals = [proposalId];
     temp.assignee = [assignee];
     setTask(temp);
     runMoralisFunction("updateCard", {
       updates: {
-        selectedProposals: temp.selectedProposals,
+        status: 105,
+        assignee: [assignee],
         taskId: task.taskId,
       },
     })
       .then((res: any) => {
         console.log(res);
-        notify("Selected proposal!", "success");
+        notify("Selected applicant!", "success");
         setSpace(res.space);
         setTask(res.task);
         setIsLoading(false);
@@ -126,11 +126,11 @@ const ProposalsStewardView = ({ task, setTask }: Props) => {
                     onClick={() => {
                       handlePick(proposal.id, index, proposal.userId);
                     }}
-                    disabled={task.selectedProposals?.includes(proposal.id)}
+                    disabled={task.assignee?.includes(proposal.userId)}
                   >
-                    {task.selectedProposals?.includes(proposal.id)
-                      ? `Picked`
-                      : `Pick`}
+                    {task.assignee?.includes(proposal.userId)
+                      ? `Assigned`
+                      : `Assign`}
                   </PrimaryButton>
                 </InputAdornment>
               ),

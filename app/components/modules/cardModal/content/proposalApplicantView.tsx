@@ -16,6 +16,7 @@ import { Proposal, Task } from "../../../../types";
 import { PrimaryButton } from "../../../elements/styledComponents";
 import { notify } from "../../settingsTab";
 import { uid, formatTimeCreated } from "../../../../utils/utils";
+import { useProfileInfo } from "../../../../hooks/useProfileInfo";
 
 type Props = {
   task: Task;
@@ -31,6 +32,7 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
   const [proposal, setProposal] = useState({} as Proposal);
   const { proposalEditMode, setProposalEditMode } = useCardDynamism(task);
   const [editMode, setEditMode] = useState(true);
+  const { avatar } = useProfileInfo();
 
   const handleSave = () => {
     setIsLoading(true);
@@ -111,7 +113,7 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
           <Avatar
             variant="rounded"
             sx={{ p: 0, m: 0, width: 32, height: 32 }}
-            src={space.memberDetails[proposal.userId]?.profilePicture?._url}
+            src={avatar}
           />
           <Typography
             variant="body1"
@@ -121,7 +123,7 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
               alignItems: "center",
             }}
           >
-            {space.memberDetails[proposal.userId]?.username}
+            {user?.get("username")}
           </Typography>{" "}
           {proposal?.createdAt && (
             <Typography

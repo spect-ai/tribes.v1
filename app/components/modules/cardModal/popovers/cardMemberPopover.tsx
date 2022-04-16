@@ -79,6 +79,7 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
         updates: {
           assignee: member ? [member] : [],
           taskId: task.taskId,
+          status: member ? 105 : 100,
         },
       })
         .then((res: any) => {
