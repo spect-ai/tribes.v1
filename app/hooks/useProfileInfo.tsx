@@ -1,5 +1,7 @@
+import { AnyPtrRecord } from "dns";
 import { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
+import { Member } from "../types";
 
 type Props = {};
 
@@ -19,7 +21,16 @@ export const useProfileInfo = () => {
     }
   }, [isAuthenticated, user]);
 
+  const getAvatar = (user: Member) => {
+    if (user.profilePicture?._url) {
+      return user.profilePicture._url;
+    } else {
+      return `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png`;
+    }
+  };
+
   return {
     avatar,
+    getAvatar,
   };
 };

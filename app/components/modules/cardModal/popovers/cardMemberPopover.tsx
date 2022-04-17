@@ -16,6 +16,7 @@ import { CardButton, PrimaryButton } from "../../../elements/styledComponents";
 import { notify } from "../../settingsTab";
 import { PopoverContainer } from "../styles";
 import { useCardDynamism } from "../../../../hooks/useCardDynamism";
+import { useProfileInfo } from "../../../../hooks/useProfileInfo";
 
 type Props = {
   type: string;
@@ -34,6 +35,8 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
   const { editAbleComponents, viewableComponents, getReason } =
     useCardDynamism(task);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+
+  const { getAvatar } = useProfileInfo();
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -138,8 +141,8 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
               }}
               src={
                 type === "reviewer"
-                  ? space.memberDetails[task.reviewer[0]]?.profilePicture?._url
-                  : space.memberDetails[task.assignee[0]]?.profilePicture?._url
+                  ? getAvatar(space.memberDetails[task.reviewer[0]])
+                  : getAvatar(space.memberDetails[task.assignee[0]])
               }
             >
               <PersonIcon sx={{ color: "text.primary" }} />

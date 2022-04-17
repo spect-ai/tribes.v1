@@ -42,7 +42,7 @@ const Comments = ({ task, setTask }: Props) => {
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
   const { user } = useMoralis();
-  const { avatar } = useProfileInfo();
+  const { avatar, getAvatar } = useProfileInfo();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
   const [openPopoverId, setOpenPopoverId] = useState("");
@@ -63,6 +63,19 @@ const Comments = ({ task, setTask }: Props) => {
       embedUrl: "",
     },
   ]);
+
+  useEffect(() => {
+    setCommentOnEdit([
+      {
+        id: uid(),
+        html: "",
+        tag: "p",
+        type: "",
+        imageUrl: "",
+        embedUrl: "",
+      },
+    ]);
+  }, []);
 
   const handleClick =
     (id: string) => (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -91,6 +104,8 @@ const Comments = ({ task, setTask }: Props) => {
         setTask(res.task);
         setEditId("");
         setMode("add");
+        console.log("adadadaddassda");
+        setCommentOnEdit([]);
         setCommentOnEdit([
           {
             id: uid(),
@@ -113,6 +128,7 @@ const Comments = ({ task, setTask }: Props) => {
     const comment = task.comments.find((c) => c.id === id);
     setMode("edit");
     setEditId(id);
+    console.log("edittttt");
     setCommentOnEdit(comment?.content || []);
     handleClose();
   };
@@ -186,7 +202,7 @@ const Comments = ({ task, setTask }: Props) => {
             <Avatar
               variant="rounded"
               sx={{ p: 0, m: 0, width: 32, height: 32 }}
-              src={space.memberDetails[comment.userId]?.profilePicture?._url}
+              src={getAvatar(space.memberDetails[comment.userId])}
             />
             <Typography
               variant="body1"

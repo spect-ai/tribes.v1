@@ -152,7 +152,6 @@ const Column = ({ tasks, id, column, index }: Props) => {
                           // setShowCreateTask(false);
                         });
                       }}
-                      disabled={space.roles[user?.id as string] !== 3}
                     >
                       <AddIcon fontSize="small" />
                     </IconButton>
@@ -165,36 +164,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       <SettingsIcon fontSize="small" />
                     </IconButton>
                   </TaskTitleContainer>
-                  <Box sx={{ display: "flex", flexDirection: "row" }}>
-                    {/* <Button
-                        sx={{
-                          textTransform: "none",
-                          textAlign: "left",
-                          justifyContent: "flex-start",
-                          mr: 1,
-                          color: palette.text.primary,
-                        }}
-                        startIcon={<GitHubIcon />}
-                        onClick={() => {
-                          if (
-                            !column.createCard[space.roles[user?.id as string]]
-                          ) {
-                            notify(
-                              "Your role doesn't have permission to create tasks in this column",
-                              "error"
-                            );
-                            return;
-                          }
-                          setShowCreateGithubTask(true);
-                        }}
-                        fullWidth
-                        size="small"
-                        variant="contained"
-                        disableElevation
-                      >
-                        Import Card
-                      </Button> */}
-                  </Box>
+                  <Box sx={{ display: "flex", flexDirection: "row" }}></Box>
                   <TaskList>
                     {tasks?.map((task, index) => {
                       if (task)
