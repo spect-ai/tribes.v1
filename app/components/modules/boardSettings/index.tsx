@@ -77,7 +77,16 @@ const BoardSettings = (props: Props) => {
       <SidebarButton
         palette={palette}
         selected={isOpen}
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          if (space.roles[user?.id as string] !== 3) {
+            notify(
+              "You don't have permission to change settings for this space",
+              "error"
+            );
+            return;
+          }
+          setIsOpen(true);
+        }}
       >
         <Tooltip
           title="Space Settings"
