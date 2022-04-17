@@ -27,7 +27,7 @@ const TribeNavbar = (props: Props) => {
   const waitForDiscordLink = async () => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 6000));
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 20; i++) {
       await new Promise((resolve) => setTimeout(resolve, 4000));
       runMoralisFunction("getTeam", { teamId: id }).then((res: Team) => {
         console.log(res);

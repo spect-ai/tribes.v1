@@ -22,6 +22,9 @@ export const useProfileInfo = () => {
   }, [isAuthenticated, user]);
 
   const getAvatar = (user: Member) => {
+    if (!user) {
+      return;
+    }
     if (user.profilePicture?._url) {
       return user.profilePicture._url;
     } else {
