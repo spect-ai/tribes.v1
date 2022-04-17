@@ -13,7 +13,7 @@ type Props = {
   isOpen: boolean;
   handleClose: () => void;
   taskId: string;
-  columnId: string;
+  columnId?: string;
 };
 
 const CardModal = ({ isOpen, handleClose, taskId, columnId }: Props) => {
