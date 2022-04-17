@@ -18,6 +18,7 @@ import { getMD5String } from "../../../utils/utils";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { OptionsButton } from "../themePopover";
 import { ButtonText } from "../exploreSidebar";
+import Button from "../../atoms/Button/index";
 
 type Props = {};
 
@@ -100,7 +101,7 @@ const ProfileSettings = (props: Props) => {
                   size="small"
                 />
               </FieldContainer>
-              <PrimaryButton
+              <Button
                 variant="outlined"
                 color="secondary"
                 sx={{ width: "50%", mt: 2, borderRadius: 1 }}
@@ -118,7 +119,7 @@ const ProfileSettings = (props: Props) => {
                 }}
               >
                 Save
-              </PrimaryButton>
+              </Button>
             </ModalContent>
           </ModalContainer>
         </Grow>

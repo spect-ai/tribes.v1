@@ -1,0 +1,29 @@
+.btn {
+	background-color: var(--secondary-color);
+	border: none;
+	border-radius: 8px;
+	padding: 16px 24px;
+	box-shadow: 0px 15px 33px -10px #4162ff;
+	cursor: pointer;
+	color: white;
+	font-weight: 500;
+	min-width: fit-content;
+	transition: all 0.3s;
+}
+.btn :hover {
+	box-shadow: 0px 5px 20px -10px #4162ff;
+	color: white;
+}
+
+.btnLight {
+	background-color: var(--white);
+	color: var(--secondary-color);
+}
+
+.btnLight :hover {
+	color: var(--secondary-color);
+}
+
+.btnBordered {
+    border: 1px solid #fff;
+}
