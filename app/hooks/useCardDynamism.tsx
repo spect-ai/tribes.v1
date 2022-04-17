@@ -7,8 +7,13 @@ import { useAccess } from "./useAccess";
 export function useCardDynamism(task: Task) {
   const { space } = useSpace();
   const { user } = useMoralis();
-  const { isSpaceSteward, isCardSteward, isCardStakeholder, isSpaceMember } =
-    useAccess(task);
+  const {
+    isSpaceSteward,
+    isCardSteward,
+    isCardStakeholder,
+    isSpaceMember,
+    isCardAssignee,
+  } = useAccess(task);
   const [viewableComponents, setViewableComponents] = useState({} as any);
   const [editAbleComponents, setEditableComponents] = useState({} as any);
   const [proposalEditMode, setProposalEditMode] = useState(false);
@@ -17,8 +22,11 @@ export function useCardDynamism(task: Task) {
   useEffect(() => {
     setViewableComponents(getViewableComponents());
     setEditableComponents(getEditableComponents());
-    setTabs(getTabs());
-    setTabIdx(0);
+
+    const newTabs = resolveTabs();
+    const newTabIdx = resolveTabIdx(tabs, newTabs, tabIdx);
+    setTabs(newTabs);
+    setTabIdx(newTabIdx);
   }, [task]);
 
   const getViewableComponents = () => {
@@ -128,7 +136,7 @@ export function useCardDynamism(task: Task) {
     } else return false;
   };
 
-  const getTabs = () => {
+  const resolveTabs = () => {
     if (task.type === "Task") {
       return ["Comments", "Activity"];
     } else if (task.type === "Bounty") {
@@ -141,14 +149,28 @@ export function useCardDynamism(task: Task) {
         } else {
           return ["Activity"]; // Only return application tab if there are any
         }
-      } else {
+      }
+      // Card has been assigned
+      else {
         if (isCardSteward()) {
           return ["Submissions", "Activity", "Applicants"];
-        } else {
+        } else if (isCardAssignee()) {
           return ["Submissions", "Activity", "Application"];
+        } else {
+          return ["Activity"];
         }
       }
     } else return [];
+  };
+
+  const resolveTabIdx = (
+    prevTabs: Array<string>,
+    currTabs: Array<string>,
+    prevTabIdx: number
+  ) => {
+    if (currTabs.length === prevTabs.length) {
+      return prevTabIdx;
+    } else return 0;
   };
 
   const isApplyButtonViewable = () => {
@@ -162,12 +184,6 @@ export function useCardDynamism(task: Task) {
     }
   };
 
-  const getSubmissionView = () => {
-    if (task?.status === 100) {
-      return "hide";
-    }
-  };
-
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabIdx(newValue);
   };
@@ -176,7 +192,6 @@ export function useCardDynamism(task: Task) {
     viewableComponents,
     editAbleComponents,
     getReason,
-    getTabs,
     proposalEditMode,
     setProposalEditMode,
     tabs,

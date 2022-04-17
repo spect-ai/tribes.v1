@@ -12,13 +12,22 @@ import DoneIcon from "@mui/icons-material/Done";
 import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
 import SyncAltIcon from "@mui/icons-material/SyncAlt";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import ArchiveIcon from "@mui/icons-material/Archive";
 import { useSpace } from "../../pages/tribe/[id]/space/[bid]";
 import AddTaskIcon from "@mui/icons-material/AddTask";
 import CategoryIcon from "@mui/icons-material/Category";
+import { ListItemText, Box, Typography, Link } from "@mui/material";
+import { useRouter } from "next/router";
+import { PrimaryButton } from "../components/elements/styledComponents";
+import { Task } from "../types";
+import { useGlobal } from "../context/globalContext";
 
-export function useActivityMap() {
+export function useActivityMap(task: Task) {
   const { space, setSpace } = useSpace();
-
+  const {
+    state: { registry },
+    dispatch,
+  } = useGlobal();
   const activityIcons: any = {
     99: <CategoryIcon />,
     100: <AddTaskIcon />,
@@ -36,6 +45,27 @@ export function useActivityMap() {
     300: <PaidIcon />,
     301: <ChatBubbleIcon />,
     400: <SyncAltIcon />,
+    500: <ArchiveIcon />,
+  };
+  console.log(registry);
+
+  const resolveActivityComponent = (update: any) => {
+    return <ListItemText>{generateActivityLine(update)}</ListItemText>;
+  };
+
+  const getComponent = (update: any) => {
+    switch (update.action) {
+      case 99:
+        return (
+          <>
+            {`${
+              space.memberDetails[update.actor]?.username
+            } changed the card type from "${update.changeLog?.prev}" to "${
+              update.changeLog?.next
+            }"`}
+          </>
+        );
+    }
   };
 
   const generateActivityLine = (update: any) => {
@@ -114,9 +144,25 @@ export function useActivityMap() {
           update.taskType
         }`;
       case 300:
-        return `${space.memberDetails[update.actor]?.username} paid for the ${
-          update.taskType
-        }`;
+        return (
+          <Box sx={{ display: "flex", flexDirection: "column" }}>
+            <Typography variant="body1" sx={{}}>
+              {`${space.memberDetails[update.actor]?.username} paid for the ${
+                update.taskType
+              }`}
+            </Typography>
+            <Link
+              target="_blank"
+              href={`${registry[task.chain.chainId]?.blockExplorer}/tx/${
+                update.transactionHash
+              }`}
+              rel="noopener noreferrer"
+              sx={{ fontSize: "0.8rem", color: "text.secondary" }}
+            >
+              View Transaction
+            </Link>
+          </Box>
+        );
       case 301:
         return `${space.memberDetails[update.actor]?.username} added feedback`;
       case 400:
@@ -125,10 +171,14 @@ export function useActivityMap() {
         } from "${space.columns[update.columnChange?.sourceId]?.title}" to "${
           space.columns[update.columnChange?.destinationId]?.title
         }"`;
+      case 500:
+        return `${
+          space.memberDetails[update.actor]?.username
+        } archived this card`;
     }
   };
   return {
-    generateActivityLine,
+    resolveActivityComponent,
     activityIcons,
   };
 }

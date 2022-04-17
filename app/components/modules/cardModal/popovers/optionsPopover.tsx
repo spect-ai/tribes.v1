@@ -52,6 +52,7 @@ const OptionsPopover = ({ task, setTask }: Props) => {
         console.log({ res });
         setSpace(res.space);
         setTask(res.task);
+        handleClose();
       })
       .catch((res) => {
         console.log(res);
@@ -117,7 +118,7 @@ const OptionsPopover = ({ task, setTask }: Props) => {
             }}
           >
             <IosShareIcon sx={{ width: "2rem", mr: 2 }} />
-            <ListItemText primary="Share Task" />
+            <ListItemText primary="Share" />
           </ListItemButton>
           <PayButton task={task} setTask={setTask} handleClose={handleClose} />
 

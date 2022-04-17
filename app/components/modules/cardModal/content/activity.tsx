@@ -4,58 +4,59 @@ import { useActivityMap } from "../../../../hooks/useActivityMap";
 import { Task } from "../../../../types";
 import { monthMap } from "../../../../constants";
 import { text } from "stream/consumers";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Timeline from "@mui/lab/Timeline";
+import TimelineItem from "@mui/lab/TimelineItem";
+import TimelineSeparator from "@mui/lab/TimelineSeparator";
+import TimelineDot from "@mui/lab/TimelineDot";
+import TimelineConnector from "@mui/lab/TimelineConnector";
 
 type Props = {
   task: Task;
 };
 
 const Activity = ({ task }: Props) => {
-  const { activityIcons, generateActivityLine } = useActivityMap();
+  const { activityIcons, resolveActivityComponent } = useActivityMap(task);
 
   return (
-    <>
+    <Timeline position="right" sx={{ width: "100%" }}>
       {task.activity.map((activity: any, index) => (
-        <ListItem key={index}>
+        <TimelineItem key={index}>
+          <TimelineSeparator>
+            {activityIcons[activity.action]}
+            {index !== task.activity?.length - 1 && (
+              <TimelineConnector sx={{ my: 2 }} />
+            )}
+          </TimelineSeparator>
           <Box
             sx={{
               width: "100%",
               display: "flex",
               flexDirection: "row",
               justifyContent: "center",
-              alignItems: "center",
-              mt: 4,
+              alignItems: "start",
             }}
           >
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "row",
-                width: "5%",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Box>{activityIcons[activity.action]}</Box>
-            </Box>
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
                 width: "75%",
                 justifyContent: "center",
-                alignItems: "center",
+                alignItems: "start",
               }}
             >
-              <ListItemText primary={generateActivityLine(activity)} />
+              {
+                /*<ListItemText primary={generateActivityLine(activity)} />*/
+                resolveActivityComponent(activity)
+              }
             </Box>
             <Box
               sx={{
                 width: "20%",
                 display: "flex",
                 flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
+                justifyContent: "start",
+                alignItems: "start",
               }}
             >
               <ListItemText
@@ -79,9 +80,9 @@ const Activity = ({ task }: Props) => {
               </ListItemText>
             </Box>
           </Box>
-        </ListItem>
+        </TimelineItem>
       ))}
-    </>
+    </Timeline>
   );
 };
 

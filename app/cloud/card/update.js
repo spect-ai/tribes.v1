@@ -238,6 +238,7 @@ async function handleUpdates(updates, task, space, callerId) {
   );
   if (updates.hasOwnProperty("columnChange")) {
     [space, task] = await handleColumnUpdate(space, task, updates);
+    //[space, task] = await handleReverseAutomation(space, task, updates);
   } else {
     [space, task] = await handleAutomation(task, updates, space);
   }
@@ -283,14 +284,12 @@ async function handleColumnUpdate(space, task, updates) {
       columns[destinationId],
       task.get("taskId")
     );
-    logger.info(`newDestination: ${JSON.stringify(newDestination)}`);
 
     columns = {
       ...columns,
       [newSource.id]: newSource,
       [newDestination.id]: newDestination,
     };
-    logger.info(`columns: ${JSON.stringify(columns)}`);
     space.set("columns", columns);
     task.set("columnId", destinationId);
   }

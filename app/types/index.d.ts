@@ -253,6 +253,7 @@ export type NetworkInfo = {
   chainId: string;
   nativeCurrency: string;
   pictureUrl: string;
+  blockExplorer: string;
   tokens: { [tokenAddress: string]: TokenInfo };
 };
 

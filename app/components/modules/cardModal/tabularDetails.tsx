@@ -11,16 +11,11 @@ import { useMoralis } from "react-moralis";
 import Comments from "./content/comments";
 import { useCardDynamism } from "../../../hooks/useCardDynamism";
 import { Box } from "@mui/material";
+//import Activity from "./content/act";
 
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
-};
-
-const tabMap: any = {
-  Proposals: 0,
-  Submission: 1,
-  Activity: 2,
 };
 
 const TabularDetails = ({ task, setTask }: Props) => {
