@@ -264,16 +264,36 @@ function addTaskToColumn(column, taskId) {
   };
 }
 
+function findColumnContainingTask(columns, taskId) {
+  for (var [columnId, column] of Object.entries(columns)) {
+    if (column.taskIds.includes(taskId)) {
+      return columnId;
+    }
+  }
+  return null;
+}
+
 async function handleColumnUpdate(space, task, updates) {
   if (updates.hasOwnProperty("columnChange")) {
-    const sourceId = updates.columnChange.sourceId;
+    var columns = space.get("columns");
+
+    let sourceId;
+    if (task.get("columnId")) {
+      sourceId = task.get("columnId");
+    } else {
+      sourceId = findColumnContainingTask(columns, task.get("taskId"));
+    }
+
+    if (!sourceId) {
+      throw "Task does not belong to any column";
+    }
+
     const destinationId = updates.columnChange.destinationId;
     logger.info(
       `Handling column update for task ${space.id} ${task.get(
         "taskId"
       )} ${sourceId} ${destinationId}`
     );
-    var columns = space.get("columns");
     const newSource = removeTaskFromColumn(
       columns[sourceId],
       task.get("taskId")
