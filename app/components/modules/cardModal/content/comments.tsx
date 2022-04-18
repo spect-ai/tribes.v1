@@ -42,7 +42,7 @@ const Comments = ({ task, setTask }: Props) => {
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
   const { user } = useMoralis();
-  const { avatar, getAvatar } = useProfileInfo();
+  const { avatar } = useProfileInfo();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
   const [openPopoverId, setOpenPopoverId] = useState("");
@@ -202,7 +202,7 @@ const Comments = ({ task, setTask }: Props) => {
             <Avatar
               variant="rounded"
               sx={{ p: 0, m: 0, width: 32, height: 32 }}
-              src={getAvatar(space.memberDetails[comment.userId])}
+              src={avatar}
             />
             <Typography
               variant="body1"
