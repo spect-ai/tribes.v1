@@ -18,7 +18,7 @@ export interface User {
 export type Member = {
   ethAddress: string;
   objectId: string;
-  userId: string; //TODO: Remove after chaing everything to objectId
+  userId: string; // TODO: Remove after chaing everything to objectId
   profilePicture: any;
   username: string;
   role: string;

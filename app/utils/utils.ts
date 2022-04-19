@@ -41,15 +41,15 @@ export function formatTimeCreated(date: Date) {
 }
 
 function msToTime(ms: number) {
-  let seconds = parseInt((ms / 1000).toFixed(0));
-  let minutes = parseInt((ms / (1000 * 60)).toFixed(0));
-  let hours = parseInt((ms / (1000 * 60 * 60)).toFixed(0));
-  let days = (ms / (1000 * 60 * 60 * 24)).toFixed(0);
+  const seconds = parseInt((ms / 1000).toFixed(0));
+  const minutes = parseInt((ms / (1000 * 60)).toFixed(0));
+  const hours = parseInt((ms / (1000 * 60 * 60)).toFixed(0));
+  const days = (ms / (1000 * 60 * 60 * 24)).toFixed(0);
   if (seconds < 0) return 'Expired';
-  else if (seconds < 60) return seconds + ' sec';
-  else if (minutes < 60) return minutes + `${minutes === 1 ? ' min' : ' mins'}`;
-  else if (hours < 24) return hours + `${hours > 1 ? ' hours' : ' hour'}`;
-  else return days + ' Days';
+  if (seconds < 60) return `${seconds} sec`;
+  if (minutes < 60) return `${minutes}${minutes === 1 ? ' min' : ' mins'}`;
+  if (hours < 24) return `${hours}${hours > 1 ? ' hours' : ' hour'}`;
+  return `${days} Days`;
 }
 
 export function getRemainingVotes(
@@ -57,9 +57,7 @@ export function getRemainingVotes(
   votesGiven: number,
   prevVotesGiven: number
 ) {
-  return (
-    prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2)
-  );
+  return prevRemainingVotes + prevVotesGiven ** 2 - votesGiven ** 2;
 }
 
 export function activityFormatter(status: number, date: Date, actor: string) {
@@ -84,21 +82,21 @@ export const reorder = (
 };
 
 export function formatTime(date: Date) {
-  var hours = date.getHours();
-  var minutes = date.getMinutes();
-  var ampm = hours >= 12 ? 'pm' : 'am';
-  hours = hours % 12;
-  hours = hours ? hours : 12; // the hour '0' should be '12'
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'pm' : 'am';
+  hours %= 12;
+  hours = hours || 12; // the hour '0' should be '12'
   // @ts-ignore
-  minutes = ('0' + minutes).slice(-2);
-  var strTime = hours + ':' + minutes + ' ' + ampm;
+  minutes = `0${minutes}`.slice(-2);
+  const strTime = `${hours}:${minutes} ${ampm}`;
   return strTime;
 }
 
 export function getFlattenedNetworks(registry: Registry) {
-  var networks: Array<Chain> = [];
+  const networks: Array<Chain> = [];
 
-  for (var networkId of Object.keys(registry)) {
+  for (const networkId of Object.keys(registry)) {
     networks.push({
       name: registry[networkId].name,
       chainId: networkId,
@@ -108,8 +106,8 @@ export function getFlattenedNetworks(registry: Registry) {
 }
 
 export function getFlattenedTokens(registry: Registry, chainId: string) {
-  var tokens: Array<Token> = [];
-  for (var tokenAddress of registry[chainId]?.tokenAddresses) {
+  const tokens: Array<Token> = [];
+  for (const tokenAddress of registry[chainId]?.tokenAddresses) {
     tokens.push({
       address: tokenAddress,
       symbol: registry[chainId].tokens[tokenAddress].symbol,
@@ -119,17 +117,18 @@ export function getFlattenedTokens(registry: Registry, chainId: string) {
 }
 
 export function getFlattenedCurrencies(registry: Registry, chainId: string) {
-  var currencies = getFlattenedTokens(registry, chainId);
+  const currencies = getFlattenedTokens(registry, chainId);
   // @ts-ignore
   // currencies = [...currencies, { symbol: registry[chainId].nativeCurrency }];
   return currencies;
 }
 
 export function downloadCSV(content: Array<Array<any>>, filename: string) {
-  let csvContent =
-    'data:text/csv;charset=utf-8,' + content.map((e) => e.join(',')).join('\n');
-  var encodedUri = encodeURI(csvContent);
-  var link = document.createElement('a');
+  const csvContent = `data:text/csv;charset=utf-8,${content
+    .map((e) => e.join(','))
+    .join('\n')}`;
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
   link.setAttribute('href', encodedUri);
   link.setAttribute('download', `${filename}.csv`);
   document.body.appendChild(link); // Required for FF
@@ -158,12 +157,13 @@ export const setCaretToEnd = (element: any) => {
 };
 
 export const getCaretCoordinates = (fromStart = true) => {
-  let x, y;
+  let x;
+  let y;
   const isSupported = typeof window.getSelection !== 'undefined';
   if (isSupported) {
     const selection = window.getSelection();
     const range = selection?.getRangeAt(0).cloneRange();
-    var span = document.createElement('span');
+    const span = document.createElement('span');
     const modal = document.getElementById('cardModal');
     const modalRect = modal?.getClientRects()[0];
     if (span.getClientRects) {
@@ -183,7 +183,7 @@ export const getCaretCoordinates = (fromStart = true) => {
           y = rect.top + modal?.scrollTop + 100;
         }
       }
-      var spanParent = span.parentNode;
+      const spanParent = span.parentNode;
       spanParent?.removeChild(span);
     }
   }

@@ -639,9 +639,7 @@ Moralis.Cloud.define('completePayment', async (request) => {
     await Moralis.Object.saveAll(tasks, { useMasterKey: true });
     return await getSpace(task.get('boardId'), request.user.id);
   } catch (err) {
-    logger.error(
-      `Error while adding task in board ${request.params.boardId}: ${err}`
-    );
+    logger.error(`Error while adding task in board : ${err}`);
     throw `Error while completing payment ${err}`;
   }
 });

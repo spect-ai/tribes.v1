@@ -1,7 +1,10 @@
+import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   AccordionDetails,
   AccordionSummary,
-  Autocomplete,
+  Box,
   Grow,
   IconButton,
   Modal,
@@ -11,38 +14,45 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
-import CloseIcon from '@mui/icons-material/Close';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import { BoardData, Chain, Token } from '../../../types';
+import DefaultPaymentForm from '../../elements/defaultPaymentForm';
 import {
   ModalHeading,
   PrimaryButton,
   StyledAccordian,
 } from '../../elements/styledComponents';
-import { updateBoard } from '../../../adapters/moralis';
-import { useMoralis } from 'react-moralis';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { BoardData, Chain, Registry, Team, Token } from '../../../types';
-import ConfirmModal from './confirmModal';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { getFlattenedNetworks } from '../../../utils/utils';
-import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { SidebarButton } from '../exploreSidebar';
-import { useRouter } from 'next/router';
-import styled from '@emotion/styled';
 import { notify } from '../settingsTab';
-import { useGlobal } from '../../../context/globalContext';
-import TokenGateForm from '../../elements/tokenGateForm';
-import DefaultPaymentForm from '../../elements/defaultPaymentForm';
+import ConfirmModal from './confirmModal';
 
 type Props = {};
 
-const BoardSettings = (props: Props) => {
-  const { space, setSpace, setThemeChanged, themeChanged, setRefreshEpochs } =
-    useSpace();
-  const {
-    state: { registry },
-  } = useGlobal();
+// @ts-ignore
+const ModalContainer = MUIStyled(Box)(({ theme }) => ({
+  position: 'absolute' as 'absolute',
+  top: '10%',
+  left: '25%',
+  transform: 'translate(-50%, -50%)',
+  width: '50rem',
+  border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
+  boxShadow: 24,
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
+}));
+
+const ModalContent = MUIStyled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  padding: 32,
+}));
+
+function BoardSettings(props: Props) {
+  const { space, setSpace, setRefreshEpochs } = useSpace();
   const { Moralis, user } = useMoralis();
   const [name, setName] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -60,10 +70,8 @@ const BoardSettings = (props: Props) => {
     setIsConfirmOpen(false);
   };
 
-  const router = useRouter();
-  const id = router.query.id as string;
-  const bid = router.query.bid as string;
   const { palette } = useTheme();
+  const { runMoralisFunction } = useMoralisFunction();
   useEffect(() => {
     setName(space.name);
     // setTokenGateChain(space.tokenGating?.chain);
@@ -250,21 +258,19 @@ const BoardSettings = (props: Props) => {
                       return;
                     }
                     setIsLoading(true);
-                    updateBoard(
-                      Moralis,
-                      space.objectId,
+                    runMoralisFunction('updateBoard', {
+                      boardId: space.objectId,
                       name,
-                      {
+                      defaultPayment: {
                         chain: defaultChain,
                         token: defaultToken,
                       },
-                      {
+                      tokenGating: {
                         chain: tokenGatechain,
                         token: tokenGateToken,
                         tokenLimit: tokenGateLimit,
-                      }
-                    ).then((res: any) => {
-                      console.log(res);
+                      },
+                    }).then((res: any) => {
                       setSpace(res as BoardData);
                       setIsLoading(false);
                       setRefreshEpochs(true);
@@ -298,34 +304,6 @@ const BoardSettings = (props: Props) => {
       </Modal>
     </>
   );
-};
-// @ts-ignore
-const ModalContainer = MUIStyled(Box)(({ theme }) => ({
-  position: 'absolute' as 'absolute',
-  top: '10%',
-  left: '25%',
-  transform: 'translate(-50%, -50%)',
-  width: '50rem',
-  border: '2px solid #000',
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 24,
-  overflow: 'auto',
-  maxHeight: 'calc(100% - 128px)',
-}));
-
-const ModalContent = MUIStyled('div')(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  padding: 32,
-}));
-
-const ThemeColor = styled.div<{ color: string }>`
-  background-color: ${({ color }) => color};
-  border-radius: 2px;
-  height: 18px;
-  width: 18px;
-  margin-right: 8px;
-  border: 1px solid #5a6972;
-`;
+}
 
 export default BoardSettings;

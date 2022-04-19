@@ -1,35 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import PaidIcon from '@mui/icons-material/Paid';
 import {
+  Avatar,
   Box,
-  Button,
+  Grid,
   Modal,
-  Stepper,
   Step,
   StepLabel,
+  Stepper,
   styled,
-  Typography,
-  Chip,
-  useTheme,
   Tooltip,
-  Grid,
-  Avatar,
+  Typography,
+  useTheme,
 } from '@mui/material';
+import React, { useState } from 'react';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { useGlobal } from '../../../context/globalContext';
+import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import { capitalizeFirstLetter } from '../../../utils/utils';
+import { SidebarButton } from '../exploreSidebar';
+import { notify } from '../settingsTab';
 import Approve, { ApprovalInfo } from './approve';
 import BatchPay, { DistributionInfo } from './batchPay';
-import { useMoralis } from 'react-moralis';
-import { useRouter } from 'next/router';
-import { useGlobal } from '../../../context/globalContext';
-import { registryTemp } from '../../../constants';
-import FmdBadIcon from '@mui/icons-material/FmdBad';
-import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import CardList from './cardList';
-import PaidIcon from '@mui/icons-material/Paid';
-import { ButtonText, SidebarButton } from '../exploreSidebar';
-import { capitalizeFirstLetter } from '../../../utils/utils';
-import { completePayment } from '../../../adapters/moralis';
-import { notify } from '../settingsTab';
-
-interface Props {}
 
 const modalSteps = [
   'Pick Cards',
@@ -44,7 +36,31 @@ export type PaymentInfo = {
   currency: DistributionInfo;
 };
 
-const PaymentModal = ({}: Props) => {
+export const modalStyle = {
+  position: 'absolute' as 'absolute',
+  top: '40%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '40rem',
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
+export const Heading = styled('div')(({ theme }) => ({
+  fontWeight: 500,
+  fontSize: 16,
+  color: theme.palette.text.secondary,
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderBottom: '1px solid #99ccff',
+  padding: 16,
+  paddingLeft: 32,
+}));
+
+function PaymentModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [steps, setSteps] = useState(modalSteps);
@@ -54,34 +70,39 @@ const PaymentModal = ({}: Props) => {
     state: { registry },
   } = useGlobal();
   const [paymentInfo, setPaymentInfo] = useState({} as PaymentInfo);
-  const { Moralis, user } = useMoralis();
-  const { space, setSpace } = useSpace();
+  const { setSpace } = useSpace();
+  const { runMoralisFunction } = useMoralisFunction();
 
   const handleClose = () => {
     setIsOpen(false);
   };
   const handleNextStep = (newPaymentInfo: PaymentInfo) => {
-    var newPaymentInfo: PaymentInfo = newPaymentInfo || paymentInfo;
+    const info: PaymentInfo = newPaymentInfo || paymentInfo;
 
-    console.log(newPaymentInfo);
     if (activeStep === 0) {
-      newPaymentInfo.approval?.required
-        ? setActiveStep(1)
-        : newPaymentInfo.tokens?.contributors?.length > 0
-        ? setActiveStep(2)
-        : newPaymentInfo.currency?.contributors?.length > 0
-        ? setActiveStep(3)
-        : handleClose();
+      if (info.approval?.required) {
+        setActiveStep(1);
+      } else if (newPaymentInfo.tokens?.contributors?.length > 0) {
+        setActiveStep(2);
+      } else if (newPaymentInfo.currency?.contributors?.length) {
+        setActiveStep(3);
+      } else {
+        handleClose();
+      }
     } else if (activeStep === 1) setActiveStep(2);
-    else if (activeStep === 2)
-      newPaymentInfo.currency?.contributors?.length > 0
-        ? setActiveStep(3)
-        : handleClose();
-    else if (activeStep === 3) handleClose();
+    else if (activeStep === 2) {
+      if (newPaymentInfo.tokens?.contributors?.length > 0) {
+        setActiveStep(3);
+      } else {
+        handleClose();
+      }
+    } else if (activeStep === 3) handleClose();
   };
 
   const handleStatusUpdate = (taskIds: string[]) => {
-    completePayment(Moralis, taskIds)
+    runMoralisFunction('completePayment', {
+      taskIds,
+    })
       .then((res: any) => {
         setSpace(res);
       })
@@ -207,30 +228,6 @@ const PaymentModal = ({}: Props) => {
       </Modal>{' '}
     </>
   );
-};
-
-export const modalStyle = {
-  position: 'absolute' as 'absolute',
-  top: '40%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '40rem',
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-};
-
-export const Heading = styled('div')(({ theme }) => ({
-  fontWeight: 500,
-  fontSize: 16,
-  color: theme.palette.text.secondary,
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  borderBottom: '1px solid #99ccff',
-  padding: 16,
-  paddingLeft: 32,
-}));
+}
 
 export default PaymentModal;

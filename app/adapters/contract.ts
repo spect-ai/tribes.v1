@@ -31,14 +31,14 @@ function getERC20Contract(address: string) {
 }
 
 export async function distributeEther(
-  contributors: never,
-  values: never[],
+  contributors: any,
+  values: any[],
   taskId: string,
   chainId: string
 ) {
   const contract = getDistributorContract(chainId);
   const valuesInWei = [];
-  const contributorsWithPositiveAllocation: never[] = [];
+  const contributorsWithPositiveAllocation: any[] = [];
   let totalValue = 0;
   for (let i = 0; i < values.length; i += 1) {
     if (values[i] > 0) {
@@ -65,7 +65,7 @@ export function toEther(val: string) {
   return ethers.utils.parseEther(val);
 }
 
-export function fromWei(val: never) {
+export function fromWei(val: any) {
   if (!val) {
     return val;
   }
