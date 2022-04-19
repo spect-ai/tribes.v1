@@ -18,9 +18,13 @@ import {
   Grid,
   useTheme,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box } from "@mui/system";
-import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
+import {
+  ModalHeading,
+  PrimaryButton,
+  StyledAccordian,
+} from "../../elements/styledComponents";
 import CloseIcon from "@mui/icons-material/Close";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useMoralis } from "react-moralis";
@@ -62,11 +66,9 @@ const CreateEpoch = (props: Props) => {
   const [type, setType] = useState("");
   const [passThreshold, setPassThreshold] = useState("");
   const [cardColumn, setCardColumn] = useState(space.columnOrder[0]);
-  const [cards, setCards] = useState(
-    space.columns[space.columnOrder[0]].taskIds as string[]
-  );
-  const [isCardChecked, setIsCardChecked] = useState(
-    Array(space.columns[space.columnOrder[0]].taskIds.length).fill(true)
+  const [cards, setCards] = useState<string[]>([] as string[]);
+  const [isCardChecked, setIsCardChecked] = useState<boolean[]>(
+    [] as boolean[]
   );
   const [isOpen, setIsOpen] = useState(false);
   const { palette } = useTheme();
@@ -140,6 +142,16 @@ const CreateEpoch = (props: Props) => {
     setIsOpen(false);
   };
 
+  useEffect(() => {
+    const cards = space.columns[space.columnOrder[0]].taskIds.filter(
+      (taskId) => {
+        return space.tasks[taskId];
+      }
+    );
+    setCards(cards);
+    setIsCardChecked(Array(cards.length).fill(true));
+  }, [isOpen]);
+
   const onSubmit: SubmitHandler<EpochFormInput> = async (values) => {
     const temp = Object.assign({}, space);
     temp.creatingEpoch = true;
@@ -147,9 +159,10 @@ const CreateEpoch = (props: Props) => {
     const members = getMembers();
     const choices =
       values.type === "Member" ? getMemberChoices() : getCardChoices();
-    values.type === "Member" &&
-      members.length <= 1 &&
+    if (values.type === "Member" && members.length <= 1) {
       notify("At least 2 members required", "error");
+      return;
+    }
     startEpoch(
       Moralis,
       space.teamId,
@@ -197,7 +210,7 @@ const CreateEpoch = (props: Props) => {
       )}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
-          <Box sx={modalStyle}>
+          <ModalContainer>
             <ModalHeading>
               <Typography sx={{ color: "#99ccff" }}>Start Epoch</Typography>
               <Box sx={{ flex: "1 1 auto" }} />
@@ -218,6 +231,7 @@ const CreateEpoch = (props: Props) => {
                       fullWidth
                       sx={{ mb: 2 }}
                       size="small"
+                      color="secondary"
                       error={fieldState.error ? true : false}
                     />
                   )}
@@ -254,6 +268,7 @@ const CreateEpoch = (props: Props) => {
                           sx={{ mb: 2 }}
                           placeholder="Epoch Type"
                           size="small"
+                          color="secondary"
                           error={fieldState.error ? true : false}
                         />
                       )}
@@ -278,6 +293,7 @@ const CreateEpoch = (props: Props) => {
                       }}
                       type={"number"}
                       size="small"
+                      color="secondary"
                       error={fieldState.error ? true : false}
                     />
                   )}
@@ -306,6 +322,7 @@ const CreateEpoch = (props: Props) => {
                           sx={{ mb: 2 }}
                           placeholder="Strategy"
                           size="small"
+                          color="secondary"
                           error={fieldState.error ? true : false}
                         />
                       )}
@@ -327,6 +344,7 @@ const CreateEpoch = (props: Props) => {
                         placeholder="Pass Threshold (%)"
                         type={"number"}
                         size="small"
+                        color="secondary"
                       />
                     )}
                   />
@@ -347,6 +365,7 @@ const CreateEpoch = (props: Props) => {
                               placeholder="Budget"
                               type={"number"}
                               size="small"
+                              color="secondary"
                               error={fieldState.error ? true : false}
                             />
                           )}
@@ -368,6 +387,7 @@ const CreateEpoch = (props: Props) => {
                               onChange={(event, newValue) => {
                                 setToken(newValue as Token);
                               }}
+                              disableClearable
                               getOptionLabel={(option) => option.symbol}
                               renderInput={(params) => (
                                 <TextField
@@ -375,6 +395,7 @@ const CreateEpoch = (props: Props) => {
                                   id="filled-hidden-label-normal"
                                   placeholder="Token"
                                   size="small"
+                                  color="secondary"
                                 />
                               )}
                             />
@@ -392,6 +413,7 @@ const CreateEpoch = (props: Props) => {
                               options={getFlattenedNetworks(
                                 registry as Registry
                               )}
+                              disableClearable
                               value={chain}
                               onChange={(event, newValue) => {
                                 setChain(newValue as Chain);
@@ -409,6 +431,7 @@ const CreateEpoch = (props: Props) => {
                                   id="filled-hidden-label-normal"
                                   placeholder="Network"
                                   size="small"
+                                  color="secondary"
                                 />
                               )}
                             />
@@ -419,7 +442,7 @@ const CreateEpoch = (props: Props) => {
                   </Box>
                 )}
 
-                <Accordion disableGutters>
+                <StyledAccordian disableGutters>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1a-content"
@@ -513,7 +536,7 @@ const CreateEpoch = (props: Props) => {
                       </TableBody>
                     </Table>
                   </AccordionDetails>
-                </Accordion>
+                </StyledAccordian>
 
                 {type === "Card" && (
                   <CreateEpochTaskList
@@ -536,25 +559,26 @@ const CreateEpoch = (props: Props) => {
                 </PrimaryButton>
               </form>
             </ModalContent>
-          </Box>
+          </ModalContainer>
         </Grow>
       </Modal>
     </>
   );
 };
 
-const modalStyle = {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
   position: "absolute" as "absolute",
   top: "10%",
-  left: "30%",
+  left: "35%",
   transform: "translate(-50%, -50%)",
-  width: "35rem",
-  bgcolor: "background.paper",
+  width: "40rem",
   border: "2px solid #000",
+  backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: "auto",
   maxHeight: "calc(100% - 128px)",
-};
+}));
 
 const ModalContent = styled("div")(({ theme }) => ({
   display: "flex",

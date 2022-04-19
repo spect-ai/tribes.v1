@@ -2,8 +2,6 @@ import { BigNumber } from "ethers";
 import Moralis from "moralis/types";
 import { Delta } from "quill";
 
-declare module "react-github-login";
-
 export interface Contracts {
   distributorContract?: ethers.Contract;
 }
@@ -29,6 +27,8 @@ export type Member = {
   votesGiven: Object<string, number>;
   votesReceived: number;
   value: number;
+  discordId: string;
+  avatar: string;
 };
 
 export type MemberStats = {
@@ -55,6 +55,7 @@ export interface Team {
   logo: string;
   boards: BoardData[];
   theme: number;
+  guildId: string;
 }
 
 export interface Epoch {
@@ -132,10 +133,54 @@ export interface Task {
     creator: boolean;
     reviewer: boolean;
     assignee: boolean;
+    applicant: boolean;
+    canApply: boolean;
   };
   issueLink?: string;
   boardId: string;
   createdAt: string;
+  type: string;
+  submissions: Array<SubmissionData>;
+  proposals: Array<Proposal>;
+  numProposals: number;
+  selectedProposals: Array<string>;
+  updates: Array<object>;
+  columnId: string;
+  comments: Array<Comment>;
+}
+
+export interface Submission {
+  userId: string;
+  submissionId: string;
+  link: string;
+  name: string;
+}
+
+export interface Proposal {
+  userId: string;
+  id: string;
+  content: string;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  edited: boolean;
+}
+
+export interface Comment {
+  userId: string;
+  id: string;
+  content: Block[];
+  createdAt: Date;
+  updatedAt: Date;
+  edited: boolean;
+}
+
+export interface SubmissionData {
+  userId: string;
+  id: string;
+  content: Block[];
+  createdAt?: Date;
+  updatedAt?: Date;
+  edited: boolean;
 }
 
 export interface Contracts {
@@ -178,6 +223,10 @@ export interface BoardData {
   roles: {
     [key: string]: number;
   };
+  roleMapping: {
+    [key: string]: number;
+  };
+  userRole: number;
   epochs: Epoch[];
   _id: string;
   _createdAt: string;
@@ -186,6 +235,7 @@ export interface BoardData {
   tokenGating: TokenGate;
   private: boolean;
   creatingEpoch: boolean;
+  guildId: string;
 }
 
 export type TokenInfo = {
@@ -203,6 +253,7 @@ export type NetworkInfo = {
   chainId: string;
   nativeCurrency: string;
   pictureUrl: string;
+  blockExplorer?: string;
   tokens: { [tokenAddress: string]: TokenInfo };
 };
 
@@ -219,4 +270,43 @@ export type TokenGate = {
 export type DefaultPayment = {
   chain: Chain;
   token: Token;
+};
+
+export type DiscordResult = {
+  accent_color: string;
+  avatar: string;
+  banner: string;
+  banner_color: string;
+  discriminator: string;
+  flags: number;
+  id: string;
+  locale: string;
+  mfa_enabled: boolean;
+  public_flags: number;
+  username: string;
+  email: string;
+  verified: boolean;
+};
+
+export type CurrentUser = {
+  avatar: string;
+  createdAt: string;
+  is_discord_linked: boolean;
+  objectId: string;
+  tribes: string[];
+  updatedAt: string;
+  userId: string;
+  username: string;
+  userId: string;
+  email: string;
+  discordId: string;
+};
+
+export type Block = {
+  id: string;
+  tag: string;
+  type: string;
+  html: string;
+  imageUrl: string;
+  embedUrl: string;
 };

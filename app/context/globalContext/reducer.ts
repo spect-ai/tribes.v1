@@ -14,16 +14,12 @@ export type Action =
       contract: Contracts["distributorContract"];
     }
   | {
-      type: "SET_LOGO";
-      logo: State["logo"];
-    }
-  | {
-      type: "SET_TITLE";
-      title: State["title"];
-    }
-  | {
       type: "SET_REGISTRY";
       registry: State["registry"];
+    }
+  | {
+      type: "SET_USER";
+      user: State["currentUser"];
     }
   | {
       type: "END_ASYNC";
@@ -50,18 +46,6 @@ export const reducer = (state: State, action: Action) => {
         error: action.error,
       };
     }
-    case "SET_LOGO": {
-      return {
-        ...state,
-        logo: action.logo,
-      };
-    }
-    case "SET_TITLE": {
-      return {
-        ...state,
-        title: action.title,
-      };
-    }
     case "SET_DISTRIBUTOR_CONTRACT": {
       return {
         ...state,
@@ -75,6 +59,12 @@ export const reducer = (state: State, action: Action) => {
       return {
         ...state,
         registry: action.registry,
+      };
+    }
+    case "SET_USER": {
+      return {
+        ...state,
+        currentUser: action.user,
       };
     }
     default:

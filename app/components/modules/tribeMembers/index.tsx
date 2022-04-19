@@ -18,7 +18,6 @@ const TribeMembers = (props: Props) => {
   const [isChecked, setIsChecked] = useState<boolean[]>([] as boolean[]);
   const [roles, setRoles] = useState({} as { [key: string]: number });
   useEffect(() => {
-    setIsChecked(Array(tribe.members.length).fill(true));
     setRoles(tribe.roles);
   }, []);
   const onSave = () => {
@@ -62,18 +61,6 @@ const TribeMembers = (props: Props) => {
         setRoles={setRoles}
         entity={tribe}
       />
-      {tribe.roles[user?.id as string] === 3 && (
-        <PrimaryButton
-          variant="outlined"
-          color="secondary"
-          sx={{ borderRadius: 1, width: "20%", mt: 2 }}
-          fullWidth
-          onClick={onSave}
-          loading={isLoading}
-        >
-          Save
-        </PrimaryButton>
-      )}
     </Container>
   );
 };

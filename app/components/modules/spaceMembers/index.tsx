@@ -1,4 +1,4 @@
-import { useTheme } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { getTeam, updateBoardMembers } from "../../../adapters/moralis";
@@ -9,6 +9,8 @@ import { Toaster } from "react-hot-toast";
 import { notify } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import MemberTable from "../../elements/memberTable";
+import SpaceRoleMapping from "../../elements/spaceRoleMapping";
+import InviteMemberModal from "../inviteMemberModal";
 
 type Props = {};
 
@@ -21,79 +23,26 @@ const SpaceMembers = (props: Props) => {
   const [roles, setRoles] = useState({} as { [key: string]: number });
 
   useEffect(() => {
-    getTeam(Moralis, space.teamId)
-      .then((res: Team) => {
-        setTribe(res);
-        const membersArray = res.members.map((member: string) => {
-          return space.members.indexOf(member) !== -1;
-        });
-        let roles = {};
-        res.members.map((member: string) => {
-          // @ts-ignore
-          roles[member] = space.roles[member] || 0;
-        });
-        setRoles(roles);
-        setIsChecked(membersArray);
-      })
-      .catch((err: any) => {
-        notify(`Sorry! There was an error while loading members.`, "error");
-      });
-  }, []);
-
-  const onSave = () => {
-    setIsLoading(true);
-    const members = tribe.members.filter((member: string, index: number) => {
-      return isChecked[index];
-    });
-    let adminExists;
-    members.map((member: string) => {
-      if (roles[member] === 3) {
-        adminExists = true;
-        return;
-      }
-    });
-    if (!adminExists) {
-      notify(`You must have at least one admin.`, "error");
-      setIsLoading(false);
-      return;
-    }
-    updateBoardMembers(Moralis, space.objectId, members, roles)
-      .then((res: BoardData) => {
-        setIsLoading(false);
-        setSpace(res);
-        notify("Members updated successfully");
-      })
-      .catch((err: any) => {
-        console.log(err);
-        notify("Sorry! There was an error while updating members.", "error");
-        setIsLoading(false);
-      });
-  };
+    setRoles(space.roles);
+  }, [space]);
 
   return (
     <Container>
       <Toaster />
+      <Box sx={{ ml: 8, display: "flex" }}>
+        {space.roles[user?.id as string] === 3 && <SpaceRoleMapping />}
+        {space.roles[user?.id as string] === 3 && <InviteMemberModal />}
+      </Box>
+
       <MemberTable
         isChecked={isChecked}
         setIsChecked={setIsChecked}
-        members={tribe.members}
-        memberDetails={tribe.memberDetails}
+        members={space.members}
+        memberDetails={space.memberDetails}
         roles={roles}
         setRoles={setRoles}
         entity={space}
       />
-      {space.roles[user?.id as string] === 3 && (
-        <PrimaryButton
-          variant="outlined"
-          color="secondary"
-          sx={{ borderRadius: 1, width: "20%", mt: 2 }}
-          fullWidth
-          onClick={onSave}
-          loading={isLoading}
-        >
-          Save
-        </PrimaryButton>
-      )}
     </Container>
   );
 };

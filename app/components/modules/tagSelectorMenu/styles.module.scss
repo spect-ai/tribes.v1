@@ -1,0 +1,42 @@
+// @import "../../shared/variables.scss";
+$tertiary: #000f38;
+$secondary: #f5f5f5;
+$box-shadow: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px,
+  rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px;
+
+.menuWrapper {
+  position: absolute;
+  width: 14rem;
+  z-index: 11;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu {
+  max-height: 12rem;
+  height: fit-content;
+  overflow: scroll;
+  background: #00194a;
+  box-shadow: $box-shadow;
+  border-radius: 0.5rem;
+}
+
+.item {
+  font-weight: 100;
+  padding: 0.6rem 1rem;
+  // border-bottom: 1px solid $secondary;
+}
+
+.item:last-of-type {
+  border-bottom: none;
+}
+
+.item:hover,
+.item:focus {
+  background: $tertiary;
+  cursor: pointer;
+}
+
+.selectedTag {
+  background: $tertiary;
+}

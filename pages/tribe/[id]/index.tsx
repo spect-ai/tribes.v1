@@ -23,11 +23,7 @@ import ExploreSidebar from "../../../app/components/modules/exploreSidebar";
 import TribeNavbar from "../../../app/components/modules/tribeNavbar";
 import TribeTemplate from "../../../app/components/templates/tribe";
 import { getTheme } from "../../../app/constants/muiTheme";
-import {
-  setNavbarLogo,
-  setNavbarTitle,
-  useGlobal,
-} from "../../../app/context/globalContext";
+import { useGlobal } from "../../../app/context/globalContext";
 import { Team } from "../../../app/types";
 import { PageContainer } from "./space/[bid]";
 
@@ -54,7 +50,7 @@ interface TribeContextType {
 export const TribeContext = createContext<TribeContextType>(
   {} as TribeContextType
 );
-
+console.log("starting tribe page", new Date());
 const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();
   const { id } = router.query;
@@ -91,7 +87,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
     <>
       <Head>
         <title>Spect.Tribes</title>
-        <meta name="description" content="Manage DAO with ease" />
+        <meta name="description" content="Manage DAO with ease " />
         <link rel="icon" href="/logo2.svg" />
       </Head>
       <ThemeProvider theme={theme}>

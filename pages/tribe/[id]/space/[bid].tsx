@@ -19,6 +19,8 @@ import { getTheme } from "../../../../app/constants/muiTheme";
 import SpaceNavbar from "../../../../app/components/modules/spaceNavbar";
 import ExploreSidebar from "../../../../app/components/modules/exploreSidebar";
 import NotFound from "../../../../app/components/elements/notFound";
+import { useGlobal } from "../../../../app/context/globalContext";
+import { useMoralisFunction } from "../../../../app/hooks/useMoralisFunction";
 
 interface Props {}
 interface SpaceContextType {
@@ -35,10 +37,14 @@ interface SpaceContextType {
 }
 
 const SpaceContext = createContext<SpaceContextType>({} as SpaceContextType);
-
+console.log("starting space page", new Date());
 const SpacePage: NextPage<Props> = (props: Props) => {
   const { Moralis, isInitialized, user } = useMoralis();
   const context = useProviderSpace();
+  const { runMoralisFunction } = useMoralisFunction();
+  const {
+    state: { currentUser, loading },
+  } = useGlobal();
   const { setSpace, setIsLoading, themeChanged } = context;
   const [notFound, setNotFound] = useState(false);
 
@@ -50,21 +56,13 @@ const SpacePage: NextPage<Props> = (props: Props) => {
   useEffect(() => {
     setTheme(createTheme(getTheme(0)));
     setIsLoading(true);
-    if (isInitialized && bid) {
-      getSpace(Moralis, bid as string)
-        .then((res: BoardData) => {
-          console.log(res);
-          setSpace(res);
-          setTheme(createTheme(getTheme(res.team[0].theme)));
-          setIsLoading(false);
-        })
-        .catch((err: any) => {
-          console.log(err);
-          setNotFound(true);
-          setIsLoading(false);
-        });
+    if (!loading && bid) {
+      runMoralisFunction("getSpace", { boardId: bid }).then((res) => {
+        setSpace(res);
+        setIsLoading(false);
+      });
     }
-  }, [isInitialized, bid, themeChanged]);
+  }, [loading, bid]);
   return (
     <>
       <Head>

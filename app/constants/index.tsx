@@ -323,3 +323,9 @@ export const registryTemp: Registry = {
 
 export const tribesLogo =
   "https://ipfs.moralis.io:2053/ipfs/QmRnbkmvYthsi6bXpZ5j14yZyfuxgVD3SaokXNRrBRsyQw";
+
+export const roleMapping: { [key: number]: string } = {
+  1: "Member",
+  2: "Contributor",
+  3: "Steward",
+};

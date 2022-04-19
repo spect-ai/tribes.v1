@@ -70,7 +70,7 @@ const Card = styled.div<{ palette: Palette }>`
   width: 100%;
   height: 14rem;
   border: 1px solid ${(props) => props.palette.divider};
-  border-radius: 12px;
+  border-radius: 4px;
   &:hover {
     cursor: pointer;
     box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);

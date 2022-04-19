@@ -17,7 +17,7 @@ export function createTribe(Moralis: any, name: string) {
   const params = {
     name: name,
   };
-  return Moralis.Cloud.run("createTeam", params);
+  return Moralis.Cloud.run("createTribe", params);
 }
 
 export function updateTribe(Moralis: any, team: Team, teamId: string) {

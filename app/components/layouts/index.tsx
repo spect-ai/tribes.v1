@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { createTheme, Typography } from "@mui/material";
+import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useMoralis } from "react-moralis";
 import { PageContainer } from "../../../pages/tribe/[id]/space/[bid]";
@@ -7,8 +8,11 @@ import { getTheme } from "../../constants/muiTheme";
 import GlobalContextProvider, {
   initContracts,
   initRegistry,
+  updateLoading,
+  updateUser,
   useGlobal,
 } from "../../context/globalContext";
+import { useMoralisFunction } from "../../hooks/useMoralisFunction";
 interface Props {
   children: React.ReactNode;
 }
@@ -46,8 +50,11 @@ const Main = styled.main`
 `;
 
 const Layout = ({ children }: Props) => {
-  const { Moralis, isInitialized } = useMoralis();
-  const { dispatch, state } = useGlobal();
+  const { Moralis, isInitialized, user, isAuthenticated } = useMoralis();
+  const { runMoralisFunction } = useMoralisFunction();
+  const { dispatch } = useGlobal();
+
+  const router = useRouter();
 
   useEffect(() => {
     if (isInitialized) {
@@ -55,6 +62,23 @@ const Layout = ({ children }: Props) => {
       initRegistry(dispatch, Moralis);
     }
   }, [isInitialized]);
+
+  useEffect(() => {
+    if (router.query.code) {
+      console.log("linking user");
+      runMoralisFunction("linkDiscordUser", { code: router.query.code }).then(
+        (res) => {
+          console.log(res);
+          // updateUser(dispatch, res);
+          user?.fetch().then((res) => {
+            console.log(res);
+          });
+          router.push("/");
+        }
+      );
+    }
+  }, [router.query.code]);
+
   return (
     <>
       <OuterDiv>
@@ -72,4 +96,20 @@ const Layout = ({ children }: Props) => {
   );
 };
 
+// console.log(router.query.userId);
+// if (router.query.userId) {
+//   runMoralisFunction("getUserInfo", { userId: router.query.userId }).then(
+//     (res) => {
+//       console.log(res);
+//       localStorage.setItem("objectId", res.objectId);
+//       updateUser(dispatch, res);
+//     }
+//   );
+// }
+// if (localStorage.getItem("objectId") !== "undefined") {
+//   refreshDiscordUser(localStorage.getItem("objectId") as string).then((res) => {
+//     console.log(res);
+//     updateUser(dispatch, res);
+//   });
+// }
 export default Layout;

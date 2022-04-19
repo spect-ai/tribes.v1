@@ -1,4 +1,3 @@
-import MD5 from "crypto-js/md5";
 import { monthMap } from "../constants";
 import { Registry, Chain, Token } from "../types";
 
@@ -36,15 +35,20 @@ export function formatTimeLeft(date: Date) {
   return msToTime(deadline.getTime() - now);
 }
 
+export function formatTimeCreated(date: Date) {
+  const now = Date.now();
+  return msToTime(now - new Date(date).getTime());
+}
+
 function msToTime(ms: number) {
   let seconds = parseInt((ms / 1000).toFixed(0));
   let minutes = parseInt((ms / (1000 * 60)).toFixed(0));
   let hours = parseInt((ms / (1000 * 60 * 60)).toFixed(0));
   let days = (ms / (1000 * 60 * 60 * 24)).toFixed(0);
   if (seconds < 0) return "Expired";
-  else if (seconds < 60) return seconds + " Sec";
-  else if (minutes < 60) return minutes + " Min";
-  else if (hours < 24) return hours + " Hrs";
+  else if (seconds < 60) return seconds + " sec";
+  else if (minutes < 60) return minutes + `${minutes === 1 ? " min" : " mins"}`;
+  else if (hours < 24) return hours + `${hours > 1 ? " hours" : " hour"}`;
   else return days + " Days";
 }
 
@@ -56,10 +60,6 @@ export function getRemainingVotes(
   return (
     prevRemainingVotes + Math.pow(prevVotesGiven, 2) - Math.pow(votesGiven, 2)
   );
-}
-
-export function getMD5String(string: string) {
-  return MD5(string).toString();
 }
 
 export function activityFormatter(status: number, date: Date, actor: string) {
@@ -139,4 +139,73 @@ export function downloadCSV(content: Array<Array<any>>, filename: string) {
 
 export function capitalizeFirstLetter(word: string) {
   return word?.charAt(0).toUpperCase() + word?.slice(1);
+}
+
+export const uid = () => {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+};
+
+export const setCaretToEnd = (element: any) => {
+  const range = document.createRange();
+  const selection = window.getSelection();
+  if (element) {
+    range.selectNodeContents(element);
+    range.collapse(false);
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+    element.focus();
+  }
+};
+
+export const getCaretCoordinates = (fromStart = true) => {
+  let x, y;
+  const isSupported = typeof window.getSelection !== "undefined";
+  if (isSupported) {
+    const selection = window.getSelection();
+    const range = selection?.getRangeAt(0).cloneRange();
+    var span = document.createElement("span");
+    const modal = document.getElementById("cardModal");
+    const modalRect = modal?.getClientRects()[0];
+    if (span.getClientRects) {
+      span.appendChild(document.createTextNode("\u200b"));
+      range?.insertNode(span);
+      const rect = span.getClientRects()[0];
+      if (rect) {
+        if (rect.top > 350) {
+          // @ts-ignore
+          x = rect.left - modalRect.left;
+          // @ts-ignore
+          y = rect.top + modal?.scrollTop;
+        } else {
+          // @ts-ignore
+          x = rect.left - modalRect.left;
+          // @ts-ignore
+          y = rect.top + modal?.scrollTop + 100;
+        }
+      }
+      var spanParent = span.parentNode;
+      spanParent?.removeChild(span);
+    }
+  }
+  return { x, y };
+};
+
+export function isValidHttpUrl(string: string) {
+  let url;
+
+  try {
+    url = new URL(string);
+  } catch (_) {
+    return false;
+  }
+
+  return url.protocol === "http:" || url.protocol === "https:";
+}
+
+export function delay(delayInms: number) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(2);
+    }, delayInms);
+  });
 }

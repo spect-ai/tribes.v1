@@ -3,13 +3,14 @@ import React, { useState } from "react";
 import { Draggable } from "react-beautiful-dnd";
 import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
 import DateRangeIcon from "@mui/icons-material/DateRange";
-import TaskModal from "../taskModal";
+import CardModal from "../cardModal";
 import { labelsMapping, monthMap } from "../../../constants";
 import { Column, Task } from "../../../types";
 import CreditScoreIcon from "@mui/icons-material/CreditScore";
 import { smartTrim } from "../../../utils/utils";
 import { Palette, useTheme } from "@mui/material";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { useRouter } from "next/router";
 
 type Props = {
   task: Task;
@@ -18,19 +19,19 @@ type Props = {
 };
 const TaskContainer = ({ task, index, column }: Props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const { bid, id } = router.query;
   const handleClose = () => setIsOpen(false);
   const { space, setSpace } = useSpace();
   const { palette } = useTheme();
   return (
     <>
-      {isOpen && (
-        <TaskModal
-          isOpen={isOpen}
-          handleClose={handleClose}
-          taskId={task.taskId}
-          column={column}
-        />
-      )}
+      <CardModal
+        isOpen={isOpen}
+        handleClose={handleClose}
+        taskId={task.taskId}
+        columnId={column.id}
+      />
       <Draggable draggableId={task.taskId} index={index}>
         {(provided, snapshot) => (
           <TaskCard
@@ -38,7 +39,9 @@ const TaskContainer = ({ task, index, column }: Props) => {
             {...provided.dragHandleProps}
             ref={provided.innerRef}
             isDragging={snapshot.isDragging}
-            onClick={() => setIsOpen(true)}
+            onClick={() => {
+              setIsOpen(true);
+            }}
             palette={palette}
           >
             <Container>

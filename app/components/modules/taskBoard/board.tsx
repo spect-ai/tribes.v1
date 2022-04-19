@@ -22,6 +22,9 @@ import { BoardData } from "../../../types";
 import { notify } from "../settingsTab";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import Column from "../column";
+import { PrimaryButton } from "../../elements/styledComponents";
+import TrelloImport from "../importTrello";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 
 type Props = {
   expanded: boolean;
@@ -34,6 +37,11 @@ const Board = ({ expanded, handleChange }: Props) => {
   const { space, setSpace } = useSpace();
   const router = useRouter();
   const { Moralis, user } = useMoralis();
+  const { runMoralisFunction } = useMoralisFunction();
+  const [isOpen, setIsOpen] = useState(false);
+  const handleClose = () => {
+    setIsOpen(false);
+  };
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId, type } = result;
@@ -100,14 +108,14 @@ const Board = ({ expanded, handleChange }: Props) => {
           },
         },
       });
-      updateColumnTasks(
-        Moralis,
-        bid as string,
-        result.source.droppableId,
-        result.source.droppableId,
-        newList,
-        newList
-      )
+      runMoralisFunction("updateColumnTasks", {
+        boardId: bid,
+        sourceId: result.source.droppableId,
+        destinationId: result.source.droppableId,
+        source: newList,
+        destination: newList,
+        taskId: draggableId,
+      })
         .then((res: any) => {
           setSpace(res as BoardData);
         })
@@ -138,23 +146,23 @@ const Board = ({ expanded, handleChange }: Props) => {
           [newFinish.id]: newFinish,
         },
       });
-
-      updateColumnTasks(
-        Moralis,
-        bid as string,
-        newStart.id,
-        newFinish.id,
-        newStart,
-        newFinish
-      )
+      runMoralisFunction("updateColumnTasks", {
+        boardId: bid,
+        sourceId: newStart.id,
+        destinationId: newFinish.id,
+        source: newStart,
+        destination: newFinish,
+        taskId: draggableId,
+      })
         .then((res: any) => {
           setSpace(res as BoardData);
-          if (newFinish.id === "column-3") {
-            updateTaskStatus(Moralis, draggableId, 205).then((res: any) => {
-              console.log("updateTaskStatus", res);
-              setSpace(res as BoardData);
-            });
-          }
+          // do we need this now?????
+          // if (newFinish.id === "column-3") {
+          //   updateTaskStatus(Moralis, draggableId, 205).then((res: any) => {
+          //     console.log("updateTaskStatus", res);
+          //     setSpace(res as BoardData);
+          //   });
+          // }
         })
         .catch((err: any) => {
           setSpace(tempData);
@@ -165,72 +173,96 @@ const Board = ({ expanded, handleChange }: Props) => {
 
   const { id, bid } = router.query;
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <Droppable droppableId="all-columns" direction="horizontal" type="column">
-        {(provided, snapshot) => (
-          <Container {...provided.droppableProps} ref={provided.innerRef}>
-            {space.columnOrder.map((columnId, index) => {
-              const column = space.columns[columnId];
-              const tasks = column.taskIds?.map(
-                (taskId) => space.tasks[taskId]
-              );
-              return (
-                <Column
-                  key={columnId}
-                  column={column}
-                  tasks={tasks}
-                  id={columnId}
-                  index={index}
-                />
-              );
-            })}
-            {provided.placeholder}
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              sx={{
-                textTransform: "none",
-                height: "5%",
-                minWidth: "16rem",
-                borderRadius: 1,
-                margin: "0.3rem 2rem 1rem 0rem",
-              }}
-              disabled={space.roles[user?.id as string] !== 3}
-              onClick={() => {
-                const newColumnId = Object.keys(space.columns).length;
-                const tempData = Object.assign({}, space);
-                setSpace({
-                  ...space,
-                  columns: {
-                    ...space.columns,
-                    [`column-${newColumnId}`]: {
-                      id: `column-${newColumnId}`,
-                      title: "",
-                      taskIds: [],
-                      cardType: 1,
-                      createCard: { 0: false, 1: false, 2: true, 3: true },
-                      moveCard: { 0: false, 1: true, 2: true, 3: true },
-                    },
-                  },
-                  columnOrder: [...space.columnOrder, `column-${newColumnId}`],
-                });
-                addColumn(Moralis, bid as string)
-                  .then((res: BoardData) => setSpace(res))
-                  .catch((err: any) => {
-                    setSpace(tempData);
-                    notify(
-                      "Sorry! There was an error while adding column",
-                      "error"
-                    );
-                  });
-              }}
-            >
-              Add new column
-            </Button>
-          </Container>
+    <>
+      <TrelloImport isOpen={isOpen} handleClose={handleClose} />
+      {Object.keys(space.tasks).length === 0 &&
+        space.roles[user?.id as string] === 3 && (
+          <PrimaryButton
+            variant="outlined"
+            sx={{ borderRadius: 1, ml: 2 }}
+            color="secondary"
+            size="small"
+            onClick={() => {
+              setIsOpen(true);
+            }}
+          >
+            Import tasks from Trello
+          </PrimaryButton>
         )}
-      </Droppable>
-    </DragDropContext>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable
+          droppableId="all-columns"
+          direction="horizontal"
+          type="column"
+        >
+          {(provided, snapshot) => (
+            <Container {...provided.droppableProps} ref={provided.innerRef}>
+              {space.columnOrder.map((columnId, index) => {
+                const column = space.columns[columnId];
+                const tasks = column.taskIds?.map(
+                  (taskId) => space.tasks[taskId]
+                );
+                return (
+                  <Column
+                    key={columnId}
+                    column={column}
+                    tasks={tasks}
+                    id={columnId}
+                    index={index}
+                  />
+                );
+              })}
+              {provided.placeholder}
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                sx={{
+                  textTransform: "none",
+                  height: "5%",
+                  minWidth: "16rem",
+                  borderRadius: 1,
+                  margin: "0.3rem 2rem 1rem 0rem",
+                }}
+                disabled={space.roles[user?.id as string] !== 3}
+                onClick={() => {
+                  const newColumnId = Object.keys(space.columns).length;
+                  const tempData = Object.assign({}, space);
+                  setSpace({
+                    ...space,
+                    columns: {
+                      ...space.columns,
+                      [`column-${newColumnId}`]: {
+                        id: `column-${newColumnId}`,
+                        title: "",
+                        taskIds: [],
+                        cardType: 1,
+                        createCard: { 0: false, 1: false, 2: true, 3: true },
+                        moveCard: { 0: false, 1: true, 2: true, 3: true },
+                      },
+                    },
+                    columnOrder: [
+                      ...space.columnOrder,
+                      `column-${newColumnId}`,
+                    ],
+                  });
+                  addColumn(Moralis, bid as string)
+                    .then((res: BoardData) => setSpace(res))
+                    .catch((err: any) => {
+                      setSpace(tempData);
+                      notify(
+                        "Sorry! There was an error while adding column",
+                        "error"
+                      );
+                    });
+                }}
+              >
+                Add new column
+              </Button>
+            </Container>
+          )}
+        </Droppable>
+      </DragDropContext>
+    </>
   );
 };
 const Container = styled.div`

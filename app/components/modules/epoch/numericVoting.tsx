@@ -96,6 +96,7 @@ const NumericVoting = ({
                       min: 0,
                     }}
                     size="small"
+                    color="secondary"
                     error={votesRemaining < 0}
                     sx={{ width: "30%" }}
                     onChange={(event) => {

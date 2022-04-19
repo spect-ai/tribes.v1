@@ -4,13 +4,13 @@ import Script from "next/script";
 import { useRouter } from "next/router";
 import Layout from "../app/components/layouts";
 import "../app/styles/globals.css";
-import "../app/styles/mde.css";
 import GlobalContextProvider from "../app/context/globalContext";
 
+console.log("starting _app", new Date());
 function MyApp({ Component, pageProps }: AppProps) {
   // let theme = createTheme(classicDark);
   const router = useRouter();
-  const url = `localhost:3000/${router.route}`;
+  const url = `https://dev.spect.network/${router.route}`;
 
   return (
     <MoralisProvider

@@ -6,7 +6,6 @@ import { PrimaryButton } from "../../elements/styledComponents";
 import { useTribe } from "../../../../pages/tribe/[id]";
 import { updateTribe } from "../../../adapters/moralis";
 import { useMoralis } from "react-moralis";
-import { getMD5String } from "../../../utils/utils";
 import toast, { Toaster } from "react-hot-toast";
 export interface SettingFormInput {
   name: string;
@@ -58,9 +57,10 @@ const Settings = () => {
         setIsLoading(false);
         notify("Updated Tribe!");
       })
-      .catch((err: any) =>
-        notify("Sorry! There was an error while updating tribe.", "error")
-      );
+      .catch((err: any) => {
+        notify(err.message, "error");
+        setIsLoading(false);
+      });
   };
 
   return (
@@ -82,6 +82,7 @@ const Settings = () => {
                   fullWidth
                   placeholder="Name"
                   label="Tribe name"
+                  color="secondary"
                 />
               )}
             />
@@ -102,6 +103,7 @@ const Settings = () => {
                   placeholder="Description"
                   multiline
                   label={tribe.description ? "Description" : ""}
+                  color="secondary"
                 />
               )}
             />
@@ -155,6 +157,7 @@ const Settings = () => {
                     size="small"
                     fullWidth
                     placeholder="https://discord.gg/invitecode"
+                    color="secondary"
                   />
                 )}
               />
@@ -181,6 +184,7 @@ const Settings = () => {
                     size="small"
                     fullWidth
                     placeholder="https://twitter.com/profile"
+                    color="secondary"
                   />
                 )}
               />
@@ -207,6 +211,7 @@ const Settings = () => {
                     size="small"
                     fullWidth
                     placeholder="https://my-site.com"
+                    color="secondary"
                   />
                 )}
               />
@@ -219,15 +224,7 @@ const Settings = () => {
             >
               Tribe Logo
             </FormLabel>
-            <Avatar
-              src={
-                logo ||
-                `https://www.gravatar.com/avatar/${getMD5String(
-                  tribe._id
-                )}?d=identicon&s=64`
-              }
-              sx={{ height: 60, width: 60 }}
-            />
+            <Avatar src={logo} sx={{ height: 60, width: 60 }} />
             <input
               accept="image/*"
               hidden

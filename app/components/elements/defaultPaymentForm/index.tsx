@@ -43,7 +43,9 @@ const DefaultPaymentForm = ({ chain, setChain, token, setToken }: Props) => {
           setChain(newValue as Chain);
         }}
         fullWidth
-        renderInput={(params) => <TextField {...params} size="small" />}
+        renderInput={(params) => (
+          <TextField {...params} size="small" color="secondary" />
+        )}
         sx={{ mr: 2 }}
       />
       <Autocomplete
@@ -75,6 +77,7 @@ const DefaultPaymentForm = ({ chain, setChain, token, setToken }: Props) => {
             id="filled-hidden-label-normal"
             size="small"
             placeholder="Token"
+            color="secondary"
           />
         )}
       />

@@ -7,29 +7,41 @@ import {
   TextField,
   Typography,
   styled as MUIStyled,
+  Backdrop,
+  CircularProgress,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PrimaryButton, SidebarButton } from "../../elements/styledComponents";
 import CloseIcon from "@mui/icons-material/Close";
 import { Box } from "@mui/system";
 import { useMoralis } from "react-moralis";
 import EditIcon from "@mui/icons-material/Edit";
-import { getMD5String } from "../../../utils/utils";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { OptionsButton } from "../themePopover";
 import { ButtonText } from "../exploreSidebar";
+import { useGlobal } from "../../../context/globalContext";
+import { useProfileInfo } from "../../../hooks/useProfileInfo";
 
 type Props = {};
 
 const ProfileSettings = (props: Props) => {
   const { Moralis, user } = useMoralis();
+  const { avatar } = useProfileInfo();
 
-  const [userName, setuserName] = useState(user?.get("username"));
-  const [userEmail, setuserEmail] = useState(user?.get("email"));
+  const [username, setUsername] = useState(user?.get("username"));
+  const [picture, setPicture] = useState("");
+  // const [userEmail, setuserEmail] = useState(user?.get("email"));
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-
+  const {
+    state: { currentUser },
+  } = useGlobal();
   const handleClose = () => setIsOpen(false);
+
+  useEffect(() => {
+    setPicture(avatar);
+  }, [avatar]);
+
   return (
     <>
       <OptionsButton color="inherit" onClick={() => setIsOpen(true)}>
@@ -47,16 +59,29 @@ const ProfileSettings = (props: Props) => {
               </IconButton>
             </Heading>
             <ModalContent>
+              <Backdrop
+                sx={{
+                  color: "#eaeaea",
+                  zIndex: (theme) => theme.zIndex.drawer + 1,
+                }}
+                open={isLoading}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <CircularProgress color="inherit" />
+                  <Typography sx={{ mt: 2, mb: 1, color: "#eaeaea" }}>
+                    {"Updating profile..."}
+                  </Typography>
+                </Box>
+              </Backdrop>
               <FieldContainer>
-                <Avatar
-                  src={
-                    user?.get("profilePicture")?._url ||
-                    `https://www.gravatar.com/avatar/${getMD5String(
-                      user?.id as string
-                    )}?d=identicon&s=64`
-                  }
-                  sx={{ height: 60, width: 60 }}
-                />
+                <Avatar src={picture} sx={{ height: 60, width: 60 }} />
                 <input
                   accept="image/*"
                   hidden
@@ -71,54 +96,42 @@ const ProfileSettings = (props: Props) => {
                       user?.set("profilePicture", moralisFile);
                       user?.save().then((res: any) => {
                         setIsLoading(false);
+                        setPicture(res.get("profilePicture")._url);
                       });
                     }
                   }}
                 />
                 <label htmlFor="contained-button-file">
-                  {/*// @ts-ignore */}
-                  <PrimaryButton component="span" sx={{ borderRadius: 1 }}>
+                  {/* @ts-ignore */}
+                  <PrimaryButton sx={{ borderRadius: 1 }} component="span">
                     Edit
                   </PrimaryButton>
                 </label>
               </FieldContainer>
               <FieldContainer>
                 <TextField
-                  value={userName}
-                  onChange={(e) => setuserName(e.target.value)}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   fullWidth
                   placeholder="Username"
                   size="small"
+                  color="secondary"
+                  onBlur={() => {
+                    user?.set("username", username);
+                    user?.save();
+                  }}
                 />
               </FieldContainer>
-              <FieldContainer>
+              {/* <FieldContainer>
                 <TextField
                   placeholder="Email"
-                  value={userEmail}
-                  onChange={(e) => setuserEmail(e.target.value)}
+                  value={currentUser?.email}
                   fullWidth
                   size="small"
+                  inputProps={{ readOnly: true }}
+                  color="secondary"
                 />
-              </FieldContainer>
-              <PrimaryButton
-                variant="outlined"
-                color="secondary"
-                sx={{ width: "50%", mt: 2, borderRadius: 1 }}
-                loading={isLoading}
-                onClick={() => {
-                  setIsLoading(true);
-                  if (user) {
-                    user.set("username", userName);
-                    user.set("email", userEmail);
-                    user.save().then((res: any) => {
-                      setIsLoading(false);
-                      handleClose();
-                    });
-                  }
-                }}
-              >
-                Save
-              </PrimaryButton>
+              </FieldContainer> */}
             </ModalContent>
           </ModalContainer>
         </Grow>

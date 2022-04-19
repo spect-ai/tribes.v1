@@ -5,7 +5,7 @@ type Props = {};
 
 const SkeletonLoader = (props: Props) => {
   return (
-    <Grid container spacing={2} sx={{ mt: 16 }} columns={10}>
+    <Grid container spacing={2} columns={10}>
       <Grid item xs={2}>
         {Array(5)
           .fill("")

@@ -30,7 +30,29 @@ async function getTaskObjByBoardId(boardId) {
     {
       match: {
         boardId: boardId,
-        status: { $ne: 400 },
+        status: { $ne: 500 }, // need to discuss status for archived cards
+      },
+    },
+    {
+      project: {
+        description: 0,
+        submission: 0,
+        activity: 0,
+        proposals: 0,
+        selectedProposals: 0,
+      },
+    },
+  ];
+  return await taskQuery.aggregate(pipeline, { useMasterKey: true });
+}
+
+async function getTaskObjByBoardIdWithProposals(boardId) {
+  const taskQuery = new Moralis.Query("Task");
+  const pipeline = [
+    {
+      match: {
+        boardId: boardId,
+        status: { $ne: 500 },
       },
     },
     {
@@ -48,42 +70,6 @@ async function getTaskCountInBoard(boardId) {
   const taskQuery = new Moralis.Query("Task");
   taskQuery.equalTo("boardId", boardId);
   return await taskQuery.count({ useMasterKey: true });
-}
-
-function handleCreateTask(
-  task,
-  taskId,
-  defaultPayment,
-  boardId,
-  title,
-  value,
-  userId,
-  description
-) {
-  task.set("taskId", taskId);
-  task.set("token", {
-    address: defaultPayment?.token?.address,
-    symbol: defaultPayment?.token?.symbol,
-  });
-  task.set("chain", {
-    chainId: defaultPayment?.chain?.chainId,
-    name: defaultPayment?.chain?.name,
-  });
-  task.set("boardId", boardId);
-  task.set("title", title);
-  task.set("value", parseFloat(value));
-  task.set("creator", userId);
-  task.set("reviewer", [userId]);
-  task.set("assignee", []);
-  task.set("description", description);
-  task.set("activity", [
-    {
-      actor: userId,
-      action: 100,
-      timestamp: new Date(),
-    },
-  ]);
-  return task;
 }
 
 function getTaskObjByTaskParseObj(task) {
@@ -105,74 +91,6 @@ function getTaskObjByTaskParseObj(task) {
     status: task.get("status"),
   };
 }
-
-Moralis.Cloud.define("getTask", async (request) => {
-  const logger = Moralis.Cloud.getLogger();
-  try {
-    if (request.params.taskId) {
-      const task = await getTaskObjByTaskId(request.params.taskId);
-      logger.info(`getTask: ${JSON.stringify(task)}`);
-      if (!task) throw `Task ${request.params.taskId} not found`;
-
-      // Get space to check if user can view it
-      const space = await getBoardObjByObjectId(task.boardId, request.user?.id);
-      const canReadSpace = canRead(space[0], request.user?.id);
-      if (!canReadSpace) throw "You dont have access to view this space";
-
-      // Get access level of caller
-      const access = getFieldLevelAccess(task, request.user?.id);
-      task.access = access;
-      logger.info(`access ${JSON.stringify(access)}`);
-
-      return task;
-    }
-  } catch (err) {
-    logger.error(
-      `Error while getting task from board ${request.params.taskId}: ${err}`
-    );
-    throw err;
-  }
-});
-
-Moralis.Cloud.define("addTask", async (request) => {
-  const logger = Moralis.Cloud.getLogger();
-
-  const board = await getBoardByObjectId(request.params.boardId);
-  try {
-    if (isMember(request.user.id, board)) {
-      var columns = board.get("columns");
-      const numTasks = await getTaskCountInBoard(request.params.boardId);
-      const taskId = `task-${request.params.boardId}-${numTasks + 1}`;
-      var taskIds = columns[request.params.columnId].taskIds;
-      columns[request.params.columnId].taskIds = taskIds.concat([taskId]);
-      board.set("columns", columns);
-      const defaultPayment = board.get("defaultPayment");
-      logger.info(`defaultPayment ${JSON.stringify(defaultPayment)}`);
-      var task = new Moralis.Object("Task");
-      task = handleCreateTask(
-        task,
-        taskId,
-        defaultPayment,
-        request.params.boardId,
-        request.params.title,
-        request.params.value,
-        request.user.id,
-        request.params.description
-      );
-      logger.info(`task ${JSON.stringify(task)}`);
-      await Moralis.Object.saveAll([task], { useMasterKey: true });
-      await Moralis.Object.saveAll([board], { useMasterKey: true });
-      return await getSpace(request.params.boardId, request.user.id);
-    } else {
-      throw "User doesnt have access to create task";
-    }
-  } catch (err) {
-    logger.error(
-      `Error while adding task in board ${request.params.boardId}: ${err}`
-    );
-    throw `Error while adding task ${err}`;
-  }
-});
 
 Moralis.Cloud.define("updateTaskColumn", async (request) => {
   const logger = Moralis.Cloud.getLogger();
@@ -395,7 +313,7 @@ Moralis.Cloud.define("updateTaskStatus", async (request) => {
     logger.error(
       `Error while updating task status with task Id ${request.params.taskId}: ${err}`
     );
-    throw `Error while updating task status ${err}`;
+    throw `${err}`;
   }
 });
 
@@ -418,6 +336,8 @@ function handleTitleUpdate(task, userId, title) {
 function handleDescriptionUpdate(task, userId, description) {
   if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
     task.set("description", description);
+  } else {
+    throw `Unauthorized to update description`;
   }
   return task;
 }
@@ -448,6 +368,8 @@ function handleRewardUpdate(task, userId, value, token, chain, currencyFlag) {
 function handleTagUpdate(task, userId, tags) {
   if (isTaskCreator(task, userId) || isTaskReviewer(task, userId)) {
     task.set("tags", tags);
+  } else {
+    throw `Unauthorized to update tags`;
   }
   return task;
 }
@@ -468,25 +390,15 @@ function handleAssigneeUpdate(task, callerId, assigneeId) {
 
 function handleReviewerUpdate(task, callerId, reviewerId) {
   if (isTaskCreator(task, callerId) || isTaskReviewer(task, callerId)) {
-    logger.info(`dadadadad`);
-
     reviewerId && task.set("reviewer", [reviewerId]);
-  }
-  return task;
+    return task;
+  } else throw `Unauthorized to update reviewer`;
 }
 
 function handleSubmissionUpdate(task, userId, link, name) {
   // if (isTaskAssignee(task, userId)) {
   task.set("submission", { link: link, name: name });
   // }
-  return task;
-}
-
-function handleActivityUpdate(task, userId, action) {
-  task.set("activity", [
-    { actor: userId, action: action, timestamp: new Date() },
-    ...task.get("activity"),
-  ]);
   return task;
 }
 

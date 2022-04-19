@@ -15,6 +15,7 @@ import { Box } from "@mui/system";
 import React, { useEffect, useState } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import {
+  ModalHeading,
   PrimaryButton,
   StyledAccordian,
 } from "../../elements/styledComponents";
@@ -65,9 +66,9 @@ const BoardSettings = (props: Props) => {
   const { palette } = useTheme();
   useEffect(() => {
     setName(space.name);
-    setTokenGateChain(space.tokenGating?.chain);
-    setTokenGateToken(space.tokenGating?.token);
-    setTokenGateLimit(space.tokenGating?.tokenLimit);
+    // setTokenGateChain(space.tokenGating?.chain);
+    // setTokenGateToken(space.tokenGating?.token);
+    // setTokenGateLimit(space.tokenGating?.tokenLimit);
     setDefaultChain(space.defaultPayment?.chain);
     setDefaultToken(space.defaultPayment?.token);
   }, [space]);
@@ -76,7 +77,16 @@ const BoardSettings = (props: Props) => {
       <SidebarButton
         palette={palette}
         selected={isOpen}
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          if (space.roles[user?.id as string] !== 3) {
+            notify(
+              "You don't have permission to change settings for this space",
+              "error"
+            );
+            return;
+          }
+          setIsOpen(true);
+        }}
       >
         <Tooltip
           title="Space Settings"
@@ -98,13 +108,13 @@ const BoardSettings = (props: Props) => {
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
           <ModalContainer>
-            <Heading>
+            <ModalHeading>
               <Typography>Settings</Typography>
               <Box sx={{ flex: "1 1 auto" }} />
               <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
-            </Heading>
+            </ModalHeading>
             <ModalContent>
               <StyledAccordian disableGutters>
                 <AccordionSummary
@@ -141,7 +151,7 @@ const BoardSettings = (props: Props) => {
                   />
                 </AccordionDetails>
               </StyledAccordian>
-              <StyledAccordian disableGutters>
+              {/* <StyledAccordian disableGutters>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   Token Gating
                 </AccordionSummary>
@@ -159,7 +169,7 @@ const BoardSettings = (props: Props) => {
                     setTokenLimit={setTokenGateLimit}
                   />
                 </AccordionDetails>
-              </StyledAccordian>
+              </StyledAccordian> */}
               {/* <StyledAccordian disableGutters>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
@@ -301,18 +311,6 @@ const ModalContainer = MUIStyled(Box)(({ theme }) => ({
   boxShadow: 24,
   overflow: "auto",
   maxHeight: "calc(100% - 128px)",
-}));
-
-const Heading = MUIStyled("div")(({ theme }) => ({
-  fontWeight: 500,
-  fontSize: 16,
-  color: theme.palette.text.secondary,
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  borderBottom: "1px solid #99ccff",
-  padding: 16,
-  paddingLeft: 32,
 }));
 
 const ModalContent = MUIStyled("div")(({ theme }) => ({

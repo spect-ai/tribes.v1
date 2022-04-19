@@ -23,6 +23,8 @@ import CreateTask from "../task/createTask";
 import TaskContainer from "../task";
 import CreateGithubTask from "../task/createGithubTask";
 import ColumnSettings from "../columnSettings";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import CardModal from "../cardModal";
 
 type Props = {
   tasks: Task[];
@@ -37,9 +39,13 @@ const Column = ({ tasks, id, column, index }: Props) => {
   const { space, setSpace } = useSpace();
   const { bid } = router.query;
 
-  const [showCreateTask, setShowCreateTask] = useState(false);
-  const [showCreateGithubTask, setShowCreateGithubTask] = useState(false);
+  // const [showCreateTask, setShowCreateTask] = useState(false);
+  // const [showCreateGithubTask, setShowCreateGithubTask] = useState(false);
+  const [isTaskOpen, setIsTaskOpen] = useState(false);
+  const handleTaskClose = () => setIsTaskOpen(false);
+  const [taskId, setTaskId] = useState("");
   const [currentColumnTitle, setCurrentColumnTitle] = useState(column.title);
+  const { runMoralisFunction } = useMoralisFunction();
   const [columnTitle, setColumnTitle] = useState(column.title);
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -79,6 +85,12 @@ const Column = ({ tasks, id, column, index }: Props) => {
           column={column}
         />
       )}
+      <CardModal
+        isOpen={isTaskOpen}
+        handleClose={handleTaskClose}
+        taskId={taskId}
+        columnId={column.id}
+      />
       <Draggable
         draggableId={id}
         index={index}
@@ -115,84 +127,44 @@ const Column = ({ tasks, id, column, index }: Props) => {
                     <IconButton
                       sx={{ mb: 0.5, p: 1 }}
                       size="small"
+                      onClick={() => {
+                        if (
+                          !column.createCard[space.roles[user?.id as string]] &&
+                          !column.createCard[0]
+                        ) {
+                          notify(
+                            "Your role doesn't have permission to create tasks in this column",
+                            "error"
+                          );
+                          return;
+                        }
+                        // setShowCreateTask(true);
+                        runMoralisFunction("addTask", {
+                          boardId: bid as string,
+                          columnId: id,
+                          title: "",
+                          value: 0,
+                        }).then((res: any) => {
+                          console.log(res);
+                          setSpace(res.space as BoardData);
+                          setTaskId(res.taskId);
+                          setIsTaskOpen(true);
+                          // setShowCreateTask(false);
+                        });
+                      }}
+                    >
+                      <AddIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      sx={{ mb: 0.5, p: 1 }}
+                      size="small"
                       onClick={() => setIsOpen(true)}
                       disabled={space.roles[user?.id as string] !== 3}
                     >
                       <SettingsIcon fontSize="small" />
                     </IconButton>
                   </TaskTitleContainer>
-                  <Box sx={{ display: "flex", flexDirection: "row" }}>
-                    <>
-                      <Button
-                        sx={{
-                          textTransform: "none",
-                          textAlign: "left",
-                          justifyContent: "flex-start",
-                          ml: 1,
-                          color: palette.text.primary,
-                        }}
-                        variant="contained"
-                        disableElevation
-                        startIcon={<AddIcon />}
-                        onClick={() => {
-                          if (
-                            !column.createCard[
-                              space.roles[user?.id as string]
-                            ] &&
-                            !column.createCard[0]
-                          ) {
-                            notify(
-                              "Your role doesn't have permission to create tasks in this column",
-                              "error"
-                            );
-                            return;
-                          }
-                          setShowCreateTask(true);
-                          setTimeout(() => {
-                            document
-                              .getElementById("taskCancelButton")
-                              ?.scrollIntoView({
-                                behavior: "smooth",
-                                block: "end",
-                                inline: "nearest",
-                              });
-                          }, 10);
-                        }}
-                        fullWidth
-                        size="small"
-                      >
-                        Add Card
-                      </Button>
-                      <Button
-                        sx={{
-                          textTransform: "none",
-                          textAlign: "left",
-                          justifyContent: "flex-start",
-                          mr: 1,
-                          color: palette.text.primary,
-                        }}
-                        startIcon={<GitHubIcon />}
-                        onClick={() => {
-                          if (
-                            !column.createCard[space.roles[user?.id as string]]
-                          ) {
-                            notify(
-                              "Your role doesn't have permission to create tasks in this column",
-                              "error"
-                            );
-                            return;
-                          }
-                          setShowCreateGithubTask(true);
-                        }}
-                        fullWidth
-                        size="small"
-                        variant="contained"
-                        disableElevation
-                      >
-                        Import Card
-                      </Button>
-                    </>
-                  </Box>
+                  <Box sx={{ display: "flex", flexDirection: "row" }}></Box>
                   <TaskList>
                     {tasks?.map((task, index) => {
                       if (task)
@@ -206,7 +178,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                         );
                     })}
                     {provided.placeholder}
-                    <CreateTask
+                    {/* <CreateTask
                       showCreateTask={showCreateTask}
                       setShowCreateTask={setShowCreateTask}
                       columnId={id}
@@ -217,7 +189,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                         setShowCreateTask={setShowCreateGithubTask}
                         columnId={id}
                       />
-                    )}
+                    )} */}
                   </TaskList>
                 </TaskListContainer>
               )}
@@ -262,9 +234,9 @@ const Container = styled.div<{ isDragging: boolean; palette: Palette }>`
     props.isDragging
       ? `0.5px solid ${props.palette.primary.light}`
       : "0.5px solid transparent"};
-  &:hover {
-    border: 0.1px solid ${(props) => props.palette.secondary.dark};
-  }
+  // &:hover {
+  //   border: 0.1px solid ${(props) => props.palette.secondary.dark};
+  // }
   min-width: 16rem;
   transition: 0.5s ease-in-out;
 `;

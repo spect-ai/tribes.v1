@@ -9,7 +9,6 @@ import {
 } from "@mui/material";
 import styled from "@emotion/styled";
 import { useTribe } from "../../../../pages/tribe/[id]";
-import { getMD5String } from "../../../utils/utils";
 import Board from "../boardsTab";
 
 const Overview = () => {
@@ -57,11 +56,8 @@ const Overview = () => {
                       <Avatar
                         alt=""
                         src={
-                          tribe.memberDetails[memberId].profilePicture
-                            ? tribe.memberDetails[memberId].profilePicture._url
-                            : `https://www.gravatar.com/avatar/${getMD5String(
-                                memberId
-                              )}?d=identicon&s=32`
+                          tribe.memberDetails[memberId].profilePicture?._url ||
+                          `https://cdn.discordapp.com/avatars/${tribe.memberDetails[memberId].discordId}/${tribe.memberDetails[memberId].avatar}.png`
                         }
                       />
                     </Tooltip>

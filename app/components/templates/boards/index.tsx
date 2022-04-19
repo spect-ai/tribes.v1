@@ -1,5 +1,12 @@
 import styled from "@emotion/styled";
-import React from "react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { useMoralis } from "react-moralis";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { Column } from "../../../types";
+import CardModal from "../../modules/cardModal";
+import { notify } from "../../modules/settingsTab";
 import TaskBoard from "../../modules/taskBoard";
 
 type Props = {};
@@ -11,8 +18,54 @@ const OuterDiv = styled.div`
 `;
 
 const BoardsTemplate = (props: Props) => {
+  const router = useRouter();
+  const { inviteCode, taskId, id, bid } = router.query;
+  const { isAuthenticated, authenticate } = useMoralis();
+  const { setSpace, isLoading } = useSpace();
+  const { runMoralisFunction } = useMoralisFunction();
+  const [isOpen, setIsOpen] = useState(false);
+  const handleClose = () => {
+    setIsOpen(false);
+    router.push(`/tribe/${id}/space/${bid}`);
+  };
+  const [column, setColumn] = useState<Column>({} as Column);
+  useEffect(() => {
+    if (inviteCode && !isLoading) {
+      if (!isAuthenticated) {
+        authenticate();
+        return;
+      }
+      runMoralisFunction("joinSpaceFromInvite", {
+        inviteCode,
+        boardId: router.query.bid as string,
+      })
+        .then((res) => {
+          console.log(res);
+          setSpace(res);
+          notify("You have joined the space successfully");
+          router.push(`/tribe/${router.query.id}/space/${router.query.bid}`);
+        })
+        .catch((err) => {
+          console.error(err);
+          router.push(`/tribe/${router.query.id}/space/${router.query.bid}`);
+          notify(err.message, "error");
+        });
+    }
+  }, [inviteCode, isAuthenticated, isLoading]);
+
+  useEffect(() => {
+    if (taskId && !isLoading) {
+      setIsOpen(true);
+    }
+  }, [taskId, isLoading]);
+
   return (
     <OuterDiv>
+      <CardModal
+        isOpen={isOpen}
+        handleClose={handleClose}
+        taskId={taskId as string}
+      />
       <TaskBoard />
     </OuterDiv>
   );

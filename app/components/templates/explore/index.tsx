@@ -19,6 +19,7 @@ const ExploreTemplate = (props: Props) => {
         flexDirection: "column",
         alignItems: "center",
         width: "100%",
+        mb: 8,
       }}
     >
       <Box
@@ -36,7 +37,7 @@ const ExploreTemplate = (props: Props) => {
               <DAOCard
                 image={tribe.logo}
                 title={tribe.name}
-                members={tribe.members.length}
+                members={tribe.members?.length}
                 teamId={tribe.teamId}
               />
             </Grid>

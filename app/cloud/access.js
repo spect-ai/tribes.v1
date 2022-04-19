@@ -1,11 +1,7 @@
-function hasAccess(userId, team, requiredAccess) {
-  // const members = team.get("members");
-  // for (var member of members) {
-  //   if (member["userId"] === userId) {
-  //     return member["role"] === requiredAccess;
-  //   }
-  // }
-  return true;
+function hasAccess(userId, entity, requiredAccess) {
+  const roles = entity.get("roles");
+  if (!roles[userId]) return false;
+  return roles[userId] === requiredAccess;
 }
 
 function isMember(userId, entity) {
@@ -117,11 +113,27 @@ function isTaskReviewerFromTaskObj(task, userId) {
   return false;
 }
 
-function getFieldLevelAccess(task, userId) {
+function isCardApplicantFromCardObj(task, userId) {
+  if (!task.proposals) return false;
+  for (var proposal of task.proposals) {
+    if (proposal.userId === userId) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function canApplyForCardFromCardObj(task) {
+  return task.type === "Bounty" && task.assignee.length === 0;
+}
+
+function getCardAccess(task, userId) {
   var access = {};
   access["creator"] = isTaskCreatorFromTaskObj(task, userId);
   access["assignee"] = isTaskAssigneeFromTaskObj(task, userId);
   access["reviewer"] = isTaskReviewerFromTaskObj(task, userId);
+  access["applicant"] = isCardApplicantFromCardObj(task, userId);
+  access["canApply"] = canApplyForCardFromCardObj(task);
   return access;
 }
 

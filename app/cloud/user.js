@@ -1,6 +1,7 @@
-async function getCreatedUser(userInfo, userId) {
+async function getCreatedUser(userInfo, userId, ethAddress) {
   userInfo.set("userId", userId);
   userInfo.set("tribes", []);
+  userInfo.set("ethAddress", ethAddress);
   return userInfo;
 }
 
@@ -21,6 +22,12 @@ async function getUserByUserId(userId) {
   return await userInfoQuery.first({ useMasterKey: true });
 }
 
+async function getUserByObjId(objectId) {
+  const userInfoQuery = new Moralis.Query("UserInfo");
+  userInfoQuery.equalTo("objectId", objectId);
+  return await userInfoQuery.first({ useMasterKey: true });
+}
+
 async function getUserDetailsByUserIds(userIds) {
   const userQuery = new Moralis.Query("User");
   const pipeline = [
@@ -29,8 +36,10 @@ async function getUserDetailsByUserIds(userIds) {
       project: {
         objectId: 1,
         username: 1,
-        profilePicture: 1,
+        avatar: 1,
         ethAddress: 1,
+        discordId: 1,
+        profilePicture: 1,
       },
     },
   ];
@@ -74,6 +83,11 @@ function getAllAssociatedUsersIds(board, tasks, epochs) {
   for (var task of tasks) {
     taskMembers = taskMembers.concat(task.assignee).concat(task.reviewer);
     taskMembers.push(task.creator);
+    if (task.proposals) {
+      for (var proposal of task.proposals) {
+        taskMembers.push(proposal.userId);
+      }
+    }
   }
 
   var epochMembers = [];
@@ -102,8 +116,11 @@ Moralis.Cloud.define("getOrCreateUser", async (request) => {
     if (!userInfo) {
       var userCount = await getUserCount();
       userInfo = new Moralis.Object("UserInfo");
-      userInfo = await getCreatedUser(userInfo, request.user.id);
-
+      userInfo = await getCreatedUser(
+        userInfo,
+        request.user.id,
+        request.user.get("ethAddress")
+      );
       request.user.set("username", `fren${userCount}`);
 
       await Moralis.Object.saveAll([userInfo, request.user], {

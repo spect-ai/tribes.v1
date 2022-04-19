@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Fade, Grow } from "@mui/material";
 import { useRouter } from "next/router";
 import { useMoralis } from "react-moralis";
@@ -8,6 +8,7 @@ import EpochList from "../epoch";
 import Members from "../spaceMembers";
 import NoAccess from "../epoch/noAccess";
 import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import DiscordIntegrationModal from "../discordIntegrationModal";
 
 type Props = {};
 
@@ -15,18 +16,42 @@ const TaskBoard = (props: Props) => {
   const router = useRouter();
   const { user } = useMoralis();
   const { isLoading, space, tab } = useSpace();
+  const [isOpen, setIsOpen] = useState(false);
   const [panelExpanded, setPanelExpanded] = useState<string | false>("board");
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
       setPanelExpanded(newExpanded ? panel : false);
     };
 
+  const handleClose = () => {
+    setIsOpen(false);
+  };
+
+  useEffect(() => {
+    if (
+      !isLoading &&
+      space.team[0].guildId &&
+      !space.roleMapping &&
+      space.roles[user?.id as string] === 3
+    ) {
+      setIsOpen(true);
+    }
+  }, [isLoading]);
   if (isLoading) {
     return <SkeletonLoader />;
   }
+
   return (
     <Fade in={!isLoading} timeout={500}>
       <div>
+        {
+          <DiscordIntegrationModal
+            isOpen={isOpen}
+            handleClose={handleClose}
+            user={false}
+          />
+        }
+
         {tab === 0 && (
           <Grow in={tab === 0} timeout={500}>
             <div>

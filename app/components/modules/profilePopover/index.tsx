@@ -1,11 +1,12 @@
 import { Popover, Typography, useTheme } from "@mui/material";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useEffect } from "react";
 import { useMoralis } from "react-moralis";
 import ProfileSettings from "../profileSettings";
 import { OptionsButton, SidebarPopoverContainer } from "../themePopover";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { ButtonText } from "../exploreSidebar";
+import { updateUser, useGlobal } from "../../../context/globalContext";
 
 type Props = {
   open: boolean;
@@ -15,8 +16,12 @@ type Props = {
 
 const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
   const { palette } = useTheme();
-  const { logout } = useMoralis();
+  const { logout, user } = useMoralis();
   const router = useRouter();
+  const {
+    dispatch,
+    state: { currentUser },
+  } = useGlobal();
   const id = router.query.id;
   return (
     <Popover
@@ -29,16 +34,31 @@ const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
       }}
     >
       <SidebarPopoverContainer palette={palette}>
+        {!user?.get("discordId") && (
+          <OptionsButton
+            color="inherit"
+            onClick={() => {
+              router.push(
+                `https://discord.com/api/oauth2/authorize?client_id=942494607239958609&redirect_uri=${
+                  process.env.DEV_ENV === "local"
+                    ? "http%3A%2F%2Flocalhost%3A3000%2F"
+                    : "https%3A%2F%2Ftribes.spect.network%2F"
+                }&response_type=code&scope=identify`
+              );
+            }}
+          >
+            <i className="fa-brands fa-discord"></i>
+            <ButtonText>Link Discord</ButtonText>
+          </OptionsButton>
+        )}
         <ProfileSettings />
         <OptionsButton
           color="inherit"
           onClick={() => {
+            // localStorage.removeItem("objectId");
+            updateUser(dispatch, {});
             logout();
-            if (id) {
-              router.push(`/tribe/${id}`);
-            } else {
-              router.push("/");
-            }
+            router.push("/");
             handleClose();
           }}
         >

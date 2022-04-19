@@ -14,7 +14,7 @@ import {
 export const PrimaryButton = styled(LoadingButton)<ButtonProps>(
   ({ theme }) => ({
     color: theme.palette.getContrastText(theme.palette.background.paper),
-    borderRadius: "20px",
+    borderRadius: "2",
     textTransform: "none",
   })
 );
@@ -23,6 +23,13 @@ export const TaskButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
   color: theme.palette.text.primary,
   textTransform: "none",
   marginBottom: "6px",
+}));
+
+export const CardButton = styled(LoadingButton)<ButtonProps>(({ theme }) => ({
+  color: theme.palette.text.primary,
+  textTransform: "none",
+  marginBottom: "6px",
+  marginRight: "5px",
 }));
 
 type BProps = {
@@ -132,7 +139,7 @@ export const ModalHeading = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "row",
   alignItems: "center",
-  borderBottom: "1px solid #99ccff",
+  borderBottom: "1px solid #5a6972",
   padding: 16,
   paddingLeft: 32,
 }));

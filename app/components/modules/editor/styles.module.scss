@@ -1,0 +1,102 @@
+$tertiary: #000f38;
+
+.block {
+  padding: 0rem 0.35rem;
+  width: calc(100% - 1rem);
+  margin-top: 0rem;
+  // Better support for safari
+  -webkit-user-select: text;
+  user-select: text;
+  letter-spacing: 0.1em;
+}
+
+.block::before {
+  content: counter(numberedList) + ".";
+}
+
+.block:focus,
+.isDragging,
+.blockSelected {
+  background: $tertiary;
+  outline: none;
+  & ~ .dragHandle {
+    opacity: 1;
+  }
+}
+
+.placeholder {
+  color: #99ccff;
+  font-weight: 100;
+}
+
+.draggable {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  top: auto !important;
+  left: auto !important;
+  margin-left: -1.2rem;
+}
+
+.draggable:hover {
+  .block {
+    background: $tertiary;
+  }
+  .dragHandle {
+    opacity: 1;
+  }
+}
+
+.dragHandle {
+  opacity: 0;
+  width: 1rem;
+  margin-right: 0.5rem;
+  margin-bottom: 8px;
+  img {
+    display: block;
+    margin: auto;
+  }
+}
+
+.image {
+  display: inline-block;
+  width: calc(100% - 1rem);
+  padding: 0.25rem;
+  margin-bottom: 1rem;
+  img {
+    display: block;
+    max-height: 600px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+}
+
+.blockSelected.image {
+  opacity: 0.75;
+}
+
+.fileInputLabel {
+  display: block;
+  padding: 0.5rem 0.25rem;
+  color: #888888;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+}
+
+.imageBlock {
+  top: auto !important;
+  left: auto !important;
+}
+
+.bulletList {
+  display: list-item;
+  list-style-type: disc;
+  margin-left: 1.2rem;
+}
+
+.embed {
+  top: auto !important;
+  left: auto !important;
+  width: 100%;
+  margin-bottom: 1rem;
+}
