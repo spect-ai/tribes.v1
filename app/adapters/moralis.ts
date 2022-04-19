@@ -497,9 +497,9 @@
 //   return Moralis.Cloud.run('getBatchPayAmount', params);
 // }
 
-// export function getRegistry(Moralis: any) {
-//   return Moralis.Cloud.run('getRegistry');
-// }
+export default function getRegistry(Moralis: any) {
+  return Moralis.Cloud.run('getRegistry');
+}
 
 // export function startEpoch(
 //   Moralis: any,

@@ -1,10 +1,9 @@
-import React, { createContext, useReducer, useContext } from 'react';
-import { State, initialState } from './initalstate';
-import { Action, reducer } from './reducer';
-import Moralis from 'moralis/types';
+import React, { createContext, useContext, useReducer } from 'react';
 import { initializeMumbaiContracts } from '../../adapters/contract';
-import { getRegistry } from '../../adapters/moralis';
+import getRegistry from '../../adapters/moralis';
 import { Registry } from '../../types';
+import { initialState, State } from './initalstate';
+import { Action, reducer } from './reducer';
 
 declare global {
   interface Window {
@@ -77,13 +76,14 @@ const updateLoading = async (
   }
 };
 
-const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
+function GlobalContextProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  // eslint-disable-next-line react/jsx-no-constructed-context-values
   const value = { state, dispatch };
   return (
     <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>
   );
-};
+}
 
 const useGlobal = () => useContext(GlobalContext);
 
