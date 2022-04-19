@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 import {
   Avatar,
   Box,
@@ -10,19 +10,19 @@ import {
   Palette,
   Tooltip,
   useTheme,
-} from "@mui/material";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import ExploreIcon from "@mui/icons-material/Explore";
-import { useRouter } from "next/router";
-import CreateTribeModal from "../createTribeModal";
-import { getEssentialBoardsInfo, getMyTeams } from "../../../adapters/moralis";
-import { useMoralis } from "react-moralis";
-import { notify } from "../settingsTab";
-import SwitchLeftIcon from "@mui/icons-material/SwitchLeft";
-import PaidIcon from "@mui/icons-material/Paid";
-import BoardSettings from "../boardSettings";
-import PaymentModal from "../batchPay";
+} from '@mui/material';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import ExploreIcon from '@mui/icons-material/Explore';
+import { useRouter } from 'next/router';
+import CreateTribeModal from '../createTribeModal';
+import { getEssentialBoardsInfo, getMyTeams } from '../../../adapters/moralis';
+import { useMoralis } from 'react-moralis';
+import { notify } from '../settingsTab';
+import SwitchLeftIcon from '@mui/icons-material/SwitchLeft';
+import PaidIcon from '@mui/icons-material/Paid';
+import BoardSettings from '../boardSettings';
+import PaymentModal from '../batchPay';
 
 type Props = {};
 
@@ -47,7 +47,7 @@ const ExploreSidebar = (props: Props) => {
       }
     } catch (e) {
       console.log(e);
-      notify("Error in initalizing sidebar data", "error");
+      notify('Error in initalizing sidebar data', 'error');
     }
   };
 
@@ -60,12 +60,12 @@ const ExploreSidebar = (props: Props) => {
   return (
     <SidebarContainer palette={palette}>
       <Box sx={{ mt: 4 }} />
-      <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
+      <Drawer anchor={'right'} open={isOpen} onClose={handleClose}>
         <List
           sx={{
-            maxWidth: "10rem",
+            maxWidth: '10rem',
             backgroundColor: palette.background.default,
-            height: "100%",
+            height: '100%',
           }}
         >
           {tribeSpaces.map((space: any, index) => (
@@ -81,7 +81,7 @@ const ExploreSidebar = (props: Props) => {
           ))}
         </List>
       </Drawer>
-      <Link href={"/"} passHref>
+      <Link href={'/'} passHref>
         <SidebarButton palette={palette} selected={!id}>
           <Tooltip title="Explore" placement="right" arrow sx={{ m: 0, p: 0 }}>
             <ExploreIcon
@@ -119,17 +119,17 @@ const ExploreSidebar = (props: Props) => {
       <Divider sx={{ my: 5, mx: 3 }} />
       <CreateTribeModal />
       {myTribes?.map((tribe, index) => (
-        <Link key={index} href={`/tribe/${tribe.get("teamId")}`} passHref>
+        <Link key={index} href={`/tribe/${tribe.get('teamId')}`} passHref>
           <SidebarButton
             palette={palette}
-            selected={tribe.get("teamId") === id}
+            selected={tribe.get('teamId') === id}
           >
             <Avatar
               variant="rounded"
               sx={{ p: 0, m: 0, width: 28, height: 28 }}
-              src={tribe.get("logo")}
+              src={tribe.get('logo')}
             >
-              {tribe.get("name")[0]}
+              {tribe.get('name')[0]}
             </Avatar>
           </SidebarButton>
         </Link>
@@ -151,7 +151,7 @@ export const SidebarButton = styled.div<{
   padding: 0rem 1rem;
   border-left: 2px solid
     ${(props) =>
-      props.selected ? props.palette.secondary.main : "transparent"};
+      props.selected ? props.palette.secondary.main : 'transparent'};
   display: flex;
   flex-direction: column;
   align-items: center;

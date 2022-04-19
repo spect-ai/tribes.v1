@@ -1,14 +1,14 @@
-import HailIcon from "@mui/icons-material/Hail";
-import { Box, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
-import { useCardDynamism } from "../../../../hooks/useCardDynamism";
-import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
-import { Task } from "../../../../types";
-import { CardButton } from "../../../elements/styledComponents";
-import { notify } from "../../settingsTab";
-import { delay } from "../../../../utils/utils";
+import HailIcon from '@mui/icons-material/Hail';
+import { Box, Typography } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import { Task } from '../../../../types';
+import { CardButton } from '../../../elements/styledComponents';
+import { notify } from '../../settingsTab';
+import { delay } from '../../../../utils/utils';
 
 type Props = {
   task: Task;
@@ -21,11 +21,11 @@ const AssignToMe = ({ task, setTask }: Props) => {
   const { user } = useMoralis();
   const { space, setSpace } = useSpace();
   const { editAbleComponents, viewableComponents } = useCardDynamism(task);
-  const [buttonText, setButtonText] = useState("Assign to me");
+  const [buttonText, setButtonText] = useState('Assign to me');
 
   const handleSave = () => {
-    setButtonText("Assigning...");
-    runMoralisFunction("updateCard", {
+    setButtonText('Assigning...');
+    runMoralisFunction('updateCard', {
       updates: {
         status: 105,
         assignee: user ? [user?.id] : [],
@@ -33,30 +33,30 @@ const AssignToMe = ({ task, setTask }: Props) => {
       },
     })
       .then((res: any) => {
-        setButtonText("Good luck!");
+        setButtonText('Good luck!');
         delay(1500).then(() => {
           setSpace(res.space);
           setTask(res.task);
         });
       })
       .catch((err: any) => {
-        notify(`${err.message}`, "error");
+        notify(`${err.message}`, 'error');
       });
   };
 
   useEffect(() => {
-    setButtonText("Assign to me");
+    setButtonText('Assign to me');
   }, [task]);
 
   return (
     <>
-      {viewableComponents["assignToMe"] && (
+      {viewableComponents['assignToMe'] && (
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
+            display: 'flex',
+            flexDirection: 'column',
             mx: 1,
-            minWidth: "9rem",
+            minWidth: '9rem',
           }}
         >
           <CardButton
@@ -64,8 +64,8 @@ const AssignToMe = ({ task, setTask }: Props) => {
             onClick={() => handleSave()}
             color="secondary"
             sx={{
-              padding: "2px",
-              minWidth: "3rem",
+              padding: '2px',
+              minWidth: '3rem',
             }}
             startIcon={<HailIcon sx={{ my: 2, ml: 2 }} />}
             size="small"

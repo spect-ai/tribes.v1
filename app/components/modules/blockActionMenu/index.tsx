@@ -1,7 +1,7 @@
-import React from "react";
-import styles from "./styles.module.scss";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { PrimaryButton } from "../../elements/styledComponents";
+import React from 'react';
+import styles from './styles.module.scss';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { PrimaryButton } from '../../elements/styledComponents';
 
 type Props = {
   position: {
@@ -43,7 +43,7 @@ const BlockActionMenu = ({ position, actions }: Props) => {
           color="primary"
           onClick={() => actions.deleteBlock()}
         >
-          <DeleteIcon color="secondary" fontSize={"small"} />
+          <DeleteIcon color="secondary" fontSize={'small'} />
         </PrimaryButton>
       </div>
     </div>

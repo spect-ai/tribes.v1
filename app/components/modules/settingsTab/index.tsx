@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import styled from "@emotion/styled";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { TextField, FormLabel, Box, Switch, Avatar } from "@mui/material";
-import { PrimaryButton } from "../../elements/styledComponents";
-import { useTribe } from "../../../../pages/tribe/[id]";
-import { updateTribe } from "../../../adapters/moralis";
-import { useMoralis } from "react-moralis";
-import toast, { Toaster } from "react-hot-toast";
+import React, { useState } from 'react';
+import styled from '@emotion/styled';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { TextField, FormLabel, Box, Switch, Avatar } from '@mui/material';
+import { PrimaryButton } from '../../elements/styledComponents';
+import { useTribe } from '../../../../pages/tribe/[id]';
+import { updateTribe } from '../../../adapters/moralis';
+import { useMoralis } from 'react-moralis';
+import toast, { Toaster } from 'react-hot-toast';
 export interface SettingFormInput {
   name: string;
   description: string;
@@ -18,17 +18,17 @@ export interface SettingFormInput {
 }
 
 export const notify = (text: string, type?: string) => {
-  if (type === "error") {
+  if (type === 'error') {
     toast.error(text, {
       duration: 4000,
-      position: "top-center",
-      style: { fontSize: "1rem" },
+      position: 'top-center',
+      style: { fontSize: '1rem' },
     });
   } else {
     toast.success(text, {
       duration: 4000,
-      position: "top-center",
-      style: { fontSize: "1rem" },
+      position: 'top-center',
+      style: { fontSize: '1rem' },
     });
   }
 };
@@ -55,10 +55,10 @@ const Settings = () => {
       .then((res: any) => {
         setTribe(res);
         setIsLoading(false);
-        notify("Updated Tribe!");
+        notify('Updated Tribe!');
       })
       .catch((err: any) => {
-        notify(err.message, "error");
+        notify(err.message, 'error');
         setIsLoading(false);
       });
   };
@@ -102,7 +102,7 @@ const Settings = () => {
                   fullWidth
                   placeholder="Description"
                   multiline
-                  label={tribe.description ? "Description" : ""}
+                  label={tribe.description ? 'Description' : ''}
                   color="secondary"
                 />
               )}
@@ -136,13 +136,13 @@ const Settings = () => {
             </FormLabel>
             <Box
               sx={{
-                display: "flex",
-                alignItems: "flex-end",
-                marginBottom: "10px",
+                display: 'flex',
+                alignItems: 'flex-end',
+                marginBottom: '10px',
                 mt: 2,
               }}
             >
-              <div style={{ color: "#5a6972", marginRight: "12px" }}>
+              <div style={{ color: '#5a6972', marginRight: '12px' }}>
                 <i className="fab fa-discord fa-xs" />
               </div>
               <Controller
@@ -164,12 +164,12 @@ const Settings = () => {
             </Box>
             <Box
               sx={{
-                display: "flex",
-                alignItems: "flex-end",
-                marginBottom: "10px",
+                display: 'flex',
+                alignItems: 'flex-end',
+                marginBottom: '10px',
               }}
             >
-              <div style={{ color: "#5a6972", marginRight: "16px" }}>
+              <div style={{ color: '#5a6972', marginRight: '16px' }}>
                 <i className="fab fa-twitter fa-xs" />
               </div>
               <Controller
@@ -191,12 +191,12 @@ const Settings = () => {
             </Box>
             <Box
               sx={{
-                display: "flex",
-                alignItems: "flex-end",
-                marginBottom: "10px",
+                display: 'flex',
+                alignItems: 'flex-end',
+                marginBottom: '10px',
               }}
             >
-              <div style={{ color: "#5a6972", marginRight: "12px" }}>
+              <div style={{ color: '#5a6972', marginRight: '12px' }}>
                 <i className="fab fa-github" />
               </div>
               <Controller
@@ -237,7 +237,7 @@ const Settings = () => {
                 if (file) {
                   const moralisFile = new Moralis.File(file.name, file);
                   const res = (await moralisFile.saveIPFS()) as any;
-                  setValue("logo", res._ipfs);
+                  setValue('logo', res._ipfs);
                   setLogo(res._ipfs);
                   console.log(res._ipfs);
                 }
@@ -254,7 +254,7 @@ const Settings = () => {
               variant="outlined"
               color="secondary"
               fullWidth
-              sx={{ width: "20%", borderRadius: 2 }}
+              sx={{ width: '20%', borderRadius: 2 }}
               loading={isLoading}
             >
               Save

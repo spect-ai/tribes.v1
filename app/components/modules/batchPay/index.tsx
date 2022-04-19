@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -13,29 +13,29 @@ import {
   Tooltip,
   Grid,
   Avatar,
-} from "@mui/material";
-import Approve, { ApprovalInfo } from "./approve";
-import BatchPay, { DistributionInfo } from "./batchPay";
-import { useMoralis } from "react-moralis";
-import { useRouter } from "next/router";
-import { useGlobal } from "../../../context/globalContext";
-import { registryTemp } from "../../../constants";
-import FmdBadIcon from "@mui/icons-material/FmdBad";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import CardList from "./cardList";
-import PaidIcon from "@mui/icons-material/Paid";
-import { ButtonText, SidebarButton } from "../exploreSidebar";
-import { capitalizeFirstLetter } from "../../../utils/utils";
-import { completePayment } from "../../../adapters/moralis";
-import { notify } from "../settingsTab";
+} from '@mui/material';
+import Approve, { ApprovalInfo } from './approve';
+import BatchPay, { DistributionInfo } from './batchPay';
+import { useMoralis } from 'react-moralis';
+import { useRouter } from 'next/router';
+import { useGlobal } from '../../../context/globalContext';
+import { registryTemp } from '../../../constants';
+import FmdBadIcon from '@mui/icons-material/FmdBad';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import CardList from './cardList';
+import PaidIcon from '@mui/icons-material/Paid';
+import { ButtonText, SidebarButton } from '../exploreSidebar';
+import { capitalizeFirstLetter } from '../../../utils/utils';
+import { completePayment } from '../../../adapters/moralis';
+import { notify } from '../settingsTab';
 
 interface Props {}
 
 const modalSteps = [
-  "Pick Cards",
-  "Approve Tokens",
-  "Batch Pay Tokens",
-  "Batch Pay Currency",
+  'Pick Cards',
+  'Approve Tokens',
+  'Batch Pay Tokens',
+  'Batch Pay Currency',
 ];
 
 export type PaymentInfo = {
@@ -88,7 +88,7 @@ const PaymentModal = ({}: Props) => {
       .catch((err: any) => {
         notify(
           `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`,
-          "error"
+          'error'
         );
       });
   };
@@ -120,10 +120,10 @@ const PaymentModal = ({}: Props) => {
             direction="column"
             alignItems="center"
             justifyContent="center"
-            style={{ minHeight: "10vh" }}
+            style={{ minHeight: '10vh' }}
           >
             <Grid item xs={3}>
-              <Box style={{ display: "flex" }}>
+              <Box style={{ display: 'flex' }}>
                 <Typography
                   color="text.primary"
                   variant="body2"
@@ -135,9 +135,9 @@ const PaymentModal = ({}: Props) => {
                 <Avatar
                   src={registry[window.ethereum.networkVersion]?.pictureUrl}
                   sx={{
-                    width: "1.5rem",
-                    height: "1.5rem",
-                    objectFit: "cover",
+                    width: '1.5rem',
+                    height: '1.5rem',
+                    objectFit: 'cover',
                     my: 1,
                   }}
                 />
@@ -149,7 +149,7 @@ const PaymentModal = ({}: Props) => {
                 >
                   {capitalizeFirstLetter(
                     registry[window.ethereum.networkVersion]?.name
-                  )}{" "}
+                  )}{' '}
                   Network
                 </Typography>
               </Box>
@@ -204,31 +204,31 @@ const PaymentModal = ({}: Props) => {
             />
           )}
         </Box>
-      </Modal>{" "}
+      </Modal>{' '}
     </>
   );
 };
 
 export const modalStyle = {
-  position: "absolute" as "absolute",
-  top: "40%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "40rem",
-  bgcolor: "background.paper",
-  border: "2px solid #000",
+  position: 'absolute' as 'absolute',
+  top: '40%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '40rem',
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
   boxShadow: 24,
   p: 4,
 };
 
-export const Heading = styled("div")(({ theme }) => ({
+export const Heading = styled('div')(({ theme }) => ({
   fontWeight: 500,
   fontSize: 16,
   color: theme.palette.text.secondary,
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  borderBottom: "1px solid #99ccff",
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderBottom: '1px solid #99ccff',
   padding: 16,
   paddingLeft: 32,
 }));

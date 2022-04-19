@@ -1,6 +1,6 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 
-import { Box, styled as MUIStyled } from "@mui/material";
+import { Box, styled as MUIStyled } from '@mui/material';
 
 // export const PopoverContainer = styled.div`
 //   display: flex;
@@ -11,13 +11,13 @@ import { Box, styled as MUIStyled } from "@mui/material";
 
 // @ts-ignore
 export const PopoverContainer = MUIStyled(Box)(({ theme }) => ({
-  width: "18rem",
+  width: '18rem',
   backgroundColor: theme.palette.primary.main,
   boxShadow: 24,
-  overflow: "auto",
-  padding: "16px 8px",
-  display: "flex",
-  flexDirection: "column",
+  overflow: 'auto',
+  padding: '16px 8px',
+  display: 'flex',
+  flexDirection: 'column',
 }));
 
 export const LabelChip = styled.div`

@@ -1,6 +1,6 @@
-import { Popover, useTheme } from "@mui/material";
-import React from "react";
-import { OptionsButton, SidebarPopoverContainer } from "../themePopover";
+import { Popover, useTheme } from '@mui/material';
+import React from 'react';
+import { OptionsButton, SidebarPopoverContainer } from '../themePopover';
 
 type Props = {
   open: boolean;
@@ -17,8 +17,8 @@ const SpacesPopover = ({ open, anchorEl, handleClose, type }: Props) => {
       anchorEl={anchorEl}
       onClose={handleClose}
       anchorOrigin={{
-        vertical: "top",
-        horizontal: "center",
+        vertical: 'top',
+        horizontal: 'center',
       }}
     >
       <SidebarPopoverContainer palette={palette}>

@@ -1,52 +1,52 @@
-import { useState, useEffect } from "react";
-import { matchSorter } from "match-sorter";
+import { useState, useEffect } from 'react';
+import { matchSorter } from 'match-sorter';
 
-import styles from "./styles.module.scss";
-import TagItem from "./tagItem";
-import { Grow } from "@mui/material";
+import styles from './styles.module.scss';
+import TagItem from './tagItem';
+import { Grow } from '@mui/material';
 
 const MENU_HEIGHT = 150;
 const allowedTags = [
   {
-    id: "title",
-    tag: "h1",
-    label: "Title",
+    id: 'title',
+    tag: 'h1',
+    label: 'Title',
   },
   {
-    id: "heading",
-    tag: "h2",
-    label: "Heading",
+    id: 'heading',
+    tag: 'h2',
+    label: 'Heading',
   },
   {
-    id: "subheading",
-    tag: "h3",
-    label: "Subheading",
+    id: 'subheading',
+    tag: 'h3',
+    label: 'Subheading',
   },
   {
-    id: "text",
-    tag: "p",
-    label: "Simple Text",
+    id: 'text',
+    tag: 'p',
+    label: 'Simple Text',
   },
   {
-    id: "image",
-    tag: "img",
-    label: "Image",
+    id: 'image',
+    tag: 'img',
+    label: 'Image',
   },
   {
-    id: "bulletList",
-    tag: "p",
-    type: "ul",
-    label: "List",
+    id: 'bulletList',
+    tag: 'p',
+    type: 'ul',
+    label: 'List',
   },
   {
-    id: "embed",
-    tag: "embed",
-    label: "Embed",
+    id: 'embed',
+    tag: 'embed',
+    label: 'Embed',
   },
   {
-    id: "divider",
-    tag: "divider",
-    label: "Divider",
+    id: 'divider',
+    tag: 'divider',
+    label: 'Divider',
   },
 ];
 
@@ -65,7 +65,7 @@ const TagSelectorMenu = ({
 }: props) => {
   const [tagList, setTagList] = useState(allowedTags);
   const [selectedTag, setSelectedTag] = useState(0);
-  const [command, setCommand] = useState("");
+  const [command, setCommand] = useState('');
 
   // If the tag selector menu is display outside the top viewport,
   // we display it below the block
@@ -78,7 +78,7 @@ const TagSelectorMenu = ({
   // Filter tagList based on given command
   useEffect(() => {
     if (command) {
-      setTagList(matchSorter(allowedTags, command, { keys: ["id"] }));
+      setTagList(matchSorter(allowedTags, command, { keys: ['id'] }));
     } else {
       setTagList(allowedTags);
     }
@@ -88,7 +88,7 @@ const TagSelectorMenu = ({
   useEffect(() => {
     if (isOpen) {
       const handleKeyDown = (e: any) => {
-        if (e.key === "Enter") {
+        if (e.key === 'Enter') {
           e.preventDefault();
           if (tagList[selectedTag]) {
             handleSelection(
@@ -96,17 +96,17 @@ const TagSelectorMenu = ({
               tagList[selectedTag].type
             );
           }
-        } else if (e.key === "Tab" || e.key === "ArrowDown") {
+        } else if (e.key === 'Tab' || e.key === 'ArrowDown') {
           e.preventDefault();
           const newSelectedTag =
             selectedTag === tagList.length - 1 ? 0 : selectedTag + 1;
           setSelectedTag(newSelectedTag);
-        } else if (e.key === "ArrowUp") {
+        } else if (e.key === 'ArrowUp') {
           e.preventDefault();
           const newSelectedTag =
             selectedTag === 0 ? tagList.length - 1 : selectedTag - 1;
           setSelectedTag(newSelectedTag);
-        } else if (e.key === "Backspace") {
+        } else if (e.key === 'Backspace') {
           if (command) {
             setCommand(command.slice(0, -1));
           } else {
@@ -116,9 +116,9 @@ const TagSelectorMenu = ({
           setCommand(command + e.key);
         }
       };
-      document.addEventListener("keydown", handleKeyDown);
+      document.addEventListener('keydown', handleKeyDown);
       return () => {
-        document.removeEventListener("keydown", handleKeyDown);
+        document.removeEventListener('keydown', handleKeyDown);
       };
     }
   }, [tagList, selectedTag, isOpen]);
@@ -131,8 +131,8 @@ const TagSelectorMenu = ({
           top: y,
           left: x,
           justifyContent: !isMenuOutsideOfTopViewport
-            ? "flex-end"
-            : "flex-start",
+            ? 'flex-end'
+            : 'flex-start',
         }}
         id="selectorMenu"
       >

@@ -1,26 +1,26 @@
-import { NextPage } from "next";
-import BoardsTemplate from "../../../../app/components/templates/boards";
-import Head from "next/head";
-import styled from "@emotion/styled";
+import { NextPage } from 'next';
+import BoardsTemplate from '../../../../app/components/templates/boards';
+import Head from 'next/head';
+import styled from '@emotion/styled';
 import {
   Box,
   createTheme,
   Theme,
   ThemeProvider,
   useTheme,
-} from "@mui/material";
-import { createContext, useContext, useEffect, useState } from "react";
-import { BoardData, Team } from "../../../../app/types";
-import { useMoralis } from "react-moralis";
-import { useRouter } from "next/router";
-import { getSpace } from "../../../../app/adapters/moralis";
-import { notify } from "../../../../app/components/modules/settingsTab";
-import { getTheme } from "../../../../app/constants/muiTheme";
-import SpaceNavbar from "../../../../app/components/modules/spaceNavbar";
-import ExploreSidebar from "../../../../app/components/modules/exploreSidebar";
-import NotFound from "../../../../app/components/elements/notFound";
-import { useGlobal } from "../../../../app/context/globalContext";
-import { useMoralisFunction } from "../../../../app/hooks/useMoralisFunction";
+} from '@mui/material';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { BoardData, Team } from '../../../../app/types';
+import { useMoralis } from 'react-moralis';
+import { useRouter } from 'next/router';
+import { getSpace } from '../../../../app/adapters/moralis';
+import { notify } from '../../../../app/components/modules/settingsTab';
+import { getTheme } from '../../../../app/constants/muiTheme';
+import SpaceNavbar from '../../../../app/components/modules/spaceNavbar';
+import ExploreSidebar from '../../../../app/components/modules/exploreSidebar';
+import NotFound from '../../../../app/components/elements/notFound';
+import { useGlobal } from '../../../../app/context/globalContext';
+import { useMoralisFunction } from '../../../../app/hooks/useMoralisFunction';
 
 interface Props {}
 interface SpaceContextType {
@@ -37,7 +37,7 @@ interface SpaceContextType {
 }
 
 const SpaceContext = createContext<SpaceContextType>({} as SpaceContextType);
-console.log("starting space page", new Date());
+console.log('starting space page', new Date());
 const SpacePage: NextPage<Props> = (props: Props) => {
   const { Moralis, isInitialized, user } = useMoralis();
   const context = useProviderSpace();
@@ -57,7 +57,7 @@ const SpacePage: NextPage<Props> = (props: Props) => {
     setTheme(createTheme(getTheme(0)));
     setIsLoading(true);
     if (!loading && bid) {
-      runMoralisFunction("getSpace", { boardId: bid }).then((res) => {
+      runMoralisFunction('getSpace', { boardId: bid }).then((res) => {
         setSpace(res);
         setIsLoading(false);
       });
@@ -75,7 +75,7 @@ const SpacePage: NextPage<Props> = (props: Props) => {
           <PageContainer theme={createTheme(getTheme(0))}>
             {!notFound && <SpaceNavbar />}
 
-            <Box sx={{ display: "flex", flexDirection: "row" }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
               <ExploreSidebar />
               {!notFound && <BoardsTemplate />}
               {notFound && <NotFound text="Space not found" />}

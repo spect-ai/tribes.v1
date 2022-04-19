@@ -1,25 +1,25 @@
-import styled from "@emotion/styled";
-import CloseIcon from "@mui/icons-material/Close";
-import { Box, IconButton, InputBase } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { Task } from "../../../types";
-import Editor from "../editor";
-import { notify } from "../settingsTab";
-import CardTypePopover from "./popovers/cardTypePopover";
-import ColumnPopover from "./popovers/columnPopover";
-import DatePopover from "./popovers/datePopover";
-import LabelPopover from "./popovers/labelPopover";
-import CardMemberPopover from "./popovers/cardMemberPopover";
-import RewardPopover from "./popovers/rewardPopover";
-import OptionsPopover from "./popovers/optionsPopover";
-import TabularDetails from "./tabularDetails";
-import { Block } from "../../../types";
-import { uid } from "../../../utils/utils";
-import { useCardDynamism } from "../../../hooks/useCardDynamism";
-import AssignToMe from "./buttons/assignToMe";
+import styled from '@emotion/styled';
+import CloseIcon from '@mui/icons-material/Close';
+import { Box, IconButton, InputBase } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import { Task } from '../../../types';
+import Editor from '../editor';
+import { notify } from '../settingsTab';
+import CardTypePopover from './popovers/cardTypePopover';
+import ColumnPopover from './popovers/columnPopover';
+import DatePopover from './popovers/datePopover';
+import LabelPopover from './popovers/labelPopover';
+import CardMemberPopover from './popovers/cardMemberPopover';
+import RewardPopover from './popovers/rewardPopover';
+import OptionsPopover from './popovers/optionsPopover';
+import TabularDetails from './tabularDetails';
+import { Block } from '../../../types';
+import { uid } from '../../../utils/utils';
+import { useCardDynamism } from '../../../hooks/useCardDynamism';
+import AssignToMe from './buttons/assignToMe';
 
 type Props = {
   task: Task;
@@ -37,7 +37,7 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
 
   const syncBlocksToMoralis = (blocks: Block[]) => {
     // console.log({ blocks });
-    runMoralisFunction("updateCard", {
+    runMoralisFunction('updateCard', {
       updates: {
         taskId: task.taskId,
         description: blocks,
@@ -61,7 +61,7 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
       const temp = Object.assign({}, task);
       temp.title = title;
       setTask(temp);
-      runMoralisFunction("updateCard", {
+      runMoralisFunction('updateCard', {
         updates: {
           title: title,
           taskId: task.taskId,
@@ -73,7 +73,7 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
         })
         .catch((err: any) => {
           setTask(prevTask);
-          notify(`${err.message}`, "error");
+          notify(`${err.message}`, 'error');
         });
     }
   };
@@ -88,7 +88,7 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
         <InputBase
           placeholder="Add Card Title..."
           sx={{
-            fontSize: "20px",
+            fontSize: '20px',
             ml: 1,
           }}
           fullWidth
@@ -97,17 +97,17 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
           onBlur={handleSave}
           readOnly={!(task?.access?.creator || task?.access?.reviewer)}
         />
-        <Box sx={{ flex: "1 1 auto" }} />
+        <Box sx={{ flex: '1 1 auto' }} />
         <AssignToMe task={task} setTask={setTask} />
 
-        {viewableComponents["optionPopover"] && (
+        {viewableComponents['optionPopover'] && (
           <OptionsPopover task={task} setTask={setTask} />
         )}
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>
-      <Box sx={{ width: "fit-content", display: "flex", flexWrap: "wrap" }}>
+      <Box sx={{ width: 'fit-content', display: 'flex', flexWrap: 'wrap' }}>
         <CardTypePopover task={task} setTask={setTask} />
         <ColumnPopover
           task={task}
@@ -116,9 +116,9 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
         />
       </Box>
 
-      <Box sx={{ display: "flex", flexWrap: "wrap", marginBottom: "16px" }}>
-        <CardMemberPopover type={"reviewer"} task={task} setTask={setTask} />
-        <CardMemberPopover type={"assignee"} task={task} setTask={setTask} />
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', marginBottom: '16px' }}>
+        <CardMemberPopover type={'reviewer'} task={task} setTask={setTask} />
+        <CardMemberPopover type={'assignee'} task={task} setTask={setTask} />
         <RewardPopover task={task} setTask={setTask} />
         <DatePopover task={task} setTask={setTask} />
         <LabelPopover task={task} setTask={setTask} />
@@ -133,23 +133,23 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
               : [
                   {
                     id: uid(),
-                    html: "",
-                    tag: "p",
-                    type: "",
-                    imageUrl: "",
-                    embedUrl: "",
+                    html: '',
+                    tag: 'p',
+                    type: '',
+                    imageUrl: '',
+                    embedUrl: '',
                   },
                 ]
           }
           placeholderText={
-            editAbleComponents["description"]
+            editAbleComponents['description']
               ? `Add details, press "/" for commands`
               : `No details provided yet`
           }
-          readonly={!editAbleComponents["description"]}
+          readonly={!editAbleComponents['description']}
         />
 
-        <Box sx={{ marginBottom: "16px" }}>
+        <Box sx={{ marginBottom: '16px' }}>
           <TabularDetails task={task} setTask={setTask} />
         </Box>
       </TaskModalBodyContainer>

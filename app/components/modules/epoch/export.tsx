@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { PrimaryButton } from "../../elements/styledComponents";
-import DownloadIcon from "@mui/icons-material/Download";
-import { useRouter } from "next/router";
-import { Epoch } from "../../../types";
-import { downloadCSV } from "../../../utils/utils";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import React, { useEffect, useState } from 'react';
+import { PrimaryButton } from '../../elements/styledComponents';
+import DownloadIcon from '@mui/icons-material/Download';
+import { useRouter } from 'next/router';
+import { Epoch } from '../../../types';
+import { downloadCSV } from '../../../utils/utils';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 
 type Props = {
   epoch: Epoch;
@@ -16,9 +16,9 @@ const CsvExport = ({ epoch }: Props) => {
   const bid = router.query.bid as string;
 
   const handleExport = (epoch: Epoch) => {
-    if (epoch.type === "Member") {
+    if (epoch.type === 'Member') {
       var rows = [
-        ["username", "address", "allocation", "given", "received", "reward"],
+        ['username', 'address', 'allocation', 'given', 'received', 'reward'],
       ];
       for (var choice of epoch.choices) {
         rows.push([
@@ -33,16 +33,16 @@ const CsvExport = ({ epoch }: Props) => {
         ]);
       }
       downloadCSV(rows, `${epoch.name}_${epoch.type}_${epoch.startTime}`);
-    } else if (epoch.type === "Task") {
+    } else if (epoch.type === 'Task') {
       var rows = [
         [
-          "id",
-          "title",
-          "description",
-          "created by",
-          "created on",
-          "received",
-          "reward",
+          'id',
+          'title',
+          'description',
+          'created by',
+          'created on',
+          'received',
+          'reward',
         ],
       ];
       for (var choice of epoch.choices) {

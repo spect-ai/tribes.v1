@@ -17,29 +17,29 @@ import {
   AccordionSummary,
   Grid,
   useTheme,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { Box } from "@mui/system";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box } from '@mui/system';
 import {
   ModalHeading,
   PrimaryButton,
   StyledAccordian,
-} from "../../elements/styledComponents";
-import CloseIcon from "@mui/icons-material/Close";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { useMoralis } from "react-moralis";
-import { Member, Chain, Registry, Task, Token, Epoch } from "../../../types";
-import { startEpoch } from "../../../adapters/moralis";
+} from '../../elements/styledComponents';
+import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useMoralis } from 'react-moralis';
+import { Member, Chain, Registry, Task, Token, Epoch } from '../../../types';
+import { startEpoch } from '../../../adapters/moralis';
 import {
   getFlattenedNetworks,
   getFlattenedCurrencies,
-} from "../../../utils/utils";
-import { notify } from "../settingsTab";
-import CreateEpochTaskList from "./createEpochTaskList";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { useGlobal } from "../../../context/globalContext";
+} from '../../../utils/utils';
+import { notify } from '../settingsTab';
+import CreateEpochTaskList from './createEpochTaskList';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import PlayCircleFilledWhiteIcon from '@mui/icons-material/PlayCircleFilledWhite';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { useGlobal } from '../../../context/globalContext';
 
 type Props = {};
 
@@ -62,9 +62,9 @@ const CreateEpoch = (props: Props) => {
   const { state } = useGlobal();
   const { registry } = state;
   const { Moralis, user } = useMoralis();
-  const [strategy, setStrategy] = useState("");
-  const [type, setType] = useState("");
-  const [passThreshold, setPassThreshold] = useState("");
+  const [strategy, setStrategy] = useState('');
+  const [type, setType] = useState('');
+  const [passThreshold, setPassThreshold] = useState('');
   const [cardColumn, setCardColumn] = useState(space.columnOrder[0]);
   const [cards, setCards] = useState<string[]>([] as string[]);
   const [isCardChecked, setIsCardChecked] = useState<boolean[]>(
@@ -158,9 +158,9 @@ const CreateEpoch = (props: Props) => {
     setSpace(temp);
     const members = getMembers();
     const choices =
-      values.type === "Member" ? getMemberChoices() : getCardChoices();
-    if (values.type === "Member" && members.length <= 1) {
-      notify("At least 2 members required", "error");
+      values.type === 'Member' ? getMemberChoices() : getCardChoices();
+    if (values.type === 'Member' && members.length <= 1) {
+      notify('At least 2 members required', 'error');
       return;
     }
     startEpoch(
@@ -188,7 +188,7 @@ const CreateEpoch = (props: Props) => {
 
   const onError = (err: any) => {
     console.log(err);
-    notify("Please fill all the fields", "error");
+    notify('Please fill all the fields', 'error');
   };
   return (
     <>
@@ -212,8 +212,8 @@ const CreateEpoch = (props: Props) => {
         <Grow in={isOpen} timeout={500}>
           <ModalContainer>
             <ModalHeading>
-              <Typography sx={{ color: "#99ccff" }}>Start Epoch</Typography>
-              <Box sx={{ flex: "1 1 auto" }} />
+              <Typography sx={{ color: '#99ccff' }}>Start Epoch</Typography>
+              <Box sx={{ flex: '1 1 auto' }} />
               <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
@@ -243,18 +243,18 @@ const CreateEpoch = (props: Props) => {
                   render={({ field, fieldState }) => (
                     <Autocomplete
                       {...field}
-                      options={["Card", "Member"]}
+                      options={['Card', 'Member']}
                       disableClearable
                       // value={type}
                       onChange={(event, newValue) => {
                         field.onChange(newValue);
                         setType(newValue);
-                        if (newValue === "Member") {
-                          setValue("strategy", "Quadratic voting");
-                          setStrategy("Quadratic voting");
-                        } else if (newValue === "Card") {
-                          setValue("strategy", "Pass/No Pass");
-                          setStrategy("Pass/No Pass");
+                        if (newValue === 'Member') {
+                          setValue('strategy', 'Quadratic voting');
+                          setStrategy('Quadratic voting');
+                        } else if (newValue === 'Card') {
+                          setValue('strategy', 'Pass/No Pass');
+                          setStrategy('Pass/No Pass');
                         }
                         // setType(newValue as string);
                         // if (newValue === "Member")
@@ -291,7 +291,7 @@ const CreateEpoch = (props: Props) => {
                           min: 1,
                         },
                       }}
-                      type={"number"}
+                      type={'number'}
                       size="small"
                       color="secondary"
                       error={fieldState.error ? true : false}
@@ -306,9 +306,9 @@ const CreateEpoch = (props: Props) => {
                     <Autocomplete
                       {...field}
                       options={
-                        type === "Member"
-                          ? ["Quadratic voting"]
-                          : ["Pass/No Pass"]
+                        type === 'Member'
+                          ? ['Quadratic voting']
+                          : ['Pass/No Pass']
                       }
                       onChange={(event, newValue) => {
                         field.onChange(newValue);
@@ -329,7 +329,7 @@ const CreateEpoch = (props: Props) => {
                     />
                   )}
                 />
-                {strategy === "Pass/No Pass" && (
+                {strategy === 'Pass/No Pass' && (
                   <Controller
                     name="passThreshold"
                     control={control}
@@ -342,15 +342,15 @@ const CreateEpoch = (props: Props) => {
                         }}
                         sx={{ mb: 2 }}
                         placeholder="Pass Threshold (%)"
-                        type={"number"}
+                        type={'number'}
                         size="small"
                         color="secondary"
                       />
                     )}
                   />
                 )}
-                {strategy === "Quadratic voting" && (
-                  <Box sx={{ flex: "1 1 auto" }}>
+                {strategy === 'Quadratic voting' && (
+                  <Box sx={{ flex: '1 1 auto' }}>
                     <Grid container spacing={1}>
                       <Grid item xs={4}>
                         <Controller
@@ -363,14 +363,14 @@ const CreateEpoch = (props: Props) => {
                               id="filled-hidden-label-normal"
                               sx={{ mb: 2 }}
                               placeholder="Budget"
-                              type={"number"}
+                              type={'number'}
                               size="small"
                               color="secondary"
                               error={fieldState.error ? true : false}
                             />
                           )}
                         />
-                      </Grid>{" "}
+                      </Grid>{' '}
                       <Grid item xs={4}>
                         <Controller
                           name="budgetToken"
@@ -457,7 +457,7 @@ const CreateEpoch = (props: Props) => {
                           <TableCell padding="checkbox">
                             <Checkbox
                               inputProps={{
-                                "aria-label": "select all desserts",
+                                'aria-label': 'select all desserts',
                               }}
                               color="default"
                               checked={isChecked.every((elem) => elem === true)}
@@ -471,15 +471,15 @@ const CreateEpoch = (props: Props) => {
                               }}
                             />
                           </TableCell>
-                          <TableCell align="right" sx={{ color: "#99ccff" }}>
+                          <TableCell align="right" sx={{ color: '#99ccff' }}>
                             Username
                           </TableCell>
-                          {strategy === "Quadratic voting" ? (
-                            <TableCell align="right" sx={{ color: "#99ccff" }}>
+                          {strategy === 'Quadratic voting' ? (
+                            <TableCell align="right" sx={{ color: '#99ccff' }}>
                               Voting Allocation
                             </TableCell>
                           ) : (
-                            <TableCell align="right" sx={{ color: "#99ccff" }}>
+                            <TableCell align="right" sx={{ color: '#99ccff' }}>
                               Voting Weight
                             </TableCell>
                           )}
@@ -490,7 +490,7 @@ const CreateEpoch = (props: Props) => {
                           <TableRow
                             key={index}
                             sx={{
-                              "&:last-child td, &:last-child th": {
+                              '&:last-child td, &:last-child th': {
                                 border: 0,
                               },
                             }}
@@ -503,7 +503,7 @@ const CreateEpoch = (props: Props) => {
                               <Checkbox
                                 color="secondary"
                                 inputProps={{
-                                  "aria-label": "select all desserts",
+                                  'aria-label': 'select all desserts',
                                 }}
                                 checked={isChecked.at(index)}
                                 onClick={() => {
@@ -528,7 +528,7 @@ const CreateEpoch = (props: Props) => {
                                 }}
                                 size="small"
                                 type="number"
-                                sx={{ width: "50%" }}
+                                sx={{ width: '50%' }}
                               />
                             </TableCell>
                           </TableRow>
@@ -538,7 +538,7 @@ const CreateEpoch = (props: Props) => {
                   </AccordionDetails>
                 </StyledAccordian>
 
-                {type === "Card" && (
+                {type === 'Card' && (
                   <CreateEpochTaskList
                     setCards={setCards}
                     setCardColumn={setCardColumn}
@@ -553,7 +553,7 @@ const CreateEpoch = (props: Props) => {
                   variant="outlined"
                   type="submit"
                   color="secondary"
-                  sx={{ width: "50%", mt: 2, borderRadius: 1 }}
+                  sx={{ width: '50%', mt: 2, borderRadius: 1 }}
                 >
                   Start Epoch
                 </PrimaryButton>
@@ -568,21 +568,21 @@ const CreateEpoch = (props: Props) => {
 
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
-  position: "absolute" as "absolute",
-  top: "10%",
-  left: "35%",
-  transform: "translate(-50%, -50%)",
-  width: "40rem",
-  border: "2px solid #000",
+  position: 'absolute' as 'absolute',
+  top: '10%',
+  left: '35%',
+  transform: 'translate(-50%, -50%)',
+  width: '40rem',
+  border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
-  overflow: "auto",
-  maxHeight: "calc(100% - 128px)",
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
 }));
 
-const ModalContent = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
+const ModalContent = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
   padding: 32,
 }));
 

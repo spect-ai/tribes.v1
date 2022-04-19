@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useMoralis } from "react-moralis";
+import { useEffect } from 'react';
+import { useMoralis } from 'react-moralis';
 
 export function useMoralisFunction() {
   const { Moralis } = useMoralis();

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Box,
   AvatarGroup,
@@ -6,10 +6,10 @@ import {
   Tooltip,
   Grid,
   Typography,
-} from "@mui/material";
-import styled from "@emotion/styled";
-import { useTribe } from "../../../../pages/tribe/[id]";
-import Board from "../boardsTab";
+} from '@mui/material';
+import styled from '@emotion/styled';
+import { useTribe } from '../../../../pages/tribe/[id]';
+import Board from '../boardsTab';
 
 const Overview = () => {
   const { tribe } = useTribe();
@@ -20,8 +20,8 @@ const Overview = () => {
           <MainContainer>
             <Box
               sx={{
-                display: "flex",
-                flexDirection: "column",
+                display: 'flex',
+                flexDirection: 'column',
                 mt: 2,
               }}
             >
@@ -47,7 +47,7 @@ const Overview = () => {
                 <Typography variant="h6" color="text.secondary">
                   Contributors
                 </Typography>
-                <AvatarGroup max={6} sx={{ width: "fit-content" }}>
+                <AvatarGroup max={6} sx={{ width: 'fit-content' }}>
                   {tribe?.members?.map((memberId, idx) => (
                     <Tooltip
                       title={tribe.memberDetails[memberId].username}

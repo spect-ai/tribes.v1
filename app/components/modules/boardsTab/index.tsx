@@ -1,13 +1,13 @@
-import { Button, Grid, Skeleton, styled, Typography } from "@mui/material";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { useState, useEffect } from "react";
-import CreateBoard from "./createBoard";
-import { useTribe } from "../../../../pages/tribe/[id]";
-import { useMoralis } from "react-moralis";
-import { useRouter } from "next/router";
-import { BoardData } from "../../../types";
-import { useGlobal } from "../../../context/globalContext";
-import DiscordIntegrationModal from "../discordIntegrationModal";
+import { Button, Grid, Skeleton, styled, Typography } from '@mui/material';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { useState, useEffect } from 'react';
+import CreateBoard from './createBoard';
+import { useTribe } from '../../../../pages/tribe/[id]';
+import { useMoralis } from 'react-moralis';
+import { useRouter } from 'next/router';
+import { BoardData } from '../../../types';
+import { useGlobal } from '../../../context/globalContext';
+import DiscordIntegrationModal from '../discordIntegrationModal';
 
 type Props = {};
 
@@ -65,7 +65,7 @@ const Board = (props: Props) => {
               color="secondary"
             >
               <ButtonText>Create new space</ButtonText>
-              <AddCircleOutlineIcon sx={{ color: "#eaeaea" }} />
+              <AddCircleOutlineIcon sx={{ color: '#eaeaea' }} />
             </CreateBoardButton>
           )}
         </Grid>
@@ -74,42 +74,42 @@ const Board = (props: Props) => {
   );
 };
 
-const Container = styled("div")(({ theme }) => ({
-  display: "flex",
-  width: "100%",
+const Container = styled('div')(({ theme }) => ({
+  display: 'flex',
+  width: '100%',
   marginTop: 8,
 }));
 
 const CreateBoardButton = styled(Button)(({ theme }) => ({
-  height: "8rem",
-  width: "100%",
+  height: '8rem',
+  width: '100%',
   borderRadius: 8,
   padding: 2,
-  backgroundColor: "#5a6972",
-  textTransform: "none",
-  display: "flex",
-  flexDirection: "column",
+  backgroundColor: '#5a6972',
+  textTransform: 'none',
+  display: 'flex',
+  flexDirection: 'column',
 }));
 
 const BoardButton = styled(Button)(({ theme }) => ({
-  height: "8rem",
-  width: "100%",
+  height: '8rem',
+  width: '100%',
   borderRadius: 8,
   padding: 2,
-  textTransform: "none",
-  display: "flex",
-  flexDirection: "column",
+  textTransform: 'none',
+  display: 'flex',
+  flexDirection: 'column',
 }));
 
-const ButtonText = styled("div")(({ theme }) => ({
+const ButtonText = styled('div')(({ theme }) => ({
   fontWeight: 500,
   fontSize: 16,
-  color: "#fff",
-  textAlign: "center",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  flexDirection: "column",
+  color: '#fff',
+  textAlign: 'center',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  flexDirection: 'column',
 }));
 
 export default Board;

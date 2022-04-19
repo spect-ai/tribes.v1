@@ -1,4 +1,4 @@
-import PaidIcon from "@mui/icons-material/Paid";
+import PaidIcon from '@mui/icons-material/Paid';
 import {
   Autocomplete,
   Avatar,
@@ -7,21 +7,21 @@ import {
   TextField,
   Typography,
   Tooltip,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
-import { useGlobal } from "../../../../context/globalContext";
-import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
-import { useCardDynamism } from "../../../../hooks/useCardDynamism";
-import { Chain, Registry, Task, Token } from "../../../../types";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import { useGlobal } from '../../../../context/globalContext';
+import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import { Chain, Registry, Task, Token } from '../../../../types';
 import {
   getFlattenedCurrencies,
   getFlattenedNetworks,
-} from "../../../../utils/utils";
-import { CardButton, PrimaryButton } from "../../../elements/styledComponents";
-import { notify } from "../../settingsTab";
-import { PopoverContainer } from "../styles";
+} from '../../../../utils/utils';
+import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
+import { notify } from '../../settingsTab';
+import { PopoverContainer } from '../styles';
 
 type Props = {
   task: Task;
@@ -46,7 +46,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    if (editAbleComponents["reward"]) {
+    if (editAbleComponents['reward']) {
       setOpen(true);
     } else {
       setFeedbackOpen(true);
@@ -67,7 +67,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
     temp.value = parseFloat(value);
     setTask(temp);
     handleClose();
-    runMoralisFunction("updateCard", {
+    runMoralisFunction('updateCard', {
       updates: {
         chain: chain,
         token: token,
@@ -82,7 +82,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
       })
       .catch((err: any) => {
         setTask(prevTask);
-        notify(`${err.message}`, "error");
+        notify(`${err.message}`, 'error');
       });
   };
 
@@ -96,14 +96,14 @@ const RewardPopover = ({ task, setTask }: Props) => {
     <>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
+          display: 'flex',
+          flexDirection: 'column',
           mt: 2,
           mx: 1,
         }}
       >
         <Typography
-          sx={{ fontSize: 12, color: "text.secondary", width: "100%" }}
+          sx={{ fontSize: 12, color: 'text.secondary', width: '100%' }}
         >
           Reward
         </Typography>
@@ -112,8 +112,8 @@ const RewardPopover = ({ task, setTask }: Props) => {
           onClick={handleClick()}
           color="secondary"
           sx={{
-            padding: "6px",
-            minWidth: "3rem",
+            padding: '6px',
+            minWidth: '3rem',
           }}
         >
           <Avatar
@@ -123,10 +123,10 @@ const RewardPopover = ({ task, setTask }: Props) => {
               mr: 2,
               width: 20,
               height: 20,
-              backgroundColor: "transparent",
+              backgroundColor: 'transparent',
             }}
           >
-            <PaidIcon sx={{ color: "text.primary" }} />
+            <PaidIcon sx={{ color: 'text.primary' }} />
           </Avatar>
           {task.value && task.value > 0 ? (
             <Typography
@@ -142,7 +142,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
                 fontSize: 14,
               }}
             >
-              No reward{" "}
+              No reward{' '}
             </Typography>
           )}
         </CardButton>
@@ -152,12 +152,12 @@ const RewardPopover = ({ task, setTask }: Props) => {
         anchorEl={anchorEl}
         onClose={() => handleFeedbackClose()}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">{getReason("reward")}</Typography>
+          <Typography variant="body2">{getReason('reward')}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover
@@ -165,8 +165,8 @@ const RewardPopover = ({ task, setTask }: Props) => {
         anchorEl={anchorEl}
         onClose={() => handleClose()}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>

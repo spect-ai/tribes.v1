@@ -1,12 +1,12 @@
-import styled from "@emotion/styled";
-import React from "react";
-import { useTribe } from "../../../../pages/tribe/[id]";
-import TribeHeading from "../../modules/tribeHeading";
-import Settings from "../../modules/settingsTab";
-import Overview from "../../modules/overviewTab";
-import SkeletonLoader from "./skeletonLoader";
-import { Box, Fade, Grow } from "@mui/material";
-import TribeMembers from "../../modules/tribeMembers";
+import styled from '@emotion/styled';
+import React from 'react';
+import { useTribe } from '../../../../pages/tribe/[id]';
+import TribeHeading from '../../modules/tribeHeading';
+import Settings from '../../modules/settingsTab';
+import Overview from '../../modules/overviewTab';
+import SkeletonLoader from './skeletonLoader';
+import { Box, Fade, Grow } from '@mui/material';
+import TribeMembers from '../../modules/tribeMembers';
 type Props = {};
 
 const TribeTemplate = (props: Props) => {

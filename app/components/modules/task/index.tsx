@@ -1,16 +1,16 @@
-import styled from "@emotion/styled";
-import React, { useState } from "react";
-import { Draggable } from "react-beautiful-dnd";
-import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
-import DateRangeIcon from "@mui/icons-material/DateRange";
-import CardModal from "../cardModal";
-import { labelsMapping, monthMap } from "../../../constants";
-import { Column, Task } from "../../../types";
-import CreditScoreIcon from "@mui/icons-material/CreditScore";
-import { smartTrim } from "../../../utils/utils";
-import { Palette, useTheme } from "@mui/material";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { useRouter } from "next/router";
+import styled from '@emotion/styled';
+import React, { useState } from 'react';
+import { Draggable } from 'react-beautiful-dnd';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import CardModal from '../cardModal';
+import { labelsMapping, monthMap } from '../../../constants';
+import { Column, Task } from '../../../types';
+import CreditScoreIcon from '@mui/icons-material/CreditScore';
+import { smartTrim } from '../../../utils/utils';
+import { Palette, useTheme } from '@mui/material';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { useRouter } from 'next/router';
 
 type Props = {
   task: Task;
@@ -66,7 +66,7 @@ const TaskContainer = ({ task, index, column }: Props) => {
                 {task.deadline && (
                   <Chip color="#5a6972">
                     <DateRangeIcon sx={{ fontSize: 12 }} />
-                    {task.deadline.getDate()}{" "}
+                    {task.deadline.getDate()}{' '}
                     {
                       monthMap[
                         task.deadline.getMonth() as keyof typeof monthMap
@@ -141,7 +141,7 @@ const TaskCard = styled.div<{ isDragging: boolean; palette: Palette }>`
   border: ${(props) =>
     props.isDragging
       ? `0.1px solid ${props.palette.text.secondary}`
-      : "0.1px solid transparent"};
+      : '0.1px solid transparent'};
   padding: 0px 2px;
   border-radius: 5px;
   background-color: ${(props) => props.palette.primary.dark};

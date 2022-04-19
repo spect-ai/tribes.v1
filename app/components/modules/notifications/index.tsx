@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import Popover from "@mui/material/Popover";
-import Button from "@mui/material/Button";
-import styled from "@emotion/styled";
-import { Backdrop, Typography, CircularProgress, Box } from "@mui/material";
-import { useMoralis } from "react-moralis";
-import { getInvitations, acceptInvitations } from "../../../adapters/moralis";
-import { smartTrim } from "../../../utils/utils";
+import React, { useEffect, useState } from 'react';
+import Popover from '@mui/material/Popover';
+import Button from '@mui/material/Button';
+import styled from '@emotion/styled';
+import { Backdrop, Typography, CircularProgress, Box } from '@mui/material';
+import { useMoralis } from 'react-moralis';
+import { getInvitations, acceptInvitations } from '../../../adapters/moralis';
+import { smartTrim } from '../../../utils/utils';
 
 export default function Notification() {
   const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
@@ -14,23 +14,23 @@ export default function Notification() {
   const [notifs, setNotifs] = useState<any[]>([] as any[]);
   const [notifLeng, setNotifLeng] = useState<number>(0);
   const { isAuthenticated, Moralis, user } = useMoralis();
-  const [ethAddress, setEthAddress] = useState("");
+  const [ethAddress, setEthAddress] = useState('');
   const [loading, setLoading] = useState<boolean>(false);
-  const [loaderText, setLoaderText] = useState<string>("Accepting Team Invite");
+  const [loaderText, setLoaderText] = useState<string>('Accepting Team Invite');
   useEffect(() => {
     getAllInvites();
   }, []);
 
   const getAllInvites = () => {
     if (isAuthenticated) {
-      setEthAddress(user?.get("ethAddress"));
+      setEthAddress(user?.get('ethAddress'));
       getInvitations(Moralis, ethAddress)
         .then((res: any[]) => {
           setNotifs(res.reverse());
           setNotifLeng(res.length);
         })
         .catch((ex: any) => {
-          console.log("error", ex);
+          console.log('error', ex);
         });
     }
   };
@@ -52,7 +52,7 @@ export default function Notification() {
         }, 2000);
       })
       .catch((ex: any) => {
-        setLoaderText("Error While Accepting Team Invite");
+        setLoaderText('Error While Accepting Team Invite');
         setTimeout(function () {
           setLoading(false);
         }, 2000);
@@ -61,17 +61,17 @@ export default function Notification() {
   };
 
   const open = Boolean(anchorEl);
-  const id = open ? "simple-popover" : undefined;
+  const id = open ? 'simple-popover' : undefined;
 
   return (
     <div>
       <Button
         onClick={handleClick}
         sx={{
-          width: "1px",
-          height: "30px",
-          borderRadius: "10%",
-          color: "#99ccff",
+          width: '1px',
+          height: '30px',
+          borderRadius: '10%',
+          color: '#99ccff',
         }}
       >
         {notifLeng > 0 ? (
@@ -86,8 +86,8 @@ export default function Notification() {
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
+          vertical: 'bottom',
+          horizontal: 'center',
         }}
       >
         <PopoverContent>
@@ -113,21 +113,21 @@ export default function Notification() {
       </Popover>
       <Backdrop
         sx={{
-          color: "#eaeaea",
+          color: '#eaeaea',
           zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
         open={loading}
       >
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}
         >
           <CircularProgress color="inherit" />
-          <Typography sx={{ mt: 2, mb: 1, color: "#eaeaea" }}>
+          <Typography sx={{ mt: 2, mb: 1, color: '#eaeaea' }}>
             {loaderText}
           </Typography>
         </Box>
@@ -159,23 +159,23 @@ const Popnotification = styled.div`
 `;
 
 const NotificationTitle = styled.div`
-  font-size: "8px";
-  color: "#91909D";
-  text-transform: "uppercase";
-  font-weight: "bold";
+  font-size: '8px';
+  color: '#91909D';
+  text-transform: 'uppercase';
+  font-weight: 'bold';
 `;
 
 const NotificationObject = styled.div`
-  font-size: "18px";
-  font-weight: "bold";
-  color: "#91909D";
+  font-size: '18px';
+  font-weight: 'bold';
+  color: '#91909D';
   overflow: hidden;
 `;
 
 const NoNotificationTitle = styled.div`
-  font-size: "22px";
-  color: "#91909D";
-  text-transform: "uppercase";
-  font-weight: "bold";
+  font-size: '22px';
+  color: '#91909D';
+  text-transform: 'uppercase';
+  font-weight: 'bold';
   margin: 20px 20px;
 `;

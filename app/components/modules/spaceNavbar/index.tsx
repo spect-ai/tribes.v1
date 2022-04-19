@@ -1,20 +1,20 @@
-import { Avatar, Breadcrumbs, Link, Tooltip, useTheme } from "@mui/material";
-import React, { useState } from "react";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import { Avatar, Breadcrumbs, Link, Tooltip, useTheme } from '@mui/material';
+import React, { useState } from 'react';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import {
   PrimaryButton,
   StyledNav,
   StyledTab,
   StyledTabs,
-} from "../../elements/styledComponents";
-import { NavbarContainer } from "../../../components/modules/tribeNavbar/index";
-import SidebarProfile from "../../elements/sidebarProfile";
-import { useRouter } from "next/router";
-import { useMoralis } from "react-moralis";
-import { joinSpace } from "../../../adapters/moralis";
-import { notify } from "../settingsTab";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { BoardData } from "../../../types";
+} from '../../elements/styledComponents';
+import { NavbarContainer } from '../../../components/modules/tribeNavbar/index';
+import SidebarProfile from '../../elements/sidebarProfile';
+import { useRouter } from 'next/router';
+import { useMoralis } from 'react-moralis';
+import { joinSpace } from '../../../adapters/moralis';
+import { notify } from '../settingsTab';
+import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import { BoardData } from '../../../types';
 
 type Props = {};
 
@@ -54,18 +54,18 @@ const SpaceNavbar = (props: Props) => {
               loading={isLoading}
               onClick={() => {
                 setIsLoading(true);
-                runMoralisFunction("joinSpace", { boardId: bid })
+                runMoralisFunction('joinSpace', { boardId: bid })
                   .then((res: BoardData) => {
                     setSpace(res);
                     console.log(res);
-                    notify("You have succesfully joined the space");
+                    notify('You have succesfully joined the space');
                     setIsLoading(false);
                   })
                   .catch((err) => {
                     console.log(err);
                     notify(
-                      "User does not have the required role to join space, make sure you have linked discord and have the correct role",
-                      "error"
+                      'User does not have the required role to join space, make sure you have linked discord and have the correct role',
+                      'error'
                     );
                     setIsLoading(false);
                   });
@@ -91,7 +91,7 @@ const SpaceNavbar = (props: Props) => {
                   ) {
                     notify(
                       `Connect to ${space.tokenGating.chain.chainId} chain.`,
-                      "error"
+                      'error'
                     );
                     return;
                   }
@@ -101,11 +101,11 @@ const SpaceNavbar = (props: Props) => {
                       console.log(res);
                       setIsLoading(false);
                       setSpace(res);
-                      notify("Joined Space Succesfully");
+                      notify('Joined Space Succesfully');
                     })
                     .catch((err: any) => {
                       setIsLoading(false);
-                      notify(err.message, "error");
+                      notify(err.message, 'error');
                     });
                 }}
               >

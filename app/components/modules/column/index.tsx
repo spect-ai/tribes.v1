@@ -1,30 +1,30 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 import {
   Button,
   InputBase,
   IconButton,
   useTheme,
   Palette,
-} from "@mui/material";
-import React, { useEffect, useRef, useState } from "react";
-import { Droppable, Draggable } from "react-beautiful-dnd";
-import AddIcon from "@mui/icons-material/Add";
+} from '@mui/material';
+import React, { useEffect, useRef, useState } from 'react';
+import { Droppable, Draggable } from 'react-beautiful-dnd';
+import AddIcon from '@mui/icons-material/Add';
 
-import { Box } from "@mui/system";
-import SettingsIcon from "@mui/icons-material/Settings";
-import GitHubIcon from "@mui/icons-material/GitHub";
-import { useMoralis } from "react-moralis";
-import { updateColumnName } from "../../../adapters/moralis";
-import { useRouter } from "next/router";
-import { BoardData, Column, Task } from "../../../types";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { notify } from "../settingsTab";
-import CreateTask from "../task/createTask";
-import TaskContainer from "../task";
-import CreateGithubTask from "../task/createGithubTask";
-import ColumnSettings from "../columnSettings";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import CardModal from "../cardModal";
+import { Box } from '@mui/system';
+import SettingsIcon from '@mui/icons-material/Settings';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import { useMoralis } from 'react-moralis';
+import { updateColumnName } from '../../../adapters/moralis';
+import { useRouter } from 'next/router';
+import { BoardData, Column, Task } from '../../../types';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { notify } from '../settingsTab';
+import CreateTask from '../task/createTask';
+import TaskContainer from '../task';
+import CreateGithubTask from '../task/createGithubTask';
+import ColumnSettings from '../columnSettings';
+import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import CardModal from '../cardModal';
 
 type Props = {
   tasks: Task[];
@@ -43,7 +43,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
   // const [showCreateGithubTask, setShowCreateGithubTask] = useState(false);
   const [isTaskOpen, setIsTaskOpen] = useState(false);
   const handleTaskClose = () => setIsTaskOpen(false);
-  const [taskId, setTaskId] = useState("");
+  const [taskId, setTaskId] = useState('');
   const [currentColumnTitle, setCurrentColumnTitle] = useState(column.title);
   const { runMoralisFunction } = useMoralisFunction();
   const [columnTitle, setColumnTitle] = useState(column.title);
@@ -70,8 +70,8 @@ const Column = ({ tasks, id, column, index }: Props) => {
         })
         .catch((err: any) => {
           notify(
-            "Sorry! There was an error while updating column name",
-            "error"
+            'Sorry! There was an error while updating column name',
+            'error'
           );
         });
     }
@@ -115,15 +115,15 @@ const Column = ({ tasks, id, column, index }: Props) => {
                     <InputBase
                       placeholder="Add Title"
                       sx={{
-                        fontSize: "15px",
-                        marginLeft: "6px",
+                        fontSize: '15px',
+                        marginLeft: '6px',
                       }}
                       value={columnTitle}
                       onChange={(e) => setColumnTitle(e.target.value)}
                       onBlur={updateColumn}
                       readOnly={space.roles[user?.id as string] !== 3}
                     />
-                    <Box sx={{ flex: "1 1 auto" }} />
+                    <Box sx={{ flex: '1 1 auto' }} />
                     <IconButton
                       sx={{ mb: 0.5, p: 1 }}
                       size="small"
@@ -134,15 +134,15 @@ const Column = ({ tasks, id, column, index }: Props) => {
                         ) {
                           notify(
                             "Your role doesn't have permission to create tasks in this column",
-                            "error"
+                            'error'
                           );
                           return;
                         }
                         // setShowCreateTask(true);
-                        runMoralisFunction("addTask", {
+                        runMoralisFunction('addTask', {
                           boardId: bid as string,
                           columnId: id,
-                          title: "",
+                          title: '',
                           value: 0,
                         }).then((res: any) => {
                           console.log(res);
@@ -164,7 +164,7 @@ const Column = ({ tasks, id, column, index }: Props) => {
                       <SettingsIcon fontSize="small" />
                     </IconButton>
                   </TaskTitleContainer>
-                  <Box sx={{ display: "flex", flexDirection: "row" }}></Box>
+                  <Box sx={{ display: 'flex', flexDirection: 'row' }}></Box>
                   <TaskList>
                     {tasks?.map((task, index) => {
                       if (task)
@@ -233,7 +233,7 @@ const Container = styled.div<{ isDragging: boolean; palette: Palette }>`
   border: ${(props) =>
     props.isDragging
       ? `0.5px solid ${props.palette.primary.light}`
-      : "0.5px solid transparent"};
+      : '0.5px solid transparent'};
   // &:hover {
   //   border: 0.1px solid ${(props) => props.palette.secondary.dark};
   // }

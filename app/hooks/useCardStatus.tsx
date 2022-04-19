@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { useSpace } from "../../pages/tribe/[id]/space/[bid]";
-import { useMoralis } from "react-moralis";
-import { Task } from "../types";
+import { useState, useEffect } from 'react';
+import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
+import { useMoralis } from 'react-moralis';
+import { Task } from '../types';
 
 export function useCardStatus(task: Task) {
   const isCreated = () => {

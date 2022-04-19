@@ -13,14 +13,14 @@ import {
   Button,
   Typography,
   Box,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { PrimaryButton } from "../../elements/styledComponents";
-import { useMoralis } from "react-moralis";
-import { getBatchPayInfo } from "../../../adapters/moralis";
-import { notify } from "../settingsTab";
-import { useGlobal } from "../../../context/globalContext";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { PrimaryButton } from '../../elements/styledComponents';
+import { useMoralis } from 'react-moralis';
+import { getBatchPayInfo } from '../../../adapters/moralis';
+import { notify } from '../settingsTab';
+import { useGlobal } from '../../../context/globalContext';
 
 type Props = {
   handleClose: Function;
@@ -87,7 +87,7 @@ const CardList = ({
 
   return (
     <>
-      <Typography sx={{ mt: 8, color: "#99ccff", fontSize: "small" }}>
+      <Typography sx={{ mt: 8, color: '#99ccff', fontSize: 'small' }}>
         Which cards are you batch paying for?
       </Typography>
       <Autocomplete
@@ -122,7 +122,7 @@ const CardList = ({
                     <Checkbox
                       color="default"
                       inputProps={{
-                        "aria-label": "select all desserts",
+                        'aria-label': 'select all desserts',
                       }}
                       checked={isCardChecked.every((elem) => elem === true)}
                       onChange={(e) => {
@@ -135,10 +135,10 @@ const CardList = ({
                       }}
                     />
                   </TableCell>
-                  <TableCell align="right" sx={{ color: "#99ccff" }}>
+                  <TableCell align="right" sx={{ color: '#99ccff' }}>
                     Card Title
                   </TableCell>
-                  <TableCell align="right" sx={{ color: "#99ccff" }}>
+                  <TableCell align="right" sx={{ color: '#99ccff' }}>
                     Reward
                   </TableCell>
                 </TableRow>
@@ -148,7 +148,7 @@ const CardList = ({
                   <TableRow
                     key={index}
                     sx={{
-                      "&:last-child td, &:last-child th": {
+                      '&:last-child td, &:last-child th': {
                         border: 0,
                       },
                     }}
@@ -158,7 +158,7 @@ const CardList = ({
                         <Checkbox
                           color="secondary"
                           inputProps={{
-                            "aria-label": "select all desserts",
+                            'aria-label': 'select all desserts',
                           }}
                           checked={isCardChecked.at(index)}
                           onClick={() => {
@@ -171,10 +171,10 @@ const CardList = ({
                       {space.tasks[card]?.title}
                     </TableCell>
                     <TableCell align="right">
-                      {space.tasks[card]?.value || "Not set"}{" "}
+                      {space.tasks[card]?.value || 'Not set'}{' '}
                       {space.tasks[card]?.value
                         ? space.tasks[card]?.token.symbol
-                        : ""}
+                        : ''}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -183,19 +183,19 @@ const CardList = ({
           </AccordionDetails>
         </Accordion>
       )}
-      <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
         <Button
           color="inherit"
           variant="outlined"
           onClick={() => handleClose()}
-          sx={{ mr: 1, color: "#f45151" }}
+          sx={{ mr: 1, color: '#f45151' }}
           id="bCancel"
         >
           Cancel
         </Button>
-        <Box sx={{ flex: "1 1 auto" }} />
+        <Box sx={{ flex: '1 1 auto' }} />
         <PrimaryButton
-          sx={{ borderRadius: "3px" }}
+          sx={{ borderRadius: '3px' }}
           onClick={() => {
             setIsLoading(true);
             const cardIds = getCardIds();
@@ -212,7 +212,7 @@ const CardList = ({
                 setIsLoading(false);
                 handleNextStep(res);
               })
-              .catch((err: any) => notify(err.message, "error"));
+              .catch((err: any) => notify(err.message, 'error'));
           }}
           variant="outlined"
           id="bApprove"

@@ -19,24 +19,24 @@ import {
   Autocomplete,
   Grid,
   createFilterOptions,
-} from "@mui/material";
-import { Box } from "@mui/system";
-import React, { useState, useEffect } from "react";
+} from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useState, useEffect } from 'react';
 import {
   ModalHeading,
   PrimaryButton,
   StyledAccordian,
-} from "../../elements/styledComponents";
-import { createSpaceFromTrello, initBoard } from "../../../adapters/moralis";
-import { useTribe } from "../../../../pages/tribe/[id]";
-import { useMoralis } from "react-moralis";
-import { useRouter } from "next/router";
-import CloseIcon from "@mui/icons-material/Close";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Chain, Column, Member, Registry, Token } from "../../../types";
-import { notify } from "../settingsTab";
-import { useGlobal } from "../../../context/globalContext";
-import TokenGateForm from "../../elements/tokenGateForm";
+} from '../../elements/styledComponents';
+import { createSpaceFromTrello, initBoard } from '../../../adapters/moralis';
+import { useTribe } from '../../../../pages/tribe/[id]';
+import { useMoralis } from 'react-moralis';
+import { useRouter } from 'next/router';
+import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Chain, Column, Member, Registry, Token } from '../../../types';
+import { notify } from '../settingsTab';
+import { useGlobal } from '../../../context/globalContext';
+import TokenGateForm from '../../elements/tokenGateForm';
 
 type Props = {
   isOpen: boolean;
@@ -51,7 +51,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
   const { tribe } = useTribe();
   const { Moralis } = useMoralis();
   const router = useRouter();
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const [token, setToken] = useState<Token>();
   const {
     state: { registry },
@@ -60,7 +60,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
     chainId: window.ethereum.networkVersion,
     name: registry[window.ethereum.networkVersion]?.name,
   } as Chain);
-  const [tokenLimit, setTokenLimit] = useState("");
+  const [tokenLimit, setTokenLimit] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(
     Array(tribe.members?.length).fill(true)
@@ -88,8 +88,8 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
       <Grow in={isOpen} timeout={500}>
         <ModalContainer>
           <ModalHeading>
-            <Typography sx={{ color: "#99ccff" }}>Create Space</Typography>
-            <Box sx={{ flex: "1 1 auto" }} />
+            <Typography sx={{ color: '#99ccff' }}>Create Space</Typography>
+            <Box sx={{ flex: '1 1 auto' }} />
             <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
               <CloseIcon />
             </IconButton>
@@ -334,8 +334,8 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
                       .catch((err: any) => {
                         console.log(err);
                         notify(
-                          "Sorry! There was an error while creating space",
-                          "error"
+                          'Sorry! There was an error while creating space',
+                          'error'
                         );
                         setIsLoading(false);
                       });
@@ -347,7 +347,7 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
               <Grid item xs={1}>
                 <Checkbox
                   inputProps={{
-                    "aria-label": "select all desserts",
+                    'aria-label': 'select all desserts',
                   }}
                   checked={isPrivate}
                   onChange={(e) => {
@@ -369,21 +369,21 @@ const CreateBoard = ({ isOpen, handleClose }: Props) => {
 
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
-  position: "absolute" as "absolute",
-  top: "10%",
-  left: "25%",
-  transform: "translate(-50%, -50%)",
-  width: "35rem",
-  border: "2px solid #000",
+  position: 'absolute' as 'absolute',
+  top: '10%',
+  left: '25%',
+  transform: 'translate(-50%, -50%)',
+  width: '35rem',
+  border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
-  overflow: "auto",
-  maxHeight: "calc(100% - 128px)",
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
 }));
 
-const ModalContent = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
+const ModalContent = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
   padding: 32,
 }));
 

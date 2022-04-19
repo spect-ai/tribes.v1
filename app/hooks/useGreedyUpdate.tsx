@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useSpace } from "../../pages/tribe/[id]/space/[bid]";
-import { BoardData, Task } from "../types";
+import { useState } from 'react';
+import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
+import { BoardData, Task } from '../types';
 
 export function useGreedyUpdate() {
   const { space, setSpace } = useSpace();

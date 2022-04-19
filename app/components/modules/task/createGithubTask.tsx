@@ -1,16 +1,16 @@
-import { Button, InputBase, useTheme } from "@mui/material";
-import { Box } from "@mui/system";
-import React, { useState } from "react";
-import { BoardData } from "../../../types";
-import DoneIcon from "@mui/icons-material/Done";
-import CloseIcon from "@mui/icons-material/Close";
-import { CreateTaskContainer } from "./createTask";
-import { addTask } from "../../../adapters/moralis";
-import { useMoralis } from "react-moralis";
-import { useRouter } from "next/router";
-import { Octokit } from "@octokit/rest";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { notify } from "../settingsTab";
+import { Button, InputBase, useTheme } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useState } from 'react';
+import { BoardData } from '../../../types';
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
+import { CreateTaskContainer } from './createTask';
+import { addTask } from '../../../adapters/moralis';
+import { useMoralis } from 'react-moralis';
+import { useRouter } from 'next/router';
+import { Octokit } from '@octokit/rest';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { notify } from '../settingsTab';
 
 type Props = {
   setShowCreateTask: (showCreateTask: boolean) => void;
@@ -18,7 +18,7 @@ type Props = {
 };
 
 const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
-  const [newIssueLink, setNewIssueLink] = useState("");
+  const [newIssueLink, setNewIssueLink] = useState('');
   const [newTaskValue, setNewTaskValue] = useState(
     undefined as unknown as number
   );
@@ -33,8 +33,8 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
       <InputBase
         placeholder="Issue Link"
         sx={{
-          fontSize: "14px",
-          marginLeft: "6px",
+          fontSize: '14px',
+          marginLeft: '6px',
         }}
         value={newIssueLink}
         onChange={(e) => setNewIssueLink(e.target.value)}
@@ -42,24 +42,24 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
       <InputBase
         placeholder="Reward"
         sx={{
-          fontSize: "14px",
-          marginLeft: "6px",
+          fontSize: '14px',
+          marginLeft: '6px',
         }}
         value={newTaskValue}
         onChange={(e) => setNewTaskValue(parseInt(e.target.value))}
       />
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
         }}
       >
         <Button
           startIcon={<DoneIcon />}
           color="secondary"
           onClick={() => {
-            const splitValues = newIssueLink.split("/");
+            const splitValues = newIssueLink.split('/');
             octokit.rest.issues
               .get({
                 owner: splitValues[3],
@@ -77,14 +77,14 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
                   newIssueLink
                 ).then((res: any) => setSpace(res as BoardData));
                 setNewTaskValue(0);
-                setNewIssueLink("");
+                setNewIssueLink('');
                 setShowCreateTask(false);
               })
               .catch((err) =>
-                notify("Issue not found. Make sure the repo is public", "error")
+                notify('Issue not found. Make sure the repo is public', 'error')
               );
           }}
-          sx={{ textTransform: "none" }}
+          sx={{ textTransform: 'none' }}
           fullWidth
         >
           Done
@@ -92,7 +92,7 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
         <Button
           startIcon={<CloseIcon />}
           onClick={() => setShowCreateTask(false)}
-          sx={{ textTransform: "none" }}
+          sx={{ textTransform: 'none' }}
           color="error"
           fullWidth
         >

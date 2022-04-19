@@ -1,6 +1,6 @@
-import { BigNumber } from "ethers";
-import Moralis from "moralis/types";
-import { Delta } from "quill";
+import { BigNumber } from 'ethers';
+import Moralis from 'moralis/types';
+import { Delta } from 'quill';
 
 export interface Contracts {
   distributorContract?: ethers.Contract;

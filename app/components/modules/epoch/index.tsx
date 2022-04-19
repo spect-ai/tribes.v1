@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 import {
   Accordion,
   AccordionDetails,
@@ -10,35 +10,35 @@ import {
   Autocomplete,
   TextField,
   Skeleton,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { PrimaryButton } from "../../elements/styledComponents";
-import SaveIcon from "@mui/icons-material/Save";
-import CloseIcon from "@mui/icons-material/Close";
-import PaidIcon from "@mui/icons-material/Paid";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { PrimaryButton } from '../../elements/styledComponents';
+import SaveIcon from '@mui/icons-material/Save';
+import CloseIcon from '@mui/icons-material/Close';
+import PaidIcon from '@mui/icons-material/Paid';
 import {
   getEpochs,
   saveVotes,
   endEpoch,
   moveCards,
-} from "../../../adapters/moralis";
-import { useMoralis } from "react-moralis";
-import { useRouter } from "next/router";
-import { Epoch } from "../../../types";
-import { monthMap } from "../../../constants";
-import { notify } from "../settingsTab";
-import { Toaster } from "react-hot-toast";
-import { registryTemp } from "../../../constants";
-import CsvExport from "./export";
-import { updateTaskColumn, updateTaskStatus } from "../../../adapters/moralis";
-import { BoardData, Column, Task } from "../../../types";
-import NumericVoting, { Details } from "./numericVoting";
-import ForAgainstVoting from "./forAgainstVoting";
-import ZeroEpochs from "./zeroEpochs";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import CreateEpoch from "./createEpochModal";
-import PayoutContributors from "./payoutContributors";
+} from '../../../adapters/moralis';
+import { useMoralis } from 'react-moralis';
+import { useRouter } from 'next/router';
+import { Epoch } from '../../../types';
+import { monthMap } from '../../../constants';
+import { notify } from '../settingsTab';
+import { Toaster } from 'react-hot-toast';
+import { registryTemp } from '../../../constants';
+import CsvExport from './export';
+import { updateTaskColumn, updateTaskStatus } from '../../../adapters/moralis';
+import { BoardData, Column, Task } from '../../../types';
+import NumericVoting, { Details } from './numericVoting';
+import ForAgainstVoting from './forAgainstVoting';
+import ZeroEpochs from './zeroEpochs';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import CreateEpoch from './createEpochModal';
+import PayoutContributors from './payoutContributors';
 
 type Props = {
   expanded: boolean;
@@ -68,8 +68,8 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   const [votesGiven, setVotesGiven] = useState({} as VotesGivenAllEpochs);
   const [votesRemaining, setVotesRemaining] = useState({} as VotesRemaining);
   const [isLoading, setIsLoading] = useState(true);
-  const [passColumn, setPassColumn] = useState("");
-  const [noPassColumn, setNoPassColumn] = useState("");
+  const [passColumn, setPassColumn] = useState('');
+  const [noPassColumn, setNoPassColumn] = useState('');
 
   const handleVotesGiven = (
     epochid: string,
@@ -102,11 +102,11 @@ const EpochList = ({ expanded, handleChange }: Props) => {
 
   const getDetails = (choices: Array<string>, type: string) => {
     var details = {} as Details;
-    if (type === "Member") {
+    if (type === 'Member') {
       for (var choice of choices) {
         details[choice] = { choice: space.memberDetails[choice].username };
       }
-    } else if (type === "Card") {
+    } else if (type === 'Card') {
       for (var choice of choices) {
         details[choice] = { choice: space.taskDetails[choice].title };
       }
@@ -138,7 +138,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
         setIsLoading(false);
       })
       .catch((err: any) => {
-        notify(`Sorry! There was an error while getting epochs.`, "error");
+        notify(`Sorry! There was an error while getting epochs.`, 'error');
         setIsLoading(false);
       });
   };
@@ -169,7 +169,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   return (
     <Container>
       <Toaster />
-      <Box sx={{ width: "20%" }}>
+      <Box sx={{ width: '20%' }}>
         {space.epochs?.length !== 0 && <CreateEpoch />}
       </Box>
       <Accordion hidden>
@@ -180,52 +180,52 @@ const EpochList = ({ expanded, handleChange }: Props) => {
       ) : (
         space.epochs?.map((epoch, index) => (
           <>
-            {" "}
+            {' '}
             {(Object.keys(epoch.memberStats).includes(user?.id as string) ||
               space.roles[user?.id as string] === 3) && (
               <Accordion
                 disableGutters
                 key={index}
-                sx={{ border: "2px solid #00194A" }}
+                sx={{ border: '2px solid #00194A' }}
               >
                 <AccordionSummary
                   aria-controls="panel1d-content"
                   id="panel1d-header"
                   expandIcon={<ExpandMoreIcon />}
-                  sx={{ backgroundColor: "#00194A" }}
+                  sx={{ backgroundColor: '#00194A' }}
                 >
                   <Box
                     sx={{
-                      display: "flex",
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: "100%",
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      width: '100%',
                     }}
                   >
-                    <Typography sx={{ width: "30%", flexShrink: 0 }}>
+                    <Typography sx={{ width: '30%', flexShrink: 0 }}>
                       {epoch.name}
                     </Typography>
-                    <Typography sx={{ width: "30%", flexShrink: 0 }}>
-                      Started on{" "}
+                    <Typography sx={{ width: '30%', flexShrink: 0 }}>
+                      Started on{' '}
                       {
                         monthMap[
                           epoch.startTime.getMonth() as keyof typeof monthMap
                         ]
-                      }{" "}
+                      }{' '}
                       {epoch.startTime.getDate()}
                     </Typography>
-                    <Typography sx={{ width: "30%", flexShrink: 0 }}>
+                    <Typography sx={{ width: '30%', flexShrink: 0 }}>
                       {epoch.type}
                     </Typography>
                     {epoch.active && <Chip label="Ongoing" color="primary" />}
                     {epoch.paid && <Chip label="Paid" color="success" />}
                   </Box>
                 </AccordionSummary>
-                <AccordionDetails sx={{ backgroundColor: "#000f29" }}>
+                <AccordionDetails sx={{ backgroundColor: '#000f29' }}>
                   <Grid container>
                     <Grid item xs={8}>
                       {!isLoading &&
-                        epoch.strategy === "Quadratic voting" &&
+                        epoch.strategy === 'Quadratic voting' &&
                         Object.keys(votesGiven).includes(epoch.objectId) && (
                           <NumericVoting
                             epochId={epoch.objectId}
@@ -242,7 +242,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                           />
                         )}
                       {!isLoading &&
-                        epoch.strategy === "Pass/No Pass" &&
+                        epoch.strategy === 'Pass/No Pass' &&
                         Object.keys(votesGiven).includes(epoch.objectId) && (
                           <ForAgainstVoting
                             epochId={epoch.objectId}
@@ -263,18 +263,18 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                     </Grid>
                     <Grid item xs={4}>
                       <DetailContainer>
-                        {epoch.active && epoch.type === "Member" && (
+                        {epoch.active && epoch.type === 'Member' && (
                           <InfoContainer>
                             <Typography
                               sx={{
-                                color: "#99ccff",
-                                textAlign: "right",
+                                color: '#99ccff',
+                                textAlign: 'right',
                                 fontSize: 14,
                               }}
                             >
                               Votes remaining
                             </Typography>
-                            <Typography sx={{ textAlign: "right" }}>
+                            <Typography sx={{ textAlign: 'right' }}>
                               {votesRemaining[epoch.objectId]}
                             </Typography>
                           </InfoContainer>
@@ -283,14 +283,14 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                           <InfoContainer>
                             <Typography
                               sx={{
-                                color: "#99ccff",
-                                textAlign: "right",
+                                color: '#99ccff',
+                                textAlign: 'right',
                                 fontSize: 14,
                               }}
                             >
                               Total Budget
                             </Typography>
-                            <Typography sx={{ textAlign: "right" }}>
+                            <Typography sx={{ textAlign: 'right' }}>
                               {epoch.budget} {epoch.token.symbol}
                             </Typography>
                           </InfoContainer>
@@ -318,7 +318,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                     )
                                       .then((res: any) => {
                                         setIsLoading(false);
-                                        notify("Votes saved!");
+                                        notify('Votes saved!');
                                       })
                                       .catch((err: any) => alert(err));
                                   }}
@@ -340,12 +340,12 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                       .then((res: any) => {
                                         handleEpochUpdateAfterSave(index, res);
                                         setIsLoading(false);
-                                        notify("Epoch Ended!");
+                                        notify('Epoch Ended!');
                                       })
                                       .catch((err: any) => {
                                         notify(
                                           `Sorry! There was an error while ending the epoch.`,
-                                          "error"
+                                          'error'
                                         );
                                         setIsLoading(false);
                                       });
@@ -355,11 +355,11 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                 </PrimaryButton>
                               )}
                               {/* )} */}
-                            </ButtonContainer>{" "}
+                            </ButtonContainer>{' '}
                           </>
                         ) : (
                           <ButtonContainer>
-                            {epoch.type === "Member" ? (
+                            {epoch.type === 'Member' ? (
                               <PayoutContributors epoch={epoch} />
                             ) : (
                               <div></div>
@@ -445,7 +445,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                               //   </PrimaryButton>
                               // </Box>
                             )}
-                            {epoch.type === "Member" && (
+                            {epoch.type === 'Member' && (
                               <CsvExport epoch={epoch} />
                             )}
                           </ButtonContainer>
@@ -455,7 +455,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                   </Grid>
                 </AccordionDetails>
               </Accordion>
-            )}{" "}
+            )}{' '}
           </>
         ))
       )}

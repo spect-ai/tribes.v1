@@ -1,4 +1,4 @@
-Moralis.Cloud.define("getTask", async (request) => {
+Moralis.Cloud.define('getTask', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     if (request.params.taskId) {
@@ -6,7 +6,7 @@ Moralis.Cloud.define("getTask", async (request) => {
       /* remove later */
       if (request.params.columnId) {
         var _task = await getTaskByTaskId(request.params.taskId);
-        _task.set("columnId", request.params.columnId);
+        _task.set('columnId', request.params.columnId);
         await Moralis.Object.saveAll(_task, { useMasterKey: true });
       }
       /* remove later */
@@ -17,7 +17,7 @@ Moralis.Cloud.define("getTask", async (request) => {
       // Get space to check if user can view it
       const space = await getBoardObjByObjectId(task.boardId, request.user?.id);
       const canReadSpace = canRead(space[0], request.user?.id);
-      if (!canReadSpace) throw "You dont have access to view this space";
+      if (!canReadSpace) throw 'You dont have access to view this space';
 
       task = addFieldsToTask(task, request.user?.id);
       task.activity.reverse();

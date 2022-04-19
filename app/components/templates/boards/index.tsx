@@ -1,13 +1,13 @@
-import styled from "@emotion/styled";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { Column } from "../../../types";
-import CardModal from "../../modules/cardModal";
-import { notify } from "../../modules/settingsTab";
-import TaskBoard from "../../modules/taskBoard";
+import styled from '@emotion/styled';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import { Column } from '../../../types';
+import CardModal from '../../modules/cardModal';
+import { notify } from '../../modules/settingsTab';
+import TaskBoard from '../../modules/taskBoard';
 
 type Props = {};
 
@@ -35,20 +35,20 @@ const BoardsTemplate = (props: Props) => {
         authenticate();
         return;
       }
-      runMoralisFunction("joinSpaceFromInvite", {
+      runMoralisFunction('joinSpaceFromInvite', {
         inviteCode,
         boardId: router.query.bid as string,
       })
         .then((res) => {
           console.log(res);
           setSpace(res);
-          notify("You have joined the space successfully");
+          notify('You have joined the space successfully');
           router.push(`/tribe/${router.query.id}/space/${router.query.bid}`);
         })
         .catch((err) => {
           console.error(err);
           router.push(`/tribe/${router.query.id}/space/${router.query.bid}`);
-          notify(err.message, "error");
+          notify(err.message, 'error');
         });
     }
   }, [inviteCode, isAuthenticated, isLoading]);

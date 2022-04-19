@@ -1,25 +1,25 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 import {
   Box,
   Breadcrumbs,
   styled as MUIStyled,
   Link as MuiLink,
   Tooltip,
-} from "@mui/material";
-import { useRouter } from "next/router";
-import React, { useState } from "react";
-import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
-import { joinTribe } from "../../../adapters/moralis";
-import { useMoralis } from "react-moralis";
+} from '@mui/material';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
+import { joinTribe } from '../../../adapters/moralis';
+import { useMoralis } from 'react-moralis';
 import {
   PrimaryButton,
   StyledTab,
   StyledTabs,
-} from "../../elements/styledComponents";
-import { useTribe } from "../../../../pages/tribe/[id]";
-import { notify } from "../settingsTab";
-import { Toaster } from "react-hot-toast";
-import Link from "next/link";
+} from '../../elements/styledComponents';
+import { useTribe } from '../../../../pages/tribe/[id]';
+import { notify } from '../settingsTab';
+import { Toaster } from 'react-hot-toast';
+import Link from 'next/link';
 
 type Props = {};
 
@@ -35,8 +35,8 @@ const TribeHeading = (props: Props) => {
     <Container>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "row",
+          display: 'flex',
+          flexDirection: 'row',
           ml: 4,
         }}
       >
@@ -58,9 +58,9 @@ const TribeHeading = (props: Props) => {
       </Box>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
           ml: 4,
         }}
       >
@@ -111,13 +111,13 @@ const TribeHeading = (props: Props) => {
   );
 };
 
-const StyledAnchor = MUIStyled("a")(({ theme }) => ({
-  color: "rgb(90, 105, 114,0.6)",
-  marginRight: "0.8rem",
-  fontSize: "1.2rem",
-  transition: "0.3s ease-in-out",
-  "&:hover": {
-    color: "rgb(90, 105, 114,1)",
+const StyledAnchor = MUIStyled('a')(({ theme }) => ({
+  color: 'rgb(90, 105, 114,0.6)',
+  marginRight: '0.8rem',
+  fontSize: '1.2rem',
+  transition: '0.3s ease-in-out',
+  '&:hover': {
+    color: 'rgb(90, 105, 114,1)',
   },
 }));
 

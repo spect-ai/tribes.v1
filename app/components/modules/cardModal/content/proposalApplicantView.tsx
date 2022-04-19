@@ -6,18 +6,18 @@ import {
   Avatar,
   InputAdornment,
   TextareaAutosize,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
-import { useCardDynamism } from "../../../../hooks/useCardDynamism";
-import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
-import { Proposal, Task } from "../../../../types";
-import { PrimaryButton } from "../../../elements/styledComponents";
-import { notify } from "../../settingsTab";
-import { uid, formatTimeCreated } from "../../../../utils/utils";
-import { useProfileInfo } from "../../../../hooks/useProfileInfo";
-import ThumbUpOffAltIcon from "@mui/icons-material/ThumbUpOffAlt";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import { Proposal, Task } from '../../../../types';
+import { PrimaryButton } from '../../../elements/styledComponents';
+import { notify } from '../../settingsTab';
+import { uid, formatTimeCreated } from '../../../../utils/utils';
+import { useProfileInfo } from '../../../../hooks/useProfileInfo';
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
@@ -28,7 +28,7 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
   const { user } = useMoralis();
-  const [proposalOnEdit, setProposalOnEdit] = useState("");
+  const [proposalOnEdit, setProposalOnEdit] = useState('');
   const [proposal, setProposal] = useState({} as Proposal);
   const { proposalEditMode, setProposalEditMode } = useCardDynamism(task);
   const [editMode, setEditMode] = useState(true);
@@ -40,7 +40,7 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
     const temp = Object.assign({}, task);
     temp.proposals = [
       {
-        id: "",
+        id: '',
         content: proposalOnEdit as string,
         userId: user?.id as string,
         createdAt:
@@ -53,7 +53,7 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
     ];
     setTask(temp);
     setProposalEditMode(false);
-    runMoralisFunction("updateCard", {
+    runMoralisFunction('updateCard', {
       updates: {
         proposals: {
           content: proposalOnEdit,
@@ -63,7 +63,7 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
     })
       .then((res: any) => {
         console.log(res);
-        notify("Applied to bounty!", "success");
+        notify('Applied to bounty!', 'success');
         setSpace(res.space);
         setTask(res.task);
         setIsLoading(false);
@@ -72,7 +72,7 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
         setTask(prevTask);
         setProposalEditMode(true);
         setIsLoading(false);
-        notify(`${err.message}`, "error");
+        notify(`${err.message}`, 'error');
       });
   };
 
@@ -85,7 +85,7 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
     if (task.proposals.length > 0) {
       setProposal(task.proposals[0]);
       setProposalOnEdit(task.proposals[0].content);
-      if (task.proposals[0]?.content === "") setEditMode(true);
+      if (task.proposals[0]?.content === '') setEditMode(true);
       else setEditMode(false);
     }
   }, [task]);
@@ -93,20 +93,20 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
   return (
     <Box
       sx={{
-        color: "#eaeaea",
-        height: "auto",
+        color: '#eaeaea',
+        height: 'auto',
         mr: 3,
         mt: 3,
         ml: 3,
-        width: "45rem",
+        width: '45rem',
       }}
     >
       <Box sx={{}}>
         <Box
           sx={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
             mt: 4,
           }}
         >
@@ -119,20 +119,20 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
             variant="body1"
             sx={{
               ml: 2,
-              display: "flex",
-              alignItems: "center",
+              display: 'flex',
+              alignItems: 'center',
             }}
           >
-            {user?.get("username")}
-          </Typography>{" "}
+            {user?.get('username')}
+          </Typography>{' '}
           {proposal?.createdAt && (
             <Typography
               variant="body2"
               sx={{
                 ml: 4,
-                display: "flex",
-                alignItems: "center",
-                color: "text.secondary",
+                display: 'flex',
+                alignItems: 'center',
+                color: 'text.secondary',
               }}
             >
               {formatTimeCreated(proposal?.createdAt)} ago
@@ -143,9 +143,9 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
               variant="body2"
               sx={{
                 ml: 4,
-                display: "flex",
-                alignItems: "center",
-                color: "text.secondary",
+                display: 'flex',
+                alignItems: 'center',
+                color: 'text.secondary',
               }}
             >
               Edited {formatTimeCreated(proposal?.updatedAt)} ago
@@ -175,8 +175,8 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
             sx={{
               mb: 2,
               mt: 2,
-              width: "8rem",
-              height: "2rem",
+              width: '8rem',
+              height: '2rem',
             }}
             color="secondary"
             size="small"
@@ -198,8 +198,8 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
             sx={{
               mb: 2,
               mt: 2,
-              width: "8rem",
-              height: "2rem",
+              width: '8rem',
+              height: '2rem',
             }}
             color="secondary"
             size="small"
@@ -217,33 +217,33 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
             <>
               <Box
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "start",
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'start',
                 }}
               >
                 <Box
                   sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                   }}
                 >
-                  <Typography sx={{ color: "success.main" }}>
+                  <Typography sx={{ color: 'success.main' }}>
                     Congrats
                   </Typography>
                   <ThumbUpOffAltIcon
                     sx={{
-                      color: "success.main",
+                      color: 'success.main',
                       ml: 2,
-                      justifyContent: "center",
-                      alignItems: "center",
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   />
                 </Box>
 
-                <Typography sx={{ color: "text.primary" }}>
+                <Typography sx={{ color: 'text.primary' }}>
                   Your application was picked. You have been assigned to this
                   bounty.
                 </Typography>

@@ -1,4 +1,4 @@
-import type { NextPage } from "next";
+import type { NextPage } from 'next';
 import {
   Card,
   CardActions,
@@ -11,21 +11,21 @@ import {
   Grid,
   ThemeProvider,
   createTheme,
-} from "@mui/material";
-import Link from "next/link";
+} from '@mui/material';
+import Link from 'next/link';
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { getMyTeams, getPublicTeams } from "../app/adapters/moralis";
-import { useMoralis } from "react-moralis";
-import { Team } from "../app/types";
+import { createContext, useContext, useEffect, useState } from 'react';
+import { getMyTeams, getPublicTeams } from '../app/adapters/moralis';
+import { useMoralis } from 'react-moralis';
+import { Team } from '../app/types';
 
-import { tribesLogo } from "../app/constants";
-import Head from "next/head";
-import Navbar from "../app/components/modules/navbar";
-import ExploreTemplate from "../app/components/templates/explore";
-import { getTheme } from "../app/constants/muiTheme";
-import { PageContainer } from "./tribe/[id]/space/[bid]";
-import ExploreSidebar from "../app/components/modules/exploreSidebar";
+import { tribesLogo } from '../app/constants';
+import Head from 'next/head';
+import Navbar from '../app/components/modules/navbar';
+import ExploreTemplate from '../app/components/templates/explore';
+import { getTheme } from '../app/constants/muiTheme';
+import { PageContainer } from './tribe/[id]/space/[bid]';
+import ExploreSidebar from '../app/components/modules/exploreSidebar';
 
 interface ExploreContextType {
   publicTribes: Team[];
@@ -41,7 +41,7 @@ interface ExploreContextType {
 export const ExploreContext = createContext<ExploreContextType>(
   {} as ExploreContextType
 );
-console.log("starting index page", new Date());
+console.log('starting index page', new Date());
 const Home: NextPage = () => {
   const { Moralis, isInitialized, isAuthenticated } = useMoralis();
   const context = useProviderExplore();
@@ -91,7 +91,7 @@ const Home: NextPage = () => {
         <ExploreContext.Provider value={context}>
           <PageContainer theme={createTheme(getTheme(0))}>
             <Navbar />
-            <Box sx={{ display: "flex", flexDirection: "row" }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
               <ExploreSidebar />
               <ExploreTemplate />
             </Box>

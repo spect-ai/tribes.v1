@@ -1,10 +1,10 @@
-import HailIcon from "@mui/icons-material/Hail";
-import { Box, Typography } from "@mui/material";
-import React, { useState } from "react";
-import { useCardDynamism } from "../../../../hooks/useCardDynamism";
-import { Task } from "../../../../types";
-import { CardButton } from "../../../elements/styledComponents";
-import { useMoralis } from "react-moralis";
+import HailIcon from '@mui/icons-material/Hail';
+import { Box, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import { Task } from '../../../../types';
+import { CardButton } from '../../../elements/styledComponents';
+import { useMoralis } from 'react-moralis';
 
 type Props = {
   task: Task;
@@ -15,14 +15,14 @@ const Apply = ({ task, setTask }: Props) => {
   const { setProposalEditMode, viewableComponents, proposalEditMode } =
     useCardDynamism(task);
   const { user } = useMoralis();
-  const [buttonText, setButtonText] = useState("Apply");
+  const [buttonText, setButtonText] = useState('Apply');
   const handleClick = () => {
     console.log(`aalal`);
     const temp = Object.assign({}, task);
     temp.proposals = [
       {
-        id: "",
-        content: "",
+        id: '',
+        content: '',
         userId: user?.id as string,
         createdAt: null,
         updatedAt: null,
@@ -35,13 +35,13 @@ const Apply = ({ task, setTask }: Props) => {
 
   return (
     <>
-      {viewableComponents["applyButton"] && (
+      {viewableComponents['applyButton'] && (
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
+            display: 'flex',
+            flexDirection: 'column',
             mx: 1,
-            minWidth: "9rem",
+            minWidth: '9rem',
           }}
         >
           <CardButton
@@ -49,8 +49,8 @@ const Apply = ({ task, setTask }: Props) => {
             onClick={() => handleClick()}
             color="secondary"
             sx={{
-              padding: "2px",
-              minWidth: "3rem",
+              padding: '2px',
+              minWidth: '3rem',
             }}
             startIcon={<HailIcon sx={{ my: 2, ml: 2 }} />}
             size="small"

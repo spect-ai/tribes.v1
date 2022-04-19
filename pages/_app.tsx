@@ -1,12 +1,12 @@
-import type { AppProps } from "next/app";
-import { MoralisProvider } from "react-moralis";
-import Script from "next/script";
-import { useRouter } from "next/router";
-import Layout from "../app/components/layouts";
-import "../app/styles/globals.css";
-import GlobalContextProvider from "../app/context/globalContext";
+import type { AppProps } from 'next/app';
+import { MoralisProvider } from 'react-moralis';
+import Script from 'next/script';
+import { useRouter } from 'next/router';
+import Layout from '../app/components/layouts';
+import '../app/styles/globals.css';
+import GlobalContextProvider from '../app/context/globalContext';
 
-console.log("starting _app", new Date());
+console.log('starting _app', new Date());
 function MyApp({ Component, pageProps }: AppProps) {
   // let theme = createTheme(classicDark);
   const router = useRouter();
@@ -14,8 +14,8 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <MoralisProvider
-      appId={process.env.MORALIS_APPLICATION_ID || ""}
-      serverUrl={process.env.MORALIS_SERVER_ID || ""}
+      appId={process.env.MORALIS_APPLICATION_ID || ''}
+      serverUrl={process.env.MORALIS_SERVER_ID || ''}
     >
       <GlobalContextProvider>
         <Script

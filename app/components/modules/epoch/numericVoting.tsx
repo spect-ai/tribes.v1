@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 import {
   TableCell,
   TableRow,
@@ -7,8 +7,8 @@ import {
   TableBody,
   TableContainer,
   Table,
-} from "@mui/material";
-import React from "react";
+} from '@mui/material';
+import React from 'react';
 
 type Choice = {
   choice: string;
@@ -58,14 +58,14 @@ const NumericVoting = ({
       <Table aria-label="simple table" size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ color: "#99ccff" }}>
-              {type === "Member" ? "Member" : "Card"}
+            <TableCell sx={{ color: '#99ccff' }}>
+              {type === 'Member' ? 'Member' : 'Card'}
             </TableCell>
-            <TableCell align="right" sx={{ color: "#99ccff" }}>
+            <TableCell align="right" sx={{ color: '#99ccff' }}>
               Votes Given
             </TableCell>
             {!active && (
-              <TableCell align="right" sx={{ color: "#99ccff" }}>
+              <TableCell align="right" sx={{ color: '#99ccff' }}>
                 Value
               </TableCell>
             )}
@@ -76,7 +76,7 @@ const NumericVoting = ({
             <TableRow
               key={index}
               sx={{
-                "&:last-child td, &:last-child th": {
+                '&:last-child td, &:last-child th': {
                   border: 0,
                 },
               }}
@@ -98,7 +98,7 @@ const NumericVoting = ({
                     size="small"
                     color="secondary"
                     error={votesRemaining < 0}
-                    sx={{ width: "30%" }}
+                    sx={{ width: '30%' }}
                     onChange={(event) => {
                       handleVotesRemaining(
                         epochId,
@@ -118,7 +118,7 @@ const NumericVoting = ({
                 <TableCell align="right">
                   {choiceId in values && values[choiceId]
                     ? values[choiceId].toFixed(3)
-                    : 0}{" "}
+                    : 0}{' '}
                   {tokenSymbol}
                 </TableCell>
               )}

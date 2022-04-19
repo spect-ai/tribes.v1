@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { useSpace } from "../../pages/tribe/[id]/space/[bid]";
-import { useMoralis } from "react-moralis";
-import { Task } from "../types";
-import { useAccess } from "./useAccess";
+import { useState, useEffect } from 'react';
+import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
+import { useMoralis } from 'react-moralis';
+import { Task } from '../types';
+import { useAccess } from './useAccess';
 
 export function useCardDynamism(task: Task) {
   const { space } = useSpace();
@@ -67,39 +67,39 @@ export function useCardDynamism(task: Task) {
       !isCardSteward() ||
       task.status === 300 // Paid already
     ) {
-      return "hide";
+      return 'hide';
     }
-    if (user?.get("distributorApproved")) {
+    if (user?.get('distributorApproved')) {
       if (
-        task.token?.address === "0x0" ||
-        (task.chain?.chainId in user?.get("distributorApproved") &&
+        task.token?.address === '0x0' ||
+        (task.chain?.chainId in user?.get('distributorApproved') &&
           user
-            ?.get("distributorApproved")
+            ?.get('distributorApproved')
             [task.chain?.chainId].includes(task.token?.address))
       )
-        return "showPay";
-      else return "showApprove";
+        return 'showPay';
+      else return 'showApprove';
     } else {
-      if (task.token?.address === "0x0") return "showPay";
-      else return "showApprove";
+      if (task.token?.address === '0x0') return 'showPay';
+      else return 'showApprove';
     }
   }
 
   const getReason = (field: string) => {
     if (task.status === 300) {
-      return "Cannot edit, already paid for card";
+      return 'Cannot edit, already paid for card';
     } else {
       switch (field) {
-        case "reward":
-        case "description":
-        case "title":
-        case "reviewer":
-        case "column":
-        case "type":
-        case "label":
+        case 'reward':
+        case 'description':
+        case 'title':
+        case 'reviewer':
+        case 'column':
+        case 'type':
+        case 'label':
           return `Only card reviewer or creator and space steward can edit ${field}`;
-        case "assignee":
-        case "dueDate":
+        case 'assignee':
+        case 'dueDate':
           return `Only card assignee, reviewer or creator and space steward can edit ${field}`;
       }
     }
@@ -132,32 +132,32 @@ export function useCardDynamism(task: Task) {
 
   const isAssignToMeViewable = () => {
     if (task?.assignee?.length === 0) {
-      return task.type === "Task" && isSpaceMember();
+      return task.type === 'Task' && isSpaceMember();
     } else return false;
   };
 
   const resolveTabs = () => {
-    if (task.type === "Task") {
-      return ["Comments", "Activity"];
-    } else if (task.type === "Bounty") {
+    if (task.type === 'Task') {
+      return ['Comments', 'Activity'];
+    } else if (task.type === 'Bounty') {
       // No assignee yet
       if (task.status === 100) {
         if (isCardSteward()) {
-          return ["Applicants", "Activity"];
+          return ['Applicants', 'Activity'];
         } else if (task.proposals?.length > 0 || proposalEditMode) {
-          return ["Application", "Activity"];
+          return ['Application', 'Activity'];
         } else {
-          return ["Activity"]; // Only return application tab if there are any
+          return ['Activity']; // Only return application tab if there are any
         }
       }
       // Card has been assigned
       else {
         if (isCardSteward()) {
-          return ["Submissions", "Activity", "Applicants"];
+          return ['Submissions', 'Activity', 'Applicants'];
         } else if (isCardAssignee()) {
-          return ["Submissions", "Activity", "Application"];
+          return ['Submissions', 'Activity', 'Application'];
         } else {
-          return ["Activity"];
+          return ['Activity'];
         }
       }
     } else return [];
@@ -174,7 +174,7 @@ export function useCardDynamism(task: Task) {
   };
 
   const isApplyButtonViewable = () => {
-    if (task.type === "Bounty") {
+    if (task.type === 'Bounty') {
       if (task.access?.reviewer || task.access?.creator) {
         return false;
       }

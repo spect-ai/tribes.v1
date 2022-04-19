@@ -10,30 +10,30 @@ import {
   Tooltip,
   Typography,
   useTheme,
-} from "@mui/material";
-import { Box } from "@mui/system";
-import React, { useEffect, useState } from "react";
-import CloseIcon from "@mui/icons-material/Close";
+} from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useEffect, useState } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   ModalHeading,
   PrimaryButton,
   StyledAccordian,
-} from "../../elements/styledComponents";
-import { updateBoard } from "../../../adapters/moralis";
-import { useMoralis } from "react-moralis";
-import SettingsIcon from "@mui/icons-material/Settings";
-import { BoardData, Chain, Registry, Team, Token } from "../../../types";
-import ConfirmModal from "./confirmModal";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { getFlattenedNetworks } from "../../../utils/utils";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { SidebarButton } from "../exploreSidebar";
-import { useRouter } from "next/router";
-import styled from "@emotion/styled";
-import { notify } from "../settingsTab";
-import { useGlobal } from "../../../context/globalContext";
-import TokenGateForm from "../../elements/tokenGateForm";
-import DefaultPaymentForm from "../../elements/defaultPaymentForm";
+} from '../../elements/styledComponents';
+import { updateBoard } from '../../../adapters/moralis';
+import { useMoralis } from 'react-moralis';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { BoardData, Chain, Registry, Team, Token } from '../../../types';
+import ConfirmModal from './confirmModal';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { getFlattenedNetworks } from '../../../utils/utils';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { SidebarButton } from '../exploreSidebar';
+import { useRouter } from 'next/router';
+import styled from '@emotion/styled';
+import { notify } from '../settingsTab';
+import { useGlobal } from '../../../context/globalContext';
+import TokenGateForm from '../../elements/tokenGateForm';
+import DefaultPaymentForm from '../../elements/defaultPaymentForm';
 
 type Props = {};
 
@@ -44,13 +44,13 @@ const BoardSettings = (props: Props) => {
     state: { registry },
   } = useGlobal();
   const { Moralis, user } = useMoralis();
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [defaultToken, setDefaultToken] = useState<Token>({} as Token);
   const [defaultChain, setDefaultChain] = useState<Chain>({} as Chain);
   const [tokenGatechain, setTokenGateChain] = useState<Chain>({} as Chain);
   const [tokenGateToken, setTokenGateToken] = useState<Token>({} as Token);
-  const [tokenGateLimit, setTokenGateLimit] = useState<string>("");
+  const [tokenGateLimit, setTokenGateLimit] = useState<string>('');
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -81,7 +81,7 @@ const BoardSettings = (props: Props) => {
           if (space.roles[user?.id as string] !== 3) {
             notify(
               "You don't have permission to change settings for this space",
-              "error"
+              'error'
             );
             return;
           }
@@ -110,7 +110,7 @@ const BoardSettings = (props: Props) => {
           <ModalContainer>
             <ModalHeading>
               <Typography>Settings</Typography>
-              <Box sx={{ flex: "1 1 auto" }} />
+              <Box sx={{ flex: '1 1 auto' }} />
               <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
@@ -235,18 +235,18 @@ const BoardSettings = (props: Props) => {
                 </OptionsButton>
                 <AccordionDetails></AccordionDetails>
               </StyledAccordian> */}
-              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <PrimaryButton
                   variant="outlined"
                   color="secondary"
-                  sx={{ width: "50%", mt: 2, mr: 4, borderRadius: 1 }}
+                  sx={{ width: '50%', mt: 2, mr: 4, borderRadius: 1 }}
                   loading={isLoading}
                   onClick={() => {
                     if (
                       space.roles[user?.id as string] &&
                       space.roles[user?.id as string] !== 3
                     ) {
-                      notify("Only stewards can update settings", "error");
+                      notify('Only stewards can update settings', 'error');
                       return;
                     }
                     setIsLoading(true);
@@ -276,14 +276,14 @@ const BoardSettings = (props: Props) => {
                 </PrimaryButton>
                 <PrimaryButton
                   variant="outlined"
-                  sx={{ width: "50%", mt: 2, borderRadius: 1 }}
+                  sx={{ width: '50%', mt: 2, borderRadius: 1 }}
                   color="error"
                   onClick={() => {
                     if (
                       space.roles[user?.id as string] &&
                       space.roles[user?.id as string] !== 3
                     ) {
-                      notify("Only stewards can update settings", "error");
+                      notify('Only stewards can update settings', 'error');
                       return;
                     }
                     setIsConfirmOpen(true);
@@ -301,21 +301,21 @@ const BoardSettings = (props: Props) => {
 };
 // @ts-ignore
 const ModalContainer = MUIStyled(Box)(({ theme }) => ({
-  position: "absolute" as "absolute",
-  top: "10%",
-  left: "25%",
-  transform: "translate(-50%, -50%)",
-  width: "50rem",
-  border: "2px solid #000",
+  position: 'absolute' as 'absolute',
+  top: '10%',
+  left: '25%',
+  transform: 'translate(-50%, -50%)',
+  width: '50rem',
+  border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
-  overflow: "auto",
-  maxHeight: "calc(100% - 128px)",
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
 }));
 
-const ModalContent = MUIStyled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
+const ModalContent = MUIStyled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
   padding: 32,
 }));
 

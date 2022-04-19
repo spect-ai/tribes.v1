@@ -8,17 +8,17 @@ import {
   Tooltip,
   Typography,
   useTheme,
-} from "@mui/material";
-import React, { useState } from "react";
-import { useMoralis } from "react-moralis";
-import CloseIcon from "@mui/icons-material/Close";
-import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
-import { createTribe } from "../../../adapters/moralis";
-import { useRouter } from "next/router";
-import { Toaster } from "react-hot-toast";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { SidebarButton } from "../exploreSidebar";
-import { notify } from "../settingsTab";
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import CloseIcon from '@mui/icons-material/Close';
+import { ModalHeading, PrimaryButton } from '../../elements/styledComponents';
+import { createTribe } from '../../../adapters/moralis';
+import { useRouter } from 'next/router';
+import { Toaster } from 'react-hot-toast';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { SidebarButton } from '../exploreSidebar';
+import { notify } from '../settingsTab';
 
 type Props = {};
 
@@ -26,7 +26,7 @@ const CreateTribeModal = (props: Props) => {
   const handleClose = () => setIsOpen(false);
   const handleOpen = () => setIsOpen(true);
   const [isOpen, setIsOpen] = useState(false);
-  const [name, setName] = useState("");
+  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { palette } = useTheme();
@@ -40,13 +40,13 @@ const CreateTribeModal = (props: Props) => {
         setIsLoading(false);
         handleClose();
         router.push({
-          pathname: `/tribe/${res.get("teamId")}`,
+          pathname: `/tribe/${res.get('teamId')}`,
         });
       })
       .catch((err: any) => {
         setIsLoading(false);
         handleClose();
-        notify(err.message, "error");
+        notify(err.message, 'error');
       });
   };
 
@@ -87,7 +87,7 @@ const CreateTribeModal = (props: Props) => {
           <ModalContainer>
             <ModalHeading>
               <Typography color="inherit">Create Tribe</Typography>
-              <Box sx={{ flex: "1 1 auto" }} />
+              <Box sx={{ flex: '1 1 auto' }} />
               <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
                 <CloseIcon />
               </IconButton>
@@ -102,7 +102,7 @@ const CreateTribeModal = (props: Props) => {
               />
               <PrimaryButton
                 variant="outlined"
-                sx={{ width: "60%", mt: 2, borderRadius: 1 }}
+                sx={{ width: '60%', mt: 2, borderRadius: 1 }}
                 onClick={onSubmit}
                 loading={isLoading}
                 color="inherit"
@@ -117,24 +117,24 @@ const CreateTribeModal = (props: Props) => {
   );
 };
 
-const ModalContent = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
+const ModalContent = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
   padding: 32,
 }));
 
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
-  position: "absolute" as "absolute",
-  top: "10%",
-  left: "35%",
-  transform: "translate(-50%, -50%)",
-  width: "30rem",
-  border: "2px solid #000",
+  position: 'absolute' as 'absolute',
+  top: '10%',
+  left: '35%',
+  transform: 'translate(-50%, -50%)',
+  width: '30rem',
+  border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
-  overflow: "auto",
-  maxHeight: "calc(100% - 128px)",
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
 }));
 
 export default CreateTribeModal;

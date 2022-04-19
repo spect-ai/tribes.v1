@@ -1,31 +1,31 @@
 async function getInviteByObjectId(objectId) {
-  const inviteQuery = new Moralis.Query("Invite");
-  inviteQuery.equalTo("objectId", objectId);
+  const inviteQuery = new Moralis.Query('Invite');
+  inviteQuery.equalTo('objectId', objectId);
   return await inviteQuery.first({ useMasterKey: true });
 }
 
 async function getBoardByObjectId(objectId) {
-  const boardQuery = new Moralis.Query("Board");
-  boardQuery.equalTo("objectId", objectId);
+  const boardQuery = new Moralis.Query('Board');
+  boardQuery.equalTo('objectId', objectId);
   return await boardQuery.first({ useMasterKey: true });
 }
 
 async function getBoardObjByObjectId(objectId, callerId) {
-  const boardQuery = new Moralis.Query("Board");
+  const boardQuery = new Moralis.Query('Board');
   const pipeline = [
     { match: { objectId: objectId } },
     {
       lookup: {
-        from: "Team",
-        localField: "teamId",
-        foreignField: "teamId",
-        as: "team",
+        from: 'Team',
+        localField: 'teamId',
+        foreignField: 'teamId',
+        as: 'team',
       },
     },
   ];
 
   var board = await boardQuery.aggregate(pipeline, { useMasterKey: true });
-  if (board.length === 0) throw "Board doesnt exist";
+  if (board.length === 0) throw 'Board doesnt exist';
   // if (callerId) board[0].access = getSpaceAccess(callerId, board[0]);
   return board;
 }
@@ -61,13 +61,13 @@ async function getBoardObjWithTasksAndProposalsByObjectId(objectId, callerId) {
 }
 
 async function getBoardObjByTeamId(teamId) {
-  const boardQuery = new Moralis.Query("Board");
+  const boardQuery = new Moralis.Query('Board');
   const pipeline = [{ match: { teamId: teamId } }];
   return await boardQuery.aggregate(pipeline);
 }
 
 async function getEssentialBoardObjByTeamId(teamId) {
-  const boardQuery = new Moralis.Query("Board");
+  const boardQuery = new Moralis.Query('Board');
   const pipeline = [
     { match: { teamId: teamId } },
     {
@@ -102,7 +102,7 @@ async function getSpace(boardId, callerId) {
       callerId
     );
 
-    if (boardObjCompact.length === 0) throw "Board not found";
+    if (boardObjCompact.length === 0) throw 'Board not found';
     // we are getting tasks twice........ CHECK THIS
     var boardObjDetailed = await getBoardObjWithTasksAndProposalsByObjectId(
       boardId,
@@ -110,7 +110,7 @@ async function getSpace(boardId, callerId) {
     );
 
     const canReadSpace = canRead(boardObjDetailed[0], callerId);
-    if (!canReadSpace) throw "You dont have access to view this space";
+    if (!canReadSpace) throw 'You dont have access to view this space';
 
     const epochs = await getEpochsBySpaceId(
       boardObjDetailed[0].objectId,
@@ -133,31 +133,31 @@ async function getSpace(boardId, callerId) {
 }
 
 function joinSpaceAsMember(space, userId) {
-  const members = space.get("members");
-  const roles = space.get("roles");
+  const members = space.get('members');
+  const roles = space.get('roles');
   members.push(userId);
   roles[userId] = 1;
-  space.set("members", members);
-  space.set("roles", roles);
+  space.set('members', members);
+  space.set('roles', roles);
   return space;
 }
 
 function getBoardObjFromBoardParseObj(board) {
   return {
     objectId: board.id,
-    name: board.get("name"),
-    tasks: board.get("tasks"),
-    columns: board.get("columns"),
-    columnOrder: board.get("columnOrder"),
-    teamId: board.get("teamId"),
-    createdAt: board.get("createdAt"),
-    updatedAt: board.get("updatedAt"),
+    name: board.get('name'),
+    tasks: board.get('tasks'),
+    columns: board.get('columns'),
+    columnOrder: board.get('columnOrder'),
+    teamId: board.get('teamId'),
+    createdAt: board.get('createdAt'),
+    updatedAt: board.get('updatedAt'),
   };
 }
 
 function handleImportTasks(board, columnMap, columnOrder) {
-  board.set("columns", columnMap);
-  board.set("columnOrder", columnOrder);
+  board.set('columns', columnMap);
+  board.set('columnOrder', columnOrder);
   return board;
 }
 
@@ -172,34 +172,34 @@ function handleCreateBoard(
   roles,
   tokenGating
 ) {
-  board.set("name", name);
-  board.set("teamId", teamId);
-  board.set("columns", columnMap);
-  board.set("columnOrder", columnOrder);
-  board.set("private", isPrivate);
-  board.set("defaultPayment", {
+  board.set('name', name);
+  board.set('teamId', teamId);
+  board.set('columns', columnMap);
+  board.set('columnOrder', columnOrder);
+  board.set('private', isPrivate);
+  board.set('defaultPayment', {
     chain: {
-      chainId: "137",
-      name: "polygon",
+      chainId: '137',
+      name: 'polygon',
     },
     token: {
-      address: "0x0",
-      symbol: "MATIC",
+      address: '0x0',
+      symbol: 'MATIC',
     },
   });
 
   // TODO: Make this customizable
-  board.set("members", members);
-  board.set("roles", roles);
-  board.set("tokenGating", tokenGating);
+  board.set('members', members);
+  board.set('roles', roles);
+  board.set('tokenGating', tokenGating);
   return board;
 }
 
-Moralis.Cloud.define("getSpace", async (request) => {
+Moralis.Cloud.define('getSpace', async (request) => {
   return await getSpace(request.params.boardId, request.user?.id);
 });
 
-Moralis.Cloud.define("getEssentialBoardsInfo", async (request) => {
+Moralis.Cloud.define('getEssentialBoardsInfo', async (request) => {
   try {
     const spaces = await getEssentialBoardObjByTeamId(request.params.teamId);
     var resSpaces = [];
@@ -218,13 +218,13 @@ Moralis.Cloud.define("getEssentialBoardsInfo", async (request) => {
   }
 });
 
-Moralis.Cloud.define("initBoard", async (request) => {
+Moralis.Cloud.define('initBoard', async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();
     const team = await getTribeByTeamId(request.params.teamId);
     logger.info(JSON.stringify(team));
     if (isMember(request.user.id, team)) {
-      var initColumns = ["To Do", "In Progress", "In Review", "Done"];
+      var initColumns = ['To Do', 'In Progress', 'In Review', 'Done'];
       var columnIds = [];
       var columnIdToColumnMap = {};
 
@@ -241,7 +241,7 @@ Moralis.Cloud.define("initBoard", async (request) => {
         };
         logger.info(`${JSON.stringify(columnIdToColumnMap)}`);
       }
-      var board = new Moralis.Object("Board");
+      var board = new Moralis.Object('Board');
       board = handleCreateBoard(
         board,
         request.params.name,
@@ -269,7 +269,7 @@ Moralis.Cloud.define("initBoard", async (request) => {
   }
 });
 
-Moralis.Cloud.define("importTasksFromTrello", async (request) => {
+Moralis.Cloud.define('importTasksFromTrello', async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();
     let board = await getBoardByObjectId(request.params.boardId);
@@ -284,12 +284,12 @@ Moralis.Cloud.define("importTasksFromTrello", async (request) => {
     // board = await board.save({ useMasterKey: true });
 
     for (let i = 0; i < request.params.tasks.length; i++) {
-      var task = new Moralis.Object("Task");
+      var task = new Moralis.Object('Task');
       logger.info(request.params.tasks[i].title);
       task = handleCreateTask(
         task,
         request.params.tasks[i].id, // need to fix this, duplicate tasks are being created with trello id
-        board.get("defaultPayment"),
+        board.get('defaultPayment'),
         request.params.boardId,
         request.params.tasks[i].title,
         request.params.tasks[i].value,
@@ -307,15 +307,15 @@ Moralis.Cloud.define("importTasksFromTrello", async (request) => {
   }
 });
 
-Moralis.Cloud.define("updateColumnName", async (request) => {
+Moralis.Cloud.define('updateColumnName', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const board = await getBoardByObjectId(request.params.boardId);
-    var columns = board.get("columns");
-    columns[request.params.columnId]["title"] = request.params.newName;
-    board.set("columns", columns);
+    var columns = board.get('columns');
+    columns[request.params.columnId]['title'] = request.params.newName;
+    board.set('columns', columns);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
-    logger.info("save completed --------------------");
+    logger.info('save completed --------------------');
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
     logger.error(
@@ -325,21 +325,21 @@ Moralis.Cloud.define("updateColumnName", async (request) => {
   }
 });
 
-Moralis.Cloud.define("updateColumnTasks", async (request) => {
+Moralis.Cloud.define('updateColumnTasks', async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();
     const board = await getBoardByObjectId(request.params.boardId);
     const task = await getTaskByTaskId(request.params.taskId);
-    var columns = board.get("columns");
+    var columns = board.get('columns');
     if (request.params.sourceId === request.params.destinationId) {
-      columns[request.params.sourceId]["taskIds"] = request.params.source;
+      columns[request.params.sourceId]['taskIds'] = request.params.source;
     } else {
       columns[request.params.sourceId] = request.params.source;
       columns[request.params.destinationId] = request.params.destination;
     }
-    board.set("columns", columns);
+    board.set('columns', columns);
     logger.info(`Updating column tasks ${JSON.stringify(columns)}`);
-    task.set("columnId", request.params.destinationId);
+    task.set('columnId', request.params.destinationId);
     await Moralis.Object.saveAll([board, task], { useMasterKey: true });
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
@@ -350,10 +350,10 @@ Moralis.Cloud.define("updateColumnTasks", async (request) => {
   }
 });
 
-Moralis.Cloud.define("updateColumnOrder", async (request) => {
+Moralis.Cloud.define('updateColumnOrder', async (request) => {
   try {
     const board = await getBoardByObjectId(request.params.boardId);
-    board.set("columnOrder", request.params.newColumnOrder);
+    board.set('columnOrder', request.params.newColumnOrder);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
@@ -364,17 +364,17 @@ Moralis.Cloud.define("updateColumnOrder", async (request) => {
   }
 });
 
-Moralis.Cloud.define("addColumn", async (request) => {
+Moralis.Cloud.define('addColumn', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const board = await getBoardByObjectId(request.params.boardId);
-    var columnOrder = board.get("columnOrder");
-    var columns = board.get("columns");
+    var columnOrder = board.get('columnOrder');
+    var columns = board.get('columns');
     const columnId = `column-${Object.keys(columns).length}`;
     const newColumnOrder = [...columnOrder, columnId];
     columns[columnId] = {
       id: columnId,
-      title: "",
+      title: '',
       taskIds: [],
       cardType: 1,
       createCard: { 0: false, 1: false, 2: true, 3: true },
@@ -382,8 +382,8 @@ Moralis.Cloud.define("addColumn", async (request) => {
     };
     logger.info(`columnId ${JSON.stringify(columnId)}`);
     logger.info(`Adding column ${JSON.stringify(newColumnOrder)}`);
-    board.set("columnOrder", newColumnOrder);
-    board.set("columns", columns);
+    board.set('columnOrder', newColumnOrder);
+    board.set('columns', columns);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
@@ -394,16 +394,16 @@ Moralis.Cloud.define("addColumn", async (request) => {
   }
 });
 
-Moralis.Cloud.define("removeColumn", async (request) => {
+Moralis.Cloud.define('removeColumn', async (request) => {
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     var columnOrder = board
-      .get("columnOrder")
+      .get('columnOrder')
       .filter((id) => id !== request.params.columnId);
-    var columns = board.get("columns");
+    var columns = board.get('columns');
     // delete columns[request.params.columnId];
-    board.set("columnOrder", columnOrder);
-    board.set("columns", columns);
+    board.set('columnOrder', columnOrder);
+    board.set('columns', columns);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
@@ -414,13 +414,13 @@ Moralis.Cloud.define("removeColumn", async (request) => {
   }
 });
 
-Moralis.Cloud.define("updateBoard", async (request) => {
+Moralis.Cloud.define('updateBoard', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const board = await getBoardByObjectId(request.params.boardId);
-    board.set("name", request.params.name);
-    board.set("defaultPayment", request.params.defaultPayment);
-    board.set("tokenGating", request.params.tokenGating);
+    board.set('name', request.params.name);
+    board.set('defaultPayment', request.params.defaultPayment);
+    board.set('tokenGating', request.params.tokenGating);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
@@ -432,7 +432,7 @@ Moralis.Cloud.define("updateBoard", async (request) => {
 });
 
 // PERM NEEDED
-Moralis.Cloud.define("deleteBoard", async (request) => {
+Moralis.Cloud.define('deleteBoard', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const board = await getBoardByObjectId(request.params.boardId);
@@ -447,13 +447,13 @@ Moralis.Cloud.define("deleteBoard", async (request) => {
 });
 
 // PERM NEEDED
-Moralis.Cloud.define("updateBoardMembers", async (request) => {
+Moralis.Cloud.define('updateBoardMembers', async (request) => {
   try {
-    const boardQuery = new Moralis.Query("Board");
-    boardQuery.equalTo("objectId", request.params.boardId);
+    const boardQuery = new Moralis.Query('Board');
+    boardQuery.equalTo('objectId', request.params.boardId);
     const board = await boardQuery.first({ useMasterKey: true });
-    board.set("members", request.params.members);
-    board.set("roles", request.params.roles);
+    board.set('members', request.params.members);
+    board.set('roles', request.params.roles);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
@@ -528,12 +528,12 @@ Moralis.Cloud.define("updateBoardMembers", async (request) => {
 //   }
 // });
 
-Moralis.Cloud.define("updateThemeFromSpace", async (request) => {
+Moralis.Cloud.define('updateThemeFromSpace', async (request) => {
   try {
-    const tribeQuery = new Moralis.Query("Team");
-    tribeQuery.equalTo("teamId", request.params.teamId);
+    const tribeQuery = new Moralis.Query('Team');
+    tribeQuery.equalTo('teamId', request.params.teamId);
     let tribe = await tribeQuery.first();
-    tribe.set("theme", request.params.theme);
+    tribe.set('theme', request.params.theme);
     await Moralis.Object.saveAll([tribe], { useMasterKey: true });
     const boardObj = await getBoardObjWithTasksByObjectId(
       request.params.boardId,
@@ -548,15 +548,15 @@ Moralis.Cloud.define("updateThemeFromSpace", async (request) => {
   }
 });
 
-Moralis.Cloud.define("updateColumnPermissions", async (request) => {
+Moralis.Cloud.define('updateColumnPermissions', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const board = await getBoardByObjectId(request.params.boardId);
-    const columns = board.get("columns");
+    const columns = board.get('columns');
     columns[request.params.columnId].createCard =
       request.params.createCardRoles;
     columns[request.params.columnId].moveCard = request.params.moveCardRoles;
-    board.set("columns", columns);
+    board.set('columns', columns);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
@@ -567,11 +567,11 @@ Moralis.Cloud.define("updateColumnPermissions", async (request) => {
   }
 });
 
-Moralis.Cloud.define("setSpaceRoleMapping", async (request) => {
+Moralis.Cloud.define('setSpaceRoleMapping', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const board = await getBoardByObjectId(request.params.boardId);
-    board.set("roleMapping", request.params.roleMapping);
+    board.set('roleMapping', request.params.roleMapping);
     await Moralis.Object.saveAll([board], { useMasterKey: true });
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
@@ -582,7 +582,7 @@ Moralis.Cloud.define("setSpaceRoleMapping", async (request) => {
   }
 });
 
-Moralis.Cloud.define("joinSpace", async (request) => {
+Moralis.Cloud.define('joinSpace', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const callerId = request.user.id;
@@ -592,12 +592,12 @@ Moralis.Cloud.define("joinSpace", async (request) => {
       request.params.boardId,
       callerId
     );
-    const tribe = await getTribeByTeamId(board.get("teamId"));
+    const tribe = await getTribeByTeamId(board.get('teamId'));
     const res = await Moralis.Cloud.httpRequest({
-      url: "https://spect-discord-bot.herokuapp.com/api/userRoles",
+      url: 'https://spect-discord-bot.herokuapp.com/api/userRoles',
       params: {
-        userId: request.user.get("discordId"),
-        guildId: tribe.get("guildId"),
+        userId: request.user.get('discordId'),
+        guildId: tribe.get('guildId'),
       },
     });
     logger.info(
@@ -606,10 +606,10 @@ Moralis.Cloud.define("joinSpace", async (request) => {
       )}`
     );
     if (!res.data) {
-      throw "Something went wrong while getting user data from discord";
+      throw 'Something went wrong while getting user data from discord';
     }
-    let boardRoles = board.get("roles");
-    let tribeRoles = tribe.get("roles");
+    let boardRoles = board.get('roles');
+    let tribeRoles = tribe.get('roles');
     if (boardObj[0].roleMapping) {
       const userRole = getUserRole(
         res.data.guildRoles,
@@ -618,21 +618,21 @@ Moralis.Cloud.define("joinSpace", async (request) => {
       if (userRole) {
         boardRoles[callerId] = userRole;
         logger.info(`userRole ${userRole}`);
-        if (!board.get("members").includes(callerId)) {
-          board.set("members", board.get("members").concat(callerId));
+        if (!board.get('members').includes(callerId)) {
+          board.set('members', board.get('members').concat(callerId));
         }
-        if (!tribe.get("members").includes(callerId)) {
-          tribe.set("members", tribe.get("members").concat(callerId));
+        if (!tribe.get('members').includes(callerId)) {
+          tribe.set('members', tribe.get('members').concat(callerId));
           tribeRoles[callerId] = 1;
-          tribe.set("roles", tribeRoles);
+          tribe.set('roles', tribeRoles);
           userInfo.set(
-            "tribes",
-            userInfo.get("tribes").concat(tribe.get("teamId"))
+            'tribes',
+            userInfo.get('tribes').concat(tribe.get('teamId'))
           );
         }
-        board.set("roles", boardRoles);
+        board.set('roles', boardRoles);
       } else {
-        logger.info("inside else");
+        logger.info('inside else');
         throw "User doesn't have any role in this guild";
       }
     }
@@ -648,21 +648,21 @@ Moralis.Cloud.define("joinSpace", async (request) => {
   }
 });
 
-Moralis.Cloud.define("generateInviteLink", async (request) => {
+Moralis.Cloud.define('generateInviteLink', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (!request.user) {
-      throw "User not authenticated";
+      throw 'User not authenticated';
     }
-    if (board.get("roles")[request.user.id] !== 3) {
-      throw "You do not have permission to invite people";
+    if (board.get('roles')[request.user.id] !== 3) {
+      throw 'You do not have permission to invite people';
     }
-    const invite = new Moralis.Object("Invite");
-    invite.set("boardId", request.params.boardId);
-    invite.set("role", request.params.role);
-    invite.set("uses", request.params.uses);
-    invite.set("expiry", request.params.expiry);
+    const invite = new Moralis.Object('Invite');
+    invite.set('boardId', request.params.boardId);
+    invite.set('role', request.params.role);
+    invite.set('uses', request.params.uses);
+    invite.set('expiry', request.params.expiry);
     const inviteRes = await Moralis.Object.saveAll([invite], {
       useMasterKey: true,
     });
@@ -675,39 +675,39 @@ Moralis.Cloud.define("generateInviteLink", async (request) => {
   }
 });
 
-Moralis.Cloud.define("joinSpaceFromInvite", async (request) => {
+Moralis.Cloud.define('joinSpaceFromInvite', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     if (!request.user) {
-      throw "User not authenticated";
+      throw 'User not authenticated';
     }
     if (!request.params.inviteCode) {
-      throw "Invite code not provided";
+      throw 'Invite code not provided';
     }
     const invite = await getInviteByObjectId(request.params.inviteCode);
     if (!invite) {
-      throw "Invite code not found";
+      throw 'Invite code not found';
     }
     const board = await getBoardByObjectId(request.params.boardId);
-    if (board.get("members").includes(request.user.id)) {
-      throw "User already a member of this board";
+    if (board.get('members').includes(request.user.id)) {
+      throw 'User already a member of this board';
     }
-    const tribe = await getTribeByTeamId(board.get("teamId"));
+    const tribe = await getTribeByTeamId(board.get('teamId'));
     const userInfo = await getUserByUserId(request.user.id);
     if (checkIfUserInviteValid(invite)) {
-      invite.set("uses", invite.get("uses") - 1);
-      let boardRoles = board.get("roles");
-      let tribeRoles = tribe.get("roles");
-      boardRoles[request.user.id] = invite.get("role");
-      board.set("members", board.get("members").concat(request.user.id));
-      board.set("roles", boardRoles);
-      if (!tribe.get("members").includes(request.user.id)) {
-        tribe.set("members", tribe.get("members").concat(request.user.id));
+      invite.set('uses', invite.get('uses') - 1);
+      let boardRoles = board.get('roles');
+      let tribeRoles = tribe.get('roles');
+      boardRoles[request.user.id] = invite.get('role');
+      board.set('members', board.get('members').concat(request.user.id));
+      board.set('roles', boardRoles);
+      if (!tribe.get('members').includes(request.user.id)) {
+        tribe.set('members', tribe.get('members').concat(request.user.id));
         tribeRoles[request.user.id] = 1;
-        tribe.set("roles", tribeRoles);
+        tribe.set('roles', tribeRoles);
         userInfo.set(
-          "tribes",
-          userInfo.get("tribes").concat(tribe.get("teamId"))
+          'tribes',
+          userInfo.get('tribes').concat(tribe.get('teamId'))
         );
       }
       await Moralis.Object.saveAll([invite, board, tribe, userInfo], {
@@ -726,32 +726,32 @@ Moralis.Cloud.define("joinSpaceFromInvite", async (request) => {
 function checkIfUserInviteValid(invite) {
   const now = new Date();
   const expiry = new Date(
-    invite.get("createdAt").getTime() + invite.get("expiry") * 1000
+    invite.get('createdAt').getTime() + invite.get('expiry') * 1000
   );
-  if (now > expiry && invite.get("expiry") !== 0) {
-    throw "Invite link expired";
+  if (now > expiry && invite.get('expiry') !== 0) {
+    throw 'Invite link expired';
   }
-  if (invite.get("uses") === 0) {
-    throw "Invite link used up";
+  if (invite.get('uses') === 0) {
+    throw 'Invite link used up';
   }
   return true;
 }
 
-Moralis.Cloud.define("changeSpaceRole", async (request) => {
+Moralis.Cloud.define('changeSpaceRole', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (hasAccess(request.user.id, board, 3)) {
-      const roles = board.get("roles");
+      const roles = board.get('roles');
       roles[request.params.userId] = request.params.role;
-      board.set("roles", roles);
+      board.set('roles', roles);
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return await getSpace(request.params.boardId, request.user.id);
     } else {
       logger.info(
         `User ${request.user.id} doesnt have access to update member roles`
       );
-      throw "User doesnt have access to update member roles";
+      throw 'User doesnt have access to update member roles';
     }
   } catch (err) {
     logger.error(`Error while creating team ${err}`);

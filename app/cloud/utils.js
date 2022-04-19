@@ -2,9 +2,9 @@ function getStatusCode(status) {
   const reverseStatusMapping = {
     Open: 100,
     Assigned: 102,
-    "In Progress": 105,
+    'In Progress': 105,
     Submitted: 110,
-    "In Review": 200,
+    'In Review': 200,
     Closed: 205,
     Paid: 300,
   };
@@ -26,10 +26,10 @@ function areEqualArrays(array1, array2) {
 }
 
 async function isValidToken(tokenAddress, chainId) {
-  var addressQuery = new Moralis.Query("Addresses");
-  addressQuery.equalTo("address", tokenAddress);
-  addressQuery.equalTo("chainId", chainId);
-  addressQuery.equalTo("type", "erc20");
+  var addressQuery = new Moralis.Query('Addresses');
+  addressQuery.equalTo('address', tokenAddress);
+  addressQuery.equalTo('chainId', chainId);
+  addressQuery.equalTo('type', 'erc20');
   const token = await addressQuery.first();
   return token ? true : false;
 }

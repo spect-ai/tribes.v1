@@ -1,5 +1,5 @@
-import { monthMap } from "../constants";
-import { Registry, Chain, Token } from "../types";
+import { monthMap } from '../constants';
+import { Registry, Chain, Token } from '../types';
 
 export const smartTrim = (string: string, maxLength: number) => {
   if (!string) {
@@ -45,11 +45,11 @@ function msToTime(ms: number) {
   let minutes = parseInt((ms / (1000 * 60)).toFixed(0));
   let hours = parseInt((ms / (1000 * 60 * 60)).toFixed(0));
   let days = (ms / (1000 * 60 * 60 * 24)).toFixed(0);
-  if (seconds < 0) return "Expired";
-  else if (seconds < 60) return seconds + " sec";
-  else if (minutes < 60) return minutes + `${minutes === 1 ? " min" : " mins"}`;
-  else if (hours < 24) return hours + `${hours > 1 ? " hours" : " hour"}`;
-  else return days + " Days";
+  if (seconds < 0) return 'Expired';
+  else if (seconds < 60) return seconds + ' sec';
+  else if (minutes < 60) return minutes + `${minutes === 1 ? ' min' : ' mins'}`;
+  else if (hours < 24) return hours + `${hours > 1 ? ' hours' : ' hour'}`;
+  else return days + ' Days';
 }
 
 export function getRemainingVotes(
@@ -86,12 +86,12 @@ export const reorder = (
 export function formatTime(date: Date) {
   var hours = date.getHours();
   var minutes = date.getMinutes();
-  var ampm = hours >= 12 ? "pm" : "am";
+  var ampm = hours >= 12 ? 'pm' : 'am';
   hours = hours % 12;
   hours = hours ? hours : 12; // the hour '0' should be '12'
   // @ts-ignore
-  minutes = ("0" + minutes).slice(-2);
-  var strTime = hours + ":" + minutes + " " + ampm;
+  minutes = ('0' + minutes).slice(-2);
+  var strTime = hours + ':' + minutes + ' ' + ampm;
   return strTime;
 }
 
@@ -127,11 +127,11 @@ export function getFlattenedCurrencies(registry: Registry, chainId: string) {
 
 export function downloadCSV(content: Array<Array<any>>, filename: string) {
   let csvContent =
-    "data:text/csv;charset=utf-8," + content.map((e) => e.join(",")).join("\n");
+    'data:text/csv;charset=utf-8,' + content.map((e) => e.join(',')).join('\n');
   var encodedUri = encodeURI(csvContent);
-  var link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", `${filename}.csv`);
+  var link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `${filename}.csv`);
   document.body.appendChild(link); // Required for FF
 
   link.click();
@@ -159,15 +159,15 @@ export const setCaretToEnd = (element: any) => {
 
 export const getCaretCoordinates = (fromStart = true) => {
   let x, y;
-  const isSupported = typeof window.getSelection !== "undefined";
+  const isSupported = typeof window.getSelection !== 'undefined';
   if (isSupported) {
     const selection = window.getSelection();
     const range = selection?.getRangeAt(0).cloneRange();
-    var span = document.createElement("span");
-    const modal = document.getElementById("cardModal");
+    var span = document.createElement('span');
+    const modal = document.getElementById('cardModal');
     const modalRect = modal?.getClientRects()[0];
     if (span.getClientRects) {
-      span.appendChild(document.createTextNode("\u200b"));
+      span.appendChild(document.createTextNode('\u200b'));
       range?.insertNode(span);
       const rect = span.getClientRects()[0];
       if (rect) {
@@ -199,7 +199,7 @@ export function isValidHttpUrl(string: string) {
     return false;
   }
 
-  return url.protocol === "http:" || url.protocol === "https:";
+  return url.protocol === 'http:' || url.protocol === 'https:';
 }
 
 export function delay(delayInms: number) {

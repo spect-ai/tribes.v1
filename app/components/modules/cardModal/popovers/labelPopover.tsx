@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 import {
   Autocomplete,
   Popover,
@@ -6,20 +6,20 @@ import {
   Box,
   Typography,
   Avatar,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { updateTaskLabels } from "../../../../adapters/moralis";
-import { labelsMapping } from "../../../../constants";
-import { BoardData, Task } from "../../../../types";
-import { CardButton, PrimaryButton } from "../../../elements/styledComponents";
-import { PopoverContainer } from "../styles";
-import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
-import { notify } from "../../settingsTab";
-import LabelIcon from "@mui/icons-material/Label";
-import { LabelChip } from "../styles";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
-import { useCardDynamism } from "../../../../hooks/useCardDynamism";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { updateTaskLabels } from '../../../../adapters/moralis';
+import { labelsMapping } from '../../../../constants';
+import { BoardData, Task } from '../../../../types';
+import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
+import { PopoverContainer } from '../styles';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import { notify } from '../../settingsTab';
+import LabelIcon from '@mui/icons-material/Label';
+import { LabelChip } from '../styles';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import { useCardDynamism } from '../../../../hooks/useCardDynamism';
 
 type Props = {
   task: Task;
@@ -38,7 +38,7 @@ const LabelPopover = ({ task, setTask }: Props) => {
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    if (editAbleComponents["label"]) {
+    if (editAbleComponents['label']) {
       setOpen(true);
     } else {
       setFeedbackOpen(true);
@@ -57,7 +57,7 @@ const LabelPopover = ({ task, setTask }: Props) => {
     temp.tags = labels;
     setTask(temp);
     handleClose();
-    runMoralisFunction("updateCard", {
+    runMoralisFunction('updateCard', {
       updates: {
         tags: labels,
         taskId: task.taskId,
@@ -70,7 +70,7 @@ const LabelPopover = ({ task, setTask }: Props) => {
       })
       .catch((err: any) => {
         setTask(prevTask);
-        notify(`${err.message}`, "error");
+        notify(`${err.message}`, 'error');
       });
   };
 
@@ -78,25 +78,25 @@ const LabelPopover = ({ task, setTask }: Props) => {
     <>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
+          display: 'flex',
+          flexDirection: 'column',
           mt: 2,
           mx: 1,
         }}
       >
         <Typography
-          sx={{ fontSize: 12, color: "text.secondary", width: "100%" }}
+          sx={{ fontSize: 12, color: 'text.secondary', width: '100%' }}
         >
           Labels
         </Typography>
-        <Box sx={{ display: "flex", flexDirection: "row" }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
           <CardButton
             variant="outlined"
             onClick={handleClick()}
             color="secondary"
             sx={{
-              padding: "6px",
-              minWidth: "3rem",
+              padding: '6px',
+              minWidth: '3rem',
             }}
           >
             {task?.tags?.map((tag, index) => (
@@ -117,24 +117,24 @@ const LabelPopover = ({ task, setTask }: Props) => {
                     mr: 2,
                     width: 20,
                     height: 20,
-                    backgroundColor: "transparent",
+                    backgroundColor: 'transparent',
                   }}
                 >
                   <LabelIcon
                     sx={{
-                      color: "text.primary",
+                      color: 'text.primary',
                     }}
                   />
                 </Avatar>
                 <Typography
                   sx={{
                     fontSize: 14,
-                    maxWidth: "6rem",
-                    minWidth: "3rem",
-                    minHeight: "1.3rem",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    fontWeight: "100",
+                    maxWidth: '6rem',
+                    minWidth: '3rem',
+                    minHeight: '1.3rem',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    fontWeight: '100',
                   }}
                 >
                   No labels
@@ -149,12 +149,12 @@ const LabelPopover = ({ task, setTask }: Props) => {
         anchorEl={anchorEl}
         onClose={() => handleFeedbackClose()}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">{getReason("label")}</Typography>
+          <Typography variant="body2">{getReason('label')}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover
@@ -162,8 +162,8 @@ const LabelPopover = ({ task, setTask }: Props) => {
         anchorEl={anchorEl}
         onClose={() => handleClose()}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>

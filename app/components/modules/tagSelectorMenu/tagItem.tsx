@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import styles from "./styles.module.scss";
+import React, { useEffect } from 'react';
+import styles from './styles.module.scss';
 
 type Props = {
   selected: boolean;
@@ -13,9 +13,9 @@ const TagItem = ({ selected, tag, handleSelection }: Props) => {
   useEffect(() => {
     if (selected) {
       itemRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-        inline: "center",
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center',
       });
     }
   }, [selected]);
@@ -25,7 +25,7 @@ const TagItem = ({ selected, tag, handleSelection }: Props) => {
       ref={itemRef}
       data-tag={tag.tag}
       className={
-        selected ? [styles.item, styles.selectedTag].join(" ") : styles.item
+        selected ? [styles.item, styles.selectedTag].join(' ') : styles.item
       }
       role="button"
       tabIndex={0}

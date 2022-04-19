@@ -13,9 +13,9 @@ import {
   AccordionSummary,
   Grid,
   Container,
-} from "@mui/material";
-import React, { useState } from "react";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 
 type Props = {
   setCards: Function;
@@ -76,7 +76,7 @@ const CreateEpochTaskList = ({
                     <Checkbox
                       color="default"
                       inputProps={{
-                        "aria-label": "select all desserts",
+                        'aria-label': 'select all desserts',
                       }}
                       checked={isCardChecked.every((elem) => elem === true)}
                       onChange={(e) => {
@@ -89,10 +89,10 @@ const CreateEpochTaskList = ({
                       }}
                     />
                   </TableCell>
-                  <TableCell align="right" sx={{ color: "#99ccff" }}>
+                  <TableCell align="right" sx={{ color: '#99ccff' }}>
                     Card Title
                   </TableCell>
-                  <TableCell align="right" sx={{ color: "#99ccff" }}>
+                  <TableCell align="right" sx={{ color: '#99ccff' }}>
                     Reward
                   </TableCell>
                 </TableRow>
@@ -104,7 +104,7 @@ const CreateEpochTaskList = ({
                       <TableRow
                         key={index}
                         sx={{
-                          "&:last-child td, &:last-child th": {
+                          '&:last-child td, &:last-child th': {
                             border: 0,
                           },
                         }}
@@ -118,7 +118,7 @@ const CreateEpochTaskList = ({
                             <Checkbox
                               color="secondary"
                               inputProps={{
-                                "aria-label": "select all desserts",
+                                'aria-label': 'select all desserts',
                               }}
                               checked={isCardChecked.at(index)}
                               onClick={() => {
@@ -131,10 +131,10 @@ const CreateEpochTaskList = ({
                           {space.tasks[card].title}
                         </TableCell>
                         <TableCell align="right">
-                          {space.tasks[card].value || "Not set"}{" "}
+                          {space.tasks[card].value || 'Not set'}{' '}
                           {space.tasks[card].value
                             ? space.tasks[card].token.symbol
-                            : ""}
+                            : ''}
                         </TableCell>
                       </TableRow>
                     );

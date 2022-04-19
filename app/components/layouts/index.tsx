@@ -1,18 +1,17 @@
-import styled from "@emotion/styled";
-import { createTheme, Typography } from "@mui/material";
-import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { PageContainer } from "../../../pages/tribe/[id]/space/[bid]";
-import { getTheme } from "../../constants/muiTheme";
-import GlobalContextProvider, {
+import styled from '@emotion/styled';
+import { createTheme, Typography } from '@mui/material';
+import { useRouter } from 'next/router';
+import React, { useEffect } from 'react';
+import { useMoralis } from 'react-moralis';
+import { PageContainer } from '../../../pages/tribe/[id]/space/[bid]';
+import { getTheme } from '../../constants/muiTheme';
+import {
   initContracts,
   initRegistry,
-  updateLoading,
-  updateUser,
   useGlobal,
-} from "../../context/globalContext";
-import { useMoralisFunction } from "../../hooks/useMoralisFunction";
+} from '../../context/globalContext';
+import { useMoralisFunction } from '../../hooks/useMoralisFunction';
+
 interface Props {
   children: React.ReactNode;
 }
@@ -39,18 +38,12 @@ const MobileDiv = styled.div`
   }
 `;
 
-const InnerDiv = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-`;
-
 const Main = styled.main`
   flex-grow: 1;
 `;
 
-const Layout = ({ children }: Props) => {
-  const { Moralis, isInitialized, user, isAuthenticated } = useMoralis();
+function Layout({ children }: Props) {
+  const { Moralis, isInitialized, user } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const { dispatch } = useGlobal();
 
@@ -65,15 +58,15 @@ const Layout = ({ children }: Props) => {
 
   useEffect(() => {
     if (router.query.code) {
-      console.log("linking user");
-      runMoralisFunction("linkDiscordUser", { code: router.query.code }).then(
+      console.log('linking user');
+      runMoralisFunction('linkDiscordUser', { code: router.query.code }).then(
         (res) => {
           console.log(res);
           // updateUser(dispatch, res);
-          user?.fetch().then((res) => {
-            console.log(res);
+          user?.fetch().then((res2) => {
+            console.log(res2);
           });
-          router.push("/");
+          router.push('/');
         }
       );
     }
@@ -87,29 +80,13 @@ const Layout = ({ children }: Props) => {
       </OuterDiv>
       <MobileDiv>
         <PageContainer theme={createTheme(getTheme(0))}>
-          <Typography sx={{ color: "#eaeaea", margin: "auto" }}>
+          <Typography sx={{ color: '#eaeaea', margin: 'auto' }}>
             Mobile Not Supported yet!
           </Typography>
         </PageContainer>
       </MobileDiv>
     </>
   );
-};
+}
 
-// console.log(router.query.userId);
-// if (router.query.userId) {
-//   runMoralisFunction("getUserInfo", { userId: router.query.userId }).then(
-//     (res) => {
-//       console.log(res);
-//       localStorage.setItem("objectId", res.objectId);
-//       updateUser(dispatch, res);
-//     }
-//   );
-// }
-// if (localStorage.getItem("objectId") !== "undefined") {
-//   refreshDiscordUser(localStorage.getItem("objectId") as string).then((res) => {
-//     console.log(res);
-//     updateUser(dispatch, res);
-//   });
-// }
 export default Layout;

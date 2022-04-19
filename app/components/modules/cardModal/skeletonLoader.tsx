@@ -1,6 +1,6 @@
-import styled from "@emotion/styled";
-import { Box, Grid, Skeleton } from "@mui/material";
-import React from "react";
+import styled from '@emotion/styled';
+import { Box, Grid, Skeleton } from '@mui/material';
+import React from 'react';
 
 type Props = {};
 

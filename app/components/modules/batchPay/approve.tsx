@@ -5,13 +5,13 @@ import {
   Grid,
   IconButton,
   Avatar,
-} from "@mui/material";
-import React, { useState } from "react";
-import { PrimaryButton } from "../../elements/styledComponents";
-import Image from "next/image";
-import CloseIcon from "@mui/icons-material/Close";
-import { approve } from "../../../adapters/contract";
-import { useGlobal } from "../../../context/globalContext";
+} from '@mui/material';
+import React, { useState } from 'react';
+import { PrimaryButton } from '../../elements/styledComponents';
+import Image from 'next/image';
+import CloseIcon from '@mui/icons-material/Close';
+import { approve } from '../../../adapters/contract';
+import { useGlobal } from '../../../context/globalContext';
 
 interface Props {
   handleNextStep: Function;
@@ -66,10 +66,10 @@ const Approve = ({
     <React.Fragment>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          textAlign: "center",
-          marginTop: "16px",
+          display: 'flex',
+          flexDirection: 'column',
+          textAlign: 'center',
+          marginTop: '16px',
         }}
       >
         <>
@@ -81,25 +81,25 @@ const Approve = ({
                   spacing={1}
                   key={index}
                   sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                   }}
                   margin="8px"
                 >
                   <Grid item xs={6}>
                     <Box
                       sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
                       }}
                     >
                       <Avatar
                         sx={{
-                          width: "2rem",
-                          height: "2rem",
-                          objectFit: "cover",
+                          width: '2rem',
+                          height: '2rem',
+                          objectFit: 'cover',
                           my: 1,
                         }}
                         src={registry[chainId].tokens[address]?.pictureUrl}
@@ -115,7 +115,7 @@ const Approve = ({
                   <Grid item xs={3}>
                     {isApproved[index] ? (
                       <PrimaryButton
-                        sx={{ borderRadius: "3px" }}
+                        sx={{ borderRadius: '3px' }}
                         disabled
                         variant="outlined"
                         id="bApprove"
@@ -125,7 +125,7 @@ const Approve = ({
                     ) : (
                       <PrimaryButton
                         loading={isLoading[index]}
-                        sx={{ borderRadius: "3px" }}
+                        sx={{ borderRadius: '3px' }}
                         color="secondary"
                         onClick={() => {
                           toggleIsLoading(index);
@@ -156,18 +156,18 @@ const Approve = ({
           </Box>
         </>
         <Box
-          sx={{ display: "flex", flexDirection: "row", pt: 2, marginTop: 8 }}
+          sx={{ display: 'flex', flexDirection: 'row', pt: 2, marginTop: 8 }}
         >
           <Button
             color="inherit"
             variant="outlined"
             onClick={() => handleClose()}
-            sx={{ mr: 1, color: "#f45151" }}
+            sx={{ mr: 1, color: '#f45151' }}
             id="bCancel"
           >
             Cancel
           </Button>
-          <Box sx={{ flex: "1 1 auto" }} />
+          <Box sx={{ flex: '1 1 auto' }} />
         </Box>
       </Box>
     </React.Fragment>

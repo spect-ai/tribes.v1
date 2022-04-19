@@ -1,26 +1,26 @@
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import DateRangeIcon from "@mui/icons-material/DateRange";
-import PersonIcon from "@mui/icons-material/Person";
-import LabelIcon from "@mui/icons-material/Label";
-import PaidIcon from "@mui/icons-material/Paid";
-import UpdateIcon from "@mui/icons-material/Update";
-import HailIcon from "@mui/icons-material/Hail";
-import CheckBoxIcon from "@mui/icons-material/CheckBox";
-import PublishIcon from "@mui/icons-material/Publish";
-import CommentIcon from "@mui/icons-material/Comment";
-import DoneIcon from "@mui/icons-material/Done";
-import ChatBubbleIcon from "@mui/icons-material/ChatBubble";
-import SyncAltIcon from "@mui/icons-material/SyncAlt";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import ArchiveIcon from "@mui/icons-material/Archive";
-import { useSpace } from "../../pages/tribe/[id]/space/[bid]";
-import AddTaskIcon from "@mui/icons-material/AddTask";
-import CategoryIcon from "@mui/icons-material/Category";
-import { ListItemText, Box, Typography, Link } from "@mui/material";
-import { useRouter } from "next/router";
-import { PrimaryButton } from "../components/elements/styledComponents";
-import { Task } from "../types";
-import { useGlobal } from "../context/globalContext";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import PersonIcon from '@mui/icons-material/Person';
+import LabelIcon from '@mui/icons-material/Label';
+import PaidIcon from '@mui/icons-material/Paid';
+import UpdateIcon from '@mui/icons-material/Update';
+import HailIcon from '@mui/icons-material/Hail';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import PublishIcon from '@mui/icons-material/Publish';
+import CommentIcon from '@mui/icons-material/Comment';
+import DoneIcon from '@mui/icons-material/Done';
+import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
+import SyncAltIcon from '@mui/icons-material/SyncAlt';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import ArchiveIcon from '@mui/icons-material/Archive';
+import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
+import AddTaskIcon from '@mui/icons-material/AddTask';
+import CategoryIcon from '@mui/icons-material/Category';
+import { ListItemText, Box, Typography, Link } from '@mui/material';
+import { useRouter } from 'next/router';
+import { PrimaryButton } from '../components/elements/styledComponents';
+import { Task } from '../types';
+import { useGlobal } from '../context/globalContext';
 
 export function useActivityMap(task: Task) {
   const { space, setSpace } = useSpace();
@@ -87,7 +87,7 @@ export function useActivityMap(task: Task) {
       case 102:
         return `${
           space.memberDetails[update.actor]?.username
-        } updated tags to "${update.changeLog?.next?.join(", ")}"`;
+        } updated tags to "${update.changeLog?.next?.join(', ')}"`;
       case 104:
         `${space.memberDetails[update.actor]?.username} updated reward to ${
           update.reward?.value
@@ -145,7 +145,7 @@ export function useActivityMap(task: Task) {
         }`;
       case 300:
         return (
-          <Box sx={{ display: "flex", flexDirection: "column" }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Typography variant="body1" sx={{}}>
               {`${space.memberDetails[update.actor]?.username} paid for the ${
                 update.taskType
@@ -157,7 +157,7 @@ export function useActivityMap(task: Task) {
                 update.transactionHash
               }`}
               rel="noopener noreferrer"
-              sx={{ fontSize: "0.8rem", color: "text.secondary" }}
+              sx={{ fontSize: '0.8rem', color: 'text.secondary' }}
             >
               View Transaction
             </Link>

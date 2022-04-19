@@ -10,23 +10,23 @@ import {
   styled as MUIStyled,
   TextField,
   Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import CloseIcon from "@mui/icons-material/Close";
-import styled from "@emotion/styled";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { BoardData, Column } from "../../../types";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import styled from '@emotion/styled';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { BoardData, Column } from '../../../types';
 import {
   PrimaryButton,
   StyledAccordian,
-} from "../../elements/styledComponents";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+} from '../../elements/styledComponents';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   updateColumnPermissions,
   removeColumn,
-} from "../../../adapters/moralis";
-import { useMoralis } from "react-moralis";
-import { notify } from "../settingsTab";
+} from '../../../adapters/moralis';
+import { useMoralis } from 'react-moralis';
+import { notify } from '../settingsTab';
 
 type Props = {
   isOpen: boolean;
@@ -53,7 +53,7 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
         <ModalContainer>
           <Heading>
             <Typography>Column Settings</Typography>
-            <Box sx={{ flex: "1 1 auto" }} />
+            <Box sx={{ flex: '1 1 auto' }} />
             <IconButton sx={{ m: 0, p: 1 }} onClick={handleClose}>
               <CloseIcon />
             </IconButton>
@@ -74,12 +74,12 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
                 {/* <Typography>Set permissions for this column</Typography> */}
                 <Box
                   sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    alignItems: "center",
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
                   }}
                 >
-                  <Typography sx={{ mr: 8, width: "30%" }}>
+                  <Typography sx={{ mr: 8, width: '30%' }}>
                     Can create cards
                   </Typography>
                   <FormControlLabel
@@ -153,11 +153,11 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
                 </Box>
               </AccordionDetails>
             </StyledAccordian>
-            <Box sx={{ display: "flex" }}>
+            <Box sx={{ display: 'flex' }}>
               <PrimaryButton
                 variant="outlined"
                 color="secondary"
-                sx={{ width: "50%", mt: 2, mr: 4, borderRadius: 1 }}
+                sx={{ width: '50%', mt: 2, mr: 4, borderRadius: 1 }}
                 loading={isLoading}
                 onClick={() => {
                   setIsLoading(true);
@@ -169,7 +169,7 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
                     moveCardRoles
                   )
                     .then((res: BoardData) => {
-                      notify("Save complete");
+                      notify('Save complete');
                       setSpace(res);
                       setIsLoading(false);
                       handleClose();
@@ -186,7 +186,7 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
               <PrimaryButton
                 variant="outlined"
                 color="error"
-                sx={{ width: "50%", mt: 2, mr: 4, borderRadius: 1 }}
+                sx={{ width: '50%', mt: 2, mr: 4, borderRadius: 1 }}
                 onClick={() => {
                   removeColumn(Moralis, space.objectId, column.id)
                     .then((res: BoardData) => {
@@ -194,7 +194,7 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
                     })
                     .catch((err: any) => {
                       console.log(err);
-                      notify(err.message, "error");
+                      notify(err.message, 'error');
                     });
                 }}
               >
@@ -210,26 +210,26 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
 
 // @ts-ignore
 const ModalContainer = MUIStyled(Box)(({ theme }) => ({
-  position: "absolute" as "absolute",
-  top: "10%",
-  left: "25%",
-  transform: "translate(-50%, -50%)",
-  width: "50rem",
-  border: "2px solid #000",
+  position: 'absolute' as 'absolute',
+  top: '10%',
+  left: '25%',
+  transform: 'translate(-50%, -50%)',
+  width: '50rem',
+  border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
-  overflow: "auto",
-  maxHeight: "calc(100% - 128px)",
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
 }));
 
-const Heading = MUIStyled("div")(({ theme }) => ({
+const Heading = MUIStyled('div')(({ theme }) => ({
   fontWeight: 500,
   fontSize: 16,
   color: theme.palette.text.secondary,
-  display: "flex",
-  flexDirection: "row",
-  alignItems: "center",
-  borderBottom: "1px solid #99ccff",
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderBottom: '1px solid #99ccff',
   padding: 16,
   paddingLeft: 32,
 }));

@@ -1,11 +1,11 @@
-import { Autocomplete, Box, Popover, styled, TextField } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { useTribe } from "../../../../pages/tribe/[id]";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { roleMapping } from "../../../constants";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { roleOptions } from "../inviteMemberModal/constants";
+import { Autocomplete, Box, Popover, styled, TextField } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useTribe } from '../../../../pages/tribe/[id]';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { roleMapping } from '../../../constants';
+import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import { roleOptions } from '../inviteMemberModal/constants';
 
 type Props = {
   open: boolean;
@@ -40,8 +40,8 @@ const MemberPopover = ({
       anchorEl={anchorEl}
       onClose={handleClose}
       anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "center",
+        vertical: 'bottom',
+        horizontal: 'center',
       }}
     >
       <PopoverContainer>
@@ -53,7 +53,7 @@ const MemberPopover = ({
           onChange={(event, newValue) => {
             setRole(newValue);
             if (space) {
-              runMoralisFunction("changeSpaceRole", {
+              runMoralisFunction('changeSpaceRole', {
                 boardId: space.objectId,
                 userId: member.id,
                 role: newValue.role,
@@ -68,7 +68,7 @@ const MemberPopover = ({
                   handleClose();
                 });
             } else {
-              runMoralisFunction("changeTribeRole", {
+              runMoralisFunction('changeTribeRole', {
                 teamId: tribe.teamId,
                 userId: member.id,
                 role: newValue.role,
@@ -104,13 +104,13 @@ const MemberPopover = ({
 };
 // @ts-ignore
 const PopoverContainer = styled(Box)(({ theme }) => ({
-  width: "14rem",
+  width: '14rem',
   backgroundColor: theme.palette.primary.main,
   boxShadow: 24,
-  overflow: "auto",
-  padding: "4px 8px",
-  display: "flex",
-  flexDirection: "column",
+  overflow: 'auto',
+  padding: '4px 8px',
+  display: 'flex',
+  flexDirection: 'column',
 }));
 
 export default MemberPopover;

@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 import {
   Box,
   createTheme,
@@ -6,26 +6,26 @@ import {
   ThemeProvider,
   Typography,
   useTheme,
-} from "@mui/material";
-import { NextPage } from "next";
-import Head from "next/head";
-import { useRouter } from "next/router";
-import { createContext, useContext, useEffect, useState } from "react";
+} from '@mui/material';
+import { NextPage } from 'next';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import { createContext, useContext, useEffect, useState } from 'react';
 import {
   MoralisCloudFunctionParameters,
   useMoralis,
   useMoralisCloudFunction,
-} from "react-moralis";
-import { ResolveCallOptions } from "react-moralis/lib/hooks/internal/_useResolveAsyncCall";
-import { getTaskEpoch } from "../../../app/adapters/moralis";
-import NotFound from "../../../app/components/elements/notFound";
-import ExploreSidebar from "../../../app/components/modules/exploreSidebar";
-import TribeNavbar from "../../../app/components/modules/tribeNavbar";
-import TribeTemplate from "../../../app/components/templates/tribe";
-import { getTheme } from "../../../app/constants/muiTheme";
-import { useGlobal } from "../../../app/context/globalContext";
-import { Team } from "../../../app/types";
-import { PageContainer } from "./space/[bid]";
+} from 'react-moralis';
+import { ResolveCallOptions } from 'react-moralis/lib/hooks/internal/_useResolveAsyncCall';
+import { getTaskEpoch } from '../../../app/adapters/moralis';
+import NotFound from '../../../app/components/elements/notFound';
+import ExploreSidebar from '../../../app/components/modules/exploreSidebar';
+import TribeNavbar from '../../../app/components/modules/tribeNavbar';
+import TribeTemplate from '../../../app/components/templates/tribe';
+import { getTheme } from '../../../app/constants/muiTheme';
+import { useGlobal } from '../../../app/context/globalContext';
+import { Team } from '../../../app/types';
+import { PageContainer } from './space/[bid]';
 
 interface Props {}
 
@@ -50,7 +50,7 @@ interface TribeContextType {
 export const TribeContext = createContext<TribeContextType>(
   {} as TribeContextType
 );
-console.log("starting tribe page", new Date());
+console.log('starting tribe page', new Date());
 const TribePage: NextPage<Props> = (props: Props) => {
   const router = useRouter();
   const { id } = router.query;
@@ -94,7 +94,7 @@ const TribePage: NextPage<Props> = (props: Props) => {
         <TribeContext.Provider value={context}>
           <PageContainer theme={createTheme(getTheme(0))}>
             {!notFound && <TribeNavbar />}
-            <Box sx={{ display: "flex", flexDirection: "row" }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
               <ExploreSidebar />
               {!notFound && <TribeTemplate />}
               {notFound && <NotFound text="Tribe not found" />}
@@ -115,7 +115,7 @@ function useProviderTribe() {
     setTab(newValue);
   };
   const { fetch: getTeam } = useMoralisCloudFunction(
-    "getTeam",
+    'getTeam',
     {
       limit: 1,
     },
