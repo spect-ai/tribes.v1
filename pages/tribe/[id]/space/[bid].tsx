@@ -1,26 +1,16 @@
-import { NextPage } from 'next';
-import BoardsTemplate from '../../../../app/components/templates/boards';
-import Head from 'next/head';
 import styled from '@emotion/styled';
-import {
-  Box,
-  createTheme,
-  Theme,
-  ThemeProvider,
-  useTheme,
-} from '@mui/material';
-import { createContext, useContext, useEffect, useState } from 'react';
-import { BoardData, Team } from '../../../../app/types';
-import { useMoralis } from 'react-moralis';
+import { Box, createTheme, Theme, ThemeProvider } from '@mui/material';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { getSpace } from '../../../../app/adapters/moralis';
-import { notify } from '../../../../app/components/modules/settingsTab';
-import { getTheme } from '../../../../app/constants/muiTheme';
-import SpaceNavbar from '../../../../app/components/modules/spaceNavbar';
-import ExploreSidebar from '../../../../app/components/modules/exploreSidebar';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import NotFound from '../../../../app/components/elements/notFound';
+import ExploreSidebar from '../../../../app/components/modules/exploreSidebar';
+import SpaceNavbar from '../../../../app/components/modules/spaceNavbar';
+import BoardsTemplate from '../../../../app/components/templates/boards';
+import { getTheme } from '../../../../app/constants/muiTheme';
 import { useGlobal } from '../../../../app/context/globalContext';
 import { useMoralisFunction } from '../../../../app/hooks/useMoralisFunction';
+import { BoardData } from '../../../../app/types';
 
 interface Props {}
 interface SpaceContextType {
@@ -37,15 +27,45 @@ interface SpaceContextType {
 }
 
 const SpaceContext = createContext<SpaceContextType>({} as SpaceContextType);
+
+function useProviderSpace() {
+  const [space, setSpace] = useState<BoardData>({} as BoardData);
+  const [tab, setTab] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [themeChanged, setThemeChanged] = useState(false);
+  const [refreshEpochs, setRefreshEpochs] = useState(false);
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTab(newValue);
+  };
+
+  return {
+    space,
+    setSpace,
+    tab,
+    handleTabChange,
+    isLoading,
+    setIsLoading,
+    themeChanged,
+    setThemeChanged,
+    refreshEpochs,
+    setRefreshEpochs,
+  };
+}
+
+export const PageContainer = styled.div<{ theme: Theme }>`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: ${(props) => props.theme.palette?.background.default};
+`;
 console.log('starting space page', new Date());
-const SpacePage: NextPage<Props> = (props: Props) => {
-  const { Moralis, isInitialized, user } = useMoralis();
+export default function SpacePage() {
   const context = useProviderSpace();
   const { runMoralisFunction } = useMoralisFunction();
   const {
-    state: { currentUser, loading },
+    state: { loading },
   } = useGlobal();
-  const { setSpace, setIsLoading, themeChanged } = context;
+  const { setSpace, setIsLoading } = context;
   const [notFound, setNotFound] = useState(false);
 
   const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
@@ -85,39 +105,6 @@ const SpacePage: NextPage<Props> = (props: Props) => {
       </SpaceContext.Provider>
     </>
   );
-};
-
-export const PageContainer = styled.div<{ theme: Theme }>`
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: ${(props) => props.theme.palette?.background.default};
-`;
-
-function useProviderSpace() {
-  const [space, setSpace] = useState<BoardData>({} as BoardData);
-  const [tab, setTab] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  const [themeChanged, setThemeChanged] = useState(false);
-  const [refreshEpochs, setRefreshEpochs] = useState(false);
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTab(newValue);
-  };
-
-  return {
-    space,
-    setSpace,
-    tab,
-    handleTabChange,
-    isLoading,
-    setIsLoading,
-    themeChanged,
-    setThemeChanged,
-    refreshEpochs,
-    setRefreshEpochs,
-  };
 }
 
 export const useSpace = () => useContext(SpaceContext);
-
-export default SpacePage;

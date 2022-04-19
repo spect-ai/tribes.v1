@@ -1,6 +1,7 @@
 // document for Next.js
 
-import Document, { Html, Head, Main, NextScript } from 'next/document';
+import Document, { Head, Html, Main, NextScript } from 'next/document';
+import React from 'react';
 import { resetServerContext } from 'react-beautiful-dnd';
 
 console.log('starting _document', new Date());

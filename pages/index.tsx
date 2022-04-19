@@ -1,31 +1,14 @@
-import type { NextPage } from 'next';
-import {
-  Card,
-  CardActions,
-  CardContent,
-  Button,
-  Box,
-  styled,
-  Typography,
-  Avatar,
-  Grid,
-  ThemeProvider,
-  createTheme,
-} from '@mui/material';
-import Link from 'next/link';
-
-import { createContext, useContext, useEffect, useState } from 'react';
-import { getMyTeams, getPublicTeams } from '../app/adapters/moralis';
-import { useMoralis } from 'react-moralis';
-import { Team } from '../app/types';
-
-import { tribesLogo } from '../app/constants';
+import { Box, createTheme, ThemeProvider } from '@mui/material';
 import Head from 'next/head';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import ExploreSidebar from '../app/components/modules/exploreSidebar';
 import Navbar from '../app/components/modules/navbar';
 import ExploreTemplate from '../app/components/templates/explore';
 import { getTheme } from '../app/constants/muiTheme';
+import { useMoralisFunction } from '../app/hooks/useMoralisFunction';
+import { Team } from '../app/types';
 import { PageContainer } from './tribe/[id]/space/[bid]';
-import ExploreSidebar from '../app/components/modules/exploreSidebar';
 
 interface ExploreContextType {
   publicTribes: Team[];
@@ -41,15 +24,35 @@ interface ExploreContextType {
 export const ExploreContext = createContext<ExploreContextType>(
   {} as ExploreContextType
 );
+
+function useProviderExplore() {
+  const [publicTribes, setPublicTribes] = useState<Team[]>([] as Team[]);
+  const [myTribes, setMyTribes] = useState<any[]>([] as any[]);
+  const [loading, setLoading] = useState(false);
+  const [tab, setTab] = useState(0);
+
+  return {
+    publicTribes,
+    setPublicTribes,
+    myTribes,
+    setMyTribes,
+    loading,
+    setLoading,
+    tab,
+    setTab,
+  };
+}
+
 console.log('starting index page', new Date());
-const Home: NextPage = () => {
-  const { Moralis, isInitialized, isAuthenticated } = useMoralis();
+export default function Home() {
+  const { isInitialized, isAuthenticated } = useMoralis();
+  const { runMoralisFunction } = useMoralisFunction();
   const context = useProviderExplore();
   const { setMyTribes, setLoading, setPublicTribes } = context;
   const initializeExploreAfterWalletConnect = async () => {
     setLoading(true);
     try {
-      const myTeams = await getMyTeams(Moralis);
+      const myTeams = await runMoralisFunction('getMyTeams', {});
       setMyTribes(myTeams);
       setLoading(false);
     } catch (e) {
@@ -61,7 +64,7 @@ const Home: NextPage = () => {
   const initializeExploreBeforeWalletConnect = async () => {
     setLoading(true);
     try {
-      const publicTeams = await getPublicTeams(Moralis);
+      const publicTeams = await runMoralisFunction('getPublicTeams', {});
       setPublicTribes(publicTeams);
     } catch (e) {
       console.log(e);
@@ -100,26 +103,6 @@ const Home: NextPage = () => {
       </ThemeProvider>
     </>
   );
-};
-
-function useProviderExplore() {
-  const [publicTribes, setPublicTribes] = useState<Team[]>([] as Team[]);
-  const [myTribes, setMyTribes] = useState<any[]>([] as any[]);
-  const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState(0);
-
-  return {
-    publicTribes,
-    setPublicTribes,
-    myTribes,
-    setMyTribes,
-    loading,
-    setLoading,
-    tab,
-    setTab,
-  };
 }
 
 export const useExplore = () => useContext(ExploreContext);
-
-export default Home;

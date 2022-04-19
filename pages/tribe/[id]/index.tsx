@@ -1,23 +1,8 @@
-import styled from '@emotion/styled';
-import {
-  Box,
-  createTheme,
-  Theme,
-  ThemeProvider,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import { NextPage } from 'next';
+import { Box, createTheme, Theme, ThemeProvider } from '@mui/material';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { createContext, useContext, useEffect, useState } from 'react';
-import {
-  MoralisCloudFunctionParameters,
-  useMoralis,
-  useMoralisCloudFunction,
-} from 'react-moralis';
-import { ResolveCallOptions } from 'react-moralis/lib/hooks/internal/_useResolveAsyncCall';
-import { getTaskEpoch } from '../../../app/adapters/moralis';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useMoralis, useMoralisCloudFunction } from 'react-moralis';
 import NotFound from '../../../app/components/elements/notFound';
 import ExploreSidebar from '../../../app/components/modules/exploreSidebar';
 import TribeNavbar from '../../../app/components/modules/tribeNavbar';
@@ -50,8 +35,38 @@ interface TribeContextType {
 export const TribeContext = createContext<TribeContextType>(
   {} as TribeContextType
 );
+
+function useProviderTribe() {
+  const [tab, setTab] = useState(0);
+  const [tribe, setTribe] = useState({} as Team);
+  const [loading, setLoading] = useState(true);
+  const [isMember, setIsMember] = useState(false);
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTab(newValue);
+  };
+  const { fetch: getTeam } = useMoralisCloudFunction(
+    'getTeam',
+    {
+      limit: 1,
+    },
+    { autoFetch: false }
+  );
+
+  return {
+    tab,
+    handleTabChange,
+    tribe,
+    setTribe,
+    getTeam,
+    loading,
+    setLoading,
+    isMember,
+    setIsMember,
+  };
+}
+
 console.log('starting tribe page', new Date());
-const TribePage: NextPage<Props> = (props: Props) => {
+export default function TribePage(props: Props) {
   const router = useRouter();
   const { id } = router.query;
   const context = useProviderTribe();
@@ -104,37 +119,6 @@ const TribePage: NextPage<Props> = (props: Props) => {
       </ThemeProvider>
     </>
   );
-};
-
-function useProviderTribe() {
-  const [tab, setTab] = useState(0);
-  const [tribe, setTribe] = useState({} as Team);
-  const [loading, setLoading] = useState(true);
-  const [isMember, setIsMember] = useState(false);
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTab(newValue);
-  };
-  const { fetch: getTeam } = useMoralisCloudFunction(
-    'getTeam',
-    {
-      limit: 1,
-    },
-    { autoFetch: false }
-  );
-
-  return {
-    tab,
-    handleTabChange,
-    tribe,
-    setTribe,
-    getTeam,
-    loading,
-    setLoading,
-    isMember,
-    setIsMember,
-  };
 }
 
 export const useTribe = () => useContext(TribeContext);
-
-export default TribePage;

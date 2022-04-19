@@ -7,8 +7,8 @@
     "start": "next start",
     "lint": "next lint",
     "prettier": "prettier --write .",
-    "eslint": "eslint 'src/**/*.ts'",
-    "eslint:fix": "eslint --fix 'src/**/*.ts'",
+    "eslint": "eslint 'app/**/*.ts'",
+    "eslint:fix": "eslint --fix 'app/**/*.ts'",
     "prepare": "husky install"
   },
   "engines": {
