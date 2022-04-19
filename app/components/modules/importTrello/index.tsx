@@ -19,7 +19,27 @@ type Props = {
   handleClose: () => void;
 };
 
-const TrelloImport = ({ isOpen, handleClose }: Props) => {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
+  position: 'absolute' as 'absolute',
+  top: '10%',
+  left: '25%',
+  transform: 'translate(-50%, -50%)',
+  width: '35rem',
+  border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
+  boxShadow: 24,
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
+}));
+
+const ModalContent = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  padding: 32,
+}));
+
+function TrelloImport({ isOpen, handleClose }: Props) {
   const [trelloBoardId, setTrelloBoardId] = useState('');
   const [columnMap, setColumnMap] = useState({});
   const [columnOrder, setColumnOrder] = useState([]);
@@ -78,14 +98,14 @@ const TrelloImport = ({ isOpen, handleClose }: Props) => {
                   );
 
                   const cardsJson = await cards.json();
-                  const columnOrder = columnsJson.map(
+                  const aColumnOrder = columnsJson.map(
                     (column: any) => column.id
                   );
-                  let columnMap: {
+                  const aColumnMap: {
                     [key: string]: Column;
                   } = {};
                   columnsJson.map((column: any) => {
-                    columnMap[column.id] = {
+                    aColumnMap[column.id] = {
                       id: column.id,
                       title: column.name,
                       taskIds: [],
@@ -93,9 +113,11 @@ const TrelloImport = ({ isOpen, handleClose }: Props) => {
                       createCard: { 0: false, 1: false, 2: true, 3: true },
                       moveCard: { 0: false, 1: false, 2: true, 3: true },
                     };
+                    return null;
                   });
                   cardsJson.map((card: any) => {
-                    columnMap[card.idList].taskIds.push(card.id);
+                    aColumnMap[card.idList as string].taskIds.push(card.id);
+                    return null;
                   });
                   const tasks = cardsJson.map((task: any) => {
                     return {
@@ -106,8 +128,8 @@ const TrelloImport = ({ isOpen, handleClose }: Props) => {
                     };
                   });
                   console.log(boardJson);
-                  setColumnOrder(columnOrder);
-                  setColumnMap(columnMap);
+                  setColumnOrder(aColumnOrder);
+                  setColumnMap(aColumnMap);
                   setTrelloBoard(boardJson);
                   setTrelloTasks(tasks);
                   setIsFetching(false);
@@ -144,26 +166,6 @@ const TrelloImport = ({ isOpen, handleClose }: Props) => {
       </Grow>
     </Modal>
   );
-};
-
-// @ts-ignore
-const ModalContainer = styled(Box)(({ theme }) => ({
-  position: 'absolute' as 'absolute',
-  top: '10%',
-  left: '25%',
-  transform: 'translate(-50%, -50%)',
-  width: '35rem',
-  border: '2px solid #000',
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 24,
-  overflow: 'auto',
-  maxHeight: 'calc(100% - 128px)',
-}));
-
-const ModalContent = styled('div')(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  padding: 32,
-}));
+}
 
 export default TrelloImport;

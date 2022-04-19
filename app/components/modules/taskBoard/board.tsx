@@ -1,30 +1,18 @@
 import styled from '@emotion/styled';
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-  Typography,
-} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import { Button } from '@mui/material';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
-import AddIcon from '@mui/icons-material/Add';
-import {
-  addColumn,
-  updateColumnOrder,
-  updateColumnTasks,
-  updateTaskStatus,
-} from '../../../adapters/moralis';
 import { useMoralis } from 'react-moralis';
-import { useRouter } from 'next/router';
-import { reorder } from '../../../utils/utils';
-import { BoardData } from '../../../types';
-import { notify } from '../settingsTab';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import Column from '../column';
-import { PrimaryButton } from '../../elements/styledComponents';
-import TrelloImport from '../importTrello';
 import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import { BoardData } from '../../../types';
+import { reorder } from '../../../utils/utils';
+import { PrimaryButton } from '../../elements/styledComponents';
+import Column from '../column';
+import TrelloImport from '../importTrello';
+import { notify } from '../settingsTab';
 
 type Props = {
   expanded: boolean;
@@ -33,10 +21,21 @@ type Props = {
   ) => (event: React.SyntheticEvent, newExpanded: boolean) => void;
 };
 
-const Board = ({ expanded, handleChange }: Props) => {
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 0 0.5rem;
+  height: calc(100vh - 3.8rem);
+  max-width: calc(100vw - 7.2rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+`;
+
+function Board({ expanded, handleChange }: Props) {
   const { space, setSpace } = useSpace();
   const router = useRouter();
-  const { Moralis, user } = useMoralis();
+  const { bid } = router.query;
+  const { user } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => {
@@ -73,12 +72,15 @@ const Board = ({ expanded, handleChange }: Props) => {
         source.index,
         destination.index
       );
-      const tempData = Object.assign({}, space);
+      const tempData = { ...space };
       setSpace({
         ...space,
         columnOrder: newColumnOrder,
       });
-      updateColumnOrder(Moralis, bid as string, newColumnOrder)
+      runMoralisFunction('updateColumnOrder', {
+        boardId: bid,
+        newColumnOrder,
+      })
         .then((res: any) => {
           setSpace(res as BoardData);
         })
@@ -97,7 +99,7 @@ const Board = ({ expanded, handleChange }: Props) => {
 
     if (start === finish) {
       const newList = reorder(start.taskIds, source.index, destination.index);
-      const tempData = Object.assign({}, space);
+      const tempData = { ...space };
       setSpace({
         ...space,
         columns: {
@@ -137,7 +139,7 @@ const Board = ({ expanded, handleChange }: Props) => {
         ...finish,
         taskIds: finishTaskIds,
       };
-      const tempData = Object.assign({}, space);
+      const tempData = { ...space };
       setSpace({
         ...space,
         columns: {
@@ -171,7 +173,6 @@ const Board = ({ expanded, handleChange }: Props) => {
     }
   };
 
-  const { id, bid } = router.query;
   return (
     <>
       <TrelloImport isOpen={isOpen} handleClose={handleClose} />
@@ -226,7 +227,7 @@ const Board = ({ expanded, handleChange }: Props) => {
                 disabled={space.roles[user?.id as string] !== 3}
                 onClick={() => {
                   const newColumnId = Object.keys(space.columns).length;
-                  const tempData = Object.assign({}, space);
+                  const tempData = { ...space };
                   setSpace({
                     ...space,
                     columns: {
@@ -245,7 +246,9 @@ const Board = ({ expanded, handleChange }: Props) => {
                       `column-${newColumnId}`,
                     ],
                   });
-                  addColumn(Moralis, bid as string)
+                  runMoralisFunction('addColumn', {
+                    boardId: bid,
+                  })
                     .then((res: BoardData) => setSpace(res))
                     .catch((err: any) => {
                       setSpace(tempData);
@@ -264,15 +267,6 @@ const Board = ({ expanded, handleChange }: Props) => {
       </DragDropContext>
     </>
   );
-};
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  padding: 0 0.5rem;
-  height: calc(100vh - 3.8rem);
-  max-width: calc(100vw - 7.2rem);
-  overflow-x: auto;
-  overflow-y: hidden;
-`;
+}
 
 export default Board;

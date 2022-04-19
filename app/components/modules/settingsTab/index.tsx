@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import styled from '@emotion/styled';
+import { Avatar, Box, FormLabel, Switch, TextField } from '@mui/material';
+import React, { useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import { TextField, FormLabel, Box, Switch, Avatar } from '@mui/material';
-import { PrimaryButton } from '../../elements/styledComponents';
-import { useTribe } from '../../../../pages/tribe/[id]';
-import { updateTribe } from '../../../adapters/moralis';
-import { useMoralis } from 'react-moralis';
 import toast, { Toaster } from 'react-hot-toast';
+import { useMoralis } from 'react-moralis';
+import { useTribe } from '../../../../pages/tribe/[id]';
+import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import { PrimaryButton } from '../../elements/styledComponents';
+
 export interface SettingFormInput {
   name: string;
   description: string;
@@ -32,10 +34,37 @@ export const notify = (text: string, type?: string) => {
     });
   }
 };
-const Settings = () => {
+
+const MainContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 2rem;
+`;
+
+const SettingContainer = styled.div`
+  display: flex;
+  flex: 5;
+  flex-direction: column;
+  margin-left: 30px;
+  width: 100%;
+`;
+
+const FormItem = styled.div`
+  margin-bottom: 1rem;
+  width: 50%;
+`;
+
+const ButtonWrapper = styled.div`
+  width: 100%;
+`;
+
+function Settings() {
   const { tribe, setTribe } = useTribe();
   const { Moralis } = useMoralis();
   const [logo, setLogo] = useState(tribe.logo);
+  const { runMoralisFunction } = useMoralisFunction();
   const {
     handleSubmit,
     control,
@@ -51,7 +80,16 @@ const Settings = () => {
 
   const onSubmit: SubmitHandler<SettingFormInput> = async (values) => {
     setIsLoading(true);
-    updateTribe(Moralis, values as any, tribe.teamId)
+    runMoralisFunction('updateTribe', {
+      name: values.name,
+      description: values.description,
+      isPublic: values.isPublic,
+      discord: values.discord,
+      twitter: values.twitter,
+      github: values.github,
+      logo,
+      teamId: tribe.teamId,
+    })
       .then((res: any) => {
         setTribe(res);
         setIsLoading(false);
@@ -244,7 +282,7 @@ const Settings = () => {
               }}
             />
             <label htmlFor="contained-button-file">
-              {/*// @ts-ignore */}
+              {/* eslint-disable-next-line */}
               <PrimaryButton component="span">Edit</PrimaryButton>
             </label>
           </FormItem>
@@ -264,31 +302,6 @@ const Settings = () => {
       </SettingContainer>
     </MainContainer>
   );
-};
+}
 
 export default Settings;
-
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  margin-top: 10px;
-  margin-bottom: 2rem;
-`;
-
-const SettingContainer = styled.div`
-  display: flex;
-  flex: 5;
-  flex-direction: column;
-  margin-left: 30px;
-  width: 100%;
-`;
-
-const FormItem = styled.div`
-  margin-bottom: 1rem;
-  width: 50%;
-`;
-
-const ButtonWrapper = styled.div`
-  width: 100%;
-`;

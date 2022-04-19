@@ -7,7 +7,7 @@ type Props = {
   handleSelection: (tag: string, type?: string) => void;
 };
 
-const TagItem = ({ selected, tag, handleSelection }: Props) => {
+function TagItem({ selected, tag, handleSelection }: Props) {
   const itemRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
@@ -30,10 +30,15 @@ const TagItem = ({ selected, tag, handleSelection }: Props) => {
       role="button"
       tabIndex={0}
       onClick={() => handleSelection(tag.tag, tag.type)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          handleSelection(tag.tag, tag.type);
+        }
+      }}
     >
       {tag.label}
     </div>
   );
-};
+}
 
 export default TagItem;

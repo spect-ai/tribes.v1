@@ -1,23 +1,22 @@
-import { Button, InputBase, useTheme } from '@mui/material';
-import { Box } from '@mui/system';
-import React, { useState } from 'react';
-import { BoardData } from '../../../types';
-import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
-import { CreateTaskContainer } from './createTask';
-import { addTask } from '../../../adapters/moralis';
-import { useMoralis } from 'react-moralis';
-import { useRouter } from 'next/router';
+import DoneIcon from '@mui/icons-material/Done';
+import { Box, Button, InputBase, useTheme } from '@mui/material';
 import { Octokit } from '@octokit/rest';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { addTask } from '../../../adapters/moralis';
+import { BoardData } from '../../../types';
 import { notify } from '../settingsTab';
+import { CreateTaskContainer } from './createTask';
 
 type Props = {
   setShowCreateTask: (showCreateTask: boolean) => void;
   columnId: string;
 };
 
-const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
+function CreateGithubTask({ setShowCreateTask, columnId }: Props) {
   const [newIssueLink, setNewIssueLink] = useState('');
   const [newTaskValue, setNewTaskValue] = useState(
     undefined as unknown as number
@@ -46,7 +45,7 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
           marginLeft: '6px',
         }}
         value={newTaskValue}
-        onChange={(e) => setNewTaskValue(parseInt(e.target.value))}
+        onChange={(e) => setNewTaskValue(parseInt(e.target.value, 10))}
       />
       <Box
         sx={{
@@ -64,7 +63,7 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
               .get({
                 owner: splitValues[3],
                 repo: splitValues[4],
-                issue_number: parseInt(splitValues[6]),
+                issue_number: parseInt(splitValues[6], 10),
               })
               .then(({ data }) => {
                 addTask(
@@ -101,6 +100,6 @@ const CreateGithubTask = ({ setShowCreateTask, columnId }: Props) => {
       </Box>
     </CreateTaskContainer>
   );
-};
+}
 
 export default CreateGithubTask;

@@ -1,4 +1,5 @@
-import { Box, Modal, Typography, styled as MUIStyled } from '@mui/material';
+import { Box, Modal, styled as MUIStyled, Typography } from '@mui/material';
+import React from 'react';
 import SpaceRoleMapping from '../../elements/spaceRoleMapping';
 import { ModalHeading } from '../../elements/styledComponents';
 
@@ -7,27 +8,6 @@ type Props = {
   handleClose: () => void;
   user: boolean;
 };
-
-const DiscordIntegrationModal = ({ isOpen, handleClose, user }: Props) => {
-  return (
-    <Modal open={isOpen} onClose={handleClose}>
-      <ModalContainer>
-        <ModalHeading>
-          <Typography>Discord Setup</Typography>
-        </ModalHeading>
-        <ModalContent>
-          <>
-            <Typography color="secondary" sx={{ textAlign: 'center' }}>
-              Setup Member roles from Discord so they can join automatically
-            </Typography>
-            <SpaceRoleMapping handleModalClose={handleClose} />
-          </>
-        </ModalContent>
-      </ModalContainer>
-    </Modal>
-  );
-};
-
 // @ts-ignore
 const ModalContainer = MUIStyled(Box)(({ theme }) => ({
   position: 'absolute' as 'absolute',
@@ -49,5 +29,25 @@ const ModalContent = MUIStyled('div')(({ theme }) => ({
   justifyContent: 'center',
   padding: 12,
 }));
+
+function DiscordIntegrationModal({ isOpen, handleClose, user }: Props) {
+  return (
+    <Modal open={isOpen} onClose={handleClose}>
+      <ModalContainer>
+        <ModalHeading>
+          <Typography>Discord Setup</Typography>
+        </ModalHeading>
+        <ModalContent>
+          <>
+            <Typography color="secondary" sx={{ textAlign: 'center' }}>
+              Setup Member roles from Discord so they can join automatically
+            </Typography>
+            <SpaceRoleMapping handleModalClose={handleClose} />
+          </>
+        </ModalContent>
+      </ModalContainer>
+    </Modal>
+  );
+}
 
 export default DiscordIntegrationModal;

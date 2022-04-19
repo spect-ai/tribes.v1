@@ -15,13 +15,18 @@ type Props = {
   roles: any;
 };
 
-const MemberPopover = ({
-  open,
-  anchorEl,
-  handleClose,
-  member,
-  roles,
-}: Props) => {
+// @ts-ignore
+const PopoverContainer = styled(Box)(({ theme }) => ({
+  width: '14rem',
+  backgroundColor: theme.palette.primary.main,
+  boxShadow: 24,
+  overflow: 'auto',
+  padding: '4px 8px',
+  display: 'flex',
+  flexDirection: 'column',
+}));
+
+function MemberPopover({ open, anchorEl, handleClose, member, roles }: Props) {
   const [role, setRole] = useState<any>();
   const { runMoralisFunction } = useMoralisFunction();
   const { tribe, setTribe } = useTribe();
@@ -36,7 +41,7 @@ const MemberPopover = ({
 
   return (
     <Popover
-      open={true}
+      open
       anchorEl={anchorEl}
       onClose={handleClose}
       anchorOrigin={{
@@ -101,16 +106,6 @@ const MemberPopover = ({
       </PopoverContainer>
     </Popover>
   );
-};
-// @ts-ignore
-const PopoverContainer = styled(Box)(({ theme }) => ({
-  width: '14rem',
-  backgroundColor: theme.palette.primary.main,
-  boxShadow: 24,
-  overflow: 'auto',
-  padding: '4px 8px',
-  display: 'flex',
-  flexDirection: 'column',
-}));
+}
 
 export default MemberPopover;

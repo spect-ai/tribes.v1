@@ -1,17 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useEffect, useState } from 'react';
-import ContentEditable from 'react-contenteditable';
-import {
-  getCaretCoordinates,
-  isValidHttpUrl,
-  setCaretToEnd,
-} from '../../../utils/utils';
-import styles from './styles.module.scss';
-import { Draggable } from 'react-beautiful-dnd';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import TagSelectorMenu from '../tagSelectorMenu';
-import { useMoralis } from 'react-moralis';
-// import { ReactTinyLink } from "react-tiny-link";
 import {
   Backdrop,
   Box,
@@ -20,15 +8,26 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import { PrimaryButton } from '../../elements/styledComponents';
-import { ErrorBoundary } from 'react-error-boundary';
-import SimpleErrorBoundary from '../../elements/simpleErrorBoundary';
 import dynamic from 'next/dynamic';
+import React, { useEffect, useState } from 'react';
+import { Draggable } from 'react-beautiful-dnd';
+import ContentEditable from 'react-contenteditable';
+import { ErrorBoundary } from 'react-error-boundary';
+import { useMoralis } from 'react-moralis';
 import { Block } from '../../../types';
+import {
+  getCaretCoordinates,
+  isValidHttpUrl,
+  setCaretToEnd,
+} from '../../../utils/utils';
+import SimpleErrorBoundary from '../../elements/simpleErrorBoundary';
+import { PrimaryButton } from '../../elements/styledComponents';
 import BlockActionMenu from '../blockActionMenu';
 import { notify } from '../settingsTab';
+import TagSelectorMenu from '../tagSelectorMenu';
+import styles from './styles.module.scss';
 
-let ReactTinyLink: any = dynamic(
+const ReactTinyLink: any = dynamic(
   () => import('react-tiny-link').then((mod) => mod.ReactTinyLink),
   {
     ssr: false,
@@ -47,7 +46,7 @@ type Props = {
   placeholderText: string;
 };
 
-const EditableBlock = ({
+function EditableBlock({
   id,
   position,
   block,
@@ -57,7 +56,7 @@ const EditableBlock = ({
   addBlock,
   deleteBlock,
   placeholderText,
-}: Props) => {
+}: Props) {
   const [html, setHtml] = useState(block.html || '');
   const [htmlBackup, setHtmlBackup] = useState('');
   const [tag, setTag] = useState(block.tag || 'p');
@@ -79,13 +78,25 @@ const EditableBlock = ({
 
   const { Moralis } = useMoralis();
   const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [disabled, setDisabled] = useState(false);
-  const [click, setClick] = useState(false);
+
+  // Show a placeholder for blank pages
+  const addPlaceholder = ({ pBlock, pPosition, pContent }: any) => {
+    const isFirstBlockWithoutHtml = pPosition === 1 && !pContent;
+    const isFirstBlockWithoutSibling =
+      !pBlock?.parentElement.nextElementSibling;
+    if (isFirstBlockWithoutHtml && isFirstBlockWithoutSibling) {
+      setHtml(placeholderText);
+      setTag('h3');
+      setPlaceholder(true);
+      return true;
+    }
+    return false;
+  };
 
   useEffect(() => {
-    const hasPlaceholder = addPlaceholder({
+    addPlaceholder({
       block: contentEditableRef.current,
-      position: position,
+      position,
       content: block.html,
     });
   }, []);
@@ -118,19 +129,27 @@ const EditableBlock = ({
     );
   }, [embedUrl, imageUrl]);
 
-  // const onMouseDownHandler = (e: any) => setClick(true);
+  const calculateTagSelectorMenuPosition = () => {
+    const { x: caretLeft, y: caretTop } = getCaretCoordinates(true);
+    return { x: caretLeft, y: caretTop };
+  };
 
-  // const onMouseMoveHandler = (e: any) => {
-  //   if (click) {
-  //     console.log("....... click");
-  //     setDisabled(true);
-  //   }
-  // };
+  const closeTagSelectorMenu = () => {
+    setHtmlBackup('');
+    setTagSelectorMenuPosition({
+      x: null as unknown as number,
+      y: null as unknown as number,
+    });
+    setIsSelectMenuOpen(false);
+    document.removeEventListener('click', closeTagSelectorMenu, false);
+  };
 
-  // const onMouseUpHandler = (e: any) => {
-  //   setDisabled(false);
-  //   setClick(false);
-  // };
+  const openTagSelectorMenu = () => {
+    const { x, y } = calculateTagSelectorMenuPosition();
+    setTagSelectorMenuPosition({ x, y });
+    setIsSelectMenuOpen(true);
+    document.addEventListener('click', closeTagSelectorMenu, false);
+  };
 
   const onKeyUpHandler = (e: any) => {
     if (e.key === '/') {
@@ -160,7 +179,7 @@ const EditableBlock = ({
     if (e.key === 'Backspace' && !html) {
       e.preventDefault();
       deleteBlock({
-        id: id,
+        id,
         ref: contentEditableRef.current,
       });
     }
@@ -198,7 +217,6 @@ const EditableBlock = ({
   const handleFocus = () => {
     // If a placeholder is set, we remove it when the block gets focused
     setIsTyping(true);
-    console.log('focus');
     if (placeholder) {
       setHtml('');
       setPlaceholder(false);
@@ -209,7 +227,7 @@ const EditableBlock = ({
     // Show placeholder if block is still the only one and empty
     const hasPlaceholder = addPlaceholder({
       block: contentEditableRef.current,
-      position: position,
+      position,
       content: html,
     });
     if (!hasPlaceholder) {
@@ -240,45 +258,9 @@ const EditableBlock = ({
     }
   };
 
-  // Show a placeholder for blank pages
-  const addPlaceholder = ({ block, position, content }: any) => {
-    const isFirstBlockWithoutHtml = position === 1 && !content;
-    const isFirstBlockWithoutSibling = !block?.parentElement.nextElementSibling;
-    if (isFirstBlockWithoutHtml && isFirstBlockWithoutSibling) {
-      setHtml(placeholderText);
-      setTag('h3');
-      setPlaceholder(true);
-      return true;
-    } else {
-      return false;
-    }
-  };
-
-  const calculateTagSelectorMenuPosition = () => {
-    const { x: caretLeft, y: caretTop } = getCaretCoordinates(true);
-    return { x: caretLeft, y: caretTop };
-  };
-
-  const openTagSelectorMenu = () => {
-    const { x, y } = calculateTagSelectorMenuPosition();
-    setTagSelectorMenuPosition({ x, y });
-    setIsSelectMenuOpen(true);
-    document.addEventListener('click', closeTagSelectorMenu, false);
-  };
-
-  const closeTagSelectorMenu = () => {
-    setHtmlBackup('');
-    setTagSelectorMenuPosition({
-      x: null as unknown as number,
-      y: null as unknown as number,
-    });
-    setIsSelectMenuOpen(false);
-    document.removeEventListener('click', closeTagSelectorMenu, false);
-  };
-
-  const handleTagSelection = async (tag: string, type?: string) => {
-    if (['img', 'embed', 'divider'].includes(tag)) {
-      await setTag(tag);
+  const handleTagSelection = async (sTag: string, sType?: string) => {
+    if (['img', 'embed', 'divider'].includes(sTag)) {
+      await setTag(sTag);
       closeTagSelectorMenu();
       addBlock({
         id,
@@ -290,10 +272,10 @@ const EditableBlock = ({
         ref: contentEditableRef.current,
       });
     } else {
-      setTag(tag);
+      setTag(sTag);
       setHtml(htmlBackup);
       setCaretToEnd(contentEditableRef.current);
-      setType(type);
+      setType(sType);
       const nextBlock = document.querySelector(`[data-position="${position}"]`);
       // @ts-ignore
       nextBlock.focus();
@@ -303,20 +285,31 @@ const EditableBlock = ({
 
   const calculateActionMenuPosition = (parent: any, initiator: string) => {
     switch (initiator) {
-      case 'TEXT_SELECTION':
+      case 'TEXT_SELECTION': {
         const { x: endX, y: endY } = getCaretCoordinates(false); // fromEnd
         const { x: startX, y: startY } = getCaretCoordinates(true); // fromStart
         const middleX =
           (startX as number) + ((endX as number) - (startX as number)) / 2;
         return { x: middleX, y: startY };
-      case 'DRAG_HANDLE_CLICK':
+      }
+      case 'DRAG_HANDLE_CLICK': {
         const x =
           parent.offsetLeft - parent.scrollLeft + parent.clientLeft - 90;
         const y = parent.offsetTop - parent.scrollTop + parent.clientTop + 35;
-        return { x: x, y: y };
+        return { x, y };
+      }
       default:
         return { x: null, y: null };
     }
+  };
+
+  const closeActionMenu = () => {
+    setActionMenuPosition({
+      x: null as unknown as number,
+      y: null as unknown as number,
+    });
+    setIsActionMenuOpen(false);
+    document.removeEventListener('click', closeActionMenu, false);
   };
 
   const openActionMenu = (parent: any, trigger: string) => {
@@ -328,15 +321,6 @@ const EditableBlock = ({
     setTimeout(() => {
       document.addEventListener('click', closeActionMenu, false);
     }, 100);
-  };
-
-  const closeActionMenu = () => {
-    setActionMenuPosition({
-      x: null as unknown as number,
-      y: null as unknown as number,
-    });
-    setIsActionMenuOpen(false);
-    document.removeEventListener('click', closeActionMenu, false);
   };
 
   return (
@@ -358,7 +342,7 @@ const EditableBlock = ({
         >
           <CircularProgress color="inherit" />
           <Typography sx={{ mt: 2, mb: 1, color: '#eaeaea' }}>
-            {'Uploading image please wait....'}
+            Uploading image please wait....
           </Typography>
         </Box>
       </Backdrop>
@@ -402,6 +386,15 @@ const EditableBlock = ({
                     return;
                   }
                   openActionMenu(e.target, 'DRAG_HANDLE_CLICK');
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    if (readOnly) {
+                      notify("You can't edit this block", 'error');
+                      return;
+                    }
+                    openActionMenu(e.target, 'DRAG_HANDLE_CLICK');
+                  }
                 }}
                 {...provided.dragHandleProps}
               >
@@ -455,6 +448,7 @@ const EditableBlock = ({
                     hidden
                   />
                   {!imageUrl && (
+                    // eslint-disable-next-line jsx-a11y/label-has-associated-control
                     <label
                       htmlFor={`${id}_fileInput`}
                       className={styles.fileInputLabel}
@@ -512,7 +506,7 @@ const EditableBlock = ({
                   {embedUrl && (
                     <ReactTinyLink
                       cardSize="small"
-                      showGraphic={true}
+                      showGraphic
                       maxLine={2}
                       minLine={1}
                       url={embedUrl}
@@ -538,5 +532,5 @@ const EditableBlock = ({
       </Draggable>
     </>
   );
-};
+}
 export default EditableBlock;

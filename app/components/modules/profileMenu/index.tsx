@@ -1,3 +1,6 @@
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
 import {
   Avatar,
   Divider,
@@ -10,16 +13,13 @@ import {
   Theme,
   Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
-import { NavbarButton } from '../../elements/styledComponents';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { smartTrim } from '../../../utils/utils';
-import { useMoralis } from 'react-moralis';
-import PersonIcon from '@mui/icons-material/Person';
-import LogoutIcon from '@mui/icons-material/Logout';
-import ProfileSettings from '../profileSettings';
 import { makeStyles } from '@mui/styles';
 import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { smartTrim } from '../../../utils/utils';
+import { NavbarButton } from '../../elements/styledComponents';
+import ProfileSettings from '../profileSettings';
 
 type Props = {};
 const NavbarAvatar = styled(Avatar)(({ theme }) => ({
@@ -35,7 +35,7 @@ export const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const ProfileMenu = (props: Props) => {
+function ProfileMenu(props: Props) {
   const { isAuthenticating, logout, user } = useMoralis();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -107,6 +107,6 @@ const ProfileMenu = (props: Props) => {
       </Menu>
     </>
   );
-};
+}
 
 export default ProfileMenu;

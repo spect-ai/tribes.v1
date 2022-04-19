@@ -1,12 +1,12 @@
-import { Popover, Typography, useTheme } from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
+import { Popover, useTheme } from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useMoralis } from 'react-moralis';
+import { updateUser, useGlobal } from '../../../context/globalContext';
+import { ButtonText } from '../exploreSidebar';
 import ProfileSettings from '../profileSettings';
 import { OptionsButton, SidebarPopoverContainer } from '../themePopover';
-import LogoutIcon from '@mui/icons-material/Logout';
-import { ButtonText } from '../exploreSidebar';
-import { updateUser, useGlobal } from '../../../context/globalContext';
 
 type Props = {
   open: boolean;
@@ -14,15 +14,11 @@ type Props = {
   handleClose: () => void;
 };
 
-const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
+function ProfilePopover({ open, anchorEl, handleClose }: Props) {
   const { palette } = useTheme();
   const { logout, user } = useMoralis();
   const router = useRouter();
-  const {
-    dispatch,
-    state: { currentUser },
-  } = useGlobal();
-  const id = router.query.id;
+  const { dispatch } = useGlobal();
   return (
     <Popover
       open={open}
@@ -47,7 +43,7 @@ const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
               );
             }}
           >
-            <i className="fa-brands fa-discord"></i>
+            <i className="fa-brands fa-discord" />
             <ButtonText>Link Discord</ButtonText>
           </OptionsButton>
         )}
@@ -68,6 +64,6 @@ const ProfilePopover = ({ open, anchorEl, handleClose }: Props) => {
       </SidebarPopoverContainer>
     </Popover>
   );
-};
+}
 
 export default ProfilePopover;

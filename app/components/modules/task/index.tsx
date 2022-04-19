@@ -1,101 +1,22 @@
 import styled from '@emotion/styled';
+import CreditScoreIcon from '@mui/icons-material/CreditScore';
+import DateRangeIcon from '@mui/icons-material/DateRange';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import { Palette, useTheme } from '@mui/material';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
-import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import DateRangeIcon from '@mui/icons-material/DateRange';
-import CardModal from '../cardModal';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { labelsMapping, monthMap } from '../../../constants';
 import { Column, Task } from '../../../types';
-import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import { smartTrim } from '../../../utils/utils';
-import { Palette, useTheme } from '@mui/material';
-import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { useRouter } from 'next/router';
+import CardModal from '../cardModal';
 
 type Props = {
   task: Task;
   index: number;
   column: Column;
 };
-const TaskContainer = ({ task, index, column }: Props) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const router = useRouter();
-  const { bid, id } = router.query;
-  const handleClose = () => setIsOpen(false);
-  const { space, setSpace } = useSpace();
-  const { palette } = useTheme();
-  return (
-    <>
-      <CardModal
-        isOpen={isOpen}
-        handleClose={handleClose}
-        taskId={task.taskId}
-        columnId={column.id}
-      />
-      <Draggable draggableId={task.taskId} index={index}>
-        {(provided, snapshot) => (
-          <TaskCard
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            ref={provided.innerRef}
-            isDragging={snapshot.isDragging}
-            onClick={() => {
-              setIsOpen(true);
-            }}
-            palette={palette}
-          >
-            <Container>
-              <LabelsContainer>
-                {task?.tags?.map((tag, index) => (
-                  <LabelColor
-                    color={labelsMapping[tag as keyof typeof labelsMapping]}
-                    key={index}
-                  />
-                ))}
-              </LabelsContainer>
-
-              <Title palette={palette}>{task.title}</Title>
-
-              <ChipContainer>
-                {task.value ? (
-                  <Chip color="#99ccff">
-                    <MonetizationOnIcon sx={{ fontSize: 12 }} />
-                    {task.value} {task.token.symbol}
-                  </Chip>
-                ) : null}
-                {task.deadline && (
-                  <Chip color="#5a6972">
-                    <DateRangeIcon sx={{ fontSize: 12 }} />
-                    {task.deadline.getDate()}{' '}
-                    {
-                      monthMap[
-                        task.deadline.getMonth() as keyof typeof monthMap
-                      ]
-                    }
-                  </Chip>
-                )}
-                {task.assignee.length > 0 && (
-                  <Chip color="#ce93d8">
-                    {smartTrim(
-                      space.memberDetails[task.assignee[0]].username,
-                      8
-                    )}
-                  </Chip>
-                )}
-                {task.status === 300 && (
-                  <Chip color="#66bb6a">
-                    <CreditScoreIcon sx={{ fontSize: 16 }} /> Paid
-                  </Chip>
-                )}
-              </ChipContainer>
-            </Container>
-          </TaskCard>
-        )}
-      </Draggable>
-    </>
-  );
-};
-
 const LabelsContainer = styled.div`
   display: flex;
   flex-direction: row;
@@ -163,5 +84,83 @@ const Title = styled.div<{ palette: Palette }>`
   word-wrap: break-word;
   color: ${(props) => props.palette.text.primary};
 `;
+function TaskContainer({ task, index, column }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+  const { bid, id } = router.query;
+  const handleClose = () => setIsOpen(false);
+  const { space, setSpace } = useSpace();
+  const { palette } = useTheme();
+  return (
+    <>
+      <CardModal
+        isOpen={isOpen}
+        handleClose={handleClose}
+        taskId={task.taskId}
+        columnId={column.id}
+      />
+      <Draggable draggableId={task.taskId} index={index}>
+        {(provided, snapshot) => (
+          <TaskCard
+            {...provided.draggableProps}
+            {...provided.dragHandleProps}
+            ref={provided.innerRef}
+            isDragging={snapshot.isDragging}
+            onClick={() => {
+              setIsOpen(true);
+            }}
+            palette={palette}
+          >
+            <Container>
+              <LabelsContainer>
+                {task?.tags?.map((tag) => (
+                  <LabelColor
+                    color={labelsMapping[tag as keyof typeof labelsMapping]}
+                    key={tag}
+                  />
+                ))}
+              </LabelsContainer>
+
+              <Title palette={palette}>{task.title}</Title>
+
+              <ChipContainer>
+                {task.value ? (
+                  <Chip color="#99ccff">
+                    <MonetizationOnIcon sx={{ fontSize: 12 }} />
+                    {task.value} {task.token.symbol}
+                  </Chip>
+                ) : null}
+                {task.deadline && (
+                  <Chip color="#5a6972">
+                    <DateRangeIcon sx={{ fontSize: 12 }} />
+                    {task.deadline.getDate()}{' '}
+                    {
+                      monthMap[
+                        task.deadline.getMonth() as keyof typeof monthMap
+                      ]
+                    }
+                  </Chip>
+                )}
+                {task.assignee.length > 0 && (
+                  <Chip color="#ce93d8">
+                    {smartTrim(
+                      space.memberDetails[task.assignee[0]].username,
+                      8
+                    )}
+                  </Chip>
+                )}
+                {task.status === 300 && (
+                  <Chip color="#66bb6a">
+                    <CreditScoreIcon sx={{ fontSize: 16 }} /> Paid
+                  </Chip>
+                )}
+              </ChipContainer>
+            </Container>
+          </TaskCard>
+        )}
+      </Draggable>
+    </>
+  );
+}
 
 export default TaskContainer;

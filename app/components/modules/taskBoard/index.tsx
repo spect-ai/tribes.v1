@@ -1,19 +1,17 @@
-import React, { useEffect, useState } from 'react';
 import { Fade, Grow } from '@mui/material';
-import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
-import SkeletonLoader from './skeletonLoader';
-import Board from './board';
-import EpochList from '../epoch';
-import Members from '../spaceMembers';
-import NoAccess from '../epoch/noAccess';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import DiscordIntegrationModal from '../discordIntegrationModal';
+import EpochList from '../epoch';
+import NoAccess from '../epoch/noAccess';
+import Members from '../spaceMembers';
+import Board from './board';
+import SkeletonLoader from './skeletonLoader';
 
 type Props = {};
 
-const TaskBoard = (props: Props) => {
-  const router = useRouter();
+function TaskBoard(props: Props) {
   const { user } = useMoralis();
   const { isLoading, space, tab } = useSpace();
   const [isOpen, setIsOpen] = useState(false);
@@ -44,14 +42,11 @@ const TaskBoard = (props: Props) => {
   return (
     <Fade in={!isLoading} timeout={500}>
       <div>
-        {
-          <DiscordIntegrationModal
-            isOpen={isOpen}
-            handleClose={handleClose}
-            user={false}
-          />
-        }
-
+        <DiscordIntegrationModal
+          isOpen={isOpen}
+          handleClose={handleClose}
+          user={false}
+        />
         {tab === 0 && (
           <Grow in={tab === 0} timeout={500}>
             <div>
@@ -86,6 +81,6 @@ const TaskBoard = (props: Props) => {
       </div>
     </Fade>
   );
-};
+}
 
 export default TaskBoard;

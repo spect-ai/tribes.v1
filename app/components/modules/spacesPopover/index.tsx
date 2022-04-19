@@ -9,7 +9,7 @@ type Props = {
   type: string;
 };
 
-const SpacesPopover = ({ open, anchorEl, handleClose, type }: Props) => {
+function SpacesPopover({ open, anchorEl, handleClose, type }: Props) {
   const { palette } = useTheme();
   return (
     <Popover
@@ -26,6 +26,6 @@ const SpacesPopover = ({ open, anchorEl, handleClose, type }: Props) => {
       </SidebarPopoverContainer>
     </Popover>
   );
-};
+}
 
 export default SpacesPopover;

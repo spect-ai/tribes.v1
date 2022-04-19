@@ -1,5 +1,4 @@
-import { Button, styled } from '@mui/material';
-import { Box } from '@mui/system';
+import { Box, Button, styled } from '@mui/material';
 import React from 'react';
 
 type Props = {};
@@ -23,7 +22,7 @@ const StyledAnchor = styled('a')(({ theme }) => ({
   paddingRight: '4rem',
 }));
 
-const Footer = (props: Props) => {
+function Footer(props: Props) {
   return (
     <FooterDiv>
       <FooterItem>Community</FooterItem>
@@ -34,13 +33,13 @@ const Footer = (props: Props) => {
         <i className="fab fa-github" />
       </StyledAnchor>
       <StyledAnchor>
-        <i className="fab fa-discord"></i>
+        <i className="fab fa-discord" />
       </StyledAnchor>
       <StyledAnchor>
         <i className="fab fa-twitter" />
       </StyledAnchor>
     </FooterDiv>
   );
-};
+}
 
 export default Footer;

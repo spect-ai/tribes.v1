@@ -1,78 +1,14 @@
-import { Button, Grid, Skeleton, styled, Typography } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { useState, useEffect } from 'react';
-import CreateBoard from './createBoard';
-import { useTribe } from '../../../../pages/tribe/[id]';
-import { useMoralis } from 'react-moralis';
+import { Button, Grid, styled } from '@mui/material';
 import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useTribe } from '../../../../pages/tribe/[id]';
 import { BoardData } from '../../../types';
-import { useGlobal } from '../../../context/globalContext';
 import DiscordIntegrationModal from '../discordIntegrationModal';
+import CreateBoard from './createBoard';
 
 type Props = {};
-
-const Board = (props: Props) => {
-  const router = useRouter();
-  const { tribe } = useTribe();
-  const { user, isAuthenticated } = useMoralis();
-  const [isOpen, setIsOpen] = useState(false);
-  const [discordModalOpen, setDiscordModalOpen] = useState(false);
-  const handleDiscordModalClose = () => {
-    setDiscordModalOpen(false);
-  };
-  const handleClose = () => setIsOpen(false);
-  const {
-    state: { currentUser },
-  } = useGlobal();
-  return (
-    <Container>
-      <DiscordIntegrationModal
-        isOpen={discordModalOpen}
-        handleClose={handleDiscordModalClose}
-        user={true}
-      />
-      {isOpen && <CreateBoard isOpen={isOpen} handleClose={handleClose} />}
-      {/* {!tribe?.boards?.length && !(user && tribe.members.includes(user?.id)) && (
-        <Typography variant="h6" color="text.primary" sx={{ width: "100%" }}>
-          No spaces found
-        </Typography>
-      )} */}
-      <Grid container spacing={2}>
-        {tribe?.boards?.map((board: BoardData, index: number) => (
-          <Grid item xs={3} key={index}>
-            <BoardButton
-              variant="contained"
-              onClick={() => {
-                router.push(
-                  `/tribe/${tribe.teamId}/space/${board._id}`,
-                  undefined
-                );
-              }}
-            >
-              <ButtonText>{board.name}</ButtonText>
-            </BoardButton>
-          </Grid>
-        ))}
-
-        <Grid item xs={3}>
-          {user && tribe.roles[user.id] === 3 && (
-            <CreateBoardButton
-              variant="outlined"
-              disabled={tribe.roles[user?.id] !== 3}
-              onClick={() => {
-                setIsOpen(true);
-              }}
-              color="secondary"
-            >
-              <ButtonText>Create new space</ButtonText>
-              <AddCircleOutlineIcon sx={{ color: '#eaeaea' }} />
-            </CreateBoardButton>
-          )}
-        </Grid>
-      </Grid>
-    </Container>
-  );
-};
 
 const Container = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -111,5 +47,65 @@ const ButtonText = styled('div')(({ theme }) => ({
   alignItems: 'center',
   flexDirection: 'column',
 }));
+
+function Board(props: Props) {
+  const router = useRouter();
+  const { tribe } = useTribe();
+  const { user } = useMoralis();
+  const [isOpen, setIsOpen] = useState(false);
+  const [discordModalOpen, setDiscordModalOpen] = useState(false);
+  const handleDiscordModalClose = () => {
+    setDiscordModalOpen(false);
+  };
+  const handleClose = () => setIsOpen(false);
+  return (
+    <Container>
+      <DiscordIntegrationModal
+        isOpen={discordModalOpen}
+        handleClose={handleDiscordModalClose}
+        user
+      />
+      {isOpen && <CreateBoard isOpen={isOpen} handleClose={handleClose} />}
+      {/* {!tribe?.boards?.length && !(user && tribe.members.includes(user?.id)) && (
+        <Typography variant="h6" color="text.primary" sx={{ width: "100%" }}>
+          No spaces found
+        </Typography>
+      )} */}
+      <Grid container spacing={2}>
+        {tribe?.boards?.map((board: BoardData) => (
+          <Grid item xs={3} key={tribe.teamId}>
+            <BoardButton
+              variant="contained"
+              onClick={() => {
+                router.push(
+                  `/tribe/${tribe.teamId}/space/${board._id}`,
+                  undefined
+                );
+              }}
+            >
+              <ButtonText>{board.name}</ButtonText>
+            </BoardButton>
+          </Grid>
+        ))}
+
+        <Grid item xs={3}>
+          {user && tribe.roles[user.id] === 3 && (
+            <CreateBoardButton
+              variant="outlined"
+              disabled={tribe.roles[user?.id] !== 3}
+              onClick={() => {
+                setIsOpen(true);
+              }}
+              color="secondary"
+            >
+              <ButtonText>Create new space</ButtonText>
+              <AddCircleOutlineIcon sx={{ color: '#eaeaea' }} />
+            </CreateBoardButton>
+          )}
+        </Grid>
+      </Grid>
+    </Container>
+  );
+}
 
 export default Board;

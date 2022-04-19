@@ -1,3 +1,5 @@
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Box,
   Grow,
@@ -9,33 +11,53 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import React, { useState } from 'react';
-import { useMoralis } from 'react-moralis';
-import CloseIcon from '@mui/icons-material/Close';
-import { ModalHeading, PrimaryButton } from '../../elements/styledComponents';
-import { createTribe } from '../../../adapters/moralis';
 import { useRouter } from 'next/router';
+import React, { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { useMoralis } from 'react-moralis';
+import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import { ModalHeading, PrimaryButton } from '../../elements/styledComponents';
 import { SidebarButton } from '../exploreSidebar';
 import { notify } from '../settingsTab';
 
 type Props = {};
 
-const CreateTribeModal = (props: Props) => {
+const ModalContent = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  padding: 32,
+}));
+
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
+  position: 'absolute' as 'absolute',
+  top: '10%',
+  left: '35%',
+  transform: 'translate(-50%, -50%)',
+  width: '30rem',
+  border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
+  boxShadow: 24,
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
+}));
+
+function CreateTribeModal(props: Props) {
+  const [isOpen, setIsOpen] = useState(false);
+
   const handleClose = () => setIsOpen(false);
   const handleOpen = () => setIsOpen(true);
-  const [isOpen, setIsOpen] = useState(false);
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { palette } = useTheme();
 
-  const { Moralis, isAuthenticated, authenticate } = useMoralis();
+  const { isAuthenticated, authenticate } = useMoralis();
+  const { runMoralisFunction } = useMoralisFunction();
 
   const onSubmit = () => {
     setIsLoading(true);
-    createTribe(Moralis, name)
+    runMoralisFunction('createTribe', { name })
       .then((res: any) => {
         setIsLoading(false);
         handleClose();
@@ -68,20 +90,6 @@ const CreateTribeModal = (props: Props) => {
           <AddCircleOutlineIcon sx={{ fontSize: 30, color: palette.divider }} />
         </SidebarButton>
       </Tooltip>
-      {/* <SidebarButton
-        sx={{ mt: 2 }}
-        color="inherit"
-        onClick={() => {
-          if (!isAuthenticated) {
-            authenticate();
-          } else {
-            handleOpen();
-          }
-        }}
-      >
-        <AddIcon />
-        <ButtonText>Create Tribe</ButtonText>
-      </SidebarButton> */}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
           <ModalContainer>
@@ -115,26 +123,6 @@ const CreateTribeModal = (props: Props) => {
       </Modal>
     </>
   );
-};
-
-const ModalContent = styled('div')(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  padding: 32,
-}));
-
-// @ts-ignore
-const ModalContainer = styled(Box)(({ theme }) => ({
-  position: 'absolute' as 'absolute',
-  top: '10%',
-  left: '35%',
-  transform: 'translate(-50%, -50%)',
-  width: '30rem',
-  border: '2px solid #000',
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 24,
-  overflow: 'auto',
-  maxHeight: 'calc(100% - 128px)',
-}));
+}
 
 export default CreateTribeModal;

@@ -3,7 +3,7 @@ import React from 'react';
 
 type Props = {};
 
-const SkeletonLoader = (props: Props) => {
+function SkeletonLoader(props: Props) {
   return (
     <Grid container spacing={2} columns={10}>
       <Grid item xs={2}>
@@ -11,12 +11,11 @@ const SkeletonLoader = (props: Props) => {
           .fill('')
           .map((_, index) => (
             <Skeleton
-              width={`100%`}
+              width="100%"
               height={100}
               variant="rectangular"
               animation="wave"
               sx={{ mt: 2, borderRadius: '0.5rem' }}
-              key={index}
             />
           ))}
       </Grid>
@@ -25,12 +24,11 @@ const SkeletonLoader = (props: Props) => {
           .fill('')
           .map((_, index) => (
             <Skeleton
-              width={`100%`}
+              width="100%"
               height={100}
               variant="rectangular"
               animation="wave"
               sx={{ mt: 2, borderRadius: '0.5rem' }}
-              key={index}
             />
           ))}
       </Grid>
@@ -39,12 +37,11 @@ const SkeletonLoader = (props: Props) => {
           .fill('')
           .map((_, index) => (
             <Skeleton
-              width={`100%`}
+              width="100%"
               height={100}
               variant="rectangular"
               animation="wave"
               sx={{ mt: 2, borderRadius: '0.5rem' }}
-              key={index}
             />
           ))}
       </Grid>
@@ -53,12 +50,11 @@ const SkeletonLoader = (props: Props) => {
           .fill('')
           .map((_, index) => (
             <Skeleton
-              width={`100%`}
+              width="100%"
               height={100}
               variant="rectangular"
               animation="wave"
               sx={{ mt: 2, borderRadius: '0.5rem' }}
-              key={index}
             />
           ))}
       </Grid>
@@ -67,17 +63,16 @@ const SkeletonLoader = (props: Props) => {
           .fill('')
           .map((_, index) => (
             <Skeleton
-              width={`100%`}
+              width="100%"
               height={100}
               variant="rectangular"
               animation="wave"
               sx={{ mt: 2, borderRadius: '0.5rem' }}
-              key={index}
             />
           ))}
       </Grid>
     </Grid>
   );
-};
+}
 
 export default SkeletonLoader;

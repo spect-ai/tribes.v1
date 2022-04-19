@@ -1,76 +1,15 @@
-import React from 'react';
+import styled from '@emotion/styled';
 import {
-  Box,
-  AvatarGroup,
   Avatar,
-  Tooltip,
+  AvatarGroup,
+  Box,
   Grid,
+  Tooltip,
   Typography,
 } from '@mui/material';
-import styled from '@emotion/styled';
+import React from 'react';
 import { useTribe } from '../../../../pages/tribe/[id]';
 import Board from '../boardsTab';
-
-const Overview = () => {
-  const { tribe } = useTribe();
-  return (
-    <Wrapper>
-      <Grid container>
-        <Grid item xs={9}>
-          <MainContainer>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                mt: 2,
-              }}
-            >
-              <Typography
-                sx={{ fontSize: 16 }}
-                color="rgba(255, 255, 255, 0.6)"
-              >
-                {tribe.description}
-              </Typography>
-            </Box>
-            <Board />
-          </MainContainer>
-        </Grid>
-        <Grid item xs={3}>
-          <SideContainer>
-            <DescriptionContainer>
-              <Box
-                sx={{
-                  margin: 1,
-                  mt: 4,
-                }}
-              >
-                <Typography variant="h6" color="text.secondary">
-                  Contributors
-                </Typography>
-                <AvatarGroup max={6} sx={{ width: 'fit-content' }}>
-                  {tribe?.members?.map((memberId, idx) => (
-                    <Tooltip
-                      title={tribe.memberDetails[memberId].username}
-                      key={idx}
-                    >
-                      <Avatar
-                        alt=""
-                        src={
-                          tribe.memberDetails[memberId].profilePicture?._url ||
-                          `https://cdn.discordapp.com/avatars/${tribe.memberDetails[memberId].discordId}/${tribe.memberDetails[memberId].avatar}.png`
-                        }
-                      />
-                    </Tooltip>
-                  ))}
-                </AvatarGroup>
-              </Box>
-            </DescriptionContainer>
-          </SideContainer>
-        </Grid>
-      </Grid>
-    </Wrapper>
-  );
-};
 
 const Wrapper = styled.div`
   display: flex;
@@ -111,5 +50,66 @@ const Value = styled.div`
   margin-bottom: 8;
   margin-top: 8;
 `;
+
+function Overview() {
+  const { tribe } = useTribe();
+  return (
+    <Wrapper>
+      <Grid container>
+        <Grid item xs={9}>
+          <MainContainer>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                mt: 2,
+              }}
+            >
+              <Typography
+                sx={{ fontSize: 16 }}
+                color="rgba(255, 255, 255, 0.6)"
+              >
+                {tribe.description}
+              </Typography>
+            </Box>
+            <Board />
+          </MainContainer>
+        </Grid>
+        <Grid item xs={3}>
+          <SideContainer>
+            <DescriptionContainer>
+              <Box
+                sx={{
+                  margin: 1,
+                  mt: 4,
+                }}
+              >
+                <Typography variant="h6" color="text.secondary">
+                  Contributors
+                </Typography>
+                <AvatarGroup max={6} sx={{ width: 'fit-content' }}>
+                  {tribe?.members?.map((memberId) => (
+                    <Tooltip
+                      title={tribe.memberDetails[memberId].username}
+                      key={memberId}
+                    >
+                      <Avatar
+                        alt=""
+                        src={
+                          tribe.memberDetails[memberId].profilePicture?._url ||
+                          `https://cdn.discordapp.com/avatars/${tribe.memberDetails[memberId].discordId}/${tribe.memberDetails[memberId].avatar}.png`
+                        }
+                      />
+                    </Tooltip>
+                  ))}
+                </AvatarGroup>
+              </Box>
+            </DescriptionContainer>
+          </SideContainer>
+        </Grid>
+      </Grid>
+    </Wrapper>
+  );
+}
 
 export default Overview;

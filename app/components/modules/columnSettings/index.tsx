@@ -1,3 +1,6 @@
+import styled from '@emotion/styled';
+import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   AccordionDetails,
   AccordionSummary,
@@ -11,21 +14,15 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import CloseIcon from '@mui/icons-material/Close';
-import styled from '@emotion/styled';
+import React, { useState } from 'react';
+import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
 import { BoardData, Column } from '../../../types';
 import {
   PrimaryButton,
   StyledAccordian,
 } from '../../elements/styledComponents';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {
-  updateColumnPermissions,
-  removeColumn,
-} from '../../../adapters/moralis';
-import { useMoralis } from 'react-moralis';
 import { notify } from '../settingsTab';
 
 type Props = {
@@ -34,19 +31,44 @@ type Props = {
   column: Column;
 };
 
-const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
+// @ts-ignore
+const ModalContainer = MUIStyled(Box)(({ theme }) => ({
+  position: 'absolute' as 'absolute',
+  top: '10%',
+  left: '25%',
+  transform: 'translate(-50%, -50%)',
+  width: '50rem',
+  border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
+  boxShadow: 24,
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
+}));
+
+const Heading = MUIStyled('div')(({ theme }) => ({
+  fontWeight: 500,
+  fontSize: 16,
+  color: theme.palette.text.secondary,
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderBottom: '1px solid #99ccff',
+  padding: 16,
+  paddingLeft: 32,
+}));
+
+const Content = styled.div`
+  padding: 2rem;
+`;
+
+function ColumnSettings({ isOpen, handleClose, column }: Props) {
   const [name, setName] = useState(column?.title);
   const [createCardRoles, setCreateCardRoles] = useState(column?.createCard);
   const [moveCardRoles, setMoveCardRoles] = useState(column?.moveCard);
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
   const { space, setSpace } = useSpace();
-
-  //   useEffect(() => {
-  //     setCreateCardRoles(column.createCard);
-  //     setMoveCardRoles(column.moveCard);
-  //   }, [])
-
+  const { runMoralisFunction } = useMoralisFunction();
   return (
     <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
       <Grow in={isOpen} timeout={500}>
@@ -161,13 +183,12 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
                 loading={isLoading}
                 onClick={() => {
                   setIsLoading(true);
-                  updateColumnPermissions(
-                    Moralis,
-                    space.objectId,
-                    column.id,
+                  runMoralisFunction('updateColumnPermissions', {
+                    boardId: space.objectId,
+                    columnId: column.id,
                     createCardRoles,
-                    moveCardRoles
-                  )
+                    moveCardRoles,
+                  })
                     .then((res: BoardData) => {
                       notify('Save complete');
                       setSpace(res);
@@ -188,7 +209,10 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
                 color="error"
                 sx={{ width: '50%', mt: 2, mr: 4, borderRadius: 1 }}
                 onClick={() => {
-                  removeColumn(Moralis, space.objectId, column.id)
+                  runMoralisFunction('deleteColumn', {
+                    boardId: space.objectId,
+                    columnId: column.id,
+                  })
                     .then((res: BoardData) => {
                       setSpace(res);
                     })
@@ -206,35 +230,6 @@ const ColumnSettings = ({ isOpen, handleClose, column }: Props) => {
       </Grow>
     </Modal>
   );
-};
+}
 
-// @ts-ignore
-const ModalContainer = MUIStyled(Box)(({ theme }) => ({
-  position: 'absolute' as 'absolute',
-  top: '10%',
-  left: '25%',
-  transform: 'translate(-50%, -50%)',
-  width: '50rem',
-  border: '2px solid #000',
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 24,
-  overflow: 'auto',
-  maxHeight: 'calc(100% - 128px)',
-}));
-
-const Heading = MUIStyled('div')(({ theme }) => ({
-  fontWeight: 500,
-  fontSize: 16,
-  color: theme.palette.text.secondary,
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  borderBottom: '1px solid #99ccff',
-  padding: 16,
-  paddingLeft: 32,
-}));
-
-const Content = styled.div`
-  padding: 2rem;
-`;
 export default ColumnSettings;

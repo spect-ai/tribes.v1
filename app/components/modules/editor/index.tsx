@@ -1,7 +1,6 @@
 import styled from '@emotion/styled';
 import React, { useEffect, useState } from 'react';
 import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
 import usePrevious from '../../../hooks/usePrevious';
 import { Block } from '../../../types';
 import { setCaretToEnd, uid } from '../../../utils/utils';
@@ -14,12 +13,17 @@ type Props = {
   readonly?: boolean;
 };
 
-const Editor = ({
+const Container = styled.div`
+  margin-top: 1.5rem;
+  min-height: 8rem;
+`;
+
+export default function Editor({
   syncBlocksToMoralis,
   initialBlock,
   placeholderText,
   readonly,
-}: Props) => {
+}: Props) {
   const [blocks, setBlocks] = useState(initialBlock);
   const [currentBlockId, setCurrentBlockId] = useState('');
   const prevBlocks = usePrevious(blocks);
@@ -128,7 +132,7 @@ const Editor = ({
   return (
     <Container>
       <DragDropContext onDragEnd={onDragEndHandler}>
-        <Droppable droppableId={'id'}>
+        <Droppable droppableId="id">
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {blocks?.map((block, index) => {
@@ -155,11 +159,4 @@ const Editor = ({
       </DragDropContext>
     </Container>
   );
-};
-
-const Container = styled.div`
-  margin-top: 1.5rem;
-  min-height: 8rem;
-`;
-
-export default Editor;
+}
