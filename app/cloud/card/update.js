@@ -122,7 +122,7 @@ function authorized(updates, task, callerId, space) {
     )
       throw "Only card creator, reviewer and space steward can update card info";
   }
-  if (updates.hasOwnProperty("submission")) {
+  if (updates.hasOwnProperty("submissions")) {
     if (!isTaskAssignee(task, callerId))
       throw "Only assignee can add submission";
   }
