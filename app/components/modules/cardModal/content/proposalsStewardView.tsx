@@ -5,8 +5,7 @@ import {
   Avatar,
   InputAdornment,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { useMoralis } from 'react-moralis';
+import React, { useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
@@ -22,10 +21,8 @@ function ProposalsStewardView({ task, setTask }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
-  const { user } = useMoralis();
   const [proposalOnEdit, setProposalOnEdit] = useState('');
   const [editMode, setEditMode] = useState(false);
-  console.log(space);
   const handlePick = (proposalId: string, index: number, assignee: string) => {
     const prevTask = { ...task };
     const temp = { ...task };

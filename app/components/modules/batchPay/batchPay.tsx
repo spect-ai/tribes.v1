@@ -41,10 +41,9 @@ function BatchPay({
   handleStatusUpdate,
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
-  const { space, setSpace } = useSpace();
+  const { space } = useSpace();
   const { state } = useGlobal();
   const { registry } = state;
-  console.log(distributionInfo);
   return (
     <Box
       sx={{
@@ -114,7 +113,7 @@ function BatchPay({
           sx={{ borderRadius: '3px' }}
           onClick={() => {
             setIsLoading(true);
-            if (distributionInfo.type === 'tokens')
+            if (distributionInfo.type === 'tokens') {
               batchPayTokens(
                 distributionInfo.tokenAddresses,
                 getEthAddresses(
@@ -145,7 +144,8 @@ function BatchPay({
                   setIsLoading(false);
                   console.log(err.message);
                 });
-            else if (distributionInfo.type === 'currency')
+            } else if (distributionInfo.type === 'currency') {
+              console.log('hihihihihih');
               distributeEther(
                 getEthAddresses(
                   distributionInfo.contributors,
@@ -172,8 +172,10 @@ function BatchPay({
                 })
                 .catch((err: any) => {
                   notify(err.message, 'error');
+                  console.error(err);
                   setIsLoading(false);
                 });
+            }
           }}
           variant="outlined"
           id="bApprove"

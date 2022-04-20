@@ -42,7 +42,9 @@ export async function distributeEther(
   let totalValue = 0;
   for (let i = 0; i < values.length; i += 1) {
     if (values[i] > 0) {
-      valuesInWei.push(ethers.utils.parseEther(`${values[i]}`));
+      valuesInWei.push(
+        ethers.utils.parseEther(values[i].toFixed(5).toString())
+      );
       contributorsWithPositiveAllocation.push(contributors[i]);
       totalValue += values[i];
     }
@@ -51,7 +53,6 @@ export async function distributeEther(
   const overrides = {
     value: ethers.utils.parseEther(totalValue.toString()),
   };
-
   const tx = await contract.distributeEther(
     contributorsWithPositiveAllocation,
     valuesInWei,
@@ -139,7 +140,7 @@ export async function batchPayTokens(
   const { filteredTokenAddresses, filteredRecipients, filteredValues } =
     filterInvalidValues(tokenAddresses, recipients, values);
   const valuesInWei = filteredValues.map((v) =>
-    ethers.utils.parseEther(v.toString())
+    ethers.utils.parseEther(v.toFixed(5).toString())
   );
   const contract = getDistributorContract(chainId);
   const tx = await contract.distributeTokens(

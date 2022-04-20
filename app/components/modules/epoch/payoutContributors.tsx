@@ -122,9 +122,6 @@ function PayoutContributors({ epoch }: Props) {
         color="secondary"
         onClick={() => {
           setIsLoading(true);
-          console.log(epoch.chain.chainId);
-          console.log(window.ethereum.networkVersion);
-
           if (epoch.chain.chainId !== window.ethereum.networkVersion) {
             setActiveStep(-1);
             setIsLoading(false);

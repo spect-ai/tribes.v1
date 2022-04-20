@@ -95,9 +95,9 @@ function EditableBlock({
 
   useEffect(() => {
     addPlaceholder({
-      block: contentEditableRef.current,
-      position,
-      content: block.html,
+      pBlock: contentEditableRef.current,
+      pPosition: position,
+      pContent: block.html,
     });
   }, []);
 

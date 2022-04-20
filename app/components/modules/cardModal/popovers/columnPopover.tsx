@@ -143,6 +143,7 @@ function ColumnPopover({ task, setTask, column }: Props) {
                 size="small"
                 fullWidth
                 placeholder="Search types"
+                color="secondary"
               />
             )}
           />

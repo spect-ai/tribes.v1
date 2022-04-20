@@ -17,7 +17,7 @@ type Props = {
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
   position: 'absolute' as 'absolute',
-  top: '40%',
+  top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: '55rem',
@@ -34,7 +34,6 @@ function CardModal({ isOpen, handleClose, taskId, columnId }: Props) {
   const [loading, setLoading] = useState(false);
   const [task, setTask] = useState<Task>({} as Task);
   const { isInitialized } = useMoralis();
-  const [submissionPR, setSubmissionPR] = useState<any>();
   const { runMoralisFunction } = useMoralisFunction();
 
   useEffect(() => {
