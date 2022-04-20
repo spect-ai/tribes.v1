@@ -1,7 +1,6 @@
 import { Box, Fade, Modal, styled } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
-import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { Task } from '../../../types';
 import { notify } from '../settingsTab';
 import TaskCard from './taskCard';
@@ -36,7 +35,6 @@ function CardModal({ isOpen, handleClose, taskId, columnId }: Props) {
   const [task, setTask] = useState<Task>({} as Task);
   const { isInitialized } = useMoralis();
   const [submissionPR, setSubmissionPR] = useState<any>();
-  const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
 
   useEffect(() => {
@@ -68,7 +66,6 @@ function CardModal({ isOpen, handleClose, taskId, columnId }: Props) {
                     task={task}
                     setTask={setTask}
                     handleClose={handleClose}
-                    submissionPR={submissionPR}
                   />
                 </div>
               </Fade>

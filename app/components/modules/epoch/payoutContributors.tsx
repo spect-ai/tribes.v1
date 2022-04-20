@@ -20,10 +20,10 @@ import Approve, { ApprovalInfo } from '../batchPay/approve';
 import BatchPay, { DistributionInfo } from '../batchPay/batchPay';
 import { Epoch } from '../../../types';
 import { capitalizeFirstLetter } from '../../../utils/utils';
-import { completeEpochPayment } from '../../../adapters/moralis';
 import { notify } from '../settingsTab';
 import { PrimaryButton } from '../../elements/styledComponents';
 import { isApprovalRequired } from '../../../adapters/contract';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 
 interface Props {
   epoch: Epoch;
@@ -62,7 +62,8 @@ function PayoutContributors({ epoch }: Props) {
   const {
     state: { registry },
   } = useGlobal();
-  const { Moralis, user } = useMoralis();
+  const { user } = useMoralis();
+  const { runMoralisFunction } = useMoralisFunction();
   const { setRefreshEpochs } = useSpace();
   const [distributionInfo, setDistributionInfo] = useState({
     contributors: Object.keys(epoch.values),
@@ -94,7 +95,7 @@ function PayoutContributors({ epoch }: Props) {
   };
 
   const handleStatusUpdate = (epochId: string) => {
-    completeEpochPayment(Moralis, epochId)
+    runMoralisFunction('completeEpochPayment', { epochId })
       .then((res: any) => {
         setRefreshEpochs(true);
       })

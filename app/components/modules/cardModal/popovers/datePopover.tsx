@@ -10,7 +10,7 @@ import { formatTime } from '../../../../utils/utils';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
-import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
 
 type Props = {
   task: Task;

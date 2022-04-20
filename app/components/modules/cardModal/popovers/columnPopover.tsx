@@ -12,7 +12,7 @@ import { Column, Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
-import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
 
 type Props = {
   task: Task;

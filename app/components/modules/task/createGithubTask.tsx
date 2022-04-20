@@ -6,7 +6,6 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { addTask } from '../../../adapters/moralis';
 import { BoardData } from '../../../types';
 import { notify } from '../settingsTab';
 import { CreateTaskContainer } from './createTask';
@@ -66,18 +65,18 @@ function CreateGithubTask({ setShowCreateTask, columnId }: Props) {
                 issue_number: parseInt(splitValues[6], 10),
               })
               .then(({ data }) => {
-                addTask(
-                  Moralis,
-                  bid as string,
-                  columnId,
-                  data.title,
-                  newTaskValue,
-                  data.body as string,
-                  newIssueLink
-                ).then((res: any) => setSpace(res as BoardData));
-                setNewTaskValue(0);
-                setNewIssueLink('');
-                setShowCreateTask(false);
+                // addTask(
+                //   Moralis,
+                //   bid as string,
+                //   columnId,
+                //   data.title,
+                //   newTaskValue,
+                //   data.body as string,
+                //   newIssueLink
+                // ).then((res: any) => setSpace(res as BoardData));
+                // setNewTaskValue(0);
+                // setNewIssueLink('');
+                // setShowCreateTask(false);
               })
               .catch((err) =>
                 notify('Issue not found. Make sure the repo is public', 'error')

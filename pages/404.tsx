@@ -1,6 +1,6 @@
 import { Box, createTheme, Typography } from '@mui/material';
 import React from 'react';
-import { getTheme } from '../app/constants/muiTheme';
+import getTheme from '../app/constants/muiTheme';
 import { PageContainer } from './tribe/[id]/space/[bid]';
 
 export default function Custom404() {

@@ -15,8 +15,8 @@ import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
-import { useCardDynamism } from '../../../../hooks/useCardDynamism';
-import { useProfileInfo } from '../../../../hooks/useProfileInfo';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useProfileInfo from '../../../../hooks/useProfileInfo';
 
 type Props = {
   type: string;

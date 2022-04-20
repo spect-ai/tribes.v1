@@ -4,7 +4,7 @@ import Timeline from '@mui/lab/Timeline';
 import TimelineItem from '@mui/lab/TimelineItem';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
 import TimelineConnector from '@mui/lab/TimelineConnector';
-import { useActivityMap } from '../../../../hooks/useActivityMap';
+import useActivityMap from '../../../../hooks/useActivityMap';
 import { Task } from '../../../../types';
 import { monthMap } from '../../../../constants';
 

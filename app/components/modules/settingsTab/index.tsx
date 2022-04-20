@@ -282,8 +282,12 @@ function Settings() {
               }}
             />
             <label htmlFor="contained-button-file">
-              {/* eslint-disable-next-line */}
-              <PrimaryButton component="span">Edit</PrimaryButton>
+              <PrimaryButton
+                // @ts-ignore
+                component="span"
+              >
+                Edit
+              </PrimaryButton>
             </label>
           </FormItem>
           <ButtonWrapper>

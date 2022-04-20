@@ -8,7 +8,7 @@ import Apply from './buttons/apply';
 import Submission from './content/submission';
 import Activity from './content/activity';
 import Comments from './content/comments';
-import { useCardDynamism } from '../../../hooks/useCardDynamism';
+import useCardDynamism from '../../../hooks/useCardDynamism';
 
 type Props = {
   task: Task;

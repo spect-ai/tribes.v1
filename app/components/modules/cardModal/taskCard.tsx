@@ -17,7 +17,7 @@ import OptionsPopover from './popovers/optionsPopover';
 import TabularDetails from './tabularDetails';
 import { Task, Block } from '../../../types';
 import { uid } from '../../../utils/utils';
-import { useCardDynamism } from '../../../hooks/useCardDynamism';
+import useCardDynamism from '../../../hooks/useCardDynamism';
 import AssignToMe from './buttons/assignToMe';
 
 type Props = {

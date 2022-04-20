@@ -4,13 +4,13 @@ import { useMoralis } from 'react-moralis';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Proposal, Task } from '../../../../types';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 import { uid, formatTimeCreated } from '../../../../utils/utils';
-import { useProfileInfo } from '../../../../hooks/useProfileInfo';
+import useProfileInfo from '../../../../hooks/useProfileInfo';
 
 type Props = {
   task: Task;

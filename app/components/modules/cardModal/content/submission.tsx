@@ -11,8 +11,8 @@ import { PrimaryButton } from '../../../elements/styledComponents';
 import Editor from '../../editor';
 
 import { notify } from '../../settingsTab';
-import { useAccess } from '../../../../hooks/useAccess';
-import { useCardStatus } from '../../../../hooks/useCardStatus';
+import useAccess from '../../../../hooks/useAccess';
+import useCardStatus from '../../../../hooks/useCardStatus';
 
 type Props = {
   task: Task;

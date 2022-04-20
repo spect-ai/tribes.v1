@@ -11,7 +11,7 @@ import React, { useEffect, useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { useGlobal } from '../../../../context/globalContext';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
-import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
 import { Chain, Registry, Task, Token } from '../../../../types';
 import {
   getFlattenedCurrencies,

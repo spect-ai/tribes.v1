@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import { delay } from '../../../../utils/utils';

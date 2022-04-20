@@ -15,7 +15,7 @@ import { PopoverContainer, LabelChip } from '../styles';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { notify } from '../../settingsTab';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
-import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
 
 type Props = {
   task: Task;

@@ -5,7 +5,7 @@ import { useMoralis } from 'react-moralis';
 import ExploreSidebar from '../app/components/modules/exploreSidebar';
 import Navbar from '../app/components/modules/navbar';
 import ExploreTemplate from '../app/components/templates/explore';
-import { getTheme } from '../app/constants/muiTheme';
+import getTheme from '../app/constants/muiTheme';
 import useMoralisFunction from '../app/hooks/useMoralisFunction';
 import { Team } from '../app/types';
 import { PageContainer } from './tribe/[id]/space/[bid]';

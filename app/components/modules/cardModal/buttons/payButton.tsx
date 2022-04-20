@@ -9,7 +9,7 @@ import {
   distributeEther,
 } from '../../../../adapters/contract';
 import { useGlobal } from '../../../../context/globalContext';
-import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import { notify } from '../../settingsTab';

@@ -4,7 +4,7 @@ import { Avatar, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
-import { useProfileInfo } from '../../../hooks/useProfileInfo';
+import useProfileInfo from '../../../hooks/useProfileInfo';
 import ProfilePopover from '../../modules/profilePopover';
 import { SidebarButton } from '../styledComponents';
 

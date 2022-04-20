@@ -18,7 +18,7 @@ import { useGlobal } from '../../../../context/globalContext';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import PayButton from '../buttons/payButton';
-import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
 import { notify } from '../../settingsTab';
 
 type Props = {

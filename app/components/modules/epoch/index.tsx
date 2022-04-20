@@ -68,7 +68,7 @@ const ButtonContainer = styled.div`
 `;
 
 function EpochList() {
-  const { Moralis, user } = useMoralis();
+  const { user } = useMoralis();
   const router = useRouter();
   const { space, setSpace, refreshEpochs, setRefreshEpochs } = useSpace();
   const bid = router.query.bid as string;
@@ -109,13 +109,13 @@ function EpochList() {
   const getDetails = (choices: Array<string>, type: string) => {
     const details = {} as Details;
     if (type === 'Member') {
-      for (let i; i < choices.length; i += 1) {
+      for (let i = 0; i < choices.length; i += 1) {
         details[choices[i]] = {
           choice: space.memberDetails[choices[i]].username,
         };
       }
     } else if (type === 'Card') {
-      for (let i; i < choices.length; i += 1) {
+      for (let i = 0; i < choices.length; i += 1) {
         details[choices[i]] = {
           choice: space.taskDetails[choices[i]].title,
         };
@@ -139,7 +139,7 @@ function EpochList() {
         );
         const votesGivenByCaller = {} as VotesGivenAllEpochs;
         const votesRemainingByCaller = {} as VotesRemaining;
-        for (let i; i < res.epochs.length; i += 1) {
+        for (let i = 0; i < res.epochs.length; i += 1) {
           votesGivenByCaller[res.epochs[i].objectId] =
             res.epochs[i].votesGivenByCaller;
           votesRemainingByCaller[res.epochs[i].objectId] =
@@ -158,13 +158,13 @@ function EpochList() {
   useEffect(() => {
     if (refreshEpochs) {
       setIsLoading(true);
-      loadEpochs(Moralis, bid);
+      loadEpochs();
       setRefreshEpochs(false);
     }
   }, [refreshEpochs]);
   useEffect(() => {
     setIsLoading(true);
-    loadEpochs(Moralis, bid);
+    loadEpochs();
     setRefreshEpochs(false);
   }, []);
   if (isLoading) {

@@ -18,8 +18,8 @@ import { uid, formatTimeCreated } from '../../../../utils/utils';
 import Editor from '../../editor';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
-import { useProfileInfo } from '../../../../hooks/useProfileInfo';
-import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import useProfileInfo from '../../../../hooks/useProfileInfo';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
 
 type Props = {
   task: Task;

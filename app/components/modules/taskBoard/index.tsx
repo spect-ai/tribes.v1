@@ -60,14 +60,7 @@ function TaskBoard(props: Props) {
         {tab === 1 && (
           <Grow in={tab === 1} timeout={500}>
             <div>
-              {user && user?.id in space.roles ? (
-                <EpochList
-                  expanded={panelExpanded === 'epoch'}
-                  handleChange={handleChange}
-                />
-              ) : (
-                <NoAccess />
-              )}
+              {user && user?.id in space.roles ? <EpochList /> : <NoAccess />}
             </div>
           </Grow>
         )}

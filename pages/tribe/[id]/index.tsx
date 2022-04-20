@@ -7,7 +7,7 @@ import NotFound from '../../../app/components/elements/notFound';
 import ExploreSidebar from '../../../app/components/modules/exploreSidebar';
 import TribeNavbar from '../../../app/components/modules/tribeNavbar';
 import TribeTemplate from '../../../app/components/templates/tribe';
-import { getTheme } from '../../../app/constants/muiTheme';
+import getTheme from '../../../app/constants/muiTheme';
 import { useGlobal } from '../../../app/context/globalContext';
 import { Team } from '../../../app/types';
 import { PageContainer } from './space/[bid]';

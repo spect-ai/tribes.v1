@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 import { useMoralis } from 'react-moralis';
 import { PageContainer } from '../../../pages/tribe/[id]/space/[bid]';
-import { getTheme } from '../../constants/muiTheme';
+import getTheme from '../../constants/muiTheme';
 import {
   initContracts,
   initRegistry,
