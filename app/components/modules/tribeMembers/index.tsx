@@ -50,13 +50,9 @@ function TribeMembers(props: Props) {
     <Container>
       <Toaster />
       <MemberTable
-        isChecked={isChecked}
-        setIsChecked={setIsChecked}
         members={tribe.members}
         memberDetails={tribe.memberDetails}
         roles={roles}
-        setRoles={setRoles}
-        entity={tribe}
       />
     </Container>
   );
