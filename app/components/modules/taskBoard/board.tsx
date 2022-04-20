@@ -110,11 +110,11 @@ const Board = ({ expanded, handleChange }: Props) => {
       });
       runMoralisFunction("updateColumnTasks", {
         boardId: bid,
-        sourceId: result.source.droppableId,
-        destinationId: result.source.droppableId,
-        source: newList,
-        destination: newList,
         taskId: draggableId,
+        updatedCardLoc: {
+          columnId: result.source.droppableId,
+          cardIndex: destination.index,
+        },
       })
         .then((res: any) => {
           setSpace(res as BoardData);
@@ -148,11 +148,11 @@ const Board = ({ expanded, handleChange }: Props) => {
       });
       runMoralisFunction("updateColumnTasks", {
         boardId: bid,
-        sourceId: newStart.id,
-        destinationId: newFinish.id,
-        source: newStart,
-        destination: newFinish,
         taskId: draggableId,
+        updatedCardLoc: {
+          columnId: newFinish.id,
+          cardIndex: destination.index,
+        },
       })
         .then((res: any) => {
           setSpace(res as BoardData);

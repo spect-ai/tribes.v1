@@ -265,34 +265,29 @@ function addTaskToColumn(column, taskId) {
 }
 
 async function handleColumnUpdate(space, task, updates) {
-  if (updates.hasOwnProperty("columnChange")) {
-    const sourceId = updates.columnChange.sourceId;
-    const destinationId = updates.columnChange.destinationId;
-    logger.info(
-      `Handling column update for task ${space.id} ${task.get(
-        "taskId"
-      )} ${sourceId} ${destinationId}`
-    );
-    var columns = space.get("columns");
-    const newSource = removeTaskFromColumn(
-      columns[sourceId],
-      task.get("taskId")
-    );
-    logger.info(`newSource: ${JSON.stringify(newSource)}`);
+  const sourceId = updates.columnChange.sourceId;
+  const destinationId = updates.columnChange.destinationId;
+  logger.info(
+    `Handling column update for task ${space.id} ${task.get(
+      "taskId"
+    )} ${sourceId} ${destinationId}`
+  );
+  var columns = space.get("columns");
+  const source = removeTaskFromColumn(columns[sourceId], task.get("taskId"));
+  logger.info(`source: ${JSON.stringify(source)}`);
 
-    const newDestination = addTaskToColumn(
-      columns[destinationId],
-      task.get("taskId")
-    );
+  const destination = addTaskToColumn(
+    columns[destinationId],
+    task.get("taskId")
+  );
 
-    columns = {
-      ...columns,
-      [newSource.id]: newSource,
-      [newDestination.id]: newDestination,
-    };
-    space.set("columns", columns);
-    task.set("columnId", destinationId);
-  }
+  columns = {
+    ...columns,
+    [source.id]: source,
+    [destination.id]: destination,
+  };
+  space.set("columns", columns);
+  task.set("columnId", destinationId);
 
   return [space, task];
 }
