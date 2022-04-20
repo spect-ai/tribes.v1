@@ -1,18 +1,14 @@
 import styled from '@emotion/styled';
-import { Avatar, Box, ButtonProps, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { BoardData, Member, Team } from '../../../types';
+import { Member } from '../../../types';
 import MemberPopover from '../../modules/memberPopover';
-import { PrimaryButton } from '../styledComponents';
+import MemberDisplay from '../memberDisplay';
 
 type Props = {
-  isChecked: boolean[];
-  setIsChecked: (isChecked: boolean[]) => void;
   members: string[];
   memberDetails: { [key: string]: Member };
   roles: { [key: string]: number };
-  setRoles: (roles: { [key: string]: number }) => void;
-  entity: BoardData | Team;
 };
 
 const Container = styled.div`
@@ -24,26 +20,20 @@ const MembersSection = styled.div`
   padding: 2rem;
 `;
 
-const MemberButton = styled(PrimaryButton)<ButtonProps>(({ theme }) => ({
-  color: theme.palette.getContrastText('#000f29'),
-  borderRadius: 24,
-  marginRight: '0.6rem',
-  marginTop: '0.3rem',
-}));
-
-function MemberTable({
-  isChecked,
-  setIsChecked,
-  members,
-  memberDetails,
-  roles,
-  setRoles,
-  entity,
-}: Props) {
+function MemberTable({ members, memberDetails, roles }: Props) {
   const [member, setMember] = useState<any>();
   const [anchorEl, setAnchorEl] = useState<any>();
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
+
+  const handleOnClick = (event: any, mem: string) => {
+    setMember({
+      id: mem,
+      role: roles[mem],
+    });
+    setAnchorEl(event.currentTarget);
+    setIsOpen(true);
+  };
 
   return (
     <Container>
@@ -64,31 +54,15 @@ function MemberTable({
             flexWrap: 'wrap',
           }}
         >
-          {members?.map((mem, index) => {
-            if (roles[member] === 3) {
+          {members?.map((mem) => {
+            if (roles[mem] === 3) {
               return (
-                <MemberButton
+                <MemberDisplay
                   key={mem}
-                  variant="outlined"
-                  color="secondary"
-                  onClick={(event) => {
-                    setMember({
-                      id: member,
-                      role: roles[member],
-                    });
-                    setAnchorEl(event.currentTarget);
-                    setIsOpen(true);
-                  }}
-                >
-                  <Avatar
-                    sx={{ p: 0, mr: 4, width: 32, height: 32 }}
-                    src={
-                      memberDetails[mem].profilePicture?._url ||
-                      `https://cdn.discordapp.com/avatars/${memberDetails[member].discordId}/${memberDetails[member].avatar}.png`
-                    }
-                  />
-                  {memberDetails[member].username}
-                </MemberButton>
+                  member={mem}
+                  memberDetails={memberDetails}
+                  handleOnClick={handleOnClick}
+                />
               );
             }
             return <div />;
@@ -98,31 +72,15 @@ function MemberTable({
       <MembersSection>
         <Typography color="text.secondary">Contributors</Typography>
         <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-          {members?.map((mem, index) => {
-            if (roles[member] === 2) {
+          {members?.map((mem) => {
+            if (roles[mem] === 2) {
               return (
-                <MemberButton
+                <MemberDisplay
                   key={mem}
-                  variant="outlined"
-                  color="secondary"
-                  onClick={(event) => {
-                    setMember({
-                      id: member,
-                      role: roles[member],
-                    });
-                    setAnchorEl(event.currentTarget);
-                    setIsOpen(true);
-                  }}
-                >
-                  <Avatar
-                    sx={{ p: 0, mr: 4, width: 32, height: 32 }}
-                    src={
-                      memberDetails[mem].profilePicture?._url ||
-                      `https://cdn.discordapp.com/avatars/${memberDetails[member].discordId}/${memberDetails[member].avatar}.png`
-                    }
-                  />
-                  {memberDetails[member].username}
-                </MemberButton>
+                  member={mem}
+                  memberDetails={memberDetails}
+                  handleOnClick={handleOnClick}
+                />
               );
             }
             return <div />;
@@ -132,31 +90,15 @@ function MemberTable({
       <MembersSection>
         <Typography color="text.secondary">Members</Typography>
         <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-          {members?.map((mem, index) => {
-            if (roles[member] === 1) {
+          {members?.map((mem) => {
+            if (roles[mem] === 1) {
               return (
-                <MemberButton
+                <MemberDisplay
                   key={mem}
-                  variant="outlined"
-                  color="secondary"
-                  onClick={(event) => {
-                    setMember({
-                      id: member,
-                      role: roles[member],
-                    });
-                    setAnchorEl(event.currentTarget);
-                    setIsOpen(true);
-                  }}
-                >
-                  <Avatar
-                    sx={{ p: 0, mr: 4, width: 32, height: 32 }}
-                    src={
-                      memberDetails[member].profilePicture?._url ||
-                      `https://cdn.discordapp.com/avatars/${memberDetails[member].discordId}/${memberDetails[member].avatar}.png`
-                    }
-                  />
-                  {memberDetails[member].username}
-                </MemberButton>
+                  member={mem}
+                  memberDetails={memberDetails}
+                  handleOnClick={handleOnClick}
+                />
               );
             }
             return <div />;

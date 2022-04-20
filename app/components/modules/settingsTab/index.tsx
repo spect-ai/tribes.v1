@@ -65,12 +65,7 @@ function Settings() {
   const { Moralis } = useMoralis();
   const [logo, setLogo] = useState(tribe.logo);
   const { runMoralisFunction } = useMoralisFunction();
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-    setValue,
-  } = useForm<SettingFormInput>({
+  const { handleSubmit, control, setValue } = useForm<SettingFormInput>({
     defaultValues: {
       logo: tribe.logo,
       isPublic: tribe.isPublic,
@@ -80,7 +75,7 @@ function Settings() {
 
   const onSubmit: SubmitHandler<SettingFormInput> = async (values) => {
     setIsLoading(true);
-    runMoralisFunction('updateTribe', {
+    runMoralisFunction('updateTeam', {
       name: values.name,
       description: values.description,
       isPublic: values.isPublic,
@@ -271,13 +266,11 @@ function Settings() {
               type="file"
               onChange={async (e) => {
                 const file = e.target.files && e.target.files[0];
-                console.log(file);
                 if (file) {
                   const moralisFile = new Moralis.File(file.name, file);
                   const res = (await moralisFile.saveIPFS()) as any;
                   setValue('logo', res._ipfs);
                   setLogo(res._ipfs);
-                  console.log(res._ipfs);
                 }
               }}
             />
