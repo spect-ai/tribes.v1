@@ -130,7 +130,8 @@ function BatchPay({
                     handleStatusUpdate(
                       distributionInfo.epochId
                         ? distributionInfo.epochId
-                        : distributionInfo.cardIds
+                        : distributionInfo.cardIds,
+                        res.transactionHash
                     )
                   );
                   Promise.all(promises).then(() => {
@@ -145,7 +146,6 @@ function BatchPay({
                   console.log(err.message);
                 });
             } else if (distributionInfo.type === 'currency') {
-              console.log('hihihihihih');
               distributeEther(
                 getEthAddresses(
                   distributionInfo.contributors,
@@ -161,7 +161,8 @@ function BatchPay({
                     handleStatusUpdate(
                       distributionInfo.epochId
                         ? distributionInfo.epochId
-                        : distributionInfo.cardIds
+                        : distributionInfo.cardIds,
+                        res.transactionHash
                     )
                   );
                   Promise.all(promises).then(() => {

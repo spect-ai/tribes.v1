@@ -8,20 +8,25 @@ import {
   StepLabel,
   Stepper,
   styled,
-  Tooltip,
   Typography,
-  useTheme,
-} from '@mui/material';
+  useTheme,Tooltip
+} from "@mui/material";
+import Approve, { ApprovalInfo } from "./approve";
+import BatchPay, { DistributionInfo } from "./batchPay";
+import { useMoralis } from "react-moralis";
+import { useRouter } from "next/router";
+import { useGlobal } from "../../../context/globalContext";
+import { registryTemp } from "../../../constants";
+import FmdBadIcon from "@mui/icons-material/FmdBad";
+import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import CardList from "./cardList";
+import { ButtonText, SidebarButton } from "../exploreSidebar";
+import { capitalizeFirstLetter } from "../../../utils/utils";
+import { notify } from "../settingsTab";
+import useMoralisFunction from "../../../hooks/useMoralisFunction";
 import React, { useState } from 'react';
-import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { useGlobal } from '../../../context/globalContext';
-import useMoralisFunction from '../../../hooks/useMoralisFunction';
-import { capitalizeFirstLetter } from '../../../utils/utils';
-import { SidebarButton } from '../exploreSidebar';
-import { notify } from '../settingsTab';
-import Approve, { ApprovalInfo } from './approve';
-import BatchPay, { DistributionInfo } from './batchPay';
-import CardList from './cardList';
+
+interface Props {}
 
 const modalSteps = [
   'Pick Cards',
@@ -70,7 +75,8 @@ function PaymentModal() {
     state: { registry },
   } = useGlobal();
   const [paymentInfo, setPaymentInfo] = useState({} as PaymentInfo);
-  const { setSpace } = useSpace();
+  const { Moralis, user } = useMoralis();
+  const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
 
   const handleClose = () => {
@@ -99,12 +105,20 @@ function PaymentModal() {
     } else if (activeStep === 3) handleClose();
   };
 
-  const handleStatusUpdate = (taskIds: string[]) => {
-    runMoralisFunction('completePayment', {
-      taskIds,
+  const handleStatusUpdate = (taskIds: string[], transactionHash: string) => {
+    var updates = {};
+    for (var taskId of taskIds) {
+      updates = {
+        ...updates,
+        [taskId]: { status: 300, transactionHash: transactionHash },
+      };
+    }
+
+    runMoralisFunction('updateMultipleCards', {
+      updates,
     })
       .then((res: any) => {
-        setSpace(res);
+        setSpace(res.space);
       })
       .catch((err: any) => {
         notify(

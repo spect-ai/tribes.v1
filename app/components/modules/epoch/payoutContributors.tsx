@@ -94,8 +94,8 @@ function PayoutContributors({ epoch }: Props) {
     }
   };
 
-  const handleStatusUpdate = (epochId: string) => {
-    runMoralisFunction('completeEpochPayment', { epochId })
+  const handleStatusUpdate = (epochId: string, transactionHash:string) => {
+    runMoralisFunction('completeEpochPayment', { epochId, transactionHash })
       .then((res: any) => {
         setRefreshEpochs(true);
       })

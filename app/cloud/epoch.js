@@ -264,7 +264,8 @@ Moralis.Cloud.define('saveVotes', async (request) => {
 Moralis.Cloud.define('completeEpochPayment', async (request) => {
   try {
     const epoch = await getEpochParseObjByObjectId(request.params.epochId);
-    epoch.set('paid', true);
+    epoch.set("paid", true);
+    epoch.set("transactionHash", request.params.transactionHash);
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return await getEpochs(request.params.spaceId, request.user.id);
   } catch (err) {
