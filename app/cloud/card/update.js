@@ -97,6 +97,44 @@ Moralis.Cloud.define("updateCard", async (request) => {
   }
 });
 
+Moralis.Cloud.define("updateMultipleCards", async (request) => {
+  try {
+    var tasks = await getTasksByTaskIds(Object.keys(request.params.updates));
+    if (tasks.length === 0) throw "No tasks found";
+    var space = await getBoardByObjectId(tasks[0].get("boardId"));
+    var resTasks = [];
+    for (var task of tasks) {
+      validate(
+        request.params.updates[task.get("taskId")],
+        task,
+        request.user.id,
+        space
+      );
+      [space, task] = await handleUpdates(
+        request.params.updates[task.get("taskId")],
+        task,
+        space,
+        request.user.id
+      );
+      resTasks.push(task);
+    }
+    const res = await Moralis.Object.saveAll(resTasks.concat([space]), {
+      useMasterKey: true,
+    });
+    return {
+      space: await getSpace(task.get("boardId"), request.user.id),
+      tasks: resTasks.map((task) =>
+        addFieldsToTask(mapParseObjectToObject(task), request.user.id)
+      ),
+    };
+  } catch (err) {
+    logger.error(
+      `Error while updating cards with card Id ${request.params.updates?.taskId}: ${err}`
+    );
+    throw `${err}`;
+  }
+});
+
 function validate(updates, task, callerId, space) {
   if (!task) throw "Card not found";
   authorized(updates, task, callerId, space);

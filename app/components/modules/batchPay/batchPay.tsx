@@ -169,7 +169,8 @@ const BatchPay = ({
                         handleStatusUpdate(
                           distributionInfo.epochId
                             ? distributionInfo.epochId
-                            : distributionInfo.cardIds
+                            : distributionInfo.cardIds,
+                          res.transactionHash
                         )
                       );
                       Promise.all(promises).then(() => {

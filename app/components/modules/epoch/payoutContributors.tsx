@@ -74,7 +74,7 @@ const PayoutContributors = ({ epoch }: Props) => {
     }
   };
 
-  const handleStatusUpdate = (epochId: string) => {
+  const handleStatusUpdate = (epochId: string, transactionHash: string) => {
     completeEpochPayment(Moralis, epochId)
       .then((res: any) => {
         setRefreshEpochs(true);

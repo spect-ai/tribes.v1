@@ -26,8 +26,8 @@ import CardList from "./cardList";
 import PaidIcon from "@mui/icons-material/Paid";
 import { ButtonText, SidebarButton } from "../exploreSidebar";
 import { capitalizeFirstLetter } from "../../../utils/utils";
-import { completePayment } from "../../../adapters/moralis";
 import { notify } from "../settingsTab";
+import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 
 interface Props {}
 
@@ -56,6 +56,7 @@ const PaymentModal = ({}: Props) => {
   const [paymentInfo, setPaymentInfo] = useState({} as PaymentInfo);
   const { Moralis, user } = useMoralis();
   const { space, setSpace } = useSpace();
+  const { runMoralisFunction } = useMoralisFunction();
 
   const handleClose = () => {
     setIsOpen(false);
@@ -80,10 +81,20 @@ const PaymentModal = ({}: Props) => {
     else if (activeStep === 3) handleClose();
   };
 
-  const handleStatusUpdate = (taskIds: string[]) => {
-    completePayment(Moralis, taskIds)
+  const handleStatusUpdate = (taskIds: string[], transactionHash: string) => {
+    var updates = {};
+    for (var taskId of taskIds) {
+      updates = {
+        ...updates,
+        [taskId]: { status: 300, transactionHash: transactionHash },
+      };
+    }
+
+    runMoralisFunction("updateMultipleCards", {
+      updates,
+    })
       .then((res: any) => {
-        setSpace(res);
+        setSpace(res.space);
       })
       .catch((err: any) => {
         notify(
