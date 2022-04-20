@@ -31,13 +31,9 @@ function SpaceMembers(props: Props) {
       </Box>
 
       <MemberTable
-        isChecked={isChecked}
-        setIsChecked={setIsChecked}
         members={space.members}
         memberDetails={space.memberDetails}
         roles={roles}
-        setRoles={setRoles}
-        entity={space}
       />
     </Container>
   );
