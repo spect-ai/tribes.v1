@@ -24,6 +24,10 @@ export type Votes = {
   [choiceId: string]: Number;
 };
 
+type VotesGivenOneEpoch = {
+  [key: string]: number;
+};
+
 type Props = {
   epochId: string;
   type: string;
@@ -38,11 +42,7 @@ type Props = {
   canVote: boolean;
 };
 
-type VotesGivenOneEpoch = {
-  [key: string]: number;
-};
-
-const ForAgainstVoting = ({
+function ForAgainstVoting({
   epochId,
   type,
   active,
@@ -54,8 +54,7 @@ const ForAgainstVoting = ({
   votesAgainst,
   isLoading,
   canVote,
-}: Props) => {
-  console.log(votesGiven);
+}: Props) {
   const [loading, setLoading] = useState(isLoading);
 
   return (
@@ -90,9 +89,9 @@ const ForAgainstVoting = ({
           </TableRow>
         </TableHead>
         <TableBody>
-          {choices.map((choiceId, index) => (
+          {choices.map((choiceId) => (
             <TableRow
-              key={index}
+              key={choiceId}
               sx={{
                 '&:last-child td, &:last-child th': {
                   border: 0,
@@ -163,6 +162,6 @@ const ForAgainstVoting = ({
       </Table>
     </TableContainer>
   );
-};
+}
 
 export default ForAgainstVoting;

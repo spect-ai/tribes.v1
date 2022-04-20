@@ -15,7 +15,7 @@ import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useTribe } from '../../../../pages/tribe/[id]';
 import { useGlobal } from '../../../context/globalContext';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { Chain, Token } from '../../../types';
 import { ModalHeading, PrimaryButton } from '../../elements/styledComponents';
 import { notify } from '../settingsTab';

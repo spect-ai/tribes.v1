@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { BoardData, Column, Task } from '../../../types';
 import CardModal from '../cardModal';
 import ColumnSettings from '../columnSettings';

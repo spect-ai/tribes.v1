@@ -1,29 +1,23 @@
-import {
-  Box,
-  TextField,
-  Typography,
-  Grid,
-  Avatar,
-  InputAdornment,
-  TextareaAutosize,
-} from '@mui/material';
+import { Box, TextField, Typography, Avatar } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { useCardDynamism } from '../../../../hooks/useCardDynamism';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Proposal, Task } from '../../../../types';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 import { uid, formatTimeCreated } from '../../../../utils/utils';
 import { useProfileInfo } from '../../../../hooks/useProfileInfo';
-import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
 };
 
-const ProposalApplicantView = ({ task, setTask }: Props) => {
+function ProposalApplicantView({ task, setTask }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
@@ -36,8 +30,8 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
 
   const handleSave = () => {
     setIsLoading(true);
-    const prevTask = Object.assign({}, task);
-    const temp = Object.assign({}, task);
+    const prevTask = { ...task };
+    const temp = { ...task };
     temp.proposals = [
       {
         id: '',
@@ -214,45 +208,41 @@ const ProposalApplicantView = ({ task, setTask }: Props) => {
         {task.assignee?.length > 0 &&
           user &&
           task.assignee?.includes(user?.id) && (
-            <>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'start',
+              }}
+            >
               <Box
                 sx={{
                   display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'start',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
               >
-                <Box
+                <Typography sx={{ color: 'success.main' }}>Congrats</Typography>
+                <ThumbUpOffAltIcon
                   sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
+                    color: 'success.main',
+                    ml: 2,
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}
-                >
-                  <Typography sx={{ color: 'success.main' }}>
-                    Congrats
-                  </Typography>
-                  <ThumbUpOffAltIcon
-                    sx={{
-                      color: 'success.main',
-                      ml: 2,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}
-                  />
-                </Box>
-
-                <Typography sx={{ color: 'text.primary' }}>
-                  Your application was picked. You have been assigned to this
-                  bounty.
-                </Typography>
+                />
               </Box>
-            </>
+
+              <Typography sx={{ color: 'text.primary' }}>
+                Your application was picked. You have been assigned to this
+                bounty.
+              </Typography>
+            </Box>
           )}
       </Box>
     </Box>
   );
-};
+}
 
 export default ProposalApplicantView;

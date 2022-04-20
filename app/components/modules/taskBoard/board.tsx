@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { BoardData } from '../../../types';
 import { reorder } from '../../../utils/utils';
 import { PrimaryButton } from '../../elements/styledComponents';

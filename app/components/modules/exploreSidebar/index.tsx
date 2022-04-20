@@ -17,7 +17,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import PaymentModal from '../batchPay';
 import BoardSettings from '../boardSettings';
 import CreateTribeModal from '../createTribeModal';

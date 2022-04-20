@@ -15,7 +15,7 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { useMoralis } from 'react-moralis';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { ModalHeading, PrimaryButton } from '../../elements/styledComponents';
 import { SidebarButton } from '../exploreSidebar';
 import { notify } from '../settingsTab';

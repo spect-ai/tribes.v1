@@ -6,13 +6,11 @@ import {
   Popover,
   TextField,
   Typography,
-  Tooltip,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { useGlobal } from '../../../../context/globalContext';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { useCardDynamism } from '../../../../hooks/useCardDynamism';
 import { Chain, Registry, Task, Token } from '../../../../types';
 import {
@@ -28,7 +26,7 @@ type Props = {
   setTask: (task: Task) => void;
 };
 
-const RewardPopover = ({ task, setTask }: Props) => {
+function RewardPopover({ task, setTask }: Props) {
   const {
     state: { registry },
   } = useGlobal();
@@ -46,7 +44,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    if (editAbleComponents['reward']) {
+    if (editAbleComponents.reward) {
       setOpen(true);
     } else {
       setFeedbackOpen(true);
@@ -60,8 +58,8 @@ const RewardPopover = ({ task, setTask }: Props) => {
   };
 
   const handleSave = () => {
-    const prevTask = Object.assign({}, task);
-    const temp = Object.assign({}, task);
+    const prevTask = { ...task };
+    const temp = { ...task };
     temp.chain = chain;
     temp.token = token;
     temp.value = parseFloat(value);
@@ -69,8 +67,8 @@ const RewardPopover = ({ task, setTask }: Props) => {
     handleClose();
     runMoralisFunction('updateCard', {
       updates: {
-        chain: chain,
-        token: token,
+        chain,
+        token,
         value: parseFloat(value),
         taskId: task.taskId,
       },
@@ -177,7 +175,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
             value={chain}
             onChange={(event, newValue) => {
               setChain(newValue as Chain);
-              let tokens = getFlattenedCurrencies(
+              const tokens = getFlattenedCurrencies(
                 registry as Registry,
                 newValue?.chainId as string
               );
@@ -246,6 +244,6 @@ const RewardPopover = ({ task, setTask }: Props) => {
       </Popover>
     </>
   );
-};
+}
 
 export default RewardPopover;

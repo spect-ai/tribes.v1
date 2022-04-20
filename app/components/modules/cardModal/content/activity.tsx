@@ -1,29 +1,28 @@
-import { Box, ListItem, ListItemText, styled } from '@mui/material';
+import { Box, ListItemText } from '@mui/material';
 import React from 'react';
-import { useActivityMap } from '../../../../hooks/useActivityMap';
-import { Task } from '../../../../types';
-import { monthMap } from '../../../../constants';
-import { text } from 'stream/consumers';
 import Timeline from '@mui/lab/Timeline';
 import TimelineItem from '@mui/lab/TimelineItem';
 import TimelineSeparator from '@mui/lab/TimelineSeparator';
-import TimelineDot from '@mui/lab/TimelineDot';
 import TimelineConnector from '@mui/lab/TimelineConnector';
+import { useActivityMap } from '../../../../hooks/useActivityMap';
+import { Task } from '../../../../types';
+import { monthMap } from '../../../../constants';
 
 type Props = {
   task: Task;
 };
 
-const Activity = ({ task }: Props) => {
+function Activity({ task }: Props) {
   const { activityIcons, resolveActivityComponent } = useActivityMap(task);
 
   return (
     <Timeline position="right" sx={{ width: '100%' }}>
       {task.activity.map((activity: any, index) => (
+        // eslint-disable-next-line react/no-array-index-key
         <TimelineItem key={index}>
           <TimelineSeparator>
             {activityIcons[activity.action]}
-            {index !== task.activity?.length - 1 && (
+            {index !== task.activity.length - 1 && (
               <TimelineConnector sx={{ my: 2 }} />
             )}
           </TimelineSeparator>
@@ -46,7 +45,7 @@ const Activity = ({ task }: Props) => {
               }}
             >
               {
-                /*<ListItemText primary={generateActivityLine(activity)} />*/
+                /* <ListItemText primary={generateActivityLine(activity)} /> */
                 resolveActivityComponent(activity)
               }
             </Box>
@@ -84,6 +83,6 @@ const Activity = ({ task }: Props) => {
       ))}
     </Timeline>
   );
-};
+}
 
 export default Activity;

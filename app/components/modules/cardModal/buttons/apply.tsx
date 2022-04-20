@@ -1,24 +1,22 @@
 import HailIcon from '@mui/icons-material/Hail';
 import { Box, Typography } from '@mui/material';
 import React, { useState } from 'react';
+import { useMoralis } from 'react-moralis';
 import { useCardDynamism } from '../../../../hooks/useCardDynamism';
 import { Task } from '../../../../types';
 import { CardButton } from '../../../elements/styledComponents';
-import { useMoralis } from 'react-moralis';
 
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
 };
 
-const Apply = ({ task, setTask }: Props) => {
-  const { setProposalEditMode, viewableComponents, proposalEditMode } =
-    useCardDynamism(task);
+function Apply({ task, setTask }: Props) {
+  const { setProposalEditMode, viewableComponents } = useCardDynamism(task);
   const { user } = useMoralis();
   const [buttonText, setButtonText] = useState('Apply');
   const handleClick = () => {
-    console.log(`aalal`);
-    const temp = Object.assign({}, task);
+    const temp = { ...task };
     temp.proposals = [
       {
         id: '',
@@ -33,41 +31,41 @@ const Apply = ({ task, setTask }: Props) => {
     setProposalEditMode(true);
   };
 
-  return (
-    <>
-      {viewableComponents['applyButton'] && (
-        <Box
+  if (viewableComponents.applyButton) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          mx: 1,
+          minWidth: '9rem',
+        }}
+      >
+        <CardButton
+          variant="outlined"
+          onClick={() => handleClick()}
+          color="secondary"
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            mx: 1,
-            minWidth: '9rem',
+            padding: '2px',
+            minWidth: '3rem',
           }}
+          startIcon={<HailIcon sx={{ my: 2, ml: 2 }} />}
+          size="small"
         >
-          <CardButton
-            variant="outlined"
-            onClick={() => handleClick()}
-            color="secondary"
+          <Typography
             sx={{
-              padding: '2px',
-              minWidth: '3rem',
+              fontSize: 14,
+              mr: 2,
             }}
-            startIcon={<HailIcon sx={{ my: 2, ml: 2 }} />}
-            size="small"
           >
-            <Typography
-              sx={{
-                fontSize: 14,
-                mr: 2,
-              }}
-            >
-              {buttonText}
-            </Typography>
-          </CardButton>
-        </Box>
-      )}
-    </>
-  );
-};
+            {buttonText}
+          </Typography>
+        </CardButton>
+      </Box>
+    );
+  }
+
+  return <div />;
+}
 
 export default Apply;

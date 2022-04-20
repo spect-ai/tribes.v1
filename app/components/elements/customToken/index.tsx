@@ -10,7 +10,7 @@ import Dialog from '@mui/material/Dialog';
 import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useGlobal } from '../../../context/globalContext';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { Chain, Token } from '../../../types';
 // import { addERC20Token } from '../../../adapters/moralis';
 

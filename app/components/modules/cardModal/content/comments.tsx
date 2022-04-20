@@ -10,15 +10,15 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Block, Task } from '../../../../types';
 import { uid, formatTimeCreated } from '../../../../utils/utils';
 import Editor from '../../editor';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 import { useProfileInfo } from '../../../../hooks/useProfileInfo';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useCardDynamism } from '../../../../hooks/useCardDynamism';
 
 type Props = {
@@ -37,7 +37,7 @@ function isInitComment(blocks: Block[]) {
   );
 }
 
-const Comments = ({ task, setTask }: Props) => {
+function Comments({ task, setTask }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
@@ -86,12 +86,12 @@ const Comments = ({ task, setTask }: Props) => {
 
   const syncBlocksToMoralis = (blocks: Block[]) => {
     setIsLoading(true);
-    const temp = Object.assign({}, task);
+    const temp = { ...task };
     setTask(temp);
     runMoralisFunction('updateCard', {
       updates: {
         comments: {
-          mode: mode,
+          mode,
           content: blocks,
           id: editId,
         },
@@ -104,7 +104,6 @@ const Comments = ({ task, setTask }: Props) => {
         setTask(res.task);
         setEditId('');
         setMode('add');
-        console.log('adadadaddassda');
         setCommentOnEdit([]);
         setCommentOnEdit([
           {
@@ -128,7 +127,6 @@ const Comments = ({ task, setTask }: Props) => {
     const comment = task.comments.find((c) => c.id === id);
     setMode('edit');
     setEditId(id);
-    console.log('edittttt');
     setCommentOnEdit(comment?.content || []);
     handleClose();
   };
@@ -139,13 +137,12 @@ const Comments = ({ task, setTask }: Props) => {
       updates: {
         comments: {
           mode: 'delete',
-          id: id,
+          id,
         },
         taskId: task.taskId,
       },
     })
       .then((res) => {
-        console.log(res);
         setSpace(res.space);
         setTask(res.task);
         setEditId('');
@@ -176,8 +173,6 @@ const Comments = ({ task, setTask }: Props) => {
     setEditId('');
   };
 
-  const doNothing = () => {};
-
   return (
     <Box
       sx={{
@@ -190,6 +185,7 @@ const Comments = ({ task, setTask }: Props) => {
       }}
     >
       {task.comments?.map((comment, index) => (
+        // eslint-disable-next-line react/no-array-index-key
         <Box sx={{ borderBottom: 1 }} key={index}>
           <Box
             sx={{
@@ -261,7 +257,7 @@ const Comments = ({ task, setTask }: Props) => {
               <Editor
                 syncBlocksToMoralis={setCommentOnEdit}
                 initialBlock={comment.content}
-                placeholderText={``}
+                placeholderText=""
                 readonly={false}
               />
               <PrimaryButton
@@ -304,8 +300,8 @@ const Comments = ({ task, setTask }: Props) => {
             <Editor
               syncBlocksToMoralis={setCommentOnEdit}
               initialBlock={comment.content}
-              placeholderText={``}
-              readonly={true}
+              placeholderText=""
+              readonly
             />
           )}
         </Box>
@@ -342,7 +338,7 @@ const Comments = ({ task, setTask }: Props) => {
           </ListItemButton>
         </List>
       </Popover>
-      {mode !== 'edit' && !isLoading && viewableComponents['addComment'] && (
+      {mode !== 'edit' && !isLoading && viewableComponents.addComment && (
         <>
           <Box
             sx={{
@@ -389,7 +385,7 @@ const Comments = ({ task, setTask }: Props) => {
           </PrimaryButton>
         </>
       )}
-      {mode !== 'edit' && !isLoading && !viewableComponents['addComment'] && (
+      {mode !== 'edit' && !isLoading && !viewableComponents.addComment && (
         <Typography
           variant="body1"
           sx={{ display: 'flex', alignItems: 'center', ml: 2 }}
@@ -399,6 +395,6 @@ const Comments = ({ task, setTask }: Props) => {
       )}
     </Box>
   );
-};
+}
 
 export default Comments;

@@ -2,15 +2,14 @@ import {
   Box,
   TextField,
   Typography,
-  Grid,
   Avatar,
   InputAdornment,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
-import { BoardData, Task } from '../../../../types';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
+import { Task } from '../../../../types';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 
@@ -19,7 +18,7 @@ type Props = {
   setTask: (task: Task) => void;
 };
 
-const ProposalsStewardView = ({ task, setTask }: Props) => {
+function ProposalsStewardView({ task, setTask }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
@@ -28,8 +27,8 @@ const ProposalsStewardView = ({ task, setTask }: Props) => {
   const [editMode, setEditMode] = useState(false);
   console.log(space);
   const handlePick = (proposalId: string, index: number, assignee: string) => {
-    const prevTask = Object.assign({}, task);
-    const temp = Object.assign({}, task);
+    const prevTask = { ...task };
+    const temp = { ...task };
     temp.assignee = [assignee];
     setTask(temp);
     runMoralisFunction('updateCard', {
@@ -68,7 +67,7 @@ const ProposalsStewardView = ({ task, setTask }: Props) => {
         <Typography sx={{ mt: 4 }}>No proposals yet</Typography>
       )}
       {task.proposals?.map((proposal, index) => (
-        <Box sx={{}} key={index}>
+        <Box sx={{}} key={proposal.id}>
           {!isLoading && (
             <Box
               sx={{
@@ -140,6 +139,6 @@ const ProposalsStewardView = ({ task, setTask }: Props) => {
       ))}{' '}
     </Box>
   );
-};
+}
 
 export default ProposalsStewardView;

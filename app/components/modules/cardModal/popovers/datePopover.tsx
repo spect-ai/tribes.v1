@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { monthMap } from '../../../../constants';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import { formatTime } from '../../../../utils/utils';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
@@ -17,11 +17,7 @@ type Props = {
   setTask: (task: Task) => void;
 };
 
-function toLocalDate(date: Date) {
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-}
-
-const DatePopover = ({ task, setTask }: Props) => {
+function DatePopover({ task, setTask }: Props) {
   const [date, setDate] = useState('');
   const [open, setOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
@@ -34,7 +30,7 @@ const DatePopover = ({ task, setTask }: Props) => {
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    if (editAbleComponents['dueDate']) {
+    if (editAbleComponents.dueDate) {
       setOpen(true);
     } else {
       setFeedbackOpen(true);
@@ -48,8 +44,8 @@ const DatePopover = ({ task, setTask }: Props) => {
   };
 
   const handleSave = () => {
-    const prevTask = Object.assign({}, task);
-    const temp = Object.assign({}, task);
+    const prevTask = { ...task };
+    const temp = { ...task };
     temp.deadline = new Date(date);
     setTask(temp);
     handleClose();
@@ -184,5 +180,5 @@ const DatePopover = ({ task, setTask }: Props) => {
       </Popover>
     </>
   );
-};
+}
 export default DatePopover;

@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Column, Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
@@ -20,7 +20,7 @@ type Props = {
   column: Column;
 };
 
-const ColumnPopover = ({ task, setTask, column }: Props) => {
+function ColumnPopover({ task, setTask, column }: Props) {
   const [currStatus, setCurrStatus] = useState<string>('');
   const [status, setStatus] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +32,7 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
   const { editAbleComponents } = useCardDynamism(task);
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    if (editAbleComponents['column']) {
+    if (editAbleComponents.column) {
       setOpen(true);
     } else {
       setFeedbackOpen(true);
@@ -57,7 +57,6 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
       },
     })
       .then((res: any) => {
-        console.log(res);
         setSpace(res.space);
         setTask(res.task);
         handleClose();
@@ -160,6 +159,6 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
       </Popover>
     </>
   );
-};
+}
 
 export default ColumnPopover;

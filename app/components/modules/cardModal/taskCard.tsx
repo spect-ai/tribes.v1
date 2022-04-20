@@ -4,8 +4,7 @@ import { Box, IconButton, InputBase } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
-import { Task } from '../../../types';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import Editor from '../editor';
 import { notify } from '../settingsTab';
 import CardTypePopover from './popovers/cardTypePopover';
@@ -16,7 +15,7 @@ import CardMemberPopover from './popovers/cardMemberPopover';
 import RewardPopover from './popovers/rewardPopover';
 import OptionsPopover from './popovers/optionsPopover';
 import TabularDetails from './tabularDetails';
-import { Block } from '../../../types';
+import { Task, Block } from '../../../types';
 import { uid } from '../../../utils/utils';
 import { useCardDynamism } from '../../../hooks/useCardDynamism';
 import AssignToMe from './buttons/assignToMe';
@@ -25,13 +24,26 @@ type Props = {
   task: Task;
   setTask: (task: Task) => void;
   handleClose: () => void;
-  submissionPR: any;
 };
 
-const TaskCard = ({ task, setTask, handleClose }: Props) => {
+const TaskModalTitleContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+`;
+
+const TaskModalBodyContainer = styled.div`
+  margin-top: 2px;
+  color: #eaeaea;
+  font-size: 0.85rem;
+`;
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+function TaskCard({ task, setTask, handleClose }: Props) {
   const { space, setSpace } = useSpace();
-  const { user } = useMoralis();
-  const [open, setOpen] = useState({} as any);
   const { runMoralisFunction } = useMoralisFunction();
   const { editAbleComponents, viewableComponents } = useCardDynamism(task);
 
@@ -53,17 +65,16 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
   };
 
   const [title, setTitle] = useState(task.title);
-  const [isLoadingTask, setIsLoadingTask] = useState(false);
 
   const handleSave = () => {
     if (task.access.creator || task.access.reviewer) {
-      const prevTask = Object.assign({}, task);
-      const temp = Object.assign({}, task);
+      const prevTask = { ...task };
+      const temp = { ...task };
       temp.title = title;
       setTask(temp);
       runMoralisFunction('updateCard', {
         updates: {
-          title: title,
+          title,
           taskId: task.taskId,
         },
       })
@@ -100,7 +111,7 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
         <Box sx={{ flex: '1 1 auto' }} />
         <AssignToMe task={task} setTask={setTask} />
 
-        {viewableComponents['optionPopover'] && (
+        {viewableComponents.optionPopover && (
           <OptionsPopover task={task} setTask={setTask} />
         )}
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
@@ -117,8 +128,8 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
       </Box>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', marginBottom: '16px' }}>
-        <CardMemberPopover type={'reviewer'} task={task} setTask={setTask} />
-        <CardMemberPopover type={'assignee'} task={task} setTask={setTask} />
+        <CardMemberPopover type="reviewer" task={task} setTask={setTask} />
+        <CardMemberPopover type="assignee" task={task} setTask={setTask} />
         <RewardPopover task={task} setTask={setTask} />
         <DatePopover task={task} setTask={setTask} />
         <LabelPopover task={task} setTask={setTask} />
@@ -142,11 +153,11 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
                 ]
           }
           placeholderText={
-            editAbleComponents['description']
+            editAbleComponents.description
               ? `Add details, press "/" for commands`
               : `No details provided yet`
           }
-          readonly={!editAbleComponents['description']}
+          readonly={!editAbleComponents.description}
         />
 
         <Box sx={{ marginBottom: '16px' }}>
@@ -155,22 +166,6 @@ const TaskCard = ({ task, setTask, handleClose }: Props) => {
       </TaskModalBodyContainer>
     </Container>
   );
-};
-
-const TaskModalTitleContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-`;
-
-const TaskModalBodyContainer = styled.div`
-  margin-top: 2px;
-  color: #eaeaea;
-  font-size: 0.85rem;
-`;
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
+}
 
 export default TaskCard;

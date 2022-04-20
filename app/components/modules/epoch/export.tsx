@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { PrimaryButton } from '../../elements/styledComponents';
+import React from 'react';
 import DownloadIcon from '@mui/icons-material/Download';
-import { useRouter } from 'next/router';
+import { PrimaryButton } from '../../elements/styledComponents';
 import { Epoch } from '../../../types';
 import { downloadCSV } from '../../../utils/utils';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
@@ -10,31 +9,30 @@ type Props = {
   epoch: Epoch;
 };
 
-const CsvExport = ({ epoch }: Props) => {
-  const router = useRouter();
+function CsvExport({ epoch }: Props) {
   const { space } = useSpace();
-  const bid = router.query.bid as string;
 
-  const handleExport = (epoch: Epoch) => {
-    if (epoch.type === 'Member') {
-      var rows = [
+  const handleExport = (ep: Epoch) => {
+    if (ep.type === 'Member') {
+      const rows = [
         ['username', 'address', 'allocation', 'given', 'received', 'reward'],
       ];
-      for (var choice of epoch.choices) {
+      for (let i = 0; i < ep.choices.length; i += 1) {
+        const choice = ep.choices[i];
         rows.push([
           space.memberDetails[choice].username,
           space.memberDetails[choice].ethAddress,
-          epoch.memberStats[choice].votesAllocated,
+          ep.memberStats[choice].votesAllocated,
           Object.values(epoch.memberStats[choice].votesGiven).reduce(
             (a, b) => (a as number) + (b as number)
           ),
-          epoch.votes[choice],
-          epoch.values[choice],
+          ep.votes[choice],
+          ep.values[choice],
         ]);
       }
-      downloadCSV(rows, `${epoch.name}_${epoch.type}_${epoch.startTime}`);
+      downloadCSV(rows, `${ep.name}_${ep.type}_${ep.startTime}`);
     } else if (epoch.type === 'Task') {
-      var rows = [
+      const rows = [
         [
           'id',
           'title',
@@ -45,18 +43,19 @@ const CsvExport = ({ epoch }: Props) => {
           'reward',
         ],
       ];
-      for (var choice of epoch.choices) {
+      for (let i = 0; i < ep.choices.length; i += 1) {
+        const choice = ep.choices[i];
         rows.push([
           choice,
-          epoch.taskDetails[choice].title,
-          epoch.taskDetails[choice].description,
-          epoch.taskDetails[choice].creator,
-          epoch.taskDetails[choice].createdAt,
-          epoch.votes[choice],
-          epoch.values[choice],
+          ep.taskDetails[choice].title,
+          ep.taskDetails[choice].description,
+          ep.taskDetails[choice].creator,
+          ep.taskDetails[choice].createdAt,
+          ep.votes[choice],
+          ep.values[choice],
         ]);
       }
-      downloadCSV(rows, `${epoch.name}_${epoch.type}_${epoch.startTime}`);
+      downloadCSV(rows, `${ep.name}_${ep.type}_${ep.startTime}`);
     }
   };
 
@@ -75,6 +74,6 @@ const CsvExport = ({ epoch }: Props) => {
       Export to csv
     </PrimaryButton>
   );
-};
+}
 
 export default CsvExport;

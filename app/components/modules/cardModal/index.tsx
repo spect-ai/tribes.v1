@@ -2,12 +2,11 @@ import { Box, Fade, Modal, styled } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { getTask } from '../../../adapters/moralis';
-import { Column, Task } from '../../../types';
+import { Task } from '../../../types';
 import { notify } from '../settingsTab';
 import TaskCard from './taskCard';
 import SkeletonLoader from './skeletonLoader';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 
 type Props = {
   isOpen: boolean;
@@ -16,7 +15,23 @@ type Props = {
   columnId?: string;
 };
 
-const CardModal = ({ isOpen, handleClose, taskId, columnId }: Props) => {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
+  position: 'absolute' as 'absolute',
+  top: '40%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '55rem',
+  border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
+  boxShadow: 24,
+  overflowY: 'auto',
+  overflowX: 'hidden',
+  height: '35rem',
+  padding: '1.5rem 3rem',
+}));
+
+function CardModal({ isOpen, handleClose, taskId, columnId }: Props) {
   const [loading, setLoading] = useState(false);
   const [task, setTask] = useState<Task>({} as Task);
   const { isInitialized } = useMoralis();
@@ -28,9 +43,8 @@ const CardModal = ({ isOpen, handleClose, taskId, columnId }: Props) => {
     if (isInitialized && isOpen && taskId) {
       setLoading(true);
       runMoralisFunction('getTask', { taskId, columnId })
-        .then((task: Task) => {
-          console.log(task);
-          setTask(task);
+        .then((taskRes: Task) => {
+          setTask(taskRes);
           setLoading(false);
         })
         .catch((err: any) => {
@@ -64,22 +78,6 @@ const CardModal = ({ isOpen, handleClose, taskId, columnId }: Props) => {
       </Modal>
     </div>
   );
-};
-
-// @ts-ignore
-const ModalContainer = styled(Box)(({ theme }) => ({
-  position: 'absolute' as 'absolute',
-  top: '40%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '55rem',
-  border: '2px solid #000',
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 24,
-  overflowY: 'auto',
-  overflowX: 'hidden',
-  height: '35rem',
-  padding: '1.5rem 3rem',
-}));
+}
 
 export default CardModal;

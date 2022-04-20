@@ -1,32 +1,27 @@
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import React from 'react';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import PersonIcon from '@mui/icons-material/Person';
 import LabelIcon from '@mui/icons-material/Label';
 import PaidIcon from '@mui/icons-material/Paid';
-import UpdateIcon from '@mui/icons-material/Update';
 import HailIcon from '@mui/icons-material/Hail';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import PublishIcon from '@mui/icons-material/Publish';
 import CommentIcon from '@mui/icons-material/Comment';
 import DoneIcon from '@mui/icons-material/Done';
 import ChatBubbleIcon from '@mui/icons-material/ChatBubble';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import ArchiveIcon from '@mui/icons-material/Archive';
-import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import CategoryIcon from '@mui/icons-material/Category';
 import { ListItemText, Box, Typography, Link } from '@mui/material';
-import { useRouter } from 'next/router';
-import { PrimaryButton } from '../components/elements/styledComponents';
+import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import { Task } from '../types';
 import { useGlobal } from '../context/globalContext';
 
-export function useActivityMap(task: Task) {
-  const { space, setSpace } = useSpace();
+export default function useActivityMap(task: Task) {
+  const { space } = useSpace();
   const {
     state: { registry },
-    dispatch,
   } = useGlobal();
   const activityIcons: any = {
     99: <CategoryIcon />,
@@ -47,25 +42,10 @@ export function useActivityMap(task: Task) {
     400: <SyncAltIcon />,
     500: <ArchiveIcon />,
   };
-  console.log(registry);
 
   const resolveActivityComponent = (update: any) => {
+    // eslint-disable-next-line no-use-before-define
     return <ListItemText>{generateActivityLine(update)}</ListItemText>;
-  };
-
-  const getComponent = (update: any) => {
-    switch (update.action) {
-      case 99:
-        return (
-          <>
-            {`${
-              space.memberDetails[update.actor]?.username
-            } changed the card type from "${update.changeLog?.prev}" to "${
-              update.changeLog?.next
-            }"`}
-          </>
-        );
-    }
   };
 
   const generateActivityLine = (update: any) => {
@@ -89,9 +69,11 @@ export function useActivityMap(task: Task) {
           space.memberDetails[update.actor]?.username
         } updated tags to "${update.changeLog?.next?.join(', ')}"`;
       case 104:
-        `${space.memberDetails[update.actor]?.username} updated reward to ${
-          update.reward?.value
-        } ${update.reward?.token?.symbol} on ${update.reward?.chain?.name}`;
+        return `${
+          space.memberDetails[update.actor]?.username
+        } updated reward to ${update.reward?.value} ${
+          update.reward?.token?.symbol
+        } on ${update.reward?.chain?.name}`;
       case 105:
         if (
           update?.changeLog?.prev &&
@@ -105,22 +87,15 @@ export function useActivityMap(task: Task) {
             space.memberDetails[update?.changeLog?.prev[0]]?.username
           }
       to ${space.memberDetails[update?.changeLog?.next[0]]?.username}`;
-        else if (
-          !update?.changeLog?.next ||
-          update?.changeLog?.next?.length === 0
-        )
+        if (!update?.changeLog?.next || update?.changeLog?.next?.length === 0)
           return `${
             space.memberDetails[update.actor]?.username
           } removed assignee`;
-        else if (
-          !update?.changeLog?.prev ||
-          update?.changeLog?.prev?.length === 0
-        )
-          return `${
-            space.memberDetails[update.actor]?.username
-          } assigned card to ${
-            space.memberDetails[update?.changeLog?.next[0]]?.username
-          }`;
+        return `${
+          space.memberDetails[update.actor]?.username
+        } assigned card to ${
+          space.memberDetails[update?.changeLog?.next[0]]?.username
+        }`;
       case 106:
         return `${
           space.memberDetails[update.actor]?.username
@@ -175,6 +150,8 @@ export function useActivityMap(task: Task) {
         return `${
           space.memberDetails[update.actor]?.username
         } archived this card`;
+      default:
+        return 'Unknown action';
     }
   };
   return {
@@ -182,3 +159,20 @@ export function useActivityMap(task: Task) {
     activityIcons,
   };
 }
+
+// const getComponent = (update: any) => {
+//   switch (update.action) {
+//     case 99:
+//       return (
+//         <div>
+//           {`${
+//             space.memberDetails[update.actor]?.username
+//           } changed the card type from "${update.changeLog?.prev}" to "${
+//             update.changeLog?.next
+//           }"`}
+//         </div>
+//       );
+//     default:
+//       break;
+//   }
+// };

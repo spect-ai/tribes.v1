@@ -10,23 +10,23 @@ import {
   ListItemText,
   Popover,
 } from '@mui/material';
+import IosShareIcon from '@mui/icons-material/IosShare';
 import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { useGlobal } from '../../../../context/globalContext';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import PayButton from '../buttons/payButton';
 import { useCardDynamism } from '../../../../hooks/useCardDynamism';
 import { notify } from '../../settingsTab';
-import IosShareIcon from '@mui/icons-material/IosShare';
 
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
 };
 
-const OptionsPopover = ({ task, setTask }: Props) => {
+function OptionsPopover({ task, setTask }: Props) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
   const handleClose = () => {
@@ -122,26 +122,26 @@ const OptionsPopover = ({ task, setTask }: Props) => {
           </ListItemButton>
           <PayButton task={task} setTask={setTask} handleClose={handleClose} />
 
-          {viewableComponents['proposalGate'] && (
+          {viewableComponents.proposalGate && (
             <ListItemButton>
               <VideoStableIcon sx={{ width: '2rem', mr: 2 }} />
               <ListItemText primary="Gate Proposals" />
             </ListItemButton>
           )}
-          {viewableComponents['submissionGate'] && (
+          {viewableComponents.submissionGate && (
             <ListItemButton onClick={handleClick}>
               <ViewCompactAltIcon sx={{ width: '2rem', mr: 2 }} />
               <ListItemText primary="Gate Submissions" />
             </ListItemButton>
           )}
 
-          {viewableComponents['duplicate'] && (
+          {viewableComponents.duplicate && (
             <ListItemButton onClick={duplicateCard}>
               <ContentCopyIcon sx={{ width: '2rem', mr: 2 }} />
               <ListItemText primary="Duplicate" />
             </ListItemButton>
           )}
-          {viewableComponents['archive'] && (
+          {viewableComponents.archive && (
             <ListItemButton onClick={archiveCard}>
               <ArchiveIcon sx={{ width: '2rem', mr: 2 }} />
               <ListItemText primary="Archive" />
@@ -151,6 +151,6 @@ const OptionsPopover = ({ task, setTask }: Props) => {
       </Popover>
     </>
   );
-};
+}
 
 export default OptionsPopover;

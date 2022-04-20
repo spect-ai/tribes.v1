@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Grid, Typography } from '@mui/material';
 
 import { useMoralis } from 'react-moralis';
@@ -7,7 +7,7 @@ import CreateEpoch from './createEpochModal';
 
 type Props = {};
 
-const ZeroEpochs = (props: Props) => {
+function ZeroEpochs(props: Props) {
   const { space } = useSpace();
   const { user } = useMoralis();
 
@@ -24,14 +24,10 @@ const ZeroEpochs = (props: Props) => {
         <Typography variant="h6" sx={{ mb: 2 }} color="text.primary">
           There are no epochs in this space
         </Typography>{' '}
-        {user && space.roles[user?.id] === 3 && (
-          <>
-            <CreateEpoch />
-          </>
-        )}
+        {user && space.roles[user?.id] === 3 && <CreateEpoch />}
       </Grid>
     </Grid>
   );
-};
+}
 
 export default ZeroEpochs;

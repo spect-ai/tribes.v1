@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import {
   TableCell,
   TableRow,
@@ -22,6 +21,10 @@ export type Values = {
   [choiceId: string]: Number;
 };
 
+type VotesGivenOneEpoch = {
+  [key: string]: number;
+};
+
 type Props = {
   epochId: string;
   type: string;
@@ -36,11 +39,7 @@ type Props = {
   tokenSymbol: string;
 };
 
-type VotesGivenOneEpoch = {
-  [key: string]: number;
-};
-
-const NumericVoting = ({
+function NumericVoting({
   epochId,
   type,
   active,
@@ -52,7 +51,7 @@ const NumericVoting = ({
   handleVotesRemaining,
   values,
   tokenSymbol,
-}: Props) => {
+}: Props) {
   return (
     <TableContainer>
       <Table aria-label="simple table" size="small">
@@ -74,7 +73,7 @@ const NumericVoting = ({
         <TableBody>
           {choices.map((choiceId, index) => (
             <TableRow
-              key={index}
+              key={choiceId}
               sx={{
                 '&:last-child td, &:last-child th': {
                   border: 0,
@@ -103,12 +102,12 @@ const NumericVoting = ({
                       handleVotesRemaining(
                         epochId,
                         choiceId,
-                        parseInt(event.target.value)
+                        parseInt(event.target.value, 10)
                       );
                       handleVotesGiven(
                         epochId,
                         choiceId,
-                        parseInt(event.target.value)
+                        parseInt(event.target.value, 10)
                       );
                     }}
                   />
@@ -128,6 +127,6 @@ const NumericVoting = ({
       </Table>
     </TableContainer>
   );
-};
+}
 
 export default NumericVoting;

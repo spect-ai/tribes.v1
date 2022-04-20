@@ -4,7 +4,7 @@ import { useMoralis } from 'react-moralis';
 import { useTribe } from '../../../../pages/tribe/[id]';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { roleMapping } from '../../../constants';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { roleOptions } from '../inviteMemberModal/constants';
 
 type Props = {

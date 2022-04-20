@@ -4,18 +4,18 @@ import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { useCardDynamism } from '../../../../hooks/useCardDynamism';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
+import { delay } from '../../../../utils/utils';
 import { CardButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
-import { delay } from '../../../../utils/utils';
 
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
 };
 
-const AssignToMe = ({ task, setTask }: Props) => {
+function AssignToMe({ task, setTask }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
   const { user } = useMoralis();
@@ -48,41 +48,40 @@ const AssignToMe = ({ task, setTask }: Props) => {
     setButtonText('Assign to me');
   }, [task]);
 
-  return (
-    <>
-      {viewableComponents['assignToMe'] && (
-        <Box
+  if (viewableComponents.assignToMe) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          mx: 1,
+          minWidth: '9rem',
+        }}
+      >
+        <CardButton
+          variant="outlined"
+          onClick={() => handleSave()}
+          color="secondary"
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            mx: 1,
-            minWidth: '9rem',
+            padding: '2px',
+            minWidth: '3rem',
           }}
+          startIcon={<HailIcon sx={{ my: 2, ml: 2 }} />}
+          size="small"
         >
-          <CardButton
-            variant="outlined"
-            onClick={() => handleSave()}
-            color="secondary"
+          <Typography
             sx={{
-              padding: '2px',
-              minWidth: '3rem',
+              fontSize: 14,
+              mr: 2,
             }}
-            startIcon={<HailIcon sx={{ my: 2, ml: 2 }} />}
-            size="small"
           >
-            <Typography
-              sx={{
-                fontSize: 14,
-                mr: 2,
-              }}
-            >
-              {buttonText}
-            </Typography>
-          </CardButton>
-        </Box>
-      )}
-    </>
-  );
-};
+            {buttonText}
+          </Typography>
+        </CardButton>
+      </Box>
+    );
+  }
+  return <div />;
+}
 
 export default AssignToMe;

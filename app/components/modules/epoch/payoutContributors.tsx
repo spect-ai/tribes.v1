@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
-  Button,
   Modal,
   Stepper,
   Step,
@@ -9,31 +8,52 @@ import {
   styled,
   Typography,
   Chip,
-  useTheme,
-  Tooltip,
   Grid,
   Avatar,
 } from '@mui/material';
-import Approve, { ApprovalInfo } from '../batchPay/approve';
-import BatchPay, { DistributionInfo } from '../batchPay/batchPay';
 import { useMoralis } from 'react-moralis';
-import { useRouter } from 'next/router';
+import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
+import PaidIcon from '@mui/icons-material/Paid';
 import { useGlobal } from '../../../context/globalContext';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import PaidIcon from '@mui/icons-material/Paid';
+import Approve, { ApprovalInfo } from '../batchPay/approve';
+import BatchPay, { DistributionInfo } from '../batchPay/batchPay';
 import { Epoch } from '../../../types';
 import { capitalizeFirstLetter } from '../../../utils/utils';
 import { completeEpochPayment } from '../../../adapters/moralis';
 import { notify } from '../settingsTab';
 import { PrimaryButton } from '../../elements/styledComponents';
 import { isApprovalRequired } from '../../../adapters/contract';
-import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 
 interface Props {
   epoch: Epoch;
 }
 
-const PayoutContributors = ({ epoch }: Props) => {
+export const modalStyle = {
+  position: 'absolute' as 'absolute',
+  top: '40%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '40rem',
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
+export const Heading = styled('div')(({ theme }) => ({
+  fontWeight: 500,
+  fontSize: 16,
+  color: theme.palette.text.secondary,
+  display: 'flex',
+  flexDirection: 'row',
+  alignItems: 'center',
+  borderBottom: '1px solid #99ccff',
+  padding: 16,
+  paddingLeft: 32,
+}));
+
+function PayoutContributors({ epoch }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [steps, setSteps] = useState([] as string[]);
@@ -43,8 +63,7 @@ const PayoutContributors = ({ epoch }: Props) => {
     state: { registry },
   } = useGlobal();
   const { Moralis, user } = useMoralis();
-  const { space, setSpace, setRefreshEpochs } = useSpace();
-  console.log(epoch);
+  const { setRefreshEpochs } = useSpace();
   const [distributionInfo, setDistributionInfo] = useState({
     contributors: Object.keys(epoch.values),
     tokenValues: Object.values(epoch.values),
@@ -109,33 +128,30 @@ const PayoutContributors = ({ epoch }: Props) => {
             setActiveStep(-1);
             setIsLoading(false);
             setIsOpen(true);
+          } else if (epoch.token.address === '0x0') {
+            setActiveStep(2);
+            setIsLoading(false);
+            setIsOpen(true);
           } else {
-            if (epoch.token.address === '0x0') {
-              setActiveStep(2);
+            isApprovalRequired(
+              user?.get('ethAddress'),
+              epoch.token.address,
+              epoch.budget,
+              window.ethereum.networkVersion
+            ).then((reqd: boolean) => {
+              if (reqd) {
+                const temp = { ...approvalInfo };
+                temp.required = true;
+                setApprovalInfo(temp);
+                setActiveStep(0);
+                setSteps(['Approve Tokens', 'Batch Pay Tokens']);
+                setShowStepper(true);
+              } else {
+                setActiveStep(1);
+              }
               setIsLoading(false);
               setIsOpen(true);
-            } else {
-              isApprovalRequired(
-                user?.get('ethAddress'),
-                epoch.token.address,
-                epoch.budget,
-                window.ethereum.networkVersion
-              ).then((reqd: boolean) => {
-                console.log(reqd);
-                if (reqd) {
-                  const temp = Object.assign({}, approvalInfo);
-                  temp.required = true;
-                  setApprovalInfo(temp);
-                  setActiveStep(0);
-                  setSteps(['Approve Tokens', 'Batch Pay Tokens']);
-                  setShowStepper(true);
-                } else {
-                  setActiveStep(1);
-                }
-                setIsLoading(false);
-                setIsOpen(true);
-              });
-            }
+            });
           }
         }}
       >
@@ -209,7 +225,7 @@ const PayoutContributors = ({ epoch }: Props) => {
               }}
             >
               <Typography color="text.primary" sx={{ my: 2 }}>
-                {`Please change your network to pay for this epoch`}
+                Please change your network to pay for this epoch
               </Typography>
               <Chip
                 icon={<ChangeCircleIcon />}
@@ -250,30 +266,6 @@ const PayoutContributors = ({ epoch }: Props) => {
       </Modal>{' '}
     </>
   );
-};
-
-export const modalStyle = {
-  position: 'absolute' as 'absolute',
-  top: '40%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '40rem',
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-};
-
-export const Heading = styled('div')(({ theme }) => ({
-  fontWeight: 500,
-  fontSize: 16,
-  color: theme.palette.text.secondary,
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
-  borderBottom: '1px solid #99ccff',
-  padding: 16,
-  paddingLeft: 32,
-}));
+}
 
 export default PayoutContributors;

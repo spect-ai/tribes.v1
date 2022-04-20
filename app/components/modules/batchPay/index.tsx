@@ -15,7 +15,7 @@ import {
 import React, { useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { useGlobal } from '../../../context/globalContext';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { capitalizeFirstLetter } from '../../../utils/utils';
 import { SidebarButton } from '../exploreSidebar';
 import { notify } from '../settingsTab';

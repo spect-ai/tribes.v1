@@ -1,7 +1,7 @@
 import { Avatar, Popover, Typography, useTheme } from '@mui/material';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { OptionsButton, SidebarPopoverContainer } from '../themePopover';
 
 type Props = {

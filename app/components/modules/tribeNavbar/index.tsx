@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useTribe } from '../../../../pages/tribe/[id]';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { Team } from '../../../types';
 import SidebarProfile from '../../elements/sidebarProfile';
 import {

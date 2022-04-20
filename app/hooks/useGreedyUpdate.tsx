@@ -14,7 +14,6 @@ export default function useGreedyUpdate() {
 
   const updateCard = (prevTask: Task, newTask: Task, setTask: Function) => {
     setTempCard({ ...prevTask });
-    console.log({ ...prevTask, ...newTask });
     setTask({ ...prevTask, ...newTask });
   };
 

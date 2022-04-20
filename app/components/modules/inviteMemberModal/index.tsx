@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { ModalHeading, PrimaryButton } from '../../elements/styledComponents';
 import { notify } from '../settingsTab';
 import { expiryOptions, roleOptions, usesOptions } from './constants';

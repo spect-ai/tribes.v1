@@ -17,7 +17,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { BoardData, Chain, Token } from '../../../types';
 import DefaultPaymentForm from '../../elements/defaultPaymentForm';
 import {

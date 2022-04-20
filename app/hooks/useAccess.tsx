@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import { Task } from '../types';
 
-export function useAccess(task: Task) {
+export default function useAccess(task: Task) {
   const { space } = useSpace();
   const { user } = useMoralis();
 

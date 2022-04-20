@@ -1,11 +1,8 @@
-import { AnyPtrRecord } from 'dns';
 import { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { Member } from '../types';
 
-type Props = {};
-
-export const useProfileInfo = () => {
+export default function useProfileInfo() {
   const { user, isAuthenticated } = useMoralis();
   const [avatar, setAvatar] = useState('');
 
@@ -21,19 +18,18 @@ export const useProfileInfo = () => {
     }
   }, [isAuthenticated, user]);
 
-  const getAvatar = (user: Member) => {
-    if (!user) {
-      return;
+  const getAvatar = (userObj: Member) => {
+    if (!userObj) {
+      return null;
     }
-    if (user.profilePicture?._url) {
-      return user.profilePicture._url;
-    } else {
-      return `https://cdn.discordapp.com/avatars/${user.discordId}/${user.avatar}.png`;
+    if (userObj.profilePicture?._url) {
+      return userObj.profilePicture._url;
     }
+    return `https://cdn.discordapp.com/avatars/${userObj.discordId}/${userObj.avatar}.png`;
   };
 
   return {
     avatar,
     getAvatar,
   };
-};
+}

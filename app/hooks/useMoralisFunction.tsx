@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
 import { useMoralis } from 'react-moralis';
 
-export function useMoralisFunction() {
+export default function useMoralisFunction() {
   const { Moralis } = useMoralis();
 
   const runMoralisFunction = (functionName: string, params: any) => {

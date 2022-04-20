@@ -6,7 +6,7 @@ import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import toast, { Toaster } from 'react-hot-toast';
 import { useMoralis } from 'react-moralis';
 import { useTribe } from '../../../../pages/tribe/[id]';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { PrimaryButton } from '../../elements/styledComponents';
 
 export interface SettingFormInput {

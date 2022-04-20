@@ -3,7 +3,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import { Avatar, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { useProfileInfo } from '../../../hooks/useProfileInfo';
 import ProfilePopover from '../../modules/profilePopover';
 import { SidebarButton } from '../styledComponents';

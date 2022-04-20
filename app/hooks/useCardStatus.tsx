@@ -1,9 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
-import { useMoralis } from 'react-moralis';
 import { Task } from '../types';
 
-export function useCardStatus(task: Task) {
+export default function useCardStatus(task: Task) {
   const isCreated = () => {
     return task.status === 100;
   };

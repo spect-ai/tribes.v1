@@ -9,10 +9,10 @@ import {
   distributeEther,
 } from '../../../../adapters/contract';
 import { useGlobal } from '../../../../context/globalContext';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import { useCardDynamism } from '../../../../hooks/useCardDynamism';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import { notify } from '../../settingsTab';
-import { useCardDynamism } from '../../../../hooks/useCardDynamism';
 
 type Props = {
   task: Task;
@@ -20,7 +20,7 @@ type Props = {
   handleClose: () => void;
 };
 
-const PayButton = ({ task, setTask, handleClose }: Props) => {
+function PayButton({ task, setTask, handleClose }: Props) {
   const { space, setSpace } = useSpace();
   const { user } = useMoralis();
   const { state } = useGlobal();
@@ -28,14 +28,14 @@ const PayButton = ({ task, setTask, handleClose }: Props) => {
   const { runMoralisFunction } = useMoralisFunction();
   const { viewableComponents } = useCardDynamism(task);
   const [payButtonText, setPayButtonText] = useState(
-    viewableComponents['pay'] === 'showPay' ? 'Pay' : 'Approve'
+    viewableComponents.pay === 'showPay' ? 'Pay' : 'Approve'
   );
 
   const handleTaskStatusUpdate = (transactionHash: string) => {
     runMoralisFunction('updateCard', {
       updates: {
         status: 300,
-        transactionHash: transactionHash,
+        transactionHash,
         taskId: task.taskId,
       },
     })
@@ -59,44 +59,46 @@ const PayButton = ({ task, setTask, handleClose }: Props) => {
   };
 
   const handleClick = () => {
-    if (viewableComponents['pay'] === 'showPay') {
+    if (viewableComponents.pay === 'showPay') {
       setPayButtonText('Paying...');
-      task.token.symbol === registry[task.chain.chainId].nativeCurrency
-        ? distributeEther(
-            [space.memberDetails[task.assignee[0]].ethAddress],
-            [task.value],
-            task.taskId,
-            window.ethereum.networkVersion
-          )
-            .then((res: any) => {
-              console.log(res);
-              setPayButtonText('Paid');
-              handleTaskStatusUpdate(res.transactionHash);
-              handleClose();
-            })
-            .catch((err: any) => {
-              setPayButtonText('Pay');
-              handlePaymentError(err);
-            })
-        : batchPayTokens(
-            [task.token.address as string],
-            [space.memberDetails[task.assignee[0]].ethAddress],
-            [task.value],
-            task.taskId,
-            window.ethereum.networkVersion
-          )
-            .then((res: any) => {
-              console.log(res);
+      if (task.token.symbol === registry[task.chain.chainId].nativeCurrency) {
+        distributeEther(
+          [space.memberDetails[task.assignee[0]].ethAddress],
+          [task.value],
+          task.taskId,
+          window.ethereum.networkVersion
+        )
+          .then((res: any) => {
+            console.log(res);
+            setPayButtonText('Paid');
+            handleTaskStatusUpdate(res.transactionHash);
+            handleClose();
+          })
+          .catch((err: any) => {
+            setPayButtonText('Pay');
+            handlePaymentError(err);
+          });
+      } else {
+        batchPayTokens(
+          [task.token.address as string],
+          [space.memberDetails[task.assignee[0]].ethAddress],
+          [task.value],
+          task.taskId,
+          window.ethereum.networkVersion
+        )
+          .then((res: any) => {
+            console.log(res);
 
-              setPayButtonText('Paid');
-              handleTaskStatusUpdate(res.transactionHash);
-              handleClose();
-            })
-            .catch((err: any) => {
-              setPayButtonText('Pay');
-              handlePaymentError(err);
-            });
-    } else if (viewableComponents['pay'] === 'showApprove') {
+            setPayButtonText('Paid');
+            handleTaskStatusUpdate(res.transactionHash);
+            handleClose();
+          })
+          .catch((err: any) => {
+            setPayButtonText('Pay');
+            handlePaymentError(err);
+          });
+      }
+    } else if (viewableComponents.pay === 'showApprove') {
       if (task.chain?.chainId !== window.ethereum.networkVersion) {
         handlePaymentError({});
       } else {
@@ -106,19 +108,19 @@ const PayButton = ({ task, setTask, handleClose }: Props) => {
             setPayButtonText('Approved');
             if (user) {
               if (
-                user?.get('distributorApproved') &&
-                task.chain.chainId in user?.get('distributorApproved')
+                user.get('distributorApproved') &&
+                task.chain.chainId in user.get('distributorApproved')
               ) {
                 user
-                  ?.get('distributorApproved')
+                  .get('distributorApproved')
                   [task.chain.chainId].push(task.token.address as string);
-              } else if (user?.get('distributorApproved')) {
-                user?.set('distributorApproved', {
-                  ...user?.get('distributorApproved'),
+              } else if (user.get('distributorApproved')) {
+                user.set('distributorApproved', {
+                  ...user.get('distributorApproved'),
                   [task.chain.chainId]: [task.token.address as string],
                 });
               } else {
-                user?.set('distributorApproved', {
+                user.set('distributorApproved', {
                   [task.chain.chainId]: [task.token.address as string],
                 });
               }
@@ -135,25 +137,23 @@ const PayButton = ({ task, setTask, handleClose }: Props) => {
   };
 
   useEffect(() => {
-    setPayButtonText(
-      viewableComponents['pay'] === 'showPay' ? 'Pay' : 'Approve'
-    );
+    setPayButtonText(viewableComponents.pay === 'showPay' ? 'Pay' : 'Approve');
   }, [viewableComponents?.pay]);
 
-  return (
-    <>
-      {!(viewableComponents['pay'] === 'hide') && (
-        <ListItemButton
-          onClick={() => {
-            handleClick();
-          }}
-        >
-          <PaidIcon sx={{ width: '2rem', mr: 2 }} />
-          <ListItemText primary={payButtonText} />
-        </ListItemButton>
-      )}
-    </>
-  );
-};
+  if (viewableComponents.pay === 'hide') {
+    return (
+      <ListItemButton
+        onClick={() => {
+          handleClick();
+        }}
+      >
+        <PaidIcon sx={{ width: '2rem', mr: 2 }} />
+        <ListItemText primary={payButtonText} />
+      </ListItemButton>
+    );
+  }
+
+  return <div />;
+}
 
 export default PayButton;

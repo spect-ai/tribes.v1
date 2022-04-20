@@ -3,7 +3,7 @@ import { Grid, Typography } from '@mui/material';
 
 type Props = {};
 
-const NoAccess = (props: Props) => {
+function NoAccess(props: Props) {
   return (
     <Grid
       container
@@ -20,6 +20,6 @@ const NoAccess = (props: Props) => {
       </Grid>
     </Grid>
   );
-};
+}
 
 export default NoAccess;

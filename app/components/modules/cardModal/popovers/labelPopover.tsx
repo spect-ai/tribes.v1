@@ -1,4 +1,3 @@
-import styled from '@emotion/styled';
 import {
   Autocomplete,
   Popover,
@@ -7,18 +6,15 @@ import {
   Typography,
   Avatar,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { updateTaskLabels } from '../../../../adapters/moralis';
+import React, { useState } from 'react';
+import LabelIcon from '@mui/icons-material/Label';
 import { labelsMapping } from '../../../../constants';
-import { BoardData, Task } from '../../../../types';
+import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
-import { PopoverContainer } from '../styles';
+import { PopoverContainer, LabelChip } from '../styles';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { notify } from '../../settingsTab';
-import LabelIcon from '@mui/icons-material/Label';
-import { LabelChip } from '../styles';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { useCardDynamism } from '../../../../hooks/useCardDynamism';
 
 type Props = {
@@ -26,7 +22,7 @@ type Props = {
   setTask: (task: Task) => void;
 };
 
-const LabelPopover = ({ task, setTask }: Props) => {
+function LabelPopover({ task, setTask }: Props) {
   const [labels, setLabels] = useState(task.tags);
   const [open, setOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +34,7 @@ const LabelPopover = ({ task, setTask }: Props) => {
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    if (editAbleComponents['label']) {
+    if (editAbleComponents.label) {
       setOpen(true);
     } else {
       setFeedbackOpen(true);
@@ -52,8 +48,8 @@ const LabelPopover = ({ task, setTask }: Props) => {
   };
 
   const handleSave = () => {
-    const prevTask = Object.assign({}, task);
-    const temp = Object.assign({}, task);
+    const prevTask = { ...task };
+    const temp = { ...task };
     temp.tags = labels;
     setTask(temp);
     handleClose();
@@ -102,7 +98,7 @@ const LabelPopover = ({ task, setTask }: Props) => {
             {task?.tags?.map((tag, index) => (
               <LabelChip
                 color={labelsMapping[tag as keyof typeof labelsMapping]}
-                key={index}
+                key={tag.toString()}
               >
                 #{tag}
               </LabelChip>
@@ -196,6 +192,6 @@ const LabelPopover = ({ task, setTask }: Props) => {
       </Popover>
     </>
   );
-};
+}
 
 export default LabelPopover;

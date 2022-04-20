@@ -66,7 +66,7 @@ const oceanBlue = {
   },
 };
 
-export const getTheme = (themeType: number) => {
+export default function getTheme(themeType: number) {
   if (themeType === 0) {
     return classicDark;
   }
@@ -77,4 +77,4 @@ export const getTheme = (themeType: number) => {
     return oceanBlue;
   }
   return classicDark;
-};
+}

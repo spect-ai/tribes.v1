@@ -7,45 +7,29 @@ import {
   Chip,
   Grid,
   Typography,
-  Autocomplete,
-  TextField,
   Skeleton,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { PrimaryButton } from '../../elements/styledComponents';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
-import PaidIcon from '@mui/icons-material/Paid';
-import {
-  getEpochs,
-  saveVotes,
-  endEpoch,
-  moveCards,
-} from '../../../adapters/moralis';
 import { useMoralis } from 'react-moralis';
 import { useRouter } from 'next/router';
+import { Toaster } from 'react-hot-toast';
 import { Epoch } from '../../../types';
 import { monthMap } from '../../../constants';
 import { notify } from '../settingsTab';
-import { Toaster } from 'react-hot-toast';
-import { registryTemp } from '../../../constants';
+import { PrimaryButton } from '../../elements/styledComponents';
 import CsvExport from './export';
-import { updateTaskColumn, updateTaskStatus } from '../../../adapters/moralis';
-import { BoardData, Column, Task } from '../../../types';
 import NumericVoting, { Details } from './numericVoting';
 import ForAgainstVoting from './forAgainstVoting';
 import ZeroEpochs from './zeroEpochs';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import CreateEpoch from './createEpochModal';
 import PayoutContributors from './payoutContributors';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 
-type Props = {
-  expanded: boolean;
-  handleChange: (
-    panel: string
-  ) => (event: React.SyntheticEvent, newExpanded: boolean) => void;
-};
+type Props = {};
 
 type VotesGivenOneEpoch = {
   [key: string]: number;
@@ -59,24 +43,46 @@ type VotesRemaining = {
   [key: string]: number;
 };
 
-const EpochList = ({ expanded, handleChange }: Props) => {
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 1rem;
+`;
+
+const DetailContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.5rem;
+`;
+
+const InfoContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const ButtonContainer = styled.div`
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+`;
+
+function EpochList() {
   const { Moralis, user } = useMoralis();
   const router = useRouter();
-  const { space, setSpace, handleTabChange, refreshEpochs, setRefreshEpochs } =
-    useSpace();
+  const { space, setSpace, refreshEpochs, setRefreshEpochs } = useSpace();
   const bid = router.query.bid as string;
   const [votesGiven, setVotesGiven] = useState({} as VotesGivenAllEpochs);
   const [votesRemaining, setVotesRemaining] = useState({} as VotesRemaining);
   const [isLoading, setIsLoading] = useState(true);
-  const [passColumn, setPassColumn] = useState('');
-  const [noPassColumn, setNoPassColumn] = useState('');
+  const { runMoralisFunction } = useMoralisFunction();
 
   const handleVotesGiven = (
     epochid: string,
     choiceId: string,
     value: number
   ) => {
-    var temp = Object.assign({}, votesGiven); // Shallow copy
+    const temp = { ...votesGiven }; // Shallow copy
     temp[epochid][choiceId] = value;
     setVotesGiven(temp);
   };
@@ -86,7 +92,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
     memberId: string,
     newVoteVal: number
   ) => {
-    var tempReceived = Object.assign({}, votesRemaining); // Shallow copy
+    const tempReceived = { ...votesRemaining }; // Shallow copy
     tempReceived[epochid] =
       tempReceived[epochid] -
       newVoteVal ** 2 +
@@ -95,20 +101,24 @@ const EpochList = ({ expanded, handleChange }: Props) => {
   };
 
   const handleEpochUpdateAfterSave = (index: number, newEpoch: Epoch) => {
-    const temp = Object.assign({}, space);
+    const temp = { ...space };
     temp.epochs[index] = newEpoch;
     setSpace(temp);
   };
 
   const getDetails = (choices: Array<string>, type: string) => {
-    var details = {} as Details;
+    const details = {} as Details;
     if (type === 'Member') {
-      for (var choice of choices) {
-        details[choice] = { choice: space.memberDetails[choice].username };
+      for (let i; i < choices.length; i += 1) {
+        details[choices[i]] = {
+          choice: space.memberDetails[choices[i]].username,
+        };
       }
     } else if (type === 'Card') {
-      for (var choice of choices) {
-        details[choice] = { choice: space.taskDetails[choice].title };
+      for (let i; i < choices.length; i += 1) {
+        details[choices[i]] = {
+          choice: space.taskDetails[choices[i]].title,
+        };
       }
     }
     return details;
@@ -118,8 +128,8 @@ const EpochList = ({ expanded, handleChange }: Props) => {
     return active ? choices.filter((ele: string) => ele !== user?.id) : choices;
   };
 
-  const loadEpochs = (Moralis: any, bid: string) => {
-    getEpochs(Moralis, bid)
+  const loadEpochs = () => {
+    runMoralisFunction('getEpochs', { spaceId: bid })
       .then((res: any) => {
         setSpace(
           Object.assign(space, {
@@ -127,11 +137,13 @@ const EpochList = ({ expanded, handleChange }: Props) => {
             taskDetails: res.taskDetails,
           })
         );
-        var votesGivenByCaller = {} as VotesGivenAllEpochs;
-        var votesRemainingByCaller = {} as VotesRemaining;
-        for (var epoch of res.epochs) {
-          votesGivenByCaller[epoch.objectId] = epoch.votesGivenByCaller;
-          votesRemainingByCaller[epoch.objectId] = epoch.votesRemaining;
+        const votesGivenByCaller = {} as VotesGivenAllEpochs;
+        const votesRemainingByCaller = {} as VotesRemaining;
+        for (let i; i < res.epochs.length; i += 1) {
+          votesGivenByCaller[res.epochs[i].objectId] =
+            res.epochs[i].votesGivenByCaller;
+          votesRemainingByCaller[res.epochs[i].objectId] =
+            res.epochs[i].votesRemaining;
         }
         setVotesGiven(votesGivenByCaller);
         setVotesRemaining(votesRemainingByCaller);
@@ -185,7 +197,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
               space.roles[user?.id as string] === 3) && (
               <Accordion
                 disableGutters
-                key={index}
+                key={epoch.objectId}
                 sx={{ border: '2px solid #00194A' }}
               >
                 <AccordionSummary
@@ -311,11 +323,10 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                   color="secondary"
                                   onClick={() => {
                                     setIsLoading(true);
-                                    saveVotes(
-                                      Moralis,
-                                      epoch.objectId,
-                                      votesGiven[epoch.objectId]
-                                    )
+                                    runMoralisFunction('saveVotes', {
+                                      epochId: epoch.objectId,
+                                      votesGiven: votesGiven[epoch.objectId],
+                                    })
                                       .then((res: any) => {
                                         setIsLoading(false);
                                         notify('Votes saved!');
@@ -336,7 +347,9 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                                   loading={isLoading}
                                   onClick={() => {
                                     setIsLoading(true);
-                                    endEpoch(Moralis, epoch.objectId)
+                                    runMoralisFunction('endEpoch', {
+                                      epochId: epoch.objectId,
+                                    })
                                       .then((res: any) => {
                                         handleEpochUpdateAfterSave(index, res);
                                         setIsLoading(false);
@@ -362,88 +375,7 @@ const EpochList = ({ expanded, handleChange }: Props) => {
                             {epoch.type === 'Member' ? (
                               <PayoutContributors epoch={epoch} />
                             ) : (
-                              <div></div>
-                              // <Box sx={{ alignItems: "center" }}>
-                              //   <Typography variant="body2">
-                              //     Move cards that passed to
-                              //   </Typography>
-                              //   <Autocomplete
-                              //     options={space.columnOrder}
-                              //     getOptionLabel={(option) =>
-                              //       option && space.columns[option].title
-                              //     }
-                              //     value={passColumn}
-                              //     onChange={(event, newValue) => {
-                              //       setPassColumn(newValue as string);
-                              //     }}
-                              //     renderInput={(params) => (
-                              //       <TextField
-                              //         {...params}
-                              //         id="filled-hidden-label-normal"
-                              //         placeholder="Column"
-                              //         size="small"
-                              //         margin="dense"
-                              //       />
-                              //     )}
-                              //   />
-                              //   <Typography variant="body2">
-                              //     {`Move cards that didn't pass to`}
-                              //   </Typography>
-                              //   <Autocomplete
-                              //     options={space.columnOrder}
-                              //     getOptionLabel={(option) =>
-                              //       option && space.columns[option].title
-                              //     }
-                              //     value={noPassColumn}
-                              //     onChange={(event, newValue) => {
-                              //       setNoPassColumn(newValue as string);
-                              //     }}
-                              //     renderInput={(params) => (
-                              //       <TextField
-                              //         {...params}
-                              //         id="filled-hidden-label-normal"
-                              //         placeholder="Column"
-                              //         size="small"
-                              //         margin="dense"
-                              //       />
-                              //     )}
-                              //   />
-                              //   <PrimaryButton
-                              //     endIcon={<PaidIcon />}
-                              //     color="secondary"
-                              //     variant="outlined"
-                              //     sx={{
-                              //       mx: 4,
-                              //       mt: 4,
-                              //       ml: 8,
-                              //       borderRadius: 1,
-                              //     }}
-                              //     size="small"
-                              //     onClick={() => {
-                              //       setIsLoading(true);
-                              //       moveCards(
-                              //         Moralis,
-                              //         epoch.objectId,
-                              //         passColumn,
-                              //         noPassColumn
-                              //       )
-                              //         .then((res: any) => {
-                              //           setSpace(res);
-                              //           handleTabChange({} as any, 0);
-                              //           setIsLoading(false);
-                              //         })
-                              //         .catch((err: any) => {
-                              //           notify(
-                              //             "Sorry! There was an error while moving cards.",
-                              //             "error"
-                              //           );
-                              //           setIsLoading(false);
-                              //         });
-                              //     }}
-                              //   >
-                              //     Move cards
-                              //   </PrimaryButton>
-                              // </Box>
+                              <div />
                             )}
                             {epoch.type === 'Member' && (
                               <CsvExport epoch={epoch} />
@@ -461,30 +393,6 @@ const EpochList = ({ expanded, handleChange }: Props) => {
       )}
     </Container>
   );
-};
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 1rem;
-`;
-
-const DetailContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-top: 0.5rem;
-`;
-
-const InfoContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const ButtonContainer = styled.div`
-  margin-top: 1rem;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-`;
+}
 
 export default EpochList;

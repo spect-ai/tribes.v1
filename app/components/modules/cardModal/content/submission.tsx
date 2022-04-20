@@ -1,16 +1,15 @@
-import CircleIcon from '@mui/icons-material/Circle';
 import { Box, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { useMoralis } from 'react-moralis';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import DoneIcon from '@mui/icons-material/Done';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Block, Task } from '../../../../types';
 import { uid } from '../../../../utils/utils';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import Editor from '../../editor';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import DoneIcon from '@mui/icons-material/Done';
-import StarHalfIcon from '@mui/icons-material/StarHalf';
+
 import { notify } from '../../settingsTab';
 import { useAccess } from '../../../../hooks/useAccess';
 import { useCardStatus } from '../../../../hooks/useCardStatus';
@@ -20,11 +19,10 @@ type Props = {
   setTask: (task: Task) => void;
 };
 
-const Submission = ({ task, setTask }: Props) => {
+function Submission({ task, setTask }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
-  const { user } = useMoralis();
   const { isCardSteward, isCardAssignee } = useAccess(task);
   const { isAssigned, isInReview, isInRevision, isClosed, isPaid } =
     useCardStatus(task);
@@ -42,7 +40,6 @@ const Submission = ({ task, setTask }: Props) => {
       },
     })
       .then((res) => {
-        console.log(res);
         setSpace(res.space);
         setTask(res.task);
         setFeedback('Saved draft');
@@ -155,7 +152,7 @@ const Submission = ({ task, setTask }: Props) => {
         </Box>
       )}
       {
-        //Assignee view
+        // Assignee view
         isCardAssignee() && (isInRevision() || isAssigned()) && (
           <Box sx={{ display: 'flex', flexDirection: 'row', mt: 4 }}>
             <PrimaryButton
@@ -198,7 +195,7 @@ const Submission = ({ task, setTask }: Props) => {
         </Box>
       )}
       {
-        //Reviewer view
+        // Reviewer view
         isCardSteward() && isInReview() && (
           <Box sx={{ display: 'flex', flexDirection: 'row', mt: 4 }}>
             <PrimaryButton
@@ -247,5 +244,5 @@ const Submission = ({ task, setTask }: Props) => {
       )}
     </Box>
   );
-};
+}
 export default Submission;

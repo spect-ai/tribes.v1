@@ -10,7 +10,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
@@ -24,7 +24,7 @@ type Props = {
   setTask: (task: Task) => void;
 };
 
-const CardMemberPopover = ({ type, task, setTask }: Props) => {
+function CardMemberPopover({ type, task, setTask }: Props) {
   const [member, setMember] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { Moralis } = useMoralis();
@@ -53,8 +53,8 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
     setFeedbackOpen(false);
   };
   const handleSave = () => {
-    const prevTask = Object.assign({}, task);
-    const temp = Object.assign({}, task);
+    const prevTask = { ...task };
+    const temp = { ...task };
     if (type === 'reviewer') {
       temp.reviewer = [member];
       setTask(temp);
@@ -215,6 +215,6 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
       </Popover>
     </>
   );
-};
+}
 
 export default CardMemberPopover;

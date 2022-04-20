@@ -2,7 +2,7 @@ import { Box, Grow, Modal, styled, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { PrimaryButton } from '../../elements/styledComponents';
 import { notify } from '../settingsTab';
 

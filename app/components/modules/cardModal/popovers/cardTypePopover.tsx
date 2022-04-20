@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { useMoralisFunction } from '../../../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
@@ -19,7 +19,7 @@ type Props = {
   setTask: (task: Task) => void;
 };
 
-const CardTypePopover = ({ task, setTask }: Props) => {
+function CardTypePopover({ task, setTask }: Props) {
   const [type, setType] = useState(task?.type || 'Task');
   const [isLoading, setIsLoading] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
@@ -30,7 +30,7 @@ const CardTypePopover = ({ task, setTask }: Props) => {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    if (editAbleComponents['type']) {
+    if (editAbleComponents.type) {
       setOpen(true);
     } else {
       setFeedbackOpen(true);
@@ -44,20 +44,18 @@ const CardTypePopover = ({ task, setTask }: Props) => {
   };
 
   const handleSave = () => {
-    const prevTask = Object.assign({}, task);
-    const temp = Object.assign({}, task);
+    const prevTask = { ...task };
+    const temp = { ...task };
     temp.type = type;
     setTask(temp);
     handleClose();
     runMoralisFunction('updateCard', {
       updates: {
-        type: type,
+        type,
         taskId: task.taskId,
       },
     })
       .then((res: any) => {
-        console.log(`res card type`);
-        console.log(res);
         setSpace(res.space);
         setTask(res.task);
       })
@@ -153,6 +151,6 @@ const CardTypePopover = ({ task, setTask }: Props) => {
       </Popover>
     </>
   );
-};
+}
 
 export default CardTypePopover;

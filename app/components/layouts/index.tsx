@@ -10,7 +10,7 @@ import {
   initRegistry,
   useGlobal,
 } from '../../context/globalContext';
-import { useMoralisFunction } from '../../hooks/useMoralisFunction';
+import useMoralisFunction from '../../hooks/useMoralisFunction';
 
 interface Props {
   children: React.ReactNode;
