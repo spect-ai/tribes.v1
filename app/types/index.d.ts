@@ -86,6 +86,7 @@ export interface Epoch {
   paid: boolean;
   votesFor: Object<string, number>;
   votesAgainst: Object<string, number>;
+  transactionHash: string;
   _createdAt: object;
   _id: string;
   _updatedAt: object;
