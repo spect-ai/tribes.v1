@@ -111,7 +111,7 @@ function ForAgainstVoting({
                       color:
                         canVote && votesGiven[choiceId] === 1
                           ? '#66bb6a'
-                          : 'primary.main',
+                          : 'text.secondary',
                     }}
                     size="medium"
                     onClick={() => {
@@ -131,7 +131,7 @@ function ForAgainstVoting({
                       color:
                         canVote && votesGiven[choiceId] === -1
                           ? '#f44336'
-                          : 'primary.main',
+                          : 'text.secondary',
                     }}
                     size="medium"
                     onClick={() => {
