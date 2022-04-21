@@ -64,7 +64,6 @@ function MemberPopover({ open, anchorEl, handleClose, member, roles }: Props) {
                 role: newValue.role,
               })
                 .then((res) => {
-                  console.log(res);
                   setSpace(res);
                   handleClose();
                 })
@@ -79,7 +78,7 @@ function MemberPopover({ open, anchorEl, handleClose, member, roles }: Props) {
                 role: newValue.role,
               })
                 .then((res) => {
-                  console.log(res);
+                  console.log({ res });
                   setTribe(res);
                   handleClose();
                 })
