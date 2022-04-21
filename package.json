@@ -7,7 +7,7 @@
     "start": "next start",
     "lint": "next lint",
     "prettier": "prettier --write .",
-    "eslint": "eslint . --ext .tsx",
+    "eslint": "eslint . --ext .tsx --quiet",
     "eslint:fix": "eslint . --ext .tsx --fix",
     "prepare": "husky install"
   },
