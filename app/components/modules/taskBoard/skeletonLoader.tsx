@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 import { Grid, Skeleton } from '@mui/material';
 import React from 'react';
 
@@ -16,6 +17,7 @@ function SkeletonLoader(props: Props) {
               variant="rectangular"
               animation="wave"
               sx={{ mt: 2, borderRadius: '0.5rem' }}
+              key={index}
             />
           ))}
       </Grid>
@@ -29,6 +31,7 @@ function SkeletonLoader(props: Props) {
               variant="rectangular"
               animation="wave"
               sx={{ mt: 2, borderRadius: '0.5rem' }}
+              key={index}
             />
           ))}
       </Grid>
@@ -42,6 +45,7 @@ function SkeletonLoader(props: Props) {
               variant="rectangular"
               animation="wave"
               sx={{ mt: 2, borderRadius: '0.5rem' }}
+              key={index}
             />
           ))}
       </Grid>
@@ -55,6 +59,7 @@ function SkeletonLoader(props: Props) {
               variant="rectangular"
               animation="wave"
               sx={{ mt: 2, borderRadius: '0.5rem' }}
+              key={index}
             />
           ))}
       </Grid>
@@ -68,6 +73,7 @@ function SkeletonLoader(props: Props) {
               variant="rectangular"
               animation="wave"
               sx={{ mt: 2, borderRadius: '0.5rem' }}
+              key={index}
             />
           ))}
       </Grid>

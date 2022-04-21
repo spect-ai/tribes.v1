@@ -9,7 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import dynamic from 'next/dynamic';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import ContentEditable from 'react-contenteditable';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -64,7 +64,6 @@ function EditableBlock({
   const [embedUrl, setEmbedUrl] = useState(block.embedUrl || '');
   const [type, setType] = useState<string | undefined>(block.type || '');
   const [placeholder, setPlaceholder] = useState(false);
-  const [previousKey, setPreviousKey] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isSelectMenuOpen, setIsSelectMenuOpen] = useState(false);
   const [tagSelectorMenuPosition, setTagSelectorMenuPosition] = useState(
@@ -78,6 +77,8 @@ function EditableBlock({
 
   const { Moralis } = useMoralis();
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const previousKey = useRef<string>();
 
   // Show a placeholder for blank pages
   const addPlaceholder = ({ pBlock, pPosition, pContent }: any) => {
@@ -161,7 +162,11 @@ function EditableBlock({
     if (e.key === '/') {
       setHtmlBackup(html);
     }
-    if (e.key === 'Enter' && previousKey !== 'Shift' && !isSelectMenuOpen) {
+    if (
+      e.key === 'Enter' &&
+      previousKey.current !== 'Shift' &&
+      !isSelectMenuOpen
+    ) {
       e.preventDefault();
       if (html === '' && (type === 'ul' || type === 'ol')) {
         setTag('p');
@@ -211,7 +216,7 @@ function EditableBlock({
         }
       }
     }
-    setPreviousKey(e.key);
+    previousKey.current = e.key;
   };
 
   const handleFocus = () => {
@@ -402,6 +407,9 @@ function EditableBlock({
               </span>
               {!['img', 'embed', 'divider'].includes(tag) && (
                 <ContentEditable
+                  innerRef={contentEditableRef}
+                  html={html}
+                  tagName={tag}
                   data-position={position}
                   data-tag={tag}
                   disabled={readOnly}
@@ -412,9 +420,6 @@ function EditableBlock({
                     type === 'ul' && styles.bulletList,
                     type === 'ol' && styles.numberedList,
                   ].join(' ')}
-                  innerRef={contentEditableRef}
-                  html={html}
-                  tagName={tag}
                   onChange={(e) => {
                     setHtml(e.target.value);
                   }}
