@@ -21,6 +21,17 @@ Moralis.Cloud.define('getTask', async (request) => {
 
       task = addFieldsToTask(task, request.user?.id);
       task.activity.reverse();
+      if (task.comments?.legnth > 0) {
+        logger.info(
+          `date1 ${JSON.stringify(
+            new Date(task.comments[0]?.createdAt?.iso)?.getTime()
+          )}`
+        );
+      }
+      // Arrange comments so oldest is first
+      task.comments = task.comments?.sort((a, b) =>
+        dateGreaterThan(a.createdAt, b.createdAt) ? 1 : -1
+      );
 
       return task;
     }

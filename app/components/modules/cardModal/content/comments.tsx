@@ -20,6 +20,7 @@ import { PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 import useProfileInfo from '../../../../hooks/useProfileInfo';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useCardStatus from '../../../../hooks/useCardStatus';
 
 type Props = {
   task: Task;
@@ -49,7 +50,7 @@ function Comments({ task, setTask }: Props) {
   const [mode, setMode] = useState('add');
   const [editId, setEditId] = useState('');
   const { viewableComponents } = useCardDynamism(task);
-
+  const { hasNoComments } = useCardStatus(task);
   const handleClose = () => {
     setOpen(false);
   };
@@ -86,8 +87,6 @@ function Comments({ task, setTask }: Props) {
 
   const syncBlocksToMoralis = (blocks: Block[]) => {
     setIsLoading(true);
-    const temp = { ...task };
-    setTask(temp);
     runMoralisFunction('updateCard', {
       updates: {
         comments: {
@@ -184,44 +183,33 @@ function Comments({ task, setTask }: Props) {
         width: '45rem',
       }}
     >
-      {task.comments?.map((comment, index) => (
-        // eslint-disable-next-line react/no-array-index-key
-        <Box sx={{ borderBottom: 1 }} key={index}>
-          <Box
-            sx={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              mt: 4,
-            }}
-          >
-            <Avatar
-              variant="rounded"
-              sx={{ p: 0, m: 0, width: 32, height: 32 }}
-              src={getAvatar(space.memberDetails[comment.userId])}
-            />
-            <Typography
-              variant="body1"
+      {!isLoading &&
+        task.comments?.map((comment, index) => (
+          // eslint-disable-next-line react/no-array-index-key
+          <Box sx={{ borderBottom: 1 }} key={index}>
+            <Box
               sx={{
-                ml: 2,
+                width: '100%',
                 display: 'flex',
                 alignItems: 'center',
+                mt: 4,
               }}
             >
-              {space.memberDetails[comment.userId]?.username}
-            </Typography>{' '}
-            <Typography
-              variant="body2"
-              sx={{
-                ml: 4,
-                display: 'flex',
-                alignItems: 'center',
-                color: 'text.secondary',
-              }}
-            >
-              {formatTimeCreated(comment?.createdAt)} ago
-            </Typography>{' '}
-            {comment?.edited && (
+              <Avatar
+                variant="rounded"
+                sx={{ p: 0, m: 0, width: 32, height: 32 }}
+                src={getAvatar(space.memberDetails[comment.userId])}
+              />
+              <Typography
+                variant="body1"
+                sx={{
+                  ml: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                {space.memberDetails[comment.userId]?.username}
+              </Typography>{' '}
               <Typography
                 variant="body2"
                 sx={{
@@ -231,81 +219,93 @@ function Comments({ task, setTask }: Props) {
                   color: 'text.secondary',
                 }}
               >
-                Edited {formatTimeCreated(comment?.updatedAt)} ago
-              </Typography>
-            )}
-            <Box sx={{ flex: '1 1 auto' }} />
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-              }}
-            >
-              {user?.id === comment.userId && (
-                <IconButton
-                  sx={{ m: 0, px: 2 }}
-                  onClick={handleClick(comment.id)}
+                {formatTimeCreated(comment?.createdAt)} ago
+              </Typography>{' '}
+              {comment?.edited && (
+                <Typography
+                  variant="body2"
+                  sx={{
+                    ml: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: 'text.secondary',
+                  }}
                 >
-                  <MoreHorizIcon />
-                </IconButton>
+                  Edited {formatTimeCreated(comment?.updatedAt)} ago
+                </Typography>
               )}
+              <Box sx={{ flex: '1 1 auto' }} />
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                }}
+              >
+                {user?.id === comment.userId && (
+                  <IconButton
+                    sx={{ m: 0, px: 2 }}
+                    onClick={handleClick(comment.id)}
+                  >
+                    <MoreHorizIcon />
+                  </IconButton>
+                )}
+              </Box>
             </Box>
-          </Box>
 
-          {mode === 'edit' && editId === comment.id ? (
-            <>
+            {mode === 'edit' && editId === comment.id ? (
+              <>
+                <Editor
+                  syncBlocksToMoralis={setCommentOnEdit}
+                  initialBlock={comment.content}
+                  placeholderText=""
+                  readonly={false}
+                />
+                <PrimaryButton
+                  variant="outlined"
+                  sx={{
+                    mb: 2,
+                    borderRadius: 1,
+                    width: '4rem',
+                    height: '2rem',
+                  }}
+                  color="secondary"
+                  size="small"
+                  loading={isLoading}
+                  onClick={() => {
+                    syncBlocksToMoralis(commentOnEdit);
+                  }}
+                >
+                  Save
+                </PrimaryButton>
+                <PrimaryButton
+                  variant="outlined"
+                  sx={{
+                    ml: 1,
+                    mb: 2,
+                    borderRadius: 1,
+                    width: '4rem',
+                    height: '2rem',
+                  }}
+                  color="secondary"
+                  size="small"
+                  loading={isLoading}
+                  onClick={() => {
+                    handleCancel();
+                  }}
+                >
+                  Cancel
+                </PrimaryButton>
+              </>
+            ) : (
               <Editor
                 syncBlocksToMoralis={setCommentOnEdit}
                 initialBlock={comment.content}
                 placeholderText=""
-                readonly={false}
+                readonly
               />
-              <PrimaryButton
-                variant="outlined"
-                sx={{
-                  mb: 2,
-                  borderRadius: 1,
-                  width: '4rem',
-                  height: '2rem',
-                }}
-                color="secondary"
-                size="small"
-                loading={isLoading}
-                onClick={() => {
-                  syncBlocksToMoralis(commentOnEdit);
-                }}
-              >
-                Save
-              </PrimaryButton>
-              <PrimaryButton
-                variant="outlined"
-                sx={{
-                  ml: 1,
-                  mb: 2,
-                  borderRadius: 1,
-                  width: '4rem',
-                  height: '2rem',
-                }}
-                color="secondary"
-                size="small"
-                loading={isLoading}
-                onClick={() => {
-                  handleCancel();
-                }}
-              >
-                Cancel
-              </PrimaryButton>
-            </>
-          ) : (
-            <Editor
-              syncBlocksToMoralis={setCommentOnEdit}
-              initialBlock={comment.content}
-              placeholderText=""
-              readonly
-            />
-          )}
-        </Box>
-      ))}
+            )}
+          </Box>
+        ))}
       <Popover
         open={open}
         anchorEl={anchorEl}
@@ -385,14 +385,17 @@ function Comments({ task, setTask }: Props) {
           </PrimaryButton>
         </>
       )}
-      {mode !== 'edit' && !isLoading && !viewableComponents.addComment && (
-        <Typography
-          variant="body1"
-          sx={{ display: 'flex', alignItems: 'center', ml: 2 }}
-        >
-          No comments have been added yet.
-        </Typography>
-      )}
+      {mode !== 'edit' &&
+        !isLoading &&
+        !viewableComponents.addComment &&
+        hasNoComments() && (
+          <Typography
+            variant="body1"
+            sx={{ display: 'flex', alignItems: 'center', ml: 2 }}
+          >
+            No comments have been added yet.
+          </Typography>
+        )}
     </Box>
   );
 }

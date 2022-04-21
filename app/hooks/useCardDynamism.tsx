@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useMoralis } from 'react-moralis';
-import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import { Task } from '../types';
 import useAccess from './useAccess';
 import useCardStatus from './useCardStatus';
 
 export default function useCardDynamism(task: Task) {
-  const { space } = useSpace();
   const { user } = useMoralis();
   const {
     isSpaceSteward,
@@ -42,7 +40,7 @@ export default function useCardDynamism(task: Task) {
   }
 
   const getReason = (field: string) => {
-    if (task.status === 300) {
+    if (isPaid()) {
       return 'Cannot edit, already paid for card';
     }
     switch (field) {
@@ -63,15 +61,15 @@ export default function useCardDynamism(task: Task) {
   };
 
   const isDeadlineEditable = () => {
-    return isCardStakeholder() && !(task.status === 300);
+    return isCardStakeholder() && !isPaid();
   };
 
   const isGeneralEditable = () => {
-    return isCardSteward() && !(task.status === 300);
+    return isCardSteward() && !isPaid();
   };
 
   const isAssigneeEditable = () => {
-    if (task.status === 300) return false;
+    if (isPaid()) return false;
     if (task?.assignee?.length > 0) {
       return isCardStakeholder();
     }
@@ -155,7 +153,7 @@ export default function useCardDynamism(task: Task) {
       assignee: isAssigneeViewable(),
       reviewer: true,
       assignToMe: isAssignToMeViewable(),
-      addComment: isSpaceSteward() || isCardStakeholder(),
+      addComment: isSpaceMember() || isCardStakeholder(),
       optionPopover: isSpaceSteward() || isCardStakeholder(),
       applyButton: isApplyButtonViewable(),
     };

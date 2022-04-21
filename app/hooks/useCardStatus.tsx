@@ -37,6 +37,10 @@ export default function useCardStatus(task: Task) {
     return !task.value || task.value === 0;
   };
 
+  const hasNoComments = () => {
+    return !task.comments || task.comments?.length === 0;
+  };
+
   return {
     isCreated,
     isInReview,
@@ -47,5 +51,6 @@ export default function useCardStatus(task: Task) {
     isPaid,
     isUnassigned,
     hasNoReward,
+    hasNoComments,
   };
 }

@@ -61,3 +61,9 @@ function objectHasSameElements(obj1, obj2) {
   }
   return true;
 }
+
+function dateGreaterThan(date1, date2) {
+  const d1 = new Date(date1.iso);
+  const d2 = new Date(date2.iso);
+  return d1.getTime() > d2.getTime();
+}

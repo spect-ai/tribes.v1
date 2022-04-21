@@ -80,14 +80,22 @@ Moralis.Cloud.define('updateCard', async (request) => {
       space,
       request.user.id
     );
-    logger.info(`Updating card ${task.get('taskId')} and space ${space.id}`);
     const res = await Moralis.Object.saveAll([space, task], {
       useMasterKey: true,
     });
-    logger.info(`res: ${JSON.stringify(res)}`);
+
+    var resTask = addFieldsToTask(
+      mapParseObjectToObject(res[1]),
+      request.user.id
+    );
+
+    // Arrange comments so oldest is first
+    resTask.comments = resTask.comments?.sort((a, b) =>
+      dateGreaterThan(a.createdAt, b.createdAt) ? 1 : -1
+    );
     return {
       space: await getSpace(task.get('boardId'), request.user.id),
-      task: addFieldsToTask(mapParseObjectToObject(res[1]), request.user.id),
+      task: resTask,
     };
   } catch (err) {
     logger.error(
@@ -97,21 +105,21 @@ Moralis.Cloud.define('updateCard', async (request) => {
   }
 });
 
-Moralis.Cloud.define("updateMultipleCards", async (request) => {
+Moralis.Cloud.define('updateMultipleCards', async (request) => {
   try {
     var tasks = await getTasksByTaskIds(Object.keys(request.params.updates));
-    if (tasks.length === 0) throw "No tasks found";
-    var space = await getBoardByObjectId(tasks[0].get("boardId"));
+    if (tasks.length === 0) throw 'No tasks found';
+    var space = await getBoardByObjectId(tasks[0].get('boardId'));
     var resTasks = [];
     for (var task of tasks) {
       validate(
-        request.params.updates[task.get("taskId")],
+        request.params.updates[task.get('taskId')],
         task,
         request.user.id,
         space
       );
       [space, task] = await handleUpdates(
-        request.params.updates[task.get("taskId")],
+        request.params.updates[task.get('taskId')],
         task,
         space,
         request.user.id
@@ -122,7 +130,7 @@ Moralis.Cloud.define("updateMultipleCards", async (request) => {
       useMasterKey: true,
     });
     return {
-      space: await getSpace(task.get("boardId"), request.user.id),
+      space: await getSpace(task.get('boardId'), request.user.id),
       tasks: resTasks.map((task) =>
         addFieldsToTask(mapParseObjectToObject(task), request.user.id)
       ),
@@ -307,16 +315,16 @@ async function handleColumnUpdate(space, task, updates) {
   const destinationId = updates.columnChange.destinationId;
   logger.info(
     `Handling column update for task ${space.id} ${task.get(
-      "taskId"
+      'taskId'
     )} ${sourceId} ${destinationId}`
   );
-  var columns = space.get("columns");
-  const source = removeTaskFromColumn(columns[sourceId], task.get("taskId"));
+  var columns = space.get('columns');
+  const source = removeTaskFromColumn(columns[sourceId], task.get('taskId'));
   logger.info(`source: ${JSON.stringify(source)}`);
 
   const destination = addTaskToColumn(
     columns[destinationId],
-    task.get("taskId")
+    task.get('taskId')
   );
 
   columns = {
@@ -324,8 +332,8 @@ async function handleColumnUpdate(space, task, updates) {
     [source.id]: source,
     [destination.id]: destination,
   };
-  space.set("columns", columns);
-  task.set("columnId", destinationId);
+  space.set('columns', columns);
+  task.set('columnId', destinationId);
 
   return [space, task];
 }
