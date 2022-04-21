@@ -40,7 +40,7 @@ function CardList({
   const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
-
+  console.log(registry);
   const getValidCardIds = (columnId: string) => {
     // var cardIds = space.columns[columnId].taskIds;
     const cardIds = space.columns[columnId].taskIds.filter((taskId) => {
@@ -107,7 +107,7 @@ function CardList({
             id="filled-hidden-label-normal"
             fullWidth
             sx={{ mb: 2, mt: 2 }}
-            placeholder="Import task from column"
+            placeholder="Import card from column"
             size="small"
           />
         )}
@@ -199,8 +199,7 @@ function CardList({
             const cardIds = getCardIds();
             runMoralisFunction('getBatchPayInfo', {
               taskIds: cardIds,
-              distributorAddress: registry[chainId]
-                .distributorAddress as string,
+              distributor: registry[chainId].distributorAddress as string,
               chainIdHex: window.ethereum.chainId,
             })
               .then((res: any) => {

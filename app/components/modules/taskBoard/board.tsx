@@ -187,7 +187,7 @@ function Board({ expanded, handleChange }: Props) {
               setIsOpen(true);
             }}
           >
-            Import tasks from Trello
+            Import cards from Trello
           </PrimaryButton>
         )}
       <DragDropContext onDragEnd={handleDragEnd}>

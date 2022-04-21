@@ -94,7 +94,7 @@ function PayoutContributors({ epoch }: Props) {
     }
   };
 
-  const handleStatusUpdate = (epochId: string, transactionHash:string) => {
+  const handleStatusUpdate = (epochId: string, transactionHash: string) => {
     runMoralisFunction('completeEpochPayment', { epochId, transactionHash })
       .then((res: any) => {
         setRefreshEpochs(true);
@@ -109,52 +109,53 @@ function PayoutContributors({ epoch }: Props) {
 
   return (
     <>
-      <PrimaryButton
-        endIcon={<PaidIcon />}
-        variant="outlined"
-        disabled={epoch.paid}
-        loading={isLoading}
-        sx={{
-          mx: 4,
-          borderRadius: 1,
-        }}
-        size="small"
-        color="secondary"
-        onClick={() => {
-          setIsLoading(true);
-          if (epoch.chain.chainId !== window.ethereum.networkVersion) {
-            setActiveStep(-1);
-            setIsLoading(false);
-            setIsOpen(true);
-          } else if (epoch.token.address === '0x0') {
-            setActiveStep(2);
-            setIsLoading(false);
-            setIsOpen(true);
-          } else {
-            isApprovalRequired(
-              user?.get('ethAddress'),
-              epoch.token.address,
-              epoch.budget,
-              window.ethereum.networkVersion
-            ).then((reqd: boolean) => {
-              if (reqd) {
-                const temp = { ...approvalInfo };
-                temp.required = true;
-                setApprovalInfo(temp);
-                setActiveStep(0);
-                setSteps(['Approve Tokens', 'Batch Pay Tokens']);
-                setShowStepper(true);
-              } else {
-                setActiveStep(1);
-              }
+      {!epoch.paid && (
+        <PrimaryButton
+          endIcon={<PaidIcon />}
+          variant="outlined"
+          loading={isLoading}
+          sx={{
+            mx: 4,
+            borderRadius: 1,
+          }}
+          size="small"
+          color="secondary"
+          onClick={() => {
+            setIsLoading(true);
+            if (epoch.chain.chainId !== window.ethereum.networkVersion) {
+              setActiveStep(-1);
               setIsLoading(false);
               setIsOpen(true);
-            });
-          }
-        }}
-      >
-        Payout countributors
-      </PrimaryButton>
+            } else if (epoch.token.address === '0x0') {
+              setActiveStep(2);
+              setIsLoading(false);
+              setIsOpen(true);
+            } else {
+              isApprovalRequired(
+                user?.get('ethAddress'),
+                epoch.token.address,
+                epoch.budget,
+                window.ethereum.networkVersion
+              ).then((reqd: boolean) => {
+                if (reqd) {
+                  const temp = { ...approvalInfo };
+                  temp.required = true;
+                  setApprovalInfo(temp);
+                  setActiveStep(0);
+                  setSteps(['Approve Tokens', 'Batch Pay Tokens']);
+                  setShowStepper(true);
+                } else {
+                  setActiveStep(1);
+                }
+                setIsLoading(false);
+                setIsOpen(true);
+              });
+            }
+          }}
+        >
+          Payout countributors
+        </PrimaryButton>
+      )}
       <Modal open={isOpen} onClose={handleClose}>
         <Box sx={modalStyle}>
           <Grid

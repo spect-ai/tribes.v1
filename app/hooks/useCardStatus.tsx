@@ -9,6 +9,10 @@ export default function useCardStatus(task: Task) {
     return task.status === 105;
   };
 
+  const isUnassigned = () => {
+    return task.assignee.length === 0;
+  };
+
   const isInReview = () => {
     return task.status === 200;
   };
@@ -28,6 +32,11 @@ export default function useCardStatus(task: Task) {
   const isArchived = () => {
     return task.status === 500;
   };
+
+  const hasNoReward = () => {
+    return !task.value || task.value === 0;
+  };
+
   return {
     isCreated,
     isInReview,
@@ -36,5 +45,7 @@ export default function useCardStatus(task: Task) {
     isClosed,
     isArchived,
     isPaid,
+    isUnassigned,
+    hasNoReward,
   };
 }

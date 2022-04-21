@@ -721,6 +721,8 @@ Moralis.Cloud.define('getBatchPayInfo', async (request) => {
       }
     }
 
+    logger.info(`distributor ${request.params.distributor}`);
+
     // Get if approval required
     tokenAddressToMinAllowanceRequired = await getApprovalInfo(
       tokenAddressToMinAllowanceRequired,

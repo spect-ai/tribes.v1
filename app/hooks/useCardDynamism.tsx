@@ -3,6 +3,7 @@ import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import { Task } from '../types';
 import useAccess from './useAccess';
+import useCardStatus from './useCardStatus';
 
 export default function useCardDynamism(task: Task) {
   const { space } = useSpace();
@@ -14,6 +15,7 @@ export default function useCardDynamism(task: Task) {
     isSpaceMember,
     isCardAssignee,
   } = useAccess(task);
+  const { isPaid, isUnassigned, hasNoReward } = useCardStatus(task);
   const [viewableComponents, setViewableComponents] = useState({} as any);
   const [editAbleComponents, setEditableComponents] = useState({} as any);
   const [proposalEditMode, setProposalEditMode] = useState(false);
@@ -21,14 +23,9 @@ export default function useCardDynamism(task: Task) {
   const [tabIdx, setTabIdx] = useState(0);
 
   function getPayButtonView() {
-    if (
-      !task.value ||
-      task.value === 0 ||
-      !isCardSteward() ||
-      task.status === 300 // Paid already
-    ) {
+    if (!isCardSteward() || isPaid() || isUnassigned() || hasNoReward())
       return 'hide';
-    }
+
     if (user?.get('distributorApproved')) {
       if (
         task.token?.address === '0x0' ||

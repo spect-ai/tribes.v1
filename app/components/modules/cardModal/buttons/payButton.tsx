@@ -140,7 +140,7 @@ function PayButton({ task, setTask, handleClose }: Props) {
     setPayButtonText(viewableComponents.pay === 'showPay' ? 'Pay' : 'Approve');
   }, [viewableComponents?.pay]);
 
-  if (viewableComponents.pay === 'hide') {
+  if (viewableComponents.pay !== 'hide') {
     return (
       <ListItemButton
         onClick={() => {

@@ -131,7 +131,7 @@ function BatchPay({
                       distributionInfo.epochId
                         ? distributionInfo.epochId
                         : distributionInfo.cardIds,
-                        res.transactionHash
+                      res.transactionHash
                     )
                   );
                   Promise.all(promises).then(() => {
@@ -162,7 +162,7 @@ function BatchPay({
                       distributionInfo.epochId
                         ? distributionInfo.epochId
                         : distributionInfo.cardIds,
-                        res.transactionHash
+                      res.transactionHash
                     )
                   );
                   Promise.all(promises).then(() => {

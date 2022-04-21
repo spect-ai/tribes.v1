@@ -8,6 +8,7 @@ import {
   Grid,
   Typography,
   Skeleton,
+  Link,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -28,6 +29,7 @@ import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import CreateEpoch from './createEpochModal';
 import PayoutContributors from './payoutContributors';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { useGlobal } from '../../../context/globalContext';
 
 type Props = {};
 
@@ -76,7 +78,9 @@ function EpochList() {
   const [votesRemaining, setVotesRemaining] = useState({} as VotesRemaining);
   const [isLoading, setIsLoading] = useState(true);
   const { runMoralisFunction } = useMoralisFunction();
-
+  const {
+    state: { registry },
+  } = useGlobal();
   const handleVotesGiven = (
     epochid: string,
     choiceId: string,
@@ -306,6 +310,22 @@ function EpochList() {
                               {epoch.budget} {epoch.token.symbol}
                             </Typography>
                           </InfoContainer>
+                        )}
+                        {epoch.paid && (
+                          <Link
+                            target="_blank"
+                            href={`${
+                              registry[epoch.chain.chainId]?.blockExplorer
+                            }/tx/${epoch.transactionHash}`}
+                            rel="noopener noreferrer"
+                            sx={{
+                              fontSize: '0.8rem',
+                              color: 'text.secondary',
+                              textAlign: 'right',
+                            }}
+                          >
+                            View Transaction
+                          </Link>
                         )}
                         {epoch.active ? (
                           <>

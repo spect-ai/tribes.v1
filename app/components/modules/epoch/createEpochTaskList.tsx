@@ -59,7 +59,7 @@ function CreateEpochTaskList({
             id="filled-hidden-label-normal"
             fullWidth
             sx={{ mb: 2, mt: 2 }}
-            placeholder="Import task from column"
+            placeholder="Import card from column"
             size="small"
           />
         )}
