@@ -6,12 +6,12 @@ import { batchPayTokens, distributeEther } from '../../../adapters/contract';
 import { useGlobal } from '../../../context/globalContext';
 import { Member } from '../../../types';
 import { PrimaryButton } from '../../elements/styledComponents';
-import { notify } from '../settingsTab';
+import usePaymentGateway from '../../../hooks/usePaymentGateway';
 
 export type DistributionInfo = {
   cardIds: string[];
   epochId: string;
-  type: string;
+  type: 'tokens' | 'currency';
   contributors: Array<string>;
   tokenAddresses: Array<string>;
   tokenValues: Array<number>;
@@ -25,14 +25,6 @@ type Props = {
   handleStatusUpdate: Function;
 };
 
-type MemberDetails = {
-  [key: string]: Member;
-};
-
-function getEthAddresses(contributors: any, memberDetails: MemberDetails) {
-  return contributors.map((a: string) => memberDetails[a].ethAddress);
-}
-
 function BatchPay({
   handleNextStep,
   handleClose,
@@ -40,10 +32,13 @@ function BatchPay({
   distributionInfo,
   handleStatusUpdate,
 }: Props) {
-  const [isLoading, setIsLoading] = useState(false);
   const { space } = useSpace();
   const { state } = useGlobal();
   const { registry } = state;
+  const { batchPay, isLoading } = usePaymentGateway(
+    handleStatusUpdate,
+    handleNextStep
+  );
   return (
     <Box
       sx={{
@@ -112,7 +107,22 @@ function BatchPay({
           loading={isLoading}
           sx={{ borderRadius: '3px' }}
           onClick={() => {
-            setIsLoading(true);
+            batchPay(window.ethereum.networkVersion, distributionInfo);
+          }}
+          variant="outlined"
+          id="bApprove"
+          color="secondary"
+        >
+          Batch Pay
+        </PrimaryButton>
+      </Box>
+    </Box>
+  );
+}
+
+export default BatchPay;
+
+/*
             if (distributionInfo.type === 'tokens') {
               batchPayTokens(
                 distributionInfo.tokenAddresses,
@@ -176,17 +186,4 @@ function BatchPay({
                   console.error(err);
                   setIsLoading(false);
                 });
-            }
-          }}
-          variant="outlined"
-          id="bApprove"
-          color="secondary"
-        >
-          Batch Pay
-        </PrimaryButton>
-      </Box>
-    </Box>
-  );
-}
-
-export default BatchPay;
+            } */

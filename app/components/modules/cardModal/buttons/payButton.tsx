@@ -13,6 +13,8 @@ import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import { notify } from '../../settingsTab';
+import usePaymentGateway from '../../../../hooks/usePaymentGateway';
+import useERC20 from '../../../../hooks/useERC20';
 
 type Props = {
   task: Task;
@@ -30,17 +32,20 @@ function PayButton({ task, setTask, handleClose }: Props) {
   const [payButtonText, setPayButtonText] = useState(
     viewableComponents.pay === 'showPay' ? 'Pay' : 'Approve'
   );
+  const { isCurrency } = useERC20();
 
-  const handleTaskStatusUpdate = (transactionHash: string) => {
+  const handleTaskStatusUpdate = (
+    cardIds: string[],
+    transactionHash: string
+  ) => {
     runMoralisFunction('updateCard', {
       updates: {
         status: 300,
         transactionHash,
-        taskId: task.taskId,
+        taskId: cardIds[0],
       },
     })
       .then((res) => {
-        console.log(res);
         setSpace(res.space);
         setTask(res.task);
       })
@@ -49,8 +54,9 @@ function PayButton({ task, setTask, handleClose }: Props) {
       });
   };
 
+  const { batchPay } = usePaymentGateway(handleTaskStatusUpdate);
+
   const handlePaymentError = (err: any) => {
-    console.log(err);
     if (window.ethereum.networkVersion !== task.chain.chainId)
       notify(`Please switch to ${task.chain?.name} network`, 'error');
     else {
@@ -61,43 +67,13 @@ function PayButton({ task, setTask, handleClose }: Props) {
   const handleClick = () => {
     if (viewableComponents.pay === 'showPay') {
       setPayButtonText('Paying...');
-      if (task.token.symbol === registry[task.chain.chainId].nativeCurrency) {
-        distributeEther(
-          [space.memberDetails[task.assignee[0]].ethAddress],
-          [task.value],
-          task.taskId,
-          window.ethereum.networkVersion
-        )
-          .then((res: any) => {
-            console.log(res);
-            setPayButtonText('Paid');
-            handleTaskStatusUpdate(res.transactionHash);
-            handleClose();
-          })
-          .catch((err: any) => {
-            setPayButtonText('Pay');
-            handlePaymentError(err);
-          });
-      } else {
-        batchPayTokens(
-          [task.token.address as string],
-          [space.memberDetails[task.assignee[0]].ethAddress],
-          [task.value],
-          task.taskId,
-          window.ethereum.networkVersion
-        )
-          .then((res: any) => {
-            console.log(res);
-
-            setPayButtonText('Paid');
-            handleTaskStatusUpdate(res.transactionHash);
-            handleClose();
-          })
-          .catch((err: any) => {
-            setPayButtonText('Pay');
-            handlePaymentError(err);
-          });
-      }
+      batchPay(window.ethereum.networkVersion, {
+        cardIds: [task.taskId],
+        type: isCurrency(task.token.address) ? 'currency' : 'tokens',
+        contributors: task.assignee,
+        tokenAddresses: [task.token.address],
+        tokenValues: [task.value],
+      });
     } else if (viewableComponents.pay === 'showApprove') {
       if (task.chain?.chainId !== window.ethereum.networkVersion) {
         handlePaymentError({});
