@@ -14,6 +14,8 @@ import BlockActionMenu from '../blockActionMenu';
 import { Block } from '../../../types';
 import {
   getCaretCoordinates,
+  getCaretCoordinatesForCommand,
+  getSelectedNodes,
   getSelection,
   isValidHttpUrl,
   setCaretToEnd,
@@ -38,6 +40,7 @@ type Props = {
   blocks: Block[];
   block: Block;
   readOnly: boolean;
+  isDragging: boolean;
   placeholderText: string;
 };
 
@@ -75,7 +78,7 @@ class EditableClassBlock extends React.Component<Props, State> {
     const y = parent.offsetTop - parent.scrollTop + parent.clientTop + 35;
     switch (initiator) {
       case 'TEXT_SELECTION':
-        return { x: middleX, y: startY };
+        return { x: startX + parent.offsetLeft, y: startY };
       case 'DRAG_HANDLE_CLICK':
         return { x, y };
       default:
@@ -174,6 +177,7 @@ class EditableClassBlock extends React.Component<Props, State> {
         embedUrl: propEmbedUrl,
       },
       id,
+      isDragging,
       updateBlock,
     } = this.props;
 
@@ -261,6 +265,13 @@ class EditableClassBlock extends React.Component<Props, State> {
       // after the content type selection was finished.
       this.setState({ htmlBackup: html });
     } else if (e.key === 'Backspace' && !html) {
+      if (type === 'nestedUl') {
+        this.setState({
+          ...this.state,
+          type: 'ul',
+        });
+        return;
+      }
       deleteBlock({ id });
     } else if (
       e.key === 'Enter' &&
@@ -271,7 +282,15 @@ class EditableClassBlock extends React.Component<Props, State> {
       // Only the Shift-Enter-combination should add a new paragraph,
       // i.e. Shift-Enter acts as the default enter behaviour
       e.preventDefault();
-      if (html === '' && (type === 'ul' || type === 'ol')) {
+      if (html === '' && type === 'nestedUl') {
+        this.setState({
+          ...this.state,
+          tag: 'p',
+          type: 'ul',
+        });
+        return;
+      }
+      if (html === '' && type === 'ul') {
         this.setState({
           ...this.state,
           tag: 'p',
@@ -287,6 +306,15 @@ class EditableClassBlock extends React.Component<Props, State> {
         ref: this.contentEditable.current,
         type,
       });
+    } else if (e.key === 'Tab') {
+      if (type === 'ul') {
+        e.preventDefault();
+        this.setState({
+          ...this.state,
+          type: 'nestedUl',
+        });
+        return;
+      }
     }
     // We need the previousKey to detect a Shift-Enter-combination
     this.setState({ previousKey: e.key });
@@ -304,7 +332,7 @@ class EditableClassBlock extends React.Component<Props, State> {
     const block = this.contentEditable.current;
     const { selectionStart, selectionEnd } = getSelection(block);
     if (selectionStart !== selectionEnd) {
-      this.openActionMenu(block, 'TEXT_SELECTION');
+      // this.openActionMenu(block, 'TEXT_SELECTION');
     }
   }
 
@@ -442,17 +470,17 @@ class EditableClassBlock extends React.Component<Props, State> {
   // If the user types the "/" command, the tag selector menu should be display above
   // If it is triggered by the action menu, it should be positioned relatively to its initiator
   calculateTagSelectorMenuPosition(initiator: string) {
-    const { x: caretLeft, y: caretTop } = getCaretCoordinates(true);
-    const {
-      actionMenuPosition: { x: actionX, y: actionY },
-    } = this.state;
+    const { x: caretLeft, y: caretTop } = getCaretCoordinatesForCommand(true);
+    const { actionMenuPosition } = this.state;
     switch (initiator) {
       case 'KEY_CMD':
         return { x: caretLeft, y: caretTop };
       case 'ACTION_MENU':
+        // eslint-disable-next-line no-case-declarations
+        const { x: actionX, y: actionY } = actionMenuPosition;
         return { x: actionX - 40, y: actionY };
       default:
-        return { x: null, y: null };
+        return { x: 0, y: 0 };
     }
   }
 
@@ -564,7 +592,7 @@ class EditableClassBlock extends React.Component<Props, State> {
                     placeholder ? styles.placeholder : null,
                     snapshot.isDragging ? styles.isDragging : null,
                     type === 'ul' && styles.bulletList,
-                    type === 'ol' && styles.numberedList,
+                    type === 'nestedUl' && styles.nestedList,
                   ].join(' ')}
                 />
               )}

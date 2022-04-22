@@ -142,6 +142,9 @@ export function downloadCSV(content: Array<Array<any>>, filename: string) {
 }
 
 export function capitalizeFirstLetter(word: string) {
+  if (!word) {
+    return '';
+  }
   return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
@@ -179,6 +182,24 @@ export const getSelection = (element: any) => {
 };
 
 export const getCaretCoordinates = (fromStart = true) => {
+  let x, y;
+  const isSupported = typeof window.getSelection !== 'undefined';
+  if (isSupported) {
+    const selection = window.getSelection();
+    if (selection.rangeCount !== 0) {
+      const range = selection.getRangeAt(0).cloneRange();
+      range.collapse(fromStart ? true : false);
+      const rect = range.getClientRects()[0];
+      if (rect) {
+        x = rect.left;
+        y = rect.top;
+      }
+    }
+  }
+  return { x, y };
+};
+
+export const getCaretCoordinatesForCommand = (fromStart = true) => {
   let x;
   let y;
   const isSupported = typeof window.getSelection !== 'undefined';
@@ -230,4 +251,53 @@ export function delay(delayInms: number) {
       resolve(2);
     }, delayInms);
   });
+}
+
+function nextNode(node) {
+  if (node.hasChildNodes()) {
+    return node.firstChild;
+  } else {
+    while (node && !node.nextSibling) {
+      node = node.parentNode;
+    }
+    if (!node) {
+      return null;
+    }
+    return node.nextSibling;
+  }
+}
+
+function getRangeSelectedNodes(range) {
+  var node = range.startContainer;
+  var endNode = range.endContainer;
+
+  // Special case for a range that is contained within a single node
+  if (node == endNode) {
+    return [node];
+  }
+
+  // Iterate nodes until we hit the end container
+  var rangeNodes = [];
+  while (node && node != endNode) {
+    rangeNodes.push((node = nextNode(node)));
+  }
+
+  // Add partially selected nodes at the start of the range
+  node = range.startContainer;
+  while (node && node != range.commonAncestorContainer) {
+    rangeNodes.unshift(node);
+    node = node.parentNode;
+  }
+
+  return rangeNodes;
+}
+
+export function getSelectedNodes() {
+  if (window.getSelection) {
+    var sel = window.getSelection();
+    if (!sel.isCollapsed) {
+      return getRangeSelectedNodes(sel.getRangeAt(0));
+    }
+  }
+  return [];
 }
