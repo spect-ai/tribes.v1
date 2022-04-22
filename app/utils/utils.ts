@@ -182,14 +182,15 @@ export const getSelection = (element: any) => {
 };
 
 export const getCaretCoordinates = (fromStart = true) => {
-  let x, y;
+  let x;
+  let y;
   const isSupported = typeof window.getSelection !== 'undefined';
   if (isSupported) {
     const selection = window.getSelection();
-    if (selection.rangeCount !== 0) {
-      const range = selection.getRangeAt(0).cloneRange();
-      range.collapse(fromStart ? true : false);
-      const rect = range.getClientRects()[0];
+    if (selection?.rangeCount !== 0) {
+      const range = selection?.getRangeAt(0).cloneRange();
+      range?.collapse(!!fromStart);
+      const rect = range?.getClientRects()[0];
       if (rect) {
         x = rect.left;
         y = rect.top;
@@ -253,38 +254,38 @@ export function delay(delayInms: number) {
   });
 }
 
-function nextNode(node) {
+function nextNode(node: any) {
   if (node.hasChildNodes()) {
     return node.firstChild;
-  } else {
-    while (node && !node.nextSibling) {
-      node = node.parentNode;
-    }
-    if (!node) {
-      return null;
-    }
-    return node.nextSibling;
   }
+  while (node && !node.nextSibling) {
+    // eslint-disable-next-line no-param-reassign
+    node = node.parentNode;
+  }
+  if (!node) {
+    return null;
+  }
+  return node.nextSibling;
 }
 
-function getRangeSelectedNodes(range) {
-  var node = range.startContainer;
-  var endNode = range.endContainer;
+function getRangeSelectedNodes(range: any) {
+  let node = range.startContainer;
+  const endNode = range.endContainer;
 
   // Special case for a range that is contained within a single node
-  if (node == endNode) {
+  if (node === endNode) {
     return [node];
   }
 
   // Iterate nodes until we hit the end container
-  var rangeNodes = [];
-  while (node && node != endNode) {
+  const rangeNodes = [];
+  while (node && node !== endNode) {
     rangeNodes.push((node = nextNode(node)));
   }
 
   // Add partially selected nodes at the start of the range
   node = range.startContainer;
-  while (node && node != range.commonAncestorContainer) {
+  while (node && node !== range.commonAncestorContainer) {
     rangeNodes.unshift(node);
     node = node.parentNode;
   }
@@ -294,9 +295,9 @@ function getRangeSelectedNodes(range) {
 
 export function getSelectedNodes() {
   if (window.getSelection) {
-    var sel = window.getSelection();
-    if (!sel.isCollapsed) {
-      return getRangeSelectedNodes(sel.getRangeAt(0));
+    const sel = window.getSelection();
+    if (!sel?.isCollapsed) {
+      return getRangeSelectedNodes(sel?.getRangeAt(0));
     }
   }
   return [];
