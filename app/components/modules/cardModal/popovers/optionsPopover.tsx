@@ -1,32 +1,32 @@
-import ArchiveIcon from "@mui/icons-material/Archive";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import VideoStableIcon from "@mui/icons-material/VideoStable";
-import ViewCompactAltIcon from "@mui/icons-material/ViewCompactAlt";
+import ArchiveIcon from '@mui/icons-material/Archive';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import VideoStableIcon from '@mui/icons-material/VideoStable';
+import ViewCompactAltIcon from '@mui/icons-material/ViewCompactAlt';
 import {
   IconButton,
   List,
   ListItemButton,
   ListItemText,
   Popover,
-} from "@mui/material";
-import React, { useState } from "react";
-import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
-import { useGlobal } from "../../../../context/globalContext";
-import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
-import { Task } from "../../../../types";
-import PayButton from "../buttons/payButton";
-import { useCardDynamism } from "../../../../hooks/useCardDynamism";
-import { notify } from "../../settingsTab";
-import IosShareIcon from "@mui/icons-material/IosShare";
+} from '@mui/material';
+import IosShareIcon from '@mui/icons-material/IosShare';
+import React, { useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import { useGlobal } from '../../../../context/globalContext';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
+import { Task } from '../../../../types';
+import PayButton from '../buttons/payButton';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
+import { notify } from '../../settingsTab';
 
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
 };
 
-const OptionsPopover = ({ task, setTask }: Props) => {
+function OptionsPopover({ task, setTask }: Props) {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
   const handleClose = () => {
@@ -42,7 +42,7 @@ const OptionsPopover = ({ task, setTask }: Props) => {
   };
 
   const archiveCard = () => {
-    runMoralisFunction("updateCard", {
+    runMoralisFunction('updateCard', {
       updates: {
         taskId: task.taskId,
         status: 500,
@@ -61,7 +61,7 @@ const OptionsPopover = ({ task, setTask }: Props) => {
 
   const duplicateCard = () => {
     handleClose();
-    runMoralisFunction("addTask", {
+    runMoralisFunction('addTask', {
       boardId: task.boardId,
       columnId: task.columnId,
       title: task.title,
@@ -77,11 +77,11 @@ const OptionsPopover = ({ task, setTask }: Props) => {
       .then((res) => {
         console.log({ res });
         setSpace(res.space);
-        notify("Card has been duplicated", "success");
+        notify('Card has been duplicated', 'success');
       })
       .catch((err) => {
         console.log(err);
-        notify(`${err.message}`, "error");
+        notify(`${err.message}`, 'error');
       });
   };
 
@@ -95,17 +95,17 @@ const OptionsPopover = ({ task, setTask }: Props) => {
         anchorEl={anchorEl}
         onClose={() => handleClose()}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <List
           sx={{
-            width: "100%",
+            width: '100%',
             maxWidth: 360,
             maxHeight: 200,
-            overflow: "auto",
-            bgcolor: "background.paper",
+            overflow: 'auto',
+            bgcolor: 'background.paper',
           }}
           component="nav"
           aria-labelledby="nested-list-subheader"
@@ -114,36 +114,36 @@ const OptionsPopover = ({ task, setTask }: Props) => {
             onClick={() => {
               const link = `${window.location.href}?taskId=${task.taskId}`;
               navigator.clipboard.writeText(link);
-              notify("Task Link copied");
+              notify('Task Link copied');
             }}
           >
-            <IosShareIcon sx={{ width: "2rem", mr: 2 }} />
+            <IosShareIcon sx={{ width: '2rem', mr: 2 }} />
             <ListItemText primary="Share" />
           </ListItemButton>
           <PayButton task={task} setTask={setTask} handleClose={handleClose} />
 
-          {viewableComponents["proposalGate"] && (
+          {viewableComponents.proposalGate && (
             <ListItemButton>
-              <VideoStableIcon sx={{ width: "2rem", mr: 2 }} />
+              <VideoStableIcon sx={{ width: '2rem', mr: 2 }} />
               <ListItemText primary="Gate Proposals" />
             </ListItemButton>
           )}
-          {viewableComponents["submissionGate"] && (
+          {viewableComponents.submissionGate && (
             <ListItemButton onClick={handleClick}>
-              <ViewCompactAltIcon sx={{ width: "2rem", mr: 2 }} />
+              <ViewCompactAltIcon sx={{ width: '2rem', mr: 2 }} />
               <ListItemText primary="Gate Submissions" />
             </ListItemButton>
           )}
 
-          {viewableComponents["duplicate"] && (
+          {viewableComponents.duplicate && (
             <ListItemButton onClick={duplicateCard}>
-              <ContentCopyIcon sx={{ width: "2rem", mr: 2 }} />
+              <ContentCopyIcon sx={{ width: '2rem', mr: 2 }} />
               <ListItemText primary="Duplicate" />
             </ListItemButton>
           )}
-          {viewableComponents["archive"] && (
+          {viewableComponents.archive && (
             <ListItemButton onClick={archiveCard}>
-              <ArchiveIcon sx={{ width: "2rem", mr: 2 }} />
+              <ArchiveIcon sx={{ width: '2rem', mr: 2 }} />
               <ListItemText primary="Archive" />
             </ListItemButton>
           )}
@@ -151,6 +151,6 @@ const OptionsPopover = ({ task, setTask }: Props) => {
       </Popover>
     </>
   );
-};
+}
 
 export default OptionsPopover;

@@ -1,15 +1,16 @@
-import { useState, useEffect } from "react";
-import { useSpace } from "../../pages/tribe/[id]/space/[bid]";
-import { useMoralis } from "react-moralis";
-import { Task } from "../types";
+import { Task } from '../types';
 
-export function useCardStatus(task: Task) {
+export default function useCardStatus(task: Task) {
   const isCreated = () => {
     return task.status === 100;
   };
 
   const isAssigned = () => {
     return task.status === 105;
+  };
+
+  const isUnassigned = () => {
+    return task.assignee.length === 0;
   };
 
   const isInReview = () => {
@@ -31,6 +32,15 @@ export function useCardStatus(task: Task) {
   const isArchived = () => {
     return task.status === 500;
   };
+
+  const hasNoReward = () => {
+    return !task.value || task.value === 0;
+  };
+
+  const hasNoComments = () => {
+    return !task.comments || task.comments?.length === 0;
+  };
+
   return {
     isCreated,
     isInReview,
@@ -39,5 +49,8 @@ export function useCardStatus(task: Task) {
     isClosed,
     isArchived,
     isPaid,
+    isUnassigned,
+    hasNoReward,
+    hasNoComments,
   };
 }

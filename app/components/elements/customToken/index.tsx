@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-import Dialog from "@mui/material/Dialog";
 import {
   Button,
   DialogActions,
@@ -7,11 +5,14 @@ import {
   DialogContentText,
   DialogTitle,
   TextField,
-} from "@mui/material";
-import { Chain, Token } from "../../../types";
-import { useMoralis } from "react-moralis";
-import { useGlobal } from "../../../context/globalContext";
-import { addERC20Token } from "../../../adapters/moralis";
+} from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import React, { useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useGlobal } from '../../../context/globalContext';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { Chain, Token } from '../../../types';
+// import { addERC20Token } from '../../../adapters/moralis';
 
 type Props = {
   open: boolean;
@@ -20,14 +21,12 @@ type Props = {
   chain: Chain;
 };
 
-const CustomTokenDialog = ({ open, handleClose, setToken, chain }: Props) => {
-  const [address, setAddress] = useState("");
-  const [symbol, setSymbol] = useState("");
+function CustomTokenDialog({ open, handleClose, setToken, chain }: Props) {
+  const [address, setAddress] = useState('');
+  const [symbol, setSymbol] = useState('');
   const { Moralis } = useMoralis();
-  const {
-    state: { registry },
-    dispatch,
-  } = useGlobal();
+  const { runMoralisFunction } = useMoralisFunction();
+  const { dispatch } = useGlobal();
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Add a new Token</DialogTitle>
@@ -48,9 +47,10 @@ const CustomTokenDialog = ({ open, handleClose, setToken, chain }: Props) => {
             setAddress(event.target.value);
             if (event.target.value.length === 42) {
               const token = await Moralis.Web3API.token.getTokenMetadata(
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 options as any
               );
-              setSymbol(token[0].symbol || "Token Not Found");
+              setSymbol(token[0].symbol || 'Token Not Found');
             }
           }}
           label="Token address"
@@ -78,22 +78,26 @@ const CustomTokenDialog = ({ open, handleClose, setToken, chain }: Props) => {
           variant="outlined"
           color="secondary"
           onClick={() => {
-            addERC20Token(address, chain.chainId, symbol, symbol, Moralis)
-              .then((res: any) => {
+            runMoralisFunction('addERC20Token', {
+              address,
+              chainId: chain.chainId,
+              symbol,
+              name: symbol,
+            })
+              .then((res) => {
                 console.log(res);
                 dispatch({
-                  type: "SET_REGISTRY",
+                  type: 'SET_REGISTRY',
                   registry: res,
                 });
                 setToken({
-                  symbol: symbol,
-                  address: address,
+                  symbol,
+                  address,
                 });
               })
-              .catch((err: any) => {
+              .catch((err) => {
                 console.log(err);
               });
-
             handleClose();
           }}
         >
@@ -102,6 +106,6 @@ const CustomTokenDialog = ({ open, handleClose, setToken, chain }: Props) => {
       </DialogActions>
     </Dialog>
   );
-};
+}
 
 export default CustomTokenDialog;

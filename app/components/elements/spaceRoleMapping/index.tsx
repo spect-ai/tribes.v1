@@ -1,4 +1,5 @@
-import { Close } from "@mui/icons-material";
+import { Close } from '@mui/icons-material';
+import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import {
   Autocomplete,
   Backdrop,
@@ -10,14 +11,14 @@ import {
   styled,
   TextField,
   Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { ModalHeading, PrimaryButton } from "../styledComponents";
-import PeopleOutlineIcon from "@mui/icons-material/PeopleOutline";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { ModalHeading, PrimaryButton } from '../styledComponents';
 
 type Props = {
+  // eslint-disable-next-line react/require-default-props
   handleModalClose?: () => void;
 };
 
@@ -25,7 +26,28 @@ type Role = {
   id: string;
   name: string;
 };
-const SpaceRoleMapping = ({ handleModalClose }: Props) => {
+
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
+  position: 'absolute' as 'absolute',
+  top: '10%',
+  left: '25%',
+  transform: 'translate(-50%, -50%)',
+  width: '35rem',
+  border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
+  boxShadow: 24,
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
+}));
+
+const ModalContent = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  padding: 32,
+}));
+
+function SpaceRoleMapping({ handleModalClose }: Props) {
   const { space, setSpace } = useSpace();
   const [roles, setRoles] = useState<Role[]>([]);
   const { runMoralisFunction } = useMoralisFunction();
@@ -43,26 +65,23 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
     setMemberRoles([]);
   };
   const getGuildRoles = async () => {
+    const a: any = [];
+    const b: any = [];
+    const c: any = [];
     setIsFetching(true);
     const res = await fetch(
       `${
-        process.env.DEV_ENV === "local"
-          ? "http://localhost:3001/"
-          : "https://spect-discord-bot.herokuapp.com/"
+        process.env.DEV_ENV === 'local'
+          ? 'http://localhost:3001/'
+          : 'https://spect-discord-bot.herokuapp.com/'
       }api/guildRoles?guildId=${space.team[0].guildId}`,
       {
-        method: "GET",
+        method: 'GET',
       }
     );
     const data = await res.json();
-    console.log({ data });
     setIsFetching(false);
     setRoles(data.roles);
-    const roleMapping = space.roleMapping;
-    console.log({ roleMapping });
-    var a: any = [],
-      b: any = [],
-      c: any = [];
     if (space.roleMapping) {
       data.roles.forEach((role: any) => {
         if (space.roleMapping[role.id] === 3) {
@@ -77,7 +96,6 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
       setContributorRoles(b);
       setMemberRoles(c);
     }
-    console.log({ a, b, c });
   };
   useEffect(() => {
     if (isOpen) {
@@ -103,8 +121,8 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
           <Grow in={isOpen} timeout={500}>
             <ModalContainer>
               <ModalHeading>
-                <Typography sx={{ color: "#99ccff" }}>Member Roles</Typography>
-                <Box sx={{ flex: "1 1 auto" }} />
+                <Typography sx={{ color: '#99ccff' }}>Member Roles</Typography>
+                <Box sx={{ flex: '1 1 auto' }} />
                 <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
                   <Close />
                 </IconButton>
@@ -112,27 +130,27 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
               <ModalContent>
                 <Backdrop
                   sx={{
-                    color: "#eaeaea",
+                    color: '#eaeaea',
                     zIndex: (theme) => theme.zIndex.drawer + 1,
                   }}
                   open={isFetching}
                 >
                   <Box
                     sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
                     }}
                   >
                     <CircularProgress color="inherit" />
-                    <Typography sx={{ mt: 2, mb: 1, color: "#eaeaea" }}>
-                      {"Fetching roles please wait"}
+                    <Typography sx={{ mt: 2, mb: 1, color: '#eaeaea' }}>
+                      Fetching roles please wait
                     </Typography>
                   </Box>
                 </Backdrop>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 8 }}>
-                  <Typography color="secondary" sx={{ mr: 8, width: "30%" }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 8 }}>
+                  <Typography color="secondary" sx={{ mr: 8, width: '30%' }}>
                     Steward
                   </Typography>
                   <Autocomplete
@@ -152,8 +170,8 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
                     sx={{ mr: 2 }}
                   />
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 8 }}>
-                  <Typography color="secondary" sx={{ mr: 8, width: "30%" }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 8 }}>
+                  <Typography color="secondary" sx={{ mr: 8, width: '30%' }}>
                     Contributor
                   </Typography>
                   <Autocomplete
@@ -173,8 +191,8 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
                     sx={{ mr: 2 }}
                   />
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 8 }}>
-                  <Typography color="secondary" sx={{ mr: 8, width: "30%" }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 8 }}>
+                  <Typography color="secondary" sx={{ mr: 8, width: '30%' }}>
                     Member
                   </Typography>
                   <Autocomplete
@@ -201,7 +219,7 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
                   loading={isLoading}
                   fullWidth
                   onClick={() => {
-                    let newRoles: any = {};
+                    const newRoles: any = {};
                     setisLoading(true);
                     stewardRoles.forEach((role) => {
                       newRoles[role.id as any] = 3;
@@ -212,12 +230,10 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
                     memberRoles.forEach((role) => {
                       newRoles[role.id as any] = 1;
                     });
-                    console.log(newRoles);
-                    runMoralisFunction("setSpaceRoleMapping", {
+                    runMoralisFunction('setSpaceRoleMapping', {
                       roleMapping: newRoles,
                       boardId: space.objectId,
                     }).then((res) => {
-                      console.log(res);
                       setSpace(res);
                       setisLoading(false);
                       if (handleModalClose) {
@@ -237,26 +253,6 @@ const SpaceRoleMapping = ({ handleModalClose }: Props) => {
       )}
     </>
   );
-};
-
-// @ts-ignore
-const ModalContainer = styled(Box)(({ theme }) => ({
-  position: "absolute" as "absolute",
-  top: "10%",
-  left: "25%",
-  transform: "translate(-50%, -50%)",
-  width: "35rem",
-  border: "2px solid #000",
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 24,
-  overflow: "auto",
-  maxHeight: "calc(100% - 128px)",
-}));
-
-const ModalContent = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: 32,
-}));
+}
 
 export default SpaceRoleMapping;

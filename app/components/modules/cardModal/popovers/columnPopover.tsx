@@ -4,15 +4,15 @@ import {
   Popover,
   TextField,
   Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
-import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
-import { Column, Task } from "../../../../types";
-import { CardButton, PrimaryButton } from "../../../elements/styledComponents";
-import { notify } from "../../settingsTab";
-import { PopoverContainer } from "../styles";
-import { useCardDynamism } from "../../../../hooks/useCardDynamism";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
+import { Column, Task } from '../../../../types';
+import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
+import { notify } from '../../settingsTab';
+import { PopoverContainer } from '../styles';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
 
 type Props = {
   task: Task;
@@ -20,9 +20,9 @@ type Props = {
   column: Column;
 };
 
-const ColumnPopover = ({ task, setTask, column }: Props) => {
-  const [currStatus, setCurrStatus] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
+function ColumnPopover({ task, setTask, column }: Props) {
+  const [currStatus, setCurrStatus] = useState<string>('');
+  const [status, setStatus] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const { space, setSpace } = useSpace();
@@ -32,7 +32,7 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
   const { editAbleComponents } = useCardDynamism(task);
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    if (editAbleComponents["column"]) {
+    if (editAbleComponents.column) {
       setOpen(true);
     } else {
       setFeedbackOpen(true);
@@ -47,7 +47,7 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
   const handleSave = () => {
     const prevStatus = currStatus;
     setCurrStatus(status);
-    runMoralisFunction("updateCard", {
+    runMoralisFunction('updateCard', {
       updates: {
         columnChange: {
           sourceId: column.id,
@@ -57,14 +57,13 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
       },
     })
       .then((res: any) => {
-        console.log(res);
         setSpace(res.space);
         setTask(res.task);
         handleClose();
       })
       .catch((err: any) => {
         setCurrStatus(prevStatus);
-        notify(`${err.message}`, "error");
+        notify(`${err.message}`, 'error');
       });
   };
 
@@ -79,8 +78,8 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
     <>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
+          display: 'flex',
+          flexDirection: 'column',
           mt: 2,
           mx: 1,
         }}
@@ -91,8 +90,8 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
           color="secondary"
           size="small"
           sx={{
-            padding: "2px",
-            minWidth: "3rem",
+            padding: '2px',
+            minWidth: '3rem',
           }}
         >
           <Typography
@@ -109,8 +108,8 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
         anchorEl={anchorEl}
         onClose={() => handleFeedbackClose()}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>
@@ -124,8 +123,8 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
         anchorEl={anchorEl}
         onClose={() => handleClose()}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>
@@ -144,6 +143,7 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
                 size="small"
                 fullWidth
                 placeholder="Search types"
+                color="secondary"
               />
             )}
           />
@@ -160,6 +160,6 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
       </Popover>
     </>
   );
-};
+}
 
 export default ColumnPopover;

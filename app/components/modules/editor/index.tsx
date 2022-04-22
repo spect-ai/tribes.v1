@@ -1,11 +1,10 @@
-import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
-import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import usePrevious from "../../../hooks/usePrevious";
-import { Block } from "../../../types";
-import { setCaretToEnd, uid } from "../../../utils/utils";
-import EditableBlock from "./editableBlock";
+import styled from '@emotion/styled';
+import React, { useEffect, useState } from 'react';
+import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
+import usePrevious from '../../../hooks/usePrevious';
+import { Block } from '../../../types';
+import { setCaretToEnd, uid } from '../../../utils/utils';
+import EditableBlock from './editableBlock';
 
 type Props = {
   syncBlocksToMoralis: Function;
@@ -14,14 +13,19 @@ type Props = {
   readonly?: boolean;
 };
 
-const Editor = ({
+const Container = styled.div`
+  margin-top: 1.5rem;
+  min-height: 8rem;
+`;
+
+export default function Editor({
   syncBlocksToMoralis,
   initialBlock,
   placeholderText,
   readonly,
-}: Props) => {
+}: Props) {
   const [blocks, setBlocks] = useState(initialBlock);
-  const [currentBlockId, setCurrentBlockId] = useState("");
+  const [currentBlockId, setCurrentBlockId] = useState('');
   const prevBlocks = usePrevious(blocks);
 
   const updateBlockHandler = (updatedBlock: any, sync?: boolean) => {
@@ -44,11 +48,11 @@ const Editor = ({
     setCurrentBlockId(currentBlock.id);
     const newBlock = {
       id: uid(),
-      html: "",
-      tag: "p",
+      html: '',
+      tag: 'p',
       type: `${currentBlock.type}`,
-      imageUrl: "",
-      embedUrl: "",
+      imageUrl: '',
+      embedUrl: '',
     };
     const index = blocks.map((b) => b.id).indexOf(currentBlock.id);
     const updatedBlocks = [...blocks];
@@ -128,7 +132,7 @@ const Editor = ({
   return (
     <Container>
       <DragDropContext onDragEnd={onDragEndHandler}>
-        <Droppable droppableId={"id"}>
+        <Droppable droppableId="id">
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {blocks?.map((block, index) => {
@@ -155,11 +159,4 @@ const Editor = ({
       </DragDropContext>
     </Container>
   );
-};
-
-const Container = styled.div`
-  margin-top: 1.5rem;
-  min-height: 8rem;
-`;
-
-export default Editor;
+}

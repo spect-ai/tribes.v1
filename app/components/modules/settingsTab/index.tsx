@@ -1,12 +1,14 @@
-import React, { useState } from "react";
-import styled from "@emotion/styled";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { TextField, FormLabel, Box, Switch, Avatar } from "@mui/material";
-import { PrimaryButton } from "../../elements/styledComponents";
-import { useTribe } from "../../../../pages/tribe/[id]";
-import { updateTribe } from "../../../adapters/moralis";
-import { useMoralis } from "react-moralis";
-import toast, { Toaster } from "react-hot-toast";
+/* eslint-disable jsx-a11y/label-has-associated-control */
+import styled from '@emotion/styled';
+import { Avatar, Box, FormLabel, Switch, TextField } from '@mui/material';
+import React, { useState } from 'react';
+import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import toast, { Toaster } from 'react-hot-toast';
+import { useMoralis } from 'react-moralis';
+import { useTribe } from '../../../../pages/tribe/[id]';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { PrimaryButton } from '../../elements/styledComponents';
+
 export interface SettingFormInput {
   name: string;
   description: string;
@@ -18,30 +20,52 @@ export interface SettingFormInput {
 }
 
 export const notify = (text: string, type?: string) => {
-  if (type === "error") {
+  if (type === 'error') {
     toast.error(text, {
       duration: 4000,
-      position: "top-center",
-      style: { fontSize: "1rem" },
+      position: 'top-center',
+      style: { fontSize: '1rem' },
     });
   } else {
     toast.success(text, {
       duration: 4000,
-      position: "top-center",
-      style: { fontSize: "1rem" },
+      position: 'top-center',
+      style: { fontSize: '1rem' },
     });
   }
 };
-const Settings = () => {
+
+const MainContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  margin-top: 10px;
+  margin-bottom: 2rem;
+`;
+
+const SettingContainer = styled.div`
+  display: flex;
+  flex: 5;
+  flex-direction: column;
+  margin-left: 30px;
+  width: 100%;
+`;
+
+const FormItem = styled.div`
+  margin-bottom: 1rem;
+  width: 50%;
+`;
+
+const ButtonWrapper = styled.div`
+  width: 100%;
+`;
+
+function Settings() {
   const { tribe, setTribe } = useTribe();
   const { Moralis } = useMoralis();
   const [logo, setLogo] = useState(tribe.logo);
-  const {
-    handleSubmit,
-    control,
-    formState: { errors },
-    setValue,
-  } = useForm<SettingFormInput>({
+  const { runMoralisFunction } = useMoralisFunction();
+  const { handleSubmit, control, setValue } = useForm<SettingFormInput>({
     defaultValues: {
       logo: tribe.logo,
       isPublic: tribe.isPublic,
@@ -51,14 +75,23 @@ const Settings = () => {
 
   const onSubmit: SubmitHandler<SettingFormInput> = async (values) => {
     setIsLoading(true);
-    updateTribe(Moralis, values as any, tribe.teamId)
+    runMoralisFunction('updateTeam', {
+      name: values.name,
+      description: values.description,
+      isPublic: values.isPublic,
+      discord: values.discord,
+      twitter: values.twitter,
+      github: values.github,
+      logo,
+      teamId: tribe.teamId,
+    })
       .then((res: any) => {
         setTribe(res);
         setIsLoading(false);
-        notify("Updated Tribe!");
+        notify('Updated Tribe!');
       })
       .catch((err: any) => {
-        notify(err.message, "error");
+        notify(err.message, 'error');
         setIsLoading(false);
       });
   };
@@ -102,7 +135,7 @@ const Settings = () => {
                   fullWidth
                   placeholder="Description"
                   multiline
-                  label={tribe.description ? "Description" : ""}
+                  label={tribe.description ? 'Description' : ''}
                   color="secondary"
                 />
               )}
@@ -136,13 +169,13 @@ const Settings = () => {
             </FormLabel>
             <Box
               sx={{
-                display: "flex",
-                alignItems: "flex-end",
-                marginBottom: "10px",
+                display: 'flex',
+                alignItems: 'flex-end',
+                marginBottom: '10px',
                 mt: 2,
               }}
             >
-              <div style={{ color: "#5a6972", marginRight: "12px" }}>
+              <div style={{ color: '#5a6972', marginRight: '12px' }}>
                 <i className="fab fa-discord fa-xs" />
               </div>
               <Controller
@@ -164,12 +197,12 @@ const Settings = () => {
             </Box>
             <Box
               sx={{
-                display: "flex",
-                alignItems: "flex-end",
-                marginBottom: "10px",
+                display: 'flex',
+                alignItems: 'flex-end',
+                marginBottom: '10px',
               }}
             >
-              <div style={{ color: "#5a6972", marginRight: "16px" }}>
+              <div style={{ color: '#5a6972', marginRight: '16px' }}>
                 <i className="fab fa-twitter fa-xs" />
               </div>
               <Controller
@@ -191,12 +224,12 @@ const Settings = () => {
             </Box>
             <Box
               sx={{
-                display: "flex",
-                alignItems: "flex-end",
-                marginBottom: "10px",
+                display: 'flex',
+                alignItems: 'flex-end',
+                marginBottom: '10px',
               }}
             >
-              <div style={{ color: "#5a6972", marginRight: "12px" }}>
+              <div style={{ color: '#5a6972', marginRight: '12px' }}>
                 <i className="fab fa-github" />
               </div>
               <Controller
@@ -233,19 +266,21 @@ const Settings = () => {
               type="file"
               onChange={async (e) => {
                 const file = e.target.files && e.target.files[0];
-                console.log(file);
                 if (file) {
                   const moralisFile = new Moralis.File(file.name, file);
                   const res = (await moralisFile.saveIPFS()) as any;
-                  setValue("logo", res._ipfs);
+                  setValue('logo', res._ipfs);
                   setLogo(res._ipfs);
-                  console.log(res._ipfs);
                 }
               }}
             />
             <label htmlFor="contained-button-file">
-              {/*// @ts-ignore */}
-              <PrimaryButton component="span">Edit</PrimaryButton>
+              <PrimaryButton
+                // @ts-ignore
+                component="span"
+              >
+                Edit
+              </PrimaryButton>
             </label>
           </FormItem>
           <ButtonWrapper>
@@ -254,7 +289,7 @@ const Settings = () => {
               variant="outlined"
               color="secondary"
               fullWidth
-              sx={{ width: "20%", borderRadius: 2 }}
+              sx={{ width: '20%', borderRadius: 2 }}
               loading={isLoading}
             >
               Save
@@ -264,31 +299,6 @@ const Settings = () => {
       </SettingContainer>
     </MainContainer>
   );
-};
+}
 
 export default Settings;
-
-const MainContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  margin-top: 10px;
-  margin-bottom: 2rem;
-`;
-
-const SettingContainer = styled.div`
-  display: flex;
-  flex: 5;
-  flex-direction: column;
-  margin-left: 30px;
-  width: 100%;
-`;
-
-const FormItem = styled.div`
-  margin-bottom: 1rem;
-  width: 50%;
-`;
-
-const ButtonWrapper = styled.div`
-  width: 100%;
-`;

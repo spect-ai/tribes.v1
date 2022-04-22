@@ -5,15 +5,15 @@ const gate = {
     {
       and: [
         {
-          chainId: "80001",
-          contractType: "erc721",
-          contractAddress: "...",
+          chainId: '80001',
+          contractType: 'erc721',
+          contractAddress: '...',
           lowerLimit: 1,
         },
         {
-          chainId: "80001",
-          contractType: "erc20",
-          contractAddress: "...",
+          chainId: '80001',
+          contractType: 'erc20',
+          contractAddress: '...',
           lowerLimit: 10,
         },
       ],
@@ -21,15 +21,15 @@ const gate = {
     {
       and: [
         {
-          chainId: "80001",
-          contractType: "erc721",
-          contractAddress: "...",
+          chainId: '80001',
+          contractType: 'erc721',
+          contractAddress: '...',
           lowerLimit: 1,
         },
         {
-          chainId: "80001",
-          contractType: "erc20",
-          contractAddress: "...",
+          chainId: '80001',
+          contractType: 'erc20',
+          contractAddress: '...',
           lowerLimit: 10,
         },
       ],

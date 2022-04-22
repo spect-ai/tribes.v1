@@ -1,39 +1,37 @@
-import CircleIcon from "@mui/icons-material/Circle";
-import { Box, Typography } from "@mui/material";
-import React, { useState } from "react";
-import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
-import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
-import { Block, Task } from "../../../../types";
-import { uid } from "../../../../utils/utils";
-import { PrimaryButton } from "../../../elements/styledComponents";
-import Editor from "../../editor";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import DoneIcon from "@mui/icons-material/Done";
-import StarHalfIcon from "@mui/icons-material/StarHalf";
-import { notify } from "../../settingsTab";
-import { useAccess } from "../../../../hooks/useAccess";
-import { useCardStatus } from "../../../../hooks/useCardStatus";
+import { Box, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import DoneIcon from '@mui/icons-material/Done';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
+import { Block, Task } from '../../../../types';
+import { uid } from '../../../../utils/utils';
+import { PrimaryButton } from '../../../elements/styledComponents';
+import Editor from '../../editor';
+
+import { notify } from '../../settingsTab';
+import useAccess from '../../../../hooks/useAccess';
+import useCardStatus from '../../../../hooks/useCardStatus';
 
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
 };
 
-const Submission = ({ task, setTask }: Props) => {
+function Submission({ task, setTask }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
-  const { user } = useMoralis();
   const { isCardSteward, isCardAssignee } = useAccess(task);
   const { isAssigned, isInReview, isInRevision, isClosed, isPaid } =
     useCardStatus(task);
-  const [feedback, setFeedback] = useState("");
+  const [feedback, setFeedback] = useState('');
 
   const syncBlocksToMoralis = (blocks: Block[]) => {
     // console.log({ blocks });
-    setFeedback("Saving draft");
-    runMoralisFunction("updateCard", {
+    setFeedback('Saving draft');
+    runMoralisFunction('updateCard', {
       updates: {
         submissions: {
           content: blocks,
@@ -42,19 +40,18 @@ const Submission = ({ task, setTask }: Props) => {
       },
     })
       .then((res) => {
-        console.log(res);
         setSpace(res.space);
         setTask(res.task);
-        setFeedback("Saved draft");
+        setFeedback('Saved draft');
       })
       .catch((err) => {
-        setFeedback("Failed to save draft");
+        setFeedback('Failed to save draft');
         console.log(err);
       });
   };
 
   const handleAsk = () => {
-    runMoralisFunction("updateCard", {
+    runMoralisFunction('updateCard', {
       updates: {
         status: 200,
         taskId: task.taskId,
@@ -63,16 +60,16 @@ const Submission = ({ task, setTask }: Props) => {
       .then((res) => {
         setSpace(res.space);
         setTask(res.task);
-        notify("Asked for review", "success");
+        notify('Asked for review', 'success');
       })
       .catch((res) => {
         console.log(res);
-        notify(`${res.message}`, "error");
+        notify(`${res.message}`, 'error');
       });
   };
 
   const handleDone = () => {
-    runMoralisFunction("updateCard", {
+    runMoralisFunction('updateCard', {
       updates: {
         status: 205,
         taskId: task.taskId,
@@ -82,16 +79,16 @@ const Submission = ({ task, setTask }: Props) => {
         console.log(res);
         setSpace(res.space);
         setTask(res.task);
-        notify("Closed card", "success");
+        notify('Closed card', 'success');
       })
       .catch((res) => {
         console.log(res);
-        notify("Failed while closing card", "error");
+        notify('Failed while closing card', 'error');
       });
   };
 
   const handleRevision = () => {
-    runMoralisFunction("updateCard", {
+    runMoralisFunction('updateCard', {
       updates: {
         status: 201,
         taskId: task.taskId,
@@ -100,16 +97,16 @@ const Submission = ({ task, setTask }: Props) => {
       .then((res) => {
         setSpace(res.space);
         setTask(res.task);
-        notify("Asked for revision", "success");
+        notify('Asked for revision', 'success');
       })
       .catch((res) => {
         console.log(res);
-        notify("Failed while asking for revision", "error");
+        notify('Failed while asking for revision', 'error');
       });
   };
 
   return (
-    <Box sx={{ color: "#eaeaea", height: "auto", mr: 3 }}>
+    <Box sx={{ color: '#eaeaea', height: 'auto', mr: 3 }}>
       {((isCardSteward() &&
         (isInReview() || isInRevision() || isClosed() || isPaid())) ||
         isCardAssignee()) && (
@@ -121,11 +118,11 @@ const Submission = ({ task, setTask }: Props) => {
               : [
                   {
                     id: uid(),
-                    html: "",
-                    tag: "p",
-                    type: "",
-                    imageUrl: "",
-                    embedUrl: "",
+                    html: '',
+                    tag: 'p',
+                    type: '',
+                    imageUrl: '',
+                    embedUrl: '',
                   },
                 ]
           }
@@ -140,31 +137,31 @@ const Submission = ({ task, setTask }: Props) => {
       {isInRevision() && (
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "row",
+            display: 'flex',
+            flexDirection: 'row',
             mt: 4,
-            alignItems: "center",
+            alignItems: 'center',
           }}
         >
           <StarHalfIcon
-            sx={{ display: "flex", alignItems: "center", width: "20px" }}
+            sx={{ display: 'flex', alignItems: 'center', width: '20px' }}
           />
-          <Typography variant="body2" sx={{ ml: 2, alignItems: "center" }}>
+          <Typography variant="body2" sx={{ ml: 2, alignItems: 'center' }}>
             Submission is in Revision
           </Typography>
         </Box>
       )}
       {
-        //Assignee view
+        // Assignee view
         isCardAssignee() && (isInRevision() || isAssigned()) && (
-          <Box sx={{ display: "flex", flexDirection: "row", mt: 4 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', mt: 4 }}>
             <PrimaryButton
               variant="outlined"
               sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
                 mr: 4,
               }}
               color="secondary"
@@ -183,31 +180,31 @@ const Submission = ({ task, setTask }: Props) => {
       {isCardAssignee() && isInReview() && (
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "row",
+            display: 'flex',
+            flexDirection: 'row',
             mt: 4,
-            alignItems: "center",
+            alignItems: 'center',
           }}
         >
           <VisibilityIcon
-            sx={{ display: "flex", alignItems: "center", width: "20px" }}
+            sx={{ display: 'flex', alignItems: 'center', width: '20px' }}
           />
-          <Typography variant="body2" sx={{ ml: 2, alignItems: "center" }}>
+          <Typography variant="body2" sx={{ ml: 2, alignItems: 'center' }}>
             Submission is in Review
           </Typography>
         </Box>
       )}
       {
-        //Reviewer view
+        // Reviewer view
         isCardSteward() && isInReview() && (
-          <Box sx={{ display: "flex", flexDirection: "row", mt: 4 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', mt: 4 }}>
             <PrimaryButton
               variant="outlined"
               sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
                 mr: 4,
               }}
               color="secondary"
@@ -221,10 +218,10 @@ const Submission = ({ task, setTask }: Props) => {
             <PrimaryButton
               variant="outlined"
               sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "center",
-                alignItems: "center",
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
                 mr: 4,
               }}
               color="secondary"
@@ -239,7 +236,7 @@ const Submission = ({ task, setTask }: Props) => {
         )
       }
       {isCardSteward() && isAssigned() && (
-        <Box sx={{ display: "flex", flexDirection: "row", mt: 4 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', mt: 4 }}>
           <Typography variant="body1" sx={{ mr: 4 }}>
             No submissions yet
           </Typography>
@@ -247,5 +244,5 @@ const Submission = ({ task, setTask }: Props) => {
       )}
     </Box>
   );
-};
+}
 export default Submission;
