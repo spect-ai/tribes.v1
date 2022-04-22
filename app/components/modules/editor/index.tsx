@@ -5,6 +5,7 @@ import usePrevious from '../../../hooks/usePrevious';
 import { Block } from '../../../types';
 import { setCaretToEnd, uid } from '../../../utils/utils';
 import EditableBlock from './editableBlock';
+import EditableClassBlock from './editableClassBlock';
 
 type Props = {
   syncBlocksToMoralis: Function;
@@ -138,7 +139,7 @@ export default function Editor({
               {blocks?.map((block, index) => {
                 const position = blocks.map((b) => b.id).indexOf(block.id) + 1;
                 return (
-                  <EditableBlock
+                  <EditableClassBlock
                     key={block.id}
                     position={position}
                     id={block.id}

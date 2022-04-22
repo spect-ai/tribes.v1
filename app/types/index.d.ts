@@ -184,10 +184,6 @@ export interface SubmissionData {
   edited: boolean;
 }
 
-export interface Contracts {
-  distributorContract?: ethers.Contract;
-}
-
 export type Column = {
   id: string;
   title: string;

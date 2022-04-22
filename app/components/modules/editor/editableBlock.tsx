@@ -23,8 +23,9 @@ import {
 import SimpleErrorBoundary from '../../elements/simpleErrorBoundary';
 import { PrimaryButton } from '../../elements/styledComponents';
 import BlockActionMenu from '../blockActionMenu';
-import { notify } from '../settingsTab';
 import TagSelectorMenu from '../tagSelectorMenu';
+import { notify } from '../settingsTab';
+
 import styles from './styles.module.scss';
 
 const ReactTinyLink: any = dynamic(
