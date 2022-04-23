@@ -87,6 +87,7 @@ function Comments({ task, setTask }: Props) {
 
   const syncBlocksToMoralis = (blocks: Block[]) => {
     setIsLoading(true);
+    console.log('update');
     runMoralisFunction('updateCard', {
       updates: {
         comments: {
@@ -132,6 +133,7 @@ function Comments({ task, setTask }: Props) {
 
   const handleDelete = (id: string) => {
     setIsLoading(true);
+    console.log('update');
     runMoralisFunction('updateCard', {
       updates: {
         comments: {

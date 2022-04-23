@@ -256,7 +256,7 @@ class EditableClassBlock extends React.Component<Props, State> {
   }
 
   handleKeyDown(e: any) {
-    const { id, deleteBlock, addBlock } = this.props;
+    const { id, blocks, deleteBlock, addBlock } = this.props;
     const { html, previousKey, tagSelectorMenuOpen, tag, imageUrl, type } =
       this.state;
     if (e.key === CMD_KEY) {
@@ -315,6 +315,32 @@ class EditableClassBlock extends React.Component<Props, State> {
         });
         return;
       }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (!tagSelectorMenuOpen) {
+        const nextBlockPosition = blocks.map((b: any) => b.id).indexOf(id) + 2;
+        const nextBlock = document.querySelector(
+          `[data-position="${nextBlockPosition}"]`
+        );
+        if (nextBlock) {
+          // @ts-ignore
+          nextBlock.focus();
+          setCaretToEnd(nextBlock);
+        }
+      }
+    } else if (e.key === 'ArrowUp') {
+      if (!tagSelectorMenuOpen) {
+        e.preventDefault();
+        const nextBlockPosition = blocks.map((b: any) => b.id).indexOf(id);
+        const nextBlock = document.querySelector(
+          `[data-position="${nextBlockPosition}"]`
+        );
+        if (nextBlock) {
+          // @ts-ignore
+          nextBlock.focus();
+          setCaretToEnd(nextBlock);
+        }
+      }
     }
     // We need the previousKey to detect a Shift-Enter-combination
     this.setState({ previousKey: e.key });
@@ -347,6 +373,10 @@ class EditableClassBlock extends React.Component<Props, State> {
   handleTagSelection(tag: string, type?: string) {
     const { id, addBlock } = this.props;
     const { isTyping, htmlBackup } = this.state;
+    if (tag === 'notFound') {
+      this.closeTagSelectorMenu();
+      return;
+    }
     if (['img', 'embed', 'divider'].includes(tag)) {
       this.setState({ ...this.state, tag }, () => {
         this.closeTagSelectorMenu();

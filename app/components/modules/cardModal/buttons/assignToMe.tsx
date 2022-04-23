@@ -24,6 +24,7 @@ function AssignToMe({ task, setTask }: Props) {
   const [buttonText, setButtonText] = useState('Assign me');
 
   const handleSave = () => {
+    console.log('update');
     setButtonText('Assigning...');
     runMoralisFunction('updateCard', {
       updates: {

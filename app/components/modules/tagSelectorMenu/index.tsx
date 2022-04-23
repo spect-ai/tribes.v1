@@ -76,8 +76,19 @@ function TagSelectorMenu({
 
   // Filter tagList based on given command
   useEffect(() => {
+    const filteredTags = matchSorter(allowedTags, command, { keys: ['id'] });
     if (command) {
-      setTagList(matchSorter(allowedTags, command, { keys: ['id'] }));
+      if (filteredTags.length > 0) {
+        setTagList(filteredTags);
+      } else {
+        setTagList([
+          {
+            id: 'notFound',
+            tag: 'notFound',
+            label: 'Command Not Found',
+          },
+        ]);
+      }
     } else {
       setTagList(allowedTags);
     }

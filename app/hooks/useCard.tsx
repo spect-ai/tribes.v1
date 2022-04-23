@@ -54,7 +54,7 @@ export default function useCard(
     setChain(task.chain);
     setToken(task.token);
     setValue(task.value?.toString());
-  }, [task]);
+  }, []);
 
   const openPopover =
     (popoverType: string, setOpen: Function, setFeedbackOpen: Function) =>
