@@ -776,19 +776,20 @@ async function getApprovalInfo(
   for (const [tokenAddress, minAllowance] of Object.entries(
     tokenAddressToMinAllowanceRequired
   )) {
-    var minAllowanceInWei = await Moralis.Cloud.units({
-      method: 'toWei',
-      value: minAllowance,
-    });
+    logger.info(`minAllowance ${minAllowance}`);
     var allowance = await getAllowance(
       chainIdHex,
       tokenAddress,
       callerAddress,
       spenderAddress
     );
-    logger.info(`allowance ${JSON.stringify(allowance)}`);
-    if (allowance < minAllowanceInWei) {
-      res[tokenAddress] = minAllowanceInWei;
+    var allowanceInEther = await Moralis.Cloud.units({
+      method: 'fromWei',
+      value: allowance,
+    });
+    logger.info(`allowance ${JSON.stringify(allowanceInEther)}`);
+    if (allowance < minAllowance) {
+      res[tokenAddress] = minAllowance;
     }
   }
   return res;
