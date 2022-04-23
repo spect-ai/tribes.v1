@@ -36,7 +36,7 @@ function OptionsPopover({ task, setTask }: Props) {
   const { runMoralisFunction } = useMoralisFunction();
   const { space, setSpace } = useSpace();
   const { updateStatus } = useCard(setTask, task);
-  const { statusToCode } = useCardStatus();
+  const { statusToCode } = useCardStatus(task);
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
