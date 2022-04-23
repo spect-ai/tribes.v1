@@ -53,8 +53,9 @@ export default function useCardDynamism(task: Task) {
       case 'label':
         return `Only card reviewer or creator and space steward can edit ${field}`;
       case 'assignee':
-      case 'dueDate':
         return `Only card assignee, reviewer or creator and space steward can edit ${field}`;
+      case 'dueDate':
+        return `Only card assignee, reviewer or creator and space steward can edit due date`;
       default:
         return '';
     }

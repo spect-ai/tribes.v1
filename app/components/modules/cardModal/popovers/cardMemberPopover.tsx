@@ -17,6 +17,7 @@ import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useProfileInfo from '../../../../hooks/useProfileInfo';
+import useCard from '../../../../hooks/useCard';
 
 type Props = {
   type: string;
@@ -27,75 +28,15 @@ type Props = {
 function CardMemberPopover({ type, task, setTask }: Props) {
   const [member, setMember] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { Moralis } = useMoralis();
   const { space, setSpace } = useSpace();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
-  const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents, viewableComponents, getReason } =
-    useCardDynamism(task);
+  const { viewableComponents, getReason } = useCardDynamism(task);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-
+  const { updateMember, anchorEl, openPopover, closePopover } = useCard(
+    setTask,
+    task
+  );
   const { getAvatar } = useProfileInfo();
-
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents[type]) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
-    }
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
-  const handleSave = () => {
-    const prevTask = { ...task };
-    const temp = { ...task };
-    if (type === 'reviewer') {
-      temp.reviewer = [member];
-      setTask(temp);
-      handleClose();
-      runMoralisFunction('updateCard', {
-        updates: {
-          reviewer: member ? [member] : [],
-          taskId: task.taskId,
-        },
-      })
-        .then((res: any) => {
-          console.log(res);
-          setSpace(res.space);
-          setTask(res.task);
-        })
-        .catch((err: any) => {
-          setTask(prevTask);
-          notify(`${err.message}`, 'error');
-        });
-    } else {
-      temp.assignee = [member];
-      setTask(temp);
-      handleClose();
-      runMoralisFunction('updateCard', {
-        updates: {
-          assignee: member ? [member] : [],
-          taskId: task.taskId,
-          status: member ? 105 : 100,
-        },
-      })
-        .then((res: any) => {
-          console.log(res);
-          setSpace(res.space);
-          setTask(res.task);
-        })
-        .catch((err: any) => {
-          setTask(prevTask);
-          notify(`${err.message}`, 'error');
-        });
-    }
-  };
 
   useEffect(() => {
     if (type === 'reviewer') {
@@ -123,7 +64,7 @@ function CardMemberPopover({ type, task, setTask }: Props) {
           </Typography>
           <CardButton
             variant="outlined"
-            onClick={handleClick()}
+            onClick={openPopover(type, setOpen, setFeedbackOpen)}
             color="secondary"
             sx={{
               padding: '6px',
@@ -165,7 +106,7 @@ function CardMemberPopover({ type, task, setTask }: Props) {
       <Popover
         open={feedbackOpen}
         anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
+        onClose={() => closePopover(setFeedbackOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
@@ -178,7 +119,7 @@ function CardMemberPopover({ type, task, setTask }: Props) {
       <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={() => handleClose()}
+        onClose={() => closePopover(setOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
@@ -207,7 +148,7 @@ function CardMemberPopover({ type, task, setTask }: Props) {
             color="secondary"
             sx={{ mt: 4, borderRadius: 1 }}
             loading={isLoading}
-            onClick={handleSave}
+            onClick={() => updateMember(type, member, setOpen)}
           >
             Save
           </PrimaryButton>

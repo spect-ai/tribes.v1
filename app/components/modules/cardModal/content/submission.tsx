@@ -9,7 +9,7 @@ import { Block, Task } from '../../../../types';
 import { uid } from '../../../../utils/utils';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import Editor from '../../editor';
-
+import useCard from '../../../../hooks/useCard';
 import { notify } from '../../settingsTab';
 import useAccess from '../../../../hooks/useAccess';
 import useCardStatus from '../../../../hooks/useCardStatus';
@@ -20,90 +20,16 @@ type Props = {
 };
 
 function Submission({ task, setTask }: Props) {
-  const [isLoading, setIsLoading] = useState(false);
-  const { space, setSpace } = useSpace();
-  const { runMoralisFunction } = useMoralisFunction();
   const { isCardSteward, isCardAssignee } = useAccess(task);
-  const { isAssigned, isInReview, isInRevision, isClosed, isPaid } =
-    useCardStatus(task);
-  const [feedback, setFeedback] = useState('');
-
-  const syncBlocksToMoralis = (blocks: Block[]) => {
-    // console.log({ blocks });
-    setFeedback('Saving draft');
-    runMoralisFunction('updateCard', {
-      updates: {
-        submissions: {
-          content: blocks,
-        },
-        taskId: task.taskId,
-      },
-    })
-      .then((res) => {
-        setSpace(res.space);
-        setTask(res.task);
-        setFeedback('Saved draft');
-      })
-      .catch((err) => {
-        setFeedback('Failed to save draft');
-        console.log(err);
-      });
-  };
-
-  const handleAsk = () => {
-    runMoralisFunction('updateCard', {
-      updates: {
-        status: 200,
-        taskId: task.taskId,
-      },
-    })
-      .then((res) => {
-        setSpace(res.space);
-        setTask(res.task);
-        notify('Asked for review', 'success');
-      })
-      .catch((res) => {
-        console.log(res);
-        notify(`${res.message}`, 'error');
-      });
-  };
-
-  const handleDone = () => {
-    runMoralisFunction('updateCard', {
-      updates: {
-        status: 205,
-        taskId: task.taskId,
-      },
-    })
-      .then((res) => {
-        console.log(res);
-        setSpace(res.space);
-        setTask(res.task);
-        notify('Closed card', 'success');
-      })
-      .catch((res) => {
-        console.log(res);
-        notify('Failed while closing card', 'error');
-      });
-  };
-
-  const handleRevision = () => {
-    runMoralisFunction('updateCard', {
-      updates: {
-        status: 201,
-        taskId: task.taskId,
-      },
-    })
-      .then((res) => {
-        setSpace(res.space);
-        setTask(res.task);
-        notify('Asked for revision', 'success');
-      })
-      .catch((res) => {
-        console.log(res);
-        notify('Failed while asking for revision', 'error');
-      });
-  };
+  const {
+    isAssigned,
+    isInReview,
+    isInRevision,
+    isClosed,
+    isPaid,
+    statusToCode,
+  } = useCardStatus(task);
+  const { updateSubmission, updateStatus, isLoading } = useCard(setTask, task);
 
   return (
     <Box sx={{ color: '#eaeaea', height: 'auto', mr: 3 }}>
@@ -111,7 +37,7 @@ function Submission({ task, setTask }: Props) {
         (isInReview() || isInRevision() || isClosed() || isPaid())) ||
         isCardAssignee()) && (
         <Editor
-          syncBlocksToMoralis={syncBlocksToMoralis}
+          syncBlocksToMoralis={updateSubmission}
           initialBlock={
             task.submissions?.length > 0
               ? task.submissions[0]?.content
@@ -167,8 +93,8 @@ function Submission({ task, setTask }: Props) {
               color="secondary"
               size="small"
               loading={isLoading}
-              onClick={handleAsk}
-              disabled={[200, 300].includes(task.status)}
+              onClick={() => updateStatus(statusToCode.inReview)}
+              disabled={isInReview() || isPaid() || isClosed()}
               startIcon={<VisibilityIcon />}
             >
               Ask for review
@@ -210,7 +136,7 @@ function Submission({ task, setTask }: Props) {
               color="secondary"
               size="small"
               loading={isLoading}
-              onClick={handleDone}
+              onClick={() => updateStatus(statusToCode.closed)}
               startIcon={<DoneIcon />}
             >
               Looks good!
@@ -227,7 +153,7 @@ function Submission({ task, setTask }: Props) {
               color="secondary"
               size="small"
               loading={isLoading}
-              onClick={handleRevision}
+              onClick={() => updateStatus(statusToCode.inRevision)}
               startIcon={<StarHalfIcon />}
             >
               Needs some work
@@ -238,7 +164,7 @@ function Submission({ task, setTask }: Props) {
       {isCardSteward() && isAssigned() && (
         <Box sx={{ display: 'flex', flexDirection: 'row', mt: 4 }}>
           <Typography variant="body1" sx={{ mr: 4 }}>
-            No submissions yet
+            {isCardAssignee() ? `Not submitted yet` : `No submissions yet`}
           </Typography>
         </Box>
       )}

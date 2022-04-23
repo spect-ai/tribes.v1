@@ -21,7 +21,7 @@ function AssignToMe({ task, setTask }: Props) {
   const { user } = useMoralis();
   const { space, setSpace } = useSpace();
   const { editAbleComponents, viewableComponents } = useCardDynamism(task);
-  const [buttonText, setButtonText] = useState('Assign to me');
+  const [buttonText, setButtonText] = useState('Assign me');
 
   const handleSave = () => {
     setButtonText('Assigning...');

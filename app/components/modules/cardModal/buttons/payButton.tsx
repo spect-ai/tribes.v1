@@ -15,6 +15,7 @@ import { Task } from '../../../../types';
 import { notify } from '../../settingsTab';
 import usePaymentGateway from '../../../../hooks/usePaymentGateway';
 import useERC20 from '../../../../hooks/useERC20';
+import useCard from '../../../../hooks/useCard';
 
 type Props = {
   task: Task;
@@ -23,38 +24,15 @@ type Props = {
 };
 
 function PayButton({ task, setTask, handleClose }: Props) {
-  const { space, setSpace } = useSpace();
   const { user } = useMoralis();
-  const { state } = useGlobal();
-  const { registry } = state;
-  const { runMoralisFunction } = useMoralisFunction();
   const { viewableComponents } = useCardDynamism(task);
   const [payButtonText, setPayButtonText] = useState(
     viewableComponents.pay === 'showPay' ? 'Pay' : 'Approve'
   );
   const { isCurrency } = useERC20();
+  const { updateStatusAndTransactionHash } = useCard(setTask, task);
 
-  const handleTaskStatusUpdate = (
-    cardIds: string[],
-    transactionHash: string
-  ) => {
-    runMoralisFunction('updateCard', {
-      updates: {
-        status: 300,
-        transactionHash,
-        taskId: cardIds[0],
-      },
-    })
-      .then((res) => {
-        setSpace(res.space);
-        setTask(res.task);
-      })
-      .catch((res) => {
-        console.log(res);
-      });
-  };
-
-  const { batchPay } = usePaymentGateway(handleTaskStatusUpdate);
+  const { batchPay } = usePaymentGateway(updateStatusAndTransactionHash);
 
   const handlePaymentError = (err: any) => {
     if (window.ethereum.networkVersion !== task.chain.chainId)

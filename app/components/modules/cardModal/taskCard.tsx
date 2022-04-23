@@ -1,24 +1,22 @@
 import styled from '@emotion/styled';
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, IconButton, InputBase } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { useMoralis } from 'react-moralis';
+import React from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import useCard from '../../../hooks/useCard';
+import useCardDynamism from '../../../hooks/useCardDynamism';
+import { Task } from '../../../types';
+import { uid } from '../../../utils/utils';
 import Editor from '../editor';
-import { notify } from '../settingsTab';
+import AssignToMe from './buttons/assignToMe';
+import CardMemberPopover from './popovers/cardMemberPopover';
 import CardTypePopover from './popovers/cardTypePopover';
 import ColumnPopover from './popovers/columnPopover';
 import DatePopover from './popovers/datePopover';
 import LabelPopover from './popovers/labelPopover';
-import CardMemberPopover from './popovers/cardMemberPopover';
-import RewardPopover from './popovers/rewardPopover';
 import OptionsPopover from './popovers/optionsPopover';
+import RewardPopover from './popovers/rewardPopover';
 import TabularDetails from './tabularDetails';
-import { Task, Block } from '../../../types';
-import { uid } from '../../../utils/utils';
-import useCardDynamism from '../../../hooks/useCardDynamism';
-import AssignToMe from './buttons/assignToMe';
 
 type Props = {
   task: Task;
@@ -44,54 +42,11 @@ const Container = styled.div`
 
 function TaskCard({ task, setTask, handleClose }: Props) {
   const { space, setSpace } = useSpace();
-  const { runMoralisFunction } = useMoralisFunction();
   const { editAbleComponents, viewableComponents } = useCardDynamism(task);
-
-  const syncBlocksToMoralis = (blocks: Block[]) => {
-    // console.log({ blocks });
-    runMoralisFunction('updateCard', {
-      updates: {
-        taskId: task.taskId,
-        description: blocks,
-      },
-    })
-      .then((res) => {
-        setSpace(res.space);
-        setTask(res.task);
-      })
-      .catch((res) => {
-        console.log(res);
-      });
-  };
-
-  const [title, setTitle] = useState(task.title);
-
-  const handleSave = () => {
-    if (task.access.creator || task.access.reviewer) {
-      const prevTask = { ...task };
-      const temp = { ...task };
-      temp.title = title;
-      setTask(temp);
-      runMoralisFunction('updateCard', {
-        updates: {
-          title,
-          taskId: task.taskId,
-        },
-      })
-        .then((res: any) => {
-          setSpace(res.space);
-          setTask(res.task);
-        })
-        .catch((err: any) => {
-          setTask(prevTask);
-          notify(`${err.message}`, 'error');
-        });
-    }
-  };
-
-  useEffect(() => {
-    setTitle(task.title);
-  }, [task]);
+  const { title, setTitle, updateTitle, updateDescription } = useCard(
+    setTask,
+    task
+  );
 
   return (
     <Container>
@@ -105,7 +60,7 @@ function TaskCard({ task, setTask, handleClose }: Props) {
           fullWidth
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          onBlur={handleSave}
+          onBlur={() => updateTitle()}
           readOnly={!(task?.access?.creator || task?.access?.reviewer)}
         />
         <Box sx={{ flex: '1 1 auto' }} />
@@ -137,7 +92,7 @@ function TaskCard({ task, setTask, handleClose }: Props) {
 
       <TaskModalBodyContainer>
         <Editor
-          syncBlocksToMoralis={syncBlocksToMoralis}
+          syncBlocksToMoralis={updateDescription}
           initialBlock={
             task.description
               ? task.description

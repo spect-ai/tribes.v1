@@ -7,10 +7,9 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import { PrimaryButton } from '../../../elements/styledComponents';
-import { notify } from '../../settingsTab';
+import useCard from '../../../../hooks/useCard';
 
 type Props = {
   task: Task;
@@ -18,36 +17,8 @@ type Props = {
 };
 
 function ProposalsStewardView({ task, setTask }: Props) {
-  const [isLoading, setIsLoading] = useState(false);
   const { space, setSpace } = useSpace();
-  const { runMoralisFunction } = useMoralisFunction();
-  const [proposalOnEdit, setProposalOnEdit] = useState('');
-  const [editMode, setEditMode] = useState(false);
-  const handlePick = (proposalId: string, index: number, assignee: string) => {
-    const prevTask = { ...task };
-    const temp = { ...task };
-    temp.assignee = [assignee];
-    setTask(temp);
-    runMoralisFunction('updateCard', {
-      updates: {
-        status: 105,
-        assignee: [assignee],
-        taskId: task.taskId,
-      },
-    })
-      .then((res: any) => {
-        console.log(res);
-        notify('Selected applicant!', 'success');
-        setSpace(res.space);
-        setTask(res.task);
-        setIsLoading(false);
-      })
-      .catch((err: any) => {
-        setTask(prevTask);
-        setIsLoading(false);
-        notify(`${err.message}`, 'error');
-      });
-  };
+  const { updateStatusAndAssignee, isLoading } = useCard(setTask, task);
 
   return (
     <Box
@@ -100,12 +71,9 @@ function ProposalsStewardView({ task, setTask }: Props) {
             fullWidth
             rows={4}
             variant="standard"
-            onChange={(event) => {
-              setProposalOnEdit(event.target.value);
-            }}
             defaultValue={proposal.content}
             InputProps={{
-              readOnly: !editMode,
+              readOnly: true,
               endAdornment: (
                 <InputAdornment position="end">
                   <PrimaryButton
@@ -120,7 +88,11 @@ function ProposalsStewardView({ task, setTask }: Props) {
                     size="small"
                     loading={isLoading}
                     onClick={() => {
-                      handlePick(proposal.id, index, proposal.userId);
+                      updateStatusAndAssignee(
+                        proposal.id,
+                        index,
+                        proposal.userId
+                      );
                     }}
                     disabled={task.assignee?.includes(proposal.userId)}
                   >

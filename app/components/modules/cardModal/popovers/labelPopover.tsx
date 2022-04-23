@@ -12,10 +12,8 @@ import { labelsMapping } from '../../../../constants';
 import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { PopoverContainer, LabelChip } from '../styles';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { notify } from '../../settingsTab';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useCard from '../../../../hooks/useCard';
 
 type Props = {
   task: Task;
@@ -23,52 +21,17 @@ type Props = {
 };
 
 function LabelPopover({ task, setTask }: Props) {
-  const [labels, setLabels] = useState(task.tags);
   const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { runMoralisFunction } = useMoralisFunction();
-  const { space, setSpace } = useSpace();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const { editAbleComponents, getReason } = useCardDynamism(task);
+  const { getReason } = useCardDynamism(task);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents.label) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
-    }
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
-
-  const handleSave = () => {
-    const prevTask = { ...task };
-    const temp = { ...task };
-    temp.tags = labels;
-    setTask(temp);
-    handleClose();
-    runMoralisFunction('updateCard', {
-      updates: {
-        tags: labels,
-        taskId: task.taskId,
-      },
-    })
-      .then((res) => {
-        console.log(res);
-        setSpace(res.space);
-        setTask(res.task);
-      })
-      .catch((err: any) => {
-        setTask(prevTask);
-        notify(`${err.message}`, 'error');
-      });
-  };
+  const {
+    anchorEl,
+    openPopover,
+    closePopover,
+    labels,
+    setLabels,
+    updateLabels,
+  } = useCard(setTask, task);
 
   return (
     <>
@@ -88,7 +51,7 @@ function LabelPopover({ task, setTask }: Props) {
         <Box sx={{ display: 'flex', flexDirection: 'row' }}>
           <CardButton
             variant="outlined"
-            onClick={handleClick()}
+            onClick={openPopover('label', setOpen, setFeedbackOpen)}
             color="secondary"
             sx={{
               padding: '6px',
@@ -143,7 +106,7 @@ function LabelPopover({ task, setTask }: Props) {
       <Popover
         open={feedbackOpen}
         anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
+        onClose={() => closePopover(setFeedbackOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
@@ -156,7 +119,7 @@ function LabelPopover({ task, setTask }: Props) {
       <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={() => handleClose()}
+        onClose={() => closePopover(setOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
@@ -184,7 +147,9 @@ function LabelPopover({ task, setTask }: Props) {
             variant="outlined"
             sx={{ mt: 4, borderRadius: 1 }}
             color="secondary"
-            onClick={handleSave}
+            onClick={() => {
+              updateLabels(setOpen);
+            }}
           >
             Save
           </PrimaryButton>

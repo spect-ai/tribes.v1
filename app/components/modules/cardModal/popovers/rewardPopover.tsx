@@ -10,7 +10,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { useGlobal } from '../../../../context/globalContext';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
+import useCard from '../../../../hooks/useCard';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 import { Chain, Registry, Task, Token } from '../../../../types';
 import {
@@ -30,65 +30,23 @@ function RewardPopover({ task, setTask }: Props) {
   const {
     state: { registry },
   } = useGlobal();
-  const [token, setToken] = useState(task.token);
-  const [chain, setChain] = useState(task.chain);
   const [open, setOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [value, setValue] = useState(task.value?.toString());
-  const [isLoading, setIsLoading] = useState(false);
   const { setSpace } = useSpace();
-  const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents, getReason } = useCardDynamism(task);
-
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents.reward) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
-    }
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
-
-  const handleSave = () => {
-    const prevTask = { ...task };
-    const temp = { ...task };
-    temp.chain = chain;
-    temp.token = token;
-    temp.value = parseFloat(value);
-    setTask(temp);
-    handleClose();
-    runMoralisFunction('updateCard', {
-      updates: {
-        chain,
-        token,
-        value: parseFloat(value),
-        taskId: task.taskId,
-      },
-    })
-      .then((res) => {
-        console.log(res);
-        setSpace(res.space);
-        setTask(res.task);
-      })
-      .catch((err: any) => {
-        setTask(prevTask);
-        notify(`${err.message}`, 'error');
-      });
-  };
-
-  useEffect(() => {
-    setChain(task.chain);
-    setToken(task.token);
-    setValue(task.value?.toString());
-  }, [task]);
+  const {
+    updateReward,
+    openPopover,
+    closePopover,
+    anchorEl,
+    chain,
+    setChain,
+    token,
+    setToken,
+    value,
+    setValue,
+    isLoading,
+  } = useCard(setTask, task);
+  const { getReason } = useCardDynamism(task);
 
   return (
     <>
@@ -107,7 +65,7 @@ function RewardPopover({ task, setTask }: Props) {
         </Typography>
         <CardButton
           variant="outlined"
-          onClick={handleClick()}
+          onClick={openPopover('reward', setOpen, setFeedbackOpen)}
           color="secondary"
           sx={{
             padding: '6px',
@@ -148,7 +106,7 @@ function RewardPopover({ task, setTask }: Props) {
       <Popover
         open={feedbackOpen}
         anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
+        onClose={() => closePopover(setFeedbackOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
@@ -161,7 +119,7 @@ function RewardPopover({ task, setTask }: Props) {
       <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={() => handleClose()}
+        onClose={() => closePopover(setOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
@@ -236,7 +194,9 @@ function RewardPopover({ task, setTask }: Props) {
             color="secondary"
             sx={{ borderRadius: 1 }}
             loading={isLoading}
-            onClick={handleSave}
+            onClick={() => {
+              updateReward(setOpen);
+            }}
           >
             Save
           </PrimaryButton>

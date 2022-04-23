@@ -2,7 +2,6 @@ import { Box, TextField, Typography, Avatar } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
@@ -11,6 +10,7 @@ import { PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 import { uid, formatTimeCreated } from '../../../../utils/utils';
 import useProfileInfo from '../../../../hooks/useProfileInfo';
+import useCard from '../../../../hooks/useCard';
 
 type Props = {
   task: Task;
@@ -18,71 +18,16 @@ type Props = {
 };
 
 function ProposalApplicantView({ task, setTask }: Props) {
-  const [isLoading, setIsLoading] = useState(false);
-  const { space, setSpace } = useSpace();
-  const { runMoralisFunction } = useMoralisFunction();
   const { user } = useMoralis();
-  const [proposalOnEdit, setProposalOnEdit] = useState('');
-  const [proposal, setProposal] = useState({} as Proposal);
-  const { proposalEditMode, setProposalEditMode } = useCardDynamism(task);
-  const [editMode, setEditMode] = useState(true);
   const { avatar } = useProfileInfo();
-
-  const handleSave = () => {
-    setIsLoading(true);
-    const prevTask = { ...task };
-    const temp = { ...task };
-    temp.proposals = [
-      {
-        id: '',
-        content: proposalOnEdit as string,
-        userId: user?.id as string,
-        createdAt:
-          prevTask.proposals?.length > 0
-            ? prevTask.proposals[0].createdAt
-            : new Date(),
-        updatedAt: new Date(),
-        edited: false,
-      },
-    ];
-    setTask(temp);
-    setProposalEditMode(false);
-    runMoralisFunction('updateCard', {
-      updates: {
-        proposals: {
-          content: proposalOnEdit,
-        },
-        taskId: task.taskId,
-      },
-    })
-      .then((res: any) => {
-        console.log(res);
-        notify('Applied to bounty!', 'success');
-        setSpace(res.space);
-        setTask(res.task);
-        setIsLoading(false);
-      })
-      .catch((err: any) => {
-        setTask(prevTask);
-        setProposalEditMode(true);
-        setIsLoading(false);
-        notify(`${err.message}`, 'error');
-      });
-  };
-
-  const handleEdit = () => {
-    setEditMode(true);
-  };
-
-  useEffect(() => {
-    console.log(task.proposals);
-    if (task.proposals.length > 0) {
-      setProposal(task.proposals[0]);
-      setProposalOnEdit(task.proposals[0].content);
-      if (task.proposals[0]?.content === '') setEditMode(true);
-      else setEditMode(false);
-    }
-  }, [task]);
+  const {
+    setProposalEditMode,
+    proposalEditMode,
+    setProposalOnEdit,
+    proposalOnEdit,
+    updateProposal,
+    isLoading,
+  } = useCard(setTask, task);
 
   return (
     <Box
@@ -119,7 +64,7 @@ function ProposalApplicantView({ task, setTask }: Props) {
           >
             {user?.get('username')}
           </Typography>{' '}
-          {proposal?.createdAt && (
+          {task.proposals[0]?.createdAt && (
             <Typography
               variant="body2"
               sx={{
@@ -129,10 +74,10 @@ function ProposalApplicantView({ task, setTask }: Props) {
                 color: 'text.secondary',
               }}
             >
-              {formatTimeCreated(proposal?.createdAt)} ago
+              {formatTimeCreated(task.proposals[0]?.createdAt)} ago
             </Typography>
           )}
-          {proposal?.edited && proposal?.updatedAt && (
+          {task.proposals[0]?.edited && task.proposals[0]?.updatedAt && (
             <Typography
               variant="body2"
               sx={{
@@ -142,7 +87,7 @@ function ProposalApplicantView({ task, setTask }: Props) {
                 color: 'text.secondary',
               }}
             >
-              Edited {formatTimeCreated(proposal?.updatedAt)} ago
+              Edited {formatTimeCreated(task.proposals[0]?.updatedAt)} ago
             </Typography>
           )}
         </Box>
@@ -159,11 +104,11 @@ function ProposalApplicantView({ task, setTask }: Props) {
           }}
           defaultValue={proposalOnEdit}
           InputProps={{
-            readOnly: !editMode,
+            readOnly: !proposalEditMode,
             disableUnderline: true, // <== added this
           }}
         />
-        {editMode && task.assignee?.length === 0 && (
+        {proposalEditMode && task.assignee?.length === 0 && (
           <PrimaryButton
             variant="outlined"
             sx={{
@@ -176,7 +121,7 @@ function ProposalApplicantView({ task, setTask }: Props) {
             size="small"
             loading={isLoading}
             onClick={() => {
-              handleSave();
+              updateProposal();
             }}
             disabled={
               task.proposals?.length > 0 &&
@@ -186,7 +131,7 @@ function ProposalApplicantView({ task, setTask }: Props) {
             Apply
           </PrimaryButton>
         )}
-        {!editMode && task.assignee?.length === 0 && (
+        {!proposalEditMode && task.assignee?.length === 0 && (
           <PrimaryButton
             variant="outlined"
             sx={{
@@ -199,7 +144,7 @@ function ProposalApplicantView({ task, setTask }: Props) {
             size="small"
             loading={isLoading}
             onClick={() => {
-              handleEdit();
+              setProposalEditMode(true);
             }}
           >
             Edit

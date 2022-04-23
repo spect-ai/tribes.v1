@@ -12,14 +12,14 @@ import {
 } from '@mui/material';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import React, { useState } from 'react';
-import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { useGlobal } from '../../../../context/globalContext';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import PayButton from '../buttons/payButton';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useCardStatus from '../../../../hooks/useCardStatus';
 import { notify } from '../../settingsTab';
+import useCard from '../../../../hooks/useCard';
 
 type Props = {
   task: Task;
@@ -35,28 +35,12 @@ function OptionsPopover({ task, setTask }: Props) {
   const { viewableComponents } = useCardDynamism(task);
   const { runMoralisFunction } = useMoralisFunction();
   const { space, setSpace } = useSpace();
+  const { updateStatus } = useCard(setTask, task);
+  const { statusToCode } = useCardStatus();
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
     setOpen(true);
-  };
-
-  const archiveCard = () => {
-    runMoralisFunction('updateCard', {
-      updates: {
-        taskId: task.taskId,
-        status: 500,
-      },
-    })
-      .then((res) => {
-        console.log({ res });
-        setSpace(res.space);
-        setTask(res.task);
-        handleClose();
-      })
-      .catch((res) => {
-        console.log(res);
-      });
   };
 
   const duplicateCard = () => {
@@ -75,7 +59,6 @@ function OptionsPopover({ task, setTask }: Props) {
       deadline: task.deadline,
     })
       .then((res) => {
-        console.log({ res });
         setSpace(res.space);
         notify('Card has been duplicated', 'success');
       })
@@ -142,7 +125,11 @@ function OptionsPopover({ task, setTask }: Props) {
             </ListItemButton>
           )}
           {viewableComponents.archive && (
-            <ListItemButton onClick={archiveCard}>
+            <ListItemButton
+              onClick={() => {
+                updateStatus(statusToCode.archived);
+              }}
+            >
               <ArchiveIcon sx={{ width: '2rem', mr: 2 }} />
               <ListItemText primary="Archive" />
             </ListItemButton>

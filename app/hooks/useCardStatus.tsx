@@ -1,6 +1,26 @@
 import { Task } from '../types';
 
 export default function useCardStatus(task: Task) {
+  const codeToStatus: any = {
+    100: 'created',
+    105: 'assigned',
+    200: 'inReview',
+    201: 'inRevision',
+    205: 'closed',
+    300: 'paid',
+    500: 'archived',
+  };
+
+  const statusToCode: any = {
+    created: 100,
+    assigned: 105,
+    inReview: 200,
+    inRevision: 201,
+    closed: 205,
+    paid: 300,
+    archived: 500,
+  };
+
   const isCreated = () => {
     return task.status === 100;
   };
@@ -52,5 +72,7 @@ export default function useCardStatus(task: Task) {
     isUnassigned,
     hasNoReward,
     hasNoComments,
+    codeToStatus,
+    statusToCode,
   };
 }

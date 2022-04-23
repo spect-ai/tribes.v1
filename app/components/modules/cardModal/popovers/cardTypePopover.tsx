@@ -13,6 +13,7 @@ import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useCard from '../../../../hooks/useCard';
 
 type Props = {
   task: Task;
@@ -20,54 +21,18 @@ type Props = {
 };
 
 function CardTypePopover({ task, setTask }: Props) {
-  const [type, setType] = useState(task?.type || 'Task');
-  const [isLoading, setIsLoading] = useState(false);
-  const { runMoralisFunction } = useMoralisFunction();
-  const { space, setSpace } = useSpace();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
-  const { editAbleComponents, getReason } = useCardDynamism(task);
+  const { getReason } = useCardDynamism(task);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents.type) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
-    }
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
-
-  const handleSave = () => {
-    const prevTask = { ...task };
-    const temp = { ...task };
-    temp.type = type;
-    setTask(temp);
-    handleClose();
-    runMoralisFunction('updateCard', {
-      updates: {
-        type,
-        taskId: task.taskId,
-      },
-    })
-      .then((res: any) => {
-        setSpace(res.space);
-        setTask(res.task);
-      })
-      .catch((err: any) => {
-        setTask(prevTask);
-        notify(`${err.message}`, 'error');
-      });
-  };
-
-  useEffect(() => {
-    task?.type ? setType(task.type) : setType('Task');
-  }, [task]);
+  const {
+    anchorEl,
+    openPopover,
+    closePopover,
+    type,
+    setType,
+    isLoading,
+    updateType,
+  } = useCard(setTask, task);
 
   return (
     <>
@@ -81,7 +46,7 @@ function CardTypePopover({ task, setTask }: Props) {
       >
         <CardButton
           variant="outlined"
-          onClick={handleClick()}
+          onClick={openPopover('type', setOpen, setFeedbackOpen)}
           color="secondary"
           size="small"
           sx={{
@@ -101,7 +66,7 @@ function CardTypePopover({ task, setTask }: Props) {
       <Popover
         open={feedbackOpen}
         anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
+        onClose={() => closePopover(setFeedbackOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
@@ -114,7 +79,7 @@ function CardTypePopover({ task, setTask }: Props) {
       <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={() => handleClose()}
+        onClose={() => closePopover(setOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
@@ -143,7 +108,7 @@ function CardTypePopover({ task, setTask }: Props) {
             color="secondary"
             sx={{ mt: 4, borderRadius: 1 }}
             loading={isLoading}
-            onClick={handleSave}
+            onClick={() => updateType(setOpen)}
           >
             Save
           </PrimaryButton>
