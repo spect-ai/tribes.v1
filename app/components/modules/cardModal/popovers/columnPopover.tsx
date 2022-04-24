@@ -4,15 +4,13 @@ import {
   Popover,
   TextField,
   Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
-import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
-import { Column, Task } from "../../../../types";
-import { CardButton, PrimaryButton } from "../../../elements/styledComponents";
-import { notify } from "../../settingsTab";
-import { PopoverContainer } from "../styles";
-import { useCardDynamism } from "../../../../hooks/useCardDynamism";
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import { Column, Task } from '../../../../types';
+import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
+import { PopoverContainer } from '../styles';
+import useCard from '../../../../hooks/useCard';
 
 type Props = {
   task: Task;
@@ -20,79 +18,40 @@ type Props = {
   column: Column;
 };
 
-const ColumnPopover = ({ task, setTask, column }: Props) => {
-  const [currStatus, setCurrStatus] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+function ColumnPopover({ task, setTask, column }: Props) {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const { space, setSpace } = useSpace();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
-  const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents } = useCardDynamism(task);
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents["column"]) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
-    }
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
-  const handleSave = () => {
-    const prevStatus = currStatus;
-    setCurrStatus(status);
-    runMoralisFunction("updateCard", {
-      updates: {
-        columnChange: {
-          sourceId: column.id,
-          destinationId: status,
-        },
-        taskId: task.taskId,
-      },
-    })
-      .then((res: any) => {
-        console.log(res);
-        setSpace(res.space);
-        setTask(res.task);
-        handleClose();
-      })
-      .catch((err: any) => {
-        setCurrStatus(prevStatus);
-        notify(`${err.message}`, "error");
-      });
-  };
-
-  useEffect(() => {
-    if (column) {
-      setCurrStatus(column.id);
-      setStatus(column.id);
-    }
-  }, [column]);
+  const {
+    updateColumn,
+    anchorEl,
+    openPopover,
+    closePopover,
+    isLoading,
+    col,
+    setCol,
+    currCol,
+    setCurrCol,
+  } = useCard(setTask, task, column);
 
   return (
     <>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
+          display: 'flex',
+          flexDirection: 'column',
           mt: 2,
           mx: 1,
         }}
       >
         <CardButton
           variant="outlined"
-          onClick={handleClick()}
+          onClick={openPopover('column', setOpen, setFeedbackOpen)}
           color="secondary"
           size="small"
           sx={{
-            padding: "2px",
-            minWidth: "3rem",
+            padding: '2px',
+            minWidth: '3rem',
           }}
         >
           <Typography
@@ -100,17 +59,17 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
               fontSize: 14,
             }}
           >
-            {space.columns[currStatus as string]?.title}
+            {space.columns[currCol as string]?.title}
           </Typography>
         </CardButton>
       </Box>
       <Popover
         open={feedbackOpen}
         anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
+        onClose={() => closePopover(setFeedbackOpen)}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>
@@ -122,19 +81,19 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
       <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={() => handleClose()}
+        onClose={() => closePopover(setOpen)}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>
           <Autocomplete
             options={space.columnOrder}
-            value={status}
+            value={col}
             getOptionLabel={(option) => space.columns[option].title}
             onChange={(event, newValue) => {
-              setStatus(newValue as any);
+              setCol(newValue as any);
             }}
             disableClearable
             renderInput={(params) => (
@@ -144,6 +103,7 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
                 size="small"
                 fullWidth
                 placeholder="Search types"
+                color="secondary"
               />
             )}
           />
@@ -152,7 +112,9 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
             color="secondary"
             sx={{ mt: 4, borderRadius: 1 }}
             loading={isLoading}
-            onClick={handleSave}
+            onClick={() => {
+              updateColumn(setOpen);
+            }}
           >
             Save
           </PrimaryButton>
@@ -160,6 +122,6 @@ const ColumnPopover = ({ task, setTask, column }: Props) => {
       </Popover>
     </>
   );
-};
+}
 
 export default ColumnPopover;

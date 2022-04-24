@@ -1,30 +1,18 @@
-import styled from "@emotion/styled";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Button,
-  Typography,
-} from "@mui/material";
-import React, { useState } from "react";
-import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
-import AddIcon from "@mui/icons-material/Add";
-import {
-  addColumn,
-  updateColumnOrder,
-  updateColumnTasks,
-  updateTaskStatus,
-} from "../../../adapters/moralis";
-import { useMoralis } from "react-moralis";
-import { useRouter } from "next/router";
-import { reorder } from "../../../utils/utils";
-import { BoardData } from "../../../types";
-import { notify } from "../settingsTab";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import Column from "../column";
-import { PrimaryButton } from "../../elements/styledComponents";
-import TrelloImport from "../importTrello";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import styled from '@emotion/styled';
+import AddIcon from '@mui/icons-material/Add';
+import { Button } from '@mui/material';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { BoardData } from '../../../types';
+import { reorder } from '../../../utils/utils';
+import { PrimaryButton } from '../../elements/styledComponents';
+import Column from '../column';
+import TrelloImport from '../importTrello';
+import { notify } from '../settingsTab';
 
 type Props = {
   expanded: boolean;
@@ -33,10 +21,21 @@ type Props = {
   ) => (event: React.SyntheticEvent, newExpanded: boolean) => void;
 };
 
-const Board = ({ expanded, handleChange }: Props) => {
+const Container = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 0 0.5rem;
+  height: calc(100vh - 3.8rem);
+  max-width: calc(100vw - 7.2rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+`;
+
+function Board({ expanded, handleChange }: Props) {
   const { space, setSpace } = useSpace();
   const router = useRouter();
-  const { Moralis, user } = useMoralis();
+  const { bid } = router.query;
+  const { user } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => {
@@ -50,7 +49,7 @@ const Board = ({ expanded, handleChange }: Props) => {
     }
     const task = space.tasks[draggableId];
     if (
-      type !== "column" &&
+      type !== 'column' &&
       !(
         task.access.assignee ||
         task.access.creator ||
@@ -58,7 +57,7 @@ const Board = ({ expanded, handleChange }: Props) => {
         space.roles[user?.id as string] === 3
       )
     ) {
-      notify("Looks like you don't have access to move this task", "error");
+      notify("Looks like you don't have access to move this task", 'error');
       return;
     }
     if (
@@ -67,26 +66,29 @@ const Board = ({ expanded, handleChange }: Props) => {
     ) {
       return;
     }
-    if (type === "column") {
+    if (type === 'column') {
       const newColumnOrder = reorder(
         space.columnOrder,
         source.index,
         destination.index
       );
-      const tempData = Object.assign({}, space);
+      const tempData = { ...space };
       setSpace({
         ...space,
         columnOrder: newColumnOrder,
       });
-      updateColumnOrder(Moralis, bid as string, newColumnOrder)
+      runMoralisFunction('updateColumnOrder', {
+        boardId: bid,
+        newColumnOrder,
+      })
         .then((res: any) => {
           setSpace(res as BoardData);
         })
         .catch((err: any) => {
           setSpace(tempData);
           notify(
-            "Sorry! There was an error while changing the column order.",
-            "error"
+            'Sorry! There was an error while changing the column order.',
+            'error'
           );
         });
       return;
@@ -97,7 +99,7 @@ const Board = ({ expanded, handleChange }: Props) => {
 
     if (start === finish) {
       const newList = reorder(start.taskIds, source.index, destination.index);
-      const tempData = Object.assign({}, space);
+      const tempData = { ...space };
       setSpace({
         ...space,
         columns: {
@@ -108,20 +110,20 @@ const Board = ({ expanded, handleChange }: Props) => {
           },
         },
       });
-      runMoralisFunction("updateColumnTasks", {
+      runMoralisFunction('updateColumnTasks', {
         boardId: bid,
-        sourceId: result.source.droppableId,
-        destinationId: result.source.droppableId,
-        source: newList,
-        destination: newList,
         taskId: draggableId,
+        updatedCardLoc: {
+          columnId: result.source.droppableId,
+          cardIndex: destination.index,
+        },
       })
         .then((res: any) => {
           setSpace(res as BoardData);
         })
         .catch((err: any) => {
           setSpace(tempData);
-          notify("Sorry! There was an error while moving tasks.", "error");
+          notify('Sorry! There was an error while moving tasks.', 'error');
         });
     } else {
       const startTaskIds = Array.from(start.taskIds); // copy
@@ -137,7 +139,7 @@ const Board = ({ expanded, handleChange }: Props) => {
         ...finish,
         taskIds: finishTaskIds,
       };
-      const tempData = Object.assign({}, space);
+      const tempData = { ...space };
       setSpace({
         ...space,
         columns: {
@@ -146,13 +148,13 @@ const Board = ({ expanded, handleChange }: Props) => {
           [newFinish.id]: newFinish,
         },
       });
-      runMoralisFunction("updateColumnTasks", {
+      runMoralisFunction('updateColumnTasks', {
         boardId: bid,
-        sourceId: newStart.id,
-        destinationId: newFinish.id,
-        source: newStart,
-        destination: newFinish,
         taskId: draggableId,
+        updatedCardLoc: {
+          columnId: newFinish.id,
+          cardIndex: destination.index,
+        },
       })
         .then((res: any) => {
           setSpace(res as BoardData);
@@ -166,12 +168,11 @@ const Board = ({ expanded, handleChange }: Props) => {
         })
         .catch((err: any) => {
           setSpace(tempData);
-          notify("Sorry! There was an error while moving tasks.", "error");
+          notify('Sorry! There was an error while moving tasks.', 'error');
         });
     }
   };
 
-  const { id, bid } = router.query;
   return (
     <>
       <TrelloImport isOpen={isOpen} handleClose={handleClose} />
@@ -186,7 +187,7 @@ const Board = ({ expanded, handleChange }: Props) => {
               setIsOpen(true);
             }}
           >
-            Import tasks from Trello
+            Import cards from Trello
           </PrimaryButton>
         )}
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -217,23 +218,23 @@ const Board = ({ expanded, handleChange }: Props) => {
                 variant="contained"
                 startIcon={<AddIcon />}
                 sx={{
-                  textTransform: "none",
-                  height: "5%",
-                  minWidth: "16rem",
+                  textTransform: 'none',
+                  height: '5%',
+                  minWidth: '16rem',
                   borderRadius: 1,
-                  margin: "0.3rem 2rem 1rem 0rem",
+                  margin: '0.3rem 2rem 1rem 0rem',
                 }}
                 disabled={space.roles[user?.id as string] !== 3}
                 onClick={() => {
                   const newColumnId = Object.keys(space.columns).length;
-                  const tempData = Object.assign({}, space);
+                  const tempData = { ...space };
                   setSpace({
                     ...space,
                     columns: {
                       ...space.columns,
                       [`column-${newColumnId}`]: {
                         id: `column-${newColumnId}`,
-                        title: "",
+                        title: '',
                         taskIds: [],
                         cardType: 1,
                         createCard: { 0: false, 1: false, 2: true, 3: true },
@@ -245,13 +246,15 @@ const Board = ({ expanded, handleChange }: Props) => {
                       `column-${newColumnId}`,
                     ],
                   });
-                  addColumn(Moralis, bid as string)
+                  runMoralisFunction('addColumn', {
+                    boardId: bid,
+                  })
                     .then((res: BoardData) => setSpace(res))
                     .catch((err: any) => {
                       setSpace(tempData);
                       notify(
-                        "Sorry! There was an error while adding column",
-                        "error"
+                        'Sorry! There was an error while adding column',
+                        'error'
                       );
                     });
                 }}
@@ -264,15 +267,6 @@ const Board = ({ expanded, handleChange }: Props) => {
       </DragDropContext>
     </>
   );
-};
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  padding: 0 0.5rem;
-  height: calc(100vh - 3.8rem);
-  max-width: calc(100vw - 7.2rem);
-  overflow-x: auto;
-  overflow-y: hidden;
-`;
+}
 
 export default Board;

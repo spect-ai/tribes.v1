@@ -1,16 +1,16 @@
 /* eslint-disable @next/next/no-html-link-for-pages */
-import { styled } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React from 'react';
+import { useExplore } from '../../../../pages';
+import SidebarProfile from '../../elements/sidebarProfile';
 import {
   StyledNav,
   StyledTab,
   StyledTabs,
-} from "../../elements/styledComponents";
-import { useExplore } from "../../../../pages";
-import SidebarProfile from "../../elements/sidebarProfile";
+} from '../../elements/styledComponents';
+
 type Props = {};
 
-const Navbar = (props: Props) => {
+function Navbar(props: Props) {
   const { tab, setTab } = useExplore();
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTab(newValue);
@@ -21,13 +21,13 @@ const Navbar = (props: Props) => {
         value={tab}
         onChange={handleTabChange}
         centered
-        sx={{ width: "100%", ml: "6rem" }}
+        sx={{ width: '100%', ml: '6rem' }}
       >
         <StyledTab label="Explore Tribes" />
       </StyledTabs>
       <SidebarProfile />
     </StyledNav>
   );
-};
+}
 
 export default Navbar;

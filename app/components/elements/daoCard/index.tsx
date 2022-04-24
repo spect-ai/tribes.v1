@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
 import {
   Avatar,
   Button,
@@ -6,10 +6,10 @@ import {
   styled as MUIStyled,
   Typography,
   useTheme,
-} from "@mui/material";
-import Link from "next/link";
-import React from "react";
-import { normalTrim } from "../../../utils/utils";
+} from '@mui/material';
+import Link from 'next/link';
+import React from 'react';
+import { normalTrim } from '../../../utils/utils';
 
 type Props = {
   image: string;
@@ -18,52 +18,10 @@ type Props = {
   teamId: string;
 };
 
-const DAOCard = ({ image, title, members, teamId }: Props) => {
-  const { palette } = useTheme();
-  return (
-    <Link href={`/tribe/${teamId}`} passHref>
-      <Card palette={palette}>
-        <CardContent>
-          <TribeAvatar alt="Remy Sharp" src={image} variant="rounded" />
-          <Typography
-            gutterBottom
-            variant="h6"
-            component="div"
-            color={palette.text.primary}
-            sx={{ textAlign: "center", maxHeight: "4rem", overflow: "hidden" }}
-          >
-            {normalTrim(title, 17)}
-          </Typography>
-          <Typography
-            gutterBottom
-            component="div"
-            sx={{ textAlign: "center", color: "#5a6972", fontSize: 13 }}
-          >
-            {members} members
-          </Typography>
-          <Button
-            variant="outlined"
-            color="secondary"
-            disableElevation
-            sx={{
-              borderRadius: 2,
-              width: 100,
-              textTransform: "none",
-              mt: 4,
-            }}
-          >
-            View
-          </Button>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-};
-
 const TribeAvatar = MUIStyled(Avatar)(({ theme }) => ({
   height: 60,
   width: 60,
-  objectFit: "cover",
+  objectFit: 'cover',
 }));
 
 const Card = styled.div<{ palette: Palette }>`
@@ -85,5 +43,47 @@ const CardContent = styled.div`
   align-items: center;
   padding: 1.5rem;
 `;
+
+function DAOCard({ image, title, members, teamId }: Props) {
+  const { palette } = useTheme();
+  return (
+    <Link href={`/tribe/${teamId}`} passHref>
+      <Card palette={palette}>
+        <CardContent>
+          <TribeAvatar alt="Remy Sharp" src={image} variant="rounded" />
+          <Typography
+            gutterBottom
+            variant="h6"
+            component="div"
+            color={palette.text.primary}
+            sx={{ textAlign: 'center', maxHeight: '4rem', overflow: 'hidden' }}
+          >
+            {normalTrim(title, 17)}
+          </Typography>
+          <Typography
+            gutterBottom
+            component="div"
+            sx={{ textAlign: 'center', color: '#5a6972', fontSize: 13 }}
+          >
+            {members} members
+          </Typography>
+          <Button
+            variant="outlined"
+            color="secondary"
+            disableElevation
+            sx={{
+              borderRadius: 2,
+              width: 100,
+              textTransform: 'none',
+              mt: 4,
+            }}
+          >
+            View
+          </Button>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
 
 export default DAOCard;

@@ -1,10 +1,9 @@
-import React, { createContext, useReducer, useContext } from "react";
-import { State, initialState } from "./initalstate";
-import { Action, reducer } from "./reducer";
-import Moralis from "moralis/types";
-import { initializeMumbaiContracts } from "../../adapters/contract";
-import { getRegistry } from "../../adapters/moralis";
-import { Registry } from "../../types";
+import React, { createContext, useContext, useReducer } from 'react';
+import { initializeMumbaiContracts } from '../../adapters/contract';
+import getRegistry from '../../adapters/moralis';
+import { Registry } from '../../types';
+import { initialState, State } from './initalstate';
+import { Action, reducer } from './reducer';
 
 declare global {
   interface Window {
@@ -29,12 +28,12 @@ const initContracts = async (dispatch: React.Dispatch<Action>) => {
     // }
     const { distributorContract } = initializeMumbaiContracts();
     dispatch({
-      type: "SET_DISTRIBUTOR_CONTRACT",
+      type: 'SET_DISTRIBUTOR_CONTRACT',
       contract: distributorContract,
     });
     // dispatch({ type: "END_ASYNC" });
   } catch (error: any) {
-    dispatch({ type: "SET_ERROR", error });
+    dispatch({ type: 'SET_ERROR', error });
   }
 };
 
@@ -42,11 +41,11 @@ const initRegistry = async (dispatch: React.Dispatch<Action>, Moralis: any) => {
   getRegistry(Moralis).then((res: Registry) => {
     try {
       dispatch({
-        type: "SET_REGISTRY",
+        type: 'SET_REGISTRY',
         registry: res,
       });
     } catch (error: any) {
-      dispatch({ type: "SET_ERROR", error });
+      dispatch({ type: 'SET_ERROR', error });
     }
   });
 };
@@ -54,11 +53,11 @@ const initRegistry = async (dispatch: React.Dispatch<Action>, Moralis: any) => {
 const updateUser = async (dispatch: React.Dispatch<Action>, user: any) => {
   try {
     dispatch({
-      type: "SET_USER",
+      type: 'SET_USER',
       user,
     });
   } catch (error: any) {
-    dispatch({ type: "SET_ERROR", error });
+    dispatch({ type: 'SET_ERROR', error });
   }
 };
 
@@ -68,22 +67,23 @@ const updateLoading = async (
 ) => {
   if (loading) {
     dispatch({
-      type: "START_ASYNC",
+      type: 'START_ASYNC',
     });
   } else {
     dispatch({
-      type: "END_ASYNC",
+      type: 'END_ASYNC',
     });
   }
 };
 
-const GlobalContextProvider = ({ children }: { children: React.ReactNode }) => {
+function GlobalContextProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  // eslint-disable-next-line react/jsx-no-constructed-context-values
   const value = { state, dispatch };
   return (
     <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>
   );
-};
+}
 
 const useGlobal = () => useContext(GlobalContext);
 

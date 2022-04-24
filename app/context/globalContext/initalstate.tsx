@@ -1,5 +1,4 @@
-import Moralis from "moralis/types";
-import { Contracts, CurrentUser, Registry } from "../../types";
+import { Contracts, CurrentUser, Registry } from '../../types';
 
 export interface State {
   loading: boolean;

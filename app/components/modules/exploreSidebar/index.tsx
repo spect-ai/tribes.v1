@@ -1,4 +1,6 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled';
+import ExploreIcon from '@mui/icons-material/Explore';
+import SwitchLeftIcon from '@mui/icons-material/SwitchLeft';
 import {
   Avatar,
   Box,
@@ -10,44 +12,84 @@ import {
   Palette,
   Tooltip,
   useTheme,
-} from "@mui/material";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import ExploreIcon from "@mui/icons-material/Explore";
-import { useRouter } from "next/router";
-import CreateTribeModal from "../createTribeModal";
-import { getEssentialBoardsInfo, getMyTeams } from "../../../adapters/moralis";
-import { useMoralis } from "react-moralis";
-import { notify } from "../settingsTab";
-import SwitchLeftIcon from "@mui/icons-material/SwitchLeft";
-import PaidIcon from "@mui/icons-material/Paid";
-import BoardSettings from "../boardSettings";
-import PaymentModal from "../batchPay";
+} from '@mui/material';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import React, { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import PaymentModal from '../batchPay';
+import BoardSettings from '../boardSettings';
+import CreateTribeModal from '../createTribeModal';
+import { notify } from '../settingsTab';
 
 type Props = {};
 
-const ExploreSidebar = (props: Props) => {
+export const SidebarButton = styled.div<{
+  palette: Palette;
+  selected: boolean;
+}>`
+  &:hover {
+    color: ${(props) => props.palette.secondary.main};
+    border-left: 2px solid ${(props) => props.palette.secondary.main};
+  }
+  transition: all 0.5s ease-in-out;
+  cursor: pointer;
+  padding: 0rem 1rem;
+  border-left: 2px solid
+    ${(props) =>
+      props.selected ? props.palette.secondary.main : 'transparent'};
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0px;
+`;
+
+const SidebarContainer = styled.div<{ palette: Palette }>`
+  background-color: ${(props) => props.palette.primary.main};
+  transition: 0.5s;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 56px);
+  width: 3rem;
+`;
+
+export const ButtonText = styled.div`
+  overflow: hidden;
+  height: 20px;
+  width: 86%;
+  transition: 0.5s;
+  text-transform: none;
+`;
+
+function ExploreSidebar(props: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [tribeSpaces, setTribeSpaces] = useState([]);
   const [myTribes, setMyTribes] = useState<any[]>([] as any[]);
   const { palette } = useTheme();
-  const { Moralis, isInitialized, isAuthenticated } = useMoralis();
+  const { isInitialized, isAuthenticated } = useMoralis();
   const router = useRouter();
   const id = router.query.id as string;
   const bid = router.query.bid as string;
   const handleClose = () => setIsOpen(false);
+  const { runMoralisFunction } = useMoralisFunction();
 
   const initializeData = async () => {
     try {
       if (isAuthenticated) {
-        const myTribes = await getMyTeams(Moralis);
-        const spaces = await getEssentialBoardsInfo(Moralis, id);
-        setMyTribes(myTribes);
+        // const tribes = await getMyTeams(Moralis);
+        const tribes = await runMoralisFunction('getMyTeams', {});
+        // const spaces = await getEssentialBoardsInfo(Moralis, id);
+        const spaces = await runMoralisFunction('getEssentialBoardsInfo', {
+          teamId: id,
+        });
+        setMyTribes(tribes);
         setTribeSpaces(spaces);
       }
     } catch (e) {
       console.log(e);
-      notify("Error in initalizing sidebar data", "error");
+      notify('Error in initalizing sidebar data', 'error');
     }
   };
 
@@ -60,18 +102,18 @@ const ExploreSidebar = (props: Props) => {
   return (
     <SidebarContainer palette={palette}>
       <Box sx={{ mt: 4 }} />
-      <Drawer anchor={"right"} open={isOpen} onClose={handleClose}>
+      <Drawer anchor="right" open={isOpen} onClose={handleClose}>
         <List
           sx={{
-            maxWidth: "10rem",
+            maxWidth: '10rem',
             backgroundColor: palette.background.default,
-            height: "100%",
+            height: '100%',
           }}
         >
           {tribeSpaces.map((space: any, index) => (
             <Link
               href={`/tribe/${id}/space/${space.objectId}`}
-              key={index}
+              key={space.objectId}
               passHref
             >
               <ListItemButton selected={space.objectId === bid}>
@@ -81,7 +123,7 @@ const ExploreSidebar = (props: Props) => {
           ))}
         </List>
       </Drawer>
-      <Link href={"/"} passHref>
+      <Link href="/" passHref>
         <SidebarButton palette={palette} selected={!id}>
           <Tooltip title="Explore" placement="right" arrow sx={{ m: 0, p: 0 }}>
             <ExploreIcon
@@ -118,62 +160,28 @@ const ExploreSidebar = (props: Props) => {
       {bid && isAuthenticated && <PaymentModal />}
       <Divider sx={{ my: 5, mx: 3 }} />
       <CreateTribeModal />
-      {myTribes?.map((tribe, index) => (
-        <Link key={index} href={`/tribe/${tribe.get("teamId")}`} passHref>
+      {myTribes?.map((tribe) => (
+        <Link
+          key={tribe.get('teamId')}
+          href={`/tribe/${tribe.get('teamId')}`}
+          passHref
+        >
           <SidebarButton
             palette={palette}
-            selected={tribe.get("teamId") === id}
+            selected={tribe.get('teamId') === id}
           >
             <Avatar
               variant="rounded"
               sx={{ p: 0, m: 0, width: 28, height: 28 }}
-              src={tribe.get("logo")}
+              src={tribe.get('logo')}
             >
-              {tribe.get("name")[0]}
+              {tribe.get('name')[0]}
             </Avatar>
           </SidebarButton>
         </Link>
       ))}
     </SidebarContainer>
   );
-};
-
-export const SidebarButton = styled.div<{
-  palette: Palette;
-  selected: boolean;
-}>`
-  &:hover {
-    color: ${(props) => props.palette.secondary.main};
-    border-left: 2px solid ${(props) => props.palette.secondary.main};
-  }
-  transition: all 0.5s ease-in-out;
-  cursor: pointer;
-  padding: 0rem 1rem;
-  border-left: 2px solid
-    ${(props) =>
-      props.selected ? props.palette.secondary.main : "transparent"};
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: 8px 0px;
-`;
-
-const SidebarContainer = styled.div<{ palette: Palette }>`
-  background-color: ${(props) => props.palette.primary.main};
-  transition: 0.5s;
-  display: flex;
-  flex-direction: column;
-  min-height: calc(100vh - 56px);
-  width: 3rem;
-`;
-
-export const ButtonText = styled.div`
-  overflow: hidden;
-  height: 20px;
-  width: 86%;
-  transition: 0.5s;
-  text-transform: none;
-`;
+}
 
 export default ExploreSidebar;

@@ -1,0 +1,9 @@
+.yarn
+.next
+*.json
+*.scss
+*.css
+.prettierrc
+dist
+node_modules
+README.md

@@ -1,4 +1,3 @@
-import styled from "@emotion/styled";
 import {
   TableCell,
   TableRow,
@@ -7,8 +6,8 @@ import {
   TableBody,
   TableContainer,
   Table,
-} from "@mui/material";
-import React from "react";
+} from '@mui/material';
+import React from 'react';
 
 type Choice = {
   choice: string;
@@ -20,6 +19,10 @@ export type Details = {
 
 export type Values = {
   [choiceId: string]: Number;
+};
+
+type VotesGivenOneEpoch = {
+  [key: string]: number;
 };
 
 type Props = {
@@ -36,11 +39,7 @@ type Props = {
   tokenSymbol: string;
 };
 
-type VotesGivenOneEpoch = {
-  [key: string]: number;
-};
-
-const NumericVoting = ({
+function NumericVoting({
   epochId,
   type,
   active,
@@ -52,20 +51,20 @@ const NumericVoting = ({
   handleVotesRemaining,
   values,
   tokenSymbol,
-}: Props) => {
+}: Props) {
   return (
     <TableContainer>
       <Table aria-label="simple table" size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ color: "#99ccff" }}>
-              {type === "Member" ? "Member" : "Card"}
+            <TableCell sx={{ color: '#99ccff' }}>
+              {type === 'Member' ? 'Member' : 'Card'}
             </TableCell>
-            <TableCell align="right" sx={{ color: "#99ccff" }}>
+            <TableCell align="right" sx={{ color: '#99ccff' }}>
               Votes Given
             </TableCell>
             {!active && (
-              <TableCell align="right" sx={{ color: "#99ccff" }}>
+              <TableCell align="right" sx={{ color: '#99ccff' }}>
                 Value
               </TableCell>
             )}
@@ -74,9 +73,9 @@ const NumericVoting = ({
         <TableBody>
           {choices.map((choiceId, index) => (
             <TableRow
-              key={index}
+              key={choiceId}
               sx={{
-                "&:last-child td, &:last-child th": {
+                '&:last-child td, &:last-child th': {
                   border: 0,
                 },
               }}
@@ -98,17 +97,17 @@ const NumericVoting = ({
                     size="small"
                     color="secondary"
                     error={votesRemaining < 0}
-                    sx={{ width: "30%" }}
+                    sx={{ width: '30%' }}
                     onChange={(event) => {
                       handleVotesRemaining(
                         epochId,
                         choiceId,
-                        parseInt(event.target.value)
+                        parseInt(event.target.value, 10)
                       );
                       handleVotesGiven(
                         epochId,
                         choiceId,
-                        parseInt(event.target.value)
+                        parseInt(event.target.value, 10)
                       );
                     }}
                   />
@@ -118,7 +117,7 @@ const NumericVoting = ({
                 <TableCell align="right">
                   {choiceId in values && values[choiceId]
                     ? values[choiceId].toFixed(3)
-                    : 0}{" "}
+                    : 0}{' '}
                   {tokenSymbol}
                 </TableCell>
               )}
@@ -128,6 +127,6 @@ const NumericVoting = ({
       </Table>
     </TableContainer>
   );
-};
+}
 
 export default NumericVoting;

@@ -1,5 +1,5 @@
 function hasAccess(userId, entity, requiredAccess) {
-  const roles = entity.get("roles");
+  const roles = entity.get('roles');
   if (!roles[userId]) return false;
   return roles[userId] === requiredAccess;
 }
@@ -44,17 +44,17 @@ function isAdminFromObj(userId, entity) {
   const members = entity.members;
   for (var member of members) {
     if (member.objectId === userId) {
-      return member.objectId === "admin";
+      return member.objectId === 'admin';
     }
   }
   return false;
 }
 
 function isAdmin(userId, entity) {
-  const members = entity.get("members");
+  const members = entity.get('members');
   for (var member of members) {
-    if (member["userId"] === userId) {
-      return member["userId"] === "admin";
+    if (member['userId'] === userId) {
+      return member['userId'] === 'admin';
     }
   }
   return false;
@@ -62,19 +62,19 @@ function isAdmin(userId, entity) {
 
 function getSpaceAccess(userId, entity) {
   for (var member of entity.members) {
-    if (member["userId"] === userId) {
-      return member["role"];
+    if (member['userId'] === userId) {
+      return member['role'];
     }
   }
-  return "none";
+  return 'none';
 }
 
 function isTaskCreator(task, userId) {
-  return task.get("creator") === userId;
+  return task.get('creator') === userId;
 }
 
 function isTaskAssignee(task, userId) {
-  for (var assigneeId of task.get("assignee")) {
+  for (var assigneeId of task.get('assignee')) {
     if (userId === assigneeId) {
       return true;
     }
@@ -83,7 +83,7 @@ function isTaskAssignee(task, userId) {
 }
 
 function isTaskReviewer(task, userId) {
-  for (var reviewerId of task.get("reviewer")) {
+  for (var reviewerId of task.get('reviewer')) {
     if (userId === reviewerId) {
       return true;
     }
@@ -124,16 +124,16 @@ function isCardApplicantFromCardObj(task, userId) {
 }
 
 function canApplyForCardFromCardObj(task) {
-  return task.type === "Bounty" && task.assignee.length === 0;
+  return task.type === 'Bounty' && task.assignee.length === 0;
 }
 
 function getCardAccess(task, userId) {
   var access = {};
-  access["creator"] = isTaskCreatorFromTaskObj(task, userId);
-  access["assignee"] = isTaskAssigneeFromTaskObj(task, userId);
-  access["reviewer"] = isTaskReviewerFromTaskObj(task, userId);
-  access["applicant"] = isCardApplicantFromCardObj(task, userId);
-  access["canApply"] = canApplyForCardFromCardObj(task);
+  access['creator'] = isTaskCreatorFromTaskObj(task, userId);
+  access['assignee'] = isTaskAssigneeFromTaskObj(task, userId);
+  access['reviewer'] = isTaskReviewerFromTaskObj(task, userId);
+  access['applicant'] = isCardApplicantFromCardObj(task, userId);
+  access['canApply'] = canApplyForCardFromCardObj(task);
   return access;
 }
 
@@ -142,17 +142,17 @@ async function invite(members, teamId, invitedBy) {
   const logger = Moralis.Cloud.getLogger();
   var invites = [];
   for (var member of members) {
-    const invitationQuery = new Moralis.Query("Invitation");
-    invitationQuery.equalTo("teamId", teamId);
-    invitationQuery.equalTo("ethAddress", member["ethAddress"]);
+    const invitationQuery = new Moralis.Query('Invitation');
+    invitationQuery.equalTo('teamId', teamId);
+    invitationQuery.equalTo('ethAddress', member['ethAddress']);
     const invited = await invitationQuery.first();
-    if (!invited && member["ethAddress"] !== invitedBy) {
-      const invitation = new Moralis.Object("Invitation");
-      invitation.set("ethAddress", member["ethAddress"].toLowerCase());
-      invitation.set("role", member["role"]);
-      invitation.set("invitedBy", invitedBy);
-      invitation.set("active", true);
-      invitation.set("teamId", teamId);
+    if (!invited && member['ethAddress'] !== invitedBy) {
+      const invitation = new Moralis.Object('Invitation');
+      invitation.set('ethAddress', member['ethAddress'].toLowerCase());
+      invitation.set('role', member['role']);
+      invitation.set('invitedBy', invitedBy);
+      invitation.set('active', true);
+      invitation.set('teamId', teamId);
 
       invites.push(invitation);
     }
@@ -162,46 +162,46 @@ async function invite(members, teamId, invitedBy) {
 
 async function revoke(members, teamId) {
   //members: List of members
-  const teamQuery = new Moralis.Query("Team");
-  teamQuery.equalTo("teamId", teamId);
+  const teamQuery = new Moralis.Query('Team');
+  teamQuery.equalTo('teamId', teamId);
   var team = await teamQuery.first();
-  var membersInTeam = team?.get("members");
+  var membersInTeam = team?.get('members');
   var i = 0;
   for (var member of membersInTeam) {
-    if (members.includes(member["userId"])) {
+    if (members.includes(member['userId'])) {
       membersInTeam.splice(i, 1);
     } else {
       ++i;
     }
   }
-  team.set("members", membersInTeam);
+  team.set('members', membersInTeam);
 
   await Moralis.Object.saveAll([team], { useMasterKey: true });
 }
 
-Moralis.Cloud.define("getMyInvites", async (request) => {
+Moralis.Cloud.define('getMyInvites', async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();
-    const invitationQuery = new Moralis.Query("Invitation");
-    invitationQuery.equalTo("ethAddress", request.user.get("ethAddress"));
-    invitationQuery.equalTo("active", true);
+    const invitationQuery = new Moralis.Query('Invitation');
+    invitationQuery.equalTo('ethAddress', request.user.get('ethAddress'));
+    invitationQuery.equalTo('active', true);
     return await invitationQuery.find();
   } catch (err) {
     throw `${err}`;
   }
 });
 
-Moralis.Cloud.define("acceptInvite", async (request) => {
+Moralis.Cloud.define('acceptInvite', async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();
     // Set invitation to inactive
-    const invitationQuery = new Moralis.Query("Invitation");
-    invitationQuery.equalTo("ethAddress", request.user.get("ethAddress"));
-    invitationQuery.equalTo("teamId", parseInt(request.params.teamId));
-    invitationQuery.equalTo("active", true);
+    const invitationQuery = new Moralis.Query('Invitation');
+    invitationQuery.equalTo('ethAddress', request.user.get('ethAddress'));
+    invitationQuery.equalTo('teamId', parseInt(request.params.teamId));
+    invitationQuery.equalTo('active', true);
     const invitation = await invitationQuery.first();
     if (invitation) {
-      invitation.set("active", false);
+      invitation.set('active', false);
 
       // Add team in user's profile
       /*
@@ -215,14 +215,14 @@ Moralis.Cloud.define("acceptInvite", async (request) => {
 
       // Add user and role to team members
       const team = await getTribeByTeamId(request.params.teamId);
-      const members = team.get("members");
+      const members = team.get('members');
       const member = [
         {
           userId: request.user.id,
-          role: invitation.get("role"),
+          role: invitation.get('role'),
         },
       ];
-      team.set("members", members.concat(member));
+      team.set('members', members.concat(member));
 
       await Moralis.Object.saveAll([invitation, team], {
         useMasterKey: true,
@@ -237,13 +237,13 @@ Moralis.Cloud.define("acceptInvite", async (request) => {
   }
 });
 
-Moralis.Cloud.define("sendInvite", async (request) => {
+Moralis.Cloud.define('sendInvite', async (request) => {
   try {
     const logger = Moralis.Cloud.getLogger();
     const members = [
       {
         ethAddress: request.params.ethAddress,
-        role: "invited",
+        role: 'invited',
       },
     ];
     await invite(members, request.params.teamId, request.params.invitedBy);

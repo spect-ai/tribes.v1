@@ -10,7 +10,7 @@ const nextConfig = {
     INVITE_ENCRYPTION_SECRET_KEY: process.env.INVITE_ENCRYPTION_SECRET_KEY,
   },
   images: {
-    domains: ["ipfs.moralis.io"],
+    domains: ['ipfs.moralis.io'],
   },
   httpAgentOptions: {
     keepAlive: false,

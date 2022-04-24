@@ -1,35 +1,35 @@
 async function getCreatedUser(userInfo, userId, ethAddress) {
-  userInfo.set("userId", userId);
-  userInfo.set("tribes", []);
-  userInfo.set("ethAddress", ethAddress);
+  userInfo.set('userId', userId);
+  userInfo.set('tribes', []);
+  userInfo.set('ethAddress', ethAddress);
   return userInfo;
 }
 
 async function getUpdatedUser(userInfo, tribes) {
-  userInfo.set("tribes", tribes);
+  userInfo.set('tribes', tribes);
   return userInfo;
 }
 
 async function getUserByEthAddress(ethAddress) {
-  const userInfoQuery = new Moralis.Query("UserInfo");
-  userInfoQuery.equalTo("ethAddress", ethAddress);
+  const userInfoQuery = new Moralis.Query('UserInfo');
+  userInfoQuery.equalTo('ethAddress', ethAddress);
   return await userInfoQuery.first({ useMasterKey: true });
 }
 
 async function getUserByUserId(userId) {
-  const userInfoQuery = new Moralis.Query("UserInfo");
-  userInfoQuery.equalTo("userId", userId);
+  const userInfoQuery = new Moralis.Query('UserInfo');
+  userInfoQuery.equalTo('userId', userId);
   return await userInfoQuery.first({ useMasterKey: true });
 }
 
 async function getUserByObjId(objectId) {
-  const userInfoQuery = new Moralis.Query("UserInfo");
-  userInfoQuery.equalTo("objectId", objectId);
+  const userInfoQuery = new Moralis.Query('UserInfo');
+  userInfoQuery.equalTo('objectId', objectId);
   return await userInfoQuery.first({ useMasterKey: true });
 }
 
 async function getUserDetailsByUserIds(userIds) {
-  const userQuery = new Moralis.Query("User");
+  const userQuery = new Moralis.Query('User');
   const pipeline = [
     { match: { objectId: { $in: userIds } } },
     {
@@ -55,7 +55,7 @@ async function getUserIdToUserDetailsMapByUserIds(userIds) {
 }
 
 async function getUsernameProfilePicByUserId(userId) {
-  const userQuery = new Moralis.Query("User");
+  const userQuery = new Moralis.Query('User');
   const pipeline = [
     { match: { objectId: userId } },
     {
@@ -73,7 +73,7 @@ async function getUsernameProfilePicByUserId(userId) {
 }
 
 async function getUserCount() {
-  const userQuery = new Moralis.Query("User");
+  const userQuery = new Moralis.Query('User');
   return await userQuery.count({ useMasterKey: true });
 }
 
@@ -93,7 +93,7 @@ function getAllAssociatedUsersIds(board, tasks, epochs) {
   var epochMembers = [];
   for (var epoch of epochs) {
     epochMembers = epochMembers.concat(Object.keys(epoch.memberStats));
-    if (epoch.type === "Member") {
+    if (epoch.type === 'Member') {
       epochMembers = epochMembers.concat(epoch.choices);
     }
   }
@@ -105,23 +105,23 @@ function getAllAssociatedUsersIds(board, tasks, epochs) {
   return uniqueUserIds;
 }
 
-Moralis.Cloud.define("getUserCount", async (request) => {
+Moralis.Cloud.define('getUserCount', async (request) => {
   return await getUserCount();
 });
 
-Moralis.Cloud.define("getOrCreateUser", async (request) => {
+Moralis.Cloud.define('getOrCreateUser', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     var userInfo = await getUserByUserId(request.user.id);
     if (!userInfo) {
       var userCount = await getUserCount();
-      userInfo = new Moralis.Object("UserInfo");
+      userInfo = new Moralis.Object('UserInfo');
       userInfo = await getCreatedUser(
         userInfo,
         request.user.id,
-        request.user.get("ethAddress")
+        request.user.get('ethAddress')
       );
-      request.user.set("username", `fren${userCount}`);
+      request.user.set('username', `fren${userCount}`);
 
       await Moralis.Object.saveAll([userInfo, request.user], {
         useMasterKey: true,

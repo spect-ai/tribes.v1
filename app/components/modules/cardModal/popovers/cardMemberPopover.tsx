@@ -1,4 +1,4 @@
-import PersonIcon from "@mui/icons-material/Person";
+import PersonIcon from '@mui/icons-material/Person';
 import {
   Autocomplete,
   Avatar,
@@ -6,17 +6,18 @@ import {
   Popover,
   TextField,
   Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../../pages/tribe/[id]/space/[bid]";
-import { useMoralisFunction } from "../../../../hooks/useMoralisFunction";
-import { Task } from "../../../../types";
-import { CardButton, PrimaryButton } from "../../../elements/styledComponents";
-import { notify } from "../../settingsTab";
-import { PopoverContainer } from "../styles";
-import { useCardDynamism } from "../../../../hooks/useCardDynamism";
-import { useProfileInfo } from "../../../../hooks/useProfileInfo";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import useMoralisFunction from '../../../../hooks/useMoralisFunction';
+import { Task } from '../../../../types';
+import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
+import { notify } from '../../settingsTab';
+import { PopoverContainer } from '../styles';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useProfileInfo from '../../../../hooks/useProfileInfo';
+import useCard from '../../../../hooks/useCard';
 
 type Props = {
   type: string;
@@ -24,81 +25,21 @@ type Props = {
   setTask: (task: Task) => void;
 };
 
-const CardMemberPopover = ({ type, task, setTask }: Props) => {
-  const [member, setMember] = useState("");
+function CardMemberPopover({ type, task, setTask }: Props) {
+  const [member, setMember] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { Moralis } = useMoralis();
   const { space, setSpace } = useSpace();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
-  const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents, viewableComponents, getReason } =
-    useCardDynamism(task);
+  const { viewableComponents, getReason } = useCardDynamism(task);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-
+  const { updateMember, anchorEl, openPopover, closePopover } = useCard(
+    setTask,
+    task
+  );
   const { getAvatar } = useProfileInfo();
 
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents[type]) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
-    }
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
-  const handleSave = () => {
-    const prevTask = Object.assign({}, task);
-    const temp = Object.assign({}, task);
-    if (type === "reviewer") {
-      temp.reviewer = [member];
-      setTask(temp);
-      handleClose();
-      runMoralisFunction("updateCard", {
-        updates: {
-          reviewer: member ? [member] : [],
-          taskId: task.taskId,
-        },
-      })
-        .then((res: any) => {
-          console.log(res);
-          setSpace(res.space);
-          setTask(res.task);
-        })
-        .catch((err: any) => {
-          setTask(prevTask);
-          notify(`${err.message}`, "error");
-        });
-    } else {
-      temp.assignee = [member];
-      setTask(temp);
-      handleClose();
-      runMoralisFunction("updateCard", {
-        updates: {
-          assignee: member ? [member] : [],
-          taskId: task.taskId,
-          status: member ? 105 : 100,
-        },
-      })
-        .then((res: any) => {
-          console.log(res);
-          setSpace(res.space);
-          setTask(res.task);
-        })
-        .catch((err: any) => {
-          setTask(prevTask);
-          notify(`${err.message}`, "error");
-        });
-    }
-  };
-
   useEffect(() => {
-    if (type === "reviewer") {
+    if (type === 'reviewer') {
       setMember(task.reviewer[0]);
     } else {
       setMember(task.assignee[0]);
@@ -110,24 +51,24 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
       {viewableComponents[type] && (
         <Box
           sx={{
-            display: "flex",
-            flexDirection: "column",
+            display: 'flex',
+            flexDirection: 'column',
             mt: 2,
             mx: 1,
           }}
         >
           <Typography
-            sx={{ fontSize: 12, color: "text.secondary", width: "100%" }}
+            sx={{ fontSize: 12, color: 'text.secondary', width: '100%' }}
           >
-            {type === "reviewer" ? "Reviewer" : "Assignee"}
+            {type === 'reviewer' ? 'Reviewer' : 'Assignee'}
           </Typography>
           <CardButton
             variant="outlined"
-            onClick={handleClick()}
+            onClick={openPopover(type, setOpen, setFeedbackOpen)}
             color="secondary"
             sx={{
-              padding: "6px",
-              minWidth: "3rem",
+              padding: '6px',
+              minWidth: '3rem',
             }}
           >
             <Avatar
@@ -137,27 +78,27 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
                 mr: 2,
                 width: 20,
                 height: 20,
-                backgroundColor: "transparent",
+                backgroundColor: 'transparent',
               }}
               src={
-                type === "reviewer"
+                type === 'reviewer'
                   ? getAvatar(space.memberDetails[task.reviewer[0]])
                   : getAvatar(space.memberDetails[task.assignee[0]])
               }
             >
-              <PersonIcon sx={{ color: "text.primary" }} />
+              <PersonIcon sx={{ color: 'text.primary' }} />
             </Avatar>
             <Typography
               sx={{
                 fontSize: 14,
-                minWidth: "3rem",
+                minWidth: '3rem',
               }}
             >
-              {type === "reviewer"
+              {type === 'reviewer'
                 ? space.memberDetails[task.reviewer[0]]?.username ||
-                  "Add reviewer"
+                  'Add reviewer'
                 : space.memberDetails[task.assignee[0]]?.username ||
-                  "Unassigned"}
+                  'Unassigned'}
             </Typography>
           </CardButton>
         </Box>
@@ -165,10 +106,10 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
       <Popover
         open={feedbackOpen}
         anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
+        onClose={() => closePopover(setFeedbackOpen)}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>
@@ -178,10 +119,10 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
       <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={() => handleClose()}
+        onClose={() => closePopover(setOpen)}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>
@@ -207,7 +148,7 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
             color="secondary"
             sx={{ mt: 4, borderRadius: 1 }}
             loading={isLoading}
-            onClick={handleSave}
+            onClick={() => updateMember(type, member, setOpen)}
           >
             Save
           </PrimaryButton>
@@ -215,6 +156,6 @@ const CardMemberPopover = ({ type, task, setTask }: Props) => {
       </Popover>
     </>
   );
-};
+}
 
 export default CardMemberPopover;

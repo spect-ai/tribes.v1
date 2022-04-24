@@ -6,11 +6,11 @@ import {
   TableBody,
   TableContainer,
   Table,
-} from "@mui/material";
-import React, { useState } from "react";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
-import { PrimaryButton } from "../../elements/styledComponents";
+} from '@mui/material';
+import React, { useState } from 'react';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import { PrimaryButton } from '../../elements/styledComponents';
 
 type Choice = {
   choice: string;
@@ -22,6 +22,10 @@ export type Details = {
 
 export type Votes = {
   [choiceId: string]: Number;
+};
+
+type VotesGivenOneEpoch = {
+  [key: string]: number;
 };
 
 type Props = {
@@ -38,11 +42,7 @@ type Props = {
   canVote: boolean;
 };
 
-type VotesGivenOneEpoch = {
-  [key: string]: number;
-};
-
-const ForAgainstVoting = ({
+function ForAgainstVoting({
   epochId,
   type,
   active,
@@ -54,8 +54,7 @@ const ForAgainstVoting = ({
   votesAgainst,
   isLoading,
   canVote,
-}: Props) => {
-  console.log(votesGiven);
+}: Props) {
   const [loading, setLoading] = useState(isLoading);
 
   return (
@@ -63,38 +62,38 @@ const ForAgainstVoting = ({
       <Table aria-label="simple table" size="small">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ color: "#99ccff" }}>
-              {type === "Member" ? "Member" : "Card"}
+            <TableCell sx={{ color: '#99ccff' }}>
+              {type === 'Member' ? 'Member' : 'Card'}
             </TableCell>
 
             {active && (
-              <TableCell align="right" sx={{ color: "#99ccff" }}>
+              <TableCell align="right" sx={{ color: '#99ccff' }}>
                 For
               </TableCell>
             )}
             {active && (
-              <TableCell align="right" sx={{ color: "#99ccff" }}>
+              <TableCell align="right" sx={{ color: '#99ccff' }}>
                 Against
               </TableCell>
             )}
             {!active && (
-              <TableCell align="right" sx={{ color: "#99ccff" }}>
+              <TableCell align="right" sx={{ color: '#99ccff' }}>
                 Votes For
               </TableCell>
             )}
             {!active && (
-              <TableCell align="right" sx={{ color: "#99ccff" }}>
+              <TableCell align="right" sx={{ color: '#99ccff' }}>
                 Votes Against
               </TableCell>
             )}
           </TableRow>
         </TableHead>
         <TableBody>
-          {choices.map((choiceId, index) => (
+          {choices.map((choiceId) => (
             <TableRow
-              key={index}
+              key={choiceId}
               sx={{
-                "&:last-child td, &:last-child th": {
+                '&:last-child td, &:last-child th': {
                   border: 0,
                 },
               }}
@@ -111,8 +110,8 @@ const ForAgainstVoting = ({
                       pl: 8,
                       color:
                         canVote && votesGiven[choiceId] === 1
-                          ? "#66bb6a"
-                          : "primary.main",
+                          ? '#66bb6a'
+                          : 'text.secondary',
                     }}
                     size="medium"
                     onClick={() => {
@@ -131,15 +130,15 @@ const ForAgainstVoting = ({
                       pl: 4,
                       color:
                         canVote && votesGiven[choiceId] === -1
-                          ? "#f44336"
-                          : "primary.main",
+                          ? '#f44336'
+                          : 'text.secondary',
                     }}
                     size="medium"
                     onClick={() => {
                       handleVotesGiven(epochId, choiceId, -1);
                     }}
                     disabled={!canVote}
-                  />{" "}
+                  />{' '}
                 </TableCell>
               )}
 
@@ -147,14 +146,14 @@ const ForAgainstVoting = ({
                 <TableCell align="right">
                   {choiceId in votesFor && votesFor[choiceId]
                     ? votesFor[choiceId]
-                    : 0}{" "}
+                    : 0}{' '}
                 </TableCell>
               )}
               {!active && (
                 <TableCell align="right">
                   {choiceId in votesAgainst && votesAgainst[choiceId]
                     ? votesAgainst[choiceId]
-                    : 0}{" "}
+                    : 0}{' '}
                 </TableCell>
               )}
             </TableRow>
@@ -163,6 +162,6 @@ const ForAgainstVoting = ({
       </Table>
     </TableContainer>
   );
-};
+}
 
 export default ForAgainstVoting;
