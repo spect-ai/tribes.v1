@@ -301,9 +301,13 @@ function removeTaskFromColumn(column, taskId) {
   };
 }
 
-function addTaskToColumn(column, taskId) {
+function addTaskToColumn(column, taskId, index) {
   const taskIds = Array.from(column.taskIds); // copy
-  taskIds.push(taskId);
+  if (index < 0 || index > taskIds.length || (!index && index !== 0)) {
+    index = taskIds.length;
+  }
+
+  taskIds.splice(index, 0, taskId);
   return {
     ...column,
     taskIds: taskIds,

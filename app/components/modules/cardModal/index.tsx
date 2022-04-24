@@ -41,6 +41,7 @@ function CardModal({ isOpen, handleClose, taskId, columnId }: Props) {
       setLoading(true);
       runMoralisFunction('getTask', { taskId, columnId })
         .then((taskRes: Task) => {
+          console.log('taskRes', taskRes);
           setTask(taskRes);
 
           setLoading(false);
@@ -66,6 +67,7 @@ function CardModal({ isOpen, handleClose, taskId, columnId }: Props) {
                     task={task}
                     setTask={setTask}
                     handleClose={handleClose}
+                    mode={'update'}
                   />
                 </div>
               </Fade>
