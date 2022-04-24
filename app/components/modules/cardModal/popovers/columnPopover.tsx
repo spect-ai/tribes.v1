@@ -30,8 +30,6 @@ function ColumnPopover({ task, setTask, column }: Props) {
     isLoading,
     col,
     setCol,
-    currCol,
-    setCurrCol,
   } = useCard(setTask, task, column);
 
   return (
@@ -59,7 +57,9 @@ function ColumnPopover({ task, setTask, column }: Props) {
               fontSize: 14,
             }}
           >
-            {space.columns[currCol as string]?.title}
+            {task.columnId && space.columnOrder.includes(task.columnId)
+              ? space.columns[task.columnId as string]?.title
+              : space.columns[col as string]?.title}
           </Typography>
         </CardButton>
       </Box>

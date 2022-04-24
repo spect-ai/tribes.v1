@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, IconButton, InputBase } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useCard from '../../../hooks/useCard';
 import useCardDynamism from '../../../hooks/useCardDynamism';
@@ -47,6 +47,11 @@ function TaskCard({ task, setTask, handleClose }: Props) {
     setTask,
     task
   );
+  const [readOnlyDescription, setReadOnlyDescription] = useState(false);
+
+  useEffect(() => {
+    setReadOnlyDescription(!editAbleComponents.description);
+  }, [editAbleComponents.description]);
 
   return (
     <Container>
@@ -112,7 +117,7 @@ function TaskCard({ task, setTask, handleClose }: Props) {
               ? `Add details, press "/" for commands`
               : `No details provided yet`
           }
-          readonly={!editAbleComponents.description}
+          readonly={readOnlyDescription}
         />
 
         <Box sx={{ marginBottom: '16px' }}>

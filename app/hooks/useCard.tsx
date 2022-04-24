@@ -28,8 +28,30 @@ export default function useCard(
   const [chain, setChain] = useState(task.chain);
   const [token, setToken] = useState(task.token);
   const [value, setValue] = useState(task.value?.toString());
-  const [currCol, setCurrCol] = useState('');
-  const [col, setCol] = useState<string>('');
+  const [col, setCol] = useState('');
+
+  const successMessage: any = {
+    inReview: 'Asked for a review',
+    inRevision: 'Asked for revision',
+    closed: 'Closed card',
+    proposalEdit: 'Application submitted',
+    proposalPick: 'Selected applicant!',
+  };
+
+  const errorMessage: any = {
+    inReview: 'Failed while asking for a review',
+    inRevision: 'Failed while asking for revision',
+    closed: 'Failed while closing card',
+    proposalEdit: 'Failed while submitting application',
+    proposalPick: 'Failed while picking application',
+    reviewer: 'Failed while updating reviewer',
+    assignee: 'Failed while updating assignee',
+    type: 'Failed while updating card type',
+    column: 'Failed while updating column',
+    deadline: 'Failed while updating due date',
+    labels: 'Failed while updating labels',
+    reward: 'Failed while updating reward',
+  };
 
   useEffect(() => {
     setTitle(task.title);
@@ -47,7 +69,6 @@ export default function useCard(
     else setType('Task');
 
     if (column) {
-      setCurrCol(column.id);
       setCol(column.id);
     }
 
@@ -68,6 +89,18 @@ export default function useCard(
     };
   const closePopover = (setOpen: Function) => {
     setOpen(false);
+  };
+
+  const giveSuccessNotification = (updateType: string) => {
+    if (successMessage[updateType]) {
+      notify(successMessage[updateType], 'success');
+    }
+  };
+
+  const giveErrorNotification = (updateType: string) => {
+    if (errorMessage[updateType]) {
+      notify(errorMessage[updateType], 'error');
+    }
   };
 
   const handleGreedHelper = (
@@ -100,6 +133,7 @@ export default function useCard(
           edited: false,
         },
       ];
+    else if (key === 'column') newTask.columnId = val;
     return newTask;
   };
 
@@ -126,6 +160,7 @@ export default function useCard(
       .then((res: any) => {
         setSpace(res.space);
         setTask(res.task);
+        giveSuccessNotification(updateType);
         setIsLoading(false);
       })
       .catch((err: any) => {
@@ -263,7 +298,7 @@ export default function useCard(
       {
         updates,
       },
-      'reviewer',
+      memberType,
       true
     );
   };
@@ -326,9 +361,7 @@ export default function useCard(
     );
   };
 
-  // TODO: Fix revert on greedy update
   const updateColumn = (setOpen: Function) => {
-    setCurrCol(col);
     closePopover(setOpen);
     executeCardUpdates(
       {
@@ -341,7 +374,7 @@ export default function useCard(
         },
       },
       'column',
-      false
+      true
     );
   };
 
@@ -369,8 +402,6 @@ export default function useCard(
     proposalEditMode,
     setProposalOnEdit,
     proposalOnEdit,
-    currCol,
-    setCurrCol,
     col,
     setCol,
     updateTitle,
