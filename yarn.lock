@@ -8805,12 +8805,12 @@ eslint-module-utils@^2.7.2, eslint-module-utils@^2.7.3:
     debug "^3.2.7"
     find-up "^2.1.0"
 
-eslint-plugin-chai-friendly@0.7.2:
+eslint-plugin-chai-friendly@0.7.2, eslint-plugin-chai-friendly@^0.7.2:
   version "0.7.2"
   resolved "https://registry.yarnpkg.com/eslint-plugin-chai-friendly/-/eslint-plugin-chai-friendly-0.7.2.tgz#0ebfbb2c1244f5de2997f3963d155758234f2b0f"
   integrity sha512-LOIfGx5sZZ5FwM1shr2GlYAWV9Omdi+1/3byuVagvQNoGUuU0iHhp7AfjA1uR+4dJ4Isfb4+FwBJgQajIw9iAg==
 
-eslint-plugin-cypress@2.12.1:
+eslint-plugin-cypress@2.12.1, eslint-plugin-cypress@^2.12.1:
   version "2.12.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-cypress/-/eslint-plugin-cypress-2.12.1.tgz#9aeee700708ca8c058e00cdafe215199918c2632"
   integrity sha512-c2W/uPADl5kospNDihgiLc7n87t5XhUbFDoTl6CfVkmG+kDAb5Ux10V9PoLPu9N+r7znpc+iQlcmAqT1A/89HA==
@@ -8942,7 +8942,14 @@ eslint-plugin-testing-library@5.2.1:
   dependencies:
     "@typescript-eslint/utils" "^5.13.0"
 
-eslint-plugin-ui-testing@2.0.1:
+eslint-plugin-testing-library@^5.3.1:
+  version "5.3.1"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-testing-library/-/eslint-plugin-testing-library-5.3.1.tgz#7638ee79cc86fd8bb57d671af35a1cbaa77e9548"
+  integrity sha512-OfF4dlG/q6ck6DL3P8Z0FPdK0dU5K57gsBu7eUcaVbwYKaNzjgejnXiM9CCUevppORkvfek+9D3Uj/9ZZ8Vz8g==
+  dependencies:
+    "@typescript-eslint/utils" "^5.13.0"
+
+eslint-plugin-ui-testing@2.0.1, eslint-plugin-ui-testing@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/eslint-plugin-ui-testing/-/eslint-plugin-ui-testing-2.0.1.tgz#4aaf74f764589bf4fdc12a81d720408d2f2bc56a"
   integrity sha512-GpvE0u03GSytsJ/K49C2dJlvDKQSfh+PX4lAEjBIc5RxUWEpGf9/jY3JTFd7F0gQ9ElGfYskJceVKyz7knbFFw==
