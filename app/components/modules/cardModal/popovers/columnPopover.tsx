@@ -7,30 +7,28 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { Column, Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { PopoverContainer } from '../styles';
-import useCard from '../../../../hooks/useCard';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-  column: Column;
-};
-
-function ColumnPopover({ task, setTask, column }: Props) {
+function ColumnPopover() {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const { space, setSpace } = useSpace();
   const [open, setOpen] = useState(false);
+  const { updateColumn } = useCardUpdate();
   const {
-    updateColumn,
-    anchorEl,
-    openPopover,
-    closePopover,
-    isLoading,
+    task,
+    setTask,
+    loading,
     col,
     setCol,
-  } = useCard(setTask, task, column);
+    openPopover,
+    closePopover,
+    anchorEl,
+  } = useCardContext();
+  const { editAbleComponents } = useCardDynamism();
 
   return (
     <>
@@ -44,7 +42,7 @@ function ColumnPopover({ task, setTask, column }: Props) {
       >
         <CardButton
           variant="outlined"
-          onClick={openPopover('column', setOpen, setFeedbackOpen)}
+          onClick={openPopover(setOpen)}
           color="secondary"
           size="small"
           sx={{
@@ -64,21 +62,6 @@ function ColumnPopover({ task, setTask, column }: Props) {
         </CardButton>
       </Box>
       <Popover
-        open={feedbackOpen}
-        anchorEl={anchorEl}
-        onClose={() => closePopover(setFeedbackOpen)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <PopoverContainer>
-          <Typography variant="body2">
-            Only card reviewer or creator and space steward can change column
-          </Typography>
-        </PopoverContainer>
-      </Popover>
-      <Popover
         open={open}
         anchorEl={anchorEl}
         onClose={() => closePopover(setOpen)}
@@ -87,38 +70,48 @@ function ColumnPopover({ task, setTask, column }: Props) {
           horizontal: 'left',
         }}
       >
-        <PopoverContainer>
-          <Autocomplete
-            options={space.columnOrder}
-            value={col}
-            getOptionLabel={(option) => space.columns[option].title}
-            onChange={(event, newValue) => {
-              setCol(newValue as any);
-            }}
-            disableClearable
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                placeholder="Search types"
-                color="secondary"
-              />
-            )}
-          />
-          <PrimaryButton
-            variant="outlined"
-            color="secondary"
-            sx={{ mt: 4, borderRadius: 1 }}
-            loading={isLoading}
-            onClick={() => {
-              updateColumn(setOpen);
-            }}
-          >
-            Save
-          </PrimaryButton>
-        </PopoverContainer>
+        {!editAbleComponents.column && (
+          <PopoverContainer>
+            <Typography variant="body2">
+              Only card reviewer, assignee or creator and space steward can
+              change column
+            </Typography>
+          </PopoverContainer>
+        )}
+        {editAbleComponents.column && (
+          <PopoverContainer>
+            <Autocomplete
+              options={space.columnOrder}
+              value={col}
+              getOptionLabel={(option) => space.columns[option].title}
+              onChange={(event, newValue) => {
+                setCol(newValue as any);
+              }}
+              disableClearable
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  id="filled-hidden-label-normal"
+                  size="small"
+                  fullWidth
+                  placeholder="Search types"
+                  color="secondary"
+                />
+              )}
+            />
+            <PrimaryButton
+              variant="outlined"
+              color="secondary"
+              sx={{ mt: 4, borderRadius: 1 }}
+              loading={loading}
+              onClick={() => {
+                updateColumn(setOpen);
+              }}
+            >
+              Save
+            </PrimaryButton>
+          </PopoverContainer>
+        )}
       </Popover>
     </>
   );

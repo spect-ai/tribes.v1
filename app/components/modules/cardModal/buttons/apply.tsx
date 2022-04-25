@@ -5,16 +5,12 @@ import { useMoralis } from 'react-moralis';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 import { Task } from '../../../../types';
 import { CardButton } from '../../../elements/styledComponents';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function Apply({ task, setTask }: Props) {
-  const { setProposalEditMode, viewableComponents } = useCardDynamism(task);
+function Apply() {
+  const { task, setTask, setProposalEditMode } = useCardContext();
+  const { viewableComponents } = useCardDynamism();
   const { user } = useMoralis();
-  const [buttonText, setButtonText] = useState('Apply');
   const handleClick = () => {
     const temp = { ...task };
     temp.proposals = [
@@ -58,7 +54,7 @@ function Apply({ task, setTask }: Props) {
               mr: 2,
             }}
           >
-            {buttonText}
+            Apply
           </Typography>
         </CardButton>
       </Box>

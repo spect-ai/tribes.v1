@@ -2,32 +2,28 @@ import { Box, TextField, Typography, Avatar } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import useCardDynamism from '../../../../hooks/useCardDynamism';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Proposal, Task } from '../../../../types';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 import { uid, formatTimeCreated } from '../../../../utils/utils';
 import useProfileInfo from '../../../../hooks/useProfileInfo';
-import useCard from '../../../../hooks/useCard';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function ProposalApplicantView({ task, setTask }: Props) {
+function ProposalApplicantView() {
   const { user } = useMoralis();
   const { avatar } = useProfileInfo();
   const {
+    task,
+    setTask,
     setProposalEditMode,
     proposalEditMode,
     setProposalOnEdit,
     proposalOnEdit,
-    updateProposal,
-    isLoading,
-  } = useCard(setTask, task);
+    loading,
+  } = useCardContext();
+
+  const { updateProposal } = useCardUpdate();
 
   return (
     <Box
@@ -119,7 +115,7 @@ function ProposalApplicantView({ task, setTask }: Props) {
             }}
             color="secondary"
             size="small"
-            loading={isLoading}
+            loading={loading}
             onClick={() => {
               updateProposal();
             }}
@@ -142,7 +138,7 @@ function ProposalApplicantView({ task, setTask }: Props) {
             }}
             color="secondary"
             size="small"
-            loading={isLoading}
+            loading={loading}
             onClick={() => {
               setProposalEditMode(true);
             }}

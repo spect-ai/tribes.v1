@@ -14,34 +14,24 @@ import IosShareIcon from '@mui/icons-material/IosShare';
 import React, { useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
-import { Task } from '../../../../types';
 import PayButton from '../buttons/payButton';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useCardStatus from '../../../../hooks/useCardStatus';
 import { notify } from '../../settingsTab';
-import useCard from '../../../../hooks/useCard';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function OptionsPopover({ task, setTask }: Props) {
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+function OptionsPopover() {
   const [open, setOpen] = useState(false);
   const handleClose = () => {
     setOpen(false);
   };
-  const { viewableComponents } = useCardDynamism(task);
+  const { task, setTask, openPopover, anchorEl } = useCardContext();
+  const { viewableComponents } = useCardDynamism();
   const { runMoralisFunction } = useMoralisFunction();
   const { space, setSpace } = useSpace();
-  const { updateStatus } = useCard(setTask, task);
-  const { statusToCode } = useCardStatus(task);
-
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    setOpen(true);
-  };
+  const { updateStatus } = useCardUpdate();
+  const { statusToCode } = useCardStatus();
 
   const duplicateCard = () => {
     handleClose();
@@ -70,7 +60,7 @@ function OptionsPopover({ task, setTask }: Props) {
 
   return (
     <>
-      <IconButton sx={{ m: 0, px: 2 }} onClick={handleClick()}>
+      <IconButton sx={{ m: 0, px: 2 }} onClick={openPopover(setOpen)}>
         <MoreHorizIcon />
       </IconButton>
       <Popover
@@ -103,7 +93,7 @@ function OptionsPopover({ task, setTask }: Props) {
             <IosShareIcon sx={{ width: '2rem', mr: 2 }} />
             <ListItemText primary="Share" />
           </ListItemButton>
-          <PayButton task={task} setTask={setTask} handleClose={handleClose} />
+          <PayButton handleClose={handleClose} />
 
           {viewableComponents.proposalGate && (
             <ListItemButton>
@@ -112,7 +102,7 @@ function OptionsPopover({ task, setTask }: Props) {
             </ListItemButton>
           )}
           {viewableComponents.submissionGate && (
-            <ListItemButton onClick={handleClick}>
+            <ListItemButton>
               <ViewCompactAltIcon sx={{ width: '2rem', mr: 2 }} />
               <ListItemText primary="Gate Submissions" />
             </ListItemButton>

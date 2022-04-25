@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import useMoralisFunction from './useMoralisFunction';
 import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
@@ -6,29 +6,30 @@ import { Task, Block, Column } from '../types';
 import { notify } from '../components/modules/settingsTab';
 import useCardStatus from './useCardStatus';
 import useCardDynamism from './useCardDynamism';
+import { useCardContext } from '../components/modules/cardModal';
 
-export default function useCard(
-  setTask: Function,
-  task: Task,
-  column?: Column
-) {
+export default function useCardUpdate() {
   const { user } = useMoralis();
   const { setSpace } = useSpace();
-  const { codeToStatus, statusToCode } = useCardStatus(task);
-  const { editAbleComponents } = useCardDynamism(task);
+  const {
+    task,
+    setTask,
+    chain,
+    token,
+    value,
+    title,
+    proposalOnEdit,
+    col,
+    type,
+    date,
+    labels,
+    proposalEditMode,
+    setProposalEditMode,
+    openPopover,
+    closePopover,
+  } = useCardContext();
+  const { codeToStatus, statusToCode } = useCardStatus();
   const { runMoralisFunction } = useMoralisFunction();
-  const { proposalEditMode, setProposalEditMode } = useCardDynamism(task);
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [title, setTitle] = useState(task.title);
-  const [type, setType] = useState(task?.type || 'Task');
-  const [date, setDate] = useState('');
-  const [proposalOnEdit, setProposalOnEdit] = useState('');
-  const [labels, setLabels] = useState(task.tags);
-  const [chain, setChain] = useState(task.chain);
-  const [token, setToken] = useState(task.token);
-  const [value, setValue] = useState(task.value?.toString());
-  const [col, setCol] = useState('');
 
   const successMessage: any = {
     inReview: 'Asked for a review',
@@ -38,68 +39,9 @@ export default function useCard(
     proposalPick: 'Selected applicant!',
   };
 
-  const errorMessage: any = {
-    inReview: 'Failed while asking for a review',
-    inRevision: 'Failed while asking for revision',
-    closed: 'Failed while closing card',
-    proposalEdit: 'Failed while submitting application',
-    proposalPick: 'Failed while picking application',
-    reviewer: 'Failed while updating reviewer',
-    assignee: 'Failed while updating assignee',
-    type: 'Failed while updating card type',
-    column: 'Failed while updating column',
-    deadline: 'Failed while updating due date',
-    labels: 'Failed while updating labels',
-    reward: 'Failed while updating reward',
-  };
-
-  useEffect(() => {
-    setTitle(task.title);
-    if (task.proposals?.length > 0) {
-      setProposalOnEdit(task.proposals[0].content);
-      if (task.proposals[0]?.content === '') setProposalEditMode(true);
-      else setProposalEditMode(false);
-    }
-    if (task.deadline) {
-      const offset = task.deadline.getTimezoneOffset();
-      const deadline = new Date(task.deadline.getTime() - offset * 60 * 1000);
-      setDate(deadline.toISOString().slice(0, -8));
-    }
-    if (task?.type) setType(task.type);
-    else setType('Task');
-
-    if (column) {
-      setCol(column.id);
-    }
-
-    setChain(task.chain);
-    setToken(task.token);
-    setValue(task.value?.toString());
-  }, [task]);
-
-  const openPopover =
-    (popoverType: string, setOpen: Function, setFeedbackOpen: Function) =>
-    (event: React.MouseEvent<HTMLButtonElement>) => {
-      setAnchorEl(event.currentTarget);
-      if (editAbleComponents[popoverType]) {
-        setOpen(true);
-      } else {
-        setFeedbackOpen(true);
-      }
-    };
-  const closePopover = (setOpen: Function) => {
-    setOpen(false);
-  };
-
   const giveSuccessNotification = (updateType: string) => {
     if (successMessage[updateType]) {
       notify(successMessage[updateType], 'success');
-    }
-  };
-
-  const giveErrorNotification = (updateType: string) => {
-    if (errorMessage[updateType]) {
-      notify(errorMessage[updateType], 'error');
     }
   };
 
@@ -155,18 +97,15 @@ export default function useCard(
     if (greedy) {
       handleGreed(params.updates, prevTask);
     }
-    setIsLoading(true);
     runMoralisFunction('updateCard', params)
       .then((res: any) => {
         setSpace(res.space);
         setTask(res.task);
         giveSuccessNotification(updateType);
-        setIsLoading(false);
       })
       .catch((err: any) => {
         if (greedy) setTask(prevTask);
         notify(err.message, 'error');
-        setIsLoading(false);
       });
   };
 
@@ -240,11 +179,7 @@ export default function useCard(
     );
   };
 
-  const updateStatusAndAssignee = (
-    proposalId: string,
-    index: number,
-    assignee: string
-  ) => {
+  const updateStatusAndAssignee = (assignee: string, updateType: string) => {
     executeCardUpdates(
       {
         updates: {
@@ -253,7 +188,7 @@ export default function useCard(
           taskId: task.taskId,
         },
       },
-      'proposalPick',
+      updateType,
       true
     );
   };
@@ -367,7 +302,7 @@ export default function useCard(
       {
         updates: {
           columnChange: {
-            sourceId: column?.id,
+            sourceId: task.columnId,
             destinationId: col,
           },
           taskId: task.taskId,
@@ -379,31 +314,11 @@ export default function useCard(
   };
 
   return {
-    isLoading,
     openPopover,
     closePopover,
-    anchorEl,
     executeCardUpdates,
-    labels,
-    setLabels,
-    type,
-    setType,
-    title,
-    setTitle,
-    date,
-    setDate,
-    chain,
-    setChain,
-    token,
-    setToken,
-    value,
-    setValue,
     setProposalEditMode,
     proposalEditMode,
-    setProposalOnEdit,
-    proposalOnEdit,
-    col,
-    setCol,
     updateTitle,
     updateDescription,
     updateSubmission,

@@ -7,26 +7,23 @@ import { formatTime } from '../../../../utils/utils';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { PopoverContainer } from '../styles';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
-import useCard from '../../../../hooks/useCard';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function DatePopover({ task, setTask }: Props) {
+function DatePopover() {
   const [open, setOpen] = useState(false);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const { getReason } = useCardDynamism(task);
   const {
-    updateDate,
+    task,
+    setTask,
+    date,
+    setDate,
+    loading,
     openPopover,
     closePopover,
     anchorEl,
-    date,
-    setDate,
-    isLoading,
-  } = useCard(setTask, task);
+  } = useCardContext();
+  const { getReason, editAbleComponents } = useCardDynamism();
+  const { updateDate } = useCardUpdate();
 
   return (
     <>
@@ -45,7 +42,7 @@ function DatePopover({ task, setTask }: Props) {
         </Typography>
         <CardButton
           variant="outlined"
-          onClick={openPopover('dueDate', setOpen, setFeedbackOpen)}
+          onClick={openPopover(setOpen)}
           color="secondary"
           sx={{
             padding: '6px',
@@ -84,19 +81,6 @@ function DatePopover({ task, setTask }: Props) {
         </CardButton>
       </Box>
       <Popover
-        open={feedbackOpen}
-        anchorEl={anchorEl}
-        onClose={() => closePopover(setFeedbackOpen)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <PopoverContainer>
-          <Typography variant="body2">{getReason('dueDate')}</Typography>
-        </PopoverContainer>
-      </Popover>
-      <Popover
         open={open}
         anchorEl={anchorEl}
         onClose={() => {
@@ -107,32 +91,39 @@ function DatePopover({ task, setTask }: Props) {
           horizontal: 'left',
         }}
       >
-        <PopoverContainer>
-          <TextField
-            id="datetime-local"
-            label="Due Date"
-            type="datetime-local"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={date}
-            onChange={(e) => {
-              setDate(e.target.value);
-            }}
-            fullWidth
-          />
-          <PrimaryButton
-            variant="outlined"
-            sx={{ mt: 4, borderRadius: 1 }}
-            loading={isLoading}
-            color="secondary"
-            onClick={() => {
-              updateDate(setOpen);
-            }}
-          >
-            Save
-          </PrimaryButton>
-        </PopoverContainer>
+        {!editAbleComponents.dueDate && (
+          <PopoverContainer>
+            <Typography variant="body2">{getReason('dueDate')}</Typography>
+          </PopoverContainer>
+        )}
+        {editAbleComponents.dueDate && (
+          <PopoverContainer>
+            <TextField
+              id="datetime-local"
+              label="Due Date"
+              type="datetime-local"
+              InputLabelProps={{
+                shrink: true,
+              }}
+              value={date}
+              onChange={(e) => {
+                setDate(e.target.value);
+              }}
+              fullWidth
+            />
+            <PrimaryButton
+              variant="outlined"
+              sx={{ mt: 4, borderRadius: 1 }}
+              loading={loading}
+              color="secondary"
+              onClick={() => {
+                updateDate(setOpen);
+              }}
+            >
+              Save
+            </PrimaryButton>
+          </PopoverContainer>
+        )}
       </Popover>
     </>
   );

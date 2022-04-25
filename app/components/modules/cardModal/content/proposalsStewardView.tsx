@@ -9,16 +9,13 @@ import React, { useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { Task } from '../../../../types';
 import { PrimaryButton } from '../../../elements/styledComponents';
-import useCard from '../../../../hooks/useCard';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function ProposalsStewardView({ task, setTask }: Props) {
+function ProposalsStewardView() {
   const { space, setSpace } = useSpace();
-  const { updateStatusAndAssignee, isLoading } = useCard(setTask, task);
+  const { task, isLoading } = useCardContext();
+  const { updateStatusAndAssignee } = useCardUpdate();
 
   return (
     <Box
@@ -88,11 +85,7 @@ function ProposalsStewardView({ task, setTask }: Props) {
                     size="small"
                     loading={isLoading}
                     onClick={() => {
-                      updateStatusAndAssignee(
-                        proposal.id,
-                        index,
-                        proposal.userId
-                      );
+                      updateStatusAndAssignee(proposal.userId, 'proposalPick');
                     }}
                     disabled={task.assignee?.includes(proposal.userId)}
                   >

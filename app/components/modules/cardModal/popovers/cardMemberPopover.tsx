@@ -8,34 +8,28 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
-import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useProfileInfo from '../../../../hooks/useProfileInfo';
-import useCard from '../../../../hooks/useCard';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
 type Props = {
   type: string;
-  task: Task;
-  setTask: (task: Task) => void;
 };
 
-function CardMemberPopover({ type, task, setTask }: Props) {
+function CardMemberPopover({ type }: Props) {
   const [member, setMember] = useState('');
+  const { task, setTask, anchorEl } = useCardContext();
   const [isLoading, setIsLoading] = useState(false);
   const { space, setSpace } = useSpace();
   const [open, setOpen] = useState(false);
-  const { viewableComponents, getReason } = useCardDynamism(task);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const { updateMember, anchorEl, openPopover, closePopover } = useCard(
-    setTask,
-    task
-  );
+  const { viewableComponents, editAbleComponents, getReason } =
+    useCardDynamism();
+  const { updateMember, openPopover, closePopover } = useCardUpdate();
   const { getAvatar } = useProfileInfo();
 
   useEffect(() => {
@@ -64,7 +58,7 @@ function CardMemberPopover({ type, task, setTask }: Props) {
           </Typography>
           <CardButton
             variant="outlined"
-            onClick={openPopover(type, setOpen, setFeedbackOpen)}
+            onClick={openPopover(setOpen)}
             color="secondary"
             sx={{
               padding: '6px',
@@ -96,26 +90,13 @@ function CardMemberPopover({ type, task, setTask }: Props) {
             >
               {type === 'reviewer'
                 ? space.memberDetails[task.reviewer[0]]?.username ||
-                  'Add reviewer'
+                  'No reviewer'
                 : space.memberDetails[task.assignee[0]]?.username ||
                   'Unassigned'}
             </Typography>
           </CardButton>
         </Box>
       )}
-      <Popover
-        open={feedbackOpen}
-        anchorEl={anchorEl}
-        onClose={() => closePopover(setFeedbackOpen)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <PopoverContainer>
-          <Typography variant="body2">{getReason(type)}</Typography>
-        </PopoverContainer>
-      </Popover>
       <Popover
         open={open}
         anchorEl={anchorEl}
@@ -125,34 +106,41 @@ function CardMemberPopover({ type, task, setTask }: Props) {
           horizontal: 'left',
         }}
       >
-        <PopoverContainer>
-          <Autocomplete
-            options={space.members} // Get options from members
-            value={member as any}
-            getOptionLabel={(option) => space.memberDetails[option]?.username}
-            onChange={(event, newValue) => {
-              setMember(newValue as string);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                placeholder="Search member"
-              />
-            )}
-          />
-          <PrimaryButton
-            variant="outlined"
-            color="secondary"
-            sx={{ mt: 4, borderRadius: 1 }}
-            loading={isLoading}
-            onClick={() => updateMember(type, member, setOpen)}
-          >
-            Save
-          </PrimaryButton>
-        </PopoverContainer>
+        {!editAbleComponents[type] && (
+          <PopoverContainer>
+            <Typography variant="body2">{getReason(type)}</Typography>
+          </PopoverContainer>
+        )}
+        {editAbleComponents[type] && (
+          <PopoverContainer>
+            <Autocomplete
+              options={space.members} // Get options from members
+              value={member as any}
+              getOptionLabel={(option) => space.memberDetails[option]?.username}
+              onChange={(event, newValue) => {
+                setMember(newValue as string);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  id="filled-hidden-label-normal"
+                  size="small"
+                  fullWidth
+                  placeholder="Search member"
+                />
+              )}
+            />
+            <PrimaryButton
+              variant="outlined"
+              color="secondary"
+              sx={{ mt: 4, borderRadius: 1 }}
+              loading={isLoading}
+              onClick={() => updateMember(type, member, setOpen)}
+            >
+              Save
+            </PrimaryButton>
+          </PopoverContainer>
+        )}
       </Popover>
     </>
   );

@@ -9,14 +9,13 @@ import Submission from './content/submission';
 import Activity from './content/activity';
 import Comments from './content/comments';
 import useCardDynamism from '../../../hooks/useCardDynamism';
+import { useCardContext } from '.';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
+type Props = {};
 
-function TabularDetails({ task, setTask }: Props) {
-  const { tabs, handleTabChange, tabIdx } = useCardDynamism(task);
+function TabularDetails() {
+  const { tabs, handleTabChange, tabIdx } = useCardDynamism();
+  const { task, setTask } = useCardContext();
 
   return (
     <>
@@ -43,19 +42,11 @@ function TabularDetails({ task, setTask }: Props) {
             return <StyledTab key={tab.toString()} label={tab} />;
           })}
         </StyledTabs>
-        {tabs[tabIdx] === 'Applicants' && (
-          <ProposalsStewardView task={task} setTask={setTask} />
-        )}
-        {tabs[tabIdx] === 'Application' && (
-          <ProposalApplicantdView task={task} setTask={setTask} />
-        )}
-        {tabs[tabIdx] === 'Submissions' && (
-          <Submission task={task} setTask={setTask} />
-        )}
-        {tabs[tabIdx] === 'Activity' && <Activity task={task} />}
-        {tabs[tabIdx] === 'Comments' && (
-          <Comments task={task} setTask={setTask} />
-        )}
+        {tabs[tabIdx] === 'Applicants' && <ProposalsStewardView />}
+        {tabs[tabIdx] === 'Application' && <ProposalApplicantdView />}
+        {tabs[tabIdx] === 'Submissions' && <Submission />}
+        {tabs[tabIdx] === 'Activity' && <Activity />}
+        {tabs[tabIdx] === 'Comments' && <Comments />}
       </Box>
     </>
   );
