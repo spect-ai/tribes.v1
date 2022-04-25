@@ -41,7 +41,7 @@ const Container = styled.div`
 `;
 
 function TaskCard({ task, setTask, handleClose }: Props) {
-  const { space, setSpace } = useSpace();
+  const { space } = useSpace();
   const { editAbleComponents, viewableComponents } = useCardDynamism(task);
   const { title, setTitle, updateTitle, updateDescription } = useCard(
     setTask,
@@ -52,6 +52,7 @@ function TaskCard({ task, setTask, handleClose }: Props) {
     <Container>
       <TaskModalTitleContainer>
         <InputBase
+          data-testid="iTaskTitle"
           placeholder="Add Card Title..."
           sx={{
             fontSize: '20px',
@@ -69,7 +70,11 @@ function TaskCard({ task, setTask, handleClose }: Props) {
         {viewableComponents.optionPopover && (
           <OptionsPopover task={task} setTask={setTask} />
         )}
-        <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
+        <IconButton
+          sx={{ m: 0, px: 2 }}
+          onClick={handleClose}
+          data-testid="bCloseButton"
+        >
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>

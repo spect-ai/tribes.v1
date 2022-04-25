@@ -70,7 +70,11 @@ function OptionsPopover({ task, setTask }: Props) {
 
   return (
     <>
-      <IconButton sx={{ m: 0, px: 2 }} onClick={handleClick()}>
+      <IconButton
+        data-testid="bCardOptionsButton"
+        sx={{ m: 0, px: 2 }}
+        onClick={handleClick()}
+      >
         <MoreHorizIcon />
       </IconButton>
       <Popover
@@ -126,6 +130,7 @@ function OptionsPopover({ task, setTask }: Props) {
           )}
           {viewableComponents.archive && (
             <ListItemButton
+              data-testid="bArchiveCardButton"
               onClick={() => {
                 updateStatus(statusToCode.archived);
               }}

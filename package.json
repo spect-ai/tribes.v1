@@ -10,7 +10,9 @@
     "eslint": "eslint . --ext .tsx --quiet",
     "eslint:fix": "eslint . --ext .tsx --fix",
     "prepare": "husky install",
-    "test": "jest --watch"
+    "test": "jest --watch",
+    "integration": "synpress run --configFile ./__tests__/e2e/synpress.json",
+    "ci": "start-server-and-test dev http://localhost:3000 integration"
   },
   "engines": {
     "node": ">=14.0.0",
@@ -48,6 +50,7 @@
     "@commitlint/config-conventional": "^16.2.1",
     "@next/eslint-plugin-next": "^12.1.5",
     "@nomiclabs/hardhat-etherscan": "^3.0.0",
+    "@synthetixio/synpress": "^1.2.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.1.1",
     "@types/enzyme": "^3.10.12",
@@ -71,6 +74,7 @@
     "jest-cucumber": "^3.0.1",
     "prettier": "^2.6.2",
     "sass": "^1.49.11",
+    "start-server-and-test": "^1.14.0",
     "typescript": "4.5.5"
   }
 }

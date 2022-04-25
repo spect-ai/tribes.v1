@@ -62,7 +62,7 @@ const Container = styled.div<{ isDragging: boolean; palette: Palette }>`
 `;
 
 export default function ColumnComponent({ tasks, id, column, index }: Props) {
-  const { Moralis, user } = useMoralis();
+  const { user } = useMoralis();
   const router = useRouter();
   const { space, setSpace } = useSpace();
   const { bid } = router.query;
@@ -157,6 +157,7 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                     />
                     <Box sx={{ flex: '1 1 auto' }} />
                     <IconButton
+                      data-testid={`addTask-${column.id}`}
                       sx={{ mb: 0.5, p: 1 }}
                       size="small"
                       onClick={() => {

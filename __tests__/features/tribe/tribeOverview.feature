@@ -9,4 +9,4 @@ Scenario: Open Tribe Page
 Scenario: Click on Create New Space
     Given I am on tribe page
     When I click the create new space button
-    Then I should see create new space modal
+    Then I should see create new space modal 

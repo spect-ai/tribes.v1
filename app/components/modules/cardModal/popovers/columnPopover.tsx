@@ -45,6 +45,7 @@ function ColumnPopover({ task, setTask, column }: Props) {
         }}
       >
         <CardButton
+          data-testid="bColumnButton"
           variant="outlined"
           onClick={openPopover('column', setOpen, setFeedbackOpen)}
           color="secondary"
@@ -89,6 +90,7 @@ function ColumnPopover({ task, setTask, column }: Props) {
       >
         <PopoverContainer>
           <Autocomplete
+            data-testid="aColumnPicker"
             options={space.columnOrder}
             value={col}
             getOptionLabel={(option) => space.columns[option].title}
@@ -108,6 +110,7 @@ function ColumnPopover({ task, setTask, column }: Props) {
             )}
           />
           <PrimaryButton
+            data-testid="bColumnSave"
             variant="outlined"
             color="secondary"
             sx={{ mt: 4, borderRadius: 1 }}

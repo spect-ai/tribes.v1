@@ -64,6 +64,7 @@ function RewardPopover({ task, setTask }: Props) {
           Reward
         </Typography>
         <CardButton
+          data-testid="bRewardButton"
           variant="outlined"
           onClick={openPopover('reward', setOpen, setFeedbackOpen)}
           color="secondary"
@@ -127,6 +128,7 @@ function RewardPopover({ task, setTask }: Props) {
       >
         <PopoverContainer>
           <Autocomplete
+            data-testid="aRewardChain"
             options={getFlattenedNetworks(registry as Registry)}
             getOptionLabel={(option) => option.name}
             disableClearable
@@ -153,6 +155,7 @@ function RewardPopover({ task, setTask }: Props) {
             )}
           />
           <Autocomplete
+            data-testid="aRewardToken"
             options={getFlattenedCurrencies(
               registry as Registry,
               chain.chainId
@@ -176,6 +179,7 @@ function RewardPopover({ task, setTask }: Props) {
             )}
           />
           <TextField
+            data-testid="iRewardValue"
             id="filled-hidden-label-normal"
             value={value}
             onChange={(event) => {
@@ -190,6 +194,7 @@ function RewardPopover({ task, setTask }: Props) {
             color="secondary"
           />
           <PrimaryButton
+            data-testid="bRewardSave"
             variant="outlined"
             color="secondary"
             sx={{ borderRadius: 1 }}

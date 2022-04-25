@@ -170,7 +170,7 @@ export default function useCardDynamism(task: Task) {
       dueDate: isDeadlineEditable(),
       reward: editable,
       reviewer: editable,
-      column: isCardSteward(),
+      column: isDeadlineEditable(),
       assignee: isAssigneeEditable(),
     };
   };

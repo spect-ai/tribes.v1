@@ -60,6 +60,7 @@ function AssignToMe({ task, setTask }: Props) {
         }}
       >
         <CardButton
+          data-testid="bAssignToMeButton"
           variant="outlined"
           onClick={() => handleSave()}
           color="secondary"

@@ -40,7 +40,6 @@ function CardList({
   const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
-  console.log(registry);
   const getValidCardIds = (columnId: string) => {
     // var cardIds = space.columns[columnId].taskIds;
     const cardIds = space.columns[columnId].taskIds.filter((taskId) => {
@@ -193,6 +192,7 @@ function CardList({
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <PrimaryButton
+          data-testid="bCardListNextButton"
           sx={{ borderRadius: '3px' }}
           onClick={() => {
             setIsLoading(true);
