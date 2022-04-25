@@ -1,12 +1,12 @@
 const getRegistry = async () => {
-  const chainQuery = new Moralis.Query("Network");
+  const chainQuery = new Moralis.Query('Network');
   const pipeline = [
     {
       lookup: {
-        from: "Addresses",
-        localField: "chainId",
-        foreignField: "chainId",
-        as: "addresses",
+        from: 'Addresses',
+        localField: 'chainId',
+        foreignField: 'chainId',
+        as: 'addresses',
       },
     },
   ];
@@ -26,9 +26,9 @@ const getRegistry = async () => {
       tokens: {},
     };
     for (var addr of network.addresses) {
-      if (addr.type === "distributor") {
+      if (addr.type === 'distributor') {
         registry[network.chainId].distributorAddress = addr.address;
-      } else if (addr.type === "erc20") {
+      } else if (addr.type === 'erc20') {
         registry[network.chainId].tokens[addr.address] = {
           address: addr.address,
           name: addr.name,
@@ -42,15 +42,15 @@ const getRegistry = async () => {
   return registry;
 };
 
-Moralis.Cloud.define("addERC20Token", async (request) => {
+Moralis.Cloud.define('addERC20Token', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
-    const token = new Moralis.Object("Addresses");
-    token.set("type", "erc20");
-    token.set("address", request.params.address);
-    token.set("chainId", request.params.chainId);
-    token.set("symbol", request.params.symbol);
-    token.set("name", request.params.name);
+    const token = new Moralis.Object('Addresses');
+    token.set('type', 'erc20');
+    token.set('address', request.params.address);
+    token.set('chainId', request.params.chainId);
+    token.set('symbol', request.params.symbol);
+    token.set('name', request.params.name);
     await Moralis.Object.saveAll([token], { useMasterKey: true });
     const registry = await getRegistry();
     return registry;
@@ -62,7 +62,7 @@ Moralis.Cloud.define("addERC20Token", async (request) => {
   }
 });
 
-Moralis.Cloud.define("getRegistry", async (request) => {
+Moralis.Cloud.define('getRegistry', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const registry = await getRegistry();

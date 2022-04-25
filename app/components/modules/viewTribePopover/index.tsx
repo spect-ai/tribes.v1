@@ -1,10 +1,8 @@
-import { Avatar, Popover, Typography, useTheme } from "@mui/material";
-import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { getMyTeams } from "../../../adapters/moralis";
-import { Team } from "../../../types";
-import { OptionsButton, SidebarPopoverContainer } from "../themePopover";
+import { Avatar, Popover, Typography, useTheme } from '@mui/material';
+import Link from 'next/link';
+import React, { useEffect, useState } from 'react';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { OptionsButton, SidebarPopoverContainer } from '../themePopover';
 
 type Props = {
   open: boolean;
@@ -13,14 +11,13 @@ type Props = {
   type: string;
 };
 
-const ViewTribePopover = ({ open, anchorEl, handleClose, type }: Props) => {
+function ViewTribePopover({ open, anchorEl, handleClose, type }: Props) {
   const { palette } = useTheme();
   const [teams, setTeams] = useState([]);
-  const { Moralis } = useMoralis();
+  const { runMoralisFunction } = useMoralisFunction();
 
   useEffect(() => {
-    getMyTeams(Moralis).then((res: any) => {
-      console.log(res);
+    runMoralisFunction('getMyTeams', {}).then((res: any) => {
       setTeams(res);
     });
   }, []);
@@ -31,13 +28,17 @@ const ViewTribePopover = ({ open, anchorEl, handleClose, type }: Props) => {
       anchorEl={anchorEl}
       onClose={handleClose}
       anchorOrigin={{
-        vertical: "top",
-        horizontal: "center",
+        vertical: 'top',
+        horizontal: 'center',
       }}
     >
       <SidebarPopoverContainer palette={palette}>
         {teams.map((team: any, index) => (
-          <Link key={index} href={`/tribe/${team.get("teamId")}`} passHref>
+          <Link
+            key={team.get('teamId')}
+            href={`/tribe/${team.get('teamId')}`}
+            passHref
+          >
             <OptionsButton
               color="inherit"
               onClick={() => {
@@ -47,10 +48,10 @@ const ViewTribePopover = ({ open, anchorEl, handleClose, type }: Props) => {
               <Avatar
                 variant="rounded"
                 sx={{ p: 0, m: 0, width: 32, height: 32 }}
-                src={team.get("logo")?._url}
+                src={team.get('logo')?._url}
               />
-              <Typography fontSize={14} sx={{ width: "70%" }}>
-                {team.get("name")}
+              <Typography fontSize={14} sx={{ width: '70%' }}>
+                {team.get('name')}
               </Typography>
             </OptionsButton>
           </Link>
@@ -58,6 +59,6 @@ const ViewTribePopover = ({ open, anchorEl, handleClose, type }: Props) => {
       </SidebarPopoverContainer>
     </Popover>
   );
-};
+}
 
 export default ViewTribePopover;

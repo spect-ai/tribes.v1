@@ -1,9 +1,9 @@
 function handleBlockUpdate(task, blocks) {
-  task.set("description", blocks);
+  task.set('description', blocks);
   return task;
 }
 
-Moralis.Cloud.define("addBlockTaskDescription", async (request) => {
+Moralis.Cloud.define('addBlockTaskDescription', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   var task = await getTaskByTaskId(request.params.taskId);
   try {
@@ -22,12 +22,12 @@ Moralis.Cloud.define("addBlockTaskDescription", async (request) => {
   }
 });
 
-Moralis.Cloud.define("getTaskDescription", async (request) => {
+Moralis.Cloud.define('getTaskDescription', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     var task = await getTaskByTaskId(request.params.taskId);
     return {
-      blocks: task.get("description"),
+      blocks: task.get('description'),
     };
   } catch (err) {
     logger.error(

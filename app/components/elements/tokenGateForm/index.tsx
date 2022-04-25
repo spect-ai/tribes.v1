@@ -3,15 +3,15 @@ import {
   Box,
   createFilterOptions,
   TextField,
-} from "@mui/material";
-import React, { useState } from "react";
-import { useGlobal } from "../../../context/globalContext";
-import { Chain, Registry, Token } from "../../../types";
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useGlobal } from '../../../context/globalContext';
+import { Chain, Registry, Token } from '../../../types';
 import {
   getFlattenedCurrencies,
   getFlattenedNetworks,
-} from "../../../utils/utils";
-import CustomTokenDialog from "../customToken";
+} from '../../../utils/utils';
+import CustomTokenDialog from '../customToken';
 
 type Props = {
   chain: Chain;
@@ -22,21 +22,21 @@ type Props = {
   setTokenLimit: (tokenLimit: string) => void;
 };
 
-const TokenGateForm = ({
+function TokenGateForm({
   chain,
   setChain,
   token,
   setToken,
   tokenLimit,
   setTokenLimit,
-}: Props) => {
+}: Props) {
   const {
     state: { registry },
   } = useGlobal();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const filter = createFilterOptions<Token>();
   return (
-    <Box sx={{ display: "flex", my: 1 }}>
+    <Box sx={{ display: 'flex', my: 1 }}>
       <CustomTokenDialog
         open={isDialogOpen}
         handleClose={() => setIsDialogOpen(false)}
@@ -60,7 +60,7 @@ const TokenGateForm = ({
         getOptionLabel={(option) => option.symbol}
         value={token}
         onChange={(event, newValue) => {
-          if (newValue && (newValue as Token).address === "0") {
+          if (newValue && (newValue as Token).address === '0') {
             setIsDialogOpen(true);
             return;
           }
@@ -68,10 +68,10 @@ const TokenGateForm = ({
         }}
         filterOptions={(options, params) => {
           const filtered = filter(options, params);
-          if (params.inputValue !== "") {
+          if (params.inputValue !== '') {
             filtered.push({
-              symbol: "Import custom address",
-              address: "0",
+              symbol: 'Import custom address',
+              address: '0',
             });
           }
           return filtered;
@@ -89,9 +89,9 @@ const TokenGateForm = ({
       />
 
       <TextField
-        sx={{ width: "50%", ml: 2 }}
+        sx={{ width: '50%', ml: 2 }}
         placeholder="Limit"
-        type={"number"}
+        type="number"
         size="small"
         inputProps={{ min: 0 }}
         value={tokenLimit}
@@ -99,6 +99,6 @@ const TokenGateForm = ({
       />
     </Box>
   );
-};
+}
 
 export default TokenGateForm;

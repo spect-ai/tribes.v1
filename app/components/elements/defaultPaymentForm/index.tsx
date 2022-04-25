@@ -3,15 +3,15 @@ import {
   Box,
   createFilterOptions,
   TextField,
-} from "@mui/material";
-import React, { useState } from "react";
-import { useGlobal } from "../../../context/globalContext";
-import { Chain, Registry, Token } from "../../../types";
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useGlobal } from '../../../context/globalContext';
+import { Chain, Registry, Token } from '../../../types';
 import {
   getFlattenedCurrencies,
   getFlattenedNetworks,
-} from "../../../utils/utils";
-import CustomTokenDialog from "../customToken";
+} from '../../../utils/utils';
+import CustomTokenDialog from '../customToken';
 
 type Props = {
   chain: Chain;
@@ -20,14 +20,14 @@ type Props = {
   setToken: (token: Token) => void;
 };
 
-const DefaultPaymentForm = ({ chain, setChain, token, setToken }: Props) => {
+function DefaultPaymentForm({ chain, setChain, token, setToken }: Props) {
   const {
     state: { registry },
   } = useGlobal();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const filter = createFilterOptions<Token>();
   return (
-    <Box sx={{ display: "flex", my: 1 }}>
+    <Box sx={{ display: 'flex', my: 1 }}>
       <CustomTokenDialog
         open={isDialogOpen}
         handleClose={() => setIsDialogOpen(false)}
@@ -53,7 +53,7 @@ const DefaultPaymentForm = ({ chain, setChain, token, setToken }: Props) => {
         getOptionLabel={(option) => option.symbol}
         value={token}
         onChange={(event, newValue) => {
-          if (newValue && (newValue as Token).address === "0") {
+          if (newValue && (newValue as Token).address === '0') {
             setIsDialogOpen(true);
             return;
           }
@@ -61,10 +61,10 @@ const DefaultPaymentForm = ({ chain, setChain, token, setToken }: Props) => {
         }}
         filterOptions={(options, params) => {
           const filtered = filter(options, params);
-          if (params.inputValue !== "") {
+          if (params.inputValue !== '') {
             filtered.push({
-              symbol: "Import custom address",
-              address: "0",
+              symbol: 'Import custom address',
+              address: '0',
             });
           }
           return filtered;
@@ -83,6 +83,6 @@ const DefaultPaymentForm = ({ chain, setChain, token, setToken }: Props) => {
       />
     </Box>
   );
-};
+}
 
 export default DefaultPaymentForm;

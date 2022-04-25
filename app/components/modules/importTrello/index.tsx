@@ -1,4 +1,4 @@
-import { Close } from "@mui/icons-material";
+import { Close } from '@mui/icons-material';
 import {
   Box,
   Grow,
@@ -7,20 +7,40 @@ import {
   styled,
   TextField,
   Typography,
-} from "@mui/material";
-import React, { useState } from "react";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { Column } from "../../../types";
-import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { Column } from '../../../types';
+import { ModalHeading, PrimaryButton } from '../../elements/styledComponents';
 
 type Props = {
   isOpen: boolean;
   handleClose: () => void;
 };
 
-const TrelloImport = ({ isOpen, handleClose }: Props) => {
-  const [trelloBoardId, setTrelloBoardId] = useState("");
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
+  position: 'absolute' as 'absolute',
+  top: '10%',
+  left: '25%',
+  transform: 'translate(-50%, -50%)',
+  width: '35rem',
+  border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
+  boxShadow: 24,
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
+}));
+
+const ModalContent = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  padding: 32,
+}));
+
+function TrelloImport({ isOpen, handleClose }: Props) {
+  const [trelloBoardId, setTrelloBoardId] = useState('');
   const [columnMap, setColumnMap] = useState({});
   const [columnOrder, setColumnOrder] = useState([]);
   const [trelloBoard, setTrelloBoard] = useState<any>({} as any);
@@ -35,16 +55,16 @@ const TrelloImport = ({ isOpen, handleClose }: Props) => {
       <Grow in={isOpen} timeout={500}>
         <ModalContainer>
           <ModalHeading>
-            <Typography sx={{ color: "#99ccff" }}>
+            <Typography sx={{ color: '#99ccff' }}>
               Import from trello
             </Typography>
-            <Box sx={{ flex: "1 1 auto" }} />
+            <Box sx={{ flex: '1 1 auto' }} />
             <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
               <Close />
             </IconButton>
           </ModalHeading>
           <ModalContent>
-            <Box sx={{ display: "flex" }}>
+            <Box sx={{ display: 'flex' }}>
               <TextField
                 placeholder="Trello Board Id"
                 size="small"
@@ -61,7 +81,7 @@ const TrelloImport = ({ isOpen, handleClose }: Props) => {
                 color="secondary"
                 fullWidth
                 loading={isFetching}
-                sx={{ borderRadius: 1, mx: 4, width: "50%" }}
+                sx={{ borderRadius: 1, mx: 4, width: '50%' }}
                 onClick={async () => {
                   setIsFetching(true);
                   const board = await fetch(
@@ -78,14 +98,14 @@ const TrelloImport = ({ isOpen, handleClose }: Props) => {
                   );
 
                   const cardsJson = await cards.json();
-                  const columnOrder = columnsJson.map(
+                  const aColumnOrder = columnsJson.map(
                     (column: any) => column.id
                   );
-                  let columnMap: {
+                  const aColumnMap: {
                     [key: string]: Column;
                   } = {};
                   columnsJson.map((column: any) => {
-                    columnMap[column.id] = {
+                    aColumnMap[column.id] = {
                       id: column.id,
                       title: column.name,
                       taskIds: [],
@@ -93,9 +113,11 @@ const TrelloImport = ({ isOpen, handleClose }: Props) => {
                       createCard: { 0: false, 1: false, 2: true, 3: true },
                       moveCard: { 0: false, 1: false, 2: true, 3: true },
                     };
+                    return null;
                   });
                   cardsJson.map((card: any) => {
-                    columnMap[card.idList].taskIds.push(card.id);
+                    aColumnMap[card.idList as string].taskIds.push(card.id);
+                    return null;
                   });
                   const tasks = cardsJson.map((task: any) => {
                     return {
@@ -106,8 +128,8 @@ const TrelloImport = ({ isOpen, handleClose }: Props) => {
                     };
                   });
                   console.log(boardJson);
-                  setColumnOrder(columnOrder);
-                  setColumnMap(columnMap);
+                  setColumnOrder(aColumnOrder);
+                  setColumnMap(aColumnMap);
                   setTrelloBoard(boardJson);
                   setTrelloTasks(tasks);
                   setIsFetching(false);
@@ -121,12 +143,12 @@ const TrelloImport = ({ isOpen, handleClose }: Props) => {
             </Typography>
             <PrimaryButton
               variant="outlined"
-              sx={{ borderRadius: 1, width: "50%", my: 2 }}
+              sx={{ borderRadius: 1, width: '50%', my: 2 }}
               fullWidth
               color="secondary"
               onClick={() => {
                 console.log(trelloTasks);
-                runMoralisFunction("importTasksFromTrello", {
+                runMoralisFunction('importTasksFromTrello', {
                   boardId: space.objectId,
                   columnMap,
                   columnOrder,
@@ -144,26 +166,6 @@ const TrelloImport = ({ isOpen, handleClose }: Props) => {
       </Grow>
     </Modal>
   );
-};
-
-// @ts-ignore
-const ModalContainer = styled(Box)(({ theme }) => ({
-  position: "absolute" as "absolute",
-  top: "10%",
-  left: "25%",
-  transform: "translate(-50%, -50%)",
-  width: "35rem",
-  border: "2px solid #000",
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 24,
-  overflow: "auto",
-  maxHeight: "calc(100% - 128px)",
-}));
-
-const ModalContent = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  padding: 32,
-}));
+}
 
 export default TrelloImport;

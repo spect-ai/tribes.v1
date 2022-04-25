@@ -1,3 +1,4 @@
+import SendIcon from '@mui/icons-material/Send';
 import {
   Autocomplete,
   Box,
@@ -6,18 +7,39 @@ import {
   styled,
   TextField,
   Typography,
-} from "@mui/material";
-import React, { useState } from "react";
-import { ModalHeading, PrimaryButton } from "../../elements/styledComponents";
-import SendIcon from "@mui/icons-material/Send";
-import { notify } from "../settingsTab";
-import { expiryOptions, roleOptions, usesOptions } from "./constants";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { ModalHeading, PrimaryButton } from '../../elements/styledComponents';
+import { notify } from '../settingsTab';
+import { expiryOptions, roleOptions, usesOptions } from './constants';
 
 type Props = {};
 
-const InviteMemberModal = (props: Props) => {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
+  position: 'absolute' as 'absolute',
+  top: '40%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '30rem',
+  border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
+  boxShadow: 24,
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
+}));
+
+const ModalContent = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: 12,
+}));
+
+function InviteMemberModal(props: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const { space } = useSpace();
   const handleClose = () => setIsOpen(false);
@@ -113,7 +135,7 @@ const InviteMemberModal = (props: Props) => {
                 sx={{ mt: 4 }}
                 onClick={() => {
                   setIsLoading(true);
-                  runMoralisFunction("generateInviteLink", {
+                  runMoralisFunction('generateInviteLink', {
                     boardId: space.objectId,
                     role: role.role,
                     uses: uses.uses,
@@ -123,7 +145,7 @@ const InviteMemberModal = (props: Props) => {
                       console.log(res);
                       const link = `${window.location.href}?inviteCode=${res[0].id}`;
                       navigator.clipboard.writeText(link);
-                      notify("Link copied");
+                      notify('Link copied');
                       handleClose();
                       setIsLoading(false);
                     })
@@ -141,28 +163,6 @@ const InviteMemberModal = (props: Props) => {
       </Modal>
     </>
   );
-};
-
-// @ts-ignore
-const ModalContainer = styled(Box)(({ theme }) => ({
-  position: "absolute" as "absolute",
-  top: "40%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "30rem",
-  border: "2px solid #000",
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 24,
-  overflow: "auto",
-  maxHeight: "calc(100% - 128px)",
-}));
-
-const ModalContent = styled("div")(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: 12,
-}));
+}
 
 export default InviteMemberModal;
