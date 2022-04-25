@@ -1,9 +1,8 @@
 import styled from '@emotion/styled';
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, IconButton, InputBase } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import useCard from '../../../hooks/useCard';
 import useCardDynamism from '../../../hooks/useCardDynamism';
 import { Task } from '../../../types';
 import { uid } from '../../../utils/utils';
@@ -17,6 +16,8 @@ import LabelPopover from './popovers/labelPopover';
 import OptionsPopover from './popovers/optionsPopover';
 import RewardPopover from './popovers/rewardPopover';
 import TabularDetails from './tabularDetails';
+import useCardUpdate from '../../../hooks/useCardUpdate';
+import { useCardContext } from '.';
 
 type Props = {
   task: Task;
@@ -42,11 +43,14 @@ const Container = styled.div`
 
 function TaskCard({ task, setTask, handleClose }: Props) {
   const { space, setSpace } = useSpace();
-  const { editAbleComponents, viewableComponents } = useCardDynamism(task);
-  const { title, setTitle, updateTitle, updateDescription } = useCard(
-    setTask,
-    task
-  );
+  const { editAbleComponents, viewableComponents } = useCardDynamism();
+  const { updateTitle, updateDescription } = useCardUpdate();
+  const [readOnlyDescription, setReadOnlyDescription] = useState(false);
+  const { title, setTitle } = useCardContext();
+
+  useEffect(() => {
+    setReadOnlyDescription(!editAbleComponents.description);
+  }, [editAbleComponents.description]);
 
   return (
     <Container>
@@ -66,15 +70,13 @@ function TaskCard({ task, setTask, handleClose }: Props) {
         <Box sx={{ flex: '1 1 auto' }} />
         <AssignToMe task={task} setTask={setTask} />
 
-        {viewableComponents.optionPopover && (
-          <OptionsPopover task={task} setTask={setTask} />
-        )}
+        {viewableComponents.optionPopover && <OptionsPopover />}
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>
       <Box sx={{ width: 'fit-content', display: 'flex', flexWrap: 'wrap' }}>
-        <CardTypePopover task={task} setTask={setTask} />
+        <CardTypePopover />
         <ColumnPopover
           task={task}
           setTask={setTask}
@@ -83,11 +85,11 @@ function TaskCard({ task, setTask, handleClose }: Props) {
       </Box>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', marginBottom: '16px' }}>
-        <CardMemberPopover type="reviewer" task={task} setTask={setTask} />
-        <CardMemberPopover type="assignee" task={task} setTask={setTask} />
-        <RewardPopover task={task} setTask={setTask} />
-        <DatePopover task={task} setTask={setTask} />
-        <LabelPopover task={task} setTask={setTask} />
+        <CardMemberPopover type="reviewer" />
+        <CardMemberPopover type="assignee" />
+        <RewardPopover />
+        <DatePopover />
+        <LabelPopover />
       </Box>
 
       <TaskModalBodyContainer>
@@ -112,7 +114,7 @@ function TaskCard({ task, setTask, handleClose }: Props) {
               ? `Add details, press "/" for commands`
               : `No details provided yet`
           }
-          readonly={!editAbleComponents.description}
+          readonly={readOnlyDescription}
         />
 
         <Box sx={{ marginBottom: '16px' }}>

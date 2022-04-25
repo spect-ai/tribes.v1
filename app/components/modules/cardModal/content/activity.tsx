@@ -7,12 +7,10 @@ import TimelineConnector from '@mui/lab/TimelineConnector';
 import useActivityMap from '../../../../hooks/useActivityMap';
 import { Task } from '../../../../types';
 import { monthMap } from '../../../../constants';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-};
-
-function Activity({ task }: Props) {
+function Activity() {
+  const { task } = useCardContext();
   const { activityIcons, resolveActivityComponent } = useActivityMap(task);
 
   return (

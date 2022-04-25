@@ -330,41 +330,51 @@ Moralis.Cloud.define('updateColumnTasks', async (request) => {
     const logger = Moralis.Cloud.getLogger();
     var board = await getBoardByObjectId(request.params.boardId);
     var task = await getTaskByTaskId(request.params.taskId);
-    var columns = board.get("columns");
+    var columns = board.get('columns');
     var cardLoc = findCard(board, request.params.taskId);
     var newCardLoc = request.params.updatedCardLoc;
-    if (!cardLoc) throw "Card not found";
     logger.info(`cardLoc ${JSON.stringify(cardLoc)}`);
     logger.info(`newCardLoc ${JSON.stringify(newCardLoc)}`);
-    if (cardLoc.columnId === newCardLoc.columnId) {
-      if (cardLoc.cardIndex !== newCardLoc.cardIndex) {
-        columns[cardLoc.columnId]["taskIds"].splice(cardLoc.cardIndex, 1);
-        columns[cardLoc.columnId]["taskIds"].splice(
-          newCardLoc.cardIndex,
-          0,
-          request.params.taskId
-        );
-        board.set("columns", columns);
-      }
-    } else {
+
+    if (!cardLoc) throw 'Card not found';
+    if (
+      cardLoc.columnId !== newCardLoc.columnId &&
+      cardLoc.cardIndex !== newCardLoc.cardIndex
+    ) {
       const source = removeTaskFromColumn(
         columns[cardLoc.columnId],
-        task.get("taskId")
+        task.get('taskId')
       );
-      logger.info(`source ${JSON.stringify(source)}`);
       const destination = addTaskToColumn(
         columns[newCardLoc.columnId],
-        task.get("taskId")
+        task.get('taskId'),
+        newCardLoc.cardIndex
       );
-      logger.info(`destination ${JSON.stringify(destination)}`);
       columns = {
         ...columns,
         [source.id]: source,
         [destination.id]: destination,
       };
-      board.set("columns", columns);
-      task.set("columnId", newCardLoc.columnId);
+      task.set('columnId', newCardLoc.columnId);
+    } else if (cardLoc.cardIndex !== newCardLoc.cardIndex) {
+      columns[cardLoc.columnId]['taskIds'].splice(cardLoc.cardIndex, 1);
+      columns[cardLoc.columnId]['taskIds'].splice(
+        newCardLoc.cardIndex,
+        0,
+        request.params.taskId
+      );
+    } else if (cardLoc.columnId !== newCardLoc.columnId) {
+      columns[cardLoc.columnId]['taskIds'].splice(cardLoc.cardIndex, 1);
+      columns[newCardLoc.columnId]['taskIds'].splice(
+        newCardLoc.cardIndex,
+        0,
+        request.params.taskId
+      );
+      task.set('columnId', newCardLoc.columnId);
     }
+
+    board.set('columns', columns);
+
     await Moralis.Object.saveAll([board, task], { useMasterKey: true });
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
@@ -377,7 +387,7 @@ Moralis.Cloud.define('updateColumnTasks', async (request) => {
 
 function findCard(space, cardId) {
   const logger = Moralis.Cloud.getLogger();
-  var columns = space.get("columns");
+  var columns = space.get('columns');
   for ([key, value] of Object.entries(columns)) {
     var cardIndex = value.taskIds.indexOf(cardId);
     if (cardIndex !== -1) {
@@ -387,7 +397,7 @@ function findCard(space, cardId) {
   return null;
 }
 
-Moralis.Cloud.define("updateColumnOrder", async (request) => {
+Moralis.Cloud.define('updateColumnOrder', async (request) => {
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     board.set('columnOrder', request.params.newColumnOrder);

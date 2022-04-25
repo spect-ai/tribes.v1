@@ -8,9 +8,10 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import { useCardContext } from '..';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { useGlobal } from '../../../../context/globalContext';
-import useCard from '../../../../hooks/useCard';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 import { Chain, Registry, Task, Token } from '../../../../types';
 import {
@@ -18,35 +19,29 @@ import {
   getFlattenedNetworks,
 } from '../../../../utils/utils';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
-import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function RewardPopover({ task, setTask }: Props) {
+function RewardPopover() {
   const {
     state: { registry },
   } = useGlobal();
   const [open, setOpen] = useState(false);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const { setSpace } = useSpace();
   const {
-    updateReward,
-    openPopover,
-    closePopover,
-    anchorEl,
+    task,
+    setTask,
     chain,
     setChain,
     token,
     setToken,
     value,
     setValue,
-    isLoading,
-  } = useCard(setTask, task);
-  const { getReason } = useCardDynamism(task);
+    loading,
+    openPopover,
+    closePopover,
+    anchorEl,
+  } = useCardContext();
+  const { updateReward } = useCardUpdate();
+  const { getReason, editAbleComponents } = useCardDynamism();
 
   return (
     <>
@@ -65,7 +60,7 @@ function RewardPopover({ task, setTask }: Props) {
         </Typography>
         <CardButton
           variant="outlined"
-          onClick={openPopover('reward', setOpen, setFeedbackOpen)}
+          onClick={openPopover(setOpen)}
           color="secondary"
           sx={{
             padding: '6px',
@@ -104,19 +99,6 @@ function RewardPopover({ task, setTask }: Props) {
         </CardButton>
       </Box>
       <Popover
-        open={feedbackOpen}
-        anchorEl={anchorEl}
-        onClose={() => closePopover(setFeedbackOpen)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <PopoverContainer>
-          <Typography variant="body2">{getReason('reward')}</Typography>
-        </PopoverContainer>
-      </Popover>
-      <Popover
         open={open}
         anchorEl={anchorEl}
         onClose={() => closePopover(setOpen)}
@@ -125,82 +107,89 @@ function RewardPopover({ task, setTask }: Props) {
           horizontal: 'left',
         }}
       >
-        <PopoverContainer>
-          <Autocomplete
-            options={getFlattenedNetworks(registry as Registry)}
-            getOptionLabel={(option) => option.name}
-            disableClearable
-            value={chain}
-            onChange={(event, newValue) => {
-              setChain(newValue as Chain);
-              const tokens = getFlattenedCurrencies(
+        {!editAbleComponents.reward && (
+          <PopoverContainer>
+            <Typography variant="body2">{getReason('reward')}</Typography>
+          </PopoverContainer>
+        )}
+        {editAbleComponents.reward && (
+          <PopoverContainer>
+            <Autocomplete
+              options={getFlattenedNetworks(registry as Registry)}
+              getOptionLabel={(option) => option.name}
+              disableClearable
+              value={chain}
+              onChange={(event, newValue) => {
+                setChain(newValue as Chain);
+                const tokens = getFlattenedCurrencies(
+                  registry as Registry,
+                  newValue?.chainId as string
+                );
+                if (tokens.length > 0) setToken(tokens[0]);
+                else setToken({} as Token);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  id="filled-hidden-label-normal"
+                  size="small"
+                  fullWidth
+                  sx={{ mb: 4 }}
+                  placeholder="Network Chain"
+                  color="secondary"
+                />
+              )}
+            />
+            <Autocomplete
+              options={getFlattenedCurrencies(
                 registry as Registry,
-                newValue?.chainId as string
-              );
-              if (tokens.length > 0) setToken(tokens[0]);
-              else setToken({} as Token);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                sx={{ mb: 4 }}
-                placeholder="Network Chain"
-                color="secondary"
-              />
-            )}
-          />
-          <Autocomplete
-            options={getFlattenedCurrencies(
-              registry as Registry,
-              chain.chainId
-            )}
-            disableClearable
-            getOptionLabel={(option) => option.symbol}
-            value={token}
-            onChange={(event, newValue) => {
-              setToken(newValue as Token);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                sx={{ mb: 4 }}
-                placeholder="Network Chain"
-                color="secondary"
-              />
-            )}
-          />
-          <TextField
-            id="filled-hidden-label-normal"
-            value={value}
-            onChange={(event) => {
-              setValue(event.target.value);
-            }}
-            size="small"
-            fullWidth
-            sx={{ mb: 4 }}
-            type="number"
-            placeholder="Value"
-            inputProps={{ min: 0 }}
-            color="secondary"
-          />
-          <PrimaryButton
-            variant="outlined"
-            color="secondary"
-            sx={{ borderRadius: 1 }}
-            loading={isLoading}
-            onClick={() => {
-              updateReward(setOpen);
-            }}
-          >
-            Save
-          </PrimaryButton>
-        </PopoverContainer>
+                chain?.chainId
+              )}
+              disableClearable
+              getOptionLabel={(option) => option.symbol}
+              value={token}
+              onChange={(event, newValue) => {
+                setToken(newValue as Token);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  id="filled-hidden-label-normal"
+                  size="small"
+                  fullWidth
+                  sx={{ mb: 4 }}
+                  placeholder="Network Chain"
+                  color="secondary"
+                />
+              )}
+            />
+            <TextField
+              id="filled-hidden-label-normal"
+              value={value}
+              onChange={(event) => {
+                setValue(event.target.value);
+              }}
+              size="small"
+              fullWidth
+              sx={{ mb: 4 }}
+              type="number"
+              placeholder="Value"
+              inputProps={{ min: 0 }}
+              color="secondary"
+            />
+            <PrimaryButton
+              variant="outlined"
+              color="secondary"
+              sx={{ borderRadius: 1 }}
+              loading={loading}
+              onClick={() => {
+                updateReward(setOpen);
+              }}
+            >
+              Save
+            </PrimaryButton>
+          </PopoverContainer>
+        )}
       </Popover>
     </>
   );

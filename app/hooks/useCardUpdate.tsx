@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import useMoralisFunction from './useMoralisFunction';
 import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
@@ -6,68 +6,43 @@ import { Task, Block, Column } from '../types';
 import { notify } from '../components/modules/settingsTab';
 import useCardStatus from './useCardStatus';
 import useCardDynamism from './useCardDynamism';
+import { useCardContext } from '../components/modules/cardModal';
 
-export default function useCard(
-  setTask: Function,
-  task: Task,
-  column?: Column
-) {
+export default function useCardUpdate() {
   const { user } = useMoralis();
   const { setSpace } = useSpace();
-  const { codeToStatus, statusToCode } = useCardStatus(task);
-  const { editAbleComponents } = useCardDynamism(task);
+  const {
+    task,
+    setTask,
+    chain,
+    token,
+    value,
+    title,
+    proposalOnEdit,
+    col,
+    type,
+    date,
+    labels,
+    proposalEditMode,
+    setProposalEditMode,
+    openPopover,
+    closePopover,
+  } = useCardContext();
+  const { codeToStatus, statusToCode } = useCardStatus();
   const { runMoralisFunction } = useMoralisFunction();
-  const { proposalEditMode, setProposalEditMode } = useCardDynamism(task);
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [title, setTitle] = useState(task.title);
-  const [type, setType] = useState(task?.type || 'Task');
-  const [date, setDate] = useState('');
-  const [proposalOnEdit, setProposalOnEdit] = useState('');
-  const [labels, setLabels] = useState(task.tags);
-  const [chain, setChain] = useState(task.chain);
-  const [token, setToken] = useState(task.token);
-  const [value, setValue] = useState(task.value?.toString());
-  const [currCol, setCurrCol] = useState('');
-  const [col, setCol] = useState<string>('');
 
-  useEffect(() => {
-    setTitle(task.title);
-    if (task.proposals?.length > 0) {
-      setProposalOnEdit(task.proposals[0].content);
-      if (task.proposals[0]?.content === '') setProposalEditMode(true);
-      else setProposalEditMode(false);
+  const successMessage: any = {
+    inReview: 'Asked for a review',
+    inRevision: 'Asked for revision',
+    closed: 'Closed card',
+    proposalEdit: 'Application submitted',
+    proposalPick: 'Selected applicant!',
+  };
+
+  const giveSuccessNotification = (updateType: string) => {
+    if (successMessage[updateType]) {
+      notify(successMessage[updateType], 'success');
     }
-    if (task.deadline) {
-      const offset = task.deadline.getTimezoneOffset();
-      const deadline = new Date(task.deadline.getTime() - offset * 60 * 1000);
-      setDate(deadline.toISOString().slice(0, -8));
-    }
-    if (task?.type) setType(task.type);
-    else setType('Task');
-
-    if (column) {
-      setCurrCol(column.id);
-      setCol(column.id);
-    }
-
-    setChain(task.chain);
-    setToken(task.token);
-    setValue(task.value?.toString());
-  }, []);
-
-  const openPopover =
-    (popoverType: string, setOpen: Function, setFeedbackOpen: Function) =>
-    (event: React.MouseEvent<HTMLButtonElement>) => {
-      setAnchorEl(event.currentTarget);
-      if (editAbleComponents[popoverType]) {
-        setOpen(true);
-      } else {
-        setFeedbackOpen(true);
-      }
-    };
-  const closePopover = (setOpen: Function) => {
-    setOpen(false);
   };
 
   const handleGreedHelper = (
@@ -100,6 +75,7 @@ export default function useCard(
           edited: false,
         },
       ];
+    else if (key === 'column') newTask.columnId = val;
     return newTask;
   };
 
@@ -121,17 +97,15 @@ export default function useCard(
     if (greedy) {
       handleGreed(params.updates, prevTask);
     }
-    setIsLoading(true);
     runMoralisFunction('updateCard', params)
       .then((res: any) => {
         setSpace(res.space);
         setTask(res.task);
-        setIsLoading(false);
+        giveSuccessNotification(updateType);
       })
       .catch((err: any) => {
         if (greedy) setTask(prevTask);
         notify(err.message, 'error');
-        setIsLoading(false);
       });
   };
 
@@ -205,11 +179,7 @@ export default function useCard(
     );
   };
 
-  const updateStatusAndAssignee = (
-    proposalId: string,
-    index: number,
-    assignee: string
-  ) => {
+  const updateStatusAndAssignee = (assignee: string, updateType: string) => {
     executeCardUpdates(
       {
         updates: {
@@ -218,7 +188,7 @@ export default function useCard(
           taskId: task.taskId,
         },
       },
-      'proposalPick',
+      updateType,
       true
     );
   };
@@ -263,7 +233,7 @@ export default function useCard(
       {
         updates,
       },
-      'reviewer',
+      memberType,
       true
     );
   };
@@ -326,53 +296,29 @@ export default function useCard(
     );
   };
 
-  // TODO: Fix revert on greedy update
   const updateColumn = (setOpen: Function) => {
-    setCurrCol(col);
     closePopover(setOpen);
     executeCardUpdates(
       {
         updates: {
           columnChange: {
-            sourceId: column?.id,
+            sourceId: task.columnId,
             destinationId: col,
           },
           taskId: task.taskId,
         },
       },
       'column',
-      false
+      true
     );
   };
 
   return {
-    isLoading,
     openPopover,
     closePopover,
-    anchorEl,
     executeCardUpdates,
-    labels,
-    setLabels,
-    type,
-    setType,
-    title,
-    setTitle,
-    date,
-    setDate,
-    chain,
-    setChain,
-    token,
-    setToken,
-    value,
-    setValue,
     setProposalEditMode,
     proposalEditMode,
-    setProposalOnEdit,
-    proposalOnEdit,
-    currCol,
-    setCurrCol,
-    col,
-    setCol,
     updateTitle,
     updateDescription,
     updateSubmission,
