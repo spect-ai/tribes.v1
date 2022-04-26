@@ -155,7 +155,7 @@ function CardModal({ isOpen, handleClose, taskId, columnId }: Props) {
       setLoading(true);
       runMoralisFunction('getTask', { taskId, columnId })
         .then((taskRes: Task) => {
-          console.log('taskRes', taskRes);
+          console.log(taskRes);
           setTask(taskRes);
           setLoading(false);
         })
@@ -167,19 +167,15 @@ function CardModal({ isOpen, handleClose, taskId, columnId }: Props) {
   }, [taskId, isInitialized, isOpen]);
   return (
     <CardContext.Provider value={context}>
-      <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
-        <Fade in={isOpen} timeout={500}>
+      <Modal open={isOpen} onClose={handleClose}>
+        <Fade in={isOpen}>
           <ModalContainer id="cardModal">
             {loading ? (
               <SkeletonLoader />
             ) : (
-              <Fade timeout={1000} in={!loading}>
+              <Fade in={!loading}>
                 <div>
-                  <TaskCard
-                    task={task}
-                    setTask={setTask}
-                    handleClose={handleClose}
-                  />
+                  <TaskCard handleClose={handleClose} />
                 </div>
               </Fade>
             )}

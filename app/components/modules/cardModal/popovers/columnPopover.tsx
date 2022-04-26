@@ -14,7 +14,6 @@ import { useCardContext } from '..';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 
 function ColumnPopover() {
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const { space, setSpace } = useSpace();
   const [open, setOpen] = useState(false);
   const { updateColumn } = useCardUpdate();

@@ -20,8 +20,6 @@ import useCardUpdate from '../../../hooks/useCardUpdate';
 import { useCardContext } from '.';
 
 type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
   handleClose: () => void;
 };
 
@@ -41,12 +39,13 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-function TaskCard({ task, setTask, handleClose }: Props) {
+function TaskCard({ handleClose }: Props) {
   const { space, setSpace } = useSpace();
   const { editAbleComponents, viewableComponents } = useCardDynamism();
   const { updateTitle, updateDescription } = useCardUpdate();
   const [readOnlyDescription, setReadOnlyDescription] = useState(false);
   const { title, setTitle } = useCardContext();
+  const { task, setTask } = useCardContext();
 
   useEffect(() => {
     setReadOnlyDescription(!editAbleComponents.description);
@@ -68,7 +67,7 @@ function TaskCard({ task, setTask, handleClose }: Props) {
           readOnly={!(task?.access?.creator || task?.access?.reviewer)}
         />
         <Box sx={{ flex: '1 1 auto' }} />
-        <AssignToMe task={task} setTask={setTask} />
+        <AssignToMe />
 
         {viewableComponents.optionPopover && <OptionsPopover />}
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
@@ -77,11 +76,7 @@ function TaskCard({ task, setTask, handleClose }: Props) {
       </TaskModalTitleContainer>
       <Box sx={{ width: 'fit-content', display: 'flex', flexWrap: 'wrap' }}>
         <CardTypePopover />
-        <ColumnPopover
-          task={task}
-          setTask={setTask}
-          column={space.columns[task.columnId]}
-        />
+        <ColumnPopover />
       </Box>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', marginBottom: '16px' }}>
@@ -118,7 +113,7 @@ function TaskCard({ task, setTask, handleClose }: Props) {
         />
 
         <Box sx={{ marginBottom: '16px' }}>
-          <TabularDetails task={task} setTask={setTask} />
+          <TabularDetails />
         </Box>
       </TaskModalBodyContainer>
     </Container>

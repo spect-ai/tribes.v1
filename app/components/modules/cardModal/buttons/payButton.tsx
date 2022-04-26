@@ -26,7 +26,7 @@ function PayButton({ handleClose }: Props) {
   const { user } = useMoralis();
   const { task, setTask } = useCardContext();
 
-  const { viewableComponents } = useCardDynamism(task);
+  const { viewableComponents } = useCardDynamism();
   const [payButtonText, setPayButtonText] = useState(
     viewableComponents.pay === 'showPay' ? 'Pay' : 'Approve'
   );

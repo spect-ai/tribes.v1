@@ -9,13 +9,9 @@ import Submission from './content/submission';
 import Activity from './content/activity';
 import Comments from './content/comments';
 import useCardDynamism from '../../../hooks/useCardDynamism';
-import { useCardContext } from '.';
-
-type Props = {};
 
 function TabularDetails() {
   const { tabs, handleTabChange, tabIdx } = useCardDynamism();
-  const { task, setTask } = useCardContext();
 
   return (
     <>
@@ -27,7 +23,7 @@ function TabularDetails() {
           width: '100%',
         }}
       >
-        <Apply task={task} setTask={setTask} />
+        <Apply />
       </Box>
       <Box
         sx={{

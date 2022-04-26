@@ -324,45 +324,45 @@ function findColumnContainingTask(columns, taskId) {
 }
 
 async function handleColumnUpdate(space, task, updates) {
-  if (updates.hasOwnProperty("columnChange")) {
-    var columns = space.get("columns");
+  if (updates.hasOwnProperty('columnChange')) {
+    var columns = space.get('columns');
 
     let sourceId;
-    if (task.get("columnId")) {
-      sourceId = task.get("columnId");
+    if (task.get('columnId')) {
+      sourceId = task.get('columnId');
     } else {
-      sourceId = findColumnContainingTask(columns, task.get("taskId"));
+      sourceId = findColumnContainingTask(columns, task.get('taskId'));
     }
 
     if (!sourceId) {
-      throw "Task does not belong to any column";
+      throw 'Task does not belong to any column';
     }
 
     const destinationId = updates.columnChange.destinationId;
     logger.info(
       `Handling column update for task ${space.id} ${task.get(
-        "taskId"
+        'taskId'
       )} ${sourceId} ${destinationId}`
     );
     const newSource = removeTaskFromColumn(
       columns[sourceId],
-      task.get("taskId")
+      task.get('taskId')
     );
     logger.info(`newSource: ${JSON.stringify(newSource)}`);
 
-  const destination = addTaskToColumn(
-    columns[destinationId],
-    task.get('taskId')
-  );
+    const destination = addTaskToColumn(
+      columns[destinationId],
+      task.get('taskId')
+    );
 
-  columns = {
-    ...columns,
-    [source.id]: source,
-    [destination.id]: destination,
-  };
-  space.set('columns', columns);
-  task.set('columnId', destinationId);
-
+    columns = {
+      ...columns,
+      [source.id]: source,
+      [destination.id]: destination,
+    };
+    space.set('columns', columns);
+    task.set('columnId', destinationId);
+  }
   return [space, task];
 }
 

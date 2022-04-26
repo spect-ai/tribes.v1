@@ -14,7 +14,7 @@ import { useCardContext } from '..';
 
 function ProposalsStewardView() {
   const { space, setSpace } = useSpace();
-  const { task, isLoading } = useCardContext();
+  const { task, loading } = useCardContext();
   const { updateStatusAndAssignee } = useCardUpdate();
 
   return (
@@ -33,7 +33,7 @@ function ProposalsStewardView() {
       )}
       {task.proposals?.map((proposal, index) => (
         <Box sx={{}} key={proposal.id}>
-          {!isLoading && (
+          {!loading && (
             <Box
               sx={{
                 width: '100%',
@@ -83,7 +83,7 @@ function ProposalsStewardView() {
                     }}
                     color="secondary"
                     size="small"
-                    loading={isLoading}
+                    loading={loading}
                     onClick={() => {
                       updateStatusAndAssignee(proposal.userId, 'proposalPick');
                     }}

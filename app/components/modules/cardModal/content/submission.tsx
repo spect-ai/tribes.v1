@@ -15,7 +15,7 @@ import useCardStatus from '../../../../hooks/useCardStatus';
 import { useCardContext } from '..';
 
 function Submission() {
-  const { task, isLoading } = useCardContext();
+  const { task, loading } = useCardContext();
 
   const { isCardSteward, isCardAssignee } = useAccess(task);
   const {
@@ -25,7 +25,7 @@ function Submission() {
     isClosed,
     isPaid,
     statusToCode,
-  } = useCardStatus(task);
+  } = useCardStatus();
   const { updateSubmission, updateStatus } = useCardUpdate();
 
   return (
@@ -89,7 +89,7 @@ function Submission() {
               }}
               color="secondary"
               size="small"
-              loading={isLoading}
+              loading={loading}
               onClick={() => updateStatus(statusToCode.inReview)}
               disabled={isInReview() || isPaid() || isClosed()}
               startIcon={<VisibilityIcon />}
@@ -132,7 +132,7 @@ function Submission() {
               }}
               color="secondary"
               size="small"
-              loading={isLoading}
+              loading={loading}
               onClick={() => updateStatus(statusToCode.closed)}
               startIcon={<DoneIcon />}
             >
@@ -149,7 +149,7 @@ function Submission() {
               }}
               color="secondary"
               size="small"
-              loading={isLoading}
+              loading={loading}
               onClick={() => updateStatus(statusToCode.inRevision)}
               startIcon={<StarHalfIcon />}
             >
