@@ -59,6 +59,7 @@ const SpacePage: NextPage<Props> = (props: Props) => {
     setIsLoading(true);
     if (!loading && bid) {
       runMoralisFunction("getSpace", { boardId: bid }).then((res) => {
+        console.log(res.members);
         console.log("Tasks: ", res.tasks);
         console.log("Member Details: ", res.memberDetails);
         setSpace(res);

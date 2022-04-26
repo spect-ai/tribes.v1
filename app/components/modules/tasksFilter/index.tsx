@@ -10,15 +10,38 @@ import {
 import LabelIcon from "@mui/icons-material/Label";
 import React, { useEffect, useState } from "react";
 import { CardButton, PrimaryButton } from "../../elements/styledComponents";
+import { useRouter } from "next/router";
 import { PopoverContainer } from "../cardModal/styles";
 import { useCardDynamism } from "../../../hooks/useCardDynamism";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 
+interface FilterProps {}
+
 const TasksFilter = () => {
+  const [space, setSpace] = useState([]);
   const [open, setOpen] = useState(false);
+  const [memberIds, setMemberIds] = useState([]);
+  const [memberDetails, setMemberDetails] = useState<any[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [reviewerFilter, setReviewerFilter] = useState([]);
+  const [assigneeFilter, setassigneeFilter] = useState([]);
+  const [labelsFilter, setLabelsFilter] = useState([]);
   const { runMoralisFunction } = useMoralisFunction();
+
+  const router = useRouter();
+  const { bid } = router.query;
+
+  useEffect(() => {
+    runMoralisFunction("getSpace", { boardId: bid }).then((res) => {
+      console.log("TaskFilter: Tasks: ", res.tasks);
+      console.log("TaskFilter: Members: ", res.members);
+      setMemberIds(res.members);
+      setMemberDetails(res.memberDetails);
+      console.log("TaskFilter: Member Details: ", res.memberDetails, memberIds);
+      setSpace(res);
+    });
+  }, []);
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -81,7 +104,7 @@ const TasksFilter = () => {
                   fontWeight: "100",
                 }}
               >
-                Select
+                Filter Options
               </Typography>
             </>
           </CardButton>
@@ -98,11 +121,13 @@ const TasksFilter = () => {
       >
         <PopoverContainer>
           <Autocomplete
-            options={["Reviewers", "Assignee", "Title"]}
+            options={memberIds}
             multiple
-            // value={labels}
+            getOptionLabel={(option) => memberDetails[option]["username"]}
+            // value={reviewerFilter}
             // onChange={(event, newValue) => {
-            //   setLabels(newValue as string[]);
+            //   setReviewerFilter(newValue as string[]);
+            //   console.log(reviewerFilter);
             // }}
             renderInput={(params) => (
               <TextField
@@ -116,11 +141,12 @@ const TasksFilter = () => {
           />
 
           <Autocomplete
-            options={["Reviewer", "Assignee", "Title"]}
+            options={memberIds}
             multiple
-            // value={labels}
-            // onChange={(event, newValue) => {
-            //   setLabels(newValue as string[]);
+            getOptionLabel={(option) => memberDetails[option]["username"]}
+            value={labelsFilter}
+            // onChange={(event: any, newValue: string | null) => {
+            //   setLabels(newValue);
             // }}
             renderInput={(params) => (
               <TextField
@@ -132,6 +158,7 @@ const TasksFilter = () => {
               />
             )}
           />
+
           <Autocomplete
             options={["Reviewer", "Assignee", "Title"]}
             multiple
@@ -151,9 +178,16 @@ const TasksFilter = () => {
           />
 
           <Autocomplete
-            options={["Reviewer", "Assignee", "Title"]}
+            options={[
+              "Design",
+              "Coding",
+              "Testing",
+              "Deployment",
+              "Documentation",
+              "POC",
+            ]}
             multiple
-            // value={labels}
+            value={labelsFilter}
             // onChange={(event, newValue) => {
             //   setLabels(newValue as string[]);
             // }}

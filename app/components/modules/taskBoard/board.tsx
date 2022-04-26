@@ -199,13 +199,14 @@ const Board = ({ expanded, handleChange }: Props) => {
               {space.columnOrder.map((columnId, index) => {
                 const column = space.columns[columnId];
                 console.log("Column: ", column);
-                // Filtering to happen here 
-
                 // Mapping happens here
                 const tasks = column.taskIds?.map(
                   (taskId) => space.tasks[taskId]
                 );
                 console.log("Tasks: ", tasks);
+
+                // Filtering to happen here
+
                 return (
                   <Column
                     key={columnId}
