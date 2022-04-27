@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useMoralis } from 'react-moralis';
-import { Task } from '../types';
 import useAccess from './useAccess';
 import useCardStatus from './useCardStatus';
+import { useCardContext } from '../components/modules/cardModal';
 
-export default function useCardDynamism(task: Task) {
+export default function useCardDynamism() {
   const { user } = useMoralis();
+  const { task, proposalEditMode } = useCardContext();
+
   const {
     isSpaceSteward,
     isCardSteward,
@@ -13,10 +15,9 @@ export default function useCardDynamism(task: Task) {
     isSpaceMember,
     isCardAssignee,
   } = useAccess(task);
-  const { isPaid, isUnassigned, hasNoReward } = useCardStatus(task);
+  const { isPaid, isUnassigned, hasNoReward } = useCardStatus();
   const [viewableComponents, setViewableComponents] = useState({} as any);
   const [editAbleComponents, setEditableComponents] = useState({} as any);
-  const [proposalEditMode, setProposalEditMode] = useState(false);
   const [tabs, setTabs] = useState([] as string[]);
   const [tabIdx, setTabIdx] = useState(0);
 
@@ -38,7 +39,6 @@ export default function useCardDynamism(task: Task) {
     if (task.token?.address === '0x0') return 'showPay';
     return 'showApprove';
   }
-
   const getReason = (field: string) => {
     if (isPaid()) {
       return 'Cannot edit, already paid for card';
@@ -61,7 +61,7 @@ export default function useCardDynamism(task: Task) {
     }
   };
 
-  const isDeadlineEditable = () => {
+  const isStakeholderAndUnpaid = () => {
     return isCardStakeholder() && !isPaid();
   };
 
@@ -167,10 +167,10 @@ export default function useCardDynamism(task: Task) {
       description: editable,
       label: editable,
       type: editable,
-      dueDate: isDeadlineEditable(),
+      dueDate: isStakeholderAndUnpaid(),
       reward: editable,
       reviewer: editable,
-      column: isDeadlineEditable(),
+      column: isStakeholderAndUnpaid(),
       assignee: isAssigneeEditable(),
     };
   };
@@ -189,8 +189,6 @@ export default function useCardDynamism(task: Task) {
     viewableComponents,
     editAbleComponents,
     getReason,
-    proposalEditMode,
-    setProposalEditMode,
     tabs,
     setTabs,
     handleTabChange,

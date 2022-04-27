@@ -1,53 +1,15 @@
 import HailIcon from '@mui/icons-material/Hail';
 import { Box, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useMoralis } from 'react-moralis';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
-import { Task } from '../../../../types';
-import { delay } from '../../../../utils/utils';
 import { CardButton } from '../../../elements/styledComponents';
-import { notify } from '../../settingsTab';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function AssignToMe({ task, setTask }: Props) {
-  const [isLoading, setIsLoading] = useState(false);
-  const { runMoralisFunction } = useMoralisFunction();
+function AssignToMe() {
   const { user } = useMoralis();
-  const { space, setSpace } = useSpace();
-  const { editAbleComponents, viewableComponents } = useCardDynamism(task);
-  const [buttonText, setButtonText] = useState('Assign me');
-
-  const handleSave = () => {
-    console.log('update');
-    setButtonText('Assigning...');
-    runMoralisFunction('updateCard', {
-      updates: {
-        status: 105,
-        assignee: user ? [user?.id] : [],
-        taskId: task.taskId,
-      },
-    })
-      .then((res: any) => {
-        setButtonText('Good luck!');
-        delay(1500).then(() => {
-          setSpace(res.space);
-          setTask(res.task);
-        });
-      })
-      .catch((err: any) => {
-        notify(`${err.message}`, 'error');
-      });
-  };
-
-  useEffect(() => {
-    setButtonText('Assign to me');
-  }, [task]);
+  const { viewableComponents } = useCardDynamism();
+  const { updateStatusAndAssignee } = useCardUpdate();
 
   if (viewableComponents.assignToMe) {
     return (
@@ -62,7 +24,9 @@ function AssignToMe({ task, setTask }: Props) {
         <CardButton
           data-testid="bAssignToMeButton"
           variant="outlined"
-          onClick={() => handleSave()}
+          onClick={() => {
+            if (user) updateStatusAndAssignee(user?.id, 'assignToMe');
+          }}
           color="secondary"
           sx={{
             padding: '2px',
@@ -77,7 +41,7 @@ function AssignToMe({ task, setTask }: Props) {
               mr: 2,
             }}
           >
-            {buttonText}
+            Assign me
           </Typography>
         </CardButton>
       </Box>

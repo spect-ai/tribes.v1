@@ -23,6 +23,7 @@ Moralis.Cloud.define('addTask', async (request) => {
         request.params.title,
         request.params.value,
         request.user.id,
+        request.params.reviewer,
         request.params.type
           ? request.params.type
           : columns[request.params.columnId].defaultCardType,
@@ -58,12 +59,13 @@ function handleCreateTask(
   boardId,
   title,
   value,
-  userId,
+  callerId,
+  reviewerId,
   cardType,
   columnId,
   tags,
   description,
-  assignee,
+  assigneeId,
   deadline
 ) {
   task.set('taskId', taskId);
@@ -78,9 +80,13 @@ function handleCreateTask(
   task.set('boardId', boardId);
   task.set('title', title);
   task.set('value', parseFloat(value));
-  task.set('creator', userId);
-  task.set('reviewer', [userId]);
-  assignee ? task.set('assignee', assignee) : task.set('assignee', []);
+  task.set('creator', callerId);
+  reviewerId && reviewerId !== ''
+    ? task.set('reviewer', [reviewerId])
+    : task.set('reviewer', []);
+  assigneeId && assigneeId !== ''
+    ? task.set('assignee', [assigneeId])
+    : task.set('assignee', []);
   task.set('status', 100);
   tags ? task.set('tags', tags) : task.set('tags', []);
   if (description) task.set('description', description);
@@ -91,7 +97,7 @@ function handleCreateTask(
   task.set('activity', [
     {
       action: 100,
-      actor: userId,
+      actor: callerId,
       timestamp: new Date(),
       taskType: cardType ? cardType : 'Task',
       changeLog: { prev: null, next: cardType ? cardType : 'Task' },

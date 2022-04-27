@@ -10,6 +10,7 @@ import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { BoardData, Column, Task } from '../../../types';
 import CardModal from '../cardModal';
+import CreateCard from '../cardModal/createCard';
 import ColumnSettings from '../columnSettings';
 import { notify } from '../settingsTab';
 import TaskContainer from '../task';
@@ -67,7 +68,7 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
   const { space, setSpace } = useSpace();
   const { bid } = router.query;
 
-  // const [showCreateTask, setShowCreateTask] = useState(false);
+  const [showCreateTask, setShowCreateTask] = useState(false);
   // const [showCreateGithubTask, setShowCreateGithubTask] = useState(false);
   const [isTaskOpen, setIsTaskOpen] = useState(false);
   const handleTaskClose = () => setIsTaskOpen(false);
@@ -88,6 +89,10 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
   };
   const open = Boolean(anchorEl);
   const { palette } = useTheme();
+
+  const handleCreateCardClose = () => {
+    setShowCreateTask(false);
+  };
 
   function updateColumn() {
     if (currentColumnTitle !== columnTitle) {
@@ -171,18 +176,19 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                           );
                           return;
                         }
+                        setShowCreateTask(true);
                         // setShowCreateTask(true);
-                        runMoralisFunction('addTask', {
-                          boardId: bid as string,
-                          columnId: id,
-                          title: '',
-                          value: 0,
-                        }).then((res: any) => {
-                          setSpace(res.space as BoardData);
-                          setTaskId(res.taskId);
-                          setIsTaskOpen(true);
-                          // setShowCreateTask(false);
-                        });
+                        // runMoralisFunction('addTask', {
+                        //   boardId: bid as string,
+                        //   columnId: id,
+                        //   title: '',
+                        //   value: 0,
+                        // }).then((res: any) => {
+                        //   setSpace(res.space as BoardData);
+                        //   setTaskId(res.taskId);
+                        //   setIsTaskOpen(true);
+                        //   // setShowCreateTask(false);
+                        // });
                       }}
                     >
                       <AddIcon fontSize="small" />
@@ -231,6 +237,11 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
           </Container>
         )}
       </Draggable>
+      <CreateCard
+        isOpen={showCreateTask}
+        handleClose={handleCreateCardClose}
+        column={column}
+      />
     </OuterContainer>
   );
 }

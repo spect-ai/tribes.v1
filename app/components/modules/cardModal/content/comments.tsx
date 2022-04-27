@@ -21,11 +21,7 @@ import { notify } from '../../settingsTab';
 import useProfileInfo from '../../../../hooks/useProfileInfo';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useCardStatus from '../../../../hooks/useCardStatus';
-
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
+import { useCardContext } from '..';
 
 function isInitComment(blocks: Block[]) {
   return (
@@ -38,8 +34,8 @@ function isInitComment(blocks: Block[]) {
   );
 }
 
-function Comments({ task, setTask }: Props) {
-  const [isLoading, setIsLoading] = useState(false);
+function Comments() {
+  const { task, setTask } = useCardContext();
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
   const { user } = useMoralis();
@@ -49,11 +45,12 @@ function Comments({ task, setTask }: Props) {
   const [openPopoverId, setOpenPopoverId] = useState('');
   const [mode, setMode] = useState('add');
   const [editId, setEditId] = useState('');
-  const { viewableComponents } = useCardDynamism(task);
-  const { hasNoComments } = useCardStatus(task);
+  const { viewableComponents } = useCardDynamism();
+  const { hasNoComments } = useCardStatus();
   const handleClose = () => {
     setOpen(false);
   };
+  const [loading, setLoading] = useState(false);
   const [commentOnEdit, setCommentOnEdit] = useState([
     {
       id: uid(),
@@ -86,8 +83,7 @@ function Comments({ task, setTask }: Props) {
     };
 
   const syncBlocksToMoralis = (blocks: Block[]) => {
-    setIsLoading(true);
-    console.log('update');
+    setLoading(true);
     runMoralisFunction('updateCard', {
       updates: {
         comments: {
@@ -115,11 +111,11 @@ function Comments({ task, setTask }: Props) {
             embedUrl: '',
           },
         ]);
-        setIsLoading(false);
+        setLoading(false);
       })
       .catch((err) => {
         notify(err.message, 'error');
-        setIsLoading(false);
+        setLoading(false);
       });
   };
 
@@ -132,8 +128,7 @@ function Comments({ task, setTask }: Props) {
   };
 
   const handleDelete = (id: string) => {
-    setIsLoading(true);
-    console.log('update');
+    setLoading(true);
     runMoralisFunction('updateCard', {
       updates: {
         comments: {
@@ -160,12 +155,12 @@ function Comments({ task, setTask }: Props) {
         ]);
         notify('Comment deleted', 'success');
         handleClose();
-        setIsLoading(false);
+        setLoading(false);
       })
       .catch((err) => {
         notify(err.message, 'error');
         handleClose();
-        setIsLoading(false);
+        setLoading(false);
       });
   };
 
@@ -185,7 +180,7 @@ function Comments({ task, setTask }: Props) {
         width: '45rem',
       }}
     >
-      {!isLoading &&
+      {!loading &&
         task.comments?.map((comment, index) => (
           // eslint-disable-next-line react/no-array-index-key
           <Box sx={{ borderBottom: 1 }} key={index}>
@@ -272,7 +267,7 @@ function Comments({ task, setTask }: Props) {
                   }}
                   color="secondary"
                   size="small"
-                  loading={isLoading}
+                  loading={loading}
                   onClick={() => {
                     syncBlocksToMoralis(commentOnEdit);
                   }}
@@ -290,7 +285,7 @@ function Comments({ task, setTask }: Props) {
                   }}
                   color="secondary"
                   size="small"
-                  loading={isLoading}
+                  loading={loading}
                   onClick={() => {
                     handleCancel();
                   }}
@@ -340,7 +335,7 @@ function Comments({ task, setTask }: Props) {
           </ListItemButton>
         </List>
       </Popover>
-      {mode !== 'edit' && !isLoading && viewableComponents.addComment && (
+      {mode !== 'edit' && !loading && viewableComponents.addComment && (
         <>
           <Box
             sx={{
@@ -377,7 +372,7 @@ function Comments({ task, setTask }: Props) {
             }}
             color="secondary"
             size="small"
-            loading={isLoading}
+            loading={loading}
             onClick={() => {
               syncBlocksToMoralis(commentOnEdit);
             }}
@@ -388,7 +383,7 @@ function Comments({ task, setTask }: Props) {
         </>
       )}
       {mode !== 'edit' &&
-        !isLoading &&
+        !loading &&
         !viewableComponents.addComment &&
         hasNoComments() && (
           <Typography

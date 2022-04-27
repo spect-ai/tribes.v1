@@ -15,22 +15,23 @@ import { Task } from '../../../../types';
 import { notify } from '../../settingsTab';
 import usePaymentGateway from '../../../../hooks/usePaymentGateway';
 import useERC20 from '../../../../hooks/useERC20';
-import useCard from '../../../../hooks/useCard';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
 type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
   handleClose: () => void;
 };
 
-function PayButton({ task, setTask, handleClose }: Props) {
+function PayButton({ handleClose }: Props) {
   const { user } = useMoralis();
-  const { viewableComponents } = useCardDynamism(task);
+  const { task, setTask } = useCardContext();
+
+  const { viewableComponents } = useCardDynamism();
   const [payButtonText, setPayButtonText] = useState(
     viewableComponents.pay === 'showPay' ? 'Pay' : 'Approve'
   );
   const { isCurrency } = useERC20();
-  const { updateStatusAndTransactionHash } = useCard(setTask, task);
+  const { updateStatusAndTransactionHash } = useCardUpdate();
 
   const { batchPay } = usePaymentGateway(updateStatusAndTransactionHash);
 

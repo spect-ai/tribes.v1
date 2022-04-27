@@ -209,7 +209,7 @@ function ColumnSettings({ isOpen, handleClose, column }: Props) {
                 color="error"
                 sx={{ width: '50%', mt: 2, mr: 4, borderRadius: 1 }}
                 onClick={() => {
-                  runMoralisFunction('deleteColumn', {
+                  runMoralisFunction('removeColumn', {
                     boardId: space.objectId,
                     columnId: column.id,
                   })

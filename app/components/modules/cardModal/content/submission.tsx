@@ -9,17 +9,14 @@ import { Block, Task } from '../../../../types';
 import { uid } from '../../../../utils/utils';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import Editor from '../../editor';
-import useCard from '../../../../hooks/useCard';
-import { notify } from '../../settingsTab';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
 import useAccess from '../../../../hooks/useAccess';
 import useCardStatus from '../../../../hooks/useCardStatus';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
+function Submission() {
+  const { task, loading } = useCardContext();
 
-function Submission({ task, setTask }: Props) {
   const { isCardSteward, isCardAssignee } = useAccess(task);
   const {
     isAssigned,
@@ -28,8 +25,8 @@ function Submission({ task, setTask }: Props) {
     isClosed,
     isPaid,
     statusToCode,
-  } = useCardStatus(task);
-  const { updateSubmission, updateStatus, isLoading } = useCard(setTask, task);
+  } = useCardStatus();
+  const { updateSubmission, updateStatus } = useCardUpdate();
 
   return (
     <Box sx={{ color: '#eaeaea', height: 'auto', mr: 3 }}>
@@ -92,7 +89,7 @@ function Submission({ task, setTask }: Props) {
               }}
               color="secondary"
               size="small"
-              loading={isLoading}
+              loading={loading}
               onClick={() => updateStatus(statusToCode.inReview)}
               disabled={isInReview() || isPaid() || isClosed()}
               startIcon={<VisibilityIcon />}
@@ -135,7 +132,7 @@ function Submission({ task, setTask }: Props) {
               }}
               color="secondary"
               size="small"
-              loading={isLoading}
+              loading={loading}
               onClick={() => updateStatus(statusToCode.closed)}
               startIcon={<DoneIcon />}
             >
@@ -152,7 +149,7 @@ function Submission({ task, setTask }: Props) {
               }}
               color="secondary"
               size="small"
-              loading={isLoading}
+              loading={loading}
               onClick={() => updateStatus(statusToCode.inRevision)}
               startIcon={<StarHalfIcon />}
             >

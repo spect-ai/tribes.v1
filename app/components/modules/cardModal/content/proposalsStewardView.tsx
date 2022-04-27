@@ -9,16 +9,13 @@ import React, { useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { Task } from '../../../../types';
 import { PrimaryButton } from '../../../elements/styledComponents';
-import useCard from '../../../../hooks/useCard';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function ProposalsStewardView({ task, setTask }: Props) {
+function ProposalsStewardView() {
   const { space, setSpace } = useSpace();
-  const { updateStatusAndAssignee, isLoading } = useCard(setTask, task);
+  const { task, loading } = useCardContext();
+  const { updateStatusAndAssignee } = useCardUpdate();
 
   return (
     <Box
@@ -36,7 +33,7 @@ function ProposalsStewardView({ task, setTask }: Props) {
       )}
       {task.proposals?.map((proposal, index) => (
         <Box sx={{}} key={proposal.id}>
-          {!isLoading && (
+          {!loading && (
             <Box
               sx={{
                 width: '100%',
@@ -86,13 +83,9 @@ function ProposalsStewardView({ task, setTask }: Props) {
                     }}
                     color="secondary"
                     size="small"
-                    loading={isLoading}
+                    loading={loading}
                     onClick={() => {
-                      updateStatusAndAssignee(
-                        proposal.id,
-                        index,
-                        proposal.userId
-                      );
+                      updateStatusAndAssignee(proposal.userId, 'proposalPick');
                     }}
                     disabled={task.assignee?.includes(proposal.userId)}
                   >

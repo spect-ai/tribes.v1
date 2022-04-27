@@ -86,7 +86,7 @@ export default function SpacePage() {
   return (
     <>
       <Head>
-        <title>Spect.Tribes</title>
+        <title>Spect Tribes</title>
         <meta name="description" content="Manage DAO with ease" />
         <link rel="icon" href="/logo2.svg" />
       </Head>
