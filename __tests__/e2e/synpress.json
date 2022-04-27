@@ -1,0 +1,22 @@
+{
+    "baseUrl": "http://localhost:3000",
+    "userAgent": "synpress",
+    "retries": { "runMode": 0, "openMode": 0 },
+    "projectId": "wmpzcx",
+    "integrationFolder": "__tests__/e2e/specs",
+    "screenshotsFolder": "__tests__/e2e/screenshots",
+    "videosFolder": "__tests__/e2e/videos",
+    "chromeWebSecurity": true,
+    "viewportWidth": 1366,
+    "viewportHeight": 768,
+    "component": {
+        "componentFolder": ".",
+        "testFiles": "**/*spec.{js,jsx,ts,tsx}"
+    },
+    "env": {
+        "coverage": false
+    },
+    "defaultCommandTimeout": 30000,
+    "pageLoadTimeout": 30000,
+    "requestTimeout": 30000
+}

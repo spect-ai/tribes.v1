@@ -6,7 +6,6 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { PopoverContainer } from '../styles';
 import useCardDynamism from '../../../../hooks/useCardDynamism';

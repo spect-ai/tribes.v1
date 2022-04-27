@@ -1,0 +1,128 @@
+{
+    "boards":[
+       {
+            "name":"Mock Space 1",
+          "columnOrder":[
+             "column-1",
+             "column-2",
+             "column-3"
+          ],
+          "columns":[
+             {
+                "id":"column-1",
+                "title":"To Do",
+                "taskIds":[
+                   
+                ]
+             },
+             {
+                "id":"column-2",
+                "title":"In Progress",
+                "taskIds":[
+                   
+                ]
+             },
+             {
+                "id":"column-3",
+                "title":"Done",
+                "taskIds":[
+                   
+                ]
+             }
+          ],
+          "defaultPayment":{
+             
+          },
+          "isPublic":true,
+          "members":[
+             "v6l5KlwBxEmfG6NcKD5zof7t",
+             "26crGEC76XeWT91jrknIwOCa",
+             "RzSE3arTOgWVYQ8VxOCHPOBa"
+          ],
+          "roles":{
+             
+          },
+          "teamId":"947b90a3-f66d-4023-8ec2-31dd2664892e",
+          "_id":"TI2k3PRCnGVuNPbIlh7GdC3v"
+       },
+       {
+        "name":"Mock Space 2",
+          "columnOrder":[
+             "column-1",
+             "column-2",
+             "column-3"
+          ],
+          "columns":[
+             {
+                "id":"column-1",
+                "title":"To Do",
+                "taskIds":[
+                   
+                ]
+             },
+             {
+                "id":"column-2",
+                "title":"In Progress",
+                "taskIds":[
+                   
+                ]
+             },
+             {
+                "id":"column-3",
+                "title":"Done",
+                "taskIds":[
+                   
+                ]
+             }
+          ],
+          "defaultPayment":{
+             
+          },
+          "isPublic":true,
+          "members":[
+             "v6l5KlwBxEmfG6NcKD5zof7t",
+             "26crGEC76XeWT91jrknIwOCa",
+             "RzSE3arTOgWVYQ8VxOCHPOBa"
+          ],
+          "roles":{
+             
+          },
+          "teamId":"947b90a3-f66d-4023-8ec2-31dd2664892e",
+          "_id":"sMh6i8evhskEQ22ug1zBN4kP"
+       }
+    ],
+    "createdAt":"2022-04-20T11:26:41.765Z",
+    "description":"Mock Tribe 1 Description",
+    "discord":null,
+    "github":null,
+    "guildId":"763392284028698667",
+    "isPublic":true,
+    "logo":"https://ipfs.moralis.io:2053/ipfs/QmRyStg2Xakzg53D1y4HtYKUUSEUQE2nwyRt1qnhYarhsM",
+    "memberDetails":{
+       "26crGEC76XeWT91jrknIwOCa":{
+          "username":"aurora"
+       },
+       "RzSE3arTOgWVYQ8VxOCHPOBa":{
+        "username":"account3"
+       },
+       "v6l5KlwBxEmfG6NcKD5zof7t":{
+          "username":"mockUser"
+       }
+    },
+    "members":[
+       "v6l5KlwBxEmfG6NcKD5zof7t",
+       "26crGEC76XeWT91jrknIwOCa",
+       "RzSE3arTOgWVYQ8VxOCHPOBa"
+    ],
+    "name":"Mock tribe 1",
+    "objectId":"nLgIDbi3KbXO9XjViRvpGJAu",
+    "roles":{
+       "v6l5KlwBxEmfG6NcKD5zof7t":3,
+       "26crGEC76XeWT91jrknIwOCa":2,
+       "RzSE3arTOgWVYQ8VxOCHPOBa":1
+    },
+    "teamId":"947b90a3-f66d-4023-8ec2-31dd2664892e",
+    "theme":0,
+    "twitter":null,
+    "updatedAt":"2022-04-21T18:28:07.656Z"
+ }

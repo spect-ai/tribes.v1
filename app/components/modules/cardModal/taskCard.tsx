@@ -4,7 +4,6 @@ import { Box, IconButton, InputBase } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useCardDynamism from '../../../hooks/useCardDynamism';
-import { Task } from '../../../types';
 import { uid } from '../../../utils/utils';
 import Editor from '../editor';
 import AssignToMe from './buttons/assignToMe';
@@ -44,8 +43,7 @@ function TaskCard({ handleClose }: Props) {
   const { editAbleComponents, viewableComponents } = useCardDynamism();
   const { updateTitle, updateDescription } = useCardUpdate();
   const [readOnlyDescription, setReadOnlyDescription] = useState(false);
-  const { title, setTitle } = useCardContext();
-  const { task, setTask } = useCardContext();
+  const { title, setTitle, task, setTask } = useCardContext();
 
   useEffect(() => {
     setReadOnlyDescription(!editAbleComponents.description);
@@ -70,7 +68,11 @@ function TaskCard({ handleClose }: Props) {
         <AssignToMe />
 
         {viewableComponents.optionPopover && <OptionsPopover />}
-        <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
+        <IconButton
+          data-testid="bCloseButton"
+          sx={{ m: 0, px: 2 }}
+          onClick={handleClose}
+        >
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>

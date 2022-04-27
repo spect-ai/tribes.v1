@@ -78,7 +78,6 @@ function PaymentModal() {
   };
   const handleNextStep = (newPaymentInfo: PaymentInfo) => {
     const info: PaymentInfo = newPaymentInfo || paymentInfo;
-    console.log(info);
     if (activeStep === 0) {
       if (info.approval?.required) {
         setActiveStep(1);
@@ -123,6 +122,7 @@ function PaymentModal() {
   return (
     <>
       <SidebarButton
+        data-testid="bBatchPayButton"
         palette={palette}
         selected={isOpen}
         onClick={() => {
