@@ -10,10 +10,13 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install dependencies
         run: yarn install
+
       - name: Run unit tests
         run: yarn unit-test-ci
+
       - name: Run e2e test
         run: yarn e2e-ci
+        env:
           # pass GitHub token to allow accurately detecting a build vs a re-run build
           # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           MORALIS_APPLICATION_ID: ${{ secrets.MORALIS_APPLICATION_ID }}
