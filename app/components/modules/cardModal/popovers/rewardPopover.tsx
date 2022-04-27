@@ -41,7 +41,7 @@ function RewardPopover() {
     anchorEl,
   } = useCardContext();
   const { updateReward } = useCardUpdate();
-  const { getReason, editAbleComponents } = useCardDynamism();
+  const { getReason, isCardStewardAndUnpaidCardStatus } = useCardDynamism();
 
   return (
     <>
@@ -107,12 +107,12 @@ function RewardPopover() {
           horizontal: 'left',
         }}
       >
-        {!editAbleComponents.reward && (
+        {!isCardStewardAndUnpaidCardStatus() && (
           <PopoverContainer>
             <Typography variant="body2">{getReason('reward')}</Typography>
           </PopoverContainer>
         )}
-        {editAbleComponents.reward && (
+        {isCardStewardAndUnpaidCardStatus() && (
           <PopoverContainer>
             <Autocomplete
               options={getFlattenedNetworks(registry as Registry)}

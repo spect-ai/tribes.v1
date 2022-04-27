@@ -9,7 +9,7 @@ import { useCardContext } from '..';
 
 function Apply() {
   const { task, setTask, setProposalEditMode } = useCardContext();
-  const { viewableComponents } = useCardDynamism();
+  const { isApplyButtonViewable } = useCardDynamism();
   const { user } = useMoralis();
   const handleClick = () => {
     const temp = { ...task };
@@ -27,7 +27,7 @@ function Apply() {
     setProposalEditMode(true);
   };
 
-  if (viewableComponents.applyButton) {
+  if (isApplyButtonViewable()) {
     return (
       <Box
         sx={{

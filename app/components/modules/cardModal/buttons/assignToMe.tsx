@@ -8,10 +8,10 @@ import useCardUpdate from '../../../../hooks/useCardUpdate';
 
 function AssignToMe() {
   const { user } = useMoralis();
-  const { viewableComponents } = useCardDynamism();
+  const { isAssignToMeViewable } = useCardDynamism();
   const { updateStatusAndAssignee } = useCardUpdate();
 
-  if (viewableComponents.assignToMe) {
+  if (isAssignToMeViewable()) {
     return (
       <Box
         sx={{

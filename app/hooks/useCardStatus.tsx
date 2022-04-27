@@ -1,4 +1,3 @@
-import { Task } from '../types';
 import { useCardContext } from '../components/modules/cardModal';
 
 export default function useCardStatus() {
@@ -35,6 +34,14 @@ export default function useCardStatus() {
     return !task.assignee || task.assignee?.length === 0;
   };
 
+  const hasAssignee = () => {
+    return task.assignee?.length > 0;
+  };
+
+  const hasProposals = () => {
+    return task.proposals?.length > 0;
+  };
+
   const isInReview = () => {
     return task.status === 200;
   };
@@ -63,6 +70,14 @@ export default function useCardStatus() {
     return !task.comments || task.comments?.length === 0;
   };
 
+  const isTask = () => {
+    return task.type === 'Task';
+  };
+
+  const isBounty = () => {
+    return task.type === 'Bounty';
+  };
+
   return {
     isCreated,
     isInReview,
@@ -76,5 +91,9 @@ export default function useCardStatus() {
     hasNoComments,
     codeToStatus,
     statusToCode,
+    hasAssignee,
+    isTask,
+    isBounty,
+    hasProposals,
   };
 }

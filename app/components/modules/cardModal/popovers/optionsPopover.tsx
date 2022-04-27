@@ -15,7 +15,7 @@ import React, { useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import PayButton from '../buttons/payButton';
-import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useAccess from '../../../../hooks/useAccess';
 import useCardStatus from '../../../../hooks/useCardStatus';
 import { notify } from '../../settingsTab';
 import useCardUpdate from '../../../../hooks/useCardUpdate';
@@ -27,12 +27,12 @@ function OptionsPopover() {
     setOpen(false);
   };
   const { task, setTask, openPopover, anchorEl } = useCardContext();
-  const { viewableComponents } = useCardDynamism();
   const { runMoralisFunction } = useMoralisFunction();
-  const { space, setSpace } = useSpace();
+  const { setSpace } = useSpace();
   const { updateStatus } = useCardUpdate();
   const { statusToCode } = useCardStatus();
 
+  const { isSpaceSteward } = useAccess(task);
   const duplicateCard = () => {
     handleClose();
     runMoralisFunction('addTask', {
@@ -95,26 +95,13 @@ function OptionsPopover() {
           </ListItemButton>
           <PayButton handleClose={handleClose} />
 
-          {viewableComponents.proposalGate && (
-            <ListItemButton>
-              <VideoStableIcon sx={{ width: '2rem', mr: 2 }} />
-              <ListItemText primary="Gate Proposals" />
-            </ListItemButton>
-          )}
-          {viewableComponents.submissionGate && (
-            <ListItemButton>
-              <ViewCompactAltIcon sx={{ width: '2rem', mr: 2 }} />
-              <ListItemText primary="Gate Submissions" />
-            </ListItemButton>
-          )}
-
-          {viewableComponents.duplicate && (
+          {isSpaceSteward() && (
             <ListItemButton onClick={duplicateCard}>
               <ContentCopyIcon sx={{ width: '2rem', mr: 2 }} />
               <ListItemText primary="Duplicate" />
             </ListItemButton>
           )}
-          {viewableComponents.archive && (
+          {isSpaceSteward() && (
             <ListItemButton
               onClick={() => {
                 updateStatus(statusToCode.archived);

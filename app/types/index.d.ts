@@ -111,7 +111,7 @@ export interface Task {
     link: string;
     name: string;
   };
-  deadline: Date;
+  deadline: Date | null;
   tags: string[];
   assignee: Array<string>;
   reviewer: Array<string>;

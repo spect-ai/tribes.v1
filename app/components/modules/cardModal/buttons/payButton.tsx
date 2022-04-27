@@ -2,21 +2,13 @@ import PaidIcon from '@mui/icons-material/Paid';
 import { ListItemButton, ListItemText } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import {
-  approve,
-  batchPayTokens,
-  distributeEther,
-} from '../../../../adapters/contract';
-import { useGlobal } from '../../../../context/globalContext';
-import useCardDynamism from '../../../../hooks/useCardDynamism';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
-import { Task } from '../../../../types';
-import { notify } from '../../settingsTab';
-import usePaymentGateway from '../../../../hooks/usePaymentGateway';
-import useERC20 from '../../../../hooks/useERC20';
-import useCardUpdate from '../../../../hooks/useCardUpdate';
 import { useCardContext } from '..';
+import { approve } from '../../../../adapters/contract';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import useERC20 from '../../../../hooks/useERC20';
+import usePaymentGateway from '../../../../hooks/usePaymentGateway';
+import { notify } from '../../settingsTab';
 
 type Props = {
   handleClose: () => void;
@@ -26,9 +18,9 @@ function PayButton({ handleClose }: Props) {
   const { user } = useMoralis();
   const { task, setTask } = useCardContext();
 
-  const { viewableComponents } = useCardDynamism();
+  const { payButtonView } = useCardDynamism();
   const [payButtonText, setPayButtonText] = useState(
-    viewableComponents.pay === 'showPay' ? 'Pay' : 'Approve'
+    payButtonView === 'showPay' ? 'Pay' : 'Approve'
   );
   const { isCurrency } = useERC20();
   const { updateStatusAndTransactionHash } = useCardUpdate();
@@ -44,7 +36,7 @@ function PayButton({ handleClose }: Props) {
   };
 
   const handleClick = () => {
-    if (viewableComponents.pay === 'showPay') {
+    if (payButtonView === 'showPay') {
       setPayButtonText('Paying...');
       batchPay(window.ethereum.networkVersion, {
         cardIds: [task.taskId],
@@ -53,7 +45,7 @@ function PayButton({ handleClose }: Props) {
         tokenAddresses: [task.token.address],
         tokenValues: [task.value],
       });
-    } else if (viewableComponents.pay === 'showApprove') {
+    } else if (payButtonView === 'showApprove') {
       if (task.chain?.chainId !== window.ethereum.networkVersion) {
         handlePaymentError({});
       } else {
@@ -92,10 +84,10 @@ function PayButton({ handleClose }: Props) {
   };
 
   useEffect(() => {
-    setPayButtonText(viewableComponents.pay === 'showPay' ? 'Pay' : 'Approve');
-  }, [viewableComponents?.pay]);
+    setPayButtonText(payButtonView === 'showPay' ? 'Pay' : 'Approve');
+  }, [payButtonView]);
 
-  if (viewableComponents.pay !== 'hide') {
+  if (payButtonView !== 'hide') {
     return (
       <ListItemButton
         onClick={() => {

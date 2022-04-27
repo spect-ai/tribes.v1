@@ -1,8 +1,11 @@
 import DateRangeIcon from '@mui/icons-material/DateRange';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { isValid } from 'date-fns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { Avatar, Box, Popover, TextField, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { monthMap } from '../../../../constants';
-import { Task } from '../../../../types';
 import { formatTime } from '../../../../utils/utils';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { PopoverContainer } from '../styles';
@@ -22,9 +25,14 @@ function DatePopover() {
     closePopover,
     anchorEl,
   } = useCardContext();
-  const { getReason, editAbleComponents } = useCardDynamism();
+  const { getReason, isStakeholderAndStatusUnpaid } = useCardDynamism();
   const { updateDate } = useCardUpdate();
-
+  const handleChange = (newValue: Date | null) => {
+    console.log(newValue);
+    if (isValid(newValue)) {
+      if (newValue) setDate(newValue?.toISOString());
+    }
+  };
   return (
     <>
       <Box
@@ -91,37 +99,49 @@ function DatePopover() {
           horizontal: 'left',
         }}
       >
-        {!editAbleComponents.dueDate && (
+        {!isStakeholderAndStatusUnpaid() && (
           <PopoverContainer>
             <Typography variant="body2">{getReason('dueDate')}</Typography>
           </PopoverContainer>
         )}
-        {editAbleComponents.dueDate && (
+        {isStakeholderAndStatusUnpaid() && (
           <PopoverContainer>
-            <TextField
-              id="datetime-local"
-              label="Due Date"
-              type="datetime-local"
-              InputLabelProps={{
-                shrink: true,
-              }}
-              value={date}
-              onChange={(e) => {
-                setDate(e.target.value);
-              }}
-              fullWidth
-            />
-            <PrimaryButton
-              variant="outlined"
-              sx={{ mt: 4, borderRadius: 1 }}
-              loading={loading}
-              color="secondary"
-              onClick={() => {
-                updateDate(setOpen);
-              }}
-            >
-              Save
-            </PrimaryButton>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DateTimePicker
+                label="Due Date"
+                value={date}
+                onChange={handleChange}
+                renderInput={(params) => (
+                  <TextField {...params} required={false} />
+                )}
+                clearable
+                clearText="Clear"
+              />
+            </LocalizationProvider>
+            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+              <PrimaryButton
+                variant="outlined"
+                sx={{ mt: 4, borderRadius: 1, width: '50%' }}
+                loading={loading}
+                color="secondary"
+                onClick={() => {
+                  updateDate(setOpen);
+                }}
+              >
+                Save
+              </PrimaryButton>
+              <PrimaryButton
+                variant="outlined"
+                sx={{ mt: 4, ml: 2, borderRadius: 1, width: '50%' }}
+                loading={loading}
+                color="secondary"
+                onClick={() => {
+                  setDate(null);
+                }}
+              >
+                Clear
+              </PrimaryButton>
+            </Box>
           </PopoverContainer>
         )}
       </Popover>

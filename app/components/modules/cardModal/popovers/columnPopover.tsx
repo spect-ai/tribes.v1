@@ -27,7 +27,7 @@ function ColumnPopover() {
     closePopover,
     anchorEl,
   } = useCardContext();
-  const { editAbleComponents } = useCardDynamism();
+  const { isStakeholderAndStatusUnpaid } = useCardDynamism();
 
   return (
     <>
@@ -69,7 +69,7 @@ function ColumnPopover() {
           horizontal: 'left',
         }}
       >
-        {!editAbleComponents.column && (
+        {!isStakeholderAndStatusUnpaid() && (
           <PopoverContainer>
             <Typography variant="body2">
               Only card reviewer, assignee or creator and space steward can
@@ -77,7 +77,7 @@ function ColumnPopover() {
             </Typography>
           </PopoverContainer>
         )}
-        {editAbleComponents.column && (
+        {isStakeholderAndStatusUnpaid() && (
           <PopoverContainer>
             <Autocomplete
               options={space.columnOrder}

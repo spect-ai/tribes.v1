@@ -50,8 +50,8 @@ interface CardContextType {
   setProposalOnEdit: (data: string) => void;
   type: string;
   setType: (data: string) => void;
-  date: string;
-  setDate: (data: string) => void;
+  date: string | null;
+  setDate: (data: string | null) => void;
   loading: boolean;
   setLoading: (data: boolean) => void;
   proposalEditMode: boolean;

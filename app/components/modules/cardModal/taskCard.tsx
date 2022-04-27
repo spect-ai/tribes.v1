@@ -4,6 +4,7 @@ import { Box, IconButton, InputBase } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useCardDynamism from '../../../hooks/useCardDynamism';
+import useAccess from '../../../hooks/useAccess';
 import { Task } from '../../../types';
 import { uid } from '../../../utils/utils';
 import Editor from '../editor';
@@ -40,16 +41,14 @@ const Container = styled.div`
 `;
 
 function TaskCard({ handleClose }: Props) {
-  const { space, setSpace } = useSpace();
-  const { editAbleComponents, viewableComponents } = useCardDynamism();
+  const { isCardStewardAndUnpaidCardStatus } = useCardDynamism();
   const { updateTitle, updateDescription } = useCardUpdate();
   const [readOnlyDescription, setReadOnlyDescription] = useState(false);
-  const { title, setTitle } = useCardContext();
-  const { task, setTask } = useCardContext();
-
+  const { title, setTitle, task } = useCardContext();
+  const { isSpaceSteward, isCardStakeholder } = useAccess(task);
   useEffect(() => {
-    setReadOnlyDescription(!editAbleComponents.description);
-  }, [editAbleComponents.description]);
+    setReadOnlyDescription(!isCardStewardAndUnpaidCardStatus());
+  }, [isCardStewardAndUnpaidCardStatus()]);
 
   return (
     <Container>
@@ -69,7 +68,7 @@ function TaskCard({ handleClose }: Props) {
         <Box sx={{ flex: '1 1 auto' }} />
         <AssignToMe />
 
-        {viewableComponents.optionPopover && <OptionsPopover />}
+        {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
           <CloseIcon />
         </IconButton>
@@ -105,7 +104,7 @@ function TaskCard({ handleClose }: Props) {
                 ]
           }
           placeholderText={
-            editAbleComponents.description
+            isCardStewardAndUnpaidCardStatus()
               ? `Add details, press "/" for commands`
               : `No details provided yet`
           }

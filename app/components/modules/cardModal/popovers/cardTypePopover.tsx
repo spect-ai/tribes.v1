@@ -26,7 +26,7 @@ function CardTypePopover() {
     closePopover,
   } = useCardContext();
 
-  const { getReason, editAbleComponents } = useCardDynamism();
+  const { getReason, isCardStewardAndUnpaidCardStatus } = useCardDynamism();
   const { updateType } = useCardUpdate();
   return (
     <>
@@ -66,12 +66,12 @@ function CardTypePopover() {
           horizontal: 'left',
         }}
       >
-        {!editAbleComponents.type && (
+        {!isCardStewardAndUnpaidCardStatus() && (
           <PopoverContainer>
             <Typography variant="body2">{getReason('type')}</Typography>
           </PopoverContainer>
         )}
-        {editAbleComponents.type && (
+        {isCardStewardAndUnpaidCardStatus() && (
           <PopoverContainer>
             <Autocomplete
               options={['Task', 'Bounty']} // Get options from members

@@ -92,7 +92,6 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
   const { getAvatar } = useProfileInfo();
 
   const confirmClose = () => {
-    console.log('confirm close');
     setConfirmOpen(false);
   };
 

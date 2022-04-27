@@ -500,7 +500,8 @@ function handleEasyFieldUpdates(task, updates, fields) {
 function handleDateUpdates(task, updates, fields) {
   for (const [key, value] of Object.entries(updates)) {
     if (fields.includes(key)) {
-      task.set(key, new Date(value));
+      if (value) task.set(key, new Date(value));
+      else task.set(key, null);
     }
   }
   return task;

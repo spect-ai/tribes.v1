@@ -60,7 +60,7 @@ export default function useCardUpdate() {
     else if (key === 'reviewer') newTask.reviewer = [val];
     else if (key === 'assignee') newTask.assignee = [val];
     else if (key === 'type') newTask.type = val;
-    else if (key === 'deadline') newTask.deadline = new Date(val);
+    else if (key === 'deadline') newTask.deadline = val ? new Date(val) : null;
     else if (key === 'proposals')
       newTask.proposals = [
         {
@@ -254,10 +254,12 @@ export default function useCardUpdate() {
 
   const updateDate = (setOpen: Function) => {
     closePopover(setOpen);
+    console.log(`date`);
+    console.log(date);
     executeCardUpdates(
       {
         updates: {
-          deadline: new Date(date).toUTCString(),
+          deadline: date ? new Date(date).toUTCString() : null,
           taskId: task.taskId,
         },
       },
