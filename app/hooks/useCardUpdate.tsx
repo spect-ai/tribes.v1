@@ -254,12 +254,24 @@ export default function useCardUpdate() {
 
   const updateDate = (setOpen: Function) => {
     closePopover(setOpen);
-    console.log(`date`);
-    console.log(date);
     executeCardUpdates(
       {
         updates: {
           deadline: date ? new Date(date).toUTCString() : null,
+          taskId: task.taskId,
+        },
+      },
+      'deadline',
+      true
+    );
+  };
+
+  const clearDeadline = (setOpen: Function) => {
+    closePopover(setOpen);
+    executeCardUpdates(
+      {
+        updates: {
+          deadline: null,
           taskId: task.taskId,
         },
       },
@@ -327,6 +339,7 @@ export default function useCardUpdate() {
     updateStatus,
     updateType,
     updateDate,
+    clearDeadline,
     updateStatusAndAssignee,
     updateStatusAndTransactionHash,
     updateMember,

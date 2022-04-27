@@ -26,7 +26,7 @@ function DatePopover() {
     anchorEl,
   } = useCardContext();
   const { getReason, isStakeholderAndStatusUnpaid } = useCardDynamism();
-  const { updateDate } = useCardUpdate();
+  const { updateDate, clearDeadline } = useCardUpdate();
   const handleChange = (newValue: Date | null) => {
     console.log(newValue);
     if (isValid(newValue)) {
@@ -111,17 +111,36 @@ function DatePopover() {
                 label="Due Date"
                 value={date}
                 onChange={handleChange}
+                PopperProps={{ placement: 'right-start' }}
                 renderInput={(params) => (
                   <TextField {...params} required={false} />
                 )}
                 clearable
-                clearText="Clear"
               />
             </LocalizationProvider>
             <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+              {date && (
+                <PrimaryButton
+                  variant="outlined"
+                  sx={{ mt: 4, borderRadius: 1, width: '50%' }}
+                  loading={loading}
+                  color="secondary"
+                  onClick={() => {
+                    setDate(null);
+                    clearDeadline(setOpen);
+                  }}
+                >
+                  Clear
+                </PrimaryButton>
+              )}
               <PrimaryButton
                 variant="outlined"
-                sx={{ mt: 4, borderRadius: 1, width: '50%' }}
+                sx={{
+                  mt: 4,
+                  ml: 2,
+                  borderRadius: 1,
+                  width: date ? '50%' : '100%',
+                }}
                 loading={loading}
                 color="secondary"
                 onClick={() => {
@@ -129,17 +148,6 @@ function DatePopover() {
                 }}
               >
                 Save
-              </PrimaryButton>
-              <PrimaryButton
-                variant="outlined"
-                sx={{ mt: 4, ml: 2, borderRadius: 1, width: '50%' }}
-                loading={loading}
-                color="secondary"
-                onClick={() => {
-                  setDate(null);
-                }}
-              >
-                Clear
               </PrimaryButton>
             </Box>
           </PopoverContainer>
