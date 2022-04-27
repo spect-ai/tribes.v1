@@ -47,7 +47,6 @@ const DescriptionContainer = styled.div`
 
 function Overview() {
   const { tribe } = useTribe();
-  console.log({ tribe });
   return (
     <Wrapper data-testid="overviewContainer">
       <Grid container>

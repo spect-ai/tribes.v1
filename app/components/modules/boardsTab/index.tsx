@@ -58,7 +58,6 @@ function Board(props: Props) {
     setDiscordModalOpen(false);
   };
   const handleClose = () => setIsOpen(false);
-  console.log({ user });
   return (
     <Container>
       <DiscordIntegrationModal
