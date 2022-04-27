@@ -10,9 +10,10 @@
     "eslint": "eslint . --ext .tsx --quiet",
     "eslint:fix": "eslint . --ext .tsx --fix",
     "prepare": "husky install",
-    "test": "jest --watch",
+    "test": "jest --watch ./__tests__/specs",
     "integration": "synpress run --configFile ./__tests__/e2e/synpress.json",
-    "ci": "start-server-and-test dev http://localhost:3000 integration"
+    "ci": "start-server-and-test dev http://localhost:3000 integration",
+    "coverage": "jest --collectCoverage --"
   },
   "engines": {
     "node": ">=14.0.0",

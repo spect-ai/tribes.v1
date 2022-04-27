@@ -1,0 +1,14 @@
+name: Spect Tribes CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      -name: Run unit tests
+      run: yarn test
