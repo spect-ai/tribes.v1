@@ -40,6 +40,8 @@ describe('Metamask', () => {
       cy.contains('e2e_space_1', { timeout: 10000 }).click();
       cy.get('[data-testid=addTask-column-0]').click();
       cy.get('[data-testid=iTaskTitle]').type('e2e_task_1');
+      cy.get('[data-testid=bCreateTask').click();
+      cy.contains('e2e_task_1').click();
       cy.get('[data-testid=bRewardButton').click();
       cy.get('[data-testid=aRewardChain]')
         .type('mumbai')
@@ -104,8 +106,8 @@ describe('Metamask', () => {
       cy.confirmMetamaskTransaction().then((confirmed) => {
         expect(confirmed).to.be.true;
       });
-      cy.wait(10000);
-      cy.contains('e2e_task_1').click();
+      cy.wait(1000);
+      cy.contains('e2e_task_1', { timeout: 60000 }).click();
       cy.get('[data-testid=bCardOptionsButton').click();
       cy.get('[data-testid=bArchiveCardButton').click();
       cy.wait(1000);

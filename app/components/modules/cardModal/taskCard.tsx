@@ -53,7 +53,6 @@ function TaskCard({ handleClose }: Props) {
     <Container>
       <TaskModalTitleContainer>
         <InputBase
-          data-testid="iTaskTitle"
           placeholder="Add Card Title..."
           sx={{
             fontSize: '20px',
@@ -69,7 +68,11 @@ function TaskCard({ handleClose }: Props) {
         <AssignToMe />
 
         {viewableComponents.optionPopover && <OptionsPopover />}
-        <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
+        <IconButton
+          data-testid="bCloseButton"
+          sx={{ m: 0, px: 2 }}
+          onClick={handleClose}
+        >
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>

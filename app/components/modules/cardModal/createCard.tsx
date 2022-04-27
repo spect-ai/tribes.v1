@@ -139,6 +139,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
             <Container>
               <TaskModalTitleContainer>
                 <InputBase
+                  data-testid="iTaskTitle"
                   placeholder="Add Card Title..."
                   sx={{
                     fontSize: '20px',
@@ -354,6 +355,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                   }}
                 >
                   <CardButton
+                    data-testid="bCreateTask"
                     variant="outlined"
                     onClick={() =>
                       createCard(

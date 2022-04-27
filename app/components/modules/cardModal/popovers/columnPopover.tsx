@@ -81,6 +81,7 @@ function ColumnPopover() {
         {editAbleComponents.column && (
           <PopoverContainer>
             <Autocomplete
+              data-testid="aColumnPicker"
               options={space.columnOrder}
               value={col}
               getOptionLabel={(option) => space.columns[option].title}
@@ -100,6 +101,7 @@ function ColumnPopover() {
               )}
             />
             <PrimaryButton
+              data-testid="bColumnSave"
               variant="outlined"
               color="secondary"
               sx={{ mt: 4, borderRadius: 1 }}

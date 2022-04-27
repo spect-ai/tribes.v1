@@ -12,7 +12,7 @@
     "prepare": "husky install",
     "test": "jest --watch ./__tests__/specs",
     "unit-test-ci": "jest ./__tests__/specs",
-    "integration": "synpress run --configFile ./__tests__/e2e/synpress.json",
+    "integration": "synpress run --configFile ./__tests__/e2e/synpress.json --record --key a34ad347-df93-4b2e-820e-3cedbedbd35c",
     "e2e-ci": "start-server-and-test dev http://localhost:3000 integration",
     "coverage": "jest --collectCoverage --"
   },

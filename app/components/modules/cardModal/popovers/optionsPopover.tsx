@@ -60,7 +60,11 @@ function OptionsPopover() {
 
   return (
     <>
-      <IconButton sx={{ m: 0, px: 2 }} onClick={openPopover(setOpen)}>
+      <IconButton
+        data-testid="bCardOptionsButton"
+        sx={{ m: 0, px: 2 }}
+        onClick={openPopover(setOpen)}
+      >
         <MoreHorizIcon />
       </IconButton>
       <Popover
