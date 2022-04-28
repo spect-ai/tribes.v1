@@ -71,11 +71,11 @@ export default function useCardDynamism() {
   };
 
   const isStakeholderAndStatusUnpaid = () => {
-    return isCardStakeholder() && !isPaid();
+    return (isCardStakeholder() && !isPaid()) as boolean;
   };
 
   const isCardStewardAndUnpaidCardStatus = () => {
-    return isCardSteward() && !isPaid();
+    return (isCardSteward() && !isPaid()) as boolean;
   };
 
   const isAssigneeEditable = () => {
@@ -90,7 +90,7 @@ export default function useCardDynamism() {
     if (hasAssignee()) {
       return true;
     }
-    return isCardSteward();
+    return isCardSteward() as boolean;
   };
 
   const isAssignToMeViewable = () => {

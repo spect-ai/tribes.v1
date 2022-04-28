@@ -35,7 +35,7 @@ export default function usePaymentGateway(
   }
 
   async function executeBatchPay(
-    type: 'tokens' | 'currency',
+    type: string,
     chainId: string,
     userAddresses: string[],
     amounts: number[],

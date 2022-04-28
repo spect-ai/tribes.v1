@@ -324,7 +324,7 @@ export type DistributionInfo = {
 };
 
 export type PaymentInfo = {
-  approval?: ApprovalInfo;
-  tokens?: DistributionInfo;
-  currency?: DistributionInfo;
+  approval: ApprovalInfo;
+  tokens: DistributionInfo;
+  currency: DistributionInfo;
 };

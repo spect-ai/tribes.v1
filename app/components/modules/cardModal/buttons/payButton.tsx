@@ -73,6 +73,18 @@ function PayButton({ handleClose }: Props) {
           tokenAddresses: [task.token.address],
           tokenValues: [task.value],
         } as DistributionInfo,
+        tokens: {
+          cardIds: [] as string[],
+          type: 'tokens',
+          contributors: [] as string[],
+          tokenAddresses: [] as string[],
+          tokenValues: [] as number[],
+        } as DistributionInfo,
+        approval: {
+          required: false,
+          uniqueTokenAddresses: [] as string[],
+          aggregatedTokenValues: [] as number[],
+        } as ApprovalInfo,
       };
       setActiveStep(2);
       setPaymentInfo(info);
@@ -103,6 +115,13 @@ function PayButton({ handleClose }: Props) {
             contributors: task.assignee,
             tokenAddresses: [task.token.address],
             tokenValues: [task.value],
+          } as DistributionInfo,
+          currency: {
+            cardIds: [] as string[],
+            type: 'currency',
+            contributors: [] as string[],
+            tokenAddresses: [] as string[],
+            tokenValues: [] as number[],
           } as DistributionInfo,
         };
         setPaymentInfo(info);
