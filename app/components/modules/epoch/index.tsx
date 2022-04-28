@@ -14,6 +14,7 @@ import React, { useEffect, useState } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
+import { Archive } from '@mui/icons-material';
 import { useMoralis } from 'react-moralis';
 import { useRouter } from 'next/router';
 import { Toaster } from 'react-hot-toast';
@@ -200,6 +201,7 @@ function EpochList() {
             {(Object.keys(epoch.memberStats).includes(user?.id as string) ||
               space.roles[user?.id as string] === 3) && (
               <Accordion
+                data-testid="aFirstEpoch"
                 disableGutters
                 key={epoch.objectId}
                 sx={{ border: '2px solid #00194A' }}
@@ -359,6 +361,7 @@ function EpochList() {
                               )}
                               {space.roles[user?.id as string] === 3 && (
                                 <PrimaryButton
+                                  data-testid="bEndEpoch"
                                   endIcon={<CloseIcon />}
                                   variant="outlined"
                                   size="small"
@@ -387,6 +390,7 @@ function EpochList() {
                                   End Epoch
                                 </PrimaryButton>
                               )}
+
                               {/* )} */}
                             </ButtonContainer>{' '}
                           </>
@@ -399,6 +403,43 @@ function EpochList() {
                             )}
                             {epoch.type === 'Member' && (
                               <CsvExport epoch={epoch} />
+                            )}
+                            {space.roles[user?.id as string] === 3 && (
+                              <PrimaryButton
+                                data-testid="bArchiveEpoch"
+                                endIcon={<Archive />}
+                                variant="outlined"
+                                size="small"
+                                color="secondary"
+                                sx={{ borderRadius: 1, ml: 4 }}
+                                loading={isLoading}
+                                onClick={() => {
+                                  setIsLoading(true);
+                                  runMoralisFunction('archiveEpoch', {
+                                    epochId: epoch.objectId,
+                                    spaceId: bid,
+                                  })
+                                    .then((res: any) => {
+                                      console.log(res);
+                                      setSpace(
+                                        Object.assign(space, {
+                                          epochs: res.epochs,
+                                          taskDetails: res.taskDetails,
+                                        })
+                                      );
+                                      setIsLoading(false);
+                                    })
+                                    .catch((err: any) => {
+                                      notify(
+                                        `Sorry! There was an error while ending the epoch.`,
+                                        'error'
+                                      );
+                                      setIsLoading(false);
+                                    });
+                                }}
+                              >
+                                Archive Epoch
+                              </PrimaryButton>
                             )}
                           </ButtonContainer>
                         )}

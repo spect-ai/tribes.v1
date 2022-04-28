@@ -241,7 +241,7 @@ export default function Editor({
                     deleteBlock={deleteBlockHandler}
                     updateBlock={updateBlockHandler}
                     placeholderText={placeholderText}
-                    readOnly={isDragging}
+                    readOnly={isDragging || readonly || false}
                     isDragging={isDragging}
                   />
                 );

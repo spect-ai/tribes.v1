@@ -117,6 +117,7 @@ function PaymentModal() {
   return (
     <>
       <SidebarButton
+        data-testid="bBatchPayButton"
         palette={palette}
         selected={isOpen}
         onClick={() => {

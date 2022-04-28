@@ -45,16 +45,10 @@ const DescriptionContainer = styled.div`
 
 // color: ${classicDark.palette.text.secondary};
 
-const Value = styled.div`
-  font-size: 16px;
-  margin-bottom: 8;
-  margin-top: 8;
-`;
-
 function Overview() {
   const { tribe } = useTribe();
   return (
-    <Wrapper>
+    <Wrapper data-testid="overviewContainer">
       <Grid container>
         <Grid item xs={9}>
           <MainContainer>
@@ -68,6 +62,7 @@ function Overview() {
               <Typography
                 sx={{ fontSize: 16 }}
                 color="rgba(255, 255, 255, 0.6)"
+                data-testid="tribeDescription"
               >
                 {tribe.description}
               </Typography>
@@ -87,7 +82,11 @@ function Overview() {
                 <Typography variant="h6" color="text.secondary">
                   Contributors
                 </Typography>
-                <AvatarGroup max={6} sx={{ width: 'fit-content' }}>
+                <AvatarGroup
+                  max={6}
+                  sx={{ width: 'fit-content' }}
+                  data-testid="avatarGroup"
+                >
                   {tribe?.members?.map((memberId) => (
                     <Tooltip
                       title={tribe.memberDetails[memberId].username}

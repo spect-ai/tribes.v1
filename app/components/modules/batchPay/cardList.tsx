@@ -209,6 +209,7 @@ function CardList({
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <PrimaryButton
+          data-testid="bCardListNextButton"
           sx={{ borderRadius: '3px' }}
           onClick={() => {
             setIsLoading(true);

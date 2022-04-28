@@ -22,6 +22,7 @@ function AssignToMe() {
         }}
       >
         <CardButton
+          data-testid="bAssignToMeButton"
           variant="outlined"
           onClick={() => {
             if (user) updateStatusAndAssignee(user?.id, 'assignToMe');

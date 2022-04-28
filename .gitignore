@@ -40,3 +40,6 @@ cache
 
 # hardhat
 artifacts/
+
+# test videos
+__tests__/e2e/videos
