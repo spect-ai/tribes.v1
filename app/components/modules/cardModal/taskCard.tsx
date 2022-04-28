@@ -9,6 +9,7 @@ import { Task } from '../../../types';
 import { uid } from '../../../utils/utils';
 import Editor from '../editor';
 import AssignToMe from './buttons/assignToMe';
+import PayButton from './buttons/payButton';
 import CardMemberPopover from './popovers/cardMemberPopover';
 import CardTypePopover from './popovers/cardTypePopover';
 import ColumnPopover from './popovers/columnPopover';
@@ -67,6 +68,7 @@ function TaskCard({ handleClose }: Props) {
         />
         <Box sx={{ flex: '1 1 auto' }} />
         <AssignToMe />
+        <PayButton handleClose={handleClose} />
 
         {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
         <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>

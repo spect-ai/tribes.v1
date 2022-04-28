@@ -2,20 +2,10 @@
 import { Avatar, Box, Button, Grid, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { batchPayTokens, distributeEther } from '../../../adapters/contract';
 import { useGlobal } from '../../../context/globalContext';
-import { Member } from '../../../types';
+import { DistributionInfo } from '../../../types';
 import { PrimaryButton } from '../../elements/styledComponents';
 import usePaymentGateway from '../../../hooks/usePaymentGateway';
-
-export type DistributionInfo = {
-  cardIds: string[];
-  epochId: string;
-  type: 'tokens' | 'currency';
-  contributors: Array<string>;
-  tokenAddresses: Array<string>;
-  tokenValues: Array<number>;
-};
 
 type Props = {
   handleNextStep: Function;
@@ -121,69 +111,3 @@ function BatchPay({
 }
 
 export default BatchPay;
-
-/*
-            if (distributionInfo.type === 'tokens') {
-              batchPayTokens(
-                distributionInfo.tokenAddresses,
-                getEthAddresses(
-                  distributionInfo.contributors,
-                  space.memberDetails
-                ),
-                distributionInfo.tokenValues,
-                '123',
-                window.ethereum.networkVersion
-              )
-                .then((res: any) => {
-                  const promises: Array<any> = [];
-                  promises.push(
-                    handleStatusUpdate(
-                      distributionInfo.epochId
-                        ? distributionInfo.epochId
-                        : distributionInfo.cardIds,
-                      res.transactionHash
-                    )
-                  );
-                  Promise.all(promises).then(() => {
-                    setIsLoading(false);
-                    handleNextStep();
-                    notify('Payment done succesfully!');
-                  });
-                })
-                .catch((err: any) => {
-                  notify(err.message, 'error');
-                  setIsLoading(false);
-                  console.log(err.message);
-                });
-            } else if (distributionInfo.type === 'currency') {
-              distributeEther(
-                getEthAddresses(
-                  distributionInfo.contributors,
-                  space.memberDetails
-                ),
-                distributionInfo.tokenValues,
-                '123',
-                window.ethereum.networkVersion
-              )
-                .then((res: any) => {
-                  const promises: Array<any> = [];
-                  promises.push(
-                    handleStatusUpdate(
-                      distributionInfo.epochId
-                        ? distributionInfo.epochId
-                        : distributionInfo.cardIds,
-                      res.transactionHash
-                    )
-                  );
-                  Promise.all(promises).then(() => {
-                    setIsLoading(false);
-                    handleNextStep();
-                    notify('Payment done succesfully!');
-                  });
-                })
-                .catch((err: any) => {
-                  notify(err.message, 'error');
-                  console.error(err);
-                  setIsLoading(false);
-                });
-            } */

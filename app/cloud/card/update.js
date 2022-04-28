@@ -357,8 +357,8 @@ async function handleColumnUpdate(space, task, updates) {
 
     columns = {
       ...columns,
-      [source.id]: source,
-      [destination.id]: destination,
+      [sourceId]: newSource,
+      [destinationId]: destination,
     };
     space.set('columns', columns);
     task.set('columnId', destinationId);

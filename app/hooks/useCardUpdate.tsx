@@ -327,6 +327,30 @@ export default function useCardUpdate() {
     );
   };
 
+  const updateStatusAndTransactionHashInMultipleCards = (
+    cardIds: string[],
+    transactionHash: string
+  ) => {
+    const updates: any = {};
+    // eslint-disable-next-line no-restricted-syntax
+    for (const cardId of cardIds) {
+      updates[cardId] = { status: 300, transactionHash };
+    }
+
+    runMoralisFunction('updateMultipleCards', {
+      updates,
+    })
+      .then((res: any) => {
+        setSpace(res.space);
+      })
+      .catch((err: any) => {
+        notify(
+          `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`,
+          'error'
+        );
+      });
+  };
+
   return {
     openPopover,
     closePopover,
@@ -347,5 +371,6 @@ export default function useCardUpdate() {
     updateLabels,
     updateReward,
     updateColumn,
+    updateStatusAndTransactionHashInMultipleCards,
   };
 }

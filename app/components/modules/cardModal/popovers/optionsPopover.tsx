@@ -93,8 +93,6 @@ function OptionsPopover() {
             <IosShareIcon sx={{ width: '2rem', mr: 2 }} />
             <ListItemText primary="Share" />
           </ListItemButton>
-          <PayButton handleClose={handleClose} />
-
           {isSpaceSteward() && (
             <ListItemButton onClick={duplicateCard}>
               <ContentCopyIcon sx={{ width: '2rem', mr: 2 }} />

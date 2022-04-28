@@ -307,3 +307,24 @@ export type Block = {
   imageUrl: string;
   embedUrl: string;
 };
+
+export type ApprovalInfo = {
+  required: boolean;
+  uniqueTokenAddresses: Array<string>;
+  aggregatedTokenValues: Array<number>;
+};
+
+export type DistributionInfo = {
+  cardIds: string[];
+  epochId?: string;
+  type: string;
+  contributors: Array<string>;
+  tokenAddresses: Array<string>;
+  tokenValues: Array<number>;
+};
+
+export type PaymentInfo = {
+  approval: ApprovalInfo;
+  tokens: DistributionInfo;
+  currency: DistributionInfo;
+};

@@ -40,7 +40,6 @@ function CardList({
   const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
-  console.log(registry);
   const getValidCardIds = (columnId: string) => {
     // var cardIds = space.columns[columnId].taskIds;
     const cardIds = space.columns[columnId].taskIds.filter((taskId) => {

@@ -37,11 +37,12 @@ export default function useERC20() {
       return true;
     }
     const contract = getERC20Contract(erc20Address);
-    if (user)
-      return (
-        contract.allowance(user?.get('ethAddress'), spenderAddress) >= value
-      );
-    return null;
+    if (user) {
+      const isApprovedToken =
+        contract.allowance(user?.get('ethAddress'), spenderAddress) >= value;
+      return isApprovedToken;
+    }
+    return true;
   }
 
   function balanceOf(erc20Address: string, userAddress: string) {
