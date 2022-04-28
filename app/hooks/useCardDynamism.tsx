@@ -17,6 +17,7 @@ export default function useCardDynamism() {
   } = useAccess(task);
   const {
     isPaid,
+    isClosed,
     isUnassigned,
     hasNoReward,
     hasAssignee,
@@ -142,7 +143,7 @@ export default function useCardDynamism() {
       if (isCardSteward()) {
         return false;
       }
-      return isCreated() && !hasProposals();
+      return !hasAssignee() && !hasProposals() && !isPaid() && !isClosed();
     }
     return false;
   };

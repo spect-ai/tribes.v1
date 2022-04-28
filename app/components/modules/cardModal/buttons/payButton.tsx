@@ -21,6 +21,7 @@ import Approve from '../../batchPay/approve';
 import BatchPay from '../../batchPay/batchPay';
 import { PaymentInfo, ApprovalInfo, DistributionInfo } from '../../../../types';
 import { CardButton } from '../../../elements/styledComponents';
+import { notify } from '../../settingsTab';
 
 type Props = {
   handleClose: () => void;
@@ -39,8 +40,6 @@ export const modalStyle = {
   p: 4,
 };
 
-const modalSteps = ['Approve Tokens', 'Batch Pay Tokens', 'Batch Pay Currency'];
-
 function PayButton({ handleClose }: Props) {
   const { user } = useMoralis();
   const { task, setTask } = useCardContext();
@@ -52,16 +51,19 @@ function PayButton({ handleClose }: Props) {
   } = useGlobal();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [steps, setSteps] = useState(modalSteps);
+  const [steps, setSteps] = useState([] as string[]);
   const [activeStep, setActiveStep] = useState(0);
   const [paymentInfo, setPaymentInfo] = useState({} as PaymentInfo);
-
   const handleModalClose = () => {
     setIsOpen(false);
   };
 
   const handleModalOpen = () => {
     let info;
+    if (task.chain.chainId !== window.ethereum.networkVersion) {
+      notify(`Please switch to ${task.chain.name} network`, 'error');
+      return;
+    }
     if (isCurrency(task.token.address)) {
       info = {
         currency: {
@@ -73,39 +75,40 @@ function PayButton({ handleClose }: Props) {
         } as DistributionInfo,
       };
       setActiveStep(2);
-      setSteps(['Pay']);
+      setPaymentInfo(info);
+      setIsOpen(true);
     } else {
-      const isApprovedToken = isApproved(
+      isApproved(
         task.token.address,
         registry[task.chain.chainId].distributorAddress as string,
-        task.value
-      );
-      if (isApprovedToken) {
-        setSteps(modalSteps.slice(1));
-        setActiveStep(1);
-        setSteps(['Pay']);
-      } else {
-        setActiveStep(0);
-        setSteps(['Approve', 'Pay']);
-      }
-      info = {
-        approval: {
-          required: !isApprovedToken,
-          uniqueTokenAddresses: [task.token.address],
-          aggregatedTokenValues: [task.value],
-        } as ApprovalInfo,
-        tokens: {
-          cardIds: [task.taskId],
-          type: 'tokens',
-          contributors: task.assignee,
-          tokenAddresses: [task.token.address],
-          tokenValues: [task.value],
-        } as DistributionInfo,
-      };
+        task.value,
+        user?.get('ethAddress') as string
+      ).then((isApprovedToken: boolean) => {
+        console.log(`isApprovedToken: ${isApprovedToken}`);
+        if (isApprovedToken) {
+          setActiveStep(1);
+        } else {
+          setActiveStep(0);
+          setSteps(['Approve', 'Pay']);
+        }
+        info = {
+          approval: {
+            required: !isApprovedToken,
+            uniqueTokenAddresses: [task.token.address],
+            aggregatedTokenValues: [task.value],
+          } as ApprovalInfo,
+          tokens: {
+            cardIds: [task.taskId],
+            type: 'tokens',
+            contributors: task.assignee,
+            tokenAddresses: [task.token.address],
+            tokenValues: [task.value],
+          } as DistributionInfo,
+        };
+        setPaymentInfo(info);
+        setIsOpen(true);
+      });
     }
-
-    setPaymentInfo(info);
-    setIsOpen(true);
   };
 
   const handleNextStep = () => {

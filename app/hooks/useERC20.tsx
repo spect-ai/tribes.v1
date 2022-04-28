@@ -28,32 +28,24 @@ export default function useERC20() {
     return tx.wait();
   }
 
-  function isApproved(
+  async function isApproved(
     erc20Address: string,
     spenderAddress: string,
-    value: number
+    value: number,
+    ethAddress: string
   ) {
     if (isCurrency(erc20Address)) {
       return true;
     }
     const contract = getERC20Contract(erc20Address);
-    if (user) {
-      const isApprovedToken =
-        contract.allowance(user?.get('ethAddress'), spenderAddress) >= value;
-      return isApprovedToken;
-    }
-    return true;
-  }
 
-  function balanceOf(erc20Address: string, userAddress: string) {
-    const contract = getERC20Contract(erc20Address);
-    return contract.balanceOf(userAddress);
+    const allowance = await contract.allowance(ethAddress, spenderAddress);
+    return parseFloat(ethers.utils.formatEther(allowance)) >= value;
   }
 
   return {
     approve,
     isApproved,
-    balanceOf,
     isCurrency,
   };
 }

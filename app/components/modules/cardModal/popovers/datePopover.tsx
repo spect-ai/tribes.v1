@@ -113,7 +113,7 @@ function DatePopover() {
                 onChange={handleChange}
                 PopperProps={{ placement: 'right-start' }}
                 renderInput={(params) => (
-                  <TextField {...params} required={false} />
+                  <TextField {...params} required={false} size="small" />
                 )}
                 clearable
               />

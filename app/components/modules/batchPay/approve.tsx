@@ -47,7 +47,6 @@ function Approve({
 
   const { state } = useGlobal();
   const { registry } = state;
-
   return (
     <Box
       sx={{
@@ -88,7 +87,7 @@ function Approve({
                     }}
                     src={registry[chainId].tokens[address]?.pictureUrl}
                   >
-                    {registry[chainId].tokens[address].symbol[0]}
+                    {registry[chainId].tokens[address].symbol}
                   </Avatar>
                   <Typography color="text.primary" marginLeft="20px">
                     {registry[chainId].tokens[address].symbol}

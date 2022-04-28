@@ -103,7 +103,7 @@ function BatchPay({
           id="bApprove"
           color="secondary"
         >
-          Batch Pay
+          Pay
         </PrimaryButton>
       </Box>
     </Box>

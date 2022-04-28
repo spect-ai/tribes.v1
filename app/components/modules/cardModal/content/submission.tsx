@@ -158,13 +158,17 @@ function Submission() {
           </Box>
         )
       }
-      {isCardSteward() && isAssigned() && (
-        <Box sx={{ display: 'flex', flexDirection: 'row', mt: 4 }}>
-          <Typography variant="body1" sx={{ mr: 4 }}>
-            {isCardAssignee() ? `Not submitted yet` : `No submissions yet`}
-          </Typography>
-        </Box>
-      )}
+      {isCardSteward() &&
+        !isInReview() &&
+        !isInRevision() &&
+        !isPaid() &&
+        !isClosed() && (
+          <Box sx={{ display: 'flex', flexDirection: 'row', mt: 4 }}>
+            <Typography variant="body1" sx={{ mr: 4 }}>
+              No submissions yet
+            </Typography>
+          </Box>
+        )}
     </Box>
   );
 }
