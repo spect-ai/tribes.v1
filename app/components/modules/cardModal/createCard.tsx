@@ -43,7 +43,6 @@ const ModalContainer = muiStyled(Box)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflowY: 'auto',
-  overflowX: 'hidden',
   height: '25rem',
   padding: '1.5rem 3rem',
 }));
@@ -57,6 +56,8 @@ const TaskModalBodyContainer = styled.div`
   margin-top: 2px;
   color: #eaeaea;
   font-size: 0.85rem;
+  max-height: 10rem;
+  overflow: scroll;
 `;
 
 const Container = styled.div`
@@ -294,7 +295,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                   }
                   popoverContent={[
                     {
-                      fieldType: 'textfield',
+                      fieldType: 'datetime',
                       id: 'datetime-local',
                       type: 'datetime-local',
                       value: date,
@@ -344,53 +345,54 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                     placeholderText={`Add details, press "/" for commands`}
                   />
                 </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    alignItems: 'end',
-                    justifyContent: 'end',
-                  }}
-                >
-                  <CardButton
-                    variant="outlined"
-                    onClick={() =>
-                      createCard(
-                        space.objectId,
-                        title,
-                        description,
-                        type,
-                        labels,
-                        date,
-                        chain,
-                        token,
-                        value,
-                        assignee,
-                        reviewer,
-                        columnId,
-                        handleClose
-                      )
-                    }
-                    color="secondary"
-                    sx={{
-                      padding: '2px',
-                      minWidth: '3rem',
-                      height: '2rem',
-                      width: '7rem',
-                    }}
-                    size="large"
-                  >
-                    <Typography
-                      sx={{
-                        fontSize: 14,
-                      }}
-                    >
-                      Create Card
-                    </Typography>
-                  </CardButton>
-                </Box>
               </TaskModalBodyContainer>
             </Container>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'end',
+                justifyContent: 'end',
+                mt: 8,
+              }}
+            >
+              <CardButton
+                variant="outlined"
+                onClick={() =>
+                  createCard(
+                    space.objectId,
+                    title,
+                    description,
+                    type,
+                    labels,
+                    date,
+                    chain,
+                    token,
+                    value,
+                    assignee,
+                    reviewer,
+                    columnId,
+                    handleClose
+                  )
+                }
+                color="secondary"
+                sx={{
+                  padding: '2px',
+                  minWidth: '3rem',
+                  height: '2rem',
+                  width: '7rem',
+                }}
+                size="large"
+              >
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                  }}
+                >
+                  Create Card
+                </Typography>
+              </CardButton>
+            </Box>
           </ModalContainer>
         </Fade>
       </Modal>
