@@ -16,7 +16,11 @@ export default function useProfileInfo() {
             )}/${user?.get('avatar')}.png`
       );
     }
-  }, [isAuthenticated, user]);
+  }, [
+    isAuthenticated,
+    user?.attributes.profilePicture,
+    user?.attributes.avatar,
+  ]);
 
   const getAvatar = (userObj: Member) => {
     if (!userObj) {
