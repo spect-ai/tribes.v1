@@ -30,7 +30,7 @@ function ExploreTemplate(props: Props) {
       >
         <Grid container spacing={8} columns={15} data-testid="explore-grid">
           {publicTribes.map((tribe: Team) => (
-            <Grid item xs={3} key={tribe.teamId}>
+            <Grid item xs={3} key={tribe.teamId || 'id'}>
               <DAOCard
                 data-testid={`tribe-card-${tribe.teamId}`}
                 image={tribe.logo}

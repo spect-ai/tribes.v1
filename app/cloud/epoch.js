@@ -12,7 +12,7 @@ async function getEpochParseObjByObjectId(objectId) {
 
 async function getEpochsBySpaceId(spaceId, callerId) {
   const epochQuery = new Moralis.Query('Epoch');
-  const pipeline = [{ match: { spaceId: spaceId } }];
+  const pipeline = [{ match: { spaceId: spaceId, archived: { $ne: true } } }];
   var epochs = await epochQuery.aggregate(pipeline, { useMasterKey: true });
   for (var epoch of epochs) {
     if (callerId in epoch.memberStats) {
@@ -264,8 +264,8 @@ Moralis.Cloud.define('saveVotes', async (request) => {
 Moralis.Cloud.define('completeEpochPayment', async (request) => {
   try {
     const epoch = await getEpochParseObjByObjectId(request.params.epochId);
-    epoch.set("paid", true);
-    epoch.set("transactionHash", request.params.transactionHash);
+    epoch.set('paid', true);
+    epoch.set('transactionHash', request.params.transactionHash);
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return await getEpochs(request.params.spaceId, request.user.id);
   } catch (err) {
@@ -312,6 +312,20 @@ Moralis.Cloud.define('moveCardsAfterEpoch', async (request) => {
       `Error while moving cards after epoch ${request.params.epochId}: ${err}`
     );
     throw `Error while moving cards after epoch ${err}`;
+  }
+});
+
+Moralis.Cloud.define('archiveEpoch', async (request) => {
+  try {
+    var epoch = await getEpochParseObjByObjectId(request.params.epochId);
+    epoch.set('archived', true);
+    await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+    return await getEpochs(request.params.spaceId, request.user.id);
+  } catch (err) {
+    logger.error(
+      `Error while archiving epoch ${request.params.epochId}: ${err}`
+    );
+    throw `Error while archiving epoch ${err}`;
   }
 });
 

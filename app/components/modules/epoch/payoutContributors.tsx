@@ -111,6 +111,7 @@ function PayoutContributors({ epoch }: Props) {
     <>
       {!epoch.paid && (
         <PrimaryButton
+          data-testid="bEpochPay"
           endIcon={<PaidIcon />}
           variant="outlined"
           loading={isLoading}
