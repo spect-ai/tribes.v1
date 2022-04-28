@@ -86,6 +86,7 @@ function NumericVoting({
               <TableCell align="right">
                 {votesGiven && (
                   <TextField
+                    data-testid={`iVote${index}`}
                     id="filled-hidden-label-normal"
                     value={votesGiven[choiceId]}
                     type="number"
