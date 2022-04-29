@@ -24,7 +24,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           crossOrigin="anonymous"
         />
         <Layout>
-          {/* <Component {...pageProps} canonical={url} key={url} /> */}
+          <Component {...pageProps} canonical={url} key={url} />
         </Layout>
       </GlobalContextProvider>
     </MoralisProvider>

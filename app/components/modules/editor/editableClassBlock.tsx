@@ -603,7 +603,7 @@ class EditableClassBlock extends React.Component<Props, State> {
               >
                 <DragIndicatorIcon />
               </span>
-              {/* {!['img', 'embed', 'divider'].includes(tag) && (
+              {!['img', 'embed', 'divider'].includes(tag) && (
                 <ContentEditable
                   innerRef={this.contentEditable}
                   data-position={position}
@@ -625,7 +625,7 @@ class EditableClassBlock extends React.Component<Props, State> {
                     type === 'nestedUl' && styles.nestedList,
                   ].join(' ')}
                 />
-              )} */}
+              )}
               {tag === 'img' && (
                 <div
                   data-position={position}
