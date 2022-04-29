@@ -171,7 +171,7 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                           !column.createCard[0]
                         ) {
                           notify(
-                            "Your role doesn't have permission to create tasks in this column",
+                            "Your role doesn't have permission to create cards in this column",
                             'error'
                           );
                           return;

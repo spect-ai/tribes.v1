@@ -111,7 +111,7 @@ export interface Task {
     link: string;
     name: string;
   };
-  deadline: Date;
+  deadline: Date | null;
   tags: string[];
   assignee: Array<string>;
   reviewer: Array<string>;
@@ -306,4 +306,25 @@ export type Block = {
   html: string;
   imageUrl: string;
   embedUrl: string;
+};
+
+export type ApprovalInfo = {
+  required: boolean;
+  uniqueTokenAddresses: Array<string>;
+  aggregatedTokenValues: Array<number>;
+};
+
+export type DistributionInfo = {
+  cardIds: string[];
+  epochId?: string;
+  type: string;
+  contributors: Array<string>;
+  tokenAddresses: Array<string>;
+  tokenValues: Array<number>;
+};
+
+export type PaymentInfo = {
+  approval: ApprovalInfo;
+  tokens: DistributionInfo;
+  currency: DistributionInfo;
 };

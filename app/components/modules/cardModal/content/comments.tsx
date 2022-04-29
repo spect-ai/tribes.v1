@@ -19,7 +19,7 @@ import Editor from '../../editor';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import { notify } from '../../settingsTab';
 import useProfileInfo from '../../../../hooks/useProfileInfo';
-import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useAccess from '../../../../hooks/useAccess';
 import useCardStatus from '../../../../hooks/useCardStatus';
 import { useCardContext } from '..';
 
@@ -45,11 +45,11 @@ function Comments() {
   const [openPopoverId, setOpenPopoverId] = useState('');
   const [mode, setMode] = useState('add');
   const [editId, setEditId] = useState('');
-  const { viewableComponents } = useCardDynamism();
   const { hasNoComments } = useCardStatus();
   const handleClose = () => {
     setOpen(false);
   };
+  const { isCardStakeholder, isSpaceMember } = useAccess(task);
   const [loading, setLoading] = useState(false);
   const [commentOnEdit, setCommentOnEdit] = useState([
     {
@@ -335,7 +335,7 @@ function Comments() {
           </ListItemButton>
         </List>
       </Popover>
-      {mode !== 'edit' && !loading && viewableComponents.addComment && (
+      {mode !== 'edit' && !loading && (isSpaceMember() || isCardStakeholder()) && (
         <>
           <Box
             sx={{
@@ -384,7 +384,7 @@ function Comments() {
       )}
       {mode !== 'edit' &&
         !loading &&
-        !viewableComponents.addComment &&
+        !(isSpaceMember() || isCardStakeholder()) &&
         hasNoComments() && (
           <Typography
             variant="body1"

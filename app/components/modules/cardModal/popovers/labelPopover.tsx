@@ -27,7 +27,7 @@ function LabelPopover() {
     closePopover,
     anchorEl,
   } = useCardContext();
-  const { getReason, editAbleComponents } = useCardDynamism();
+  const { getReason, isCardStewardAndUnpaidCardStatus } = useCardDynamism();
   const { updateLabels } = useCardUpdate();
   return (
     <>
@@ -108,12 +108,12 @@ function LabelPopover() {
           horizontal: 'left',
         }}
       >
-        {!editAbleComponents.label && (
+        {!isCardStewardAndUnpaidCardStatus() && (
           <PopoverContainer>
             <Typography variant="body2">{getReason('label')}</Typography>
           </PopoverContainer>
         )}
-        {editAbleComponents.label && (
+        {isCardStewardAndUnpaidCardStatus() && (
           <PopoverContainer>
             <Autocomplete
               options={Object.keys(labelsMapping)}

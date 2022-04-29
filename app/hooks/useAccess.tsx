@@ -6,6 +6,18 @@ export default function useAccess(task: Task) {
   const { space } = useSpace();
   const { user } = useMoralis();
 
+  const isCardReviewer = () => {
+    return task.access?.reviewer;
+  };
+
+  const isCardCreator = () => {
+    return task?.access?.creator;
+  };
+
+  const isCardAssignee = () => {
+    return task?.access?.assignee;
+  };
+
   const isSpaceSteward = () => {
     return user?.id && space.roles[user?.id] === 3;
   };
@@ -16,18 +28,16 @@ export default function useAccess(task: Task) {
     return (user?.id && space.roles[user?.id] === 1) || isSpaceContributor();
   };
   const isCardSteward = () => {
-    return task?.access?.creator || task?.access?.reviewer || isSpaceSteward();
-  };
-
-  const isCardAssignee = () => {
-    return task?.access?.assignee;
+    return isCardReviewer() || isSpaceSteward();
   };
 
   const isCardStakeholder = () => {
-    return isCardSteward() || isCardAssignee();
+    return isCardSteward() || isCardAssignee() || isCardCreator();
   };
 
   return {
+    isCardReviewer,
+    isCardCreator,
     isSpaceSteward,
     isSpaceContributor,
     isSpaceMember,

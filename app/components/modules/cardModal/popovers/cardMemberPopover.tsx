@@ -25,24 +25,34 @@ function CardMemberPopover({ type }: Props) {
   const [member, setMember] = useState('');
   const { task, setTask, anchorEl } = useCardContext();
   const [isLoading, setIsLoading] = useState(false);
+  const [editable, setEditable] = useState(false);
+  const [viewable, setViewable] = useState(false);
   const { space, setSpace } = useSpace();
   const [open, setOpen] = useState(false);
-  const { viewableComponents, editAbleComponents, getReason } =
-    useCardDynamism();
+  const {
+    isCardStewardAndUnpaidCardStatus,
+    isAssigneeEditable,
+    getReason,
+    isAssigneeViewable,
+  } = useCardDynamism();
   const { updateMember, openPopover, closePopover } = useCardUpdate();
   const { getAvatar } = useProfileInfo();
 
   useEffect(() => {
     if (type === 'reviewer') {
       setMember(task.reviewer[0]);
+      setEditable(isCardStewardAndUnpaidCardStatus());
+      setViewable(true);
     } else {
       setMember(task.assignee[0]);
+      setEditable(isAssigneeEditable());
+      setViewable(isAssigneeViewable());
     }
   }, [task]);
 
   return (
     <>
-      {viewableComponents[type] && (
+      {viewable && (
         <Box
           sx={{
             display: 'flex',
@@ -106,12 +116,12 @@ function CardMemberPopover({ type }: Props) {
           horizontal: 'left',
         }}
       >
-        {!editAbleComponents[type] && (
+        {!editable && (
           <PopoverContainer>
             <Typography variant="body2">{getReason(type)}</Typography>
           </PopoverContainer>
         )}
-        {editAbleComponents[type] && (
+        {editable && (
           <PopoverContainer>
             <Autocomplete
               options={space.members} // Get options from members

@@ -91,17 +91,29 @@ function handleCreateTask(
   tags ? task.set('tags', tags) : task.set('tags', []);
   if (description) task.set('description', description);
   task.set('columnId', columnId);
-  task.set('status', 100);
+  assigneeId && assigneeId !== ''
+    ? task.set('status', 100)
+    : task.set('status', 105);
   cardType ? task.set('type', cardType) : task.set('type', 'Task');
   if (deadline) task.set('deadline', new Date(deadline));
-  task.set('activity', [
-    {
-      action: 100,
+
+  var activity = [];
+  activity.push({
+    action: 100,
+    actor: callerId,
+    timestamp: new Date(),
+    taskType: cardType ? cardType : 'Task',
+    changeLog: { prev: null, next: cardType ? cardType : 'Task' },
+  });
+  if (assigneeId && assigneeId !== '') {
+    activity.push({
+      action: 105,
       actor: callerId,
       timestamp: new Date(),
       taskType: cardType ? cardType : 'Task',
-      changeLog: { prev: null, next: cardType ? cardType : 'Task' },
-    },
-  ]);
+      changeLog: { prev: null, next: [assigneeId] },
+    });
+  }
+  task.set('activity', activity);
   return task;
 }

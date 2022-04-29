@@ -3,12 +3,9 @@ import React, { useState } from 'react';
 import { approve } from '../../../adapters/contract';
 import { useGlobal } from '../../../context/globalContext';
 import { PrimaryButton } from '../../elements/styledComponents';
+import { notify } from '../settingsTab';
+import { ApprovalInfo } from '../../../types';
 
-export type ApprovalInfo = {
-  required: boolean;
-  uniqueTokenAddresses: Array<string>;
-  aggregatedTokenValues: Array<number>;
-};
 interface Props {
   handleNextStep: Function;
   handleClose: Function;
@@ -50,8 +47,6 @@ function Approve({
 
   const { state } = useGlobal();
   const { registry } = state;
-
-  console.log(approvalInfo);
   return (
     <Box
       sx={{
@@ -92,7 +87,7 @@ function Approve({
                     }}
                     src={registry[chainId].tokens[address]?.pictureUrl}
                   >
-                    {registry[chainId].tokens[address].symbol[0]}
+                    {registry[chainId].tokens[address].symbol}
                   </Avatar>
                   <Typography color="text.primary" marginLeft="20px">
                     {registry[chainId].tokens[address].symbol}
@@ -128,7 +123,7 @@ function Approve({
                         })
                         .catch((err: any) => {
                           toggleIsLoading(index);
-                          alert(err.message);
+                          notify(err.message, 'error');
                         });
                     }}
                     variant="outlined"
