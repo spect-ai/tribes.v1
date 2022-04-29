@@ -71,7 +71,11 @@ function TaskCard({ handleClose }: Props) {
         <PayButton handleClose={handleClose} />
 
         {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
-        <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
+        <IconButton
+          data-testid="bCloseButton"
+          sx={{ m: 0, px: 2 }}
+          onClick={handleClose}
+        >
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>

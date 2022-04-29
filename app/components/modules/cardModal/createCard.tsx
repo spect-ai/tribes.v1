@@ -358,6 +358,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
               }}
             >
               <CardButton
+                data-testid="bCreateTask"
                 variant="outlined"
                 onClick={() =>
                   createCard(
