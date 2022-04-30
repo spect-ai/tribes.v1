@@ -190,7 +190,7 @@ function ColumnSettings({ isOpen, handleClose, column }: Props) {
                     moveCardRoles,
                   })
                     .then((res: BoardData) => {
-                      notify('Save complete');
+                      notify('Settings updated');
                       setSpace(res);
                       setIsLoading(false);
                       handleClose();

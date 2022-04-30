@@ -67,10 +67,7 @@ function ConfirmModal({ isOpen, handleClose }: Props) {
                       setIsLoading(false);
                     })
                     .catch((err: any) => {
-                      notify(
-                        `Sorry! There was an error while deleting board.`,
-                        'error'
-                      );
+                      notify(`${err.message}`, 'error');
                       setIsLoading(false);
                     });
                 }}

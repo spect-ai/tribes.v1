@@ -14,6 +14,8 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import AddTaskIcon from '@mui/icons-material/AddTask';
 import CategoryIcon from '@mui/icons-material/Category';
 import { ListItemText, Box, Typography, Link } from '@mui/material';
+import { utcToZonedTime } from 'date-fns-tz';
+import { format } from 'date-fns';
 import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import { Task } from '../types';
 import { useGlobal } from '../context/globalContext';
@@ -63,7 +65,13 @@ export default function useActivityMap(task: Task) {
       case 101:
         return `${
           space.memberDetails[update.actor]?.username
-        } updated due date to ${update.deadline}`;
+        } updated due date to ${format(
+          utcToZonedTime(
+            new Date(update.deadline),
+            Intl.DateTimeFormat().resolvedOptions().timeZone
+          ),
+          'MMM do, hh:mm a'
+        )}`;
       case 102:
         return `${
           space.memberDetails[update.actor]?.username

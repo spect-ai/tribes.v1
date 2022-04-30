@@ -10,6 +10,7 @@ import { uid } from '../../../utils/utils';
 import Editor from '../editor';
 import AssignToMe from './buttons/assignToMe';
 import PayButton from './buttons/payButton';
+import CloseButton from './buttons/close';
 import CardMemberPopover from './popovers/cardMemberPopover';
 import CardTypePopover from './popovers/cardTypePopover';
 import ColumnPopover from './popovers/columnPopover';
@@ -68,8 +69,8 @@ function TaskCard({ handleClose }: Props) {
         />
         <Box sx={{ flex: '1 1 auto' }} />
         <AssignToMe />
+        <CloseButton />
         <PayButton handleClose={handleClose} />
-
         {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
         <IconButton
           data-testid="bCloseButton"
@@ -96,7 +97,7 @@ function TaskCard({ handleClose }: Props) {
         <Editor
           syncBlocksToMoralis={updateDescription}
           initialBlock={
-            task.description
+            task.description && task.description.length > 0
               ? task.description
               : [
                   {
