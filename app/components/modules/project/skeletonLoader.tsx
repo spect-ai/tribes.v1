@@ -4,7 +4,7 @@ import React from 'react';
 
 type Props = {};
 
-function SkeletonLoader(props: Props) {
+function ProjectSkeletonLoader(props: Props) {
   return (
     <Grid container spacing={2} columns={10}>
       <Grid item xs={2}>
@@ -81,4 +81,4 @@ function SkeletonLoader(props: Props) {
   );
 }
 
-export default SkeletonLoader;
+export default ProjectSkeletonLoader;

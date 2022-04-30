@@ -55,10 +55,7 @@ const Container = styled.div<{ isDragging: boolean; palette: Palette }>`
     props.isDragging
       ? `0.5px solid ${props.palette.primary.light}`
       : '0.5px solid transparent'};
-  // &:hover {
-  //   border: 0.1px solid ${(props) => props.palette.secondary.dark};
-  // }
-  min-width: 16rem;
+  min-width: 20rem;
   transition: 0.5s ease-in-out;
 `;
 

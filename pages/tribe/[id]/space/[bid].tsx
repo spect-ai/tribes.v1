@@ -6,7 +6,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import NotFound from '../../../../app/components/elements/notFound';
 import ExploreSidebar from '../../../../app/components/modules/exploreSidebar';
 import SpaceNavbar from '../../../../app/components/modules/spaceNavbar';
-import BoardsTemplate from '../../../../app/components/templates/boards';
+import BoardsTemplate from '../../../../app/components/templates/space';
 import getTheme from '../../../../app/constants/muiTheme';
 import { useGlobal } from '../../../../app/context/globalContext';
 import useMoralisFunction from '../../../../app/hooks/useMoralisFunction';

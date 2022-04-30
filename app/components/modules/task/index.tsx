@@ -2,12 +2,17 @@ import styled from '@emotion/styled';
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import { Palette, useTheme } from '@mui/material';
+import { Avatar, Palette, useTheme } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { labelsMapping, monthMap } from '../../../constants';
+import {
+  labelsMapping,
+  monthMap,
+  taskStatusBorderMapping,
+} from '../../../constants';
+import useProfileInfo from '../../../hooks/useProfileInfo';
 import { Column, Task } from '../../../types';
 import { smartTrim } from '../../../utils/utils';
 import CardModal from '../cardModal';
@@ -17,52 +22,57 @@ type Props = {
   index: number;
   column: Column;
 };
-const LabelsContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  word-wrap: break-word;
-  margin-bottom: 1px;
-`;
+// const LabelsContainer = styled.div`
+//   display: flex;
+//   flex-direction: row;
+//   word-wrap: break-word;
+//   margin-bottom: 1px;
+// `;
 
-const LabelColor = styled.div<{ color: string }>`
-  width: 40px;
-  height: 6px;
-  border-radius: 10px;
-  margin-right: 5px;
-  border: 1px solid ${(props) => props.color};
-`;
+// const LabelColor = styled.div<{ color: string }>`
+//   width: 40px;
+//   height: 6px;
+//   border-radius: 10px;
+//   margin-right: 5px;
+//   border: 1px solid ${(props) => props.color};
+// `;
 
 const ChipContainer = styled.div`
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  padding: 0.4rem;
 `;
 
 const Chip = styled.div<{ color: string }>`
-  padding: 0px 8px;
+  padding: 0px 12px;
   height: 18px;
   font-size: 11px;
-  border-radius: 25px;
+  border-radius: 5px;
   background-color: ${(props) => props.color};
-  color: #000;
+  color: #eaeaea;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: fit-content;
-  margin: 4px 4px 3px 0px;
+  margin: 4px 8px 8px 0px;
   transition: color 2s ease-in-out;
 `;
 
-const TaskCard = styled.div<{ isDragging: boolean; palette: Palette }>`
+const TaskCard = styled.div<{
+  isDragging: boolean;
+  palette: Palette;
+  borderColor: string;
+}>`
   display: flex;
   flex-direction: column;
   height: fit-content;
-  width: 16rem;
+  width: 20rem;
   margin: 5px;
   border: ${(props) =>
     props.isDragging
       ? `0.1px solid ${props.palette.text.secondary}`
-      : '0.1px solid transparent'};
+      : `0.1px solid ${props.borderColor}`};
   padding: 0px 2px;
   border-radius: 5px;
   background-color: ${(props) => props.palette.primary.dark};
@@ -79,18 +89,26 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
+const TitleContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  padding: 0.4rem;
+  align-items: center;
+`;
+
 const Title = styled.div<{ palette: Palette }>`
   font-size: 14px;
+  padding-left: 0.2rem;
   word-wrap: break-word;
+  width: 100%;
   color: ${(props) => props.palette.text.primary};
 `;
 function TaskContainer({ task, index, column }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const router = useRouter();
-  const { bid, id } = router.query;
   const handleClose = () => setIsOpen(false);
-  const { space, setSpace } = useSpace();
+  const { space } = useSpace();
   const { palette } = useTheme();
+  const { getAvatar } = useProfileInfo();
   return (
     <>
       <CardModal
@@ -110,28 +128,28 @@ function TaskContainer({ task, index, column }: Props) {
               setIsOpen(true);
             }}
             palette={palette}
+            borderColor={taskStatusBorderMapping[task.status] || 'transparent'}
           >
             <Container>
-              <LabelsContainer>
-                {task?.tags?.map((tag) => (
-                  <LabelColor
-                    color={labelsMapping[tag as keyof typeof labelsMapping]}
-                    key={tag}
+              <TitleContainer>
+                <Title palette={palette}>{task.title}</Title>
+                {task.assignee.length > 0 && (
+                  <Avatar
+                    alt={space.memberDetails[task.assignee[0]]?.username}
+                    src={getAvatar(space.memberDetails[task.assignee[0]])}
+                    sx={{ height: 32, width: 32 }}
                   />
-                ))}
-              </LabelsContainer>
-
-              <Title palette={palette}>{task.title}</Title>
-
+                )}
+              </TitleContainer>
               <ChipContainer>
                 {task.value ? (
-                  <Chip color="#99ccff">
+                  <Chip color="rgb(153, 204, 255, 0.2)">
                     <MonetizationOnIcon sx={{ fontSize: 12 }} />
                     {task.value} {task.token.symbol}
                   </Chip>
                 ) : null}
                 {task.deadline && (
-                  <Chip color="#5a6972">
+                  <Chip color="rgb(153, 204, 255, 0.2)">
                     <DateRangeIcon sx={{ fontSize: 12 }} />
                     {task.deadline.getDate()}{' '}
                     {
@@ -141,19 +159,18 @@ function TaskContainer({ task, index, column }: Props) {
                     }
                   </Chip>
                 )}
-                {task.assignee.length > 0 && (
-                  <Chip color="#ce93d8">
-                    {smartTrim(
-                      space.memberDetails[task.assignee[0]].username,
-                      8
-                    )}
-                  </Chip>
-                )}
                 {task.status === 300 && (
-                  <Chip color="#66bb6a">
+                  <Chip color="rgb(153, 204, 255, 0.2)">
                     <CreditScoreIcon sx={{ fontSize: 16 }} /> Paid
                   </Chip>
                 )}
+                {task?.tags?.map((tag) => (
+                  <Chip
+                    color={labelsMapping[tag as keyof typeof labelsMapping]}
+                  >
+                    {tag}
+                  </Chip>
+                ))}
               </ChipContainer>
             </Container>
           </TaskCard>

@@ -186,12 +186,18 @@ export const amountData = {
 };
 
 export const labelsMapping = {
-  Design: '#2e5da9',
-  Coding: '#f06292',
-  Testing: '#ffc107',
-  Deployment: '#ff9800',
-  Documentation: '#ff5722',
-  POC: '#66bb6a',
+  Design: 'rgb(46, 93, 170, 0.4)',
+  Coding: 'rgb(240, 98, 146, 0.4)',
+  Testing: 'rgb(255, 193, 7, 0.4)',
+  Deployment: 'rgb(255, 152, 0, 0.4)',
+  Documentation: 'rgb(255, 87, 34, 0.4)',
+  POC: 'rgb(102, 187, 106, 0.4)',
+};
+
+export const taskStatusBorderMapping: {
+  [key: number]: string;
+} = {
+  300: 'rgb(95, 224, 134, 0.6)',
 };
 
 export const registryTemp: Registry = {
