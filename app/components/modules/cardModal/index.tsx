@@ -6,7 +6,6 @@ import { notify } from '../settingsTab';
 import TaskCard from './taskCard';
 import SkeletonLoader from './skeletonLoader';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
-import useCardDynamism from '../../../hooks/useCardDynamism';
 
 type Props = {
   isOpen: boolean;
@@ -148,7 +147,7 @@ function CardModal({ isOpen, handleClose, taskId, columnId }: Props) {
   const { isInitialized } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const context = useProviderCard();
-  const { task, setTask, loading, setLoading } = context;
+  const { setTask, loading, setLoading } = context;
 
   useEffect(() => {
     if (isInitialized && isOpen && taskId) {
