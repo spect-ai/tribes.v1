@@ -97,7 +97,7 @@ function TaskCard({ handleClose }: Props) {
         <Editor
           syncBlocksToMoralis={updateDescription}
           initialBlock={
-            task.description
+            task.description && task.description.length > 0
               ? task.description
               : [
                   {
