@@ -60,7 +60,7 @@ export default function useCardUpdate() {
     else if (key === 'reviewer') newTask.reviewer = [val];
     else if (key === 'assignee') newTask.assignee = [val];
     else if (key === 'type') newTask.type = val;
-    else if (key === 'deadline') newTask.deadline = new Date(val);
+    else if (key === 'deadline') newTask.deadline = val ? new Date(val) : null;
     else if (key === 'proposals')
       newTask.proposals = [
         {
@@ -257,7 +257,21 @@ export default function useCardUpdate() {
     executeCardUpdates(
       {
         updates: {
-          deadline: new Date(date).toUTCString(),
+          deadline: date ? new Date(date).toUTCString() : null,
+          taskId: task.taskId,
+        },
+      },
+      'deadline',
+      true
+    );
+  };
+
+  const clearDeadline = (setOpen: Function) => {
+    closePopover(setOpen);
+    executeCardUpdates(
+      {
+        updates: {
+          deadline: null,
           taskId: task.taskId,
         },
       },
@@ -313,6 +327,30 @@ export default function useCardUpdate() {
     );
   };
 
+  const updateStatusAndTransactionHashInMultipleCards = (
+    cardIds: string[],
+    transactionHash: string
+  ) => {
+    const updates: any = {};
+    // eslint-disable-next-line no-restricted-syntax
+    for (const cardId of cardIds) {
+      updates[cardId] = { status: 300, transactionHash };
+    }
+
+    runMoralisFunction('updateMultipleCards', {
+      updates,
+    })
+      .then((res: any) => {
+        setSpace(res.space);
+      })
+      .catch((err: any) => {
+        notify(
+          `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`,
+          'error'
+        );
+      });
+  };
+
   return {
     openPopover,
     closePopover,
@@ -325,6 +363,7 @@ export default function useCardUpdate() {
     updateStatus,
     updateType,
     updateDate,
+    clearDeadline,
     updateStatusAndAssignee,
     updateStatusAndTransactionHash,
     updateMember,
@@ -332,5 +371,6 @@ export default function useCardUpdate() {
     updateLabels,
     updateReward,
     updateColumn,
+    updateStatusAndTransactionHashInMultipleCards,
   };
 }

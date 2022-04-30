@@ -1,5 +1,4 @@
 import { ethers } from 'ethers';
-import distributorAddress from '../contracts/mumbai/distributor-address.json';
 import distributorABI from '../contracts/mumbai/distributor.json';
 import { useGlobal } from '../context/globalContext';
 import useERC20 from './useERC20';

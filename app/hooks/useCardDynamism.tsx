@@ -15,11 +15,20 @@ export default function useCardDynamism() {
     isSpaceMember,
     isCardAssignee,
   } = useAccess(task);
-  const { isPaid, isUnassigned, hasNoReward } = useCardStatus();
-  const [viewableComponents, setViewableComponents] = useState({} as any);
-  const [editAbleComponents, setEditableComponents] = useState({} as any);
+  const {
+    isPaid,
+    isClosed,
+    isUnassigned,
+    hasNoReward,
+    hasAssignee,
+    isTask,
+    isBounty,
+    isCreated,
+    hasProposals,
+  } = useCardStatus();
   const [tabs, setTabs] = useState([] as string[]);
   const [tabIdx, setTabIdx] = useState(0);
+  const [payButtonView, setPayButtonView] = useState('hide');
 
   function getPayButtonView() {
     if (!isCardSteward() || isPaid() || isUnassigned() || hasNoReward())
@@ -61,43 +70,43 @@ export default function useCardDynamism() {
     }
   };
 
-  const isStakeholderAndUnpaid = () => {
-    return isCardStakeholder() && !isPaid();
+  const isStakeholderAndStatusUnpaid = () => {
+    return (isCardStakeholder() && !isPaid()) as boolean;
   };
 
-  const isGeneralEditable = () => {
-    return isCardSteward() && !isPaid();
+  const isCardStewardAndUnpaidCardStatus = () => {
+    return (isCardSteward() && !isPaid()) as boolean;
   };
 
   const isAssigneeEditable = () => {
     if (isPaid()) return false;
-    if (task?.assignee?.length > 0) {
+    if (hasAssignee()) {
       return isCardStakeholder();
     }
     return true;
   };
 
   const isAssigneeViewable = () => {
-    if (task?.assignee?.length > 0) {
+    if (hasAssignee()) {
       return true;
     }
-    return isCardSteward();
+    return isCardSteward() as boolean;
   };
 
   const isAssignToMeViewable = () => {
-    if (task?.assignee?.length === 0) {
-      return task.type === 'Task' && isSpaceMember();
+    if (!hasAssignee()) {
+      return isTask() && isSpaceMember();
     }
     return false;
   };
 
   const resolveTabs = () => {
-    if (task.type === 'Task') {
+    if (isTask()) {
       return ['Comments', 'Activity'];
     }
-    if (task.type === 'Bounty') {
+    if (isBounty()) {
       // No assignee yet
-      if (task.status === 100) {
+      if (!hasAssignee()) {
         if (isCardSteward()) {
           return ['Applicants', 'Activity'];
         }
@@ -107,7 +116,6 @@ export default function useCardDynamism() {
         return ['Activity']; // Only return application tab if there are any
       }
       // Card has been assigned
-
       if (isCardSteward()) {
         return ['Submissions', 'Activity', 'Applicants'];
       }
@@ -131,11 +139,11 @@ export default function useCardDynamism() {
   };
 
   const isApplyButtonViewable = () => {
-    if (task.type === 'Bounty') {
-      if (task.access?.reviewer || task.access?.creator) {
+    if (isBounty()) {
+      if (isCardSteward()) {
         return false;
       }
-      return task.status === 100 && task.proposals?.length === 0;
+      return !hasAssignee() && !hasProposals() && !isPaid() && !isClosed();
     }
     return false;
   };
@@ -144,41 +152,8 @@ export default function useCardDynamism() {
     setTabIdx(newValue);
   };
 
-  const getViewableComponents = () => {
-    return {
-      pay: getPayButtonView(),
-      proposalGate: false,
-      submissionGate: false,
-      duplicate: isSpaceSteward(),
-      archive: isSpaceSteward(),
-      assignee: isAssigneeViewable(),
-      reviewer: true,
-      assignToMe: isAssignToMeViewable(),
-      addComment: isSpaceMember() || isCardStakeholder(),
-      optionPopover: isSpaceSteward() || isCardStakeholder(),
-      applyButton: isApplyButtonViewable(),
-    };
-  };
-
-  const getEditableComponents = () => {
-    const editable = isGeneralEditable();
-    return {
-      title: editable,
-      description: editable,
-      label: editable,
-      type: editable,
-      dueDate: isStakeholderAndUnpaid(),
-      reward: editable,
-      reviewer: editable,
-      column: isStakeholderAndUnpaid(),
-      assignee: isAssigneeEditable(),
-    };
-  };
-
   useEffect(() => {
-    setViewableComponents(getViewableComponents());
-    setEditableComponents(getEditableComponents());
-
+    setPayButtonView(getPayButtonView());
     const newTabs = resolveTabs();
     const newTabIdx = resolveTabIdx(tabs, newTabs, tabIdx);
     setTabs(newTabs);
@@ -186,12 +161,17 @@ export default function useCardDynamism() {
   }, [task]);
 
   return {
-    viewableComponents,
-    editAbleComponents,
+    isAssignToMeViewable,
     getReason,
     tabs,
     setTabs,
     handleTabChange,
     tabIdx,
+    isCardStewardAndUnpaidCardStatus,
+    isStakeholderAndStatusUnpaid,
+    isAssigneeEditable,
+    isApplyButtonViewable,
+    isAssigneeViewable,
+    payButtonView,
   };
 }

@@ -2,6 +2,7 @@ import { Box, Popover, Typography, Avatar } from '@mui/material';
 import React, { useState } from 'react';
 import CommonAutocomplete from '../autoComplete';
 import CommonTextField from '../textField';
+import CommonDateTimePicker from '../dateTimePicker';
 import { CardButton } from '../styledComponents';
 import { PopoverContainer } from '../../modules/cardModal/styles';
 
@@ -121,6 +122,17 @@ function CommonPopover({
                   handleChange={item.handleChange}
                   sx={item.sx}
                   size={item.size}
+                />
+              );
+            }
+            if (item.fieldType === 'datetime') {
+              return (
+                <CommonDateTimePicker
+                  id={item.id}
+                  label={item.label}
+                  value={item.value}
+                  handleChange={item.handleChange}
+                  sx={item.sx}
                 />
               );
             }

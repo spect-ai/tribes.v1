@@ -19,9 +19,10 @@ import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { capitalizeFirstLetter } from '../../../utils/utils';
 import { SidebarButton } from '../exploreSidebar';
 import { notify } from '../settingsTab';
-import Approve, { ApprovalInfo } from './approve';
-import BatchPay, { DistributionInfo } from './batchPay';
+import Approve from './approve';
+import BatchPay from './batchPay';
 import CardList from './cardList';
+import { PaymentInfo } from '../../../types';
 
 const modalSteps = [
   'Pick Cards',
@@ -29,12 +30,6 @@ const modalSteps = [
   'Batch Pay Tokens',
   'Batch Pay Currency',
 ];
-
-export type PaymentInfo = {
-  approval: ApprovalInfo;
-  tokens: DistributionInfo;
-  currency: DistributionInfo;
-};
 
 export const modalStyle = {
   position: 'absolute' as 'absolute',

@@ -29,7 +29,7 @@ function ProposalsStewardView() {
       }}
     >
       {task.proposals?.length === 0 && (
-        <Typography sx={{ mt: 4 }}>No proposals yet</Typography>
+        <Typography sx={{ mt: 4 }}>No applications yet</Typography>
       )}
       {task.proposals?.map((proposal, index) => (
         <Box sx={{}} key={proposal.id}>
