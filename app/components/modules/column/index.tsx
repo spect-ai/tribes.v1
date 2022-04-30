@@ -13,7 +13,7 @@ import CardModal from '../cardModal';
 import CreateCard from '../cardModal/createCard';
 import ColumnSettings from '../columnSettings';
 import { notify } from '../settingsTab';
-import TaskContainer from '../task';
+import TaskContainer, { Chip } from '../task';
 
 type Props = {
   tasks: Task[];
@@ -151,12 +151,15 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                       sx={{
                         fontSize: '15px',
                         marginLeft: '6px',
+                        width: 'fit-content',
                       }}
                       value={columnTitle}
                       onChange={(e) => setColumnTitle(e.target.value)}
                       onBlur={() => updateColumn()}
                       readOnly={space.roles[user?.id as string] !== 3}
                     />
+                    <Chip color="rgb(153, 204, 255, 0.2)">{tasks?.length}</Chip>
+
                     <Box sx={{ flex: '1 1 auto' }} />
                     <IconButton
                       data-testid={`addTask-${column.id}`}

@@ -1,12 +1,8 @@
 import styled from '@emotion/styled';
-import { ExpandMore } from '@mui/icons-material';
-import { AccordionDetails, AccordionSummary, Typography } from '@mui/material';
 import React from 'react';
 import { DropResult } from 'react-beautiful-dnd';
 import { BoardData } from '../../../types';
-import { ListAccordian } from '../../elements/styledComponents';
-import { Chip } from '../task';
-import TaskListItem from '../taskListItem';
+import ColumnListSection from './columnListSection';
 
 type Props = {
   board: BoardData;
@@ -29,21 +25,7 @@ function ListView({ board, handleDragEnd }: Props) {
           return element !== undefined;
         });
         return (
-          <ListAccordian disableGutters key={columnId} defaultExpanded>
-            <AccordionSummary
-              expandIcon={<ExpandMore />}
-              aria-controls="panel1a-content"
-              id="panel1a-header"
-            >
-              <Typography sx={{ width: '10%' }}>{column.title}</Typography>
-              <Chip color="rgb(153, 204, 255, 0.2)">{tasks?.length}</Chip>
-            </AccordionSummary>
-            <AccordionDetails>
-              {tasks?.map((task) => (
-                <TaskListItem key={task.taskId} task={task} />
-              ))}
-            </AccordionDetails>
-          </ListAccordian>
+          <ColumnListSection key={columnId} column={column} tasks={tasks} />
         );
       })}
     </Container>

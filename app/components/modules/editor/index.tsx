@@ -10,12 +10,14 @@ type Props = {
   syncBlocksToMoralis: Function;
   initialBlock: Block[];
   placeholderText: string;
-  readonly?: boolean;
+  readonly: boolean;
 };
 
-const Container = styled.div`
+const Container = styled.div<{
+  readonly: boolean;
+}>`
   margin-top: 1.5rem;
-  min-height: 8rem;
+  min-height: ${(props) => (props.readonly ? '1rem' : '8rem')};
 `;
 
 export default function Editor({
@@ -107,7 +109,6 @@ export default function Editor({
         }
       }
       setCurrentBlockId(currentBlock.id);
-      console.log({ posBlocks });
       // const deletedBlock = blocks[index];
       const updatedBlocks = [...blocks];
       if (posBlocks.length > 0) {
@@ -215,7 +216,7 @@ export default function Editor({
   }, [blocks, prevBlocks, currentBlockId]);
 
   return (
-    <Container>
+    <Container readonly={readonly}>
       <DragDropContext onDragEnd={onDragEndHandler}>
         <Droppable droppableId="id">
           {(provided) => (

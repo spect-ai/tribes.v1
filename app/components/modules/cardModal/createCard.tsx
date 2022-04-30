@@ -119,6 +119,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
   };
 
   useEffect(() => {
+    console.log({ column });
     if (user) {
       setReviewer(user.id);
     }

@@ -39,9 +39,10 @@ function BoardView({ board, handleDragEnd }: Props) {
           <Container {...provided.droppableProps} ref={provided.innerRef}>
             {board.columnOrder.map((columnId, index) => {
               const column = board.columns[columnId];
-              const tasks = column.taskIds?.map(
-                (taskId) => board.tasks[taskId]
-              );
+              let tasks = column.taskIds?.map((taskId) => board.tasks[taskId]);
+              tasks = tasks.filter((element) => {
+                return element !== undefined;
+              });
               return (
                 <ColumnComponent
                   key={columnId}

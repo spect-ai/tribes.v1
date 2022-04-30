@@ -14,7 +14,6 @@ import {
 } from '../../../constants';
 import useProfileInfo from '../../../hooks/useProfileInfo';
 import { Column, Task } from '../../../types';
-import { smartTrim } from '../../../utils/utils';
 import CardModal from '../cardModal';
 
 type Props = {
@@ -79,7 +78,7 @@ const TaskCard = styled.div<{
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   transition: border 0.3s ease-in-out;
   &:hover {
-    border: 0.1px solid #eaeaea;
+    border: 0.1px solid rgb(234, 234, 234, 0.3);
   }
 `;
 

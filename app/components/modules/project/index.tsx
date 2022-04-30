@@ -12,6 +12,7 @@ import { reorder } from '../../../utils/utils';
 import { PrimaryButton } from '../../elements/styledComponents';
 import BoardView from '../boardView';
 import Column from '../column';
+import ForumView from '../forumView';
 import TrelloImport from '../importTrello';
 import ListView from '../listView';
 import { notify } from '../settingsTab';
@@ -219,6 +220,13 @@ function Project(props: Props) {
         <Grow in={tab === 1} timeout={500}>
           <div>
             <ListView board={space} handleDragEnd={handleDragEnd} />
+          </div>
+        </Grow>
+      )}
+      {tab === 2 && (
+        <Grow in={tab === 2} timeout={500}>
+          <div>
+            <ForumView />
           </div>
         </Grow>
       )}
