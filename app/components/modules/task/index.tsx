@@ -44,7 +44,7 @@ const ChipContainer = styled.div`
   padding: 0.4rem;
 `;
 
-const Chip = styled.div<{ color: string }>`
+export const Chip = styled.div<{ color: string }>`
   padding: 0px 12px;
   height: 18px;
   font-size: 11px;

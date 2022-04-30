@@ -86,6 +86,12 @@ export const StyledAccordian = styled(Accordion)(({ theme }) => ({
   boxShadow: theme.shadows[1],
 }));
 
+export const ListAccordian = styled(Accordion)(({ theme }) => ({
+  backgroundColor: 'transparent',
+  backgroundImage: 'none',
+  boxShadow: 'none',
+}));
+
 interface StyledTabProps {
   icon?: any;
   iconPosition?: 'start' | 'end';
