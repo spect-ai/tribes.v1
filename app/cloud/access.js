@@ -4,6 +4,12 @@ function hasAccess(userId, entity, requiredAccess) {
   return roles[userId] === requiredAccess;
 }
 
+function hasAccessEntityObj(userId, entity, requiredAccess) {
+  const roles = entity.roles;
+  if (!roles[userId]) return false;
+  return roles[userId] === requiredAccess;
+}
+
 function isMember(userId, entity) {
   // const members = entity.get("members");
   // for (var member of members) {
