@@ -358,6 +358,7 @@ function Comments() {
             </Typography>{' '}
           </Box>
           <Editor
+            readonly={false}
             syncBlocksToMoralis={setCommentOnEdit}
             initialBlock={commentOnEdit}
             placeholderText={`Add a comment, press "/" for commands`}

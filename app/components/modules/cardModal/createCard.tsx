@@ -333,6 +333,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
               <TaskModalBodyContainer>
                 <Box sx={{ width: '100%' }}>
                   <Editor
+                    readonly={false}
                     syncBlocksToMoralis={setDescription}
                     initialBlock={[
                       {
