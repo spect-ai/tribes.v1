@@ -7,6 +7,7 @@ import {
 } from '@mui/icons-material';
 import { Avatar, Box, Palette, Typography, useTheme } from '@mui/material';
 import React, { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { labelsMapping, monthMap } from '../../../constants';
 import useProfileInfo from '../../../hooks/useProfileInfo';
@@ -14,10 +15,11 @@ import { Task } from '../../../types';
 import { PrimaryButton } from '../../elements/styledComponents';
 import CardModal from '../cardModal';
 import { Chip } from '../task';
-import useMoralisFunction from '../../../hooks/useMoralisFunction';
-import Editor from '../editor';
+import useCardUpdate from '../../../hooks/useCardUpdate';
 
-type Props = {};
+type Props = {
+  tasks: Task[];
+};
 
 type ForumProps = {
   task: Task;
@@ -68,19 +70,15 @@ const AvatarContainer = styled.div`
   display: flex;
   justify-content: center;
 `;
-const EditorContainer = styled.div`
-  margin-top: 2px;
-  color: #eaeaea;
-  font-size: 0.85rem;
-`;
 
 function ForumCard({ task }: ForumProps) {
+  const { user } = useMoralis();
   const { space } = useSpace();
   const { getAvatar } = useProfileInfo();
   const { palette } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const handleClose = () => setIsOpen(false);
-  console.log({ task });
+  const { updateVotes } = useCardUpdate();
 
   return (
     <>
@@ -94,13 +92,21 @@ function ForumCard({ task }: ForumProps) {
           <VoteContainer>
             <PrimaryButton
               sx={{ display: 'flex', flexDirection: 'column' }}
+              color={
+                task.votes?.includes(user?.id as string) ? 'info' : 'primary'
+              }
               variant="contained"
               onClick={(e) => {
                 e.stopPropagation();
+                if (user) {
+                  updateVotes(user.id, task.taskId);
+                }
               }}
             >
               <ArrowDropUp />
-              <Typography sx={{ fontSize: 12 }}>{5}</Typography>
+              <Typography sx={{ fontSize: 12 }}>
+                {task.votes?.length || 0}
+              </Typography>
             </PrimaryButton>
           </VoteContainer>
           <ForumInfoContainer>
@@ -154,27 +160,29 @@ function ForumCard({ task }: ForumProps) {
   );
 }
 
-function ForumView(props: Props) {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const { runMoralisFunction } = useMoralisFunction();
-  const { space } = useSpace();
-  useEffect(() => {
-    runMoralisFunction('getForumViewTasks', {
-      spaceId: space.objectId,
-      columnId: 'column-0',
-    }).then((res) => {
-      console.log({ res });
-      setTasks(res);
-    });
-  }, []);
+function ForumView({ tasks }: Props) {
+  const [forumTasks, setForumTasks] = useState<Task[]>([]);
+  function compare(taskA: Task, taskB: Task) {
+    if ((taskA.votes?.length || 0) > (taskB.votes?.length || 0)) {
+      return -1;
+    }
+    if ((taskA.votes?.length || 0) < (taskB.votes?.length || 0)) {
+      return 1;
+    }
+    return 0;
+  }
 
-  if (!tasks || tasks.length === 0) {
+  useEffect(() => {
+    setForumTasks(tasks.sort(compare));
+    console.log({ tasks });
+  }, [tasks]);
+  if (!forumTasks || forumTasks.length === 0) {
     return <div>Loading</div>;
   }
 
   return (
     <Container>
-      {tasks.map((task) => (
+      {forumTasks.map((task) => (
         <ForumCard task={task} key={task.taskId} />
       ))}
     </Container>

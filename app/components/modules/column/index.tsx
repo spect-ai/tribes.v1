@@ -159,7 +159,12 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                       readOnly={space.roles[user?.id as string] !== 3}
                     />
                     <Box sx={{ flex: '1 1 auto' }} />
-                    <Chip color="rgb(153, 204, 255, 0.2)">{tasks?.length}</Chip>
+                    <Chip
+                      color="rgb(153, 204, 255, 0.2)"
+                      style={{ marginTop: 5, marginBottom: 0 }}
+                    >
+                      {tasks?.length}
+                    </Chip>
                     <IconButton
                       data-testid={`addTask-${column.id}`}
                       sx={{ mb: 0.5, p: 1 }}

@@ -226,7 +226,11 @@ function Project(props: Props) {
       {tab === 2 && (
         <Grow in={tab === 2} timeout={500}>
           <div>
-            <ForumView />
+            <ForumView
+              tasks={space.columns['column-0'].taskIds?.map(
+                (taskId) => space.tasks[taskId]
+              )}
+            />
           </div>
         </Grow>
       )}

@@ -31,11 +31,11 @@ function ViewsNavbar(props: Props) {
       <StyledTab
         icon={<PollOutlined sx={{ fontSize: 16 }} />}
         iconPosition="start"
-        label="Forum"
+        label="Vote"
       />
-      <PrimaryButton color="secondary" startIcon={<Add />}>
+      {/* <PrimaryButton color="secondary" startIcon={<Add />}>
         Create View
-      </PrimaryButton>
+      </PrimaryButton> */}
     </StyledTabs>
   );
 }

@@ -11,6 +11,8 @@ const easyUpdates = [
   'transactionHash',
 ];
 
+const arrayUpates = ['votes'];
+
 // These are fields that need to converted to the date type
 const dateUpdates = ['deadline'];
 
@@ -41,6 +43,7 @@ const datatypes = {
   selectedProposals: 'array',
   description: 'arrayOfObjects',
   submission: 'arrayOfObjects',
+  votes: 'array',
 };
 
 // Map of update property to action code
@@ -270,6 +273,7 @@ function validatePayload(updates, task) {
 }
 
 async function handleUpdates(updates, task, space, callerId) {
+  task = handleArrayUpdates(task, updates, arrayUpates);
   task = handleActivityUpdates(task, updates, callerId);
   task = handleEasyFieldUpdates(task, updates, easyUpdates);
   task = handleDateUpdates(task, updates, dateUpdates);
@@ -481,6 +485,22 @@ function handleContentArrayMultiElementUpdate(task, updates, callerId, fields) {
           // User has not created an element with the given id
           throw 'Resource not found or caller does not have permission to update it';
         }
+      }
+    }
+  }
+
+  return task;
+}
+
+function handleArrayUpdates(task, updates, fields) {
+  for (const [key, value] of Object.entries(updates)) {
+    if (fields.includes(key)) {
+      let arr = task.get(key);
+      if (arr && arr.includes(value)) {
+        arr = arr.filter((item) => item !== value);
+        task.set(key, arr);
+      } else {
+        task.add(key, value);
       }
     }
   }
