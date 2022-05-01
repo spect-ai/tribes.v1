@@ -132,23 +132,23 @@ function ForumCard({ task }: ForumProps) {
             </TaskLabelsContainer>
           </ForumInfoContainer>
           <AvatarContainer>
-            {task.assignee.length > 0 && (
+            {task.creator && (
               <Avatar
-                alt={space.memberDetails[task.assignee[0]]?.username}
-                src={getAvatar(space.memberDetails[task.assignee[0]])}
+                alt={space.memberDetails[task.creator]?.username}
+                src={getAvatar(space.memberDetails[task.creator])}
                 sx={{ height: 32, width: 32 }}
               />
             )}
           </AvatarContainer>
         </Box>
-        <EditorContainer>
+        {/* <EditorContainer>
           <Editor
             syncBlocksToMoralis={() => {}}
             initialBlock={task.description}
             placeholderText="No details provided yet"
             readonly
           />
-        </EditorContainer>
+        </EditorContainer> */}
       </ForumContainer>
     </>
   );

@@ -6,6 +6,7 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useState } from 'react';
+import { Droppable } from 'react-beautiful-dnd';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { Column, Task } from '../../../types';
@@ -63,9 +64,16 @@ function ColumnListSection({ column, tasks }: Props) {
         </IconButton>
       </AccordionSummary>
       <AccordionDetails>
-        {tasks?.map((task) => (
-          <TaskListItem key={task.taskId} task={task} />
-        ))}
+        <Droppable droppableId={column.id} type="task">
+          {(provided) => (
+            <div {...provided.droppableProps} ref={provided.innerRef}>
+              {tasks?.map((task, index) => (
+                <TaskListItem key={task.taskId} task={task} index={index} />
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
       </AccordionDetails>
       <CreateCard
         isOpen={showCreateTask}

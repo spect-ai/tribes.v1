@@ -9,7 +9,6 @@ import {
 import React, { useState } from 'react';
 import LabelIcon from '@mui/icons-material/Label';
 import { labelsMapping } from '../../../../constants';
-import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { PopoverContainer, LabelChip } from '../styles';
 import useCardDynamism from '../../../../hooks/useCardDynamism';

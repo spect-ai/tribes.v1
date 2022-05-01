@@ -158,9 +158,8 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                       onBlur={() => updateColumn()}
                       readOnly={space.roles[user?.id as string] !== 3}
                     />
-                    <Chip color="rgb(153, 204, 255, 0.2)">{tasks?.length}</Chip>
-
                     <Box sx={{ flex: '1 1 auto' }} />
+                    <Chip color="rgb(153, 204, 255, 0.2)">{tasks?.length}</Chip>
                     <IconButton
                       data-testid={`addTask-${column.id}`}
                       sx={{ mb: 0.5, p: 1 }}
@@ -177,18 +176,6 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                           return;
                         }
                         setShowCreateTask(true);
-                        // setShowCreateTask(true);
-                        // runMoralisFunction('addTask', {
-                        //   boardId: bid as string,
-                        //   columnId: id,
-                        //   title: '',
-                        //   value: 0,
-                        // }).then((res: any) => {
-                        //   setSpace(res.space as BoardData);
-                        //   setTaskId(res.taskId);
-                        //   setIsTaskOpen(true);
-                        //   // setShowCreateTask(false);
-                        // });
                       }}
                     >
                       <AddIcon fontSize="small" />

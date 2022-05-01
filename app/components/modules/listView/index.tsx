@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import React from 'react';
-import { DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { BoardData } from '../../../types';
 import ColumnListSection from './columnListSection';
 
@@ -17,18 +17,20 @@ const Container = styled.div`
 
 function ListView({ board, handleDragEnd }: Props) {
   return (
-    <Container>
-      {board.columnOrder.map((columnId) => {
-        const column = board.columns[columnId];
-        let tasks = column.taskIds?.map((taskId) => board.tasks[taskId]);
-        tasks = tasks.filter((element) => {
-          return element !== undefined;
-        });
-        return (
-          <ColumnListSection key={columnId} column={column} tasks={tasks} />
-        );
-      })}
-    </Container>
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <Container>
+        {board.columnOrder.map((columnId) => {
+          const column = board.columns[columnId];
+          let tasks = column.taskIds?.map((taskId) => board.tasks[taskId]);
+          tasks = tasks.filter((element) => {
+            return element !== undefined;
+          });
+          return (
+            <ColumnListSection key={columnId} column={column} tasks={tasks} />
+          );
+        })}
+      </Container>
+    </DragDropContext>
   );
 }
 
