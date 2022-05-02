@@ -135,7 +135,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
     <>
       <Modal open={isOpen}>
         <Fade in={isOpen}>
-          <ModalContainer id="cardModal">
+          <ModalContainer id="cardModal" data-testid="createCardModal">
             <Container>
               <TaskModalTitleContainer>
                 <InputBase

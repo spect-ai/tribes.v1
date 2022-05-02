@@ -174,7 +174,6 @@ function ForumView({ tasks }: Props) {
 
   useEffect(() => {
     setForumTasks(tasks.sort(compare));
-    console.log({ tasks });
   }, [tasks]);
   if (!forumTasks || forumTasks.length === 0) {
     return <div>Loading</div>;

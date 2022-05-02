@@ -79,6 +79,7 @@ export default function SpacePage() {
     if (!loading && bid) {
       runMoralisFunction('getSpace', { boardId: bid }).then((res) => {
         setSpace(res);
+        console.log(JSON.stringify(res));
         setIsLoading(false);
       });
     }

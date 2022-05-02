@@ -88,8 +88,11 @@ function TaskListItem({ task, index }: Props) {
               {task.deadline && (
                 <Chip color="rgb(153, 204, 255, 0.2)">
                   <DateRange sx={{ fontSize: 12 }} />
-                  {task.deadline.getDate()}{' '}
-                  {monthMap[task.deadline.getMonth() as keyof typeof monthMap]}
+                  {task.deadline.getDate && task.deadline.getDate()}{' '}
+                  {task.deadline.getMonth &&
+                    monthMap[
+                      task.deadline?.getMonth() as keyof typeof monthMap
+                    ]}
                 </Chip>
               )}
               {task.status === 300 && (

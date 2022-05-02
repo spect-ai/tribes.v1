@@ -18,7 +18,7 @@ const Container = styled.div`
 function ListView({ board, handleDragEnd }: Props) {
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <Container>
+      <Container data-testid="listViewContainer">
         {board.columnOrder.map((columnId) => {
           const column = board.columns[columnId];
           let tasks = column.taskIds?.map((taskId) => board.tasks[taskId]);
