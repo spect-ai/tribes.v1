@@ -1,9 +1,7 @@
-import styled from '@emotion/styled';
-import AddIcon from '@mui/icons-material/Add';
-import { Button, Grow } from '@mui/material';
+import { Grow } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { createContext, useContext, useState } from 'react';
-import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
+import { DropResult } from 'react-beautiful-dnd';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
@@ -11,14 +9,11 @@ import { BoardData } from '../../../types';
 import { reorder } from '../../../utils/utils';
 import { PrimaryButton } from '../../elements/styledComponents';
 import BoardView from '../boardView';
-import Column from '../column';
 import ForumView from '../forumView';
 import TrelloImport from '../importTrello';
 import ListView from '../listView';
 import { notify } from '../settingsTab';
 import ViewsNavbar from '../viewsNavbar';
-
-type Props = {};
 
 interface ProjectContextType {
   tab: number;
@@ -47,7 +42,7 @@ function useProviderProject() {
   };
 }
 
-function Project(props: Props) {
+function Project() {
   const { space, setSpace } = useSpace();
   const router = useRouter();
   const { bid } = router.query;
@@ -99,10 +94,10 @@ function Project(props: Props) {
         boardId: bid,
         newColumnOrder,
       })
-        .then((res: any) => {
-          setSpace(res as BoardData);
+        .then((res: BoardData) => {
+          setSpace(res);
         })
-        .catch((err: any) => {
+        .catch(() => {
           setSpace(tempData);
           notify(
             'Sorry! There was an error while changing the column order.',
@@ -136,10 +131,10 @@ function Project(props: Props) {
           cardIndex: destination.index,
         },
       })
-        .then((res: any) => {
-          setSpace(res as BoardData);
+        .then((res: BoardData) => {
+          setSpace(res);
         })
-        .catch((err: any) => {
+        .catch(() => {
           setSpace(tempData);
           notify('Sorry! There was an error while moving tasks.', 'error');
         });
@@ -174,17 +169,10 @@ function Project(props: Props) {
           cardIndex: destination.index,
         },
       })
-        .then((res: any) => {
-          setSpace(res as BoardData);
-          // do we need this now?????
-          // if (newFinish.id === "column-3") {
-          //   updateTaskStatus(Moralis, draggableId, 205).then((res: any) => {
-          //     console.log("updateTaskStatus", res);
-          //     setSpace(res as BoardData);
-          //   });
-          // }
+        .then((res: BoardData) => {
+          setSpace(res);
         })
-        .catch((err: any) => {
+        .catch(() => {
           setSpace(tempData);
           notify('Sorry! There was an error while moving tasks.', 'error');
         });
@@ -226,11 +214,7 @@ function Project(props: Props) {
       {tab === 2 && (
         <Grow in={tab === 2} timeout={500}>
           <div>
-            <ForumView
-              tasks={space.columns['column-0'].taskIds?.map(
-                (taskId) => space.tasks[taskId]
-              )}
-            />
+            <ForumView />
           </div>
         </Grow>
       )}
