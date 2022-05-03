@@ -136,7 +136,7 @@ function Project() {
         })
         .catch(() => {
           setSpace(tempData);
-          notify('Sorry! There was an error while moving tasks.', 'error');
+          notify(`${err.message}`, 'error');
         });
     } else {
       const startTaskIds = Array.from(start.taskIds); // copy
@@ -174,7 +174,7 @@ function Project() {
         })
         .catch(() => {
           setSpace(tempData);
-          notify('Sorry! There was an error while moving tasks.', 'error');
+          notify(`${err.message}`, 'error');
         });
     }
   };

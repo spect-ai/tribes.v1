@@ -29,25 +29,19 @@ export default function useCardDynamism() {
   const [tabs, setTabs] = useState([] as string[]);
   const [tabIdx, setTabIdx] = useState(0);
   const [payButtonView, setPayButtonView] = useState('hide');
+  const [closeButtonView, setCloseButtonView] = useState('hide');
 
   function getPayButtonView() {
     if (!isCardSteward() || isPaid() || isUnassigned() || hasNoReward())
       return 'hide';
-
-    if (user?.get('distributorApproved')) {
-      if (
-        task.token?.address === '0x0' ||
-        (task.chain?.chainId in user.get('distributorApproved') &&
-          user
-            .get('distributorApproved')
-            [task.chain?.chainId].includes(task.token?.address))
-      )
-        return 'showPay';
-      return 'showApprove';
-    }
-    if (task.token?.address === '0x0') return 'showPay';
-    return 'showApprove';
+    return 'show';
   }
+
+  function getCloseButtonView() {
+    if (isPaid() || isClosed() || !isCardSteward()) return 'hide';
+    return 'show';
+  }
+
   const getReason = (field: string) => {
     if (isPaid()) {
       return 'Cannot edit, already paid for card';
@@ -154,6 +148,7 @@ export default function useCardDynamism() {
 
   useEffect(() => {
     setPayButtonView(getPayButtonView());
+    setCloseButtonView(getCloseButtonView());
     const newTabs = resolveTabs();
     const newTabIdx = resolveTabIdx(tabs, newTabs, tabIdx);
     setTabs(newTabs);
@@ -173,5 +168,6 @@ export default function useCardDynamism() {
     isApplyButtonViewable,
     isAssigneeViewable,
     payButtonView,
+    closeButtonView,
   };
 }

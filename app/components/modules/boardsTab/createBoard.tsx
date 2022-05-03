@@ -81,6 +81,7 @@ function CreateBoard({ isOpen, handleClose }: Props) {
                   variant="outlined"
                   color="secondary"
                   sx={{ borderRadius: 1 }}
+                  disabled={!name || name === ''}
                   onClick={() => {
                     setIsLoading(true);
                     runMoralisFunction('initBoard', {

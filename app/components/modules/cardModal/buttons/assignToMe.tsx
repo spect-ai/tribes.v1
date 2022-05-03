@@ -27,18 +27,18 @@ function AssignToMe() {
           onClick={() => {
             if (user) updateStatusAndAssignee(user?.id, 'assignToMe');
           }}
-          color="secondary"
+          color="success"
           sx={{
-            padding: '2px',
-            minWidth: '3rem',
+            padding: '1px',
+            minWidth: '2rem',
           }}
-          startIcon={<HailIcon sx={{ my: 2, ml: 2 }} />}
+          startIcon={<HailIcon sx={{ my: 2, ml: 0.5 }} />}
           size="small"
         >
           <Typography
             sx={{
               fontSize: 14,
-              mr: 2,
+              mr: 0.5,
             }}
           >
             Assign me
