@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import useMoralisFunction from './useMoralisFunction';
 import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
-import { Task, Block, Column } from '../types';
+import { Task, Block } from '../types';
 import { notify } from '../components/modules/settingsTab';
 import useCardStatus from './useCardStatus';
-import useCardDynamism from './useCardDynamism';
 import { useCardContext } from '../components/modules/cardModal';
 
 export default function useCardUpdate() {
@@ -100,13 +99,26 @@ export default function useCardUpdate() {
     runMoralisFunction('updateCard', params)
       .then((res: any) => {
         setSpace(res.space);
-        setTask(res.task);
+        task && setTask(res.task);
         giveSuccessNotification(updateType);
       })
       .catch((err: any) => {
         if (greedy) setTask(prevTask);
         notify(err.message, 'error');
       });
+  };
+
+  const updateVotes = (userId: string, taskId: string) => {
+    executeCardUpdates(
+      {
+        updates: {
+          votes: userId,
+          taskId,
+        },
+      },
+      'updateVotes',
+      false
+    );
   };
 
   const updateTitle = () => {
@@ -372,5 +384,6 @@ export default function useCardUpdate() {
     updateReward,
     updateColumn,
     updateStatusAndTransactionHashInMultipleCards,
+    updateVotes,
   };
 }

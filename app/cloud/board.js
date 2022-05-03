@@ -784,3 +784,30 @@ Moralis.Cloud.define('changeSpaceRole', async (request) => {
     throw `${err}`;
   }
 });
+
+// Moralis.Cloud.define('getForumViewTasks', async (request) => {
+//   const logger = Moralis.Cloud.getLogger();
+//   try {
+//     var board = await getBoardObjByObjectId(
+//       request.params.spaceId,
+//       request.user.id
+//     );
+//     if (board.length > 0) {
+//       var tasks = await getTaskObjByColumnId(
+//         request.params.spaceId,
+//         request.params.columnId
+//       );
+//       var boardTasks = {};
+//       for (var task of tasks) {
+//         const access = getCardAccess(task, request.user.id);
+//         task.access = access;
+//         boardTasks[task.taskId] = task;
+//       }
+//       board[0].tasks = boardTasks;
+//     }
+//     return tasks;
+//   } catch (err) {
+//     logger.error(`Error while creating team ${err}`);
+//     return err;
+//   }
+// });

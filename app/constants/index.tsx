@@ -1,111 +1,5 @@
 import { Registry } from '../types';
 
-export const initialData = {
-  tasks: {
-    'task-0': {
-      id: 'task-0',
-      title: 'Take out the garbage',
-      deadline: '10 feb',
-      description: 'Description',
-      tags: ['gig'],
-      assignee: 'chaks.eth',
-      reviewer: '0xavp.eth',
-      reward: {
-        chain: 'polygon',
-        value: 1000,
-        token: 'USDC',
-      },
-      activity: [
-        {
-          userAddress: '0x6304CE63F2EBf8C0Cc76b60d34Cc52a84aBB6057',
-          timestamp: Date,
-          title: '0xavp created this Task',
-        },
-      ],
-    },
-    'task-1': {
-      id: 'task-1',
-      title: 'Watch my favorite show',
-      value: 100,
-      deadline: '15 feb',
-    },
-    'task-2': {
-      id: 'task-2',
-      title: 'Charge my phone',
-      value: 30,
-      deadline: '25 feb',
-    },
-    'task-3': {
-      id: 'task-3',
-      title: 'Cook dinner',
-      value: 35,
-      deadline: '3 mar',
-    },
-    'task-4': {
-      id: 'task-4',
-      title: 'Cook lunch',
-      value: 10,
-      deadline: '23 jan',
-    },
-    'task-5': {
-      id: 'task-5',
-      title: 'Fix issue 34',
-      value: 65,
-      deadline: '23 feb',
-    },
-    'task-6': {
-      id: 'task-6',
-      title: 'Get shipment',
-      value: 110,
-      deadline: '13 feb',
-    },
-    'task-7': {
-      id: 'task-7',
-      title: 'Create header',
-      value: 20,
-      deadline: '14 feb',
-    },
-    'task-8': {
-      id: 'task-8',
-      title: 'Fix issue 44',
-      value: 50,
-      deadline: '18 feb',
-    },
-    'task-9': {
-      id: 'task-9',
-      title: 'Github integration',
-      value: 70,
-      deadline: '1 mar',
-    },
-  },
-  columns: {
-    'column-0': {
-      id: 'column-0',
-      title: 'To do',
-      taskIds: ['task-0', 'task-1'],
-    },
-    'column-1': {
-      id: 'column-1',
-      title: 'Doing',
-      taskIds: [
-        'task-2',
-        'task-3',
-        'task-4',
-        'task-6',
-        'task-7',
-        'task-8',
-        'task-9',
-      ],
-    },
-    'column-2': {
-      id: 'column-2',
-      title: 'Done',
-      taskIds: ['task-5'],
-    },
-  },
-  columnOrder: ['column-0', 'column-1', 'column-2'],
-};
-
 export const monthMap = {
   0: 'Jan',
   1: 'Feb',
@@ -186,12 +80,25 @@ export const amountData = {
 };
 
 export const labelsMapping = {
-  Design: '#2e5da9',
-  Coding: '#f06292',
-  Testing: '#ffc107',
-  Deployment: '#ff9800',
-  Documentation: '#ff5722',
-  POC: '#66bb6a',
+  Design: 'rgb(46, 93, 170, 0.4)',
+  Coding: 'rgb(240, 98, 146, 0.4)',
+  Quality: 'rgb(255, 193, 7, 0.4)',
+  Github: 'rgb(255, 152, 0, 0.4)',
+  POC: 'rgb(102, 187, 106, 0.4)',
+  Bug: 'rgb(255,0,0,0.4)',
+  Idea: 'rgb(190, 234, 134,0.4)',
+  Feature: 'rgb(71, 69, 179,0.4)',
+  Enhancement: 'rgb(8, 213, 215,0.4)',
+  Integration: 'rgb(255, 255, 255,0.4)',
+  Marketing: 'rgb(116, 166, 214,0.4)',
+  Documentation: 'rgb(255, 255, 155,0.4)',
+  Deployment: 'rgb(192, 31, 98,0.4)',
+};
+
+export const taskStatusBorderMapping: {
+  [key: number]: string;
+} = {
+  300: 'rgb(95, 224, 134, 0.6)',
 };
 
 export const registryTemp: Registry = {

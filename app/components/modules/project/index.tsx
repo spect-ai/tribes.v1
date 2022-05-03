@@ -1,37 +1,48 @@
-import styled from '@emotion/styled';
-import AddIcon from '@mui/icons-material/Add';
-import { Button } from '@mui/material';
+import { Grow } from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
-import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
+import React, { createContext, useContext, useState } from 'react';
+import { DropResult } from 'react-beautiful-dnd';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { BoardData } from '../../../types';
 import { reorder } from '../../../utils/utils';
 import { PrimaryButton } from '../../elements/styledComponents';
-import Column from '../column';
+import BoardView from '../boardView';
+import ForumView from '../forumView';
 import TrelloImport from '../importTrello';
+import ListView from '../listView';
 import { notify } from '../settingsTab';
+import ViewsNavbar from '../viewsNavbar';
 
-type Props = {
-  expanded: boolean;
-  handleChange: (
-    panel: string
-  ) => (event: React.SyntheticEvent, newExpanded: boolean) => void;
-};
+interface ProjectContextType {
+  tab: number;
+  handleTabChange: (event: React.SyntheticEvent, newValue: number) => void;
+  isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
+  // handleDragEnd: (result: DropResult) => void;
+}
 
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  padding: 0 0.5rem;
-  height: calc(100vh - 3.8rem);
-  max-width: calc(100vw - 7.2rem);
-  overflow-x: auto;
-  overflow-y: hidden;
-`;
+const ProjectContext = createContext<ProjectContextType>(
+  {} as ProjectContextType
+);
 
-function Board({ expanded, handleChange }: Props) {
+function useProviderProject() {
+  const [tab, setTab] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTab(newValue);
+  };
+
+  return {
+    tab,
+    handleTabChange,
+    isLoading,
+    setIsLoading,
+  };
+}
+
+function Project() {
   const { space, setSpace } = useSpace();
   const router = useRouter();
   const { bid } = router.query;
@@ -41,6 +52,8 @@ function Board({ expanded, handleChange }: Props) {
   const handleClose = () => {
     setIsOpen(false);
   };
+  const context = useProviderProject();
+  const { tab } = context;
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId, type } = result;
@@ -81,10 +94,10 @@ function Board({ expanded, handleChange }: Props) {
         boardId: bid,
         newColumnOrder,
       })
-        .then((res: any) => {
-          setSpace(res as BoardData);
+        .then((res: BoardData) => {
+          setSpace(res);
         })
-        .catch((err: any) => {
+        .catch(() => {
           setSpace(tempData);
           notify(
             'Sorry! There was an error while changing the column order.',
@@ -118,8 +131,8 @@ function Board({ expanded, handleChange }: Props) {
           cardIndex: destination.index,
         },
       })
-        .then((res: any) => {
-          setSpace(res as BoardData);
+        .then((res: BoardData) => {
+          setSpace(res);
         })
         .catch((err: any) => {
           setSpace(tempData);
@@ -156,15 +169,8 @@ function Board({ expanded, handleChange }: Props) {
           cardIndex: destination.index,
         },
       })
-        .then((res: any) => {
-          setSpace(res as BoardData);
-          // do we need this now?????
-          // if (newFinish.id === "column-3") {
-          //   updateTaskStatus(Moralis, draggableId, 205).then((res: any) => {
-          //     console.log("updateTaskStatus", res);
-          //     setSpace(res as BoardData);
-          //   });
-          // }
+        .then((res: BoardData) => {
+          setSpace(res);
         })
         .catch((err: any) => {
           setSpace(tempData);
@@ -174,7 +180,8 @@ function Board({ expanded, handleChange }: Props) {
   };
 
   return (
-    <>
+    <ProjectContext.Provider value={context}>
+      <ViewsNavbar />
       <TrelloImport isOpen={isOpen} handleClose={handleClose} />
       {Object.keys(space.tasks).length === 0 &&
         space.roles[user?.id as string] === 3 && (
@@ -190,83 +197,31 @@ function Board({ expanded, handleChange }: Props) {
             Import cards from Trello
           </PrimaryButton>
         )}
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <Droppable
-          droppableId="all-columns"
-          direction="horizontal"
-          type="column"
-        >
-          {(provided, snapshot) => (
-            <Container {...provided.droppableProps} ref={provided.innerRef}>
-              {space.columnOrder.map((columnId, index) => {
-                const column = space.columns[columnId];
-                const tasks = column.taskIds?.map(
-                  (taskId) => space.tasks[taskId]
-                );
-                return (
-                  <Column
-                    key={columnId}
-                    column={column}
-                    tasks={tasks}
-                    id={columnId}
-                    index={index}
-                  />
-                );
-              })}
-              {provided.placeholder}
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                sx={{
-                  textTransform: 'none',
-                  height: '5%',
-                  minWidth: '16rem',
-                  borderRadius: 1,
-                  margin: '0.3rem 2rem 1rem 0rem',
-                }}
-                disabled={space.roles[user?.id as string] !== 3}
-                onClick={() => {
-                  const newColumnId = Object.keys(space.columns).length;
-                  const tempData = { ...space };
-                  setSpace({
-                    ...space,
-                    columns: {
-                      ...space.columns,
-                      [`column-${newColumnId}`]: {
-                        id: `column-${newColumnId}`,
-                        title: '',
-                        taskIds: [],
-                        cardType: 1,
-                        createCard: { 0: false, 1: false, 2: true, 3: true },
-                        moveCard: { 0: false, 1: true, 2: true, 3: true },
-                      },
-                    },
-                    columnOrder: [
-                      ...space.columnOrder,
-                      `column-${newColumnId}`,
-                    ],
-                  });
-                  runMoralisFunction('addColumn', {
-                    boardId: bid,
-                  })
-                    .then((res: BoardData) => setSpace(res))
-                    .catch((err: any) => {
-                      setSpace(tempData);
-                      notify(
-                        'Sorry! There was an error while adding column',
-                        'error'
-                      );
-                    });
-                }}
-              >
-                Add new column
-              </Button>
-            </Container>
-          )}
-        </Droppable>
-      </DragDropContext>
-    </>
+      {tab === 0 && (
+        <Grow in={tab === 0} timeout={500}>
+          <div>
+            <BoardView board={space} handleDragEnd={handleDragEnd} />
+          </div>
+        </Grow>
+      )}
+      {tab === 1 && (
+        <Grow in={tab === 1} timeout={500}>
+          <div>
+            <ListView board={space} handleDragEnd={handleDragEnd} />
+          </div>
+        </Grow>
+      )}
+      {tab === 2 && (
+        <Grow in={tab === 2} timeout={500}>
+          <div>
+            <ForumView />
+          </div>
+        </Grow>
+      )}
+    </ProjectContext.Provider>
   );
 }
 
-export default Board;
+export const useProject = () => useContext(ProjectContext);
+
+export default Project;

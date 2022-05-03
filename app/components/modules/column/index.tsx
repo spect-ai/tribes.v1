@@ -13,7 +13,7 @@ import CardModal from '../cardModal';
 import CreateCard from '../cardModal/createCard';
 import ColumnSettings from '../columnSettings';
 import { notify } from '../settingsTab';
-import TaskContainer from '../task';
+import TaskContainer, { Chip } from '../task';
 
 type Props = {
   tasks: Task[];
@@ -55,10 +55,7 @@ const Container = styled.div<{ isDragging: boolean; palette: Palette }>`
     props.isDragging
       ? `0.5px solid ${props.palette.primary.light}`
       : '0.5px solid transparent'};
-  // &:hover {
-  //   border: 0.1px solid ${(props) => props.palette.secondary.dark};
-  // }
-  min-width: 16rem;
+  min-width: 20rem;
   transition: 0.5s ease-in-out;
 `;
 
@@ -154,6 +151,7 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                       sx={{
                         fontSize: '15px',
                         marginLeft: '6px',
+                        width: 'fit-content',
                       }}
                       value={columnTitle}
                       onChange={(e) => setColumnTitle(e.target.value)}
@@ -161,6 +159,12 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                       readOnly={space.roles[user?.id as string] !== 3}
                     />
                     <Box sx={{ flex: '1 1 auto' }} />
+                    <Chip
+                      color="rgb(153, 204, 255, 0.2)"
+                      style={{ marginTop: 5, marginBottom: 0 }}
+                    >
+                      {tasks?.length}
+                    </Chip>
                     <IconButton
                       data-testid={`addTask-${column.id}`}
                       sx={{ mb: 0.5, p: 1 }}
@@ -177,18 +181,6 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                           return;
                         }
                         setShowCreateTask(true);
-                        // setShowCreateTask(true);
-                        // runMoralisFunction('addTask', {
-                        //   boardId: bid as string,
-                        //   columnId: id,
-                        //   title: '',
-                        //   value: 0,
-                        // }).then((res: any) => {
-                        //   setSpace(res.space as BoardData);
-                        //   setTaskId(res.taskId);
-                        //   setIsTaskOpen(true);
-                        //   // setShowCreateTask(false);
-                        // });
                       }}
                     >
                       <AddIcon fontSize="small" />

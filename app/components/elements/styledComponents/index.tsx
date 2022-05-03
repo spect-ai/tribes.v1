@@ -86,7 +86,15 @@ export const StyledAccordian = styled(Accordion)(({ theme }) => ({
   boxShadow: theme.shadows[1],
 }));
 
+export const ListAccordian = styled(Accordion)(({ theme }) => ({
+  backgroundColor: 'transparent',
+  backgroundImage: 'none',
+  boxShadow: 'none',
+}));
+
 interface StyledTabProps {
+  icon?: any;
+  iconPosition?: 'start' | 'end';
   label: string;
   disabled?: boolean;
 }
@@ -104,6 +112,12 @@ export const StyledTabs = styled((props: StyledTabsProps) => (
     TabIndicatorProps={{ children: <span className="MuiTabs-indicatorSpan" /> }}
   />
 ))(({ theme }) => ({
+  minHeight: '2.8rem !important',
+  height: '2.8rem !importantt',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
   '& .MuiTabs-indicator': {
     display: 'flex',
     justifyContent: 'center',
@@ -119,10 +133,13 @@ export const StyledTabs = styled((props: StyledTabsProps) => (
 export const StyledTab = styled((props: StyledTabProps) => (
   <Tab disableRipple {...props} />
 ))(({ theme }) => ({
+  minHeight: '2.8rem !important',
+  height: '2.8rem !important',
   textTransform: 'none',
   fontWeight: theme.typography.fontWeightRegular,
   fontSize: theme.typography.pxToRem(14),
-  marginRight: theme.spacing(1),
+  margin: '0rem !important',
+  padding: '0rem !important',
   color: 'rgba(255, 255, 255, 0.6)',
   '&.Mui-selected': {
     color: theme.palette.text.primary,
@@ -130,7 +147,6 @@ export const StyledTab = styled((props: StyledTabProps) => (
   '&.Mui-focusVisible': {
     backgroundColor: 'rgba(100, 95, 228, 0.32)',
   },
-  height: '1px',
 }));
 
 export const ModalHeading = styled('div')(({ theme }) => ({

@@ -32,16 +32,16 @@ const ReactTinyLink: any = dynamic(
 const CMD_KEY = '/';
 
 type Props = {
-  updateBlock: (block: Block, sync: boolean) => void;
-  addBlock: (args: any) => void;
-  deleteBlock: (args: any) => void;
+  updateBlock?: (block: Block, sync: boolean) => void;
+  addBlock?: (args: any) => void;
+  deleteBlock?: (args: any) => void;
   position: number;
   id: string;
   blocks: Block[];
   block: Block;
   readOnly: boolean;
-  isDragging: boolean;
-  placeholderText: string;
+  isDragging?: boolean;
+  placeholderText?: string;
 };
 
 type State = {
@@ -203,17 +203,18 @@ class EditableClassBlock extends React.Component<Props, State> {
         embedChanged) &&
       hasNoPlaceholder
     ) {
-      updateBlock(
-        {
-          id,
-          html: stateHtml,
-          tag: stateTag,
-          imageUrl: stateImageUrl,
-          embedUrl: stateEmbedUrl,
-          type: stateType,
-        },
-        true
-      );
+      updateBlock &&
+        updateBlock(
+          {
+            id,
+            html: stateHtml,
+            tag: stateTag,
+            imageUrl: stateImageUrl,
+            embedUrl: stateEmbedUrl,
+            type: stateType,
+          },
+          true
+        );
     }
   }
 
@@ -272,7 +273,7 @@ class EditableClassBlock extends React.Component<Props, State> {
         });
         return;
       }
-      deleteBlock({ id });
+      deleteBlock && deleteBlock({ id });
     } else if (
       e.key === 'Enter' &&
       previousKey !== 'Shift' &&
@@ -298,14 +299,15 @@ class EditableClassBlock extends React.Component<Props, State> {
         });
         return;
       }
-      addBlock({
-        id,
-        html,
-        tag,
-        imageUrl,
-        ref: this.contentEditable.current,
-        type,
-      });
+      addBlock &&
+        addBlock({
+          id,
+          html,
+          tag,
+          imageUrl,
+          ref: this.contentEditable.current,
+          type,
+        });
     } else if (e.key === 'Tab') {
       if (type === 'ul') {
         e.preventDefault();
@@ -386,14 +388,15 @@ class EditableClassBlock extends React.Component<Props, State> {
         // }
         // Add new block so that the user can continue writing
         // after adding an image
-        addBlock({
-          id,
-          html: '',
-          tag: 'p',
-          imageUrl: '',
-          ref: this.contentEditable.current,
-          type,
-        });
+        addBlock &&
+          addBlock({
+            id,
+            html: '',
+            tag: 'p',
+            imageUrl: '',
+            ref: this.contentEditable.current,
+            type,
+          });
       });
     } else if (isTyping) {
       // Update the tag and restore the html backup without the command
@@ -483,7 +486,7 @@ class EditableClassBlock extends React.Component<Props, State> {
     if (isFirstBlockWithoutHtml && isFirstBlockWithoutSibling) {
       this.setState({
         ...this.state,
-        html: placeholderText,
+        html: placeholderText as string,
         tag: 'h3',
         imageUrl: '',
         placeholder: true,
@@ -553,7 +556,7 @@ class EditableClassBlock extends React.Component<Props, State> {
           <BlockActionMenu
             position={actionMenuPosition}
             actions={{
-              deleteBlock: () => deleteBlock({ id }),
+              deleteBlock: () => deleteBlock && deleteBlock({ id }),
               // turnInto: () => openTagSelectorMenu("ACTION_MENU"),
             }}
           />

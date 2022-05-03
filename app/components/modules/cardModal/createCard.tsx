@@ -131,7 +131,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
   return (
     <>
       <Modal open={isOpen}>
-        <ModalContainer id="cardModal">
+        <ModalContainer id="cardModal" data-testid="createCardModal">
           <TaskModalTitleContainer>
             <InputBase
               data-testid="iTaskTitle"
@@ -146,7 +146,11 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
             />
             <Box sx={{ flex: '1 1 auto' }} />
 
-            <IconButton sx={{ m: 0, px: 2 }} onClick={validateAndHandleClose}>
+            <IconButton
+              sx={{ m: 0, px: 2 }}
+              onClick={validateAndHandleClose}
+              data-testid="bCreateCardClose"
+            >
               <CloseIcon />
             </IconButton>
           </TaskModalTitleContainer>

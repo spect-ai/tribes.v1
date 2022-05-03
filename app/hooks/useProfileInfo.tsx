@@ -9,11 +9,11 @@ export default function useProfileInfo() {
   useEffect(() => {
     if (isAuthenticated) {
       setAvatar(
-        user?.get('profilePicture')
-          ? user.get('profilePicture')._url
-          : `https://cdn.discordapp.com/avatars/${user?.get(
-              'discordId'
-            )}/${user?.get('avatar')}.png`
+        user?.attributes.profilePicture
+          ? user.attributes.profilePicture._url
+          : `https://cdn.discordapp.com/avatars/${user?.get('discordId')}/${
+              user?.attributes.avatar
+            }.png`
       );
     }
   }, [

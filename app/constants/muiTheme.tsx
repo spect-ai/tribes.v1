@@ -13,7 +13,7 @@ const classicDark = {
       default: '#000f29',
     },
     text: {
-      primary: '#eaeaea',
+      primary: 'rgb(234, 234, 234, 1)',
       secondary: '#99ccff',
     },
     divider: '#5a6972',

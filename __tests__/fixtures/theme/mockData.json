@@ -1,0 +1,18 @@
+{
+    "mode":"dark",
+    "primary":{
+       "main":"#00194A",
+       "light":"#99ccff"
+    },
+    "secondary":{
+       "main":"#eaeaea"
+    },
+    "background":{
+       "default":"#000f29"
+    },
+    "text":{
+       "primary":"rgb(234, 234, 234, 1)",
+       "secondary":"#99ccff"
+    },
+    "divider":"#5a6972"
+ }

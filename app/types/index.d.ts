@@ -148,6 +148,7 @@ export interface Task {
   updates: Array<object>;
   columnId: string;
   comments: Array<Comment>;
+  votes: string[];
 }
 
 export interface Submission {
