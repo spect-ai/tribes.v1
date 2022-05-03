@@ -134,7 +134,7 @@ function Project() {
         .then((res: BoardData) => {
           setSpace(res);
         })
-        .catch(() => {
+        .catch((err: any) => {
           setSpace(tempData);
           notify(`${err.message}`, 'error');
         });
@@ -172,7 +172,7 @@ function Project() {
         .then((res: BoardData) => {
           setSpace(res);
         })
-        .catch(() => {
+        .catch((err: any) => {
           setSpace(tempData);
           notify(`${err.message}`, 'error');
         });
