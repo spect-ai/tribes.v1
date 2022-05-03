@@ -74,6 +74,10 @@ describe('Metamask', () => {
       });
       cy.contains('e2e_tribe_1').click();
       cy.contains('e2e_space_1', { timeout: 10000 }).click();
+      cy.get('[data-testid=tForumViewTab]').click();
+      cy.get('[data-testid=bVoteButton]').click();
+      cy.get('[data-testid=tVoteNumber]').contains('1');
+      cy.get('[data-testid=tListViewTab]').click();
       cy.contains('e2e_task_1').click();
       cy.get('[data-testid=bAssignToMeButton]').click();
       // cy.wait(2000);

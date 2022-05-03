@@ -91,6 +91,7 @@ function ForumCard({ task }: ForumProps) {
         <Box sx={{ display: 'flex', width: '100%' }}>
           <VoteContainer>
             <PrimaryButton
+              data-testid="bVoteButton"
               sx={{ display: 'flex', flexDirection: 'column' }}
               color={
                 task.votes?.includes(user?.id as string) ? 'info' : 'primary'
@@ -104,7 +105,7 @@ function ForumCard({ task }: ForumProps) {
               }}
             >
               <ArrowDropUp />
-              <Typography sx={{ fontSize: 12 }}>
+              <Typography sx={{ fontSize: 12 }} data-testid="tVoteNumber">
                 {task.votes?.length || 0}
               </Typography>
             </PrimaryButton>

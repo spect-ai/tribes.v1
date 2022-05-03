@@ -19,16 +19,19 @@ function ViewsNavbar(props: Props) {
   return (
     <StyledTabs value={tab} onChange={handleTabChange}>
       <StyledTab
+        data-testid="tBoardViewTab"
         icon={<DashboardOutlined sx={{ fontSize: 16 }} />}
         iconPosition="start"
         label="Board"
       />
       <StyledTab
+        data-testid="tListViewTab"
         icon={<FormatListBulleted sx={{ fontSize: 16 }} />}
         iconPosition="start"
         label="List"
       />
       <StyledTab
+        data-testid="tForumViewTab"
         icon={<PollOutlined sx={{ fontSize: 16 }} />}
         iconPosition="start"
         label="Vote"
