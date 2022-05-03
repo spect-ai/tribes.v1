@@ -152,6 +152,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                 <Box sx={{ flex: '1 1 auto' }} />
 
                 <IconButton
+                  data-testid="bCreateCardClose"
                   sx={{ m: 0, px: 2 }}
                   onClick={validateAndHandleClose}
                 >

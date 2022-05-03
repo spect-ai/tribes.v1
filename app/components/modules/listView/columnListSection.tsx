@@ -26,6 +26,7 @@ function ColumnListSection({ column, tasks }: Props) {
   const { user } = useMoralis();
   const [showCreateTask, setShowCreateTask] = useState(false);
   const handleCreateCardClose = () => {
+    console.log('handle');
     setShowCreateTask(false);
   };
   return (
