@@ -80,7 +80,7 @@ function ColumnSettings({ isOpen, handleClose, column }: Props) {
           setServerChannels(res.guildChannels);
         }
       });
-      setColumnChannels(column.discordChannels);
+      setColumnChannels(column?.discordChannels || []);
     }
   }, [isOpen]);
 

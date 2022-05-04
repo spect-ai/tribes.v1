@@ -201,7 +201,7 @@ export type Column = {
   moveCard: {
     [key: number]: boolean;
   };
-  discordChannels: Channel[];
+  discordChannels?: Channel[];
 };
 
 export interface BoardData {
