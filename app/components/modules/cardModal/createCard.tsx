@@ -76,7 +76,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
   const [labels, setLabels] = useState([] as string[]);
   const [assignee, setAssignee] = useState('');
   const [reviewer, setReviewer] = useState('');
-  const [columnId, setColumnId] = useState(column.id);
+  const [columnId, setColumnId] = useState('');
   const [type, setType] = useState('Task');
   const [chain, setChain] = useState({} as Chain);
   const [token, setToken] = useState({} as Token);
@@ -126,7 +126,12 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
     setLabels([]);
     setAssignee('');
     setDate('');
+    setColumnId(column.id);
   }, [isOpen]);
+
+  if (!isOpen) {
+    return <div />;
+  }
 
   return (
     <>

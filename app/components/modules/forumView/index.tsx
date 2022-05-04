@@ -5,6 +5,7 @@ import {
   DateRange,
   MonetizationOn,
   Add,
+  AttachMoneyOutlined,
 } from '@mui/icons-material';
 import {
   Autocomplete,
@@ -23,7 +24,7 @@ import useProfileInfo from '../../../hooks/useProfileInfo';
 import { Task } from '../../../types';
 import { PrimaryButton } from '../../elements/styledComponents';
 import CardModal from '../cardModal';
-import { Chip } from '../task';
+import { Chip, OutlinedChip } from '../task';
 import useCardUpdate from '../../../hooks/useCardUpdate';
 import CreateCard from '../cardModal/createCard';
 import { notify } from '../settingsTab';
@@ -129,6 +130,12 @@ function ForumCard({ task }: ForumProps) {
           <ForumInfoContainer>
             <Typography color="text.primary">{task.title}</Typography>
             <TaskLabelsContainer>
+              {task.type === 'Bounty' && (
+                <OutlinedChip color="rgb(153, 204, 255, 0.9)">
+                  <AttachMoneyOutlined sx={{ fontSize: 14 }} />
+                  {task.type}
+                </OutlinedChip>
+              )}
               {task.value ? (
                 <Chip color="rgb(153, 204, 255, 0.2)">
                   <MonetizationOn sx={{ fontSize: 12 }} />

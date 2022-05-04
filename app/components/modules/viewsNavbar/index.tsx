@@ -34,7 +34,7 @@ function ViewsNavbar(props: Props) {
         data-testid="tForumViewTab"
         icon={<PollOutlined sx={{ fontSize: 16 }} />}
         iconPosition="start"
-        label="Vote"
+        label="Forum"
       />
       {/* <PrimaryButton color="secondary" startIcon={<Add />}>
         Create View

@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { AttachMoneyOutlined } from '@mui/icons-material';
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
@@ -49,6 +50,7 @@ export const Chip = styled.div<{ color: string }>`
   font-size: 11px;
   border-radius: 5px;
   background-color: ${(props) => props.color};
+  border: 0.1px solid ${(props) => props.color};
   color: #eaeaea;
   display: inline-flex;
   align-items: center;
@@ -56,6 +58,11 @@ export const Chip = styled.div<{ color: string }>`
   width: fit-content;
   margin: 4px 8px 8px 0px;
   transition: color 2s ease-in-out;
+`;
+
+export const OutlinedChip = styled(Chip)`
+  background-color: transparent;
+  color: ${(props) => props.color};
 `;
 
 const TaskCard = styled.div<{
@@ -141,6 +148,12 @@ function TaskContainer({ task, index, column }: Props) {
                 )}
               </TitleContainer>
               <ChipContainer>
+                {task.type === 'Bounty' && (
+                  <OutlinedChip color="rgb(153, 204, 255, 0.9)">
+                    <AttachMoneyOutlined sx={{ fontSize: 14 }} />
+                    {task.type}
+                  </OutlinedChip>
+                )}
                 {task.value ? (
                   <Chip color="rgb(153, 204, 255, 0.2)">
                     <MonetizationOnIcon sx={{ fontSize: 12 }} />

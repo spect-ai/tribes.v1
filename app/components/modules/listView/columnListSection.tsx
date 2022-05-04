@@ -66,7 +66,11 @@ function ColumnListSection({ column, tasks }: Props) {
       <AccordionDetails>
         <Droppable droppableId={column.id} type="task">
           {(provided) => (
-            <div {...provided.droppableProps} ref={provided.innerRef}>
+            <div
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+              style={{ minHeight: 4 }}
+            >
               {tasks?.map((task, index) => (
                 <TaskListItem key={task.taskId} task={task} index={index} />
               ))}

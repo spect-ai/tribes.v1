@@ -1,5 +1,10 @@
 import styled from '@emotion/styled';
-import { CreditScore, DateRange, MonetizationOn } from '@mui/icons-material';
+import {
+  AttachMoneyOutlined,
+  CreditScore,
+  DateRange,
+  MonetizationOn,
+} from '@mui/icons-material';
 import { Avatar, Palette, Typography, useTheme } from '@mui/material';
 import React, { useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
@@ -7,7 +12,7 @@ import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { labelsMapping, monthMap } from '../../../constants';
 import useProfileInfo from '../../../hooks/useProfileInfo';
 import { Task } from '../../../types';
-import { Chip } from '../task';
+import { Chip, OutlinedChip } from '../task';
 import CardModal from '../cardModal';
 
 type Props = {
@@ -79,6 +84,12 @@ function TaskListItem({ task, index }: Props) {
           >
             <Typography sx={{ width: '50%' }}>{task.title}</Typography>
             <TaskLabelsContainer>
+              {task.type === 'Bounty' && (
+                <OutlinedChip color="rgb(153, 204, 255, 0.9)">
+                  <AttachMoneyOutlined sx={{ fontSize: 14 }} />
+                  {task.type}
+                </OutlinedChip>
+              )}
               {task.value ? (
                 <Chip color="rgb(153, 204, 255, 0.2)">
                   <MonetizationOn sx={{ fontSize: 12 }} />
@@ -111,7 +122,7 @@ function TaskListItem({ task, index }: Props) {
                 <Avatar
                   alt={space.memberDetails[task.assignee[0]]?.username}
                   src={getAvatar(space.memberDetails[task.assignee[0]])}
-                  sx={{ height: 32, width: 32 }}
+                  sx={{ height: 28, width: 28 }}
                 />
               )}
             </AvatarContainer>

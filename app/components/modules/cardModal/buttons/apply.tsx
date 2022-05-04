@@ -1,9 +1,8 @@
 import HailIcon from '@mui/icons-material/Hail';
 import { Box, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import React from 'react';
 import { useMoralis } from 'react-moralis';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
-import { Task } from '../../../../types';
 import { CardButton } from '../../../elements/styledComponents';
 import { useCardContext } from '..';
 
