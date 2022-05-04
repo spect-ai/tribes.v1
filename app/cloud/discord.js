@@ -143,3 +143,21 @@ Moralis.Cloud.define('linkDiscordToTribe', async (request) => {
     return false;
   }
 });
+
+Moralis.Cloud.define('getGuildChannels', async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const res = await Moralis.Cloud.httpRequest({
+      url: 'http://8a74-49-207-199-197.ngrok.io/api/guildChannels',
+      params: {
+        guildId: request.params.guildId,
+      },
+    });
+    return res.data;
+  } catch (err) {
+    logger.error(
+      `Error getting guild channels ${request.params.teamId}: ${err}`
+    );
+    return false;
+  }
+});

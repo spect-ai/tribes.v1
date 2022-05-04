@@ -185,6 +185,11 @@ export interface SubmissionData {
   edited: boolean;
 }
 
+export type Channel = {
+  id: string;
+  name: string;
+};
+
 export type Column = {
   id: string;
   title: string;
@@ -196,6 +201,7 @@ export type Column = {
   moveCard: {
     [key: number]: boolean;
   };
+  discordChannels: Channel[];
 };
 
 export interface BoardData {

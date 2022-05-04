@@ -566,7 +566,7 @@ Moralis.Cloud.define('updateThemeFromSpace', async (request) => {
   }
 });
 
-Moralis.Cloud.define('updateColumnPermissions', async (request) => {
+Moralis.Cloud.define('updateColumnSettings', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const board = await getBoardByObjectId(request.params.boardId);
@@ -574,12 +574,14 @@ Moralis.Cloud.define('updateColumnPermissions', async (request) => {
       const columns = board.get('columns');
       columns[request.params.columnId].createCard =
         request.params.createCardRoles;
-      columns[request.params.columnId].moveCard = request.params.moveCardRoles;
+      columns[request.params.columnId].discordChannels =
+        request.params.channels;
+      // columns[request.params.columnId].moveCard = request.params.moveCardRoles;
       board.set('columns', columns);
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return await getSpace(request.params.boardId, request.user.id);
     } else {
-      throw 'You do not have permission to update column permissions';
+      throw 'You do not have permission to update column settings';
     }
   } catch (err) {
     logger.error(

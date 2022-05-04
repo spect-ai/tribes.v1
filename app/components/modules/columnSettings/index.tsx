@@ -14,11 +14,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
-import { useMoralis } from 'react-moralis';
+import React, { useEffect, useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
-import { BoardData, Column } from '../../../types';
+import { BoardData, Channel, Column } from '../../../types';
+import CommonAutocomplete from '../../elements/autoComplete';
 import {
   PrimaryButton,
   StyledAccordian,
@@ -64,11 +64,26 @@ const Content = styled.div`
 function ColumnSettings({ isOpen, handleClose, column }: Props) {
   const [name, setName] = useState(column?.title);
   const [createCardRoles, setCreateCardRoles] = useState(column?.createCard);
-  const [moveCardRoles, setMoveCardRoles] = useState(column?.moveCard);
   const [isLoading, setIsLoading] = useState(false);
-  const { Moralis } = useMoralis();
   const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
+  const [columnChannels, setColumnChannels] = useState<Channel[]>([]);
+  const [serverChannels, setServerChannels] = useState<Channel[]>([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      runMoralisFunction('getGuildChannels', {
+        guildId: space.team[0].guildId,
+      }).then((res) => {
+        console.log({ res });
+        if (res.guildChannels) {
+          setServerChannels(res.guildChannels);
+        }
+      });
+      setColumnChannels(column.discordChannels);
+    }
+  }, [isOpen]);
+
   return (
     <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
       <Grow in={isOpen} timeout={500}>
@@ -175,6 +190,27 @@ function ColumnSettings({ isOpen, handleClose, column }: Props) {
                 </Box>
               </AccordionDetails>
             </StyledAccordian>
+            <StyledAccordian disableGutters disabled={!space.team[0].guildId}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>Discord Notifications</Typography>
+              </AccordionSummary>
+
+              <AccordionDetails>
+                <Typography fontSize={14}>
+                  Notify on your server&apos;s channels once a card is created
+                </Typography>
+                <CommonAutocomplete
+                  options={serverChannels}
+                  optionLabels={(option) => `#${option.name}`}
+                  currOption={columnChannels}
+                  setCurrOption={setColumnChannels}
+                  closeOnSelect={false}
+                  sx={{ mt: 2 }}
+                  multiple
+                  placeholder="Search for channels"
+                />
+              </AccordionDetails>
+            </StyledAccordian>
             <Box sx={{ display: 'flex' }}>
               <PrimaryButton
                 variant="outlined"
@@ -182,12 +218,13 @@ function ColumnSettings({ isOpen, handleClose, column }: Props) {
                 sx={{ width: '50%', mt: 2, mr: 4, borderRadius: 1 }}
                 loading={isLoading}
                 onClick={() => {
+                  console.log(columnChannels);
                   setIsLoading(true);
-                  runMoralisFunction('updateColumnPermissions', {
+                  runMoralisFunction('updateColumnSettings', {
                     boardId: space.objectId,
                     columnId: column.id,
                     createCardRoles,
-                    moveCardRoles,
+                    channels: columnChannels,
                   })
                     .then((res: BoardData) => {
                       notify('Settings updated');
