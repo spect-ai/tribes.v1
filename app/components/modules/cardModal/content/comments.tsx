@@ -193,7 +193,6 @@ function Comments() {
               }}
             >
               <Avatar
-                variant="rounded"
                 sx={{ p: 0, m: 0, width: 32, height: 32 }}
                 src={getAvatar(space.memberDetails[comment.userId])}
               />
@@ -345,11 +344,7 @@ function Comments() {
               mt: 4,
             }}
           >
-            <Avatar
-              variant="rounded"
-              sx={{ p: 0, m: 0, width: 32, height: 32 }}
-              src={avatar}
-            />
+            <Avatar sx={{ p: 0, m: 0, width: 32, height: 32 }} src={avatar} />
             <Typography
               variant="body1"
               sx={{ display: 'flex', alignItems: 'center', ml: 2 }}

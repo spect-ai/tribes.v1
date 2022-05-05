@@ -127,7 +127,7 @@ async function getSpace(boardId, callerId) {
     );
     return boardObjCompact[0];
   } catch (err) {
-    logger.error(`Error while getting board - ${err}`);
+    logger.error(`Error while getting space - ${err}`);
     throw err;
   }
 }
@@ -196,10 +196,29 @@ function handleCreateBoard(
 }
 
 Moralis.Cloud.define('getSpace', async (request) => {
-  return await getSpace(request.params.boardId, request.user?.id);
+  log(
+    request.user?.id,
+    `Calling getSpace on space ${request.params.boardId}`,
+    'info'
+  );
+  try {
+    return await getSpace(request.params.boardId, request.user?.id);
+  } catch (err) {
+    log(
+      request.user?.id,
+      `Failure in getSpace ${request.params.boardId}: ${err}`,
+      'error'
+    );
+    throw err;
+  }
 });
 
 Moralis.Cloud.define('getEssentialBoardsInfo', async (request) => {
+  log(
+    request.user?.id,
+    `Calling getEssentialBoardsInfo for tribe id ${request.params.teamId}`,
+    'info'
+  );
   try {
     const spaces = await getEssentialBoardObjByTeamId(request.params.teamId);
     var resSpaces = [];
@@ -213,12 +232,21 @@ Moralis.Cloud.define('getEssentialBoardsInfo', async (request) => {
 
     return resSpaces;
   } catch (err) {
-    logger.error(`Error while getting boards - ${err}`);
-    throw `Error while getting boards - ${err}`;
+    log(
+      request.user?.id,
+      `Failure in getEssentialBoardsInfo for tribe id ${request.params.teamId}: ${err}`,
+      'error'
+    );
+    throw `Error while getting spaces - ${err}`;
   }
 });
 
 Moralis.Cloud.define('initBoard', async (request) => {
+  log(
+    request.user?.id,
+    `Calling initBoard on tribe ${request.params.teamId}`,
+    'info'
+  );
   try {
     const logger = Moralis.Cloud.getLogger();
     const team = await getTribeByTeamId(request.params.teamId);
@@ -260,14 +288,21 @@ Moralis.Cloud.define('initBoard', async (request) => {
       throw `You dont have permission to create a space`;
     }
   } catch (err) {
-    logger.error(
-      `Error while creating board with name ${request.params.name}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in initBoard for tribe id ${request.params.teamId}: ${err}`,
+      'error'
     );
     throw `Error while creating board: ${err}`;
   }
 });
 
 Moralis.Cloud.define('importTasksFromTrello', async (request) => {
+  log(
+    request.user?.id,
+    `Calling importTasksFromTrello on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const logger = Moralis.Cloud.getLogger();
     let board = await getBoardByObjectId(request.params.boardId);
@@ -302,15 +337,22 @@ Moralis.Cloud.define('importTasksFromTrello', async (request) => {
       throw 'You do not have permission to import cards from Trello';
     }
   } catch (err) {
-    logger.error(
-      `Error while creating space from trello ${request.params.teamId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in importTasksFromTrello for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
-    throw `Error while creating space from trello ${request.params.teamId}: ${err}`;
+    throw `Error while importing from trello ${request.params.boardId}: ${err}`;
   }
 });
 
 Moralis.Cloud.define('updateColumnName', async (request) => {
   const logger = Moralis.Cloud.getLogger();
+  log(
+    request.user?.id,
+    `Calling updateColumnName on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (hasAccess(request.user.id, board, 3)) {
@@ -324,14 +366,21 @@ Moralis.Cloud.define('updateColumnName', async (request) => {
       throw 'You do not have permission to change column name';
     }
   } catch (err) {
-    logger.error(
-      `Error while updating column name in board ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in updateColumnName for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
 });
 
 Moralis.Cloud.define('updateColumnTasks', async (request) => {
+  log(
+    request.user?.id,
+    `Calling updateColumnTasks on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const logger = Moralis.Cloud.getLogger();
     var board = await getBoardByObjectId(request.params.boardId);
@@ -393,8 +442,10 @@ Moralis.Cloud.define('updateColumnTasks', async (request) => {
       throw 'You do not have permission to move this card';
     }
   } catch (err) {
-    logger.error(
-      `Error while updating column tasks in board ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in updateColumnTasks for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
@@ -413,6 +464,11 @@ function findCard(space, cardId) {
 }
 
 Moralis.Cloud.define('updateColumnOrder', async (request) => {
+  log(
+    request.user?.id,
+    `Calling updateColumnOrder on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (hasAccess(request.user.id, board, 3)) {
@@ -423,8 +479,10 @@ Moralis.Cloud.define('updateColumnOrder', async (request) => {
       throw 'You do not have permission to change column order';
     }
   } catch (err) {
-    logger.error(
-      `Error while updating column order in board ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in updateColumnOrder for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
@@ -432,6 +490,11 @@ Moralis.Cloud.define('updateColumnOrder', async (request) => {
 
 Moralis.Cloud.define('addColumn', async (request) => {
   const logger = Moralis.Cloud.getLogger();
+  log(
+    request.user?.id,
+    `Calling addColumn on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (hasAccess(request.user.id, board, 3)) {
@@ -457,14 +520,21 @@ Moralis.Cloud.define('addColumn', async (request) => {
       throw 'You do not have permission to add column';
     }
   } catch (err) {
-    logger.error(
-      `Error while adding column in board ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in addColumn for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
 });
 
 Moralis.Cloud.define('removeColumn', async (request) => {
+  log(
+    request.user?.id,
+    `Calling removeColumn on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (hasAccess(request.user.id, board, 3)) {
@@ -481,15 +551,21 @@ Moralis.Cloud.define('removeColumn', async (request) => {
       throw 'You do not have permission to remove column';
     }
   } catch (err) {
-    logger.error(
-      `Error while removing column in board ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in removeColumn for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
 });
 
 Moralis.Cloud.define('updateBoard', async (request) => {
-  const logger = Moralis.Cloud.getLogger();
+  log(
+    request.user?.id,
+    `Calling updateBoard on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (hasAccess(request.user.id, board, 3)) {
@@ -502,15 +578,21 @@ Moralis.Cloud.define('updateBoard', async (request) => {
       throw 'You do not have permission to update this space';
     }
   } catch (err) {
-    logger.error(
-      `Error while updating board ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in updateBoard for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
 });
 
 Moralis.Cloud.define('deleteBoard', async (request) => {
-  const logger = Moralis.Cloud.getLogger();
+  log(
+    request.user?.id,
+    `Calling deleteBoard on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (hasAccess(request.user.id, board, 3)) {
@@ -520,14 +602,21 @@ Moralis.Cloud.define('deleteBoard', async (request) => {
       throw 'You do not have permission to delete this space';
     }
   } catch (err) {
-    logger.error(
-      `Error while deleting board ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in deleteBoard for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
 });
 
 Moralis.Cloud.define('updateBoardMembers', async (request) => {
+  log(
+    request.user?.id,
+    `Calling updateBoardMembers on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (hasAccess(request.user.id, board, 3)) {
@@ -539,14 +628,21 @@ Moralis.Cloud.define('updateBoardMembers', async (request) => {
       throw 'You do not have permission to update space members';
     }
   } catch (err) {
-    logger.error(
-      `Error while updating board members on board id ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in updateBoardMembers for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
 });
 
 Moralis.Cloud.define('updateThemeFromSpace', async (request) => {
+  log(
+    request.user?.id,
+    `Calling updateThemeFromSpace on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const tribeQuery = new Moralis.Query('Team');
     tribeQuery.equalTo('teamId', request.params.teamId);
@@ -559,8 +655,10 @@ Moralis.Cloud.define('updateThemeFromSpace', async (request) => {
     );
     return boardObj[0];
   } catch (err) {
-    logger.error(
-      `Error while updating theme on board id ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in updateThemeFromSpace for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
@@ -584,15 +682,21 @@ Moralis.Cloud.define('updateColumnSettings', async (request) => {
       throw 'You do not have permission to update column settings';
     }
   } catch (err) {
-    logger.error(
-      `Error while updating board ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in updateColumnPermissions for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
 });
 
 Moralis.Cloud.define('setSpaceRoleMapping', async (request) => {
-  const logger = Moralis.Cloud.getLogger();
+  log(
+    request.user?.id,
+    `Calling setSpaceRoleMapping on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (hasAccess(request.user.id, board, 3)) {
@@ -603,14 +707,21 @@ Moralis.Cloud.define('setSpaceRoleMapping', async (request) => {
       throw 'You do not have permission to set roles';
     }
   } catch (err) {
-    logger.error(
-      `Error while updating board ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in setSpaceRoleMapping for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
 });
 
 Moralis.Cloud.define('joinSpace', async (request) => {
+  log(
+    request.user?.id,
+    `Calling joinSpace on space ${request.params.boardId}`,
+    'info'
+  );
   const logger = Moralis.Cloud.getLogger();
   try {
     const callerId = request.user.id;
@@ -669,15 +780,21 @@ Moralis.Cloud.define('joinSpace', async (request) => {
     });
     return await getSpace(request.params.boardId, request.user?.id);
   } catch (err) {
-    logger.error(
-      `Error while updating board ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in joinSpace for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
 });
 
 Moralis.Cloud.define('generateInviteLink', async (request) => {
-  const logger = Moralis.Cloud.getLogger();
+  log(
+    request.user?.id,
+    `Calling generateInviteLink on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (!request.user) {
@@ -696,15 +813,21 @@ Moralis.Cloud.define('generateInviteLink', async (request) => {
     });
     return inviteRes;
   } catch (err) {
-    logger.error(
-      `Error while generating invite link on board id ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in generateInviteLink for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
 });
 
 Moralis.Cloud.define('joinSpaceFromInvite', async (request) => {
-  const logger = Moralis.Cloud.getLogger();
+  log(
+    request.user?.id,
+    `Calling joinSpaceFromInvite on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     if (!request.user) {
       throw 'User not authenticated';
@@ -744,8 +867,10 @@ Moralis.Cloud.define('joinSpaceFromInvite', async (request) => {
     }
     return await getSpace(request.params.boardId, request.user.id);
   } catch (err) {
-    logger.error(
-      `Error while generating invite link on board id ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in joinSpaceFromInvite for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
@@ -767,6 +892,11 @@ function checkIfUserInviteValid(invite) {
 
 Moralis.Cloud.define('changeSpaceRole', async (request) => {
   const logger = Moralis.Cloud.getLogger();
+  log(
+    request.user?.id,
+    `Calling changeSpaceRole on space ${request.params.boardId}`,
+    'info'
+  );
   try {
     const board = await getBoardByObjectId(request.params.boardId);
     if (hasAccess(request.user.id, board, 3)) {
@@ -782,7 +912,11 @@ Moralis.Cloud.define('changeSpaceRole', async (request) => {
       throw 'User doesnt have access to update member roles';
     }
   } catch (err) {
-    logger.error(`Error while creating team ${err}`);
+    log(
+      request.user?.id,
+      `Failure in changeSpaceRole for space id ${request.params.boardId}: ${err}`,
+      'error'
+    );
     throw `${err}`;
   }
 });

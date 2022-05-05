@@ -1,24 +1,26 @@
 Moralis.Cloud.define('getTask', async (request) => {
   const logger = Moralis.Cloud.getLogger();
+  log(
+    request.user?.id,
+    'Calling getTask with params: ' + JSON.stringify(request.params),
+    'info'
+  );
   try {
     if (request.params.taskId) {
       var task = await getTaskObjByTaskId(request.params.taskId);
-      if (!task) throw `Task ${request.params.taskId} not found`;
+      if (!task) {
+        throw `Task ${request.params.taskId} not found`;
+      }
 
       // Get space to check if user can view it
       const space = await getBoardObjByObjectId(task.boardId, request.user?.id);
       const canReadSpace = canRead(space[0], request.user?.id);
-      if (!canReadSpace) throw 'You dont have access to view this space';
+      if (!canReadSpace) {
+        throw 'You dont have access to view this space';
+      }
 
       task = addFieldsToTask(task, request.user?.id);
       task.activity.reverse();
-      if (task.comments?.legnth > 0) {
-        logger.info(
-          `date1 ${JSON.stringify(
-            new Date(task.comments[0]?.createdAt?.iso)?.getTime()
-          )}`
-        );
-      }
       // Arrange comments so oldest is first
       task.comments = task.comments?.sort((a, b) =>
         dateGreaterThan(a.createdAt, b.createdAt) ? 1 : -1
@@ -27,8 +29,10 @@ Moralis.Cloud.define('getTask', async (request) => {
       return task;
     }
   } catch (err) {
-    logger.error(
-      `Error while getting task from board ${request.params.taskId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in getTask for taskId ${request.params.taskId}: ${err}`,
+      'error'
     );
     throw err;
   }

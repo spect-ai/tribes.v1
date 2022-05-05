@@ -69,7 +69,6 @@ function RewardPopover() {
           }}
         >
           <Avatar
-            variant="rounded"
             sx={{
               p: 0,
               mr: 2,

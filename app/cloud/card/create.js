@@ -1,6 +1,10 @@
 Moralis.Cloud.define('addTask', async (request) => {
   const logger = Moralis.Cloud.getLogger();
-
+  log(
+    request.user?.id,
+    `Calling addTask on space ${request.params.boardId}`,
+    'info'
+  );
   const board = await getBoardByObjectId(request.params.boardId);
   const tribe = await getTribeByTeamId(board.get('teamId'));
   try {
@@ -51,10 +55,12 @@ Moralis.Cloud.define('addTask', async (request) => {
       throw 'User doesnt have access to create task';
     }
   } catch (err) {
-    logger.error(
-      `Error while adding task in board ${request.params.boardId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in addTask for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
-    throw `Error while adding task ${err}`;
+    throw `${err}`;
   }
 });
 

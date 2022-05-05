@@ -64,6 +64,11 @@ function initializeEpochMembers(members, choices) {
 }
 
 Moralis.Cloud.define('startEpoch', async (request) => {
+  log(
+    request.user?.id,
+    `Calling startEpoch on space ${request.params.spaceId}`,
+    'info'
+  );
   try {
     if (request.params.members.length === 0)
       throw 'Cant create epoch with no members';
@@ -100,8 +105,10 @@ Moralis.Cloud.define('startEpoch', async (request) => {
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return await getEpochs(request.params.spaceId, request.user.id);
   } catch (err) {
-    logger.error(
-      `Error while starting epoch with name ${request.params.name}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in startEpoch for space id ${request.params.boardId}: ${err}`,
+      'error'
     );
     throw `Error while starting epoch: ${err}`;
   }
@@ -148,6 +155,11 @@ function calculatePassNoPassVotes(memberStats) {
 }
 
 Moralis.Cloud.define('endEpoch', async (request) => {
+  log(
+    request.user?.id,
+    `Calling endEpoch on epoch ${request.params.epochId}`,
+    'info'
+  );
   try {
     var epoch = await getEpochParseObjByObjectId(request.params.epochId);
     epoch.set('active', false);
@@ -172,7 +184,11 @@ Moralis.Cloud.define('endEpoch', async (request) => {
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return await getEpochByObjectId(request.params.epochId, request.user.id);
   } catch (err) {
-    logger.error(`Error while ending epoch ${request.params.epochId}: ${err}`);
+    log(
+      request.user?.id,
+      `Failure in endEpoch for epoch id ${request.params.epochId}: ${err}`,
+      'error'
+    );
     throw `Error while ending epoch ${request.params.epochId}: ${err}`;
   }
 });
@@ -207,7 +223,21 @@ async function getEpochs(spaceId, userId) {
 }
 
 Moralis.Cloud.define('getEpochs', async (request) => {
-  return await getEpochs(request.params.spaceId, request.user.id);
+  log(
+    request.user?.id,
+    `Calling getEpochs on epoch ${request.params.epochId}`,
+    'info'
+  );
+  try {
+    return await getEpochs(request.params.spaceId, request.user.id);
+  } catch (err) {
+    log(
+      request.user?.id,
+      `Failure in getEpochs for epoch id ${request.params.epochId}: ${err}`,
+      'error'
+    );
+    throw err;
+  }
 });
 
 function getTotalVotesGiven(votesGiven, strategy) {
@@ -226,6 +256,11 @@ function getTotalVotesGiven(votesGiven, strategy) {
 }
 
 Moralis.Cloud.define('saveVotes', async (request) => {
+  log(
+    request.user?.id,
+    `Calling saveVotes on epoch ${request.params.epochId}`,
+    'info'
+  );
   try {
     const logger = Moralis.Cloud.getLogger();
     var epoch = await getEpochParseObjByObjectId(request.params.epochId);
@@ -254,14 +289,21 @@ Moralis.Cloud.define('saveVotes', async (request) => {
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return epoch;
   } catch (err) {
-    logger.error(
-      `Error while saving votes for epoch ${request.params.epochId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in saveVotes for epoch id ${request.params.epochId}: ${err}`,
+      'error'
     );
     throw `Error while saving votes ${err}`;
   }
 });
 
 Moralis.Cloud.define('completeEpochPayment', async (request) => {
+  log(
+    request.user?.id,
+    `Calling completeEpochPayment on epoch ${request.params.epochId}`,
+    'info'
+  );
   try {
     const epoch = await getEpochParseObjByObjectId(request.params.epochId);
     epoch.set('paid', true);
@@ -269,8 +311,10 @@ Moralis.Cloud.define('completeEpochPayment', async (request) => {
     await Moralis.Object.saveAll([epoch], { useMasterKey: true });
     return await getEpochs(request.params.spaceId, request.user.id);
   } catch (err) {
-    logger.error(
-      `Error while completing epoch payment for epoch ${request.params.epochId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in completeEpochPayment for epoch id ${request.params.epochId}: ${err}`,
+      'error'
     );
     throw `Error while completing epoch payment ${err}`;
   }

@@ -257,6 +257,11 @@ function ForumView(props: Props) {
       {forumTasks.map((task) => (
         <ForumCard task={task} key={task.taskId} />
       ))}
+      {forumTasks.length === 0 && (
+        <Typography variant="h6" sx={{ my: 8 }} color="text.primary">
+          There are no cards in this column
+        </Typography>
+      )}
       <CreateCard
         isOpen={showCreateTask}
         handleClose={handleCreateCardClose}

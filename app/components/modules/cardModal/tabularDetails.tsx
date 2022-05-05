@@ -12,7 +12,6 @@ import useCardDynamism from '../../../hooks/useCardDynamism';
 
 function TabularDetails() {
   const { tabs, handleTabChange, tabIdx } = useCardDynamism();
-
   return (
     <>
       <Box

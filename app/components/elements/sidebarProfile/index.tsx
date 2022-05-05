@@ -22,11 +22,6 @@ function SidebarProfile() {
 
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    console.log('handleClick');
-    setAnchorEl(event.currentTarget);
-    setOpen(true);
-  };
   const handleClosePopover = () => {
     setOpen(false);
   };
@@ -42,7 +37,6 @@ function SidebarProfile() {
             authenticate()
               .then(async () => {
                 await runMoralisFunction('getOrCreateUser', {});
-                // getOrCreateUser(Moralis).then((res2: any) => console.log(res2));
               })
               .catch((err) => console.log(err));
           }}
@@ -63,11 +57,7 @@ function SidebarProfile() {
             setOpen(true);
           }}
         >
-          <Avatar
-            variant="rounded"
-            sx={{ p: 0, m: 0, width: 32, height: 32 }}
-            src={avatar}
-          />
+          <Avatar sx={{ p: 0, m: 0, width: 32, height: 32 }} src={avatar} />
         </SidebarButton>
       )}
       <ProfilePopover

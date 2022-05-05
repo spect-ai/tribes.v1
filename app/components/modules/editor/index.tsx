@@ -19,8 +19,7 @@ const Container = styled.div<{
   margin-top: 1.5rem;
   min-height: ${(props) => (props.readonly ? '1rem' : '8rem')};
 `;
-
-export default function Editor({
+function Editor({
   syncBlocksToMoralis,
   initialBlock,
   placeholderText,
@@ -47,7 +46,6 @@ export default function Editor({
   };
 
   const popHistoryStack = () => {
-    console.log({ history });
     if (history.length > 0) {
       setBlocks(history[history.length - 1]);
       setHistory(history.slice(0, history.length - 1));
@@ -163,9 +161,6 @@ export default function Editor({
   };
 
   const handleMouseUp = (e: any) => {
-    const delta = 6;
-    const diffX = Math.abs(e.pageX - mousePosition.x);
-    const diffY = Math.abs(e.pageY - mousePosition.y);
     setIsClicked(false);
     setIsDragging(false);
   };
@@ -182,7 +177,6 @@ export default function Editor({
   const handleKeyDown = (e: any) => {
     if (previousKey === 'Control' && e.key === 'z' && history.length > 0) {
       e.preventDefault();
-      console.log('pop');
       popHistoryStack();
     }
     setPreviousKey(e.key);
@@ -229,7 +223,7 @@ export default function Editor({
               onMouseMove={handleMouseMove}
               onKeyDown={handleKeyDown}
             >
-              {blocks?.map((block, index) => {
+              {blocks?.map((block) => {
                 const position = blocks.map((b) => b.id).indexOf(block.id) + 1;
                 return (
                   <EditableClassBlock
@@ -255,3 +249,5 @@ export default function Editor({
     </Container>
   );
 }
+
+export default Editor;
