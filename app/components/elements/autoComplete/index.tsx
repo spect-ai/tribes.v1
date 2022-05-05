@@ -3,14 +3,15 @@ import React from 'react';
 
 type AutoProps = {
   fieldType?: string;
-  options: Array<string>;
-  optionLabels?: any;
-  currOption: string | undefined | null;
-  setCurrOption: any;
-  setOpen: Function;
+  options: any[];
+  optionLabels?: (option: any) => string;
+  currOption: any;
+  setCurrOption: (option: any) => void;
+  setOpen?: (open: boolean) => void;
   sx: any;
   closeOnSelect?: boolean;
   multiple?: boolean;
+  placeholder?: string;
 };
 
 function CommonAutocomplete({
@@ -22,6 +23,7 @@ function CommonAutocomplete({
   sx,
   closeOnSelect = true,
   multiple = false,
+  placeholder = 'Search types',
 }: AutoProps) {
   return (
     <Autocomplete
@@ -31,7 +33,7 @@ function CommonAutocomplete({
       sx={sx}
       onChange={(event, newValue) => {
         setCurrOption(newValue as string);
-        if (closeOnSelect) {
+        if (closeOnSelect && setOpen) {
           setOpen(false);
         }
       }}
@@ -41,7 +43,7 @@ function CommonAutocomplete({
           id="filled-hidden-label-normal"
           size="small"
           fullWidth
-          placeholder="Search types"
+          placeholder={placeholder}
           color="secondary"
         />
       )}

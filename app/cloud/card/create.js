@@ -6,6 +6,7 @@ Moralis.Cloud.define('addTask', async (request) => {
     'info'
   );
   const board = await getBoardByObjectId(request.params.boardId);
+  const tribe = await getTribeByTeamId(board.get('teamId'));
   try {
     if (isMember(request.user.id, board)) {
       var columns = board.get('columns');
@@ -44,6 +45,11 @@ Moralis.Cloud.define('addTask', async (request) => {
       const space = await getSpace(request.params.boardId, request.user.id);
       res.space = space;
       res.taskId = taskId;
+      const channels = columns[request.params.columnId].discordChannels;
+      if (channels && channels.length > 0) {
+        logger.info(`Sending message to channels ${channels}`);
+        NotifyOnDiscord(board, tribe.get('guildId'), taskId, channels);
+      }
       return res;
     } else {
       throw 'User doesnt have access to create task';

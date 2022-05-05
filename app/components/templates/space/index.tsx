@@ -27,12 +27,16 @@ function BoardsTemplate(props: Props) {
   const { user } = useMoralis();
   const { inviteCode, taskId, id, bid } = router.query;
   const { isAuthenticated, authenticate } = useMoralis();
-  const { space, setSpace, isLoading, tab, handleTabChange } = useSpace();
+  const { space, setSpace, isLoading, tab } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
   const [isOpen, setIsOpen] = useState(false);
+  const [isDiscordModalOpen, setIsDiscordModalOpen] = useState(false);
   const handleClose = () => {
     setIsOpen(false);
     router.push(`/tribe/${id}/space/${bid}`);
+  };
+  const handleDiscordModalClose = () => {
+    setIsDiscordModalOpen(false);
   };
   useEffect(() => {
     if (inviteCode && !isLoading) {
@@ -77,8 +81,8 @@ function BoardsTemplate(props: Props) {
       <Fade in={!isLoading} timeout={500}>
         <div>
           <DiscordIntegrationModal
-            isOpen={isOpen}
-            handleClose={handleClose}
+            isOpen={isDiscordModalOpen}
+            handleClose={handleDiscordModalClose}
             user={false}
           />
           {tab === 0 && (
