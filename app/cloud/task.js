@@ -1,7 +1,6 @@
 async function getTaskByTaskId(taskId) {
   const taskQuery = new Moralis.Query('Task');
   taskQuery.equalTo('taskId', taskId);
-  logger.info(`taskId: ${taskId}`);
   return taskQuery.first({ useMasterKey: true });
 }
 

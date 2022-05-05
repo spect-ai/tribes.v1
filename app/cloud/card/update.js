@@ -66,9 +66,15 @@ const updatePropertyActivityMap = {
 };
 
 Moralis.Cloud.define('updateCard', async (request) => {
-  const logger = Moralis.Cloud.getLogger();
+  log(
+    request.user?.id,
+    `Calling updateCard for taskId: ${request.params.updates?.taskId}`,
+    'info'
+  );
   try {
-    if (!request.params.updates?.taskId) throw 'Payload must contain taskId';
+    if (!request.params.updates?.taskId) {
+      throw 'Payload must contain taskId';
+    }
 
     var task = await getTaskByTaskId(request.params.updates?.taskId);
     var space = await getBoardByObjectId(task.get('boardId'));
@@ -98,14 +104,22 @@ Moralis.Cloud.define('updateCard', async (request) => {
       task: resTask,
     };
   } catch (err) {
-    logger.error(
-      `Error while updating card with card Id ${request.params.updates?.taskId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in updateCard for card id ${request.params.updates?.taskId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
 });
 
 Moralis.Cloud.define('updateMultipleCards', async (request) => {
+  log(
+    request.user?.id,
+    `Calling updateMultipleCards for updates: ${request.params.updates}`,
+    JSON.stringify(request.params),
+    'info'
+  );
   try {
     var tasks = await getTasksByTaskIds(Object.keys(request.params.updates));
     if (tasks.length === 0) throw 'No tasks found';
@@ -136,8 +150,10 @@ Moralis.Cloud.define('updateMultipleCards', async (request) => {
       ),
     };
   } catch (err) {
-    logger.error(
-      `Error while updating cards with card Id ${request.params.updates?.taskId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in updateMultipleCards for updates ${request.params.updates}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
