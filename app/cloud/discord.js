@@ -167,7 +167,7 @@ Moralis.Cloud.define('getGuildChannels', async (request) => {
 
 async function NotifyOnDiscord(board, guildId, taskId, channels) {
   const task = await getTaskObjByTaskId(taskId);
-  task.url = `http://localhost:3000/tribe/${board.get('teamId')}/space/${
+  task.url = `https://tribes.spect.network/tribe/${board.get('teamId')}/space/${
     board.id
   }?taskId=${task.taskId}`;
   Moralis.Cloud.httpRequest({

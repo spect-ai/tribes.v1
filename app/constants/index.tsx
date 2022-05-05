@@ -93,6 +93,7 @@ export const labelsMapping = {
   Marketing: 'rgb(116, 166, 214,0.4)',
   Documentation: 'rgb(255, 255, 155,0.4)',
   Deployment: 'rgb(192, 31, 98,0.4)',
+  Testing: 'rgb(254, 254, 254,0.4)',
 };
 
 export const taskStatusBorderMapping: {

@@ -1,11 +1,8 @@
 import { Box, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import React from 'react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DoneIcon from '@mui/icons-material/Done';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
-import { Block, Task } from '../../../../types';
 import { uid } from '../../../../utils/utils';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import Editor from '../../editor';
@@ -29,7 +26,7 @@ function Submission() {
   const { updateSubmission, updateStatus } = useCardUpdate();
 
   return (
-    <Box sx={{ color: '#eaeaea', height: 'auto', mr: 3 }}>
+    <Box sx={{ color: '#eaeaea', height: 'auto', mr: 3, width: '100%' }}>
       {((isCardSteward() &&
         (isInReview() || isInRevision() || isClosed() || isPaid())) ||
         isCardAssignee()) && (
