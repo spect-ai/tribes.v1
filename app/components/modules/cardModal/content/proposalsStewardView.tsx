@@ -43,7 +43,6 @@ function ProposalsStewardView() {
               }}
             >
               <Avatar
-                variant="rounded"
                 sx={{ p: 0, m: 0, width: 32, height: 32 }}
                 src={space.memberDetails[proposal.userId]?.profilePicture?._url}
               />

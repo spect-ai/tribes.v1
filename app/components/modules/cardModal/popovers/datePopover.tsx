@@ -58,7 +58,6 @@ function DatePopover() {
           }}
         >
           <Avatar
-            variant="rounded"
             sx={{
               p: 0.1,
               mr: 2,

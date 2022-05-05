@@ -51,7 +51,6 @@ function TaskCard({ handleClose }: Props) {
   useEffect(() => {
     setReadOnlyDescription(!isCardStewardAndUnpaidCardStatus());
   }, [isCardStewardAndUnpaidCardStatus()]);
-
   return (
     <Container>
       <TaskModalTitleContainer>

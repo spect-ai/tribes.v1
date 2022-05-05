@@ -146,7 +146,7 @@ class EditableClassBlock extends React.Component<Props, State> {
     // Add a placeholder if the first block has no sibling elements and no content
     const {
       position,
-      block: { html, tag, imageUrl, type },
+      block: { html, tag, imageUrl, type, embedUrl },
     } = this.props;
     const hasPlaceholder = this.addPlaceholder({
       block: this.contentEditable.current,
@@ -159,6 +159,7 @@ class EditableClassBlock extends React.Component<Props, State> {
         html,
         tag,
         imageUrl,
+        embedUrl,
         type,
       });
     }
@@ -177,7 +178,6 @@ class EditableClassBlock extends React.Component<Props, State> {
         embedUrl: propEmbedUrl,
       },
       id,
-      isDragging,
       updateBlock,
     } = this.props;
 

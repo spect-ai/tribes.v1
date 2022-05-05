@@ -76,7 +76,6 @@ function CardMemberPopover({ type }: Props) {
             }}
           >
             <Avatar
-              variant="rounded"
               sx={{
                 p: 0,
                 mr: 2,

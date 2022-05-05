@@ -45,11 +45,7 @@ function ProposalApplicantView() {
             mt: 4,
           }}
         >
-          <Avatar
-            variant="rounded"
-            sx={{ p: 0, m: 0, width: 32, height: 32 }}
-            src={avatar}
-          />
+          <Avatar sx={{ p: 0, m: 0, width: 32, height: 32 }} src={avatar} />
           <Typography
             variant="body1"
             sx={{

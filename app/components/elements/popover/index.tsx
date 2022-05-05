@@ -64,7 +64,6 @@ function CommonPopover({
         >
           {(avatarSrc || avatarDefault) && (
             <Avatar
-              variant="rounded"
               sx={{
                 p: 0,
                 mr: 2,

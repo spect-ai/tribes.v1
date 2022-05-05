@@ -65,7 +65,6 @@ function LabelPopover() {
             {(!task.tags || task.tags?.length === 0) && (
               <>
                 <Avatar
-                  variant="rounded"
                   sx={{
                     p: 0,
                     mr: 2,
