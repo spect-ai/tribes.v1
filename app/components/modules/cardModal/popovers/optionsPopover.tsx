@@ -19,6 +19,7 @@ import useAccess from '../../../../hooks/useAccess';
 import useCardStatus from '../../../../hooks/useCardStatus';
 import { notify } from '../../settingsTab';
 import useCardUpdate from '../../../../hooks/useCardUpdate';
+import useCardCreate from '../../../../hooks/useCardCreate';
 import { useCardContext } from '..';
 
 function OptionsPopover() {
@@ -30,32 +31,27 @@ function OptionsPopover() {
   const { runMoralisFunction } = useMoralisFunction();
   const { setSpace } = useSpace();
   const { updateStatus } = useCardUpdate();
+  const { createCard } = useCardCreate();
   const { statusToCode } = useCardStatus();
 
   const { isSpaceSteward } = useAccess(task);
   const duplicateCard = () => {
     handleClose();
-    runMoralisFunction('addTask', {
-      boardId: task.boardId,
-      columnId: task.columnId,
-      title: task.title,
-      value: task.value,
-      token: task.token,
-      chain: task.chain,
-      type: task.type,
-      tags: task.tags,
-      description: task.description,
-      assignee: task.assignee,
-      deadline: task.deadline,
-    })
-      .then((res) => {
-        setSpace(res.space);
-        notify('Card has been duplicated', 'success');
-      })
-      .catch((err) => {
-        console.log(err);
-        notify(`${err.message}`, 'error');
-      });
+    createCard(
+      task.boardId,
+      task.title,
+      task.description,
+      task.type,
+      task.tags,
+      task.deadline?.toISOString() as string,
+      task.chain,
+      task.token,
+      task.value?.toString(),
+      task.assignee?.length > 0 ? task.assignee[0] : null,
+      task.reviewer?.length > 0 ? task.reviewer[0] : null,
+      task.columnId,
+      handleClose
+    );
   };
 
   return (

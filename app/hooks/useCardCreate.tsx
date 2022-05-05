@@ -17,8 +17,8 @@ export default function useCardCreate() {
     chain: object,
     token: object,
     value: string,
-    assignee: string,
-    reviewer: string,
+    assignee: string | null,
+    reviewer: string | null,
     columnId: string,
     handleClose: Function
   ) => {
