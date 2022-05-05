@@ -3,7 +3,7 @@ import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Box, IconButton, InputBase, Palette, useTheme } from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
@@ -110,6 +110,11 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
         });
     }
   }
+
+  useEffect(() => {
+    setColumnTitle(space.columns[column.id].title);
+  }, [space]);
+
   return (
     <OuterContainer>
       {isOpen && (

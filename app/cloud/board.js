@@ -572,10 +572,10 @@ Moralis.Cloud.define('updateColumnSettings', async (request) => {
     const board = await getBoardByObjectId(request.params.boardId);
     if (hasAccess(request.user.id, board, 3)) {
       const columns = board.get('columns');
-      columns[request.params.columnId].createCard =
-        request.params.createCardRoles;
-      columns[request.params.columnId].discordChannels =
-        request.params.channels;
+      const column = columns[request.params.columnId];
+      column.createCard = request.params.createCardRoles;
+      column.discordChannels = request.params.channels;
+      column.title = request.params.title;
       // columns[request.params.columnId].moveCard = request.params.moveCardRoles;
       board.set('columns', columns);
       await Moralis.Object.saveAll([board], { useMasterKey: true });

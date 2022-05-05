@@ -12,6 +12,7 @@ import {
   Modal,
   styled as MUIStyled,
   TextField,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
@@ -71,11 +72,10 @@ function ColumnSettings({ isOpen, handleClose, column }: Props) {
   const [serverChannels, setServerChannels] = useState<Channel[]>([]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && space.team[0].guildId) {
       runMoralisFunction('getGuildChannels', {
         guildId: space.team[0].guildId,
       }).then((res) => {
-        console.log({ res });
         if (res.guildChannels) {
           setServerChannels(res.guildChannels);
         }
@@ -101,6 +101,9 @@ function ColumnSettings({ isOpen, handleClose, column }: Props) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               fullWidth
+              color="secondary"
+              sx={{ mb: 2 }}
+              size="small"
             />
             <StyledAccordian disableGutters>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -190,27 +193,36 @@ function ColumnSettings({ isOpen, handleClose, column }: Props) {
                 </Box>
               </AccordionDetails>
             </StyledAccordian>
-            <StyledAccordian disableGutters disabled={!space.team[0].guildId}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography>Discord Notifications</Typography>
-              </AccordionSummary>
+            <Tooltip
+              title={
+                space.team[0].guildId
+                  ? ''
+                  : 'Connect discord on tribe to set up discord notifications'
+              }
+              placement="top"
+            >
+              <StyledAccordian disableGutters disabled={!space.team[0].guildId}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography>Discord Notifications</Typography>
+                </AccordionSummary>
 
-              <AccordionDetails>
-                <Typography fontSize={14}>
-                  Notify on your server&apos;s channels once a card is created
-                </Typography>
-                <CommonAutocomplete
-                  options={serverChannels}
-                  optionLabels={(option) => `#${option.name}`}
-                  currOption={columnChannels}
-                  setCurrOption={setColumnChannels}
-                  closeOnSelect={false}
-                  sx={{ mt: 2 }}
-                  multiple
-                  placeholder="Search for channels"
-                />
-              </AccordionDetails>
-            </StyledAccordian>
+                <AccordionDetails>
+                  <Typography fontSize={14}>
+                    Notify on your server&apos;s channels once a card is created
+                  </Typography>
+                  <CommonAutocomplete
+                    options={serverChannels}
+                    optionLabels={(option) => `#${option.name}`}
+                    currOption={columnChannels}
+                    setCurrOption={setColumnChannels}
+                    closeOnSelect={false}
+                    sx={{ mt: 2 }}
+                    multiple
+                    placeholder="Search for channels"
+                  />
+                </AccordionDetails>
+              </StyledAccordian>
+            </Tooltip>
             <Box sx={{ display: 'flex' }}>
               <PrimaryButton
                 variant="outlined"
@@ -225,6 +237,7 @@ function ColumnSettings({ isOpen, handleClose, column }: Props) {
                     columnId: column.id,
                     createCardRoles,
                     channels: columnChannels,
+                    title: name,
                   })
                     .then((res: BoardData) => {
                       notify('Settings updated');

@@ -41,33 +41,11 @@ Moralis.Cloud.define('addTask', async (request) => {
       const space = await getSpace(request.params.boardId, request.user.id);
       res.space = space;
       res.taskId = taskId;
-      const taskObj = await getTaskObjByTaskId(taskId);
-      taskObj.url = `http://localhost:3000/tribe/${board.get('teamId')}/space/${
-        request.params.boardId
-      }?task=${taskId}`;
-      Moralis.Cloud.httpRequest({
-        method: 'POST',
-        url: 'http://8a74-49-207-199-197.ngrok.io/api/postTaskUpdate',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-        },
-        params: {
-          guildId: tribe.get('guildId'),
-        },
-        body: {
-          task: taskObj,
-          channels: columns[request.params.columnId].discordChannels,
-        },
-      }).then(
-        function (httpResponse) {
-          logger.info(httpResponse.text);
-        },
-        function (httpResponse) {
-          logger.error(
-            'Request failed with response code ' + httpResponse.status
-          );
-        }
-      );
+      const channels = columns[request.params.columnId].discordChannels;
+      if (channels && channels.length > 0) {
+        logger.info(`Sending message to channels ${channels}`);
+        NotifyOnDiscord(board, tribe.get('guildId'), taskId, channels);
+      }
       return res;
     } else {
       throw 'User doesnt have access to create task';
