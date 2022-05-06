@@ -1,9 +1,11 @@
+/* eslint-disable no-unsafe-optional-chaining */
+/* eslint-disable no-restricted-syntax */
 import { monthMap } from '../constants';
 import { Registry, Chain, Token } from '../types';
 
 export const smartTrim = (string: string, maxLength: number) => {
   if (!string) {
-    return;
+    return '';
   }
   if (maxLength < 1) return string;
   if (string.length <= maxLength) return string;
@@ -20,7 +22,7 @@ export const smartTrim = (string: string, maxLength: number) => {
 
 export const normalTrim = (string: string, maxLength: number) => {
   if (!string) {
-    return;
+    return '';
   }
   if (maxLength < 1) return string;
   if (string.length <= maxLength) return string;
@@ -28,6 +30,18 @@ export const normalTrim = (string: string, maxLength: number) => {
 
   return `${string.substring(0, maxLength)}...`;
 };
+
+function msToTime(ms: number) {
+  const seconds = parseInt((ms / 1000).toFixed(0), 10);
+  const minutes = parseInt((ms / (1000 * 60)).toFixed(0), 10);
+  const hours = parseInt((ms / (1000 * 60 * 60)).toFixed(0), 10);
+  const days = (ms / (1000 * 60 * 60 * 24)).toFixed(0);
+  if (seconds < 0) return 'Expired';
+  if (seconds < 60) return `${seconds} sec`;
+  if (minutes < 60) return `${minutes}${minutes === 1 ? ' min' : ' mins'}`;
+  if (hours < 24) return `${hours}${hours > 1 ? ' hours' : ' hour'}`;
+  return `${days} Days`;
+}
 
 export function formatTimeLeft(date: Date) {
   const deadline = new Date(date);
@@ -38,18 +52,6 @@ export function formatTimeLeft(date: Date) {
 export function formatTimeCreated(date: Date) {
   const now = Date.now();
   return msToTime(now - new Date(date).getTime());
-}
-
-function msToTime(ms: number) {
-  const seconds = parseInt((ms / 1000).toFixed(0));
-  const minutes = parseInt((ms / (1000 * 60)).toFixed(0));
-  const hours = parseInt((ms / (1000 * 60 * 60)).toFixed(0));
-  const days = (ms / (1000 * 60 * 60 * 24)).toFixed(0);
-  if (seconds < 0) return 'Expired';
-  if (seconds < 60) return `${seconds} sec`;
-  if (minutes < 60) return `${minutes}${minutes === 1 ? ' min' : ' mins'}`;
-  if (hours < 24) return `${hours}${hours > 1 ? ' hours' : ' hour'}`;
-  return `${days} Days`;
 }
 
 export function getRemainingVotes(
@@ -67,6 +69,7 @@ export function activityFormatter(status: number, date: Date, actor: string) {
       monthMap[date.getMonth() as number]
     }`;
   }
+  return null;
 }
 
 export const reorder = (
@@ -107,11 +110,13 @@ export function getFlattenedNetworks(registry: Registry) {
 
 export function getFlattenedTokens(registry: Registry, chainId: string) {
   const tokens: Array<Token> = [];
-  for (const tokenAddress of registry[chainId]?.tokenAddresses) {
-    tokens.push({
-      address: tokenAddress,
-      symbol: registry[chainId].tokens[tokenAddress].symbol,
-    });
+  if (registry[chainId]?.tokenAddresses) {
+    for (const tokenAddress of registry[chainId].tokenAddresses) {
+      tokens.push({
+        address: tokenAddress,
+        symbol: registry[chainId].tokens[tokenAddress].symbol,
+      });
+    }
   }
   return tokens;
 }
@@ -137,7 +142,10 @@ export function downloadCSV(content: Array<Array<any>>, filename: string) {
 }
 
 export function capitalizeFirstLetter(word: string) {
-  return word?.charAt(0).toUpperCase() + word?.slice(1);
+  if (!word) {
+    return '';
+  }
+  return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
 export const uid = () => {
@@ -156,7 +164,43 @@ export const setCaretToEnd = (element: any) => {
   }
 };
 
+export const getSelection = (element: any) => {
+  let selectionStart;
+  let selectionEnd;
+  const isSupported = typeof window.getSelection !== 'undefined';
+  if (isSupported) {
+    const range = window.getSelection()?.getRangeAt(0);
+    if (range) {
+      const preSelectionRange = range.cloneRange();
+      preSelectionRange.selectNodeContents(element);
+      preSelectionRange.setEnd(range.startContainer, range.startOffset);
+      selectionStart = preSelectionRange.toString().length;
+      selectionEnd = selectionStart + range.toString().length;
+    }
+  }
+  return { selectionStart, selectionEnd };
+};
+
 export const getCaretCoordinates = (fromStart = true) => {
+  let x;
+  let y;
+  const isSupported = typeof window.getSelection !== 'undefined';
+  if (isSupported) {
+    const selection = window.getSelection();
+    if (selection?.rangeCount !== 0) {
+      const range = selection?.getRangeAt(0).cloneRange();
+      range?.collapse(!!fromStart);
+      const rect = range?.getClientRects()[0];
+      if (rect) {
+        x = rect.left;
+        y = rect.top;
+      }
+    }
+  }
+  return { x, y };
+};
+
+export const getCaretCoordinatesForCommand = (fromStart = true) => {
   let x;
   let y;
   const isSupported = typeof window.getSelection !== 'undefined';
@@ -208,4 +252,60 @@ export function delay(delayInms: number) {
       resolve(2);
     }, delayInms);
   });
+}
+
+function nextNode(node: any) {
+  if (node.hasChildNodes()) {
+    return node.firstChild;
+  }
+  while (node && !node.nextSibling) {
+    // eslint-disable-next-line no-param-reassign
+    node = node.parentNode;
+  }
+  if (!node) {
+    return null;
+  }
+  return node.nextSibling;
+}
+
+function getRangeSelectedNodes(range: any) {
+  let node = range.startContainer;
+  const endNode = range.endContainer;
+
+  // Special case for a range that is contained within a single node
+  if (node === endNode) {
+    return [node];
+  }
+
+  // Iterate nodes until we hit the end container
+  const rangeNodes = [];
+  while (node && node !== endNode) {
+    rangeNodes.push((node = nextNode(node)));
+  }
+
+  // Add partially selected nodes at the start of the range
+  node = range.startContainer;
+  while (node && node !== range.commonAncestorContainer) {
+    rangeNodes.unshift(node);
+    node = node.parentNode;
+  }
+
+  return rangeNodes;
+}
+
+export function getSelectedNodes() {
+  if (window.getSelection) {
+    const sel = window.getSelection();
+    if (!sel?.isCollapsed) {
+      return getRangeSelectedNodes(sel?.getRangeAt(0));
+    }
+  }
+  return [];
+}
+
+export function getDateDisplay(date: string) {
+  const dateObj = new Date(date);
+  return `${dateObj?.getDate()} ${
+    monthMap[dateObj?.getMonth() as keyof typeof monthMap]
+  } ${formatTime(dateObj)}`;
 }

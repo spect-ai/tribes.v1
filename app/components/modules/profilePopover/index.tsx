@@ -49,6 +49,7 @@ function ProfilePopover({ open, anchorEl, handleClose }: Props) {
         )}
         <ProfileSettings />
         <OptionsButton
+          data-testid="bLogoutButton"
           color="inherit"
           onClick={() => {
             // localStorage.removeItem("objectId");

@@ -208,6 +208,7 @@ function CreateEpoch(props: Props) {
     <>
       {user && space.roles[user?.id] === 3 && (
         <PrimaryButton
+          data-testid="bCreateEpoch"
           variant="outlined"
           size="large"
           color="secondary"
@@ -239,6 +240,7 @@ function CreateEpoch(props: Props) {
                   render={({ field, fieldState }) => (
                     <TextField
                       {...field}
+                      data-testid="iEpochName"
                       placeholder="Epoch Name"
                       fullWidth
                       sx={{ mb: 2 }}
@@ -255,6 +257,7 @@ function CreateEpoch(props: Props) {
                   render={({ field, fieldState }) => (
                     <Autocomplete
                       {...field}
+                      data-testid="aEpochType"
                       options={['Card', 'Member']}
                       disableClearable
                       // value={type}
@@ -294,6 +297,7 @@ function CreateEpoch(props: Props) {
                   render={({ field, fieldState }) => (
                     <TextField
                       {...field}
+                      data-testid="iEpochDuration"
                       id="filled-hidden-label-normal"
                       fullWidth
                       sx={{ mb: 2 }}
@@ -317,6 +321,7 @@ function CreateEpoch(props: Props) {
                   render={({ field, fieldState }) => (
                     <Autocomplete
                       {...field}
+                      data-testid="aEpochStrategy"
                       options={
                         type === 'Member'
                           ? ['Quadratic voting']
@@ -347,6 +352,7 @@ function CreateEpoch(props: Props) {
                     control={control}
                     render={({ field, fieldState }) => (
                       <TextField
+                        data-testid="iEpochThreshold"
                         id="filled-hidden-label-normal"
                         value={passThreshold}
                         onChange={(event) => {
@@ -372,6 +378,7 @@ function CreateEpoch(props: Props) {
                           render={({ field, fieldState }) => (
                             <TextField
                               {...field}
+                              data-testid="iEpochBudgetValue"
                               id="filled-hidden-label-normal"
                               sx={{ mb: 2 }}
                               placeholder="Budget"
@@ -385,43 +392,13 @@ function CreateEpoch(props: Props) {
                       </Grid>{' '}
                       <Grid item xs={4}>
                         <Controller
-                          name="budgetToken"
-                          control={control}
-                          defaultValue={token}
-                          render={({ field, fieldState }) => (
-                            <Autocomplete
-                              {...field}
-                              options={getFlattenedCurrencies(
-                                registry as Registry,
-                                chain.chainId
-                              )}
-                              value={token}
-                              onChange={(event, newValue) => {
-                                setToken(newValue as Token);
-                              }}
-                              disableClearable
-                              getOptionLabel={(option) => option.symbol}
-                              renderInput={(params) => (
-                                <TextField
-                                  {...params}
-                                  id="filled-hidden-label-normal"
-                                  placeholder="Token"
-                                  size="small"
-                                  color="secondary"
-                                />
-                              )}
-                            />
-                          )}
-                        />
-                      </Grid>
-                      <Grid item xs={4}>
-                        <Controller
                           name="budgetChain"
                           control={control}
                           defaultValue={chain}
                           render={({ field, fieldState }) => (
                             <Autocomplete
                               {...field}
+                              data-testid="aEpochBudgetChain"
                               options={getFlattenedNetworks(
                                 registry as Registry
                               )}
@@ -442,6 +419,38 @@ function CreateEpoch(props: Props) {
                                   {...params}
                                   id="filled-hidden-label-normal"
                                   placeholder="Network"
+                                  size="small"
+                                  color="secondary"
+                                />
+                              )}
+                            />
+                          )}
+                        />
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Controller
+                          name="budgetToken"
+                          control={control}
+                          defaultValue={token}
+                          render={({ field, fieldState }) => (
+                            <Autocomplete
+                              {...field}
+                              data-testid="aEpochBudgetToken"
+                              options={getFlattenedCurrencies(
+                                registry as Registry,
+                                chain.chainId
+                              )}
+                              value={token}
+                              onChange={(event, newValue) => {
+                                setToken(newValue as Token);
+                              }}
+                              disableClearable
+                              getOptionLabel={(option) => option.symbol}
+                              renderInput={(params) => (
+                                <TextField
+                                  {...params}
+                                  id="filled-hidden-label-normal"
+                                  placeholder="Token"
                                   size="small"
                                   color="secondary"
                                 />
@@ -561,6 +570,7 @@ function CreateEpoch(props: Props) {
                 )}
 
                 <PrimaryButton
+                  data-testid="bStartEpoch"
                   variant="outlined"
                   type="submit"
                   color="secondary"

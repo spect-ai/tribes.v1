@@ -10,6 +10,7 @@ function ExploreTemplate(props: Props) {
   const { publicTribes } = useExplore();
   return (
     <Box
+      data-testid="explore-template-container"
       sx={{
         display: 'flex',
         flexDirection: 'column',
@@ -27,10 +28,11 @@ function ExploreTemplate(props: Props) {
           width: '95%',
         }}
       >
-        <Grid container spacing={8} columns={15}>
+        <Grid container spacing={8} columns={15} data-testid="explore-grid">
           {publicTribes.map((tribe: Team) => (
-            <Grid item xs={3} key={tribe.teamId}>
+            <Grid item xs={3} key={tribe.teamId || 'id'}>
               <DAOCard
+                data-testid={`tribe-card-${tribe.teamId}`}
                 image={tribe.logo}
                 title={tribe.name}
                 members={tribe.members?.length}

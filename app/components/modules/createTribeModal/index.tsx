@@ -114,6 +114,7 @@ function CreateTribeModal(props: Props) {
                 onClick={onSubmit}
                 loading={isLoading}
                 color="inherit"
+                disabled={!name || name === ''}
               >
                 Create your tribe
               </PrimaryButton>

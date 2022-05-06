@@ -1,7 +1,6 @@
 async function getTaskByTaskId(taskId) {
   const taskQuery = new Moralis.Query('Task');
   taskQuery.equalTo('taskId', taskId);
-  logger.info(`taskId: ${taskId}`);
   return taskQuery.first({ useMasterKey: true });
 }
 
@@ -45,6 +44,28 @@ async function getTaskObjByBoardId(boardId) {
   ];
   return await taskQuery.aggregate(pipeline, { useMasterKey: true });
 }
+
+// async function getTaskObjByColumnId(boardId, columnId) {
+//   const taskQuery = new Moralis.Query('Task');
+//   const pipeline = [
+//     {
+//       match: {
+//         boardId: boardId,
+//         columnId: columnId,
+//         status: { $ne: 500 }, // need to discuss status for archived cards
+//       },
+//     },
+//     {
+//       project: {
+//         submission: 0,
+//         activity: 0,
+//         proposals: 0,
+//         selectedProposals: 0,
+//       },
+//     },
+//   ];
+//   return await taskQuery.aggregate(pipeline, { useMasterKey: true });
+// }
 
 async function getTaskObjByBoardIdWithProposals(boardId) {
   const taskQuery = new Moralis.Query('Task');
@@ -776,19 +797,20 @@ async function getApprovalInfo(
   for (const [tokenAddress, minAllowance] of Object.entries(
     tokenAddressToMinAllowanceRequired
   )) {
-    var minAllowanceInWei = await Moralis.Cloud.units({
-      method: 'toWei',
-      value: minAllowance,
-    });
+    logger.info(`minAllowance ${minAllowance}`);
     var allowance = await getAllowance(
       chainIdHex,
       tokenAddress,
       callerAddress,
       spenderAddress
     );
-    logger.info(`allowance ${JSON.stringify(allowance)}`);
-    if (allowance < minAllowanceInWei) {
-      res[tokenAddress] = minAllowanceInWei;
+    var allowanceInEther = await Moralis.Cloud.units({
+      method: 'fromWei',
+      value: allowance,
+    });
+    logger.info(`allowance ${JSON.stringify(allowanceInEther)}`);
+    if (allowance < minAllowance) {
+      res[tokenAddress] = minAllowance;
     }
   }
   return res;

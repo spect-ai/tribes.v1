@@ -2,20 +2,10 @@
 import { Avatar, Box, Button, Grid, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import { batchPayTokens, distributeEther } from '../../../adapters/contract';
 import { useGlobal } from '../../../context/globalContext';
-import { Member } from '../../../types';
+import { DistributionInfo } from '../../../types';
 import { PrimaryButton } from '../../elements/styledComponents';
-import { notify } from '../settingsTab';
-
-export type DistributionInfo = {
-  cardIds: string[];
-  epochId: string;
-  type: string;
-  contributors: Array<string>;
-  tokenAddresses: Array<string>;
-  tokenValues: Array<number>;
-};
+import usePaymentGateway from '../../../hooks/usePaymentGateway';
 
 type Props = {
   handleNextStep: Function;
@@ -25,14 +15,6 @@ type Props = {
   handleStatusUpdate: Function;
 };
 
-type MemberDetails = {
-  [key: string]: Member;
-};
-
-function getEthAddresses(contributors: any, memberDetails: MemberDetails) {
-  return contributors.map((a: string) => memberDetails[a].ethAddress);
-}
-
 function BatchPay({
   handleNextStep,
   handleClose,
@@ -40,10 +22,13 @@ function BatchPay({
   distributionInfo,
   handleStatusUpdate,
 }: Props) {
-  const [isLoading, setIsLoading] = useState(false);
   const { space } = useSpace();
   const { state } = useGlobal();
   const { registry } = state;
+  const { batchPay, isLoading } = usePaymentGateway(
+    handleStatusUpdate,
+    handleNextStep
+  );
   return (
     <Box
       sx={{
@@ -109,80 +94,17 @@ function BatchPay({
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <PrimaryButton
+          data-testid="bBatchPayModalButton"
           loading={isLoading}
           sx={{ borderRadius: '3px' }}
           onClick={() => {
-            setIsLoading(true);
-            if (distributionInfo.type === 'tokens') {
-              batchPayTokens(
-                distributionInfo.tokenAddresses,
-                getEthAddresses(
-                  distributionInfo.contributors,
-                  space.memberDetails
-                ),
-                distributionInfo.tokenValues,
-                '123',
-                window.ethereum.networkVersion
-              )
-                .then((res: any) => {
-                  const promises: Array<any> = [];
-                  promises.push(
-                    handleStatusUpdate(
-                      distributionInfo.epochId
-                        ? distributionInfo.epochId
-                        : distributionInfo.cardIds,
-                      res.transactionHash
-                    )
-                  );
-                  Promise.all(promises).then(() => {
-                    setIsLoading(false);
-                    handleNextStep();
-                    notify('Payment done succesfully!');
-                  });
-                })
-                .catch((err: any) => {
-                  notify(err.message, 'error');
-                  setIsLoading(false);
-                  console.log(err.message);
-                });
-            } else if (distributionInfo.type === 'currency') {
-              distributeEther(
-                getEthAddresses(
-                  distributionInfo.contributors,
-                  space.memberDetails
-                ),
-                distributionInfo.tokenValues,
-                '123',
-                window.ethereum.networkVersion
-              )
-                .then((res: any) => {
-                  const promises: Array<any> = [];
-                  promises.push(
-                    handleStatusUpdate(
-                      distributionInfo.epochId
-                        ? distributionInfo.epochId
-                        : distributionInfo.cardIds,
-                      res.transactionHash
-                    )
-                  );
-                  Promise.all(promises).then(() => {
-                    setIsLoading(false);
-                    handleNextStep();
-                    notify('Payment done succesfully!');
-                  });
-                })
-                .catch((err: any) => {
-                  notify(err.message, 'error');
-                  console.error(err);
-                  setIsLoading(false);
-                });
-            }
+            batchPay(window.ethereum.networkVersion, distributionInfo);
           }}
           variant="outlined"
           id="bApprove"
           color="secondary"
         >
-          Batch Pay
+          Pay
         </PrimaryButton>
       </Box>
     </Box>

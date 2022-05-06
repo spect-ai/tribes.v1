@@ -22,10 +22,6 @@ function SidebarProfile() {
 
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    setOpen(true);
-  };
   const handleClosePopover = () => {
     setOpen(false);
   };
@@ -33,6 +29,7 @@ function SidebarProfile() {
     <Profile>
       {!isAuthenticated && (
         <SidebarButton
+          data-testid="bConnectButton"
           sx={{ mt: 2 }}
           color="inherit"
           loading={isAuthenticating}
@@ -40,7 +37,6 @@ function SidebarProfile() {
             authenticate()
               .then(async () => {
                 await runMoralisFunction('getOrCreateUser', {});
-                // getOrCreateUser(Moralis).then((res2: any) => console.log(res2));
               })
               .catch((err) => console.log(err));
           }}
@@ -52,12 +48,16 @@ function SidebarProfile() {
         </SidebarButton>
       )}
       {isAuthenticated && (
-        <SidebarButton sx={{ mt: 2 }} color="inherit" onClick={handleClick()}>
-          <Avatar
-            variant="rounded"
-            sx={{ p: 0, m: 0, width: 32, height: 32 }}
-            src={avatar}
-          />
+        <SidebarButton
+          data-testid="bProfileButton"
+          sx={{ mt: 2 }}
+          color="inherit"
+          onClick={(event) => {
+            setAnchorEl(event.currentTarget);
+            setOpen(true);
+          }}
+        >
+          <Avatar sx={{ p: 0, m: 0, width: 32, height: 32 }} src={avatar} />
         </SidebarButton>
       )}
       <ProfilePopover

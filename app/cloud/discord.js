@@ -143,3 +143,52 @@ Moralis.Cloud.define('linkDiscordToTribe', async (request) => {
     return false;
   }
 });
+
+Moralis.Cloud.define('getGuildChannels', async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    if (!request.params.guildId) {
+      throw 'Guild id not provided';
+    }
+    const res = await Moralis.Cloud.httpRequest({
+      url: 'https://spect-discord-bot.herokuapp.com/api/guildChannels',
+      params: {
+        guildId: request.params.guildId,
+      },
+    });
+    return res.data;
+  } catch (err) {
+    logger.error(
+      `Error getting guild channels ${request.params.teamId}: ${err}`
+    );
+    return false;
+  }
+});
+
+async function NotifyOnDiscord(board, guildId, taskId, channels) {
+  const task = await getTaskObjByTaskId(taskId);
+  task.url = `https://tribes.spect.network/tribe/${board.get('teamId')}/space/${
+    board.id
+  }?taskId=${task.taskId}`;
+  Moralis.Cloud.httpRequest({
+    method: 'POST',
+    url: 'https://spect-discord-bot.herokuapp.com/api/postTaskUpdate',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8',
+    },
+    params: {
+      guildId,
+    },
+    body: {
+      task,
+      channels,
+    },
+  }).then(
+    function (httpResponse) {
+      logger.info(httpResponse.text);
+    },
+    function (httpResponse) {
+      logger.error('Request failed with response code ' + httpResponse.status);
+    }
+  );
+}

@@ -94,6 +94,12 @@ $tertiary: #000f38;
   margin-left: 1.2rem;
 }
 
+.nestedList {
+  display: list-item;
+  list-style-type: circle;
+  margin-left: 3.6rem;
+}
+
 .embed {
   top: auto !important;
   left: auto !important;

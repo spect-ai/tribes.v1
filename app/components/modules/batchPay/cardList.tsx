@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Tab,
   Table,
   TableBody,
   TableCell,
@@ -40,7 +41,6 @@ function CardList({
   const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
-  console.log(registry);
   const getValidCardIds = (columnId: string) => {
     // var cardIds = space.columns[columnId].taskIds;
     const cardIds = space.columns[columnId].taskIds.filter((taskId) => {
@@ -116,33 +116,35 @@ function CardList({
         <Accordion>
           <AccordionDetails>
             <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      color="default"
-                      inputProps={{
-                        'aria-label': 'select all desserts',
-                      }}
-                      checked={isCardChecked.every((elem) => elem === true)}
-                      onChange={(e) => {
-                        setIsCardChecked(
-                          Array(space.columns[cardColumn].taskIds.length).fill(
-                            e.target.checked
-                          )
-                        );
-                        // isCardChecked;
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell align="right" sx={{ color: '#99ccff' }}>
-                    Card Title
-                  </TableCell>
-                  <TableCell align="right" sx={{ color: '#99ccff' }}>
-                    Reward
-                  </TableCell>
-                </TableRow>
-              </TableHead>
+              {cards?.length > 0 && (
+                <TableHead>
+                  <TableRow>
+                    <TableCell padding="checkbox">
+                      <Checkbox
+                        color="default"
+                        inputProps={{
+                          'aria-label': 'select all desserts',
+                        }}
+                        checked={isCardChecked.every((elem) => elem === true)}
+                        onChange={(e) => {
+                          setIsCardChecked(
+                            Array(
+                              space.columns[cardColumn].taskIds.length
+                            ).fill(e.target.checked)
+                          );
+                          // isCardChecked;
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell align="right" sx={{ color: '#99ccff' }}>
+                      Card Title
+                    </TableCell>
+                    <TableCell align="right" sx={{ color: '#99ccff' }}>
+                      Reward
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+              )}
               <TableBody>
                 {cards?.map((card, index) => (
                   <TableRow
@@ -177,6 +179,20 @@ function CardList({
                   </TableRow>
                 ))}
               </TableBody>
+              {cards.length === 0 && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    height: '4rem',
+                    textAlign: 'center',
+                    width: '100%',
+                    mt: '2rem',
+                  }}
+                >
+                  No cards on this column
+                </Box>
+              )}
             </Table>
           </AccordionDetails>
         </Accordion>
@@ -193,6 +209,7 @@ function CardList({
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <PrimaryButton
+          data-testid="bCardListNextButton"
           sx={{ borderRadius: '3px' }}
           onClick={() => {
             setIsLoading(true);

@@ -6,69 +6,27 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
-import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
-import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function CardTypePopover({ task, setTask }: Props) {
-  const [type, setType] = useState(task?.type || 'Task');
-  const [isLoading, setIsLoading] = useState(false);
-  const { runMoralisFunction } = useMoralisFunction();
-  const { space, setSpace } = useSpace();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+function CardTypePopover() {
   const [open, setOpen] = useState(false);
-  const { editAbleComponents, getReason } = useCardDynamism(task);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents.type) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
-    }
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
+  const {
+    task,
+    setTask,
+    type,
+    setType,
+    loading,
+    anchorEl,
+    openPopover,
+    closePopover,
+  } = useCardContext();
 
-  const handleSave = () => {
-    const prevTask = { ...task };
-    const temp = { ...task };
-    temp.type = type;
-    setTask(temp);
-    handleClose();
-    runMoralisFunction('updateCard', {
-      updates: {
-        type,
-        taskId: task.taskId,
-      },
-    })
-      .then((res: any) => {
-        setSpace(res.space);
-        setTask(res.task);
-      })
-      .catch((err: any) => {
-        setTask(prevTask);
-        notify(`${err.message}`, 'error');
-      });
-  };
-
-  useEffect(() => {
-    task?.type ? setType(task.type) : setType('Task');
-  }, [task]);
-
+  const { getReason, isCardStewardAndUnpaidCardStatus } = useCardDynamism();
+  const { updateType } = useCardUpdate();
   return (
     <>
       <Box
@@ -81,7 +39,7 @@ function CardTypePopover({ task, setTask }: Props) {
       >
         <CardButton
           variant="outlined"
-          onClick={handleClick()}
+          onClick={openPopover(setOpen)}
           color="secondary"
           size="small"
           sx={{
@@ -99,55 +57,49 @@ function CardTypePopover({ task, setTask }: Props) {
         </CardButton>
       </Box>
       <Popover
-        open={feedbackOpen}
-        anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <PopoverContainer>
-          <Typography variant="body2">{getReason('type')}</Typography>
-        </PopoverContainer>
-      </Popover>
-      <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={() => handleClose()}
+        onClose={() => closePopover(setOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
         }}
       >
-        <PopoverContainer>
-          <Autocomplete
-            options={['Task', 'Bounty']} // Get options from members
-            value={type as any}
-            onChange={(event, newValue) => {
-              setType(newValue as string);
-            }}
-            disableClearable
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                placeholder="Search types"
-              />
-            )}
-          />
-          <PrimaryButton
-            variant="outlined"
-            color="secondary"
-            sx={{ mt: 4, borderRadius: 1 }}
-            loading={isLoading}
-            onClick={handleSave}
-          >
-            Save
-          </PrimaryButton>
-        </PopoverContainer>
+        {!isCardStewardAndUnpaidCardStatus() && (
+          <PopoverContainer>
+            <Typography variant="body2">{getReason('type')}</Typography>
+          </PopoverContainer>
+        )}
+        {isCardStewardAndUnpaidCardStatus() && (
+          <PopoverContainer>
+            <Autocomplete
+              options={['Task', 'Bounty']} // Get options from members
+              value={type as any}
+              onChange={(event, newValue) => {
+                setType(newValue as string);
+              }}
+              disableClearable
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  id="filled-hidden-label-normal"
+                  size="small"
+                  fullWidth
+                  placeholder="Search types"
+                />
+              )}
+            />
+            <PrimaryButton
+              variant="outlined"
+              color="secondary"
+              sx={{ mt: 4, borderRadius: 1 }}
+              loading={loading}
+              onClick={() => updateType(setOpen)}
+            >
+              Save
+            </PrimaryButton>
+          </PopoverContainer>
+        )}
       </Popover>
     </>
   );

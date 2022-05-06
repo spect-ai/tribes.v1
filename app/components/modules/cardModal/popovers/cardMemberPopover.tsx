@@ -8,106 +8,51 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
-import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useProfileInfo from '../../../../hooks/useProfileInfo';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
 type Props = {
   type: string;
-  task: Task;
-  setTask: (task: Task) => void;
 };
 
-function CardMemberPopover({ type, task, setTask }: Props) {
+function CardMemberPopover({ type }: Props) {
   const [member, setMember] = useState('');
+  const { task, setTask, anchorEl } = useCardContext();
   const [isLoading, setIsLoading] = useState(false);
-  const { Moralis } = useMoralis();
+  const [editable, setEditable] = useState(false);
+  const [viewable, setViewable] = useState(false);
   const { space, setSpace } = useSpace();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
-  const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents, viewableComponents, getReason } =
-    useCardDynamism(task);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
-
+  const {
+    isCardStewardAndUnpaidCardStatus,
+    isAssigneeEditable,
+    getReason,
+    isAssigneeViewable,
+  } = useCardDynamism();
+  const { updateMember, openPopover, closePopover } = useCardUpdate();
   const { getAvatar } = useProfileInfo();
-
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents[type]) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
-    }
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
-  const handleSave = () => {
-    const prevTask = { ...task };
-    const temp = { ...task };
-    if (type === 'reviewer') {
-      temp.reviewer = [member];
-      setTask(temp);
-      handleClose();
-      runMoralisFunction('updateCard', {
-        updates: {
-          reviewer: member ? [member] : [],
-          taskId: task.taskId,
-        },
-      })
-        .then((res: any) => {
-          console.log(res);
-          setSpace(res.space);
-          setTask(res.task);
-        })
-        .catch((err: any) => {
-          setTask(prevTask);
-          notify(`${err.message}`, 'error');
-        });
-    } else {
-      temp.assignee = [member];
-      setTask(temp);
-      handleClose();
-      runMoralisFunction('updateCard', {
-        updates: {
-          assignee: member ? [member] : [],
-          taskId: task.taskId,
-          status: member ? 105 : 100,
-        },
-      })
-        .then((res: any) => {
-          console.log(res);
-          setSpace(res.space);
-          setTask(res.task);
-        })
-        .catch((err: any) => {
-          setTask(prevTask);
-          notify(`${err.message}`, 'error');
-        });
-    }
-  };
 
   useEffect(() => {
     if (type === 'reviewer') {
       setMember(task.reviewer[0]);
+      setEditable(isCardStewardAndUnpaidCardStatus());
+      setViewable(true);
     } else {
       setMember(task.assignee[0]);
+      setEditable(isAssigneeEditable());
+      setViewable(isAssigneeViewable());
     }
   }, [task]);
 
   return (
     <>
-      {viewableComponents[type] && (
+      {viewable && (
         <Box
           sx={{
             display: 'flex',
@@ -123,7 +68,7 @@ function CardMemberPopover({ type, task, setTask }: Props) {
           </Typography>
           <CardButton
             variant="outlined"
-            onClick={handleClick()}
+            onClick={openPopover(setOpen)}
             color="secondary"
             sx={{
               padding: '6px',
@@ -131,7 +76,6 @@ function CardMemberPopover({ type, task, setTask }: Props) {
             }}
           >
             <Avatar
-              variant="rounded"
               sx={{
                 p: 0,
                 mr: 2,
@@ -155,7 +99,7 @@ function CardMemberPopover({ type, task, setTask }: Props) {
             >
               {type === 'reviewer'
                 ? space.memberDetails[task.reviewer[0]]?.username ||
-                  'Add reviewer'
+                  'No reviewer'
                 : space.memberDetails[task.assignee[0]]?.username ||
                   'Unassigned'}
             </Typography>
@@ -163,55 +107,49 @@ function CardMemberPopover({ type, task, setTask }: Props) {
         </Box>
       )}
       <Popover
-        open={feedbackOpen}
-        anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <PopoverContainer>
-          <Typography variant="body2">{getReason(type)}</Typography>
-        </PopoverContainer>
-      </Popover>
-      <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={() => handleClose()}
+        onClose={() => closePopover(setOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
         }}
       >
-        <PopoverContainer>
-          <Autocomplete
-            options={space.members} // Get options from members
-            value={member as any}
-            getOptionLabel={(option) => space.memberDetails[option]?.username}
-            onChange={(event, newValue) => {
-              setMember(newValue as string);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                placeholder="Search member"
-              />
-            )}
-          />
-          <PrimaryButton
-            variant="outlined"
-            color="secondary"
-            sx={{ mt: 4, borderRadius: 1 }}
-            loading={isLoading}
-            onClick={handleSave}
-          >
-            Save
-          </PrimaryButton>
-        </PopoverContainer>
+        {!editable && (
+          <PopoverContainer>
+            <Typography variant="body2">{getReason(type)}</Typography>
+          </PopoverContainer>
+        )}
+        {editable && (
+          <PopoverContainer>
+            <Autocomplete
+              options={space.members} // Get options from members
+              value={member as any}
+              getOptionLabel={(option) => space.memberDetails[option]?.username}
+              onChange={(event, newValue) => {
+                setMember(newValue as string);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  id="filled-hidden-label-normal"
+                  size="small"
+                  fullWidth
+                  placeholder="Search member"
+                />
+              )}
+            />
+            <PrimaryButton
+              variant="outlined"
+              color="secondary"
+              sx={{ mt: 4, borderRadius: 1 }}
+              loading={isLoading}
+              onClick={() => updateMember(type, member, setOpen)}
+            >
+              Save
+            </PrimaryButton>
+          </PopoverContainer>
+        )}
       </Popover>
     </>
   );

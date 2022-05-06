@@ -9,67 +9,25 @@ import {
 import React, { useState } from 'react';
 import LabelIcon from '@mui/icons-material/Label';
 import { labelsMapping } from '../../../../constants';
-import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
 import { PopoverContainer, LabelChip } from '../styles';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { notify } from '../../settingsTab';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function LabelPopover({ task, setTask }: Props) {
-  const [labels, setLabels] = useState(task.tags);
+function LabelPopover() {
   const [open, setOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const { runMoralisFunction } = useMoralisFunction();
-  const { space, setSpace } = useSpace();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const { editAbleComponents, getReason } = useCardDynamism(task);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
-
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents.label) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
-    }
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
-
-  const handleSave = () => {
-    const prevTask = { ...task };
-    const temp = { ...task };
-    temp.tags = labels;
-    setTask(temp);
-    handleClose();
-    runMoralisFunction('updateCard', {
-      updates: {
-        tags: labels,
-        taskId: task.taskId,
-      },
-    })
-      .then((res) => {
-        console.log(res);
-        setSpace(res.space);
-        setTask(res.task);
-      })
-      .catch((err: any) => {
-        setTask(prevTask);
-        notify(`${err.message}`, 'error');
-      });
-  };
-
+  const {
+    task,
+    setTask,
+    labels,
+    setLabels,
+    openPopover,
+    closePopover,
+    anchorEl,
+  } = useCardContext();
+  const { getReason, isCardStewardAndUnpaidCardStatus } = useCardDynamism();
+  const { updateLabels } = useCardUpdate();
   return (
     <>
       <Box
@@ -88,7 +46,7 @@ function LabelPopover({ task, setTask }: Props) {
         <Box sx={{ display: 'flex', flexDirection: 'row' }}>
           <CardButton
             variant="outlined"
-            onClick={handleClick()}
+            onClick={openPopover(setOpen)}
             color="secondary"
             sx={{
               padding: '6px',
@@ -107,7 +65,6 @@ function LabelPopover({ task, setTask }: Props) {
             {(!task.tags || task.tags?.length === 0) && (
               <>
                 <Avatar
-                  variant="rounded"
                   sx={{
                     p: 0,
                     mr: 2,
@@ -141,54 +98,50 @@ function LabelPopover({ task, setTask }: Props) {
         </Box>
       </Box>
       <Popover
-        open={feedbackOpen}
-        anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <PopoverContainer>
-          <Typography variant="body2">{getReason('label')}</Typography>
-        </PopoverContainer>
-      </Popover>
-      <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={() => handleClose()}
+        onClose={() => closePopover(setOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
         }}
       >
-        <PopoverContainer>
-          <Autocomplete
-            options={Object.keys(labelsMapping)}
-            multiple
-            value={labels}
-            onChange={(event, newValue) => {
-              setLabels(newValue as string[]);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                placeholder="Search Labels"
-              />
-            )}
-          />
-          <PrimaryButton
-            variant="outlined"
-            sx={{ mt: 4, borderRadius: 1 }}
-            color="secondary"
-            onClick={handleSave}
-          >
-            Save
-          </PrimaryButton>
-        </PopoverContainer>
+        {!isCardStewardAndUnpaidCardStatus() && (
+          <PopoverContainer>
+            <Typography variant="body2">{getReason('label')}</Typography>
+          </PopoverContainer>
+        )}
+        {isCardStewardAndUnpaidCardStatus() && (
+          <PopoverContainer>
+            <Autocomplete
+              options={Object.keys(labelsMapping)}
+              multiple
+              value={labels}
+              onChange={(event, newValue) => {
+                setLabels(newValue as string[]);
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  id="filled-hidden-label-normal"
+                  size="small"
+                  fullWidth
+                  placeholder="Search Labels"
+                />
+              )}
+            />
+            <PrimaryButton
+              variant="outlined"
+              sx={{ mt: 4, borderRadius: 1 }}
+              color="secondary"
+              onClick={() => {
+                updateLabels(setOpen);
+              }}
+            >
+              Save
+            </PrimaryButton>
+          </PopoverContainer>
+        )}
       </Popover>
     </>
   );

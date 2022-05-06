@@ -1,20 +1,15 @@
 import HailIcon from '@mui/icons-material/Hail';
 import { Box, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import React from 'react';
 import { useMoralis } from 'react-moralis';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
-import { Task } from '../../../../types';
 import { CardButton } from '../../../elements/styledComponents';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function Apply({ task, setTask }: Props) {
-  const { setProposalEditMode, viewableComponents } = useCardDynamism(task);
+function Apply() {
+  const { task, setTask, setProposalEditMode } = useCardContext();
+  const { isApplyButtonViewable } = useCardDynamism();
   const { user } = useMoralis();
-  const [buttonText, setButtonText] = useState('Apply');
   const handleClick = () => {
     const temp = { ...task };
     temp.proposals = [
@@ -31,7 +26,7 @@ function Apply({ task, setTask }: Props) {
     setProposalEditMode(true);
   };
 
-  if (viewableComponents.applyButton) {
+  if (isApplyButtonViewable()) {
     return (
       <Box
         sx={{
@@ -58,7 +53,7 @@ function Apply({ task, setTask }: Props) {
               mr: 2,
             }}
           >
-            {buttonText}
+            Apply
           </Typography>
         </CardButton>
       </Box>

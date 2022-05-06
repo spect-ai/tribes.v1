@@ -3,16 +3,17 @@ import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Box, IconButton, InputBase, Palette, useTheme } from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Draggable, Droppable } from 'react-beautiful-dnd';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { BoardData, Column, Task } from '../../../types';
 import CardModal from '../cardModal';
+import CreateCard from '../cardModal/createCard';
 import ColumnSettings from '../columnSettings';
 import { notify } from '../settingsTab';
-import TaskContainer from '../task';
+import TaskContainer, { Chip } from '../task';
 
 type Props = {
   tasks: Task[];
@@ -54,20 +55,17 @@ const Container = styled.div<{ isDragging: boolean; palette: Palette }>`
     props.isDragging
       ? `0.5px solid ${props.palette.primary.light}`
       : '0.5px solid transparent'};
-  // &:hover {
-  //   border: 0.1px solid ${(props) => props.palette.secondary.dark};
-  // }
-  min-width: 16rem;
+  min-width: 20rem;
   transition: 0.5s ease-in-out;
 `;
 
 export default function ColumnComponent({ tasks, id, column, index }: Props) {
-  const { Moralis, user } = useMoralis();
+  const { user } = useMoralis();
   const router = useRouter();
   const { space, setSpace } = useSpace();
   const { bid } = router.query;
 
-  // const [showCreateTask, setShowCreateTask] = useState(false);
+  const [showCreateTask, setShowCreateTask] = useState(false);
   // const [showCreateGithubTask, setShowCreateGithubTask] = useState(false);
   const [isTaskOpen, setIsTaskOpen] = useState(false);
   const handleTaskClose = () => setIsTaskOpen(false);
@@ -89,6 +87,10 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
   const open = Boolean(anchorEl);
   const { palette } = useTheme();
 
+  const handleCreateCardClose = () => {
+    setShowCreateTask(false);
+  };
+
   function updateColumn() {
     if (currentColumnTitle !== columnTitle) {
       runMoralisFunction('updateColumnName', {
@@ -108,6 +110,11 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
         });
     }
   }
+
+  useEffect(() => {
+    setColumnTitle(space.columns[column.id].title);
+  }, [space]);
+
   return (
     <OuterContainer>
       {isOpen && (
@@ -149,6 +156,7 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                       sx={{
                         fontSize: '15px',
                         marginLeft: '6px',
+                        width: 'fit-content',
                       }}
                       value={columnTitle}
                       onChange={(e) => setColumnTitle(e.target.value)}
@@ -156,7 +164,14 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                       readOnly={space.roles[user?.id as string] !== 3}
                     />
                     <Box sx={{ flex: '1 1 auto' }} />
+                    <Chip
+                      color="rgb(153, 204, 255, 0.2)"
+                      style={{ marginTop: 5, marginBottom: 0 }}
+                    >
+                      {tasks?.length}
+                    </Chip>
                     <IconButton
+                      data-testid={`addTask-${column.id}`}
                       sx={{ mb: 0.5, p: 1 }}
                       size="small"
                       onClick={() => {
@@ -165,23 +180,12 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                           !column.createCard[0]
                         ) {
                           notify(
-                            "Your role doesn't have permission to create tasks in this column",
+                            "Your role doesn't have permission to create cards in this column",
                             'error'
                           );
                           return;
                         }
-                        // setShowCreateTask(true);
-                        runMoralisFunction('addTask', {
-                          boardId: bid as string,
-                          columnId: id,
-                          title: '',
-                          value: 0,
-                        }).then((res: any) => {
-                          setSpace(res.space as BoardData);
-                          setTaskId(res.taskId);
-                          setIsTaskOpen(true);
-                          // setShowCreateTask(false);
-                        });
+                        setShowCreateTask(true);
                       }}
                     >
                       <AddIcon fontSize="small" />
@@ -230,6 +234,11 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
           </Container>
         )}
       </Draggable>
+      <CreateCard
+        isOpen={showCreateTask}
+        handleClose={handleCreateCardClose}
+        column={column}
+      />
     </OuterContainer>
   );
 }

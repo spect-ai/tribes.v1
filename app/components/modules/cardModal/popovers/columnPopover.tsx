@@ -5,74 +5,29 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
-import { Column, Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
-import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-  column: Column;
-};
-
-function ColumnPopover({ task, setTask, column }: Props) {
-  const [currStatus, setCurrStatus] = useState<string>('');
-  const [status, setStatus] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
+function ColumnPopover() {
   const { space, setSpace } = useSpace();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [open, setOpen] = useState(false);
-  const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents } = useCardDynamism(task);
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents.column) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
-    }
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
-  const handleSave = () => {
-    const prevStatus = currStatus;
-    setCurrStatus(status);
-    runMoralisFunction('updateCard', {
-      updates: {
-        columnChange: {
-          sourceId: column.id,
-          destinationId: status,
-        },
-        taskId: task.taskId,
-      },
-    })
-      .then((res: any) => {
-        setSpace(res.space);
-        setTask(res.task);
-        handleClose();
-      })
-      .catch((err: any) => {
-        setCurrStatus(prevStatus);
-        notify(`${err.message}`, 'error');
-      });
-  };
-
-  useEffect(() => {
-    if (column) {
-      setCurrStatus(column.id);
-      setStatus(column.id);
-    }
-  }, [column]);
+  const { updateColumn } = useCardUpdate();
+  const {
+    task,
+    setTask,
+    loading,
+    col,
+    setCol,
+    openPopover,
+    closePopover,
+    anchorEl,
+  } = useCardContext();
+  const { isStakeholderAndStatusUnpaid } = useCardDynamism();
 
   return (
     <>
@@ -85,8 +40,9 @@ function ColumnPopover({ task, setTask, column }: Props) {
         }}
       >
         <CardButton
+          data-testid="bColumnButton"
           variant="outlined"
-          onClick={handleClick()}
+          onClick={openPopover(setOpen)}
           color="secondary"
           size="small"
           sx={{
@@ -99,64 +55,65 @@ function ColumnPopover({ task, setTask, column }: Props) {
               fontSize: 14,
             }}
           >
-            {space.columns[currStatus as string]?.title}
+            {task.columnId && space.columnOrder.includes(task.columnId)
+              ? space.columns[task.columnId as string]?.title
+              : space.columns[col as string]?.title}
           </Typography>
         </CardButton>
       </Box>
       <Popover
-        open={feedbackOpen}
-        anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <PopoverContainer>
-          <Typography variant="body2">
-            Only card reviewer or creator and space steward can change column
-          </Typography>
-        </PopoverContainer>
-      </Popover>
-      <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={() => handleClose()}
+        onClose={() => closePopover(setOpen)}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
         }}
       >
-        <PopoverContainer>
-          <Autocomplete
-            options={space.columnOrder}
-            value={status}
-            getOptionLabel={(option) => space.columns[option].title}
-            onChange={(event, newValue) => {
-              setStatus(newValue as any);
-            }}
-            disableClearable
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                placeholder="Search types"
-                color="secondary"
-              />
-            )}
-          />
-          <PrimaryButton
-            variant="outlined"
-            color="secondary"
-            sx={{ mt: 4, borderRadius: 1 }}
-            loading={isLoading}
-            onClick={handleSave}
-          >
-            Save
-          </PrimaryButton>
-        </PopoverContainer>
+        {!isStakeholderAndStatusUnpaid() && (
+          <PopoverContainer>
+            <Typography variant="body2">
+              Only card reviewer, assignee or creator and space steward can
+              change column
+            </Typography>
+          </PopoverContainer>
+        )}
+        {isStakeholderAndStatusUnpaid() && (
+          <PopoverContainer>
+            <Autocomplete
+              data-testid="aColumnPicker"
+              options={space.columnOrder}
+              value={col}
+              getOptionLabel={(option) => space.columns[option].title}
+              onChange={(event, newValue) => {
+                setCol(newValue as any);
+              }}
+              disableClearable
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  id="filled-hidden-label-normal"
+                  size="small"
+                  fullWidth
+                  placeholder="Search types"
+                  color="secondary"
+                />
+              )}
+            />
+            <PrimaryButton
+              data-testid="bColumnSave"
+              variant="outlined"
+              color="secondary"
+              sx={{ mt: 4, borderRadius: 1 }}
+              loading={loading}
+              onClick={() => {
+                updateColumn(setOpen);
+              }}
+            >
+              Save
+            </PrimaryButton>
+          </PopoverContainer>
+        )}
       </Popover>
     </>
   );

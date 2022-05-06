@@ -1,0 +1,52 @@
+[
+    {
+      "createdAt": "2022-04-20T11:26:41.765Z",
+      "description": "Mock Tribe 1",
+      "discord": null,
+      "github": null,
+      "guildId": "763392284028698667",
+      "isPublic": true,
+      "logo": "https://ipfs.moralis.io:2053/ipfs/QmRyStg2Xakzg53D1y4HtYKUUSEUQE2nwyRt1qnhYarhsM",
+      "members": [
+        "v6l5KlwBxEmfG6NcKD5zof7t",
+        "26crGEC76XeWT91jrknIwOCa",
+        "RzSE3arTOgWVYQ8VxOCHPOBa"
+      ],
+      "name": "Mock Tribe 1",
+      "objectId": "nLgIDbi3KbXO9XjViRvpGJAu",
+      "roles": {
+        "v6l5KlwBxEmfG6NcKD5zof7t": 3,
+        "26crGEC76XeWT91jrknIwOCa": 2,
+        "RzSE3arTOgWVYQ8VxOCHPOBa": 1
+      },
+      "teamId": "947b90a3-f66d-4023-8ec2-31dd2664892e",
+      "theme": 0,
+      "twitter": null,
+      "updatedAt": "2022-04-21T18:28:07.656Z"
+    },
+    {
+      "createdAt": "2022-04-20T11:26:41.765Z",
+      "description": "Mock Tribe 2",
+      "discord": null,
+      "github": null,
+      "guildId": "763392284028698667",
+      "isPublic": true,
+      "logo": "https://ipfs.moralis.io:2053/ipfs/QmRyStg2Xakzg53D1y4HtYKUUSEUQE2nwyRt1qnhYarhsM",
+      "members": [
+        "v6l5KlwBxEmfG6NcKD5zof7t",
+        "26crGEC76XeWT91jrknIwOCa",
+        "RzSE3arTOgWVYQ8VxOCHPOBa"
+      ],
+      "name": "Mock Tribe 2",
+      "objectId": "nLgIDbi3KbXO9XjViRvpGJAu",
+      "roles": {
+        "v6l5KlwBxEmfG6NcKD5zof7t": 3,
+        "26crGEC76XeWT91jrknIwOCa": 2,
+        "RzSE3arTOgWVYQ8VxOCHPOBa": 1
+      },
+      "teamId": "2e89a568-2484-4665-82e7-f28ee8e301da",
+      "theme": 0,
+      "twitter": null,
+      "updatedAt": "2022-04-21T18:28:07.656Z"
+    }
+  ]

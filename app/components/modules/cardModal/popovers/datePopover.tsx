@@ -1,79 +1,38 @@
 import DateRangeIcon from '@mui/icons-material/DateRange';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { isValid } from 'date-fns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { Avatar, Box, Popover, TextField, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { useMoralis } from 'react-moralis';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import React, { useState } from 'react';
 import { monthMap } from '../../../../constants';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
-import { Task } from '../../../../types';
 import { formatTime } from '../../../../utils/utils';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
-import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function DatePopover({ task, setTask }: Props) {
-  const [date, setDate] = useState('');
+function DatePopover() {
   const [open, setOpen] = useState(false);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const { space, setSpace } = useSpace();
-  const { Moralis } = useMoralis();
-  const [isLoading, setIsLoading] = useState(false);
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents, getReason } = useCardDynamism(task);
-
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents.dueDate) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
+  const {
+    task,
+    setTask,
+    date,
+    setDate,
+    loading,
+    openPopover,
+    closePopover,
+    anchorEl,
+  } = useCardContext();
+  const { getReason, isStakeholderAndStatusUnpaid } = useCardDynamism();
+  const { updateDate, clearDeadline } = useCardUpdate();
+  const handleChange = (newValue: Date | null) => {
+    console.log(newValue);
+    if (isValid(newValue)) {
+      if (newValue) setDate(newValue?.toISOString());
     }
   };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
-
-  const handleSave = () => {
-    const prevTask = { ...task };
-    const temp = { ...task };
-    temp.deadline = new Date(date);
-    setTask(temp);
-    handleClose();
-    runMoralisFunction('updateCard', {
-      updates: {
-        deadline: new Date(date).toUTCString(),
-        taskId: task.taskId,
-      },
-    })
-      .then((res) => {
-        console.log(res);
-        setSpace(res.space);
-        setTask(res.task);
-      })
-      .catch((err: any) => {
-        setTask(prevTask);
-        notify(`${err.message}`, 'error');
-      });
-  };
-
-  useEffect(() => {
-    if (task.deadline) {
-      const offset = task.deadline.getTimezoneOffset();
-      const deadline = new Date(task.deadline.getTime() - offset * 60 * 1000);
-      setDate(deadline.toISOString().slice(0, -8));
-    }
-  }, [task]);
-
   return (
     <>
       <Box
@@ -91,7 +50,7 @@ function DatePopover({ task, setTask }: Props) {
         </Typography>
         <CardButton
           variant="outlined"
-          onClick={handleClick()}
+          onClick={openPopover(setOpen)}
           color="secondary"
           sx={{
             padding: '6px',
@@ -99,7 +58,6 @@ function DatePopover({ task, setTask }: Props) {
           }}
         >
           <Avatar
-            variant="rounded"
             sx={{
               p: 0.1,
               mr: 2,
@@ -130,53 +88,69 @@ function DatePopover({ task, setTask }: Props) {
         </CardButton>
       </Box>
       <Popover
-        open={feedbackOpen}
-        anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <PopoverContainer>
-          <Typography variant="body2">{getReason('dueDate')}</Typography>
-        </PopoverContainer>
-      </Popover>
-      <Popover
         open={open}
         anchorEl={anchorEl}
         onClose={() => {
-          handleClose();
+          closePopover(setOpen);
         }}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
         }}
       >
-        <PopoverContainer>
-          <TextField
-            id="datetime-local"
-            label="Due Date"
-            type="datetime-local"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={date}
-            onChange={(e) => {
-              setDate(e.target.value);
-            }}
-            fullWidth
-          />
-          <PrimaryButton
-            variant="outlined"
-            sx={{ mt: 4, borderRadius: 1 }}
-            loading={isLoading}
-            color="secondary"
-            onClick={handleSave}
-          >
-            Save
-          </PrimaryButton>
-        </PopoverContainer>
+        {!isStakeholderAndStatusUnpaid() && (
+          <PopoverContainer>
+            <Typography variant="body2">{getReason('dueDate')}</Typography>
+          </PopoverContainer>
+        )}
+        {isStakeholderAndStatusUnpaid() && (
+          <PopoverContainer>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DateTimePicker
+                label="Due Date"
+                value={date}
+                onChange={handleChange}
+                PopperProps={{ placement: 'right-start' }}
+                renderInput={(params) => (
+                  <TextField {...params} required={false} size="small" />
+                )}
+                clearable
+              />
+            </LocalizationProvider>
+            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+              {date && (
+                <PrimaryButton
+                  variant="outlined"
+                  sx={{ mt: 4, borderRadius: 1, width: '50%' }}
+                  loading={loading}
+                  color="secondary"
+                  onClick={() => {
+                    setDate(null);
+                    clearDeadline(setOpen);
+                  }}
+                >
+                  Clear
+                </PrimaryButton>
+              )}
+              <PrimaryButton
+                variant="outlined"
+                sx={{
+                  mt: 4,
+                  ml: 2,
+                  borderRadius: 1,
+                  width: date ? '50%' : '100%',
+                }}
+                loading={loading}
+                color="secondary"
+                onClick={() => {
+                  updateDate(setOpen);
+                }}
+              >
+                Save
+              </PrimaryButton>
+            </Box>
+          </PopoverContainer>
+        )}
       </Popover>
     </>
   );
