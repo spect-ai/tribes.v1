@@ -243,7 +243,6 @@ function SpaceSettings(props: Props) {
                         </Box>
                         <Box m={2} pt={3}>
                           <TextField
-                            p={2}
                             sx={{ width: '50%' }}
                             label="Twitter"
                             placeholder="https://twitter.com/username"
@@ -252,7 +251,6 @@ function SpaceSettings(props: Props) {
                             color="secondary"
                           />
                           <TextField
-                            p={2}
                             sx={{ width: '50%' }}
                             label="Discord"
                             placeholder="https://discord.com/invitecode"
