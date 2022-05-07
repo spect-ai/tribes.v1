@@ -146,7 +146,7 @@ function PayButton({ handleClose }: Props) {
             display: 'flex',
             flexDirection: 'column',
             mx: 1,
-            minWidth: '9rem',
+            minWidth: '7rem',
           }}
         >
           <CardButton

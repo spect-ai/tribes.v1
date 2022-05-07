@@ -117,12 +117,6 @@ Moralis.Cloud.define('updateCard', async (request) => {
 });
 
 Moralis.Cloud.define('updateMultipleCards', async (request) => {
-  log(
-    request.user?.id,
-    `Calling updateMultipleCards for updates: ${request.params.updates}`,
-    JSON.stringify(request.params),
-    'info'
-  );
   try {
     var tasks = await getTasksByTaskIds(Object.keys(request.params.updates));
     if (tasks.length === 0) throw 'No tasks found';

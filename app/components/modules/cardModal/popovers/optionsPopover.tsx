@@ -58,7 +58,15 @@ function OptionsPopover() {
     <>
       <IconButton
         data-testid="bCardOptionsButton"
-        sx={{ m: 0, px: 2 }}
+        sx={{
+          m: 0,
+          px: 2,
+          height: '2.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'start',
+          alignItems: 'start',
+        }}
         onClick={openPopover(setOpen)}
       >
         <MoreHorizIcon />
