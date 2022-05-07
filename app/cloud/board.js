@@ -398,6 +398,8 @@ Moralis.Cloud.define('updateColumnTasks', async (request) => {
       logger.info(`newCardLoc ${JSON.stringify(newCardLoc)}`);
 
       if (!cardLoc) throw 'Card not found';
+      if (!board.get('columnOrder')?.includes(newCardLoc.columnId))
+        throw 'Destination column doesnt exist';
       if (
         cardLoc.columnId !== newCardLoc.columnId &&
         cardLoc.cardIndex !== newCardLoc.cardIndex

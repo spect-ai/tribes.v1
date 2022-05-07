@@ -1,7 +1,7 @@
 async function log(userId, message, level) {
   const config = await Moralis.Config.get({ useMasterKey: true });
   const env = config.get('env');
-  if (env === 'developnment') {
+  if (env === 'production') {
     logExternally(userId, message, level);
   } else {
     logOnMoralis(userId, message, level);

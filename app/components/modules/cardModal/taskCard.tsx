@@ -59,12 +59,14 @@ function TaskCard({ handleClose }: Props) {
           sx={{
             fontSize: '20px',
             ml: 1,
+            width: '60%',
           }}
-          fullWidth
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onBlur={() => updateTitle()}
           readOnly={!(task?.access?.creator || task?.access?.reviewer)}
+          multiline
+          maxRows={3}
         />
         <Box sx={{ flex: '1 1 auto' }} />
         <AssignToMe />
@@ -73,7 +75,15 @@ function TaskCard({ handleClose }: Props) {
         {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
         <IconButton
           data-testid="bCloseButton"
-          sx={{ m: 0, px: 2 }}
+          sx={{
+            m: 0,
+            px: 2,
+            height: '2.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'start',
+            alignItems: 'start',
+          }}
           onClick={handleClose}
         >
           <CloseIcon />
