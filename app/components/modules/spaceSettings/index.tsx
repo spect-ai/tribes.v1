@@ -14,7 +14,8 @@ import {
   Typography,
   useTheme,
   Grid,
-  Paper,
+  Tabs,
+  Tab,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
@@ -26,8 +27,6 @@ import {
   ModalHeading,
   PrimaryButton,
   StyledAccordian,
-  StyledTab,
-  StyledTabs,
 } from '../../elements/styledComponents';
 import { SidebarButton } from '../exploreSidebar';
 import { notify } from '../settingsTab';
@@ -108,6 +107,7 @@ function SpaceSettings(props: Props) {
   const { space, setSpace, setRefreshEpochs } = useSpace();
   const { Moralis, user } = useMoralis();
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [defaultToken, setDefaultToken] = useState<Token>({} as Token);
   const [defaultChain, setDefaultChain] = useState<Chain>({} as Chain);
@@ -127,6 +127,7 @@ function SpaceSettings(props: Props) {
   const { runMoralisFunction } = useMoralisFunction();
   useEffect(() => {
     setName(space.name);
+    setDescription(space.description);
     // setTokenGateChain(space.tokenGating?.chain);
     // setTokenGateToken(space.tokenGating?.token);
     // setTokenGateLimit(space.tokenGating?.tokenLimit);
@@ -192,18 +193,18 @@ function SpaceSettings(props: Props) {
                   <Grid item xs={4} md={3} lg={3}>
                     <Item>
                       <Box sx={{ width: '100%' }}>
-                        <StyledTabs
+                        <Tabs
                           orientation="vertical"
                           value={value}
                           onChange={handleChange}
                           textColor="secondary"
                           indicatorColor="secondary"
                         >
-                          <StyledTab label="Space Profile" {...a11yProps(0)} />
-                          <StyledTab label="Members" {...a11yProps(1)} />
-                          <StyledTab label="Access" {...a11yProps(2)} />
-                          <StyledTab label="Payments" {...a11yProps(3)} />
-                        </StyledTabs>
+                          <Tab label="Space Profile" {...a11yProps(0)} />
+                          <Tab label="Members" {...a11yProps(1)} />
+                          <Tab label="Access" {...a11yProps(2)} />
+                          <Tab label="Payments" {...a11yProps(3)} />
+                        </Tabs>
                       </Box>
                     </Item>
                   </Grid>
@@ -224,9 +225,9 @@ function SpaceSettings(props: Props) {
                         <Box m={2} pt={3}>
                           <TextField
                             label="About"
-                            placeholder="Space Name"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Space Description"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
                             fullWidth
                             color="secondary"
                           />
@@ -400,6 +401,7 @@ function SpaceSettings(props: Props) {
                     runMoralisFunction('updateBoard', {
                       boardId: space.objectId,
                       name,
+                      description,
                       defaultPayment: {
                         chain: defaultChain,
                         token: defaultToken,

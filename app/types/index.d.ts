@@ -205,6 +205,7 @@ export type Column = {
 };
 
 export interface BoardData {
+  description: any;
   objectId: string;
   name: string;
   tasks: {
