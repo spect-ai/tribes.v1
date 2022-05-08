@@ -6,11 +6,11 @@ import { useGlobal } from '../../../context/globalContext';
 import { DistributionInfo } from '../../../types';
 import { PrimaryButton } from '../../elements/styledComponents';
 import usePaymentGateway from '../../../hooks/usePaymentGateway';
+import { useWalletContext } from '../../../context/WalletContext';
 
 type Props = {
   handleNextStep: Function;
   handleClose: Function;
-  chainId: string;
   distributionInfo: DistributionInfo;
   handleStatusUpdate: Function;
 };
@@ -18,7 +18,6 @@ type Props = {
 function BatchPay({
   handleNextStep,
   handleClose,
-  chainId,
   distributionInfo,
   handleStatusUpdate,
 }: Props) {
@@ -29,6 +28,8 @@ function BatchPay({
     handleStatusUpdate,
     handleNextStep
   );
+  const { networkVersion } = useWalletContext();
+
   return (
     <Box
       sx={{
@@ -69,10 +70,10 @@ function BatchPay({
                   <Typography color="text.primary" marginLeft="20px">
                     {distributionInfo.tokenValues[index]?.toFixed(3)}{' '}
                     {distributionInfo.type === 'tokens'
-                      ? registry[chainId].tokens[
+                      ? registry[networkVersion]?.tokens[
                           distributionInfo.tokenAddresses[index]
-                        ].symbol
-                      : registry[chainId].nativeCurrency}
+                        ]?.symbol
+                      : registry[networkVersion]?.nativeCurrency}
                   </Typography>
                 </Grid>
               </Grid>
@@ -98,7 +99,7 @@ function BatchPay({
           loading={isLoading}
           sx={{ borderRadius: '3px' }}
           onClick={() => {
-            batchPay(window.ethereum.networkVersion, distributionInfo);
+            batchPay(networkVersion, distributionInfo);
           }}
           variant="outlined"
           id="bApprove"

@@ -5,12 +5,12 @@ import { useGlobal } from '../../../context/globalContext';
 import { PrimaryButton } from '../../elements/styledComponents';
 import { notify } from '../settingsTab';
 import { ApprovalInfo } from '../../../types';
+import { useWalletContext } from '../../../context/WalletContext';
 
 interface Props {
   handleNextStep: Function;
   handleClose: Function;
   setActiveStep: Function;
-  chainId: string;
   approvalInfo: ApprovalInfo;
 }
 
@@ -18,9 +18,9 @@ function Approve({
   handleNextStep,
   handleClose,
   setActiveStep,
-  chainId,
   approvalInfo,
 }: Props) {
+  const { networkVersion } = useWalletContext();
   const [isLoading, setIsLoading] = useState(
     Array(approvalInfo.uniqueTokenAddresses?.length).fill(false)
   );
@@ -85,12 +85,12 @@ function Approve({
                       objectFit: 'cover',
                       my: 1,
                     }}
-                    src={registry[chainId].tokens[address]?.pictureUrl}
+                    src={registry[networkVersion].tokens[address]?.pictureUrl}
                   >
-                    {registry[chainId].tokens[address].symbol}
+                    {registry[networkVersion].tokens[address].symbol}
                   </Avatar>
                   <Typography color="text.primary" marginLeft="20px">
-                    {registry[chainId].tokens[address].symbol}
+                    {registry[networkVersion].tokens[address].symbol}
                   </Typography>
                 </Box>
               </Grid>
@@ -113,7 +113,7 @@ function Approve({
                     onClick={() => {
                       toggleIsLoading(index);
                       approve(
-                        window.ethereum.networkVersion,
+                        networkVersion,
                         approvalInfo.uniqueTokenAddresses[index]
                       )
                         .then((res: any) => {

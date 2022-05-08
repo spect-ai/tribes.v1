@@ -14,45 +14,40 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { useGlobal } from '../../../context/globalContext';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { PrimaryButton } from '../../elements/styledComponents';
 import { notify } from '../settingsTab';
+import { useWalletContext } from '../../../context/WalletContext';
+import { capitalizeFirstLetter } from '../../../utils/utils';
 
 type Props = {
   handleClose: Function;
   setPaymentInfo: Function;
   handleNextStep: Function;
-  chainId: string;
 };
 
-function CardList({
-  handleClose,
-  setPaymentInfo,
-  handleNextStep,
-  chainId,
-}: Props) {
+function CardList({ handleClose, setPaymentInfo, handleNextStep }: Props) {
   const { space } = useSpace();
   const { state } = useGlobal();
   const { registry } = state;
   const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
+  const { networkVersion, chainIdHex } = useWalletContext();
+
   const getValidCardIds = (columnId: string) => {
-    // var cardIds = space.columns[columnId].taskIds;
     const cardIds = space.columns[columnId].taskIds.filter((taskId) => {
       return space.tasks[taskId];
     });
 
     return cardIds
       .filter((a) => space.tasks[a].value > 0)
-      .filter((a) => space.tasks[a].chain?.chainId)
-      .filter(
-        (a) => space.tasks[a].chain?.chainId === window.ethereum.networkVersion
-      )
+      .filter((a) => space.tasks[a].chain?.networkVersion)
+      .filter((a) => space.tasks[a].chain?.networkVersion === networkVersion)
       .filter((a) => space.tasks[a].value)
       .filter((a) => space.tasks[a].status !== 400)
       .filter((a) => space.tasks[a].status !== 300)
@@ -85,6 +80,12 @@ function CardList({
     return cardIds;
   };
 
+  useEffect(() => {
+    const validCardIds = getValidCardIds(cardColumn);
+    setCards(validCardIds);
+    setIsCardChecked(Array(validCardIds.length).fill(true));
+  }, [networkVersion, cardColumn]);
+
   return (
     <>
       <Typography sx={{ mt: 8, color: '#99ccff', fontSize: 'small' }}>
@@ -97,9 +98,6 @@ function CardList({
         disableClearable
         onChange={(event, newValue) => {
           setCardColumn(newValue);
-          const validCardIds = getValidCardIds(newValue);
-          setCards(validCardIds);
-          setIsCardChecked(Array(validCardIds.length).fill(true));
         }}
         renderInput={(params) => (
           <TextField
@@ -190,7 +188,9 @@ function CardList({
                     mt: '2rem',
                   }}
                 >
-                  No cards on this column
+                  {`No cards with assignee on this column that have rewards on ${capitalizeFirstLetter(
+                    registry[networkVersion]?.name
+                  )} Network`}
                 </Box>
               )}
             </Table>
@@ -216,8 +216,9 @@ function CardList({
             const cardIds = getCardIds();
             runMoralisFunction('getBatchPayInfo', {
               taskIds: cardIds,
-              distributor: registry[chainId].distributorAddress as string,
-              chainIdHex: window.ethereum.chainId,
+              distributor: registry[networkVersion]
+                .distributorAddress as string,
+              chainIdHex,
             })
               .then((res: any) => {
                 setPaymentInfo(res);
