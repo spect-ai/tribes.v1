@@ -8,25 +8,33 @@ import {
   Avatar,
 } from "@mui/material";
 import LabelIcon from "@mui/icons-material/Label";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Dispatch, SetStateAction } from "react";
 import { CardButton, PrimaryButton } from "../../elements/styledComponents";
 import { useRouter } from "next/router";
 import { PopoverContainer } from "../cardModal/styles";
 import { useCardDynamism } from "../../../hooks/useCardDynamism";
 import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
 
-interface FilterProps {}
+interface FilterProps {
+  setBReviewerFilter: Dispatch<SetStateAction<any[]>>;
+  setBAssigneeFilter: Dispatch<SetStateAction<any[]>>;
+  setBLabelsFilter: Dispatch<SetStateAction<any[]>>;
+}
 
-const TasksFilter = () => {
-  const [space, setSpace] = useState([]);
+const TasksFilter = ({
+  setBReviewerFilter,
+  setBAssigneeFilter,
+  setBLabelsFilter,
+}: FilterProps) => {
+  // const [space, setSpace] = useState([]);
   const [open, setOpen] = useState(false);
   const [memberIds, setMemberIds] = useState([]);
   const [memberDetails, setMemberDetails] = useState<any[]>([]);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [reviewerFilter, setReviewerFilter] = useState([]);
-  const [assigneeFilter, setassigneeFilter] = useState([]);
-  const [labelsFilter, setLabelsFilter] = useState([]);
+  const [reviewerFilter, setReviewerFilter] = useState<any[]>([]);
+  const [assigneeFilter, setAssigneeFilter] = useState<any[]>([]);
+  const [labelsFilter, setLabelsFilter] = useState<any[]>([]);
   const { runMoralisFunction } = useMoralisFunction();
 
   const router = useRouter();
@@ -34,12 +42,12 @@ const TasksFilter = () => {
 
   useEffect(() => {
     runMoralisFunction("getSpace", { boardId: bid }).then((res) => {
-      console.log("TaskFilter: Tasks: ", res.tasks);
-      console.log("TaskFilter: Members: ", res.members);
+      // console.log("TaskFilter: Tasks: ", res.tasks);
+      // console.log("TaskFilter: Members: ", res.members);
       setMemberIds(res.members);
       setMemberDetails(res.memberDetails);
-      console.log("TaskFilter: Member Details: ", res.memberDetails, memberIds);
-      setSpace(res);
+      // console.log("TaskFilter: Member Details: ", res.memberDetails, memberIds);
+      // setSpace(res);
     });
   }, []);
 
@@ -50,6 +58,14 @@ const TasksFilter = () => {
   };
   const handleClose = () => setOpen(false);
   const handleFeedbackClose = () => setFeedbackOpen(false);
+
+  const handleFilter = () => {
+    console.log(reviewerFilter, assigneeFilter, labelsFilter);
+    handleFeedbackClose();
+    setBReviewerFilter(reviewerFilter);
+    setBAssigneeFilter(assigneeFilter);
+    setBLabelsFilter(labelsFilter);
+  };
 
   return (
     <>
@@ -123,12 +139,12 @@ const TasksFilter = () => {
           <Autocomplete
             options={memberIds}
             multiple
-            getOptionLabel={(option) => memberDetails[option]["username"]}
-            // value={reviewerFilter}
-            // onChange={(event, newValue) => {
-            //   setReviewerFilter(newValue as string[]);
-            //   console.log(reviewerFilter);
-            // }}
+            getOptionLabel={(option) => memberDetails[option].username}
+            value={reviewerFilter}
+            onChange={(event, newValue) => {
+              setReviewerFilter(newValue as any[]);
+              console.log(reviewerFilter);
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -143,11 +159,12 @@ const TasksFilter = () => {
           <Autocomplete
             options={memberIds}
             multiple
-            getOptionLabel={(option) => memberDetails[option]["username"]}
-            value={labelsFilter}
-            // onChange={(event: any, newValue: string | null) => {
-            //   setLabels(newValue);
-            // }}
+            getOptionLabel={(option) => memberDetails[option].username}
+            value={assigneeFilter}
+            onChange={(event, newValue) => {
+              setAssigneeFilter(newValue as any[]);
+              console.log(reviewerFilter);
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -159,7 +176,7 @@ const TasksFilter = () => {
             )}
           />
 
-          <Autocomplete
+          {/* <Autocomplete
             options={["Reviewer", "Assignee", "Title"]}
             multiple
             // value={labels}
@@ -175,7 +192,7 @@ const TasksFilter = () => {
                 placeholder="Title"
               />
             )}
-          />
+          /> */}
 
           <Autocomplete
             options={[
@@ -188,9 +205,11 @@ const TasksFilter = () => {
             ]}
             multiple
             value={labelsFilter}
-            // onChange={(event, newValue) => {
-            //   setLabels(newValue as string[]);
-            // }}
+            onChange={(event, newValue) => {
+              setLabelsFilter(newValue as any[]);
+              console.log("newVal: ", newValue);
+              console.log(labelsFilter);
+            }}
             renderInput={(params) => (
               <TextField
                 {...params}
@@ -206,7 +225,7 @@ const TasksFilter = () => {
             variant="outlined"
             sx={{ mt: 4, borderRadius: 1 }}
             color="secondary"
-            // onClick={handleSave}
+            onClick={handleFilter}
           >
             Filter
           </PrimaryButton>

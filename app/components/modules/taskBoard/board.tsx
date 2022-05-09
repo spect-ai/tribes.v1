@@ -24,6 +24,7 @@ import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
 import Column from "../column";
 import { PrimaryButton } from "../../elements/styledComponents";
 import TrelloImport from "../importTrello";
+import TasksFilter from "../tasksFilter";
 
 type Props = {
   expanded: boolean;
@@ -36,11 +37,11 @@ const Board = ({ expanded, handleChange }: Props) => {
   const { space, setSpace } = useSpace();
   const router = useRouter();
   const { Moralis, user } = useMoralis();
-
   const [isOpen, setIsOpen] = useState(false);
-  const handleClose = () => {
-    setIsOpen(false);
-  };
+  const [reviewerFilter, setReviewerFilter] = useState<any[]>([]);
+  const [assigneeFilter, setAssigneeFilter] = useState<any[]>([]);
+  const [labelsFilter, setLabelsFilter] = useState<any[]>([]);
+  const handleClose = () => setIsOpen(false);
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId, type } = result;
@@ -173,6 +174,11 @@ const Board = ({ expanded, handleChange }: Props) => {
   const { id, bid } = router.query;
   return (
     <>
+      <TasksFilter
+        setBReviewerFilter={setReviewerFilter}
+        setBAssigneeFilter={setAssigneeFilter}
+        setBLabelsFilter={setLabelsFilter}
+      />
       <TrelloImport isOpen={isOpen} handleClose={handleClose} />
       {Object.keys(space.tasks).length === 0 &&
         space.roles[user?.id as string] === 3 && (
@@ -198,20 +204,98 @@ const Board = ({ expanded, handleChange }: Props) => {
             <Container {...provided.droppableProps} ref={provided.innerRef}>
               {space.columnOrder.map((columnId, index) => {
                 const column = space.columns[columnId];
-                console.log("Column: ", column);
                 // Mapping happens here
                 const tasks = column.taskIds?.map(
                   (taskId) => space.tasks[taskId]
                 );
                 console.log("Tasks: ", tasks);
 
-                // Filtering to happen here
+                var filteredTasks = tasks;
+                // Filtering happens here
+                if (
+                  reviewerFilter.length === 0 &&
+                  assigneeFilter.length === 0 &&
+                  labelsFilter.length === 0
+                ) {
+                  filteredTasks = tasks;
+                } else {
+                  filteredTasks = tasks.filter((task) => {
+                    var reviewerFiltSat = false;
+                    var assigneeFiltSat = false;
+                    var labelsFiltSat = false;
+
+                    const reviewers = task.reviewer;
+                    const assignees = task.assignee;
+                    const labels = task.tags;
+
+                    if (reviewerFilter.length > 0) {
+                      // console.log("\nFiltering reviewers", reviewers.length);
+                      for (var i = 0; i < reviewers.length; i++) {
+                        const filterRTruth = reviewerFilter.includes(
+                          reviewers[i]
+                        );
+                        // console.log(reviewers[i], " => ", filterRTruth);
+                        if (filterRTruth) {
+                          reviewerFiltSat = true;
+                          // console.log("Satisfied tasks", reviewerFiltSat, task);
+                          break;
+                        }
+                      }
+                      // console.log("\n");
+                    } else {
+                      reviewerFiltSat = true;
+                    }
+
+                    if (assigneeFilter.length > 0) {
+                      // console.log("\nFiltering reviewers", assignees.length);
+                      for (var i = 0; i < assignees.length; i++) {
+                        const filterATruth = assigneeFilter.includes(
+                          assignees[i]
+                        );
+                        // console.log(assignees[i], " => ", filterATruth);
+                        if (filterATruth) {
+                          assigneeFiltSat = true;
+                          // console.log("Satisfied tasks", assigneeFiltSat, task);
+                          break;
+                        }
+                      }
+                      // console.log("\n");
+                    } else {
+                      assigneeFiltSat = true;
+                    }
+
+                    if (labelsFilter.length > 0) {
+                      for (var i = 0; i < labels.length; i++) {
+                        const filterLTruth = labelsFilter.includes(labels[i]);
+                        // console.log(labels[i], " => ", filterLTruth);
+                        if (filterLTruth) {
+                          labelsFiltSat = true;
+                          // console.log("Satisfied tasks", labelsFiltSat, task);
+                          break;
+                        }
+                      }
+                    } else {
+                      labelsFiltSat = true;
+                    }
+
+                    // console.log(
+                    //   reviewerFiltSat,
+                    //   assigneeFiltSat,
+                    //   labelsFiltSat
+                    // );
+
+                    if (reviewerFiltSat && assigneeFiltSat && labelsFiltSat) {
+                      // console.log("And the final task is ==>>", task);
+                      return task;
+                    }
+                  });
+                }
 
                 return (
                   <Column
                     key={columnId}
                     column={column}
-                    tasks={tasks}
+                    tasks={filteredTasks}
                     id={columnId}
                     index={index}
                   />
@@ -270,6 +354,7 @@ const Board = ({ expanded, handleChange }: Props) => {
     </>
   );
 };
+
 const Container = styled.div`
   display: flex;
   flex-direction: row;
