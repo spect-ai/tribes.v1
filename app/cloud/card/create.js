@@ -104,8 +104,8 @@ function handleCreateTask(
   if (description) task.set('description', description);
   task.set('columnId', columnId);
   assigneeId && assigneeId !== ''
-    ? task.set('status', 100)
-    : task.set('status', 105);
+    ? task.set('status', 105)
+    : task.set('status', 100);
   cardType ? task.set('type', cardType) : task.set('type', 'Task');
   if (deadline) task.set('deadline', new Date(deadline));
 

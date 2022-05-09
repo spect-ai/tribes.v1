@@ -183,6 +183,7 @@ export interface SubmissionData {
   createdAt?: Date;
   updatedAt?: Date;
   edited: boolean;
+  revisionInstruction: string;
 }
 
 export type Channel = {

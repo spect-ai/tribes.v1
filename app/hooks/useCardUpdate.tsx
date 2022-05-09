@@ -147,17 +147,52 @@ export default function useCardUpdate() {
     );
   };
 
-  const updateSubmission = (submission: Block[]) => {
+  const updateSubmission = (submission: Block[], id: string | null) => {
     executeCardUpdates(
       {
         updates: {
           submissions: {
+            id,
             content: submission,
           },
           taskId: task.taskId,
         },
       },
       'submissionEdit',
+      false
+    );
+  };
+
+  const updateRevisionInstruction = (
+    id: string,
+    revisionInstruction: string
+  ) => {
+    executeCardUpdates(
+      {
+        updates: {
+          status: statusToCode.inRevision,
+          submissions: {
+            id,
+            revisionInstruction,
+          },
+          taskId: task.taskId,
+        },
+      },
+      codeToStatus[statusToCode.inRevision],
+      false
+    );
+  };
+
+  const updateToDone = (feedback: string) => {
+    executeCardUpdates(
+      {
+        updates: {
+          status: statusToCode.closed,
+          feedback,
+          taskId: task.taskId,
+        },
+      },
+      codeToStatus[statusToCode.closed],
       false
     );
   };
@@ -385,5 +420,7 @@ export default function useCardUpdate() {
     updateColumn,
     updateStatusAndTransactionHashInMultipleCards,
     updateVotes,
+    updateRevisionInstruction,
+    updateToDone,
   };
 }

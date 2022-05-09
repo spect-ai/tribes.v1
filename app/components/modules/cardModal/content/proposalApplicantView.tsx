@@ -101,46 +101,68 @@ function ProposalApplicantView() {
           }}
         />
         {proposalEditMode && task.assignee?.length === 0 && (
-          <PrimaryButton
-            variant="outlined"
+          <Box
             sx={{
-              mb: 2,
-              mt: 2,
-              width: '8rem',
-              height: '2rem',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'end',
+              justifyContent: 'end',
+              mx: 1,
+              minWidth: '7rem',
             }}
-            color="secondary"
-            size="small"
-            loading={loading}
-            onClick={() => {
-              updateProposal();
-            }}
-            disabled={
-              task.proposals?.length > 0 &&
-              proposalOnEdit === task.proposals[0].content
-            }
           >
-            Apply
-          </PrimaryButton>
+            <PrimaryButton
+              variant="outlined"
+              sx={{
+                mb: 2,
+                mt: 2,
+                width: '7rem',
+                height: '2rem',
+              }}
+              color="secondary"
+              size="small"
+              loading={loading}
+              onClick={() => {
+                updateProposal();
+              }}
+              disabled={
+                task.proposals?.length > 0 &&
+                proposalOnEdit === task.proposals[0].content
+              }
+            >
+              Apply
+            </PrimaryButton>
+          </Box>
         )}
         {!proposalEditMode && task.assignee?.length === 0 && (
-          <PrimaryButton
-            variant="outlined"
+          <Box
             sx={{
-              mb: 2,
-              mt: 2,
-              width: '8rem',
-              height: '2rem',
-            }}
-            color="secondary"
-            size="small"
-            loading={loading}
-            onClick={() => {
-              setProposalEditMode(true);
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'end',
+              justifyContent: 'end',
+              mx: 1,
+              minWidth: '7rem',
             }}
           >
-            Edit
-          </PrimaryButton>
+            <PrimaryButton
+              variant="outlined"
+              sx={{
+                mb: 2,
+                mt: 2,
+                width: '7rem',
+                height: '2rem',
+              }}
+              color="secondary"
+              size="small"
+              loading={loading}
+              onClick={() => {
+                setProposalEditMode(true);
+              }}
+            >
+              Edit
+            </PrimaryButton>
+          </Box>
         )}
         {task.assignee?.length > 0 &&
           user &&
