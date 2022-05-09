@@ -387,6 +387,7 @@ Moralis.Cloud.define('updateColumnTasks', async (request) => {
     var task = await getTaskByTaskId(request.params.taskId);
     if (
       hasAccess(request.user.id, board, 3) ||
+      hasAccess(request.user.id, board, 2) ||
       task.get('reviewer')?.includes(request.user.id) ||
       task.get('assignee')?.includes(request.user.id) ||
       task.get('creator') === request.user.id
@@ -419,6 +420,13 @@ Moralis.Cloud.define('updateColumnTasks', async (request) => {
           [destination.id]: destination,
         };
         task.set('columnId', newCardLoc.columnId);
+        task = handleReverseAutomation(
+          task,
+          board,
+          cardLoc.columnId,
+          newCardLoc.columnId,
+          request.user.id
+        );
       } else if (cardLoc.cardIndex !== newCardLoc.cardIndex) {
         columns[cardLoc.columnId]['taskIds'].splice(cardLoc.cardIndex, 1);
         columns[cardLoc.columnId]['taskIds'].splice(
@@ -434,6 +442,13 @@ Moralis.Cloud.define('updateColumnTasks', async (request) => {
           request.params.taskId
         );
         task.set('columnId', newCardLoc.columnId);
+        task = handleReverseAutomation(
+          task,
+          board,
+          cardLoc.columnId,
+          newCardLoc.columnId,
+          request.user.id
+        );
       }
 
       board.set('columns', columns);

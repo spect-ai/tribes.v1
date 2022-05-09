@@ -67,7 +67,7 @@ function Project() {
         task.access.assignee ||
         task.access.creator ||
         task.access.reviewer ||
-        space.roles[user?.id as string] === 3
+        [2, 3].includes(space.roles[user?.id as string])
       )
     ) {
       notify("Looks like you don't have access to move this task", 'error');
