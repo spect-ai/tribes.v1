@@ -309,3 +309,7 @@ export function getDateDisplay(date: string) {
     monthMap[dateObj?.getMonth() as keyof typeof monthMap]
   } ${formatTime(dateObj)}`;
 }
+
+export function isEqual(a: Array<string | number>, b: Array<string | number>) {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}

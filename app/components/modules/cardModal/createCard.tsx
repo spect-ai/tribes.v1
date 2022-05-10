@@ -8,6 +8,8 @@ import {
   Modal,
   Typography,
   styled as muiStyled,
+  Avatar,
+  Tooltip,
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import PaidIcon from '@mui/icons-material/Paid';
@@ -31,6 +33,10 @@ import { labelsMapping } from '../../../constants';
 import { CardButton } from '../../elements/styledComponents';
 import useCardCreate from '../../../hooks/useCardCreate';
 import ConfirmModal from '../../elements/confirmModal';
+import MemberInfoDisplay from '../../elements/memberInfoDisplay';
+import MemberAvatar from '../../elements/memberAvatar';
+import MemberGroupDisplay from '../../elements/memberGroupDisplay';
+import CardInfoDisplay from '../../elements/cardInfoDisplay';
 
 // @ts-ignore
 const ModalContainer = muiStyled(Box)(({ theme }) => ({
@@ -74,8 +80,8 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState([]);
   const [labels, setLabels] = useState([] as string[]);
-  const [assignee, setAssignee] = useState('');
-  const [reviewer, setReviewer] = useState('');
+  const [assignees, setAssignees] = useState([] as string[]);
+  const [reviewers, setReviewers] = useState([] as string[]);
   const [columnId, setColumnId] = useState('');
   const [type, setType] = useState('Task');
   const [chain, setChain] = useState({} as Chain);
@@ -117,14 +123,14 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
 
   useEffect(() => {
     if (user) {
-      setReviewer(user.id);
+      setReviewers([user.id]);
     }
     updateChain({ chainId: '137', name: 'polygon' });
     setValue('0');
     setTitle('');
     setDescription([]);
     setLabels([]);
-    setAssignee('');
+    setAssignees([]);
     setDate('');
     setColumnId(column.id);
   }, [isOpen]);
@@ -189,59 +195,70 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
             <CommonPopover
               label="Reviewer"
               buttonText={
-                space.memberDetails[reviewer]?.username || 'No reviewer'
+                <MemberGroupDisplay
+                  members={reviewers}
+                  memberDetails={space.memberDetails}
+                  placeholder="No reviewer"
+                />
               }
               buttonsx={{
                 padding: '6px',
                 minWidth: '3rem',
               }}
-              avatarSrc={getAvatar(space.memberDetails[reviewer])}
-              avatarDefault={<PersonIcon sx={{ color: 'text.primary' }} />}
               popoverContent={[
                 {
                   fieldType: 'autocomplete',
                   options: space.members,
-                  currOption: reviewer,
-                  setCurrOption: setReviewer,
-                  optionLabels: (option: any) =>
-                    space.memberDetails[option].username,
+                  currOption: reviewers,
+                  setCurrOption: setReviewers,
+                  // eslint-disable-next-line react/no-unstable-nested-components
+                  optionLabels: (option: string) => (
+                    <MemberInfoDisplay member={space.memberDetails[option]} />
+                  ),
+                  multiple: true,
+                  closeOnSelect: false,
                 },
               ]}
             />
             <CommonPopover
               label="Assignee"
               buttonText={
-                space.memberDetails[assignee]
-                  ? space.memberDetails[assignee].username
-                  : 'Unassigned'
+                <MemberGroupDisplay
+                  members={assignees}
+                  memberDetails={space.memberDetails}
+                  placeholder="No assignee"
+                />
               }
               buttonsx={{
                 padding: '6px',
                 minWidth: '3rem',
               }}
-              avatarSrc={
-                space.memberDetails[assignee]
-                  ? getAvatar(space.memberDetails[assignee])
-                  : null
-              }
-              avatarDefault={<PersonIcon sx={{ color: 'text.primary' }} />}
               popoverContent={[
                 {
                   fieldType: 'autocomplete',
                   options: space.members,
-                  currOption: assignee,
-                  setCurrOption: setAssignee,
-                  optionLabels: (option: any) =>
-                    space.memberDetails[option]?.username || 'Unassigned',
+                  currOption: assignees,
+                  setCurrOption: setAssignees,
+                  // eslint-disable-next-line react/no-unstable-nested-components
+                  optionLabels: (option: string) => (
+                    <MemberInfoDisplay member={space.memberDetails[option]} />
+                  ),
+                  multiple: true,
+                  closeOnSelect: false,
                 },
               ]}
             />
             <CommonPopover
               label="Reward"
               buttonText={
-                parseFloat(value) > 0
-                  ? `${value} ${token?.symbol}`
-                  : 'No reward'
+                <CardInfoDisplay
+                  avatarDefault={<PaidIcon sx={{ color: 'text.primary' }} />}
+                  info={
+                    parseFloat(value) > 0
+                      ? `${value} ${token?.symbol}`
+                      : 'No reward' || 'select'
+                  }
+                />
               }
               buttonsx={{
                 padding: '6px',
@@ -282,12 +299,18 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
             />
             <CommonPopover
               label="Due Date"
-              buttonText={date ? getDateDisplay(date) : 'No deadline'}
+              buttonText={
+                <CardInfoDisplay
+                  avatarDefault={
+                    <DateRangeIcon sx={{ color: 'text.primary' }} />
+                  }
+                  info={date ? getDateDisplay(date) : 'No deadline'}
+                />
+              }
               buttonsx={{
                 padding: '6px',
                 minWidth: '3rem',
               }}
-              avatarDefault={<DateRangeIcon sx={{ color: 'text.primary' }} />}
               popoverContent={[
                 {
                   fieldType: 'datetime',
@@ -302,7 +325,12 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
             <CommonPopover
               label="Labels"
               buttonText={
-                labels.length > 0 ? `#${labels.join('  #')}` : 'No labels'
+                <CardInfoDisplay
+                  avatarDefault={<LabelIcon sx={{ color: 'text.primary' }} />}
+                  info={
+                    labels.length > 0 ? `#${labels.join('  #')}` : 'No labels'
+                  }
+                />
               }
               buttonsx={{
                 padding: '6px',
@@ -319,7 +347,6 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                   closeOnSelect: false,
                 },
               ]}
-              avatarDefault={<LabelIcon sx={{ color: 'text.primary' }} />}
             />
           </Box>
 
@@ -363,8 +390,8 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                   chain,
                   token,
                   value,
-                  assignee,
-                  reviewer,
+                  assignees,
+                  reviewers,
                   columnId,
                   handleClose
                 )

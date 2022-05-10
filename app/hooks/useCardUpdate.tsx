@@ -6,6 +6,7 @@ import { Task, Block } from '../types';
 import { notify } from '../components/modules/settingsTab';
 import useCardStatus from './useCardStatus';
 import { useCardContext } from '../components/modules/cardModal';
+import { isEqual } from '../utils/utils';
 
 export default function useCardUpdate() {
   const { user } = useMoralis();
@@ -259,20 +260,23 @@ export default function useCardUpdate() {
 
   const updateMember = (
     memberType: string,
-    member: string,
+    members: string[],
     setOpen: Function
   ) => {
     let updates = {};
     if (memberType === 'reviewer') {
+      if (isEqual(members, task.reviewer)) return;
+
       updates = {
-        reviewer: member ? [member] : [],
+        reviewer: members || [],
         taskId: task.taskId,
       };
     } else {
+      if (isEqual(members, task.assignee)) return;
       updates = {
-        assignee: member ? [member] : [],
+        assignee: members || [],
         taskId: task.taskId,
-        status: member ? statusToCode.assigned : statusToCode.created,
+        status: members ? statusToCode.assigned : statusToCode.created,
       };
     }
     closePopover(setOpen);

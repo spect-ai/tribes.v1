@@ -72,12 +72,12 @@ function handleCreateTask(
   title,
   value,
   callerId,
-  reviewerId,
+  reviewerIds,
   cardType,
   columnId,
   tags,
   description,
-  assigneeId,
+  assigneeIds,
   deadline
 ) {
   task.set('taskId', taskId);
@@ -93,19 +93,13 @@ function handleCreateTask(
   task.set('title', title);
   task.set('value', parseFloat(value));
   task.set('creator', callerId);
-  reviewerId && reviewerId !== ''
-    ? task.set('reviewer', [reviewerId])
-    : task.set('reviewer', []);
-  assigneeId && assigneeId !== ''
-    ? task.set('assignee', [assigneeId])
-    : task.set('assignee', []);
+  reviewerIds ? task.set('reviewer', reviewerIds) : task.set('reviewer', []);
+  assigneeIds ? task.set('assignee', assigneeIds) : task.set('assignee', []);
   task.set('status', 100);
   tags ? task.set('tags', tags) : task.set('tags', []);
   if (description) task.set('description', description);
   task.set('columnId', columnId);
-  assigneeId && assigneeId !== ''
-    ? task.set('status', 105)
-    : task.set('status', 100);
+  assigneeIds ? task.set('status', 105) : task.set('status', 100);
   cardType ? task.set('type', cardType) : task.set('type', 'Task');
   if (deadline) task.set('deadline', new Date(deadline));
 
@@ -117,13 +111,13 @@ function handleCreateTask(
     taskType: cardType ? cardType : 'Task',
     changeLog: { prev: null, next: cardType ? cardType : 'Task' },
   });
-  if (assigneeId && assigneeId !== '') {
+  if (assigneeIds) {
     activity.push({
       action: 105,
       actor: callerId,
       timestamp: new Date(),
       taskType: cardType ? cardType : 'Task',
-      changeLog: { prev: null, next: [assigneeId] },
+      changeLog: { prev: null, next: [assigneeIds] },
     });
   }
   task.set('activity', activity);

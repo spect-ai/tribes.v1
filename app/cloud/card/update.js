@@ -748,15 +748,16 @@ function handleReverseAutomation(
 ) {
   let sourceColumnName = space.get('columns')[sourceId]?.title;
   let destinationColumnName = space.get('columns')[destinationId]?.title;
-  if (destinationColumnName === 'Done') card.set('status', 205);
-  else if (destinationColumnName === 'In Review') card.set('status', 200);
-  else if (
-    sourceColumnName === 'In Review' &&
-    destinationColumnName === 'In Progress' &&
-    card.get('submissions')
-  )
-    card.set('status', 201);
-  else if (
+  // if (destinationColumnName === 'Done') card.set('status', 205);
+  // else if (destinationColumnName === 'In Review') card.set('status', 200);
+  // else if (
+  //   sourceColumnName === 'In Review' &&
+  //   destinationColumnName === 'In Progress' &&
+  //   card.get('submissions')
+  // )
+  //   card.set('status', 201);
+  // else
+  if (
     destinationColumnName === 'In Progress' &&
     (!card.get('assignee') || card.get('assignee').length === 0) &&
     card.get('type') === 'Task' &&

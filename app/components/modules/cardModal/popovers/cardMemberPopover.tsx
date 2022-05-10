@@ -16,13 +16,16 @@ import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useProfileInfo from '../../../../hooks/useProfileInfo';
 import useCardUpdate from '../../../../hooks/useCardUpdate';
 import { useCardContext } from '..';
+import MemberGroupDisplay from '../../../elements/memberGroupDisplay';
+import MemberInfoDisplay from '../../../elements/memberInfoDisplay';
+import CommonPopover from '../../../elements/popover';
 
 type Props = {
   type: string;
 };
 
 function CardMemberPopover({ type }: Props) {
-  const [member, setMember] = useState('');
+  const [members, setMembers] = useState([] as string[]);
   const { task, setTask, anchorEl } = useCardContext();
   const [isLoading, setIsLoading] = useState(false);
   const [editable, setEditable] = useState(false);
@@ -35,123 +38,59 @@ function CardMemberPopover({ type }: Props) {
     getReason,
     isAssigneeViewable,
   } = useCardDynamism();
-  const { updateMember, openPopover, closePopover } = useCardUpdate();
-  const { getAvatar } = useProfileInfo();
+  const { updateMember } = useCardUpdate();
 
   useEffect(() => {
     if (type === 'reviewer') {
-      setMember(task.reviewer[0]);
+      setMembers(task.reviewer);
       setEditable(isCardStewardAndUnpaidCardStatus());
       setViewable(true);
     } else {
-      setMember(task.assignee[0]);
+      setMembers(task.assignee);
       setEditable(isAssigneeEditable());
       setViewable(isAssigneeViewable());
     }
   }, [task]);
 
   return (
-    <>
-      {viewable && (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            mt: 2,
-            mx: 1,
-          }}
-        >
-          <Typography
-            sx={{ fontSize: 12, color: 'text.secondary', width: '100%' }}
-          >
-            {type === 'reviewer' ? 'Reviewer' : 'Assignee'}
-          </Typography>
-          <CardButton
-            variant="outlined"
-            onClick={openPopover(setOpen)}
-            color="secondary"
-            sx={{
-              padding: '6px',
-              minWidth: '3rem',
-            }}
-          >
-            <Avatar
-              sx={{
-                p: 0,
-                mr: 2,
-                width: 20,
-                height: 20,
-                backgroundColor: 'transparent',
-              }}
-              src={
-                type === 'reviewer'
-                  ? getAvatar(space.memberDetails[task.reviewer[0]])
-                  : getAvatar(space.memberDetails[task.assignee[0]])
-              }
-            >
-              <PersonIcon sx={{ color: 'text.primary' }} />
-            </Avatar>
-            <Typography
-              sx={{
-                fontSize: 14,
-                minWidth: '3rem',
-              }}
-            >
-              {type === 'reviewer'
-                ? space.memberDetails[task.reviewer[0]]?.username ||
-                  'No reviewer'
-                : space.memberDetails[task.assignee[0]]?.username ||
-                  'Unassigned'}
-            </Typography>
-          </CardButton>
-        </Box>
-      )}
-      <Popover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={() => closePopover(setOpen)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        {!editable && (
-          <PopoverContainer>
-            <Typography variant="body2">{getReason(type)}</Typography>
-          </PopoverContainer>
-        )}
-        {editable && (
-          <PopoverContainer>
-            <Autocomplete
-              options={space.members} // Get options from members
-              value={member as any}
-              getOptionLabel={(option) => space.memberDetails[option]?.username}
-              onChange={(event, newValue) => {
-                setMember(newValue as string);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  id="filled-hidden-label-normal"
-                  size="small"
-                  fullWidth
-                  placeholder="Search member"
-                />
-              )}
-            />
-            <PrimaryButton
-              variant="outlined"
-              color="secondary"
-              sx={{ mt: 4, borderRadius: 1 }}
-              loading={isLoading}
-              onClick={() => updateMember(type, member, setOpen)}
-            >
-              Save
-            </PrimaryButton>
-          </PopoverContainer>
-        )}
-      </Popover>
-    </>
+    <CommonPopover
+      label={type === 'reviewer' ? 'Reviewer' : 'Assignee'}
+      buttonText={
+        <MemberGroupDisplay
+          members={members}
+          memberDetails={space.memberDetails}
+          placeholder={`No ${type}`}
+        />
+      }
+      buttonsx={{
+        padding: '6px',
+        minWidth: '3rem',
+      }}
+      popoverContent={
+        editable
+          ? [
+              {
+                fieldType: 'autocomplete',
+                options: space.members,
+                currOption: members,
+                setCurrOption: setMembers,
+                // eslint-disable-next-line react/no-unstable-nested-components
+                optionLabels: (option: string) => (
+                  <MemberInfoDisplay member={space.memberDetails[option]} />
+                ),
+                multiple: true,
+                closeOnSelect: false,
+              },
+            ]
+          : [
+              {
+                fieldType: 'typography',
+                value: getReason(type),
+              },
+            ]
+      }
+      beforeClose={() => updateMember(type, members, setOpen)}
+    />
   );
 }
 

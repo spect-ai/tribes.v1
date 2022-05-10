@@ -139,13 +139,16 @@ function TaskContainer({ task, index, column }: Props) {
             <Container>
               <TitleContainer>
                 <Title palette={palette}>{task.title}</Title>
-                {task.assignee.length > 0 && (
-                  <Avatar
-                    alt={space.memberDetails[task.assignee[0]]?.username}
-                    src={getAvatar(space.memberDetails[task.assignee[0]])}
-                    sx={{ height: 32, width: 32 }}
-                  />
-                )}
+
+                {task.assignee?.map((assignee) => {
+                  return (
+                    <Avatar
+                      alt={space.memberDetails[assignee]?.username}
+                      src={getAvatar(space.memberDetails[assignee])}
+                      sx={{ height: 32, width: 32 }}
+                    />
+                  );
+                })}
               </TitleContainer>
               <ChipContainer>
                 {task.type === 'Bounty' && (

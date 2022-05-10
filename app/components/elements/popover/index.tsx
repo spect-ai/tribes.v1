@@ -7,21 +7,23 @@ import { CardButton } from '../styledComponents';
 import { PopoverContainer } from '../../modules/cardModal/styles';
 
 type PopProps = {
-  buttonText?: string;
+  buttonText?: any;
   buttonsx?: any;
-  avatarSrc?: string;
+  avatarSrcCallback?: string;
   avatarDefault?: any;
   popoverContent: Array<any>;
   label?: string;
+  beforeClose?: () => void;
 };
 
 function CommonPopover({
   buttonText,
   buttonsx,
-  avatarSrc,
+  avatarSrcCallback,
   avatarDefault,
   popoverContent,
   label,
+  beforeClose,
 }: PopProps) {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -31,8 +33,10 @@ function CommonPopover({
     setOpen(true);
   };
   const closePopover = () => {
+    if (beforeClose) beforeClose();
     setOpen(false);
   };
+
   return (
     <>
       <Box
@@ -62,27 +66,7 @@ function CommonPopover({
             }
           }
         >
-          {(avatarSrc || avatarDefault) && (
-            <Avatar
-              sx={{
-                p: 0,
-                mr: 2,
-                width: 20,
-                height: 20,
-                backgroundColor: 'transparent',
-              }}
-              src={avatarSrc}
-            >
-              {avatarDefault}
-            </Avatar>
-          )}
-          <Typography
-            sx={{
-              fontSize: 14,
-            }}
-          >
-            {buttonText || 'select'}
-          </Typography>
+          {buttonText}
         </CardButton>
       </Box>
       <Popover
@@ -134,6 +118,9 @@ function CommonPopover({
                   sx={item.sx}
                 />
               );
+            }
+            if (item.fieldType === 'typography') {
+              return <Typography variant="body2">{item.value}</Typography>;
             }
             return null;
           })}

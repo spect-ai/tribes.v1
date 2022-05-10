@@ -47,8 +47,8 @@ function OptionsPopover() {
       task.chain,
       task.token,
       task.value?.toString(),
-      task.assignee?.length > 0 ? task.assignee[0] : null,
-      task.reviewer?.length > 0 ? task.reviewer[0] : null,
+      task.assignee,
+      task.reviewer,
       task.columnId,
       handleClose
     );

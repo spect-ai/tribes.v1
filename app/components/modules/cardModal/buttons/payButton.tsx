@@ -234,14 +234,12 @@ function PayButton({ handleClose }: Props) {
                 handleNextStep={handleNextStep}
                 setActiveStep={setActiveStep}
                 approvalInfo={paymentInfo.approval}
-                chainId={window.ethereum.networkVersion}
               />
             )}
             {activeStep === 1 && isOpen && !isLoading && (
               <BatchPay
                 handleClose={handleModalClose}
                 handleNextStep={handleNextStep}
-                chainId={window.ethereum.networkVersion}
                 distributionInfo={paymentInfo.tokens}
                 handleStatusUpdate={
                   updateStatusAndTransactionHashInMultipleCards
@@ -252,7 +250,6 @@ function PayButton({ handleClose }: Props) {
               <BatchPay
                 handleClose={handleModalClose}
                 handleNextStep={handleNextStep}
-                chainId={window.ethereum.networkVersion}
                 distributionInfo={paymentInfo.currency}
                 handleStatusUpdate={
                   updateStatusAndTransactionHashInMultipleCards
