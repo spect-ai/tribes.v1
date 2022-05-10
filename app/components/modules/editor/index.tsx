@@ -96,7 +96,7 @@ function Editor({
     }
   };
 
-  const deleteBlockHandler = (currentBlock: any) => {
+  const deleteBlockHandler = (currentBlock: { id: string; html: string }) => {
     updateHistoryStack(blocks);
     if (blocks.length > 0) {
       const nodes = getSelectedNodes();

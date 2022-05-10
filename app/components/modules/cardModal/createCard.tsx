@@ -55,11 +55,8 @@ const TaskModalTitleContainer = styled.div`
 
 const TaskModalBodyContainer = styled.div`
   margin-top: 2px;
-  overflow-y: hidden;
-  overflow-x: hidden;
   color: #eaeaea;
   font-size: 0.85rem;
-  max-height: 10rem;
 `;
 
 type Props = {

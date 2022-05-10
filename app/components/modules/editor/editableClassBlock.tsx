@@ -180,7 +180,6 @@ class EditableClassBlock extends React.Component<Props, State> {
       id,
       updateBlock,
     } = this.props;
-
     const {
       placeholder,
       isTyping,
@@ -260,12 +259,14 @@ class EditableClassBlock extends React.Component<Props, State> {
     const { id, blocks, deleteBlock, addBlock } = this.props;
     const { html, previousKey, tagSelectorMenuOpen, tag, imageUrl, type } =
       this.state;
+    const block = this.contentEditable.current;
+    const { selectionStart } = getSelection(block);
     if (e.key === CMD_KEY) {
       // If the user starts to enter a command, we store a backup copy of
       // the html. We need this to restore a clean version of the content
       // after the content type selection was finished.
       this.setState({ htmlBackup: html });
-    } else if (e.key === 'Backspace' && !html) {
+    } else if (e.key === 'Backspace' && selectionStart === 0) {
       if (type === 'nestedUl') {
         this.setState({
           ...this.state,
@@ -273,7 +274,7 @@ class EditableClassBlock extends React.Component<Props, State> {
         });
         return;
       }
-      deleteBlock && deleteBlock({ id });
+      deleteBlock && deleteBlock({ id, html });
     } else if (
       e.key === 'Enter' &&
       previousKey !== 'Shift' &&
