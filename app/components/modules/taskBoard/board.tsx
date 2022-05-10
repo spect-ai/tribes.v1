@@ -204,13 +204,14 @@ const Board = ({ expanded, handleChange }: Props) => {
             <Container {...provided.droppableProps} ref={provided.innerRef}>
               {space.columnOrder.map((columnId, index) => {
                 const column = space.columns[columnId];
+                // console.log("Column => ", column);
                 // Mapping happens here
                 const tasks = column.taskIds?.map(
                   (taskId) => space.tasks[taskId]
                 );
-                console.log("Tasks: ", tasks);
+                console.log("Tasks ===>", tasks);
 
-                var filteredTasks = tasks;
+                var filteredTasks = [];
                 // Filtering happens here
                 if (
                   reviewerFilter.length === 0 &&
@@ -220,6 +221,7 @@ const Board = ({ expanded, handleChange }: Props) => {
                   filteredTasks = tasks;
                 } else {
                   filteredTasks = tasks.filter((task) => {
+                    if (task === undefined) return;
                     var reviewerFiltSat = false;
                     var assigneeFiltSat = false;
                     var labelsFiltSat = false;
