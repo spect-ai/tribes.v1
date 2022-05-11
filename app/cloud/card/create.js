@@ -99,7 +99,9 @@ function handleCreateTask(
   tags ? task.set('tags', tags) : task.set('tags', []);
   if (description) task.set('description', description);
   task.set('columnId', columnId);
-  assigneeIds ? task.set('status', 105) : task.set('status', 100);
+  assigneeIds && assigneeIds.length > 0
+    ? task.set('status', 105)
+    : task.set('status', 100);
   cardType ? task.set('type', cardType) : task.set('type', 'Task');
   if (deadline) task.set('deadline', new Date(deadline));
 
@@ -111,7 +113,7 @@ function handleCreateTask(
     taskType: cardType ? cardType : 'Task',
     changeLog: { prev: null, next: cardType ? cardType : 'Task' },
   });
-  if (assigneeIds) {
+  if (assigneeIds && assigneeIds.length > 0) {
     activity.push({
       action: 105,
       actor: callerId,

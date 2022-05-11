@@ -6,19 +6,21 @@ import { Member } from '../../../types';
 
 type Props = {
   member?: Member;
+  avatarsx?: object;
 };
 
-export default function MemberAvatar({ member }: Props) {
+export default function MemberAvatar({ member, avatarsx }: Props) {
   const { getAvatar } = useProfileInfo();
   return (
     <Avatar
-      sx={{
-        p: 0,
-        mr: 0,
-        width: 20,
-        height: 20,
-        backgroundColor: 'transparent',
-      }}
+      sx={
+        avatarsx || {
+          p: 0,
+          mr: 0,
+          width: 20,
+          height: 20,
+        }
+      }
       src={member ? getAvatar(member) : ''}
       alt={member?.username}
     >

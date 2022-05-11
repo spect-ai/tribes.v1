@@ -6,7 +6,7 @@ import { Task, Block } from '../types';
 import { notify } from '../components/modules/settingsTab';
 import useCardStatus from './useCardStatus';
 import { useCardContext } from '../components/modules/cardModal';
-import { isEqual } from '../utils/utils';
+import { isEqualArrayIgnoringLocations } from '../utils/utils';
 
 export default function useCardUpdate() {
   const { user } = useMoralis();
@@ -265,14 +265,14 @@ export default function useCardUpdate() {
   ) => {
     let updates = {};
     if (memberType === 'reviewer') {
-      if (isEqual(members, task.reviewer)) return;
+      if (isEqualArrayIgnoringLocations(members, task.reviewer)) return;
 
       updates = {
         reviewer: members || [],
         taskId: task.taskId,
       };
     } else {
-      if (isEqual(members, task.assignee)) return;
+      if (isEqualArrayIgnoringLocations(members, task.assignee)) return;
       updates = {
         assignee: members || [],
         taskId: task.taskId,

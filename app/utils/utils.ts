@@ -310,6 +310,27 @@ export function getDateDisplay(date: string) {
   } ${formatTime(dateObj)}`;
 }
 
-export function isEqual(a: Array<string | number>, b: Array<string | number>) {
+export function isEqualArrayWithStrictLocationsAndEqualCount(
+  a: Array<string | number>,
+  b: Array<string | number>
+) {
   return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+export function isEqualArrayIgnoringLocations(
+  a: Array<string | number>,
+  b: Array<string | number>
+) {
+  return (
+    a.length === b.length &&
+    a.every((value, index) => b.find((element) => element === value))
+  );
+}
+
+export function findDiffBetweenArrays(
+  a: Array<string | number>,
+  b: Array<string | number>
+) {
+  const removed = a.filter((x) => !b.includes(x));
+  const added = b.filter((x) => !a.includes(x));
+  return [added, removed];
 }
