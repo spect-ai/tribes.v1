@@ -327,7 +327,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                 {
                   id: uid(),
                   html: '',
-                  tag: 'p',
+                  tag: 'h3',
                   type: '',
                   imageUrl: '',
                   embedUrl: '',

@@ -309,10 +309,11 @@ export type CurrentUser = {
 export type Block = {
   id: string;
   tag: string;
-  type: string;
+  type: string | undefined;
   html: string;
   imageUrl: string;
   embedUrl: string;
+  ref?: any;
 };
 
 export type ApprovalInfo = {
