@@ -41,6 +41,7 @@ const Board = ({ expanded, handleChange }: Props) => {
   const [reviewerFilter, setReviewerFilter] = useState<any[]>([]);
   const [assigneeFilter, setAssigneeFilter] = useState<any[]>([]);
   const [labelsFilter, setLabelsFilter] = useState<any[]>([]);
+  const [titleFilter, setTitleFilter] = useState<string>("");
   const handleClose = () => setIsOpen(false);
 
   const handleDragEnd = (result: DropResult) => {
@@ -178,6 +179,7 @@ const Board = ({ expanded, handleChange }: Props) => {
         setBReviewerFilter={setReviewerFilter}
         setBAssigneeFilter={setAssigneeFilter}
         setBLabelsFilter={setLabelsFilter}
+        setBTitleFilter={setTitleFilter}
       />
       <TrelloImport isOpen={isOpen} handleClose={handleClose} />
       {Object.keys(space.tasks).length === 0 &&
@@ -209,14 +211,16 @@ const Board = ({ expanded, handleChange }: Props) => {
                 const tasks = column.taskIds?.map(
                   (taskId) => space.tasks[taskId]
                 );
-                console.log("Tasks ===>", tasks);
+                // console.log("Tasks ===>", tasks);
+                console.log("Title Filter ====> ", titleFilter);
 
                 var filteredTasks = [];
                 // Filtering happens here
                 if (
                   reviewerFilter.length === 0 &&
                   assigneeFilter.length === 0 &&
-                  labelsFilter.length === 0
+                  labelsFilter.length === 0 &&
+                  titleFilter.length === 0
                 ) {
                   filteredTasks = tasks;
                 } else {
@@ -225,10 +229,12 @@ const Board = ({ expanded, handleChange }: Props) => {
                     var reviewerFiltSat = false;
                     var assigneeFiltSat = false;
                     var labelsFiltSat = false;
+                    var titleFiltSat = false;
 
                     const reviewers = task.reviewer;
                     const assignees = task.assignee;
                     const labels = task.tags;
+                    const title = task.title;
 
                     if (reviewerFilter.length > 0) {
                       // console.log("\nFiltering reviewers", reviewers.length);
@@ -280,14 +286,38 @@ const Board = ({ expanded, handleChange }: Props) => {
                       labelsFiltSat = true;
                     }
 
+                    if (titleFilter.length > 0) {
+                      const searchString = titleFilter.toLowerCase();
+                      const titleToSearch = title.toLowerCase();
+                      const titleSearch = titleToSearch.includes(searchString);
+                      console.log(
+                        task.title +
+                          " ====> " +
+                          titleFilter +
+                          " ====> " +
+                          titleSearch
+                      );
+                      if (titleSearch === true) {
+                        titleFiltSat = true;
+                        // console.log("Title found in this task", task);
+                      }
+                    } else {
+                      titleFiltSat = true;
+                    }
+
                     // console.log(
                     //   reviewerFiltSat,
                     //   assigneeFiltSat,
                     //   labelsFiltSat
                     // );
 
-                    if (reviewerFiltSat && assigneeFiltSat && labelsFiltSat) {
-                      // console.log("And the final task is ==>>", task);
+                    if (
+                      reviewerFiltSat &&
+                      assigneeFiltSat &&
+                      labelsFiltSat &&
+                      titleFiltSat
+                    ) {
+                      console.log("And the final task is ==>>", task);
                       return task;
                     }
                   });

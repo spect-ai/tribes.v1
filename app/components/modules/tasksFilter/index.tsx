@@ -19,12 +19,14 @@ interface FilterProps {
   setBReviewerFilter: Dispatch<SetStateAction<any[]>>;
   setBAssigneeFilter: Dispatch<SetStateAction<any[]>>;
   setBLabelsFilter: Dispatch<SetStateAction<any[]>>;
+  setBTitleFilter: Dispatch<SetStateAction<string>>;
 }
 
 const TasksFilter = ({
   setBReviewerFilter,
   setBAssigneeFilter,
   setBLabelsFilter,
+  setBTitleFilter,
 }: FilterProps) => {
   // const [space, setSpace] = useState([]);
   const [open, setOpen] = useState(false);
@@ -35,6 +37,7 @@ const TasksFilter = ({
   const [reviewerFilter, setReviewerFilter] = useState<any[]>([]);
   const [assigneeFilter, setAssigneeFilter] = useState<any[]>([]);
   const [labelsFilter, setLabelsFilter] = useState<any[]>([]);
+  const [titleFilter, setTitleFilter] = useState<string>("");
   const { runMoralisFunction } = useMoralisFunction();
 
   const router = useRouter();
@@ -51,6 +54,14 @@ const TasksFilter = ({
     });
   }, []);
 
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitleFilter(event.target.value);
+  };
+
+  // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setName(event.target.value);
+  // };
+
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
     setOpen(true);
@@ -65,6 +76,7 @@ const TasksFilter = ({
     setBReviewerFilter(reviewerFilter);
     setBAssigneeFilter(assigneeFilter);
     setBLabelsFilter(labelsFilter);
+    setBTitleFilter(titleFilter);
   };
 
   return (
@@ -143,7 +155,6 @@ const TasksFilter = ({
             value={reviewerFilter}
             onChange={(event, newValue) => {
               setReviewerFilter(newValue as any[]);
-              console.log(reviewerFilter);
             }}
             renderInput={(params) => (
               <TextField
@@ -163,7 +174,6 @@ const TasksFilter = ({
             value={assigneeFilter}
             onChange={(event, newValue) => {
               setAssigneeFilter(newValue as any[]);
-              console.log(reviewerFilter);
             }}
             renderInput={(params) => (
               <TextField
@@ -207,8 +217,6 @@ const TasksFilter = ({
             value={labelsFilter}
             onChange={(event, newValue) => {
               setLabelsFilter(newValue as any[]);
-              console.log("newVal: ", newValue);
-              console.log(labelsFilter);
             }}
             renderInput={(params) => (
               <TextField
@@ -219,6 +227,15 @@ const TasksFilter = ({
                 placeholder="Labels"
               />
             )}
+          />
+
+          <TextField
+            id="filled-hidden-label-normal"
+            size="small"
+            fullWidth
+            placeholder="Title"
+            value={titleFilter}
+            onChange={handleTitleChange}
           />
 
           <PrimaryButton
