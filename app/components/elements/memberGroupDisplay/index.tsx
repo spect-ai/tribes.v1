@@ -4,6 +4,7 @@ import React from 'react';
 import { Member } from '../../../types';
 import MemberInfoDisplay from '../memberInfoDisplay';
 import MemberAvatar from '../memberAvatar';
+import MemberAvatarGroup from '../memberAvatarGroup';
 
 type Props = {
   members: string[];
@@ -34,21 +35,26 @@ export default function MemberGroupDisplay({
               </Box>
             </Box>
           ) : (
-            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-              {members.map((id: string) => {
-                return (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                    }}
-                  >
-                    <Tooltip title={memberDetails[id].username}>
-                      <MemberAvatar member={memberDetails[id]} />
-                    </Tooltip>
-                  </Box>
-                );
-              })}
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <MemberAvatarGroup
+                memberIds={members}
+                memberDetails={memberDetails}
+                maxAvatars={4}
+                avatarGroupsx={{
+                  '& .MuiAvatar-root': {
+                    width: '1.5rem',
+                    height: '1.5rem',
+                    fontSize: 15,
+                  },
+                }}
+              />
             </Box>
           )
         ) : (

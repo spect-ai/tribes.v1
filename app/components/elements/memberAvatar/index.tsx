@@ -1,3 +1,4 @@
+import { SignalCellularNull } from '@mui/icons-material';
 import PersonIcon from '@mui/icons-material/Person';
 import { Avatar, ButtonProps, styled } from '@mui/material';
 import React from 'react';
@@ -21,11 +22,8 @@ export default function MemberAvatar({ member, avatarsx }: Props) {
           height: 20,
         }
       }
-      src={member ? getAvatar(member) : ''}
+      src={member ? getAvatar(member) : null}
       alt={member?.username}
-    >
-      {' '}
-      <PersonIcon sx={{ color: 'text.primary' }} />{' '}
-    </Avatar>
+    />
   );
 }

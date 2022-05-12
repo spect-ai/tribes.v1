@@ -3,7 +3,7 @@ import { AttachMoneyOutlined } from '@mui/icons-material';
 import CreditScoreIcon from '@mui/icons-material/CreditScore';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import { Avatar, Palette, useTheme } from '@mui/material';
+import { Avatar, Palette, useTheme, Box, Tooltip } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
@@ -15,6 +15,7 @@ import {
 } from '../../../constants';
 import useProfileInfo from '../../../hooks/useProfileInfo';
 import { Column, Task } from '../../../types';
+import MemberAvatarGroup from '../../elements/memberAvatarGroup';
 import CardModal from '../cardModal';
 
 type Props = {
@@ -99,7 +100,7 @@ const TitleContainer = styled.div`
   display: flex;
   flex-direction: row;
   padding: 0.4rem;
-  align-items: center;
+  align-items: start;
 `;
 
 const Title = styled.div<{ palette: Palette }>`
@@ -138,17 +139,14 @@ function TaskContainer({ task, index, column }: Props) {
           >
             <Container>
               <TitleContainer>
-                <Title palette={palette}>{task.title}</Title>
-
-                {task.assignee?.map((assignee) => {
-                  return (
-                    <Avatar
-                      alt={space.memberDetails[assignee]?.username}
-                      src={getAvatar(space.memberDetails[assignee])}
-                      sx={{ height: 32, width: 32 }}
-                    />
-                  );
-                })}
+                <Box sx={{ width: task.assignee?.length > 0 ? '65%' : '100%' }}>
+                  <Title palette={palette}>{task.title}</Title>
+                </Box>
+                <Box sx={{ width: '25%' }} />
+                <MemberAvatarGroup
+                  memberIds={task.assignee}
+                  memberDetails={space.memberDetails}
+                />
               </TitleContainer>
               <ChipContainer>
                 {task.type === 'Bounty' && (

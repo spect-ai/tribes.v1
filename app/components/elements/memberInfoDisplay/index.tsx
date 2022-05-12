@@ -7,6 +7,7 @@ type Props = {
   member?: Member;
   placeholder?: string;
   textsx?: object;
+  textVariant?: string;
   avatarsx?: object;
   boxsx?: object;
 };
@@ -15,6 +16,7 @@ export default function MemberInfoDisplay({
   member,
   placeholder,
   textsx,
+  textVariant,
   avatarsx,
   boxsx,
 }: Props) {
