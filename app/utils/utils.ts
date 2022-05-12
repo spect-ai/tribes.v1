@@ -1,7 +1,8 @@
 /* eslint-disable no-unsafe-optional-chaining */
 /* eslint-disable no-restricted-syntax */
+import { ethers } from 'ethers';
 import { monthMap } from '../constants';
-import { Registry, Chain, Token } from '../types';
+import { Registry, Chain, Token, MemberDetails } from '../types';
 
 export const smartTrim = (string: string, maxLength: number) => {
   if (!string) {
@@ -333,4 +334,15 @@ export function findDiffBetweenArrays(
   const removed = a.filter((x) => !b.includes(x));
   const added = b.filter((x) => !a.includes(x));
   return [added, removed];
+}
+
+export function isEthAddress(addr: string) {
+  return ethers.utils.isAddress(addr);
+}
+
+export function getEthAddresses(
+  contributors: string[],
+  memberDetails: MemberDetails
+) {
+  return contributors.map((a: string) => memberDetails[a].ethAddress);
 }

@@ -43,15 +43,14 @@ function CardList({ handleClose, setPaymentInfo, handleNextStep }: Props) {
     const cardIds = space.columns[columnId].taskIds.filter((taskId) => {
       return space.tasks[taskId];
     });
-
     return cardIds
       .filter((a) => space.tasks[a].value > 0)
-      .filter((a) => space.tasks[a].chain?.networkVersion)
-      .filter((a) => space.tasks[a].chain?.networkVersion === networkVersion)
+      .filter((a) => space.tasks[a].chain?.chainId)
+      .filter((a) => space.tasks[a].chain?.chainId === networkVersion)
       .filter((a) => space.tasks[a].value)
       .filter((a) => space.tasks[a].status !== 400)
       .filter((a) => space.tasks[a].status !== 300)
-      .filter((a) => space.tasks[a].assignee?.length > 0) as string[];
+      .filter((a) => space.tasks[a].assignee?.length > 0);
   };
   const [cardColumn, setCardColumn] = useState(
     space.columnOrder[space.columnOrder.length - 1]
@@ -68,7 +67,6 @@ function CardList({ handleClose, setPaymentInfo, handleNextStep }: Props) {
   const toggleCheckboxValue = (index: number) => {
     setIsCardChecked(isCardChecked.map((v, i) => (i === index ? !v : v)));
   };
-  const { Moralis } = useMoralis();
 
   const getCardIds = () => {
     const cardIds = [] as string[];
@@ -134,10 +132,10 @@ function CardList({ handleClose, setPaymentInfo, handleNextStep }: Props) {
                         }}
                       />
                     </TableCell>
-                    <TableCell align="right" sx={{ color: '#99ccff' }}>
+                    <TableCell align="left" sx={{ color: '#99ccff' }}>
                       Card Title
                     </TableCell>
-                    <TableCell align="right" sx={{ color: '#99ccff' }}>
+                    <TableCell align="left" sx={{ color: '#99ccff' }}>
                       Reward
                     </TableCell>
                   </TableRow>
@@ -165,10 +163,10 @@ function CardList({ handleClose, setPaymentInfo, handleNextStep }: Props) {
                         }}
                       />
                     </TableCell>
-                    <TableCell align="right">
+                    <TableCell align="left">
                       {space.tasks[card]?.title}
                     </TableCell>
-                    <TableCell align="right">
+                    <TableCell align="left">
                       {space.tasks[card]?.value || 'Not set'}{' '}
                       {space.tasks[card]?.value
                         ? space.tasks[card]?.token.symbol

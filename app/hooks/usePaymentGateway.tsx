@@ -5,24 +5,15 @@ import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import { Member, DistributionInfo } from '../types';
 import { useGlobal } from '../context/globalContext';
 
-type MemberDetails = {
-  [key: string]: Member;
-};
-
 export default function usePaymentGateway(
   handleStatusUpdate?: Function,
   handleNextStep?: Function
 ) {
   const { distributeEther, distributeTokens } = useDistributor();
   const [isLoading, setIsLoading] = useState(false);
-  const { space } = useSpace();
   const {
     state: { registry },
   } = useGlobal();
-  function getEthAddresses(contributors: any, memberDetails: MemberDetails) {
-    return contributors.map((a: string) => memberDetails[a].ethAddress);
-  }
-
   function handlePaymentError(err: any, expectedNetwork: string) {
     if (window.ethereum.networkVersion !== expectedNetwork)
       notify(
@@ -56,23 +47,26 @@ export default function usePaymentGateway(
     return tx;
   }
 
-  async function batchPay(chainId: string, distributionInfo: DistributionInfo) {
+  async function batchPay(
+    chainId: string,
+    type: string,
+    ethAddresses: Array<string>,
+    tokenValues: Array<number>,
+    tokenAddresses: Array<string>,
+    cardIds?: string[],
+    epochId?: string
+  ) {
     setIsLoading(true);
     try {
       const tx = await executeBatchPay(
-        distributionInfo.type,
+        type,
         chainId,
-        getEthAddresses(distributionInfo.contributors, space.memberDetails),
-        distributionInfo.tokenValues,
-        distributionInfo.tokenAddresses
+        ethAddresses,
+        tokenValues,
+        tokenAddresses
       );
       if (handleStatusUpdate) {
-        await handleStatusUpdate(
-          distributionInfo.epochId
-            ? distributionInfo.epochId
-            : distributionInfo.cardIds,
-          tx.transactionHash
-        );
+        await handleStatusUpdate(epochId || cardIds, tx.transactionHash);
       }
       notify('Payment done succesfully!', 'success');
       if (handleNextStep) {

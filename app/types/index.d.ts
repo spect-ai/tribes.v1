@@ -1,13 +1,41 @@
 import { BigNumber } from 'ethers';
 import Moralis from 'moralis/types';
-import { Delta } from 'quill';
 
 export interface Contracts {
+  // eslint-disable-next-line no-undef
   distributorContract?: ethers.Contract;
 }
 
+export interface Token {
+  address: string;
+  symbol: string;
+}
+
+export type Block = {
+  id: string;
+  tag: string;
+  type: string;
+  html: string;
+  imageUrl: string;
+  embedUrl: string;
+};
+export interface Chain {
+  chainId: string;
+  name: string;
+}
+
+export type TokenGate = {
+  chain: Chain;
+  token: Token;
+  tokenLimit: string;
+};
+
+export type DefaultPayment = {
+  chain: Chain;
+  token: Token;
+};
 export interface User {
-  teams: List<number>;
+  teams: Array<number>;
   ethAddress: string;
   _createdAt: object;
   _id: string;
@@ -37,119 +65,9 @@ export type MemberStats = {
   votesGiven: Object<string, number>;
 };
 
-export interface Team {
-  teamId: string;
-  name: string;
-  description: string;
-  members: Array<string>;
-  memberDetails: Object<string, Member>;
-  roles: Object<string, number>;
-  isPublic: boolean;
-  discord: string;
-  twitter: string;
-  github: string;
-  _createdAt: object;
-  _id: string;
-  _updatedAt: object;
-  _created_at: any;
-  logo: string;
-  boards: BoardData[];
-  theme: number;
-  guildId: string;
-}
-
-export interface Epoch {
-  startTime: Date;
-  duration: number;
-  endTime: Date;
-  choices: [];
-  taskDetails: Object<string, Task>;
-  memberStats: Object<string, MemberStats>;
-  values: Object<string, number>;
-  votes: Object<string, number>;
-  type: string;
-  strategy: string;
-  teamId: string;
-  spaceId: string;
-  epochNumber: number;
-  active: boolean;
-  name: string;
-  votesGivenByCaller: Object<string, number>;
-  votesRemaining: number;
-  votesAllocated: number;
-  votesReceived: number;
-  chain: Chain;
-  token: Token;
-  budget: number;
-  objectId: string;
-  nativeCurrencyPayment: boolean;
-  paid: boolean;
-  votesFor: Object<string, number>;
-  votesAgainst: Object<string, number>;
-  transactionHash: string;
-  _createdAt: object;
-  _id: string;
-  _updatedAt: object;
-  _created_at: any;
-}
-
-export interface Token {
-  address: string;
-  symbol: string;
-}
-
-export interface Chain {
-  chainId: string;
-  name: string;
-}
-
-export interface Task {
-  taskId: string;
-  title: string;
-  description: any;
-  submission: {
-    link: string;
-    name: string;
-  };
-  deadline: Date | null;
-  tags: string[];
-  assignee: Array<string>;
-  reviewer: Array<string>;
-  creator: string;
-  chain: Object<string, string>;
-  value: number;
-  token: Object<string, string>;
-  activity: [
-    {
-      actor: string;
-      action: number;
-      timestamp: Date;
-      username: string;
-      profilePicture: any;
-    }
-  ];
-  status: number;
-  members: Member[];
-  access: {
-    creator: boolean;
-    reviewer: boolean;
-    assignee: boolean;
-    applicant: boolean;
-    canApply: boolean;
-  };
-  issueLink?: string;
-  boardId: string;
-  createdAt: string;
-  type: string;
-  submissions: Array<SubmissionData>;
-  proposals: Array<Proposal>;
-  numProposals: number;
-  selectedProposals: Array<string>;
-  updates: Array<object>;
-  columnId: string;
-  comments: Array<Comment>;
-  votes: string[];
-}
+export type MemberDetails = {
+  [key: string]: Member;
+};
 
 export interface Submission {
   userId: string;
@@ -204,6 +122,88 @@ export type Column = {
   };
   discordChannels?: Channel[];
 };
+export interface Task {
+  taskId: string;
+  title: string;
+  description: any;
+  submission: {
+    link: string;
+    name: string;
+  };
+  deadline: Date | null;
+  tags: string[];
+  assignee: Array<string>;
+  reviewer: Array<string>;
+  creator: string;
+  chain: Object<string, string>;
+  value: number;
+  token: Object<string, string>;
+  activity: [
+    {
+      actor: string;
+      action: number;
+      timestamp: Date;
+      username: string;
+      profilePicture: any;
+    }
+  ];
+  status: number;
+  members: Member[];
+  access: {
+    creator: boolean;
+    reviewer: boolean;
+    assignee: boolean;
+    applicant: boolean;
+    canApply: boolean;
+  };
+  issueLink?: string;
+  boardId: string;
+  createdAt: string;
+  type: string;
+  submissions: Array<SubmissionData>;
+  proposals: Array<Proposal>;
+  numProposals: number;
+  selectedProposals: Array<string>;
+  updates: Array<object>;
+  columnId: string;
+  comments: Array<Comment>;
+  votes: string[];
+}
+
+export interface Epoch {
+  startTime: Date;
+  duration: number;
+  endTime: Date;
+  choices: [];
+  taskDetails: Object<string, Task>;
+  memberStats: Object<string, MemberStats>;
+  values: Object<string, number>;
+  votes: Object<string, number>;
+  type: string;
+  strategy: string;
+  teamId: string;
+  spaceId: string;
+  epochNumber: number;
+  active: boolean;
+  name: string;
+  votesGivenByCaller: Object<string, number>;
+  votesRemaining: number;
+  votesAllocated: number;
+  votesReceived: number;
+  chain: Chain;
+  token: Token;
+  budget: number;
+  objectId: string;
+  nativeCurrencyPayment: boolean;
+  paid: boolean;
+  votesFor: Object<string, number>;
+  votesAgainst: Object<string, number>;
+  transactionHash: string;
+  _createdAt: object;
+  _id: string;
+  _updatedAt: object;
+  _created_at: any;
+}
 
 export interface BoardData {
   objectId: string;
@@ -220,9 +220,7 @@ export interface BoardData {
   updatedAt: string;
   statusList: string[];
   members: string[];
-  memberDetails: {
-    [key: string]: Member;
-  };
+  memberDetails: MemberDetails;
   taskDetails: Object<string, Task>;
   access: string;
   roles: {
@@ -235,11 +233,32 @@ export interface BoardData {
   epochs: Epoch[];
   _id: string;
   _createdAt: string;
+  // eslint-disable-next-line no-use-before-define
   team: Team[];
   defaultPayment: DefaultPayment;
   tokenGating: TokenGate;
   private: boolean;
   creatingEpoch: boolean;
+  guildId: string;
+}
+export interface Team {
+  teamId: string;
+  name: string;
+  description: string;
+  members: Array<string>;
+  memberDetails: MemberDetails;
+  roles: Object<string, number>;
+  isPublic: boolean;
+  discord: string;
+  twitter: string;
+  github: string;
+  _createdAt: object;
+  _id: string;
+  _updatedAt: object;
+  _created_at: any;
+  logo: string;
+  boards: BoardData[];
+  theme: number;
   guildId: string;
 }
 
@@ -264,17 +283,6 @@ export type NetworkInfo = {
 
 export type Registry = {
   [chainId: string]: NetworkInfo;
-};
-
-export type TokenGate = {
-  chain: Chain;
-  token: Token;
-  tokenLimit: string;
-};
-
-export type DefaultPayment = {
-  chain: Chain;
-  token: Token;
 };
 
 export type DiscordResult = {
@@ -305,15 +313,6 @@ export type CurrentUser = {
   userId: string;
   email: string;
   discordId: string;
-};
-
-export type Block = {
-  id: string;
-  tag: string;
-  type: string;
-  html: string;
-  imageUrl: string;
-  embedUrl: string;
 };
 
 export type ApprovalInfo = {
