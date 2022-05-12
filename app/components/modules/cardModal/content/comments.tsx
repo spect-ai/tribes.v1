@@ -51,7 +51,7 @@ function Comments() {
   };
   const { isCardStakeholder, isSpaceMember } = useAccess(task);
   const [loading, setLoading] = useState(false);
-  const [commentOnEdit, setCommentOnEdit] = useState([
+  const [commentOnEdit, setCommentOnEdit] = useState<Block[]>([
     {
       id: uid(),
       html: '',
