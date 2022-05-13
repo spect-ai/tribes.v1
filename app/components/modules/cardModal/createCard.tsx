@@ -335,6 +335,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
               ]}
               placeholderText={`Add details, press "/" for commands`}
               readonly={false}
+              id="task-description"
             />
           </TaskModalBodyContainer>
           <Box
