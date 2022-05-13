@@ -11,6 +11,7 @@ type Props = {
   initialBlock: Block[];
   placeholderText: string;
   readonly: boolean;
+  id: string;
 };
 
 const Container = styled.div<{
@@ -24,6 +25,7 @@ function Editor({
   initialBlock,
   placeholderText,
   readonly,
+  id,
 }: Props) {
   const [blocks, setBlocks] = useState(initialBlock);
   const [isDragging, setIsDragging] = useState(false);
@@ -107,7 +109,7 @@ function Editor({
   );
 
   const deleteBlockHandler = useCallback(
-    (currentBlock: { id: string; html: string }) => {
+    (currentBlock: { id: string; html: string }, insertAbove?: boolean) => {
       updateHistoryStack(blocks);
       if (blocks.length > 0) {
         const nodes = getSelectedNodes();
@@ -125,6 +127,12 @@ function Editor({
         } else {
           const index = blocks.map((b) => b.id).indexOf(currentBlock.id);
           updatedBlocks.splice(index, 1);
+          if (insertAbove) {
+            updatedBlocks[index - 1] = {
+              ...updatedBlocks[index - 1],
+              html: updatedBlocks[index - 1].html + currentBlock.html,
+            };
+          }
         }
         if (updatedBlocks.length === 0) {
           const newBlock = {
@@ -204,7 +212,7 @@ function Editor({
         blocks.map((b) => b.id).indexOf(currentBlockId) + 1;
 
       const allBlocks = document.querySelectorAll(
-        `[data-testid="editable-content"]`
+        `[data-testid="${id}-editable-block"]`
       );
       const nextBlock = allBlocks[nextBlockPosition];
       if (nextBlock) {
@@ -218,11 +226,15 @@ function Editor({
         .map((b: any) => b.id)
         .indexOf(currentBlockId);
       const allBlocks = document.querySelectorAll(
-        `[data-testid="editable-content"]`
+        `[data-testid="${id}-editable-block"]`
       );
       const lastBlock = allBlocks[lastBlockPosition - 1];
       if (lastBlock) {
-        setCaretToEnd(lastBlock);
+        // // @ts-ignore
+        // lastBlock.focus();
+        setTimeout(() => {
+          setCaretToEnd(lastBlock);
+        }, 1);
       }
     }
   }, [blocks, prevBlocks, currentBlockId]);
@@ -256,6 +268,7 @@ function Editor({
                     placeholderText={placeholderText}
                     readOnly={isDragging || readonly || false}
                     isDragging={isDragging}
+                    pageId={id}
                   />
                 );
               })}

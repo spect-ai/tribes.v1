@@ -34,7 +34,7 @@ const CMD_KEY = '/';
 type Props = {
   updateBlock?: (block: Block, sync: boolean) => void;
   addBlock?: (currentBlock: Block, insertAbove?: boolean) => void;
-  deleteBlock?: (args: any) => void;
+  deleteBlock?: (args: any, insertAbove?: boolean) => void;
   position: number;
   id: string;
   blocks: Block[];
@@ -42,6 +42,7 @@ type Props = {
   readOnly: boolean;
   isDragging?: boolean;
   placeholderText?: string;
+  pageId: string;
 };
 
 type State = {
@@ -204,6 +205,14 @@ class EditableClassBlock extends React.PureComponent<Props, State> {
     const tagChanged = propTag !== stateTag;
     const imageChanged = propImageUrl !== stateImageUrl;
     const embedChanged = propEmbedUrl !== stateEmbedUrl;
+    const prevHtml = prevProps.block.html;
+    if (prevHtml !== propHtml) {
+      this.setState({
+        ...this.state,
+        html: propHtml,
+      });
+      return;
+    }
     if (
       ((stoppedTyping && htmlChanged) ||
         tagChanged ||
@@ -224,18 +233,6 @@ class EditableClassBlock extends React.PureComponent<Props, State> {
           true
         );
     }
-    // Object.entries(this.props).forEach(
-    //   ([key, val]) =>
-    //     prevProps[key] !== val &&
-    //     console.log(`${stateHtml} Prop '${key}' changed`)
-    // );
-    // if (this.state) {
-    //   Object.entries(this.state).forEach(
-    //     ([key, val]) =>
-    //       prevState[key] !== val &&
-    //       console.log(`${stateHtml} State '${key}' changed`)
-    //   );
-    // }
   }
 
   componentWillUnmount() {
@@ -277,7 +274,7 @@ class EditableClassBlock extends React.PureComponent<Props, State> {
   }
 
   handleKeyDown(e: any) {
-    const { id, blocks, position, deleteBlock, addBlock } = this.props;
+    const { id, pageId, position, deleteBlock, addBlock } = this.props;
     const {
       html,
       previousKey,
@@ -302,7 +299,7 @@ class EditableClassBlock extends React.PureComponent<Props, State> {
         });
         return;
       }
-      deleteBlock && deleteBlock({ id, html });
+      deleteBlock && deleteBlock({ id, html }, selectionStart === 0);
     } else if (
       e.key === 'Enter' &&
       previousKey !== 'Shift' &&
@@ -355,26 +352,30 @@ class EditableClassBlock extends React.PureComponent<Props, State> {
         e.preventDefault();
         // temporary fix
         const allBlocks = document.querySelectorAll(
-          `[data-testid="editable-content"]`
+          `[data-testid="${pageId}-editable-block"]`
         );
         const nextBlock = allBlocks[position];
         if (nextBlock) {
           // @ts-ignore
           nextBlock.focus();
-          setCaretToEnd(nextBlock);
+          if (selectionStart !== 0) {
+            setCaretToEnd(nextBlock);
+          }
         }
       }
     } else if (e.key === 'ArrowUp') {
       if (!tagSelectorMenuOpen) {
         e.preventDefault();
         const allBlocks = document.querySelectorAll(
-          `[data-testid="editable-content"]`
+          `[data-testid="${pageId}-editable-block"]`
         );
         const nextBlock = allBlocks[position - 2];
         if (nextBlock) {
           // @ts-ignore
           nextBlock.focus();
-          setCaretToEnd(nextBlock);
+          if (selectionStart !== 0) {
+            setCaretToEnd(nextBlock);
+          }
         }
       }
     }
@@ -439,6 +440,7 @@ class EditableClassBlock extends React.PureComponent<Props, State> {
       });
     } else if (isTyping) {
       // Update the tag and restore the html backup without the command
+
       this.setState({ tag, html: htmlBackup, type: type || '' }, () => {
         setCaretToEnd(this.contentEditable.current);
         this.closeTagSelectorMenu();
@@ -575,7 +577,7 @@ class EditableClassBlock extends React.PureComponent<Props, State> {
       isSnackbarOpen,
     } = this.state;
 
-    const { id, position, readOnly, deleteBlock } = this.props;
+    const { id, pageId, position, readOnly, deleteBlock } = this.props;
     return (
       <>
         <Snackbar
@@ -648,7 +650,7 @@ class EditableClassBlock extends React.PureComponent<Props, State> {
               </span>
               {!['img', 'embed', 'divider'].includes(tag) && (
                 <ContentEditable
-                  data-testid="editable-content"
+                  data-testid={`${pageId}-editable-block`}
                   innerRef={this.contentEditable}
                   data-position={position}
                   data-tag={tag}

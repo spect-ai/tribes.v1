@@ -125,6 +125,7 @@ function TaskCard({ handleClose }: Props) {
               : `No details provided yet`
           }
           readonly={readOnlyDescription}
+          id="task-description"
         />
 
         <Box sx={{ marginBottom: '16px' }}>

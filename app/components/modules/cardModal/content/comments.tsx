@@ -255,6 +255,7 @@ function Comments() {
                   initialBlock={comment.content}
                   placeholderText=""
                   readonly={false}
+                  id={comment.id}
                 />
                 <PrimaryButton
                   variant="outlined"
@@ -298,6 +299,7 @@ function Comments() {
                 initialBlock={comment.content}
                 placeholderText=""
                 readonly
+                id={comment.id}
               />
             )}
           </Box>
@@ -357,6 +359,7 @@ function Comments() {
             syncBlocksToMoralis={setCommentOnEdit}
             initialBlock={commentOnEdit}
             placeholderText={`Add a comment, press "/" for commands`}
+            id="comment-editor"
           />
           <PrimaryButton
             variant="outlined"
