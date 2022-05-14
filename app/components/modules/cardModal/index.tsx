@@ -154,7 +154,6 @@ function CardModal({ isOpen, handleClose, taskId, columnId }: Props) {
       setLoading(true);
       runMoralisFunction('getTask', { taskId, columnId })
         .then((taskRes: Task) => {
-          console.log(taskRes);
           setTask(taskRes);
           setLoading(false);
         })

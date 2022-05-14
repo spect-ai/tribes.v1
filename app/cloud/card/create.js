@@ -15,15 +15,16 @@ Moralis.Cloud.define('addTask', async (request) => {
       var taskIds = columns[request.params.columnId].taskIds;
       columns[request.params.columnId].taskIds = taskIds.concat([taskId]);
       board.set('columns', columns);
-      const defaultPayment =
-        request.params.token && request.params.chain
+
+      const payment =
+        request.params.value !== '0'
           ? { chain: request.params.chain, token: request.params.token }
           : board.get('defaultPayment');
       var task = new Moralis.Object('Task');
       task = handleCreateTask(
         task,
         taskId,
-        defaultPayment,
+        payment,
         request.params.boardId,
         request.params.title,
         request.params.value,
@@ -67,7 +68,7 @@ Moralis.Cloud.define('addTask', async (request) => {
 function handleCreateTask(
   task,
   taskId,
-  defaultPayment,
+  payment,
   boardId,
   title,
   value,
@@ -82,12 +83,12 @@ function handleCreateTask(
 ) {
   task.set('taskId', taskId);
   task.set('token', {
-    address: defaultPayment?.token?.address,
-    symbol: defaultPayment?.token?.symbol,
+    address: payment?.token?.address,
+    symbol: payment?.token?.symbol,
   });
   task.set('chain', {
-    chainId: defaultPayment?.chain?.chainId,
-    name: defaultPayment?.chain?.name,
+    chainId: payment?.chain?.chainId,
+    name: payment?.chain?.name,
   });
   task.set('boardId', boardId);
   task.set('title', title);

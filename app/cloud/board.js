@@ -577,7 +577,6 @@ Moralis.Cloud.define('updateBoard', async (request) => {
     if (hasAccess(request.user.id, board, 3)) {
       board.set('name', request.params.name);
       board.set('defaultPayment', request.params.defaultPayment);
-      board.set('tokenGating', request.params.tokenGating);
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return await getSpace(request.params.boardId, request.user.id);
     } else {

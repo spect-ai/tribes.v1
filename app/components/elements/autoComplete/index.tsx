@@ -12,6 +12,7 @@ type AutoProps = {
   closeOnSelect?: boolean;
   multiple?: boolean;
   placeholder?: string;
+  disableClearable?: boolean;
 };
 
 function CommonAutocomplete({
@@ -24,9 +25,11 @@ function CommonAutocomplete({
   closeOnSelect = true,
   multiple = false,
   placeholder = 'Search types',
+  disableClearable = false,
 }: AutoProps) {
   return (
     <Autocomplete
+      disableClearable={disableClearable}
       options={options}
       value={currOption}
       getOptionLabel={optionLabels}
