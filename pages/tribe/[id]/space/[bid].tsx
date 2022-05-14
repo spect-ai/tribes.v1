@@ -11,6 +11,7 @@ import getTheme from '../../../../app/constants/muiTheme';
 import { useGlobal } from '../../../../app/context/globalContext';
 import useMoralisFunction from '../../../../app/hooks/useMoralisFunction';
 import { BoardData } from '../../../../app/types';
+import { notify } from '../../../../app/components/modules/settingsTab';
 
 interface Props {}
 interface SpaceContextType {
@@ -77,10 +78,15 @@ export default function SpacePage() {
     setTheme(createTheme(getTheme(0)));
     setIsLoading(true);
     if (!loading && bid) {
-      runMoralisFunction('getSpace', { boardId: bid }).then((res) => {
-        setSpace(res);
-        setIsLoading(false);
-      });
+      runMoralisFunction('getSpace', { boardId: bid })
+        .then((res) => {
+          setSpace(res);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          notify(err.message, 'error');
+        });
     }
   }, [loading, bid]);
   return (

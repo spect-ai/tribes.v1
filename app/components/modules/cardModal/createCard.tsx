@@ -61,11 +61,8 @@ const TaskModalTitleContainer = styled.div`
 
 const TaskModalBodyContainer = styled.div`
   margin-top: 2px;
-  overflow-y: hidden;
-  overflow-x: hidden;
   color: #eaeaea;
   font-size: 0.85rem;
-  max-height: 10rem;
 `;
 
 type Props = {
@@ -357,7 +354,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                 {
                   id: uid(),
                   html: '',
-                  tag: 'p',
+                  tag: 'h3',
                   type: '',
                   imageUrl: '',
                   embedUrl: '',
@@ -365,6 +362,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
               ]}
               placeholderText={`Add details, press "/" for commands`}
               readonly={false}
+              id="task-description"
             />
           </TaskModalBodyContainer>
           <Box

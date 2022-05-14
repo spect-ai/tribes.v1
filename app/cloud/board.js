@@ -314,21 +314,25 @@ Moralis.Cloud.define('importTasksFromTrello', async (request) => {
       );
       await Moralis.Object.saveAll([board], { useMasterKey: true });
 
-      logger.info(`importing trello ${JSON.stringify(board)}`);
       // board = await board.save({ useMasterKey: true });
-
       for (let i = 0; i < request.params.tasks.length; i++) {
         var task = new Moralis.Object('Task');
         logger.info(request.params.tasks[i].title);
         task = handleCreateTask(
           task,
-          request.params.tasks[i].id, // need to fix this, duplicate tasks are being created with trello id
+          request.params.tasks[i].id,
           board.get('defaultPayment'),
           request.params.boardId,
           request.params.tasks[i].title,
           request.params.tasks[i].value,
           request.user.id,
-          request.params.tasks[i].description
+          request.user.id,
+          'Task',
+          request.params.tasks[i].columnId,
+          request.params.tasks[i].tags,
+          request.params.tasks[i].description,
+          '',
+          request.params.tasks[i].deadline
         );
         await Moralis.Object.saveAll([task], { useMasterKey: true });
       }

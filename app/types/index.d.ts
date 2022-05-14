@@ -14,10 +14,11 @@ export interface Token {
 export type Block = {
   id: string;
   tag: string;
-  type: string;
+  type: string | undefined;
   html: string;
   imageUrl: string;
   embedUrl: string;
+  ref?: any;
 };
 export interface Chain {
   chainId: string;
