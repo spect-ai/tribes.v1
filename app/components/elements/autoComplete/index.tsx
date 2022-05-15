@@ -12,6 +12,7 @@ type AutoProps = {
   closeOnSelect?: boolean;
   multiple?: boolean;
   placeholder?: string;
+  beforeClose?: (newValue: string | number | null) => void;
 };
 
 function CommonAutocomplete({
@@ -24,6 +25,7 @@ function CommonAutocomplete({
   closeOnSelect = true,
   multiple = false,
   placeholder = 'Search types',
+  beforeClose,
 }: AutoProps) {
   return (
     <Autocomplete
@@ -34,6 +36,7 @@ function CommonAutocomplete({
       onChange={(event, newValue) => {
         setCurrOption(newValue as string);
         if (closeOnSelect && setOpen) {
+          if (beforeClose) beforeClose(newValue);
           setOpen(false);
         }
       }}

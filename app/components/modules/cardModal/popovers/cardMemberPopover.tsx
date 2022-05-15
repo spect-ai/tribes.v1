@@ -1,21 +1,8 @@
-import PersonIcon from '@mui/icons-material/Person';
-import {
-  Autocomplete,
-  Avatar,
-  Box,
-  Popover,
-  TextField,
-  Typography,
-} from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import { Task } from '../../../../types';
-import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
-import { PopoverContainer } from '../styles';
-import useCardDynamism from '../../../../hooks/useCardDynamism';
-import useProfileInfo from '../../../../hooks/useProfileInfo';
-import useCardUpdate from '../../../../hooks/useCardUpdate';
 import { useCardContext } from '..';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
 import MemberGroupDisplay from '../../../elements/memberGroupDisplay';
 import MemberInfoDisplay from '../../../elements/memberInfoDisplay';
 import CommonPopover from '../../../elements/popover';
@@ -25,9 +12,10 @@ type Props = {
 };
 
 function CardMemberPopover({ type }: Props) {
-  const [members, setMembers] = useState([] as string[]);
-  const { task, setTask, anchorEl } = useCardContext();
-  const [isLoading, setIsLoading] = useState(false);
+  const { task } = useCardContext();
+  const [members, setMembers] = useState(
+    type === 'reviewer' ? task.reviewer || [] : task.assignee || []
+  );
   const [editable, setEditable] = useState(false);
   const [viewable, setViewable] = useState(false);
   const { space, setSpace } = useSpace();
@@ -42,11 +30,9 @@ function CardMemberPopover({ type }: Props) {
 
   useEffect(() => {
     if (type === 'reviewer') {
-      setMembers(task.reviewer);
       setEditable(isCardStewardAndUnpaidCardStatus());
       setViewable(true);
     } else {
-      setMembers(task.assignee);
       setEditable(isAssigneeEditable());
       setViewable(isAssigneeViewable());
     }
@@ -65,6 +51,7 @@ function CardMemberPopover({ type }: Props) {
       buttonsx={{
         padding: '6px',
         minWidth: '3rem',
+        minHeight: '2.6rem',
       }}
       popoverContent={
         editable

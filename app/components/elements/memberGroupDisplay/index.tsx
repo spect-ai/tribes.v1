@@ -22,42 +22,7 @@ export default function MemberGroupDisplay({
     <>
       {
         // eslint-disable-next-line no-nested-ternary
-        members.length > 0 ? (
-          members.length === 1 ? (
-            <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                }}
-              >
-                <MemberInfoDisplay member={memberDetails[members[0]]} />
-              </Box>
-            </Box>
-          ) : (
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <MemberAvatarGroup
-                memberIds={members}
-                memberDetails={memberDetails}
-                maxAvatars={4}
-                avatarGroupsx={{
-                  '& .MuiAvatar-root': {
-                    width: '1.5rem',
-                    height: '1.5rem',
-                    fontSize: 15,
-                  },
-                }}
-              />
-            </Box>
-          )
-        ) : (
+        members.length === 0 || members.length === 1 ? (
           <Box sx={{ display: 'flex', flexDirection: 'row' }}>
             <Box
               sx={{
@@ -65,8 +30,33 @@ export default function MemberGroupDisplay({
                 flexDirection: 'row',
               }}
             >
-              <MemberInfoDisplay placeholder={placeholder} />
+              <MemberInfoDisplay
+                member={members.length === 1 ? memberDetails[members[0]] : null}
+                placeholder={placeholder}
+              />
             </Box>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <MemberAvatarGroup
+              memberIds={members}
+              memberDetails={memberDetails}
+              maxAvatars={4}
+              avatarGroupsx={{
+                '& .MuiAvatar-root': {
+                  width: '1.5rem',
+                  height: '1.5rem',
+                  fontSize: 15,
+                },
+              }}
+            />
           </Box>
         )
       }

@@ -90,7 +90,6 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
   const {
     state: { registry },
   } = useGlobal();
-  const { getAvatar } = useProfileInfo();
 
   const confirmClose = () => {
     setConfirmOpen(false);
@@ -201,6 +200,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
               buttonsx={{
                 padding: '6px',
                 minWidth: '3rem',
+                minHeight: '2.6rem',
               }}
               popoverContent={[
                 {
@@ -229,6 +229,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
               buttonsx={{
                 padding: '6px',
                 minWidth: '3rem',
+                minHeight: '2.6rem',
               }}
               popoverContent={[
                 {
@@ -260,6 +261,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
               buttonsx={{
                 padding: '6px',
                 minWidth: '3rem',
+                minHeight: '2.6rem',
               }}
               avatarDefault={<PaidIcon sx={{ color: 'text.primary' }} />}
               popoverContent={[
@@ -307,6 +309,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
               buttonsx={{
                 padding: '6px',
                 minWidth: '3rem',
+                minHeight: '2.6rem',
               }}
               popoverContent={[
                 {
@@ -332,6 +335,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
               buttonsx={{
                 padding: '6px',
                 minWidth: '3rem',
+                minHeight: '2.6rem',
               }}
               popoverContent={[
                 {

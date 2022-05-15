@@ -247,7 +247,7 @@ function BatchPay({
           {manualUpdateView ? `Confirm` : `Pay`}
         </PrimaryButton>
       </Box>
-      {ethAddresses?.length > 0 && (
+      {ethAddresses?.length > 1 && (
         <Divider sx={{ mt: 12 }}>
           <PrimaryButton
             id="bOtherOptions"
@@ -301,15 +301,6 @@ function BatchPay({
             }}
           >
             Split rewards equally
-          </PrimaryButton>{' '}
-          <PrimaryButton
-            id="bDistributeFairly"
-            sx={{ color: 'text.primary', fontSize: '14px' }}
-            variant="outlined"
-            color="secondary"
-            onClick={() => toggleVisibleOptions()}
-          >
-            Distribute rewards fairly
           </PrimaryButton>{' '}
         </Box>
       )}
