@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/indent */
-
+import GradeIcon from '@mui/icons-material/Grade';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import {
@@ -56,6 +56,7 @@ function BatchPay({
   const [tokenAddresses, setTokenAddresses] = useState([] as Array<string>);
   const [ethAddresses, setEthAddresses] = useState([] as Array<string>);
   const [isValidAddress, setIsValidAddress] = useState([] as Array<boolean>);
+  const [openCardDetails, setOpenCardDetails] = useState([] as Array<boolean>);
 
   const { control } = useForm<RewardInput>();
 
@@ -64,14 +65,15 @@ function BatchPay({
   };
 
   const initialize = () => {
-    console.log(distributionInfo.tokenValues.length);
-
     setRewardValues(distributionInfo.tokenValues);
     setTokenAddresses(distributionInfo.tokenAddresses);
     setEthAddresses(
       getEthAddresses(distributionInfo.contributors, space.memberDetails)
     );
     setIsValidAddress(Array(distributionInfo.contributors?.length).fill(true));
+    setOpenCardDetails(
+      Array(distributionInfo.contributors?.length).fill(false)
+    );
     setOptionsVisible(false);
   };
 
@@ -95,6 +97,12 @@ function BatchPay({
     const sum = rewardValues.reduce((partialSum, a) => partialSum + a, 0);
     const newRewardValue = sum / ethAddresses.length;
     setRewardValues(Array(ethAddresses.length).fill(newRewardValue));
+  };
+
+  const handleToggleCardDetails = (index: number) => {
+    const temp = openCardDetails.filter(() => true);
+    temp[index] = !temp[index];
+    setOpenCardDetails(temp);
   };
 
   useEffect(() => {
@@ -123,21 +131,78 @@ function BatchPay({
               >
                 <Grid item xs={8}>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <MemberInfoDisplay
-                      member={space.memberDetails[contributor]}
-                      textsx={{
-                        color: 'text.primary',
-                        ml: '10px',
-                        fontSize: '18px',
-                      }}
-                      avatarsx={{ height: 30, width: 30 }}
-                    />
+                    <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                      <PrimaryButton
+                        id="bCardDetails"
+                        sx={{ color: 'text.primary', fontSize: '14px' }}
+                        onClick={() =>
+                          distributionInfo.cardIds?.length > 1
+                            ? handleToggleCardDetails(index)
+                            : null
+                        }
+                      >
+                        <MemberInfoDisplay
+                          member={space.memberDetails[contributor]}
+                          textsx={{
+                            color: 'text.primary',
+                            ml: '10px',
+                            fontSize: '18px',
+                          }}
+                          avatarsx={{ height: 30, width: 30 }}
+                        />
+                        {!openCardDetails[index] &&
+                          distributionInfo.cardIds?.length > 1 && (
+                            <ArrowDropDownIcon sx={{ color: 'text.primary' }} />
+                          )}
+                        {openCardDetails[index] &&
+                          distributionInfo.cardIds?.length > 1 && (
+                            <ArrowDropUpIcon sx={{ color: 'text.primary' }} />
+                          )}
+                      </PrimaryButton>{' '}
+                    </Box>
+
+                    {openCardDetails[index] &&
+                      distributionInfo.contributorToCardIds[contributor]?.map(
+                        (cardId: string, idx: number) => (
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              flexDirection: 'row',
+                              mt: 1,
+                              ml: 8,
+                            }}
+                          >
+                            <GradeIcon sx={{ color: 'text.secondary' }} />
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: 'text.secondary',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                width: '10rem',
+                                justifyContent: 'start',
+                                ml: 2,
+                              }}
+                              align="left"
+                            >
+                              {space.tasks[cardId].title}
+                            </Typography>
+                          </Box>
+                        )
+                      )}
                     {manualUpdateView && (
                       <EthAddressInput
                         ethAddress={ethAddresses[index]}
                         // eslint-disable-next-line react/jsx-no-bind
                         handleAddressUpdate={handleContributorAddressUpdate}
                         index={index}
+                        boxsx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          mt: 1,
+                          ml: 8,
+                          width: '20rem',
+                        }}
                       />
                     )}
                   </Box>

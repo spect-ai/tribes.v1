@@ -12,7 +12,7 @@ type Props = {
 
 export default function MemberAvatar({ member, avatarsx }: Props) {
   const { getAvatar } = useProfileInfo();
-  return (
+  return member ? (
     <Avatar
       sx={
         avatarsx || {
@@ -25,5 +25,7 @@ export default function MemberAvatar({ member, avatarsx }: Props) {
       src={member ? getAvatar(member) : null}
       alt={member?.username}
     />
+  ) : (
+    <PersonIcon sx={{ color: 'text.primary' }} />
   );
 }

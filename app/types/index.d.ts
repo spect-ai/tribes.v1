@@ -329,6 +329,7 @@ export type DistributionInfo = {
   contributors: Array<string>;
   tokenAddresses: Array<string>;
   tokenValues: Array<number>;
+  contributorToCardIds?: Object<string, string>;
 };
 
 export type PaymentInfo = {

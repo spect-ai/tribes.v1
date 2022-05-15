@@ -38,7 +38,7 @@ function CardList({ handleClose, setPaymentInfo, handleNextStep }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
   const { networkVersion, chainIdHex } = useWalletContext();
-
+  console.log(chainIdHex);
   const getValidCardIds = (columnId: string) => {
     const cardIds = space.columns[columnId].taskIds.filter((taskId) => {
       return space.tasks[taskId];

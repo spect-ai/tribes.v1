@@ -15,6 +15,7 @@ const useProviderWallet = () => {
   useEffect(() => {
     if (window.ethereum) {
       setNetworkVersion(window.ethereum.networkVersion);
+      setChainIdHex(window.ethereum.chainId);
       window.ethereum.on('chainChanged', () => {
         window.ethereum.request({ method: 'net_version' }).then((res: any) => {
           setNetworkVersion(res);

@@ -36,8 +36,6 @@ export default function EthAddressInput({
         boxsx || {
           display: 'flex',
           flexDirection: 'column',
-          mt: 1,
-          ml: 8,
           width: '20rem',
         }
       }
