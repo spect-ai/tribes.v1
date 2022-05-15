@@ -12,12 +12,14 @@
     "@typescript-eslint/indent": "off",
     "@typescript-eslint/no-explicit-any": "warn",
     "import/extensions": "off",
-    "no-unused-vars": "warn",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["warn"],
     "no-unused-expressions":["error", { "allowShortCircuit": true, "allowTernary": true }],
     "react/jsx-filename-extension": [2, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
     "react/jsx-props-no-spreading": "off",
     "no-underscore-dangle": "off",
-    "react/require-default-props": "off"
+    "react/require-default-props": "off",
+    "ui-testing/missing-assertion-in-test": "off"
   },
   "settings": {
     "import/resolver": {

@@ -6,34 +6,27 @@ import {
   Typography,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
-import { Task } from '../../../../types';
 import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
-import { notify } from '../../settingsTab';
 import { PopoverContainer } from '../styles';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
-import useCard from '../../../../hooks/useCard';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
-
-function CardTypePopover({ task, setTask }: Props) {
+function CardTypePopover() {
   const [open, setOpen] = useState(false);
-  const { getReason } = useCardDynamism(task);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const {
+    task,
+    setTask,
+    type,
+    setType,
+    loading,
     anchorEl,
     openPopover,
     closePopover,
-    type,
-    setType,
-    isLoading,
-    updateType,
-  } = useCard(setTask, task);
+  } = useCardContext();
 
+  const { getReason, isCardStewardAndUnpaidCardStatus } = useCardDynamism();
+  const { updateType } = useCardUpdate();
   return (
     <>
       <Box
@@ -46,7 +39,7 @@ function CardTypePopover({ task, setTask }: Props) {
       >
         <CardButton
           variant="outlined"
-          onClick={openPopover('type', setOpen, setFeedbackOpen)}
+          onClick={openPopover(setOpen)}
           color="secondary"
           size="small"
           sx={{
@@ -64,19 +57,6 @@ function CardTypePopover({ task, setTask }: Props) {
         </CardButton>
       </Box>
       <Popover
-        open={feedbackOpen}
-        anchorEl={anchorEl}
-        onClose={() => closePopover(setFeedbackOpen)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        <PopoverContainer>
-          <Typography variant="body2">{getReason('type')}</Typography>
-        </PopoverContainer>
-      </Popover>
-      <Popover
         open={open}
         anchorEl={anchorEl}
         onClose={() => closePopover(setOpen)}
@@ -85,34 +65,41 @@ function CardTypePopover({ task, setTask }: Props) {
           horizontal: 'left',
         }}
       >
-        <PopoverContainer>
-          <Autocomplete
-            options={['Task', 'Bounty']} // Get options from members
-            value={type as any}
-            onChange={(event, newValue) => {
-              setType(newValue as string);
-            }}
-            disableClearable
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                placeholder="Search types"
-              />
-            )}
-          />
-          <PrimaryButton
-            variant="outlined"
-            color="secondary"
-            sx={{ mt: 4, borderRadius: 1 }}
-            loading={isLoading}
-            onClick={() => updateType(setOpen)}
-          >
-            Save
-          </PrimaryButton>
-        </PopoverContainer>
+        {!isCardStewardAndUnpaidCardStatus() && (
+          <PopoverContainer>
+            <Typography variant="body2">{getReason('type')}</Typography>
+          </PopoverContainer>
+        )}
+        {isCardStewardAndUnpaidCardStatus() && (
+          <PopoverContainer>
+            <Autocomplete
+              options={['Task', 'Bounty']} // Get options from members
+              value={type as any}
+              onChange={(event, newValue) => {
+                setType(newValue as string);
+              }}
+              disableClearable
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  id="filled-hidden-label-normal"
+                  size="small"
+                  fullWidth
+                  placeholder="Search types"
+                />
+              )}
+            />
+            <PrimaryButton
+              variant="outlined"
+              color="secondary"
+              sx={{ mt: 4, borderRadius: 1 }}
+              loading={loading}
+              onClick={() => updateType(setOpen)}
+            >
+              Save
+            </PrimaryButton>
+          </PopoverContainer>
+        )}
       </Popover>
     </>
   );

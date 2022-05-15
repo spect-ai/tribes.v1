@@ -2,16 +2,8 @@ import { useState } from 'react';
 import useDistributor from './useDistributor';
 import { notify } from '../components/modules/settingsTab';
 import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
-import { Member } from '../types';
-
-export type DistributionInfo = {
-  cardIds: string[];
-  epochId?: string;
-  type: 'tokens' | 'currency';
-  contributors: Array<string>;
-  tokenAddresses: Array<string>;
-  tokenValues: Array<number>;
-};
+import { Member, DistributionInfo } from '../types';
+import { useGlobal } from '../context/globalContext';
 
 type MemberDetails = {
   [key: string]: Member;
@@ -24,13 +16,26 @@ export default function usePaymentGateway(
   const { distributeEther, distributeTokens } = useDistributor();
   const [isLoading, setIsLoading] = useState(false);
   const { space } = useSpace();
-
+  const {
+    state: { registry },
+  } = useGlobal();
   function getEthAddresses(contributors: any, memberDetails: MemberDetails) {
     return contributors.map((a: string) => memberDetails[a].ethAddress);
   }
 
+  function handlePaymentError(err: any, expectedNetwork: string) {
+    if (window.ethereum.networkVersion !== expectedNetwork)
+      notify(
+        `Please switch to ${registry[expectedNetwork]?.name} network`,
+        'error'
+      );
+    else {
+      notify(err.message, 'error');
+    }
+  }
+
   async function executeBatchPay(
-    type: 'tokens' | 'currency',
+    type: string,
     chainId: string,
     userAddresses: string[],
     amounts: number[],
@@ -75,7 +80,7 @@ export default function usePaymentGateway(
       }
       setIsLoading(false);
     } catch (err: any) {
-      notify(err.message, 'error');
+      handlePaymentError(err, chainId);
       setIsLoading(false);
       console.log(err.message);
     }

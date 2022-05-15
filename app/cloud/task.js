@@ -1,7 +1,6 @@
 async function getTaskByTaskId(taskId) {
   const taskQuery = new Moralis.Query('Task');
   taskQuery.equalTo('taskId', taskId);
-  logger.info(`taskId: ${taskId}`);
   return taskQuery.first({ useMasterKey: true });
 }
 
@@ -45,6 +44,28 @@ async function getTaskObjByBoardId(boardId) {
   ];
   return await taskQuery.aggregate(pipeline, { useMasterKey: true });
 }
+
+// async function getTaskObjByColumnId(boardId, columnId) {
+//   const taskQuery = new Moralis.Query('Task');
+//   const pipeline = [
+//     {
+//       match: {
+//         boardId: boardId,
+//         columnId: columnId,
+//         status: { $ne: 500 }, // need to discuss status for archived cards
+//       },
+//     },
+//     {
+//       project: {
+//         submission: 0,
+//         activity: 0,
+//         proposals: 0,
+//         selectedProposals: 0,
+//       },
+//     },
+//   ];
+//   return await taskQuery.aggregate(pipeline, { useMasterKey: true });
+// }
 
 async function getTaskObjByBoardIdWithProposals(boardId) {
   const taskQuery = new Moralis.Query('Task');

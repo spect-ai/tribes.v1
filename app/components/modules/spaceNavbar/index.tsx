@@ -79,9 +79,9 @@ function SpaceNavbar(props: Props) {
         )}
       </NavbarContainer>
       <StyledTabs value={tab} onChange={handleTabChange} centered>
-        <StyledTab label="Board" />
-        <StyledTab label="Epoch" />
-        <StyledTab label="Members" />
+        <StyledTab label="Project" data-testid="tBoardTab" />
+        <StyledTab label="Consensus" data-testid="tEpochTab" />
+        <StyledTab label="Members" data-testid="tMembersTab" />
       </StyledTabs>
       <SidebarProfile />
     </StyledNav>

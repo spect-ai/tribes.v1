@@ -1,14 +1,16 @@
 import styled from '@emotion/styled';
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, IconButton, InputBase } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import useCard from '../../../hooks/useCard';
 import useCardDynamism from '../../../hooks/useCardDynamism';
+import useAccess from '../../../hooks/useAccess';
 import { Task } from '../../../types';
 import { uid } from '../../../utils/utils';
 import Editor from '../editor';
 import AssignToMe from './buttons/assignToMe';
+import PayButton from './buttons/payButton';
+import CloseButton from './buttons/close';
 import CardMemberPopover from './popovers/cardMemberPopover';
 import CardTypePopover from './popovers/cardTypePopover';
 import ColumnPopover from './popovers/columnPopover';
@@ -17,10 +19,10 @@ import LabelPopover from './popovers/labelPopover';
 import OptionsPopover from './popovers/optionsPopover';
 import RewardPopover from './popovers/rewardPopover';
 import TabularDetails from './tabularDetails';
+import useCardUpdate from '../../../hooks/useCardUpdate';
+import { useCardContext } from '.';
 
 type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
   handleClose: () => void;
 };
 
@@ -40,14 +42,15 @@ const Container = styled.div`
   flex-direction: column;
 `;
 
-function TaskCard({ task, setTask, handleClose }: Props) {
-  const { space, setSpace } = useSpace();
-  const { editAbleComponents, viewableComponents } = useCardDynamism(task);
-  const { title, setTitle, updateTitle, updateDescription } = useCard(
-    setTask,
-    task
-  );
-
+function TaskCard({ handleClose }: Props) {
+  const { isCardStewardAndUnpaidCardStatus } = useCardDynamism();
+  const { updateTitle, updateDescription } = useCardUpdate();
+  const [readOnlyDescription, setReadOnlyDescription] = useState(false);
+  const { title, setTitle, task } = useCardContext();
+  const { isSpaceSteward, isCardStakeholder } = useAccess(task);
+  useEffect(() => {
+    setReadOnlyDescription(!isCardStewardAndUnpaidCardStatus());
+  }, [isCardStewardAndUnpaidCardStatus()]);
   return (
     <Container>
       <TaskModalTitleContainer>
@@ -56,45 +59,54 @@ function TaskCard({ task, setTask, handleClose }: Props) {
           sx={{
             fontSize: '20px',
             ml: 1,
+            width: '60%',
           }}
-          fullWidth
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onBlur={() => updateTitle()}
           readOnly={!(task?.access?.creator || task?.access?.reviewer)}
+          multiline
+          maxRows={3}
         />
         <Box sx={{ flex: '1 1 auto' }} />
-        <AssignToMe task={task} setTask={setTask} />
-
-        {viewableComponents.optionPopover && (
-          <OptionsPopover task={task} setTask={setTask} />
-        )}
-        <IconButton sx={{ m: 0, px: 2 }} onClick={handleClose}>
+        <AssignToMe />
+        <CloseButton />
+        <PayButton handleClose={handleClose} />
+        {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
+        <IconButton
+          data-testid="bCloseButton"
+          sx={{
+            m: 0,
+            px: 2,
+            height: '2.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'start',
+            alignItems: 'start',
+          }}
+          onClick={handleClose}
+        >
           <CloseIcon />
         </IconButton>
       </TaskModalTitleContainer>
       <Box sx={{ width: 'fit-content', display: 'flex', flexWrap: 'wrap' }}>
-        <CardTypePopover task={task} setTask={setTask} />
-        <ColumnPopover
-          task={task}
-          setTask={setTask}
-          column={space.columns[task.columnId]}
-        />
+        <CardTypePopover />
+        <ColumnPopover />
       </Box>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', marginBottom: '16px' }}>
-        <CardMemberPopover type="reviewer" task={task} setTask={setTask} />
-        <CardMemberPopover type="assignee" task={task} setTask={setTask} />
-        <RewardPopover task={task} setTask={setTask} />
-        <DatePopover task={task} setTask={setTask} />
-        <LabelPopover task={task} setTask={setTask} />
+        <CardMemberPopover type="reviewer" />
+        <CardMemberPopover type="assignee" />
+        <RewardPopover />
+        <DatePopover />
+        <LabelPopover />
       </Box>
 
       <TaskModalBodyContainer>
         <Editor
           syncBlocksToMoralis={updateDescription}
           initialBlock={
-            task.description
+            task.description && task.description.length > 0
               ? task.description
               : [
                   {
@@ -108,15 +120,16 @@ function TaskCard({ task, setTask, handleClose }: Props) {
                 ]
           }
           placeholderText={
-            editAbleComponents.description
+            isCardStewardAndUnpaidCardStatus()
               ? `Add details, press "/" for commands`
               : `No details provided yet`
           }
-          readonly={!editAbleComponents.description}
+          readonly={readOnlyDescription}
+          id="task-description"
         />
 
         <Box sx={{ marginBottom: '16px' }}>
-          <TabularDetails task={task} setTask={setTask} />
+          <TabularDetails />
         </Box>
       </TaskModalBodyContainer>
     </Container>

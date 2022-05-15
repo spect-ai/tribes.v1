@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useMoralis } from 'react-moralis';
-import { Task } from '../types';
 import useAccess from './useAccess';
 import useCardStatus from './useCardStatus';
+import { useCardContext } from '../components/modules/cardModal';
 
-export default function useCardDynamism(task: Task) {
+export default function useCardDynamism() {
   const { user } = useMoralis();
+  const { task, proposalEditMode } = useCardContext();
+
   const {
     isSpaceSteward,
     isCardSteward,
@@ -13,30 +15,31 @@ export default function useCardDynamism(task: Task) {
     isSpaceMember,
     isCardAssignee,
   } = useAccess(task);
-  const { isPaid, isUnassigned, hasNoReward } = useCardStatus(task);
-  const [viewableComponents, setViewableComponents] = useState({} as any);
-  const [editAbleComponents, setEditableComponents] = useState({} as any);
-  const [proposalEditMode, setProposalEditMode] = useState(false);
+  const {
+    isPaid,
+    isClosed,
+    isUnassigned,
+    hasNoReward,
+    hasAssignee,
+    isTask,
+    isBounty,
+    isCreated,
+    hasProposals,
+  } = useCardStatus();
   const [tabs, setTabs] = useState([] as string[]);
   const [tabIdx, setTabIdx] = useState(0);
+  const [payButtonView, setPayButtonView] = useState('hide');
+  const [closeButtonView, setCloseButtonView] = useState('hide');
 
   function getPayButtonView() {
     if (!isCardSteward() || isPaid() || isUnassigned() || hasNoReward())
       return 'hide';
+    return 'show';
+  }
 
-    if (user?.get('distributorApproved')) {
-      if (
-        task.token?.address === '0x0' ||
-        (task.chain?.chainId in user.get('distributorApproved') &&
-          user
-            .get('distributorApproved')
-            [task.chain?.chainId].includes(task.token?.address))
-      )
-        return 'showPay';
-      return 'showApprove';
-    }
-    if (task.token?.address === '0x0') return 'showPay';
-    return 'showApprove';
+  function getCloseButtonView() {
+    if (isPaid() || isClosed() || !isCardSteward()) return 'hide';
+    return 'show';
   }
 
   const getReason = (field: string) => {
@@ -61,43 +64,43 @@ export default function useCardDynamism(task: Task) {
     }
   };
 
-  const isDeadlineEditable = () => {
-    return isCardStakeholder() && !isPaid();
+  const isStakeholderAndStatusUnpaid = () => {
+    return (isCardStakeholder() && !isPaid()) as boolean;
   };
 
-  const isGeneralEditable = () => {
-    return isCardSteward() && !isPaid();
+  const isCardStewardAndUnpaidCardStatus = () => {
+    return (isCardSteward() && !isPaid()) as boolean;
   };
 
   const isAssigneeEditable = () => {
     if (isPaid()) return false;
-    if (task?.assignee?.length > 0) {
+    if (hasAssignee()) {
       return isCardStakeholder();
     }
     return true;
   };
 
   const isAssigneeViewable = () => {
-    if (task?.assignee?.length > 0) {
+    if (hasAssignee()) {
       return true;
     }
-    return isCardSteward();
+    return isCardSteward() as boolean;
   };
 
   const isAssignToMeViewable = () => {
-    if (task?.assignee?.length === 0) {
-      return task.type === 'Task' && isSpaceMember();
+    if (!hasAssignee()) {
+      return isTask() && isSpaceMember();
     }
     return false;
   };
 
   const resolveTabs = () => {
-    if (task.type === 'Task') {
+    if (isTask()) {
       return ['Comments', 'Activity'];
     }
-    if (task.type === 'Bounty') {
+    if (isBounty()) {
       // No assignee yet
-      if (task.status === 100) {
+      if (!hasAssignee()) {
         if (isCardSteward()) {
           return ['Applicants', 'Activity'];
         }
@@ -107,7 +110,6 @@ export default function useCardDynamism(task: Task) {
         return ['Activity']; // Only return application tab if there are any
       }
       // Card has been assigned
-
       if (isCardSteward()) {
         return ['Submissions', 'Activity', 'Applicants'];
       }
@@ -131,11 +133,11 @@ export default function useCardDynamism(task: Task) {
   };
 
   const isApplyButtonViewable = () => {
-    if (task.type === 'Bounty') {
-      if (task.access?.reviewer || task.access?.creator) {
+    if (isBounty()) {
+      if (isCardSteward()) {
         return false;
       }
-      return task.status === 100 && task.proposals?.length === 0;
+      return !hasAssignee() && !hasProposals() && !isPaid() && !isClosed();
     }
     return false;
   };
@@ -144,41 +146,9 @@ export default function useCardDynamism(task: Task) {
     setTabIdx(newValue);
   };
 
-  const getViewableComponents = () => {
-    return {
-      pay: getPayButtonView(),
-      proposalGate: false,
-      submissionGate: false,
-      duplicate: isSpaceSteward(),
-      archive: isSpaceSteward(),
-      assignee: isAssigneeViewable(),
-      reviewer: true,
-      assignToMe: isAssignToMeViewable(),
-      addComment: isSpaceMember() || isCardStakeholder(),
-      optionPopover: isSpaceSteward() || isCardStakeholder(),
-      applyButton: isApplyButtonViewable(),
-    };
-  };
-
-  const getEditableComponents = () => {
-    const editable = isGeneralEditable();
-    return {
-      title: editable,
-      description: editable,
-      label: editable,
-      type: editable,
-      dueDate: isDeadlineEditable(),
-      reward: editable,
-      reviewer: editable,
-      column: isCardSteward(),
-      assignee: isAssigneeEditable(),
-    };
-  };
-
   useEffect(() => {
-    setViewableComponents(getViewableComponents());
-    setEditableComponents(getEditableComponents());
-
+    setPayButtonView(getPayButtonView());
+    setCloseButtonView(getCloseButtonView());
     const newTabs = resolveTabs();
     const newTabIdx = resolveTabIdx(tabs, newTabs, tabIdx);
     setTabs(newTabs);
@@ -186,14 +156,18 @@ export default function useCardDynamism(task: Task) {
   }, [task]);
 
   return {
-    viewableComponents,
-    editAbleComponents,
+    isAssignToMeViewable,
     getReason,
-    proposalEditMode,
-    setProposalEditMode,
     tabs,
     setTabs,
     handleTabChange,
     tabIdx,
+    isCardStewardAndUnpaidCardStatus,
+    isStakeholderAndStatusUnpaid,
+    isAssigneeEditable,
+    isApplyButtonViewable,
+    isAssigneeViewable,
+    payButtonView,
+    closeButtonView,
   };
 }

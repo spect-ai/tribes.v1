@@ -11,6 +11,8 @@ const easyUpdates = [
   'transactionHash',
 ];
 
+const arrayUpates = ['votes'];
+
 // These are fields that need to converted to the date type
 const dateUpdates = ['deadline'];
 
@@ -41,6 +43,7 @@ const datatypes = {
   selectedProposals: 'array',
   description: 'arrayOfObjects',
   submission: 'arrayOfObjects',
+  votes: 'array',
 };
 
 // Map of update property to action code
@@ -66,9 +69,15 @@ const updatePropertyActivityMap = {
 };
 
 Moralis.Cloud.define('updateCard', async (request) => {
-  const logger = Moralis.Cloud.getLogger();
+  log(
+    request.user?.id,
+    `Calling updateCard for taskId: ${request.params.updates?.taskId}`,
+    'info'
+  );
   try {
-    if (!request.params.updates?.taskId) throw 'Payload must contain taskId';
+    if (!request.params.updates?.taskId) {
+      throw 'Payload must contain taskId';
+    }
 
     var task = await getTaskByTaskId(request.params.updates?.taskId);
     var space = await getBoardByObjectId(task.get('boardId'));
@@ -98,8 +107,10 @@ Moralis.Cloud.define('updateCard', async (request) => {
       task: resTask,
     };
   } catch (err) {
-    logger.error(
-      `Error while updating card with card Id ${request.params.updates?.taskId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in updateCard for card id ${request.params.updates?.taskId}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
@@ -136,8 +147,10 @@ Moralis.Cloud.define('updateMultipleCards', async (request) => {
       ),
     };
   } catch (err) {
-    logger.error(
-      `Error while updating cards with card Id ${request.params.updates?.taskId}: ${err}`
+    log(
+      request.user?.id,
+      `Failure in updateMultipleCards for updates ${request.params.updates}: ${err}`,
+      'error'
     );
     throw `${err}`;
   }
@@ -270,6 +283,7 @@ function validatePayload(updates, task) {
 }
 
 async function handleUpdates(updates, task, space, callerId) {
+  task = handleArrayUpdates(task, updates, arrayUpates);
   task = handleActivityUpdates(task, updates, callerId);
   task = handleEasyFieldUpdates(task, updates, easyUpdates);
   task = handleDateUpdates(task, updates, dateUpdates);
@@ -301,40 +315,71 @@ function removeTaskFromColumn(column, taskId) {
   };
 }
 
-function addTaskToColumn(column, taskId) {
+function addTaskToColumn(column, taskId, index) {
   const taskIds = Array.from(column.taskIds); // copy
-  taskIds.push(taskId);
+  if (index < 0 || index > taskIds.length || (!index && index !== 0)) {
+    index = taskIds.length;
+  }
+
+  taskIds.splice(index, 0, taskId);
   return {
     ...column,
     taskIds: taskIds,
   };
 }
 
+function findColumnContainingTask(columns, taskId) {
+  for (var [columnId, column] of Object.entries(columns)) {
+    if (column.taskIds.includes(taskId)) {
+      return columnId;
+    }
+  }
+  return null;
+}
+
 async function handleColumnUpdate(space, task, updates) {
-  const sourceId = updates.columnChange.sourceId;
-  const destinationId = updates.columnChange.destinationId;
-  logger.info(
-    `Handling column update for task ${space.id} ${task.get(
-      'taskId'
-    )} ${sourceId} ${destinationId}`
-  );
-  var columns = space.get('columns');
-  const source = removeTaskFromColumn(columns[sourceId], task.get('taskId'));
-  logger.info(`source: ${JSON.stringify(source)}`);
+  if (updates.hasOwnProperty('columnChange')) {
+    var columnOrder = space.get('columnOrder');
+    if (columnOrder.includes(updates.columnChange.destinationId)) {
+      var columns = space.get('columns');
 
-  const destination = addTaskToColumn(
-    columns[destinationId],
-    task.get('taskId')
-  );
+      let sourceId;
+      if (task.get('columnId')) {
+        sourceId = task.get('columnId');
+      } else {
+        sourceId = findColumnContainingTask(columns, task.get('taskId'));
+      }
 
-  columns = {
-    ...columns,
-    [source.id]: source,
-    [destination.id]: destination,
-  };
-  space.set('columns', columns);
-  task.set('columnId', destinationId);
+      if (!sourceId) {
+        throw 'Task does not belong to any column';
+      }
 
+      const destinationId = updates.columnChange.destinationId;
+      logger.info(
+        `Handling column update for task ${space.id} ${task.get(
+          'taskId'
+        )} ${sourceId} ${destinationId}`
+      );
+      const newSource = removeTaskFromColumn(
+        columns[sourceId],
+        task.get('taskId')
+      );
+      logger.info(`newSource: ${JSON.stringify(newSource)}`);
+
+      const destination = addTaskToColumn(
+        columns[destinationId],
+        task.get('taskId')
+      );
+
+      columns = {
+        ...columns,
+        [sourceId]: newSource,
+        [destinationId]: destination,
+      };
+      space.set('columns', columns);
+      task.set('columnId', destinationId);
+    }
+  }
   return [space, task];
 }
 
@@ -460,6 +505,22 @@ function handleContentArrayMultiElementUpdate(task, updates, callerId, fields) {
   return task;
 }
 
+function handleArrayUpdates(task, updates, fields) {
+  for (const [key, value] of Object.entries(updates)) {
+    if (fields.includes(key)) {
+      let arr = task.get(key);
+      if (arr && arr.includes(value)) {
+        arr = arr.filter((item) => item !== value);
+        task.set(key, arr);
+      } else {
+        task.add(key, value);
+      }
+    }
+  }
+
+  return task;
+}
+
 function handleEasyFieldUpdates(task, updates, fields) {
   for (const [key, value] of Object.entries(updates)) {
     if (fields.includes(key)) {
@@ -472,7 +533,8 @@ function handleEasyFieldUpdates(task, updates, fields) {
 function handleDateUpdates(task, updates, fields) {
   for (const [key, value] of Object.entries(updates)) {
     if (fields.includes(key)) {
-      task.set(key, new Date(value));
+      if (value) task.set(key, new Date(value));
+      else task.set(key, null);
     }
   }
   return task;

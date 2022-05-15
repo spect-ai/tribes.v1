@@ -16,7 +16,7 @@ const Container = styled('div')(({ theme }) => ({
   marginTop: 8,
 }));
 
-const CreateBoardButton = styled(Button)(({ theme }) => ({
+export const CreateBoardButton = styled(Button)(({ theme }) => ({
   height: '8rem',
   width: '100%',
   borderRadius: 8,
@@ -27,7 +27,7 @@ const CreateBoardButton = styled(Button)(({ theme }) => ({
   flexDirection: 'column',
 }));
 
-const BoardButton = styled(Button)(({ theme }) => ({
+export const BoardButton = styled(Button)(({ theme }) => ({
   height: '8rem',
   width: '100%',
   borderRadius: 8,
@@ -73,8 +73,9 @@ function Board(props: Props) {
       )} */}
       <Grid container spacing={2}>
         {tribe?.boards?.map((board: BoardData) => (
-          <Grid item xs={3} key={tribe.teamId}>
+          <Grid item xs={3} key={board._id}>
             <BoardButton
+              data-testid={`space-${board._id}`}
               variant="contained"
               onClick={() => {
                 router.push(
@@ -91,8 +92,8 @@ function Board(props: Props) {
         <Grid item xs={3}>
           {user && tribe.roles[user.id] === 3 && (
             <CreateBoardButton
+              id="bCreateBoardButton"
               variant="outlined"
-              disabled={tribe.roles[user?.id] !== 3}
               onClick={() => {
                 setIsOpen(true);
               }}

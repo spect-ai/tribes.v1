@@ -111,7 +111,7 @@ export interface Task {
     link: string;
     name: string;
   };
-  deadline: Date;
+  deadline: Date | null;
   tags: string[];
   assignee: Array<string>;
   reviewer: Array<string>;
@@ -148,6 +148,7 @@ export interface Task {
   updates: Array<object>;
   columnId: string;
   comments: Array<Comment>;
+  votes: string[];
 }
 
 export interface Submission {
@@ -184,6 +185,11 @@ export interface SubmissionData {
   edited: boolean;
 }
 
+export type Channel = {
+  id: string;
+  name: string;
+};
+
 export type Column = {
   id: string;
   title: string;
@@ -195,6 +201,7 @@ export type Column = {
   moveCard: {
     [key: number]: boolean;
   };
+  discordChannels?: Channel[];
 };
 
 export interface BoardData {
@@ -302,8 +309,30 @@ export type CurrentUser = {
 export type Block = {
   id: string;
   tag: string;
-  type: string;
+  type: string | undefined;
   html: string;
   imageUrl: string;
   embedUrl: string;
+  ref?: any;
+};
+
+export type ApprovalInfo = {
+  required: boolean;
+  uniqueTokenAddresses: Array<string>;
+  aggregatedTokenValues: Array<number>;
+};
+
+export type DistributionInfo = {
+  cardIds: string[];
+  epochId?: string;
+  type: string;
+  contributors: Array<string>;
+  tokenAddresses: Array<string>;
+  tokenValues: Array<number>;
+};
+
+export type PaymentInfo = {
+  approval: ApprovalInfo;
+  tokens: DistributionInfo;
+  currency: DistributionInfo;
 };

@@ -1,25 +1,19 @@
 import { Box, Typography } from '@mui/material';
-import React, { useState } from 'react';
+import React from 'react';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DoneIcon from '@mui/icons-material/Done';
 import StarHalfIcon from '@mui/icons-material/StarHalf';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
-import useMoralisFunction from '../../../../hooks/useMoralisFunction';
-import { Block, Task } from '../../../../types';
 import { uid } from '../../../../utils/utils';
 import { PrimaryButton } from '../../../elements/styledComponents';
 import Editor from '../../editor';
-import useCard from '../../../../hooks/useCard';
-import { notify } from '../../settingsTab';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
 import useAccess from '../../../../hooks/useAccess';
 import useCardStatus from '../../../../hooks/useCardStatus';
+import { useCardContext } from '..';
 
-type Props = {
-  task: Task;
-  setTask: (task: Task) => void;
-};
+function Submission() {
+  const { task, loading } = useCardContext();
 
-function Submission({ task, setTask }: Props) {
   const { isCardSteward, isCardAssignee } = useAccess(task);
   const {
     isAssigned,
@@ -28,11 +22,11 @@ function Submission({ task, setTask }: Props) {
     isClosed,
     isPaid,
     statusToCode,
-  } = useCardStatus(task);
-  const { updateSubmission, updateStatus, isLoading } = useCard(setTask, task);
+  } = useCardStatus();
+  const { updateSubmission, updateStatus } = useCardUpdate();
 
   return (
-    <Box sx={{ color: '#eaeaea', height: 'auto', mr: 3 }}>
+    <Box sx={{ color: '#eaeaea', height: 'auto', mr: 3, width: '100%' }}>
       {((isCardSteward() &&
         (isInReview() || isInRevision() || isClosed() || isPaid())) ||
         isCardAssignee()) && (
@@ -58,6 +52,7 @@ function Submission({ task, setTask }: Props) {
             (isClosed() as boolean) ||
             (isPaid() as boolean)
           }
+          id="task-submission"
         />
       )}
       {isInRevision() && (
@@ -92,7 +87,7 @@ function Submission({ task, setTask }: Props) {
               }}
               color="secondary"
               size="small"
-              loading={isLoading}
+              loading={loading}
               onClick={() => updateStatus(statusToCode.inReview)}
               disabled={isInReview() || isPaid() || isClosed()}
               startIcon={<VisibilityIcon />}
@@ -135,7 +130,7 @@ function Submission({ task, setTask }: Props) {
               }}
               color="secondary"
               size="small"
-              loading={isLoading}
+              loading={loading}
               onClick={() => updateStatus(statusToCode.closed)}
               startIcon={<DoneIcon />}
             >
@@ -152,7 +147,7 @@ function Submission({ task, setTask }: Props) {
               }}
               color="secondary"
               size="small"
-              loading={isLoading}
+              loading={loading}
               onClick={() => updateStatus(statusToCode.inRevision)}
               startIcon={<StarHalfIcon />}
             >
@@ -161,13 +156,17 @@ function Submission({ task, setTask }: Props) {
           </Box>
         )
       }
-      {isCardSteward() && isAssigned() && (
-        <Box sx={{ display: 'flex', flexDirection: 'row', mt: 4 }}>
-          <Typography variant="body1" sx={{ mr: 4 }}>
-            {isCardAssignee() ? `Not submitted yet` : `No submissions yet`}
-          </Typography>
-        </Box>
-      )}
+      {isCardSteward() &&
+        !isInReview() &&
+        !isInRevision() &&
+        !isPaid() &&
+        !isClosed() && (
+          <Box sx={{ display: 'flex', flexDirection: 'row', mt: 4 }}>
+            <Typography variant="body1" sx={{ mr: 4 }}>
+              No submissions yet
+            </Typography>
+          </Box>
+        )}
     </Box>
   );
 }

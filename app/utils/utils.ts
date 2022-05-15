@@ -302,3 +302,10 @@ export function getSelectedNodes() {
   }
   return [];
 }
+
+export function getDateDisplay(date: string) {
+  const dateObj = new Date(date);
+  return `${dateObj?.getDate()} ${
+    monthMap[dateObj?.getMonth() as keyof typeof monthMap]
+  } ${formatTime(dateObj)}`;
+}

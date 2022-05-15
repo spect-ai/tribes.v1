@@ -6,11 +6,12 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import NotFound from '../../../../app/components/elements/notFound';
 import ExploreSidebar from '../../../../app/components/modules/exploreSidebar';
 import SpaceNavbar from '../../../../app/components/modules/spaceNavbar';
-import BoardsTemplate from '../../../../app/components/templates/boards';
+import BoardsTemplate from '../../../../app/components/templates/space';
 import getTheme from '../../../../app/constants/muiTheme';
 import { useGlobal } from '../../../../app/context/globalContext';
 import useMoralisFunction from '../../../../app/hooks/useMoralisFunction';
 import { BoardData } from '../../../../app/types';
+import { notify } from '../../../../app/components/modules/settingsTab';
 
 interface Props {}
 interface SpaceContextType {
@@ -77,16 +78,21 @@ export default function SpacePage() {
     setTheme(createTheme(getTheme(0)));
     setIsLoading(true);
     if (!loading && bid) {
-      runMoralisFunction('getSpace', { boardId: bid }).then((res) => {
-        setSpace(res);
-        setIsLoading(false);
-      });
+      runMoralisFunction('getSpace', { boardId: bid })
+        .then((res) => {
+          setSpace(res);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          notify(err.message, 'error');
+        });
     }
   }, [loading, bid]);
   return (
     <>
       <Head>
-        <title>Spect.Tribes</title>
+        <title>Spect Tribes</title>
         <meta name="description" content="Manage DAO with ease" />
         <link rel="icon" href="/logo2.svg" />
       </Head>

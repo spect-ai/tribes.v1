@@ -16,9 +16,9 @@ import ChangeCircleIcon from '@mui/icons-material/ChangeCircle';
 import PaidIcon from '@mui/icons-material/Paid';
 import { useGlobal } from '../../../context/globalContext';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import Approve, { ApprovalInfo } from '../batchPay/approve';
-import BatchPay, { DistributionInfo } from '../batchPay/batchPay';
-import { Epoch } from '../../../types';
+import Approve from '../batchPay/approve';
+import BatchPay from '../batchPay/batchPay';
+import { Epoch, ApprovalInfo, DistributionInfo } from '../../../types';
 import { capitalizeFirstLetter } from '../../../utils/utils';
 import { notify } from '../settingsTab';
 import { PrimaryButton } from '../../elements/styledComponents';
@@ -111,6 +111,7 @@ function PayoutContributors({ epoch }: Props) {
     <>
       {!epoch.paid && (
         <PrimaryButton
+          data-testid="bEpochPay"
           endIcon={<PaidIcon />}
           variant="outlined"
           loading={isLoading}

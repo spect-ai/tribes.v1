@@ -47,18 +47,8 @@ const ModalContent = styled('div')(({ theme }) => ({
 
 function CreateBoard({ isOpen, handleClose }: Props) {
   const { tribe } = useTribe();
-  const { Moralis } = useMoralis();
   const router = useRouter();
   const [name, setName] = useState('');
-  const [token, setToken] = useState<Token>();
-  const {
-    state: { registry },
-  } = useGlobal();
-  const [chain, setChain] = useState({
-    chainId: window.ethereum.networkVersion,
-    name: registry[window.ethereum.networkVersion]?.name,
-  } as Chain);
-  const [tokenLimit, setTokenLimit] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
@@ -86,10 +76,12 @@ function CreateBoard({ isOpen, handleClose }: Props) {
             <Grid container alignItems="center" marginTop={2}>
               <Grid item xs={3}>
                 <PrimaryButton
+                  data-testid="bCreateSpaceModalButton"
                   loading={isLoading}
                   variant="outlined"
                   color="secondary"
                   sx={{ borderRadius: 1 }}
+                  disabled={!name || name === ''}
                   onClick={() => {
                     setIsLoading(true);
                     runMoralisFunction('initBoard', {

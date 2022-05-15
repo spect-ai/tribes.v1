@@ -22,12 +22,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #eaeaea;
+  background: rgb(234, 234, 234,0.2);
   border-radius: 50px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #eaeaea;
+  background: rgb(234, 234, 234,0.2);
 }
 
 .ce-block__content {

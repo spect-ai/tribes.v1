@@ -1,6 +1,6 @@
 .yarn
 .next
-*.json
+# *.json
 *.scss
 *.css
 .prettierrc

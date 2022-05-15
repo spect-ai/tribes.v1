@@ -1,6 +1,7 @@
-import { Task } from '../types';
+import { useCardContext } from '../components/modules/cardModal';
 
-export default function useCardStatus(task: Task) {
+export default function useCardStatus() {
+  const { task } = useCardContext();
   const codeToStatus: any = {
     100: 'created',
     105: 'assigned',
@@ -30,7 +31,15 @@ export default function useCardStatus(task: Task) {
   };
 
   const isUnassigned = () => {
-    return task.assignee.length === 0;
+    return !task.assignee || task.assignee?.length === 0;
+  };
+
+  const hasAssignee = () => {
+    return task.assignee?.length > 0;
+  };
+
+  const hasProposals = () => {
+    return task.proposals?.length > 0;
   };
 
   const isInReview = () => {
@@ -61,6 +70,14 @@ export default function useCardStatus(task: Task) {
     return !task.comments || task.comments?.length === 0;
   };
 
+  const isTask = () => {
+    return task.type === 'Task';
+  };
+
+  const isBounty = () => {
+    return task.type === 'Bounty';
+  };
+
   return {
     isCreated,
     isInReview,
@@ -74,5 +91,9 @@ export default function useCardStatus(task: Task) {
     hasNoComments,
     codeToStatus,
     statusToCode,
+    hasAssignee,
+    isTask,
+    isBounty,
+    hasProposals,
   };
 }

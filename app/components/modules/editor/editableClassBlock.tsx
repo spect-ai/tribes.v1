@@ -3,7 +3,7 @@
 /* eslint-disable react/no-access-state-in-setstate */
 import ContentEditable from 'react-contenteditable';
 import { Draggable } from 'react-beautiful-dnd';
-import React from 'react';
+import React, { Profiler } from 'react';
 import { Alert, Divider, Snackbar, TextField, Typography } from '@mui/material';
 import dynamic from 'next/dynamic';
 import { Moralis } from 'moralis';
@@ -15,12 +15,12 @@ import { Block } from '../../../types';
 import {
   getCaretCoordinates,
   getCaretCoordinatesForCommand,
-  getSelectedNodes,
   getSelection,
   isValidHttpUrl,
   setCaretToEnd,
 } from '../../../utils/utils';
 import { PrimaryButton } from '../../elements/styledComponents';
+import { EDIT_DISABLED_TEXT, NO_IMAGE_TEXT } from './constants';
 
 const ReactTinyLink: any = dynamic(
   () => import('react-tiny-link').then((mod) => mod.ReactTinyLink),
@@ -32,16 +32,17 @@ const ReactTinyLink: any = dynamic(
 const CMD_KEY = '/';
 
 type Props = {
-  updateBlock: (block: Block, sync: boolean) => void;
-  addBlock: (args: any) => void;
-  deleteBlock: (args: any) => void;
+  updateBlock?: (block: Block, sync: boolean) => void;
+  addBlock?: (currentBlock: Block, insertAbove?: boolean) => void;
+  deleteBlock?: (args: any, insertAbove?: boolean) => void;
   position: number;
   id: string;
   blocks: Block[];
   block: Block;
   readOnly: boolean;
-  isDragging: boolean;
-  placeholderText: string;
+  isDragging?: boolean;
+  placeholderText?: string;
+  pageId: string;
 };
 
 type State = {
@@ -50,7 +51,7 @@ type State = {
   tag: string;
   imageUrl: string;
   embedUrl: string;
-  type: string;
+  type: string | undefined;
   placeholder: boolean;
   previousKey: string;
   isTyping: boolean;
@@ -68,12 +69,10 @@ type State = {
 };
 
 // library does not work with hooks
-class EditableClassBlock extends React.Component<Props, State> {
+class EditableClassBlock extends React.PureComponent<Props, State> {
   static calculateActionMenuPosition(parent: any, initiator: string) {
     const { x: endX, y: endY } = getCaretCoordinates(false); // fromEnd
     const { x: startX, y: startY } = getCaretCoordinates(true);
-    const middleX =
-      (startX as number) + ((endX as number) - (startX as number)) / 2;
     const x = parent.offsetLeft - parent.scrollLeft + parent.clientLeft - 90;
     const y = parent.offsetTop - parent.scrollTop + parent.clientTop + 35;
     switch (initiator) {
@@ -89,6 +88,10 @@ class EditableClassBlock extends React.Component<Props, State> {
   fileInput: any;
 
   contentEditable: any;
+
+  embedInput: any;
+
+  anchorOrigin: any;
 
   constructor(props: Props) {
     super(props);
@@ -109,10 +112,16 @@ class EditableClassBlock extends React.Component<Props, State> {
     this.handleTagSelection = this.handleTagSelection.bind(this);
     this.handleImageUpload = this.handleImageUpload.bind(this);
     this.addPlaceholder = this.addPlaceholder.bind(this);
+    this.onSnackBarClose = this.onSnackBarClose.bind(this);
     this.calculateTagSelectorMenuPosition =
       this.calculateTagSelectorMenuPosition.bind(this);
     this.contentEditable = React.createRef<HTMLElement | any>();
     this.fileInput = React.createRef<HTMLInputElement>();
+    this.embedInput = React.createRef<HTMLInputElement>();
+    this.anchorOrigin = {
+      vertical: 'bottom',
+      horizontal: 'right',
+    };
     this.state = {
       htmlBackup: '',
       html: '',
@@ -146,7 +155,7 @@ class EditableClassBlock extends React.Component<Props, State> {
     // Add a placeholder if the first block has no sibling elements and no content
     const {
       position,
-      block: { html, tag, imageUrl, type },
+      block: { html, tag, imageUrl, type, embedUrl },
     } = this.props;
     const hasPlaceholder = this.addPlaceholder({
       block: this.contentEditable.current,
@@ -159,6 +168,7 @@ class EditableClassBlock extends React.Component<Props, State> {
         html,
         tag,
         imageUrl,
+        embedUrl,
         type,
       });
     }
@@ -177,10 +187,9 @@ class EditableClassBlock extends React.Component<Props, State> {
         embedUrl: propEmbedUrl,
       },
       id,
-      isDragging,
+      position,
       updateBlock,
     } = this.props;
-
     const {
       placeholder,
       isTyping,
@@ -196,6 +205,14 @@ class EditableClassBlock extends React.Component<Props, State> {
     const tagChanged = propTag !== stateTag;
     const imageChanged = propImageUrl !== stateImageUrl;
     const embedChanged = propEmbedUrl !== stateEmbedUrl;
+    const prevHtml = prevProps.block.html;
+    if (prevHtml !== propHtml) {
+      this.setState({
+        ...this.state,
+        html: propHtml,
+      });
+      return;
+    }
     if (
       ((stoppedTyping && htmlChanged) ||
         tagChanged ||
@@ -203,17 +220,18 @@ class EditableClassBlock extends React.Component<Props, State> {
         embedChanged) &&
       hasNoPlaceholder
     ) {
-      updateBlock(
-        {
-          id,
-          html: stateHtml,
-          tag: stateTag,
-          imageUrl: stateImageUrl,
-          embedUrl: stateEmbedUrl,
-          type: stateType,
-        },
-        true
-      );
+      updateBlock &&
+        updateBlock(
+          {
+            id,
+            html: stateHtml,
+            tag: stateTag,
+            imageUrl: stateImageUrl,
+            embedUrl: stateEmbedUrl,
+            type: stateType,
+          },
+          true
+        );
     }
   }
 
@@ -256,15 +274,24 @@ class EditableClassBlock extends React.Component<Props, State> {
   }
 
   handleKeyDown(e: any) {
-    const { id, blocks, deleteBlock, addBlock } = this.props;
-    const { html, previousKey, tagSelectorMenuOpen, tag, imageUrl, type } =
-      this.state;
+    const { id, pageId, position, deleteBlock, addBlock } = this.props;
+    const {
+      html,
+      previousKey,
+      tagSelectorMenuOpen,
+      tag,
+      imageUrl,
+      embedUrl,
+      type,
+    } = this.state;
+    const block = this.contentEditable.current;
+    const { selectionStart } = getSelection(block);
     if (e.key === CMD_KEY) {
       // If the user starts to enter a command, we store a backup copy of
       // the html. We need this to restore a clean version of the content
       // after the content type selection was finished.
       this.setState({ htmlBackup: html });
-    } else if (e.key === 'Backspace' && !html) {
+    } else if (e.key === 'Backspace' && selectionStart === 0) {
       if (type === 'nestedUl') {
         this.setState({
           ...this.state,
@@ -272,7 +299,7 @@ class EditableClassBlock extends React.Component<Props, State> {
         });
         return;
       }
-      deleteBlock({ id });
+      deleteBlock && deleteBlock({ id, html }, selectionStart === 0);
     } else if (
       e.key === 'Enter' &&
       previousKey !== 'Shift' &&
@@ -298,14 +325,19 @@ class EditableClassBlock extends React.Component<Props, State> {
         });
         return;
       }
-      addBlock({
-        id,
-        html,
-        tag,
-        imageUrl,
-        ref: this.contentEditable.current,
-        type,
-      });
+      addBlock &&
+        addBlock(
+          {
+            id,
+            html,
+            tag,
+            imageUrl,
+            embedUrl,
+            ref: this.contentEditable.current,
+            type,
+          },
+          selectionStart === 0
+        );
     } else if (e.key === 'Tab') {
       if (type === 'ul') {
         e.preventDefault();
@@ -316,29 +348,34 @@ class EditableClassBlock extends React.Component<Props, State> {
         return;
       }
     } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
       if (!tagSelectorMenuOpen) {
-        const nextBlockPosition = blocks.map((b: any) => b.id).indexOf(id) + 2;
-        const nextBlock = document.querySelector(
-          `[data-position="${nextBlockPosition}"]`
+        e.preventDefault();
+        // temporary fix
+        const allBlocks = document.querySelectorAll(
+          `[data-testid="${pageId}-editable-block"]`
         );
+        const nextBlock = allBlocks[position];
         if (nextBlock) {
           // @ts-ignore
           nextBlock.focus();
-          setCaretToEnd(nextBlock);
+          if (selectionStart !== 0) {
+            setCaretToEnd(nextBlock);
+          }
         }
       }
     } else if (e.key === 'ArrowUp') {
       if (!tagSelectorMenuOpen) {
         e.preventDefault();
-        const nextBlockPosition = blocks.map((b: any) => b.id).indexOf(id);
-        const nextBlock = document.querySelector(
-          `[data-position="${nextBlockPosition}"]`
+        const allBlocks = document.querySelectorAll(
+          `[data-testid="${pageId}-editable-block"]`
         );
+        const nextBlock = allBlocks[position - 2];
         if (nextBlock) {
           // @ts-ignore
           nextBlock.focus();
-          setCaretToEnd(nextBlock);
+          if (selectionStart !== 0) {
+            setCaretToEnd(nextBlock);
+          }
         }
       }
     }
@@ -371,7 +408,7 @@ class EditableClassBlock extends React.Component<Props, State> {
   // i.e. img = display <div><input /><img /></div> (input picker is hidden)
   // i.e. every other tag = <ContentEditable /> with its tag and html content
   handleTagSelection(tag: string, type?: string) {
-    const { id, addBlock } = this.props;
+    const { id, blocks, position, addBlock } = this.props;
     const { isTyping, htmlBackup } = this.state;
     if (tag === 'notFound') {
       this.closeTagSelectorMenu();
@@ -380,23 +417,30 @@ class EditableClassBlock extends React.Component<Props, State> {
     if (['img', 'embed', 'divider'].includes(tag)) {
       this.setState({ ...this.state, tag }, () => {
         this.closeTagSelectorMenu();
-        // if (this.fileInput) {
-        //   // Open the native file picker
-        //   this.fileInput.click();
-        // }
         // Add new block so that the user can continue writing
         // after adding an image
-        addBlock({
-          id,
-          html: '',
-          tag: 'p',
-          imageUrl: '',
-          ref: this.contentEditable.current,
-          type,
-        });
+        if (!blocks[position]) {
+          addBlock &&
+            addBlock({
+              id,
+              html: '',
+              tag: 'p',
+              embedUrl: '',
+              imageUrl: '',
+              ref: this.contentEditable.current,
+              type,
+            });
+        }
+        if (tag === 'embed') {
+          this.embedInput.current.focus();
+        }
+        if (tag === 'img') {
+          this.fileInput.current.click();
+        }
       });
     } else if (isTyping) {
       // Update the tag and restore the html backup without the command
+
       this.setState({ tag, html: htmlBackup, type: type || '' }, () => {
         setCaretToEnd(this.contentEditable.current);
         this.closeTagSelectorMenu();
@@ -419,6 +463,10 @@ class EditableClassBlock extends React.Component<Props, State> {
         imageUrl: (file as any).ipfs(),
       });
     }
+  }
+
+  onSnackBarClose() {
+    this.setState({ isSnackbarOpen: false });
   }
 
   closeTagSelectorMenu() {
@@ -483,7 +531,7 @@ class EditableClassBlock extends React.Component<Props, State> {
     if (isFirstBlockWithoutHtml && isFirstBlockWithoutSibling) {
       this.setState({
         ...this.state,
-        html: placeholderText,
+        html: placeholderText as string,
         tag: 'h3',
         imageUrl: '',
         placeholder: true,
@@ -529,31 +577,28 @@ class EditableClassBlock extends React.Component<Props, State> {
       isSnackbarOpen,
     } = this.state;
 
-    const { id, position, readOnly, deleteBlock } = this.props;
+    const { id, pageId, position, readOnly, deleteBlock } = this.props;
     return (
       <>
         <Snackbar
           open={isSnackbarOpen}
           autoHideDuration={4000}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          onClose={() => this.setState({ isSnackbarOpen: false })}
+          anchorOrigin={this.anchorOrigin}
+          onClose={this.onSnackBarClose}
         >
           <Alert
             severity="error"
             sx={{ width: '100%' }}
-            onClose={() => this.setState({ isSnackbarOpen: false })}
+            onClose={this.onSnackBarClose}
           >
-            You cannot edit this block
+            {EDIT_DISABLED_TEXT}
           </Alert>
         </Snackbar>
         {actionMenuOpen && (
           <BlockActionMenu
             position={actionMenuPosition}
             actions={{
-              deleteBlock: () => deleteBlock({ id }),
+              deleteBlock: () => deleteBlock && deleteBlock({ id }),
               // turnInto: () => openTagSelectorMenu("ACTION_MENU"),
             }}
           />
@@ -605,6 +650,7 @@ class EditableClassBlock extends React.Component<Props, State> {
               </span>
               {!['img', 'embed', 'divider'].includes(tag) && (
                 <ContentEditable
+                  data-testid={`${pageId}-editable-block`}
                   innerRef={this.contentEditable}
                   data-position={position}
                   data-tag={tag}
@@ -652,7 +698,7 @@ class EditableClassBlock extends React.Component<Props, State> {
                       htmlFor={`${id}_fileInput`}
                       className={styles.fileInputLabel}
                     >
-                      No Image Selected. Click To Select.
+                      {NO_IMAGE_TEXT}
                     </label>
                   )}
                   {imageUrl && (
@@ -673,6 +719,7 @@ class EditableClassBlock extends React.Component<Props, State> {
                 >
                   {!embedUrl && (
                     <TextField
+                      inputRef={this.embedInput}
                       id="standard-name"
                       size="small"
                       fullWidth
