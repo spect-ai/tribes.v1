@@ -12,8 +12,7 @@ import React, { useEffect, useState, Dispatch, SetStateAction } from "react";
 import { CardButton, PrimaryButton } from "../../elements/styledComponents";
 import { useRouter } from "next/router";
 import { PopoverContainer } from "../cardModal/styles";
-import { useCardDynamism } from "../../../hooks/useCardDynamism";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import useMoralisFunction from "../../../hooks/useMoralisFunction";
 
 interface FilterProps {
   setBReviewerFilter: Dispatch<SetStateAction<any[]>>;
@@ -44,7 +43,7 @@ const TasksFilter = ({
   const { bid } = router.query;
 
   useEffect(() => {
-    runMoralisFunction("getSpace", { boardId: bid }).then((res) => {
+    runMoralisFunction("getSpace", { boardId: bid }).then((res: { members: React.SetStateAction<never[]>; memberDetails: React.SetStateAction<any[]>; }) => {
       // console.log("TaskFilter: Tasks: ", res.tasks);
       // console.log("TaskFilter: Members: ", res.members);
       setMemberIds(res.members);
@@ -57,10 +56,6 @@ const TasksFilter = ({
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitleFilter(event.target.value);
   };
-
-  // const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   setName(event.target.value);
-  // };
 
   const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -185,24 +180,6 @@ const TasksFilter = ({
               />
             )}
           />
-
-          {/* <Autocomplete
-            options={["Reviewer", "Assignee", "Title"]}
-            multiple
-            // value={labels}
-            // onChange={(event, newValue) => {
-            //   setLabels(newValue as string[]);
-            // }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                placeholder="Title"
-              />
-            )}
-          /> */}
 
           <Autocomplete
             options={[
