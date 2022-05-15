@@ -55,11 +55,8 @@ const TaskModalTitleContainer = styled.div`
 
 const TaskModalBodyContainer = styled.div`
   margin-top: 2px;
-  overflow-y: hidden;
-  overflow-x: hidden;
   color: #eaeaea;
   font-size: 0.85rem;
-  max-height: 10rem;
 `;
 
 type Props = {
@@ -119,7 +116,8 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
     if (user) {
       setReviewer(user.id);
     }
-    updateChain({ chainId: '137', name: 'polygon' });
+    setChain(space?.defaultPayment.chain);
+    setToken(space?.defaultPayment.token);
     setValue('0');
     setTitle('');
     setDescription([]);
@@ -257,6 +255,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                   sx: { mb: 3 },
                   optionLabels: (option: any) => option.name,
                   closeOnSelect: false,
+                  disableClearable: true,
                 },
                 {
                   fieldType: 'autocomplete',
@@ -269,6 +268,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                   sx: { mb: 3 },
                   optionLabels: (option: any) => option.symbol,
                   closeOnSelect: false,
+                  disableClearable: true,
                 },
                 {
                   fieldType: 'textfield',
@@ -330,7 +330,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                 {
                   id: uid(),
                   html: '',
-                  tag: 'p',
+                  tag: 'h3',
                   type: '',
                   imageUrl: '',
                   embedUrl: '',
@@ -338,6 +338,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
               ]}
               placeholderText={`Add details, press "/" for commands`}
               readonly={false}
+              id="task-description"
             />
           </TaskModalBodyContainer>
           <Box

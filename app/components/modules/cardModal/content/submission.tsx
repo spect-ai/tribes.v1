@@ -52,6 +52,7 @@ function Submission() {
             (isClosed() as boolean) ||
             (isPaid() as boolean)
           }
+          id="task-submission"
         />
       )}
       {isInRevision() && (

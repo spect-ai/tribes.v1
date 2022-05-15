@@ -7,13 +7,12 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useCardContext } from '..';
-import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { useGlobal } from '../../../../context/globalContext';
 import useCardUpdate from '../../../../hooks/useCardUpdate';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
-import { Chain, Registry, Task, Token } from '../../../../types';
+import { Chain, Registry, Token } from '../../../../types';
 import {
   getFlattenedCurrencies,
   getFlattenedNetworks,
@@ -28,7 +27,6 @@ function RewardPopover() {
   const [open, setOpen] = useState(false);
   const {
     task,
-    setTask,
     chain,
     setChain,
     token,

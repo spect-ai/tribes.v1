@@ -21,15 +21,17 @@ import { notify } from '../../settingsTab';
 import useCardUpdate from '../../../../hooks/useCardUpdate';
 import useCardCreate from '../../../../hooks/useCardCreate';
 import { useCardContext } from '..';
+import ConfirmModal from '../../../elements/confirmModal';
 
 function OptionsPopover() {
   const [open, setOpen] = useState(false);
   const handleClose = () => {
     setOpen(false);
   };
-  const { task, setTask, openPopover, anchorEl } = useCardContext();
-  const { runMoralisFunction } = useMoralisFunction();
-  const { setSpace } = useSpace();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const handleConfirmClose = () => setIsConfirmOpen(false);
+
+  const { task, openPopover, anchorEl } = useCardContext();
   const { updateStatus } = useCardUpdate();
   const { createCard } = useCardCreate();
   const { statusToCode } = useCardStatus();
@@ -53,12 +55,21 @@ function OptionsPopover() {
       handleClose
     );
   };
+  const handleConfirm = () => updateStatus(statusToCode.archived);
 
   return (
     <>
       <IconButton
         data-testid="bCardOptionsButton"
-        sx={{ m: 0, px: 2 }}
+        sx={{
+          m: 0,
+          px: 2,
+          height: '2.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'start',
+          alignItems: 'start',
+        }}
         onClick={openPopover(setOpen)}
       >
         <MoreHorizIcon />
@@ -103,7 +114,7 @@ function OptionsPopover() {
             <ListItemButton
               data-testid="bArchiveCardButton"
               onClick={() => {
-                updateStatus(statusToCode.archived);
+                setIsConfirmOpen(true);
               }}
             >
               <ArchiveIcon sx={{ width: '2rem', mr: 2 }} />
@@ -112,6 +123,13 @@ function OptionsPopover() {
           )}
         </List>
       </Popover>
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        handleClose={handleConfirmClose}
+        buttonText="Yes, archive task"
+        runOnConfirm={handleConfirm}
+        modalContent="Are you sure you want to archive this task?"
+      />
     </>
   );
 }
