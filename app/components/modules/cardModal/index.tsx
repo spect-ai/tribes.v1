@@ -1,40 +1,54 @@
-import { Box, Fade, Modal, styled } from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { getTask } from "../../../adapters/moralis";
-import { Column, Task } from "../../../types";
-import { notify } from "../settingsTab";
-import TaskCard from "./taskCard";
-import SkeletonLoader from "./skeletonLoader";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
+import { Box, Fade, Modal, styled } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { Task } from '../../../types';
+import { notify } from '../settingsTab';
+import TaskCard from './taskCard';
+import SkeletonLoader from './skeletonLoader';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 
 type Props = {
   isOpen: boolean;
   handleClose: () => void;
   taskId: string;
-  column: Column;
+  columnId?: string;
 };
 
-const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '55rem',
+  border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
+  boxShadow: 24,
+  overflowY: 'auto',
+  overflowX: 'hidden',
+  height: '35rem',
+  padding: '1.5rem 3rem',
+}));
+
+function CardModal({ isOpen, handleClose, taskId, columnId }: Props) {
   const [loading, setLoading] = useState(false);
   const [task, setTask] = useState<Task>({} as Task);
   const { isInitialized } = useMoralis();
-  const [submissionPR, setSubmissionPR] = useState<any>();
-  const { space, setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
 
   useEffect(() => {
-    if (isInitialized && isOpen) {
+    if (isInitialized && isOpen && taskId) {
       setLoading(true);
-      runMoralisFunction("getTask", { taskId })
-        .then((task: Task) => {
-          setTask(task);
+      runMoralisFunction('getTask', { taskId, columnId })
+        .then((taskRes: Task) => {
+          console.log('taskRes', taskRes);
+          setTask(taskRes);
+
           setLoading(false);
         })
         .catch((err: any) => {
           console.log(err);
-          notify(`Sorry! There was an error while getting task`, "error");
+          notify(`Sorry! There was an error while getting task`, 'error');
         });
     }
   }, [taskId, isInitialized, isOpen]);
@@ -53,8 +67,6 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
                     task={task}
                     setTask={setTask}
                     handleClose={handleClose}
-                    submissionPR={submissionPR}
-                    column={column}
                   />
                 </div>
               </Fade>
@@ -64,21 +76,6 @@ const CardModal = ({ isOpen, handleClose, taskId, column }: Props) => {
       </Modal>
     </div>
   );
-};
-
-// @ts-ignore
-const ModalContainer = styled(Box)(({ theme }) => ({
-  position: "absolute" as "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: "55rem",
-  border: "2px solid #000",
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 24,
-  overflow: "auto",
-  height: "33rem",
-  padding: "1.5rem 3rem",
-}));
+}
 
 export default CardModal;

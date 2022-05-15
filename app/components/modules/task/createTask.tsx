@@ -1,15 +1,12 @@
-import styled from "@emotion/styled";
-import { Button, InputBase, Palette, useTheme } from "@mui/material";
-import { Box } from "@mui/system";
-import React, { useState } from "react";
-import DoneIcon from "@mui/icons-material/Done";
-import CloseIcon from "@mui/icons-material/Close";
-import { addTask } from "../../../adapters/moralis";
-import { useMoralis } from "react-moralis";
-import { useRouter } from "next/router";
-import { resolve } from "path/win32";
-import { BoardData } from "../../../types";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+import styled from '@emotion/styled';
+import CloseIcon from '@mui/icons-material/Close';
+import DoneIcon from '@mui/icons-material/Done';
+import { Box, Button, InputBase, Palette, useTheme } from '@mui/material';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 
 type Props = {
   showCreateTask: boolean;
@@ -30,14 +27,15 @@ export const CreateTaskContainer = styled.div<{ palette: Palette }>`
   border: 0.5px solid #3f3f3e;
 `;
 
-const CreateTask = ({ setShowCreateTask, columnId, showCreateTask }: Props) => {
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskValue, setNewTaskValue] = useState("");
+function CreateTask({ setShowCreateTask, columnId, showCreateTask }: Props) {
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskValue, setNewTaskValue] = useState('');
   const { setSpace } = useSpace();
   const { Moralis } = useMoralis();
   const router = useRouter();
   const { bid } = router.query;
   const { palette } = useTheme();
+  const { runMoralisFunction } = useMoralisFunction();
   return (
     <div>
       {showCreateTask && (
@@ -45,8 +43,8 @@ const CreateTask = ({ setShowCreateTask, columnId, showCreateTask }: Props) => {
           <InputBase
             placeholder="Name"
             sx={{
-              fontSize: "14px",
-              marginLeft: "6px",
+              fontSize: '14px',
+              marginLeft: '6px',
             }}
             value={newTaskTitle}
             onChange={(e) => setNewTaskTitle(e.target.value)}
@@ -54,45 +52,45 @@ const CreateTask = ({ setShowCreateTask, columnId, showCreateTask }: Props) => {
           <InputBase
             placeholder="Reward"
             sx={{
-              fontSize: "14px",
-              marginLeft: "6px",
+              fontSize: '14px',
+              marginLeft: '6px',
             }}
             inputProps={{
-              type: "number",
+              type: 'number',
             }}
             value={newTaskValue}
             onChange={(e) => setNewTaskValue(e.target.value)}
           />
           <Box
             sx={{
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
             }}
           >
             <Button
               startIcon={<DoneIcon />}
               onClick={() => {
-                addTask(
-                  Moralis,
-                  bid as string,
-                  columnId,
-                  newTaskTitle,
-                  parseFloat(newTaskValue),
-                  "",
-                  ""
-                ).then((res: any) => {
-                  if (!res) {
-                    alert("Error");
-                    return;
-                  }
-                  setSpace(res as BoardData);
-                  setNewTaskValue("");
-                  setNewTaskTitle("");
-                  setShowCreateTask(false);
-                });
+                // addTask(
+                //   Moralis,
+                //   bid as string,
+                //   columnId,
+                //   newTaskTitle,
+                //   parseFloat(newTaskValue),
+                //   '',
+                //   ''
+                // ).then((res: any) => {
+                //   if (!res) {
+                //     alert('Error');
+                //     return;
+                //   }
+                //   setSpace(res as BoardData);
+                //   setNewTaskValue('');
+                //   setNewTaskTitle('');
+                //   setShowCreateTask(false);
+                // });
               }}
-              sx={{ textTransform: "none", color: "#eaeaea" }}
+              sx={{ textTransform: 'none', color: '#eaeaea' }}
               fullWidth
             >
               Done
@@ -100,7 +98,7 @@ const CreateTask = ({ setShowCreateTask, columnId, showCreateTask }: Props) => {
             <Button
               startIcon={<CloseIcon />}
               onClick={() => setShowCreateTask(false)}
-              sx={{ textTransform: "none" }}
+              sx={{ textTransform: 'none' }}
               color="error"
               fullWidth
               id="taskCancelButton"
@@ -112,6 +110,6 @@ const CreateTask = ({ setShowCreateTask, columnId, showCreateTask }: Props) => {
       )}
     </div>
   );
-};
+}
 
 export default CreateTask;

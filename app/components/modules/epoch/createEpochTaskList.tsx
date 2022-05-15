@@ -1,7 +1,6 @@
 import {
   TextField,
   Autocomplete,
-  styled,
   Table,
   TableBody,
   TableCell,
@@ -10,12 +9,9 @@ import {
   Checkbox,
   Accordion,
   AccordionDetails,
-  AccordionSummary,
-  Grid,
-  Container,
-} from "@mui/material";
-import React, { useState } from "react";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 
 type Props = {
   setCards: Function;
@@ -26,21 +22,20 @@ type Props = {
   setIsCardChecked: Function;
 };
 
-const CreateEpochTaskList = ({
+function CreateEpochTaskList({
   setCards,
   setCardColumn,
   cards,
   cardColumn,
   isCardChecked,
   setIsCardChecked,
-}: Props) => {
+}: Props) {
   const { space } = useSpace();
   const [isOpen, setIsOpen] = useState(true);
 
   const toggleCheckboxValue = (index: number) => {
     setIsCardChecked(isCardChecked.map((v, i) => (i === index ? !v : v)));
   };
-  console.log(space.columns[space.columnOrder[0]].taskIds.length);
   return (
     <>
       <Autocomplete
@@ -50,10 +45,13 @@ const CreateEpochTaskList = ({
         disableClearable
         onChange={(event, newValue) => {
           setCardColumn(newValue);
-          setCards(space.columns[newValue]?.taskIds);
-          setIsCardChecked(
-            Array(space.columns[newValue].taskIds.length).fill(true)
+          const cardsFilter = space.columns[newValue]?.taskIds.filter(
+            (taskId) => {
+              return space.tasks[taskId];
+            }
           );
+          setCards(cardsFilter);
+          setIsCardChecked(Array(cardsFilter.length).fill(true));
         }}
         renderInput={(params) => (
           <TextField
@@ -61,7 +59,7 @@ const CreateEpochTaskList = ({
             id="filled-hidden-label-normal"
             fullWidth
             sx={{ mb: 2, mt: 2 }}
-            placeholder="Import task from column"
+            placeholder="Import card from column"
             size="small"
           />
         )}
@@ -76,7 +74,7 @@ const CreateEpochTaskList = ({
                     <Checkbox
                       color="default"
                       inputProps={{
-                        "aria-label": "select all desserts",
+                        'aria-label': 'select all desserts',
                       }}
                       checked={isCardChecked.every((elem) => elem === true)}
                       onChange={(e) => {
@@ -85,53 +83,59 @@ const CreateEpochTaskList = ({
                             e.target.checked
                           )
                         );
-                        isCardChecked;
                       }}
                     />
                   </TableCell>
-                  <TableCell align="right" sx={{ color: "#99ccff" }}>
+                  <TableCell align="right" sx={{ color: '#99ccff' }}>
                     Card Title
                   </TableCell>
-                  <TableCell align="right" sx={{ color: "#99ccff" }}>
+                  <TableCell align="right" sx={{ color: '#99ccff' }}>
                     Reward
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {cards?.map((card, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      "&:last-child td, &:last-child th": {
-                        border: 0,
-                      },
-                    }}
-                  >
-                    <TableCell component="th" scope="row" padding="checkbox">
-                      {
-                        <Checkbox
-                          color="secondary"
-                          inputProps={{
-                            "aria-label": "select all desserts",
-                          }}
-                          checked={isCardChecked.at(index)}
-                          onClick={() => {
-                            toggleCheckboxValue(index);
-                          }}
-                        />
-                      }
-                    </TableCell>
-                    <TableCell align="right">
-                      {space.tasks[card].title}
-                    </TableCell>
-                    <TableCell align="right">
-                      {space.tasks[card].value || "Not set"}{" "}
-                      {space.tasks[card].value
-                        ? space.tasks[card].token.symbol
-                        : ""}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {cards?.map((card, index) => {
+                  if (space.tasks[card]) {
+                    return (
+                      <TableRow
+                        key={card}
+                        sx={{
+                          '&:last-child td, &:last-child th': {
+                            border: 0,
+                          },
+                        }}
+                      >
+                        <TableCell
+                          component="th"
+                          scope="row"
+                          padding="checkbox"
+                        >
+                          <Checkbox
+                            color="secondary"
+                            inputProps={{
+                              'aria-label': 'select all desserts',
+                            }}
+                            checked={isCardChecked.at(index)}
+                            onClick={() => {
+                              toggleCheckboxValue(index);
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          {space.tasks[card].title}
+                        </TableCell>
+                        <TableCell align="right">
+                          {space.tasks[card].value || 'Not set'}{' '}
+                          {space.tasks[card].value
+                            ? space.tasks[card].token.symbol
+                            : ''}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
+                  return <div />;
+                })}
               </TableBody>
             </Table>
           </AccordionDetails>
@@ -139,6 +143,6 @@ const CreateEpochTaskList = ({
       )}
     </>
   );
-};
+}
 
 export default CreateEpochTaskList;

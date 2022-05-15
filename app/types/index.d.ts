@@ -1,6 +1,6 @@
-import { BigNumber } from "ethers";
-import Moralis from "moralis/types";
-import { Delta } from "quill";
+import { BigNumber } from 'ethers';
+import Moralis from 'moralis/types';
+import { Delta } from 'quill';
 
 export interface Contracts {
   distributorContract?: ethers.Contract;
@@ -18,7 +18,7 @@ export interface User {
 export type Member = {
   ethAddress: string;
   objectId: string;
-  userId: string; //TODO: Remove after chaing everything to objectId
+  userId: string; // TODO: Remove after chaing everything to objectId
   profilePicture: any;
   username: string;
   role: string;
@@ -86,6 +86,7 @@ export interface Epoch {
   paid: boolean;
   votesFor: Object<string, number>;
   votesAgainst: Object<string, number>;
+  transactionHash: string;
   _createdAt: object;
   _id: string;
   _updatedAt: object;
@@ -145,6 +146,8 @@ export interface Task {
   numProposals: number;
   selectedProposals: Array<string>;
   updates: Array<object>;
+  columnId: string;
+  comments: Array<Comment>;
 }
 
 export interface Submission {
@@ -158,18 +161,27 @@ export interface Proposal {
   userId: string;
   id: string;
   content: string;
-  lastUpdated?: ?Date;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  edited: boolean;
+}
+
+export interface Comment {
+  userId: string;
+  id: string;
+  content: Block[];
+  createdAt: Date;
+  updatedAt: Date;
+  edited: boolean;
 }
 
 export interface SubmissionData {
   userId: string;
   id: string;
   content: Block[];
-  lastUpdated?: Date;
-}
-
-export interface Contracts {
-  distributorContract?: ethers.Contract;
+  createdAt?: Date;
+  updatedAt?: Date;
+  edited: boolean;
 }
 
 export type Column = {
@@ -238,6 +250,7 @@ export type NetworkInfo = {
   chainId: string;
   nativeCurrency: string;
   pictureUrl: string;
+  blockExplorer?: string;
   tokens: { [tokenAddress: string]: TokenInfo };
 };
 

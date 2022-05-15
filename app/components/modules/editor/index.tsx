@@ -1,11 +1,10 @@
-import styled from "@emotion/styled";
-import React, { useEffect, useState } from "react";
-import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import usePrevious from "../../../hooks/usePrevious";
-import { Block } from "../../../types";
-import { setCaretToEnd, uid } from "../../../utils/utils";
-import EditableBlock from "./editableBlock";
+import styled from '@emotion/styled';
+import React, { useEffect, useState } from 'react';
+import { DragDropContext, Droppable, DropResult } from 'react-beautiful-dnd';
+import usePrevious from '../../../hooks/usePrevious';
+import { Block } from '../../../types';
+import { getSelectedNodes, setCaretToEnd, uid } from '../../../utils/utils';
+import EditableClassBlock from './editableClassBlock';
 
 type Props = {
   syncBlocksToMoralis: Function;
@@ -14,15 +13,44 @@ type Props = {
   readonly?: boolean;
 };
 
-const Editor = ({
+const Container = styled.div`
+  margin-top: 1.5rem;
+  min-height: 8rem;
+`;
+
+export default function Editor({
   syncBlocksToMoralis,
   initialBlock,
   placeholderText,
   readonly,
-}: Props) => {
+}: Props) {
   const [blocks, setBlocks] = useState(initialBlock);
-  const [currentBlockId, setCurrentBlockId] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [currentBlockId, setCurrentBlockId] = useState('');
+  const [history, setHistory] = useState<any[]>([]);
+  const [previousKey, setPreviousKey] = useState('');
   const prevBlocks = usePrevious(blocks);
+
+  const updateHistoryStack = (action: any) => {
+    setHistory((his) => {
+      const newHistory = [...his];
+      newHistory.push(action);
+      return newHistory;
+    });
+    if (history.length > 3) {
+      setHistory(history.slice(1));
+    }
+  };
+
+  const popHistoryStack = () => {
+    console.log({ history });
+    if (history.length > 0) {
+      setBlocks(history[history.length - 1]);
+      setHistory(history.slice(0, history.length - 1));
+    }
+  };
 
   const updateBlockHandler = (updatedBlock: any, sync?: boolean) => {
     const index = blocks.map((b) => b.id).indexOf(updatedBlock.id);
@@ -41,15 +69,16 @@ const Editor = ({
   };
 
   const addBlockHandler = (currentBlock: any) => {
-    setCurrentBlockId(currentBlock.id);
     const newBlock = {
       id: uid(),
-      html: "",
-      tag: "p",
+      html: '',
+      tag: 'p',
       type: `${currentBlock.type}`,
-      imageUrl: "",
-      embedUrl: "",
+      imageUrl: '',
+      embedUrl: '',
+      isSelected: false,
     };
+    setCurrentBlockId(currentBlock.id);
     const index = blocks.map((b) => b.id).indexOf(currentBlock.id);
     const updatedBlocks = [...blocks];
     updatedBlocks.splice(index + 1, 0, newBlock);
@@ -62,15 +91,44 @@ const Editor = ({
     };
     setBlocks(updatedBlocks);
     syncBlocksToMoralis(updatedBlocks);
+    if (history.length > 0) {
+      setHistory(history.slice(1));
+    }
   };
 
   const deleteBlockHandler = (currentBlock: any) => {
-    if (blocks.length > 1) {
+    updateHistoryStack(blocks);
+    if (blocks.length > 0) {
+      const nodes = getSelectedNodes();
+      const posBlocks: number[] = [];
+      for (let i = 0; i < nodes.length; i += 1) {
+        if (nodes[i].dataset?.position) {
+          posBlocks.push(nodes[i].dataset.position);
+        }
+      }
       setCurrentBlockId(currentBlock.id);
-      const index = blocks.map((b) => b.id).indexOf(currentBlock.id);
-      const deletedBlock = blocks[index];
+      console.log({ posBlocks });
+      // const deletedBlock = blocks[index];
       const updatedBlocks = [...blocks];
-      updatedBlocks.splice(index, 1);
+      if (posBlocks.length > 0) {
+        updatedBlocks.splice(posBlocks[0] - 1, posBlocks.length);
+      } else {
+        const index = blocks.map((b) => b.id).indexOf(currentBlock.id);
+        updatedBlocks.splice(index, 1);
+      }
+      if (updatedBlocks.length === 0) {
+        const newBlock = {
+          id: uid(),
+          html: '',
+          tag: 'p',
+          type: '',
+          imageUrl: '',
+          embedUrl: '',
+          isSelected: false,
+        };
+        updatedBlocks.push(newBlock);
+      }
+
       setBlocks(updatedBlocks);
       syncBlocksToMoralis(updatedBlocks);
 
@@ -96,6 +154,37 @@ const Editor = ({
     updatedBlocks.splice(destination.index - 1, 0, removedBlocks[0]);
     setBlocks(updatedBlocks);
     syncBlocksToMoralis(updatedBlocks);
+  };
+
+  const handleMouseDown = (e: any) => {
+    setMousePosition({ x: e.pageX, y: e.pageY });
+    setIsClicked(true);
+  };
+
+  const handleMouseUp = (e: any) => {
+    const delta = 6;
+    const diffX = Math.abs(e.pageX - mousePosition.x);
+    const diffY = Math.abs(e.pageY - mousePosition.y);
+    setIsClicked(false);
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: any) => {
+    const delta = 6;
+    const diffX = Math.abs(e.pageX - mousePosition.x);
+    const diffY = Math.abs(e.pageY - mousePosition.y);
+    if (isClicked && diffX > delta && diffY > delta) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleKeyDown = (e: any) => {
+    if (previousKey === 'Control' && e.key === 'z' && history.length > 0) {
+      e.preventDefault();
+      console.log('pop');
+      popHistoryStack();
+    }
+    setPreviousKey(e.key);
   };
 
   useEffect(() => {
@@ -128,13 +217,21 @@ const Editor = ({
   return (
     <Container>
       <DragDropContext onDragEnd={onDragEndHandler}>
-        <Droppable droppableId={"id"}>
+        <Droppable droppableId="id">
           {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps}>
+            <div
+              role="presentation"
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+              onMouseMove={handleMouseMove}
+              onKeyDown={handleKeyDown}
+            >
               {blocks?.map((block, index) => {
                 const position = blocks.map((b) => b.id).indexOf(block.id) + 1;
                 return (
-                  <EditableBlock
+                  <EditableClassBlock
                     key={block.id}
                     position={position}
                     id={block.id}
@@ -144,7 +241,8 @@ const Editor = ({
                     deleteBlock={deleteBlockHandler}
                     updateBlock={updateBlockHandler}
                     placeholderText={placeholderText}
-                    readOnly={readonly || false}
+                    readOnly={isDragging}
+                    isDragging={isDragging}
                   />
                 );
               })}
@@ -155,11 +253,4 @@ const Editor = ({
       </DragDropContext>
     </Container>
   );
-};
-
-const Container = styled.div`
-  margin-top: 1.5rem;
-  margin-bottom: 2.5rem;
-`;
-
-export default Editor;
+}

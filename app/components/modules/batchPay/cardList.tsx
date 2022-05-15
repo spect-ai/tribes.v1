@@ -1,26 +1,25 @@
 import {
-  TextField,
+  Accordion,
+  AccordionDetails,
   Autocomplete,
-  styled,
+  Box,
+  Button,
+  Checkbox,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-  Checkbox,
-  Accordion,
-  AccordionDetails,
-  Button,
+  TextField,
   Typography,
-  Box,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { PrimaryButton } from "../../elements/styledComponents";
-import { useMoralis } from "react-moralis";
-import { getBatchPayInfo } from "../../../adapters/moralis";
-import { notify } from "../settingsTab";
-import { useGlobal } from "../../../context/globalContext";
+} from '@mui/material';
+import React, { useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { useGlobal } from '../../../context/globalContext';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { PrimaryButton } from '../../elements/styledComponents';
+import { notify } from '../settingsTab';
 
 type Props = {
   handleClose: Function;
@@ -29,20 +28,24 @@ type Props = {
   chainId: string;
 };
 
-const CardList = ({
+function CardList({
   handleClose,
   setPaymentInfo,
   handleNextStep,
   chainId,
-}: Props) => {
+}: Props) {
   const { space } = useSpace();
   const { state } = useGlobal();
-  const registry = state.registry;
+  const { registry } = state;
   const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-
+  const { runMoralisFunction } = useMoralisFunction();
+  console.log(registry);
   const getValidCardIds = (columnId: string) => {
-    var cardIds = space.columns[columnId].taskIds;
+    // var cardIds = space.columns[columnId].taskIds;
+    const cardIds = space.columns[columnId].taskIds.filter((taskId) => {
+      return space.tasks[taskId];
+    });
 
     return cardIds
       .filter((a) => space.tasks[a].value > 0)
@@ -70,11 +73,11 @@ const CardList = ({
   const toggleCheckboxValue = (index: number) => {
     setIsCardChecked(isCardChecked.map((v, i) => (i === index ? !v : v)));
   };
-  const { Moralis, user } = useMoralis();
+  const { Moralis } = useMoralis();
 
   const getCardIds = () => {
-    var cardIds = [] as string[];
-    for (let i = 0; i < cards.length; i++) {
+    const cardIds = [] as string[];
+    for (let i = 0; i < cards.length; i += 1) {
       if (isCardChecked.at(i)) {
         cardIds.push(cards[i]);
       }
@@ -84,7 +87,7 @@ const CardList = ({
 
   return (
     <>
-      <Typography sx={{ mt: 8, color: "#99ccff", fontSize: "small" }}>
+      <Typography sx={{ mt: 8, color: '#99ccff', fontSize: 'small' }}>
         Which cards are you batch paying for?
       </Typography>
       <Autocomplete
@@ -104,7 +107,7 @@ const CardList = ({
             id="filled-hidden-label-normal"
             fullWidth
             sx={{ mb: 2, mt: 2 }}
-            placeholder="Import task from column"
+            placeholder="Import card from column"
             size="small"
           />
         )}
@@ -119,7 +122,7 @@ const CardList = ({
                     <Checkbox
                       color="default"
                       inputProps={{
-                        "aria-label": "select all desserts",
+                        'aria-label': 'select all desserts',
                       }}
                       checked={isCardChecked.every((elem) => elem === true)}
                       onChange={(e) => {
@@ -128,14 +131,14 @@ const CardList = ({
                             e.target.checked
                           )
                         );
-                        isCardChecked;
+                        // isCardChecked;
                       }}
                     />
                   </TableCell>
-                  <TableCell align="right" sx={{ color: "#99ccff" }}>
+                  <TableCell align="right" sx={{ color: '#99ccff' }}>
                     Card Title
                   </TableCell>
-                  <TableCell align="right" sx={{ color: "#99ccff" }}>
+                  <TableCell align="right" sx={{ color: '#99ccff' }}>
                     Reward
                   </TableCell>
                 </TableRow>
@@ -143,35 +146,33 @@ const CardList = ({
               <TableBody>
                 {cards?.map((card, index) => (
                   <TableRow
-                    key={index}
+                    key={card}
                     sx={{
-                      "&:last-child td, &:last-child th": {
+                      '&:last-child td, &:last-child th': {
                         border: 0,
                       },
                     }}
                   >
                     <TableCell component="th" scope="row" padding="checkbox">
-                      {
-                        <Checkbox
-                          color="secondary"
-                          inputProps={{
-                            "aria-label": "select all desserts",
-                          }}
-                          checked={isCardChecked.at(index)}
-                          onClick={() => {
-                            toggleCheckboxValue(index);
-                          }}
-                        />
-                      }
+                      <Checkbox
+                        color="secondary"
+                        inputProps={{
+                          'aria-label': 'select all desserts',
+                        }}
+                        checked={isCardChecked.at(index)}
+                        onClick={() => {
+                          toggleCheckboxValue(index);
+                        }}
+                      />
                     </TableCell>
                     <TableCell align="right">
                       {space.tasks[card]?.title}
                     </TableCell>
                     <TableCell align="right">
-                      {space.tasks[card]?.value || "Not set"}{" "}
+                      {space.tasks[card]?.value || 'Not set'}{' '}
                       {space.tasks[card]?.value
                         ? space.tasks[card]?.token.symbol
-                        : ""}
+                        : ''}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -180,36 +181,33 @@ const CardList = ({
           </AccordionDetails>
         </Accordion>
       )}
-      <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
         <Button
           color="inherit"
           variant="outlined"
           onClick={() => handleClose()}
-          sx={{ mr: 1, color: "#f45151" }}
+          sx={{ mr: 1, color: '#f45151' }}
           id="bCancel"
         >
           Cancel
         </Button>
-        <Box sx={{ flex: "1 1 auto" }} />
+        <Box sx={{ flex: '1 1 auto' }} />
         <PrimaryButton
-          sx={{ borderRadius: "3px" }}
+          sx={{ borderRadius: '3px' }}
           onClick={() => {
             setIsLoading(true);
             const cardIds = getCardIds();
-            console.log(window.ethereum);
-            getBatchPayInfo(
-              Moralis,
-              cardIds,
-              registry[chainId].distributorAddress as string,
-              window.ethereum.chainId
-            )
+            runMoralisFunction('getBatchPayInfo', {
+              taskIds: cardIds,
+              distributor: registry[chainId].distributorAddress as string,
+              chainIdHex: window.ethereum.chainId,
+            })
               .then((res: any) => {
-                console.log(res);
                 setPaymentInfo(res);
                 setIsLoading(false);
                 handleNextStep(res);
               })
-              .catch((err: any) => notify(err.message, "error"));
+              .catch((err: any) => notify(err.message, 'error'));
           }}
           variant="outlined"
           id="bApprove"
@@ -221,6 +219,6 @@ const CardList = ({
       </Box>
     </>
   );
-};
+}
 
 export default CardList;

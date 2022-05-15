@@ -5,12 +5,12 @@ async function getCreatedTribe(
   members, // List - [objectId]
   roles // Object - {"userId":"role"}
 ) {
-  tribe.set("teamId", teamId);
-  tribe.set("name", name);
-  tribe.set("members", members);
-  tribe.set("roles", roles);
-  tribe.set("isPublic", true);
-  tribe.set("theme", 0);
+  tribe.set('teamId', teamId);
+  tribe.set('name', name);
+  tribe.set('members', members);
+  tribe.set('roles', roles);
+  tribe.set('isPublic', true);
+  tribe.set('theme', 0);
   return tribe;
 }
 
@@ -24,37 +24,37 @@ async function getUpdatedTribeDetails(
   github,
   logo
 ) {
-  tribe.set("name", name);
-  tribe.set("description", description);
-  tribe.set("isPublic", isPublic);
-  tribe.set("discord", discord);
-  tribe.set("twitter", twitter);
-  tribe.set("github", github);
-  tribe.set("logo", logo);
+  tribe.set('name', name);
+  tribe.set('description', description);
+  tribe.set('isPublic', isPublic);
+  tribe.set('discord', discord);
+  tribe.set('twitter', twitter);
+  tribe.set('github', github);
+  tribe.set('logo', logo);
   return tribe;
 }
 
 async function getTribeCount() {
-  const tribeQuery = new Moralis.Query("Team");
+  const tribeQuery = new Moralis.Query('Team');
   return await tribeQuery.count({ useMasterKey: true });
 }
 
 async function getTribeByTeamId(teamId) {
-  const teamQuery = new Moralis.Query("Team");
-  teamQuery.equalTo("teamId", teamId);
+  const teamQuery = new Moralis.Query('Team');
+  teamQuery.equalTo('teamId', teamId);
   return await teamQuery.first({ useMasterKey: true });
 }
 
 async function getTribeObjByTeamId(teamId) {
-  const teamQuery = new Moralis.Query("Team");
+  const teamQuery = new Moralis.Query('Team');
   const pipeline = [
     { match: { teamId: teamId } },
     {
       lookup: {
-        from: "Board",
-        localField: "teamId",
-        foreignField: "teamId",
-        as: "boards",
+        from: 'Board',
+        localField: 'teamId',
+        foreignField: 'teamId',
+        as: 'boards',
       },
     },
   ];
@@ -62,29 +62,29 @@ async function getTribeObjByTeamId(teamId) {
 }
 
 async function isWhitelisted(ethAddress) {
-  const whitelistQuery = new Moralis.Query("Whitelist");
-  whitelistQuery.equalTo("ethAddress", ethAddress);
+  const whitelistQuery = new Moralis.Query('Whitelist');
+  whitelistQuery.equalTo('ethAddress', ethAddress);
   const whitelist = await whitelistQuery.find({ useMasterKey: true });
   return whitelist.length !== 0;
 }
 
 function joinTribeAsMember(tribe, userId) {
-  const members = tribe.get("members");
-  const roles = tribe.get("roles");
+  const members = tribe.get('members');
+  const roles = tribe.get('roles');
   members.push(userId);
   roles[userId] = 1;
-  tribe.set("members", members);
-  tribe.set("roles", roles);
+  tribe.set('members', members);
+  tribe.set('roles', roles);
   return tribe;
 }
 
-Moralis.Cloud.define("getTeam", async (request) => {
+Moralis.Cloud.define('getTeam', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     logger.info(`getTeam ${request.params.teamId}`);
     const team = await getTribeObjByTeamId(request.params.teamId);
     logger.info(`getTeam ${request.params.team}`);
-    if (team.length === 0) throw "Team not found";
+    if (team.length === 0) throw 'Team not found';
     team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
       team[0].members
     );
@@ -104,9 +104,9 @@ Moralis.Cloud.define("getTeam", async (request) => {
   }
 });
 
-Moralis.Cloud.define("getPublicTeams", async (request) => {
+Moralis.Cloud.define('getPublicTeams', async (request) => {
   try {
-    const teamQuery = new Moralis.Query("Team");
+    const teamQuery = new Moralis.Query('Team');
     const pipeline = [{ match: { isPublic: true } }];
     return await teamQuery.aggregate(pipeline, { useMasterKey: true });
   } catch (err) {
@@ -115,15 +115,15 @@ Moralis.Cloud.define("getPublicTeams", async (request) => {
   }
 });
 
-Moralis.Cloud.define("getMyTeams", async (request) => {
+Moralis.Cloud.define('getMyTeams', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
-    const userInfoQuery = new Moralis.Query("UserInfo");
-    userInfoQuery.equalTo("userId", request.user?.id);
+    const userInfoQuery = new Moralis.Query('UserInfo');
+    userInfoQuery.equalTo('userId', request.user?.id);
     const userInfo = await userInfoQuery.first({ useMasterKey: true });
     if (userInfo) {
-      const teamQuery = new Moralis.Query("Team");
-      teamQuery.containedIn("teamId", userInfo.get("tribes"));
+      const teamQuery = new Moralis.Query('Team');
+      teamQuery.containedIn('teamId', userInfo.get('tribes'));
       return await teamQuery.find({ useMasterKey: true });
     }
   } catch (err) {
@@ -134,17 +134,17 @@ Moralis.Cloud.define("getMyTeams", async (request) => {
   }
 });
 
-Moralis.Cloud.define("createTeam", async (request) => {
+Moralis.Cloud.define('createTeam', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
-    // const whitelisted = await isWhitelisted(request.user.get("ethAddress"));
-    // if (!whitelisted)
-    //   throw {
-    //     code: 101,
-    //     message: "Please fill out the waitlist to create tribe",
-    //   };
+    const whitelisted = await isWhitelisted(request.user.get('ethAddress'));
+    if (!whitelisted)
+      throw {
+        code: 101,
+        message: 'Please fill out the waitlist to create tribe',
+      };
 
-    var team = new Moralis.Object("Team");
+    var team = new Moralis.Object('Team');
     const teamId = crypto.randomUUID();
     logger.info(teamId);
 
@@ -154,15 +154,15 @@ Moralis.Cloud.define("createTeam", async (request) => {
     team = await getCreatedTribe(
       team,
       teamId,
-      request.params.name
-      // (members = [request.user.id]),
-      // roles
+      request.params.name,
+      (members = [request.user.id]),
+      roles
     );
     // Add tribe to tribe creator's user info
-    // const userInfo = await getUserByUserId(request.user.id);
+    const userInfo = await getUserByUserId(request.user.id);
 
-    // teamMemberships = userInfo.get("tribes").concat([teamId]);
-    // userInfo.set("tribes", teamMemberships);
+    teamMemberships = userInfo.get('tribes').concat([teamId]);
+    userInfo.set('tribes', teamMemberships);
 
     await Moralis.Object.saveAll([team], { useMasterKey: true });
 
@@ -175,12 +175,12 @@ Moralis.Cloud.define("createTeam", async (request) => {
   }
 });
 
-Moralis.Cloud.define("updateTeam", async (request) => {
+Moralis.Cloud.define('updateTeam', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     var team = await getTribeByTeamId(request.params.teamId);
-    logger.info("Team found");
-    if (hasAccess(request.user.id, team, (requiredAccess = "admin"))) {
+    logger.info('Team found');
+    if (hasAccess(request.user.id, team, 3)) {
       await getUpdatedTribeDetails(
         team,
         request.params.name,
@@ -191,15 +191,17 @@ Moralis.Cloud.define("updateTeam", async (request) => {
         request.params.github,
         request.params.logo
       );
-      logger.info("Team updated");
+      logger.info('Team updated');
       await Moralis.Object.saveAll([team], { useMasterKey: true });
+      logger.info('Team saved');
+      team = await getTribeObjByTeamId(request.params.teamId);
+      team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
+        team[0].members
+      );
+      return team[0];
+    } else {
+      throw `User does not have access to update tribe`;
     }
-    logger.info("Team saved");
-    team = await getTribeObjByTeamId(request.params.teamId);
-    team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
-      team[0].members
-    );
-    return team[0];
   } catch (err) {
     logger.error(
       `Error while updating tribe with id ${request.params.teamId}: ${err}`
@@ -208,94 +210,97 @@ Moralis.Cloud.define("updateTeam", async (request) => {
   }
 });
 
-Moralis.Cloud.define("updateMembers", async (request) => {
-  const logger = Moralis.Cloud.getLogger();
-  try {
-    var team = await getTribeByTeamId(request.params.teamId);
-    if (hasAccess(request.user.id, team, (requiredAccess = "admin"))) {
-      var invitedMembers = request.params.members.filter(
-        (m) => m.updateType === "invite"
-      );
-      logger.info(`Invited members: ${JSON.stringify(invitedMembers)}`);
-      await invite(invitedMembers, request.params.teamId, request.user.id);
+// not used anymore
+// Moralis.Cloud.define("updateMembers", async (request) => {
+//   const logger = Moralis.Cloud.getLogger();
+//   try {
+//     var team = await getTribeByTeamId(request.params.teamId);
+//     if (hasAccess(request.user.id, team, (requiredAccess = "admin"))) {
+//       var invitedMembers = request.params.members.filter(
+//         (m) => m.updateType === "invite"
+//       );
+//       logger.info(`Invited members: ${JSON.stringify(invitedMembers)}`);
+//       await invite(invitedMembers, request.params.teamId, request.user.id);
 
-      return true;
-    } else {
-      logger.info(
-        `User ${request.user.id} doesnt have access to update member roles`
-      );
-      return false;
-    }
-  } catch (err) {
-    logger.error(`Error while creating team ${err}`);
-    return false;
-  }
-});
+//       return true;
+//     } else {
+//       logger.info(
+//         `User ${request.user.id} doesnt have access to update member roles`
+//       );
+//       return false;
+//     }
+//   } catch (err) {
+//     logger.error(`Error while creating team ${err}`);
+//     return false;
+//   }
+// });
 
-Moralis.Cloud.define("checkMemberInTeam", async (request) => {
-  const team = await getTribeObjByTeamId(request.params.teamId);
-  if (team.length === 0 || !team) {
-    return false;
-  }
-  const members = team[0].members;
-  if (members) {
-    let result = members.filter((member) => member == request.params.userId);
-    if (result.length > 0) {
-      return true;
-    } else {
-      return false;
-    }
-  } else {
-    return false;
-  }
-});
+// not used anymore
+// Moralis.Cloud.define("checkMemberInTeam", async (request) => {
+//   const team = await getTribeObjByTeamId(request.params.teamId);
+//   if (team.length === 0 || !team) {
+//     return false;
+//   }
+//   const members = team[0].members;
+//   if (members) {
+//     let result = members.filter((member) => member == request.params.userId);
+//     if (result.length > 0) {
+//       return true;
+//     } else {
+//       return false;
+//     }
+//   } else {
+//     return false;
+//   }
+// });
 
-Moralis.Cloud.define("addMemberToTribe", async (request) => {
-  const logger = Moralis.Cloud.getLogger();
-  const team = await getTribeByTeamId(request.params.teamId);
+// not used anymore
+// Moralis.Cloud.define("addMemberToTribe", async (request) => {
+//   const logger = Moralis.Cloud.getLogger();
+//   const team = await getTribeByTeamId(request.params.teamId);
 
-  let members = team ? team.get("members") : [];
-  if (hasAccess(request.params.adminId, team, (requiredAccess = "admin"))) {
-    try {
-      if (isMember(request.params.userId, team)) {
-        return "member already exist";
-      } else {
-        let newMember = {
-          userId: request.params.userId,
-          role: request.params.userType,
-        };
-        members.push(newMember);
-        team.set("members", members);
-        await Moralis.Object.saveAll([team], { useMasterKey: true });
-        return "invite accepted";
-      }
-    } catch (err) {
-      logger.error(
-        `Error while adding Member in team ${request.params.teamId}: ${err}`
-      );
-      return "Error while adding Member";
-    }
-  } else {
-    logger.error(
-      `Error while adding Member in team ${request.params.teamId}: invide not valid`
-    );
-    return "Invite Not Valid";
-  }
-});
+//   let members = team ? team.get("members") : [];
+//   if (hasAccess(request.params.adminId, team, (requiredAccess = "admin"))) {
+//     try {
+//       if (isMember(request.params.userId, team)) {
+//         return "member already exist";
+//       } else {
+//         let newMember = {
+//           userId: request.params.userId,
+//           role: request.params.userType,
+//         };
+//         members.push(newMember);
+//         team.set("members", members);
+//         await Moralis.Object.saveAll([team], { useMasterKey: true });
+//         return "invite accepted";
+//       }
+//     } catch (err) {
+//       logger.error(
+//         `Error while adding Member in team ${request.params.teamId}: ${err}`
+//       );
+//       return "Error while adding Member";
+//     }
+//   } else {
+//     logger.error(
+//       `Error while adding Member in team ${request.params.teamId}: invide not valid`
+//     );
+//     return "Invite Not Valid";
+//   }
+// });
 
-Moralis.Cloud.define("joinTribe", async (request) => {
+Moralis.Cloud.define('joinTribe', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const team = await getTribeByTeamId(request.params.teamId);
     const userInfo = await getUserByUserId(request.user.id);
-    teamMemberships = userInfo.get("tribes").concat([request.params.teamId]);
-    userInfo.set("tribes", teamMemberships);
-    let members = team ? team.get("members") : [];
-    let roles = team ? team.get("roles") : {};
+    teamMemberships = userInfo.get('tribes').concat([request.params.teamId]);
+    userInfo.set('tribes', teamMemberships);
+    let members = team ? team.get('members') : [];
+    let roles = team ? team.get('roles') : {};
     roles[request.user.id] = 1;
     members.push(request.user.id);
-    team.set("members", members);
-    team.set("roles", roles);
+    team.set('members', members);
+    team.set('roles', roles);
     await Moralis.Object.saveAll([team, userInfo], { useMasterKey: true });
     return true;
   } catch (err) {
@@ -305,13 +310,13 @@ Moralis.Cloud.define("joinTribe", async (request) => {
 });
 
 // PERM NEEDED
-Moralis.Cloud.define("updateTribeMembers", async (request) => {
+Moralis.Cloud.define('updateTribeMembers', async (request) => {
   try {
-    const teamQuery = new Moralis.Query("Team");
-    teamQuery.equalTo("teamId", request.params.teamId);
+    const teamQuery = new Moralis.Query('Team');
+    teamQuery.equalTo('teamId', request.params.teamId);
     let team = await teamQuery.first({ useMasterKey: true });
-    team.set("members", request.params.members);
-    team.set("roles", request.params.roles);
+    team.set('members', request.params.members);
+    team.set('roles', request.params.roles);
     await Moralis.Object.saveAll([team], { useMasterKey: true });
     team = await getTribeObjByTeamId(request.params.teamId);
     team[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
@@ -326,10 +331,10 @@ Moralis.Cloud.define("updateTribeMembers", async (request) => {
   }
 });
 
-Moralis.Cloud.define("createTribe", async (request) => {
+Moralis.Cloud.define('createTribe', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
-    var team = new Moralis.Object("Team");
+    var team = new Moralis.Object('Team');
     const teamId = crypto.randomUUID();
     logger.info(teamId);
 
@@ -346,8 +351,8 @@ Moralis.Cloud.define("createTribe", async (request) => {
     // Add tribe to tribe creator's user info
     const userInfo = await getUserByUserId(request.user.id);
 
-    teamMemberships = userInfo.get("tribes").concat([teamId]);
-    userInfo.set("tribes", teamMemberships);
+    teamMemberships = userInfo.get('tribes').concat([teamId]);
+    userInfo.set('tribes', teamMemberships);
 
     await Moralis.Object.saveAll([team, userInfo], { useMasterKey: true });
 
@@ -360,14 +365,14 @@ Moralis.Cloud.define("createTribe", async (request) => {
   }
 });
 
-Moralis.Cloud.define("changeTribeRole", async (request) => {
+Moralis.Cloud.define('changeTribeRole', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     const team = await getTribeByTeamId(request.params.teamId);
     if (hasAccess(request.user.id, team, 3)) {
-      const roles = team.get("roles");
+      const roles = team.get('roles');
       roles[request.params.userId] = request.params.role;
-      team.set("roles", roles);
+      team.set('roles', roles);
       await Moralis.Object.saveAll([team], { useMasterKey: true });
       let teamObj = await getTribeObjByTeamId(request.params.teamId);
       teamObj[0].memberDetails = await getUserIdToUserDetailsMapByUserIds(
@@ -378,7 +383,7 @@ Moralis.Cloud.define("changeTribeRole", async (request) => {
       logger.info(
         `User ${request.user.id} doesnt have access to update member roles`
       );
-      throw "User doesnt have access to update member roles";
+      throw 'User doesnt have access to update member roles';
     }
   } catch (err) {
     logger.error(`Error while creating team ${err}`);

@@ -1,23 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { Fade, Grow } from "@mui/material";
-import { useRouter } from "next/router";
-import { useMoralis } from "react-moralis";
-import SkeletonLoader from "./skeletonLoader";
-import Board from "./board";
-import EpochList from "../epoch";
-import Members from "../spaceMembers";
-import NoAccess from "../epoch/noAccess";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import DiscordIntegrationModal from "../discordIntegrationModal";
+import { Fade, Grow } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import DiscordIntegrationModal from '../discordIntegrationModal';
+import EpochList from '../epoch';
+import NoAccess from '../epoch/noAccess';
+import Members from '../spaceMembers';
+import Board from './board';
+import SkeletonLoader from './skeletonLoader';
 
 type Props = {};
 
-const TaskBoard = (props: Props) => {
-  const router = useRouter();
+function TaskBoard(props: Props) {
   const { user } = useMoralis();
   const { isLoading, space, tab } = useSpace();
   const [isOpen, setIsOpen] = useState(false);
-  const [panelExpanded, setPanelExpanded] = useState<string | false>("board");
+  const [panelExpanded, setPanelExpanded] = useState<string | false>('board');
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
       setPanelExpanded(newExpanded ? panel : false);
@@ -44,19 +42,16 @@ const TaskBoard = (props: Props) => {
   return (
     <Fade in={!isLoading} timeout={500}>
       <div>
-        {
-          <DiscordIntegrationModal
-            isOpen={isOpen}
-            handleClose={handleClose}
-            user={false}
-          />
-        }
-
+        <DiscordIntegrationModal
+          isOpen={isOpen}
+          handleClose={handleClose}
+          user={false}
+        />
         {tab === 0 && (
           <Grow in={tab === 0} timeout={500}>
             <div>
               <Board
-                expanded={panelExpanded === "board"}
+                expanded={panelExpanded === 'board'}
                 handleChange={handleChange}
               />
             </div>
@@ -65,14 +60,7 @@ const TaskBoard = (props: Props) => {
         {tab === 1 && (
           <Grow in={tab === 1} timeout={500}>
             <div>
-              {user && user?.id in space.roles ? (
-                <EpochList
-                  expanded={panelExpanded === "epoch"}
-                  handleChange={handleChange}
-                />
-              ) : (
-                <NoAccess />
-              )}
+              {user && user?.id in space.roles ? <EpochList /> : <NoAccess />}
             </div>
           </Grow>
         )}
@@ -86,6 +74,6 @@ const TaskBoard = (props: Props) => {
       </div>
     </Fade>
   );
-};
+}
 
 export default TaskBoard;

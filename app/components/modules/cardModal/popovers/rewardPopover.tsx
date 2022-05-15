@@ -1,4 +1,4 @@
-import PaidIcon from "@mui/icons-material/Paid";
+import PaidIcon from '@mui/icons-material/Paid';
 import {
   Autocomplete,
   Avatar,
@@ -6,115 +6,70 @@ import {
   Popover,
   TextField,
   Typography,
-  Tooltip,
-} from "@mui/material";
-import React, { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
-import { useSpace } from "../../../../pages/tribe/[id]/space/[bid]";
-import { useGlobal } from "../../../context/globalContext";
-import { useMoralisFunction } from "../../../hooks/useMoralisFunction";
-import { useCardDynamism } from "../../../hooks/useCardDynamism";
-import { Chain, Registry, Task, Token } from "../../../types";
+} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
+import { useGlobal } from '../../../../context/globalContext';
+import useCard from '../../../../hooks/useCard';
+import useCardDynamism from '../../../../hooks/useCardDynamism';
+import { Chain, Registry, Task, Token } from '../../../../types';
 import {
   getFlattenedCurrencies,
   getFlattenedNetworks,
-} from "../../../utils/utils";
-import { CardButton, PrimaryButton } from "../../elements/styledComponents";
-import { notify } from "../settingsTab";
-import { PopoverContainer } from "./styles";
+} from '../../../../utils/utils';
+import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
+import { notify } from '../../settingsTab';
+import { PopoverContainer } from '../styles';
 
 type Props = {
   task: Task;
   setTask: (task: Task) => void;
 };
 
-const RewardPopover = ({ task, setTask }: Props) => {
+function RewardPopover({ task, setTask }: Props) {
   const {
     state: { registry },
   } = useGlobal();
-  const [token, setToken] = useState(task.token);
-  const [chain, setChain] = useState(task.chain);
   const [open, setOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
-  const [value, setValue] = useState(task.value?.toString());
-  const [isLoading, setIsLoading] = useState(false);
-  const { Moralis } = useMoralis();
   const { setSpace } = useSpace();
-  const { runMoralisFunction } = useMoralisFunction();
-  const { editAbleComponents } = useCardDynamism(task);
-
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    if (editAbleComponents["reward"]) {
-      setOpen(true);
-    } else {
-      setFeedbackOpen(true);
-    }
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-  const handleFeedbackClose = () => {
-    setFeedbackOpen(false);
-  };
-
-  const handleSave = () => {
-    const prevTask = Object.assign({}, task);
-    const temp = Object.assign({}, task);
-    temp.chain = chain;
-    temp.token = token;
-    temp.value = parseFloat(value);
-    setTask(temp);
-    handleClose();
-    runMoralisFunction("updateCard", {
-      updates: {
-        chain: chain,
-        token: token,
-        value: parseFloat(value),
-        taskId: task.taskId,
-      },
-    })
-      .then((res) => {
-        console.log(res);
-        setSpace(res.space);
-        setTask(res.task);
-      })
-      .catch((err: any) => {
-        setTask(prevTask);
-        notify(`${err.message}`, "error");
-      });
-  };
-
-  useEffect(() => {
-    setChain(task.chain);
-    setToken(task.token);
-    setValue(task.value?.toString());
-  }, [task]);
+  const {
+    updateReward,
+    openPopover,
+    closePopover,
+    anchorEl,
+    chain,
+    setChain,
+    token,
+    setToken,
+    value,
+    setValue,
+    isLoading,
+  } = useCard(setTask, task);
+  const { getReason } = useCardDynamism(task);
 
   return (
     <>
       <Box
         sx={{
-          display: "flex",
-          flexDirection: "column",
+          display: 'flex',
+          flexDirection: 'column',
           mt: 2,
           mx: 1,
         }}
       >
         <Typography
-          sx={{ fontSize: 12, color: "text.secondary", width: "100%" }}
+          sx={{ fontSize: 12, color: 'text.secondary', width: '100%' }}
         >
           Reward
         </Typography>
         <CardButton
           variant="outlined"
-          onClick={handleClick()}
+          onClick={openPopover('reward', setOpen, setFeedbackOpen)}
           color="secondary"
           sx={{
-            padding: "6px",
-            minWidth: "3rem",
+            padding: '6px',
+            minWidth: '3rem',
           }}
         >
           <Avatar
@@ -124,10 +79,10 @@ const RewardPopover = ({ task, setTask }: Props) => {
               mr: 2,
               width: 20,
               height: 20,
-              backgroundColor: "transparent",
+              backgroundColor: 'transparent',
             }}
           >
-            <PaidIcon sx={{ color: "text.primary" }} />
+            <PaidIcon sx={{ color: 'text.primary' }} />
           </Avatar>
           {task.value && task.value > 0 ? (
             <Typography
@@ -143,7 +98,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
                 fontSize: 14,
               }}
             >
-              {`Set reward`}
+              No reward{' '}
             </Typography>
           )}
         </CardButton>
@@ -151,25 +106,23 @@ const RewardPopover = ({ task, setTask }: Props) => {
       <Popover
         open={feedbackOpen}
         anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
+        onClose={() => closePopover(setFeedbackOpen)}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>
-          <Typography variant="body2">
-            Only card reviewer or creator and space steward can edit reward
-          </Typography>
+          <Typography variant="body2">{getReason('reward')}</Typography>
         </PopoverContainer>
       </Popover>
       <Popover
         open={open}
         anchorEl={anchorEl}
-        onClose={() => handleClose()}
+        onClose={() => closePopover(setOpen)}
         anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "left",
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
         <PopoverContainer>
@@ -180,7 +133,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
             value={chain}
             onChange={(event, newValue) => {
               setChain(newValue as Chain);
-              let tokens = getFlattenedCurrencies(
+              const tokens = getFlattenedCurrencies(
                 registry as Registry,
                 newValue?.chainId as string
               );
@@ -195,6 +148,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
                 fullWidth
                 sx={{ mb: 4 }}
                 placeholder="Network Chain"
+                color="secondary"
               />
             )}
           />
@@ -217,6 +171,7 @@ const RewardPopover = ({ task, setTask }: Props) => {
                 fullWidth
                 sx={{ mb: 4 }}
                 placeholder="Network Chain"
+                color="secondary"
               />
             )}
           />
@@ -231,13 +186,17 @@ const RewardPopover = ({ task, setTask }: Props) => {
             sx={{ mb: 4 }}
             type="number"
             placeholder="Value"
+            inputProps={{ min: 0 }}
+            color="secondary"
           />
           <PrimaryButton
             variant="outlined"
             color="secondary"
             sx={{ borderRadius: 1 }}
             loading={isLoading}
-            onClick={handleSave}
+            onClick={() => {
+              updateReward(setOpen);
+            }}
           >
             Save
           </PrimaryButton>
@@ -245,6 +204,6 @@ const RewardPopover = ({ task, setTask }: Props) => {
       </Popover>
     </>
   );
-};
+}
 
 export default RewardPopover;

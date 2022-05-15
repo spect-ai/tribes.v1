@@ -1,3 +1,6 @@
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
 import {
   Avatar,
   Divider,
@@ -9,23 +12,20 @@ import {
   styled,
   Theme,
   Typography,
-} from "@mui/material";
-import React, { useState } from "react";
-import { NavbarButton } from "../../elements/styledComponents";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { smartTrim } from "../../../utils/utils";
-import { useMoralis } from "react-moralis";
-import PersonIcon from "@mui/icons-material/Person";
-import LogoutIcon from "@mui/icons-material/Logout";
-import ProfileSettings from "../profileSettings";
-import { makeStyles } from "@mui/styles";
-import { useRouter } from "next/router";
+} from '@mui/material';
+import { makeStyles } from '@mui/styles';
+import { useRouter } from 'next/router';
+import React, { useState } from 'react';
+import { useMoralis } from 'react-moralis';
+import { smartTrim } from '../../../utils/utils';
+import { NavbarButton } from '../../elements/styledComponents';
+import ProfileSettings from '../profileSettings';
 
 type Props = {};
 const NavbarAvatar = styled(Avatar)(({ theme }) => ({
   height: 25,
   width: 25,
-  objectFit: "cover",
+  objectFit: 'cover',
   borderWidth: 2,
 }));
 
@@ -35,7 +35,7 @@ export const useStyles = makeStyles((theme: Theme) => ({
   },
 }));
 
-const ProfileMenu = (props: Props) => {
+function ProfileMenu(props: Props) {
   const { isAuthenticating, logout, user } = useMoralis();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -55,13 +55,13 @@ const ProfileMenu = (props: Props) => {
       <ProfileSettings />
       <NavbarButton
         variant="outlined"
-        endIcon={<ExpandMoreIcon sx={{ color: "#99ccff" }} />}
+        endIcon={<ExpandMoreIcon sx={{ color: '#99ccff' }} />}
         onClick={handleClick}
         loading={isAuthenticating}
       >
-        <NavbarAvatar src={user?.get("profilePicture")?._url} />
+        <NavbarAvatar src={user?.get('profilePicture')?._url} />
         <Typography sx={{ ml: 1, fontSize: 14 }}>
-          {smartTrim(user?.get("ethAddress"), 10)}
+          {smartTrim(user?.get('ethAddress'), 10)}
         </Typography>
       </NavbarButton>
       <Menu
@@ -70,7 +70,7 @@ const ProfileMenu = (props: Props) => {
         open={open}
         onClose={handleClose}
         MenuListProps={{
-          "aria-labelledby": "basic-button",
+          'aria-labelledby': 'basic-button',
         }}
         sx={{ p: 0, m: 0 }}
         classes={{ paper: classes.menuPaper }}
@@ -95,7 +95,7 @@ const ProfileMenu = (props: Props) => {
             sx={{ px: 3, py: 0 }}
             onClick={() => {
               logout();
-              router.push("/");
+              router.push('/');
             }}
           >
             <ListItemIcon>
@@ -107,6 +107,6 @@ const ProfileMenu = (props: Props) => {
       </Menu>
     </>
   );
-};
+}
 
 export default ProfileMenu;

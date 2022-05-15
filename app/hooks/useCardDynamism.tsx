@@ -1,105 +1,199 @@
-import { useState, useEffect } from "react";
-import { useSpace } from "../../pages/tribe/[id]/space/[bid]";
-import { useMoralis } from "react-moralis";
-import { Task } from "../types";
+import React, { useState, useEffect } from 'react';
+import { useMoralis } from 'react-moralis';
+import { Task } from '../types';
+import useAccess from './useAccess';
+import useCardStatus from './useCardStatus';
 
-export function useCardDynamism(task: Task) {
-  const { space } = useSpace();
+export default function useCardDynamism(task: Task) {
   const { user } = useMoralis();
+  const {
+    isSpaceSteward,
+    isCardSteward,
+    isCardStakeholder,
+    isSpaceMember,
+    isCardAssignee,
+  } = useAccess(task);
+  const { isPaid, isUnassigned, hasNoReward } = useCardStatus(task);
   const [viewableComponents, setViewableComponents] = useState({} as any);
   const [editAbleComponents, setEditableComponents] = useState({} as any);
+  const [proposalEditMode, setProposalEditMode] = useState(false);
+  const [tabs, setTabs] = useState([] as string[]);
+  const [tabIdx, setTabIdx] = useState(0);
 
-  const cardInfoFields = [
-    "title",
-    "description",
-    "tags",
-    "type",
-    "due Date",
-    "reward",
-    "reviewer",
-    "column",
-  ];
+  function getPayButtonView() {
+    if (!isCardSteward() || isPaid() || isUnassigned() || hasNoReward())
+      return 'hide';
 
-  useEffect(() => {
-    setViewableComponents(getViewableComponents(task));
-    setEditableComponents(getEditableComponents(task));
-  }, [task]);
+    if (user?.get('distributorApproved')) {
+      if (
+        task.token?.address === '0x0' ||
+        (task.chain?.chainId in user.get('distributorApproved') &&
+          user
+            .get('distributorApproved')
+            [task.chain?.chainId].includes(task.token?.address))
+      )
+        return 'showPay';
+      return 'showApprove';
+    }
+    if (task.token?.address === '0x0') return 'showPay';
+    return 'showApprove';
+  }
 
-  const getViewableComponents = (task: Task) => {
+  const getReason = (field: string) => {
+    if (isPaid()) {
+      return 'Cannot edit, already paid for card';
+    }
+    switch (field) {
+      case 'reward':
+      case 'description':
+      case 'title':
+      case 'reviewer':
+      case 'column':
+      case 'type':
+      case 'label':
+        return `Only card reviewer or creator and space steward can edit ${field}`;
+      case 'assignee':
+        return `Only card assignee, reviewer or creator and space steward can edit ${field}`;
+      case 'dueDate':
+        return `Only card assignee, reviewer or creator and space steward can edit due date`;
+      default:
+        return '';
+    }
+  };
+
+  const isDeadlineEditable = () => {
+    return isCardStakeholder() && !isPaid();
+  };
+
+  const isGeneralEditable = () => {
+    return isCardSteward() && !isPaid();
+  };
+
+  const isAssigneeEditable = () => {
+    if (isPaid()) return false;
+    if (task?.assignee?.length > 0) {
+      return isCardStakeholder();
+    }
+    return true;
+  };
+
+  const isAssigneeViewable = () => {
+    if (task?.assignee?.length > 0) {
+      return true;
+    }
+    return isCardSteward();
+  };
+
+  const isAssignToMeViewable = () => {
+    if (task?.assignee?.length === 0) {
+      return task.type === 'Task' && isSpaceMember();
+    }
+    return false;
+  };
+
+  const resolveTabs = () => {
+    if (task.type === 'Task') {
+      return ['Comments', 'Activity'];
+    }
+    if (task.type === 'Bounty') {
+      // No assignee yet
+      if (task.status === 100) {
+        if (isCardSteward()) {
+          return ['Applicants', 'Activity'];
+        }
+        if (task.proposals?.length > 0 || proposalEditMode) {
+          return ['Application', 'Activity'];
+        }
+        return ['Activity']; // Only return application tab if there are any
+      }
+      // Card has been assigned
+
+      if (isCardSteward()) {
+        return ['Submissions', 'Activity', 'Applicants'];
+      }
+      if (isCardAssignee()) {
+        return ['Submissions', 'Activity', 'Application'];
+      }
+      return ['Activity'];
+    }
+    return [];
+  };
+
+  const resolveTabIdx = (
+    prevTabs: Array<string>,
+    currTabs: Array<string>,
+    prevTabIdx: number
+  ) => {
+    if (currTabs.length === prevTabs.length) {
+      return prevTabIdx;
+    }
+    return 0;
+  };
+
+  const isApplyButtonViewable = () => {
+    if (task.type === 'Bounty') {
+      if (task.access?.reviewer || task.access?.creator) {
+        return false;
+      }
+      return task.status === 100 && task.proposals?.length === 0;
+    }
+    return false;
+  };
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabIdx(newValue);
+  };
+
+  const getViewableComponents = () => {
     return {
-      pay: true,
+      pay: getPayButtonView(),
       proposalGate: false,
       submissionGate: false,
       duplicate: isSpaceSteward(),
       archive: isSpaceSteward(),
+      assignee: isAssigneeViewable(),
+      reviewer: true,
+      assignToMe: isAssignToMeViewable(),
+      addComment: isSpaceMember() || isCardStakeholder(),
+      optionPopover: isSpaceSteward() || isCardStakeholder(),
+      applyButton: isApplyButtonViewable(),
     };
   };
 
-  const getEditableComponents = (task: Task) => {
-    const isStewardOfCard = isCardSteward(task);
+  const getEditableComponents = () => {
+    const editable = isGeneralEditable();
     return {
-      title: isStewardOfCard,
-      description: isStewardOfCard,
-      label: isStewardOfCard,
-      type: isStewardOfCard,
-      dueDate: isCardStakeholder(task),
-      reward: isStewardOfCard,
-      reviewer: isStewardOfCard,
-      column: isStewardOfCard,
-      assignee: isAssigneeEditable(task),
+      title: editable,
+      description: editable,
+      label: editable,
+      type: editable,
+      dueDate: isDeadlineEditable(),
+      reward: editable,
+      reviewer: editable,
+      column: isCardSteward(),
+      assignee: isAssigneeEditable(),
     };
   };
 
-  const isSpaceSteward = () => {
-    return user?.id && space.roles[user?.id] === 3;
-  };
+  useEffect(() => {
+    setViewableComponents(getViewableComponents());
+    setEditableComponents(getEditableComponents());
 
-  const isCardSteward = (task: Task) => {
-    return task?.access?.creator || task?.access?.reviewer || isSpaceSteward();
-  };
-
-  const isCardStakeholder = (task: Task) => {
-    return isCardSteward(task) || task?.access?.assignee;
-  };
-
-  const isAssigneeEditable = (task: Task) => {
-    if (task?.assignee?.length > 0) {
-      return isCardStakeholder(task);
-    } else {
-      return true;
-    }
-  };
-
-  const getProposalView = (task: Task) => {
-    if (
-      task?.access?.creator ||
-      task?.access?.reviewer ||
-      (user?.id && space.roles[user?.id] === 3)
-    ) {
-      if ([400].includes(task?.status)) {
-        return "adminView";
-      } else {
-        return "pick";
-      }
-    } else if (task?.access?.applicant) {
-      if ([400].includes(task?.status)) {
-        return "applicantView";
-      } else {
-        return "apply";
-      }
-    } else {
-      if ([400].includes(task?.status)) {
-        return "generalView";
-      } else {
-        return "generalApply";
-      }
-    }
-  };
-
-  const getSubmissionView = (task: Task) => {};
+    const newTabs = resolveTabs();
+    const newTabIdx = resolveTabIdx(tabs, newTabs, tabIdx);
+    setTabs(newTabs);
+    setTabIdx(newTabIdx);
+  }, [task]);
 
   return {
     viewableComponents,
     editAbleComponents,
+    getReason,
+    proposalEditMode,
+    setProposalEditMode,
+    tabs,
+    setTabs,
+    handleTabChange,
+    tabIdx,
   };
 }
