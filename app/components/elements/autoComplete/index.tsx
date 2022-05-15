@@ -13,6 +13,7 @@ type AutoProps = {
   multiple?: boolean;
   placeholder?: string;
   beforeClose?: (newValue: string | number | null) => void;
+  disableClearable?: boolean;
 };
 
 function CommonAutocomplete({
@@ -26,9 +27,11 @@ function CommonAutocomplete({
   multiple = false,
   placeholder = 'Search types',
   beforeClose,
+  disableClearable = false,
 }: AutoProps) {
   return (
     <Autocomplete
+      disableClearable={disableClearable}
       options={options}
       value={currOption}
       getOptionLabel={optionLabels}

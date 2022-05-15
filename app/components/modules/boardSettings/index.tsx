@@ -14,28 +14,28 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { BoardData, Chain, Token } from '../../../types';
+import ConfirmModal from '../../elements/confirmModal';
 import DefaultPaymentForm from '../../elements/defaultPaymentForm';
 import {
   ModalHeading,
   PrimaryButton,
   StyledAccordian,
+  StyledModal,
 } from '../../elements/styledComponents';
 import { SidebarButton } from '../exploreSidebar';
 import { notify } from '../settingsTab';
-import ConfirmModal from './confirmModal';
 
 type Props = {};
 
 // @ts-ignore
 const ModalContainer = MUIStyled(Box)(({ theme }) => ({
-  position: 'absolute' as 'absolute',
-  top: '10%',
-  left: '25%',
+  marginTop: '-10%',
   transform: 'translate(-50%, -50%)',
   width: '50rem',
   border: '2px solid #000',
@@ -52,15 +52,14 @@ const ModalContent = MUIStyled('div')(({ theme }) => ({
 }));
 
 function BoardSettings(props: Props) {
+  const router = useRouter();
+  const id = router.query.id as string;
   const { space, setSpace, setRefreshEpochs } = useSpace();
-  const { Moralis, user } = useMoralis();
+  const { user } = useMoralis();
   const [name, setName] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [defaultToken, setDefaultToken] = useState<Token>({} as Token);
   const [defaultChain, setDefaultChain] = useState<Chain>({} as Chain);
-  const [tokenGatechain, setTokenGateChain] = useState<Chain>({} as Chain);
-  const [tokenGateToken, setTokenGateToken] = useState<Token>({} as Token);
-  const [tokenGateLimit, setTokenGateLimit] = useState<string>('');
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -72,14 +71,26 @@ function BoardSettings(props: Props) {
 
   const { palette } = useTheme();
   const { runMoralisFunction } = useMoralisFunction();
+
+  const handleConfirm = async () => {
+    setIsLoading(true);
+    runMoralisFunction('deleteBoard', { boardId: space.objectId })
+      .then((res: any) => {
+        handleClose();
+        router.push(`/tribe/${id}`);
+        setIsLoading(false);
+      })
+      .catch((err: any) => {
+        notify(`${err.message}`, 'error');
+        setIsLoading(false);
+      });
+  };
   useEffect(() => {
     setName(space.name);
-    // setTokenGateChain(space.tokenGating?.chain);
-    // setTokenGateToken(space.tokenGating?.token);
-    // setTokenGateLimit(space.tokenGating?.tokenLimit);
     setDefaultChain(space.defaultPayment?.chain);
     setDefaultToken(space.defaultPayment?.token);
   }, [space]);
+
   return (
     <>
       <SidebarButton
@@ -110,10 +121,7 @@ function BoardSettings(props: Props) {
           />
         </Tooltip>
       </SidebarButton>
-      {isConfirmOpen && (
-        <ConfirmModal isOpen={isConfirmOpen} handleClose={handleConfirmClose} />
-      )}
-      <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
+      <StyledModal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
           <ModalContainer>
             <ModalHeading>
@@ -159,90 +167,6 @@ function BoardSettings(props: Props) {
                   />
                 </AccordionDetails>
               </StyledAccordian>
-              {/* <StyledAccordian disableGutters>
-                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  Token Gating
-                </AccordionSummary>
-                <AccordionDetails>
-                  <Typography>
-                    Enable token gating to allow addresses with the token limit
-                    to automatically join space without any prior permissions
-                  </Typography>
-                  <TokenGateForm
-                    chain={tokenGatechain || space?.tokenGating?.chain}
-                    setChain={setTokenGateChain}
-                    token={tokenGateToken || space?.tokenGating?.token}
-                    setToken={setTokenGateToken}
-                    tokenLimit={tokenGateLimit}
-                    setTokenLimit={setTokenGateLimit}
-                  />
-                </AccordionDetails>
-              </StyledAccordian> */}
-              {/* <StyledAccordian disableGutters>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography>Theme</Typography>
-                </AccordionSummary>
-                <OptionsButton color="inherit">
-                  <ThemeColor color="#000f29" />
-                  <Typography
-                    fontSize={14}
-                    sx={{ width: "70%" }}
-                    onClick={() => {
-                      updateThemeFromSpace(Moralis, bid, id, 0).then(
-                        (res: BoardData) => {
-                          setSpace(res);
-                          localStorage.setItem("theme", "0");
-                          setThemeChanged(!themeChanged);
-                        }
-                      );
-                    }}
-                  >
-                    Classic Dark
-                  </Typography>
-                </OptionsButton>
-                <OptionsButton color="inherit">
-                  <ThemeColor color="#38006b" />
-                  <Typography
-                    fontSize={14}
-                    sx={{ width: "70%" }}
-                    onClick={() => {
-                      updateThemeFromSpace(Moralis, bid, id, 1).then(
-                        (res: BoardData) => {
-                          setSpace(res);
-                          localStorage.setItem("theme", "1");
-                          setThemeChanged(!themeChanged);
-                        }
-                      );
-                    }}
-                  >
-                    Warm Purple
-                  </Typography>
-                </OptionsButton>
-                <OptionsButton color="inherit">
-                  <ThemeColor color="#0288d1" />
-                  <Typography
-                    fontSize={14}
-                    sx={{ width: "70%" }}
-                    onClick={() => {
-                      updateThemeFromSpace(Moralis, bid, id, 2).then(
-                        (res: BoardData) => {
-                          setSpace(res);
-                          console.log(res);
-                          localStorage.setItem("theme", "2");
-                          setThemeChanged(!themeChanged);
-                        }
-                      );
-                    }}
-                  >
-                    Ocean Blue
-                  </Typography>
-                </OptionsButton>
-                <AccordionDetails></AccordionDetails>
-              </StyledAccordian> */}
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <PrimaryButton
                   variant="outlined"
@@ -264,11 +188,6 @@ function BoardSettings(props: Props) {
                       defaultPayment: {
                         chain: defaultChain,
                         token: defaultToken,
-                      },
-                      tokenGating: {
-                        chain: tokenGatechain,
-                        token: tokenGateToken,
-                        tokenLimit: tokenGateLimit,
                       },
                     }).then((res: any) => {
                       setSpace(res as BoardData);
@@ -301,7 +220,14 @@ function BoardSettings(props: Props) {
             </ModalContent>
           </ModalContainer>
         </Grow>
-      </Modal>
+      </StyledModal>
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        handleClose={handleConfirmClose}
+        buttonText="Yes, delete space"
+        runOnConfirm={handleConfirm}
+        modalContent="Are you sure you want to delete space? This cannot be undone"
+      />
     </>
   );
 }

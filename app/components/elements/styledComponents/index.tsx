@@ -3,6 +3,7 @@ import { LoadingButton } from '@mui/lab';
 import {
   Accordion,
   ButtonProps,
+  Modal,
   styled,
   Tab,
   Tabs,
@@ -170,4 +171,11 @@ export const StyledNav = styled('nav')(({ theme }) => ({
   width: '100%',
   paddingTop: '0.4rem',
   borderBottom: `1px solid ${theme.palette.divider}`,
+}));
+
+export const StyledModal = styled(Modal)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
 }));

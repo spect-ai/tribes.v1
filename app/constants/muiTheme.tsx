@@ -7,13 +7,13 @@ const classicDark = {
       light: '#99ccff',
     },
     secondary: {
-      main: '#eaeaea',
+      main: 'rgb(234, 234, 234, 0.7)',
     },
     background: {
       default: '#000f29',
     },
     text: {
-      primary: 'rgb(234, 234, 234, 1)',
+      primary: 'rgb(234, 234, 234, 0.85)',
       secondary: '#99ccff',
     },
     divider: '#5a6972',

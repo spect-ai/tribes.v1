@@ -121,7 +121,8 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
     if (user) {
       setReviewers([user.id]);
     }
-    updateChain({ chainId: '137', name: 'polygon' });
+    setChain(space?.defaultPayment.chain);
+    setToken(space?.defaultPayment.token);
     setValue('0');
     setTitle('');
     setDescription([]);
@@ -273,6 +274,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                   sx: { mb: 3 },
                   optionLabels: (option: any) => option.name,
                   closeOnSelect: false,
+                  disableClearable: true,
                 },
                 {
                   fieldType: 'autocomplete',
@@ -285,6 +287,7 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
                   sx: { mb: 3 },
                   optionLabels: (option: any) => option.symbol,
                   closeOnSelect: false,
+                  disableClearable: true,
                 },
                 {
                   fieldType: 'textfield',

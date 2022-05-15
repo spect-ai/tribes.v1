@@ -40,6 +40,7 @@ function CommonTextField({
       }}
       sx={sx}
       fullWidth
+      color="secondary"
     />
   );
 }
