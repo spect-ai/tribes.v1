@@ -76,6 +76,7 @@ Moralis.Cloud.define('githubUpdateCard', async (request) => {
   );
   try {
     var task = await getTaskByTaskId(request.params.taskId);
+    let comment;
     
     if(task){
       var space = await getBoardByObjectId(task.get("boardId"));
@@ -112,10 +113,11 @@ Moralis.Cloud.define('githubUpdateCard', async (request) => {
       });
       logger.info(`res: ${JSON.stringify(res)}`);
 
-      return "Your submission was successful." ;
+      comment = "Your submission was successful." ;
     }else{
-      return "looks like you have given the incorrect Task ID.";
+      comment = "looks like you have given the incorrect Task ID.";
     } 
+    return comment;
   } catch (error) {
       log(`Failure in updateCard for card id ${request.params.taskId}: ${err}`,'error');
       throw(error);
