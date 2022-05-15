@@ -96,7 +96,7 @@ export default function useCardDynamism() {
 
   const resolveTabs = () => {
     if (isTask()) {
-      return ['Submissions', 'Comments', 'Activity'];
+      return ['Comments', 'Activity'];
     }
     if (isBounty()) {
       // No assignee yet
