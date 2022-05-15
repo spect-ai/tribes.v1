@@ -13,6 +13,7 @@ import ForumView from '../forumView';
 import TrelloImport from '../importTrello';
 import ListView from '../listView';
 import { notify } from '../settingsTab';
+import TasksFilter from '../tasksFilter';
 import ViewsNavbar from '../viewsNavbar';
 
 interface ProjectContextType {
@@ -49,9 +50,11 @@ function Project() {
   const { user } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const [isOpen, setIsOpen] = useState(false);
-  const handleClose = () => {
-    setIsOpen(false);
-  };
+  const [reviewerFilter, setReviewerFilter] = useState<any[]>([]);
+  const [assigneeFilter, setAssigneeFilter] = useState<any[]>([]);
+  const [labelsFilter, setLabelsFilter] = useState<any[]>([]);
+  const [titleFilter, setTitleFilter] = useState<string>('');
+  const handleClose = () => setIsOpen(false);
   const context = useProviderProject();
   const { tab } = context;
 
@@ -180,45 +183,53 @@ function Project() {
   };
 
   return (
-    <ProjectContext.Provider value={context}>
-      <ViewsNavbar />
-      <TrelloImport isOpen={isOpen} handleClose={handleClose} />
-      {Object.keys(space.tasks).length === 0 &&
-        space.roles[user?.id as string] === 3 && (
-          <PrimaryButton
-            variant="outlined"
-            sx={{ borderRadius: 1, ml: 2 }}
-            color="secondary"
-            size="small"
-            onClick={() => {
-              setIsOpen(true);
-            }}
-          >
-            Import cards from Trello
-          </PrimaryButton>
+    <>
+      <TasksFilter
+        setBReviewerFilter={setReviewerFilter}
+        setBAssigneeFilter={setAssigneeFilter}
+        setBLabelsFilter={setLabelsFilter}
+        setBTitleFilter={setTitleFilter}
+      />
+      <ProjectContext.Provider value={context}>
+        <ViewsNavbar />
+        <TrelloImport isOpen={isOpen} handleClose={handleClose} />
+        {Object.keys(space.tasks).length === 0 &&
+          space.roles[user?.id as string] === 3 && (
+            <PrimaryButton
+              variant="outlined"
+              sx={{ borderRadius: 1, ml: 2 }}
+              color="secondary"
+              size="small"
+              onClick={() => {
+                setIsOpen(true);
+              }}
+            >
+              Import cards from Trello
+            </PrimaryButton>
+          )}
+        {tab === 0 && (
+          <Grow in={tab === 0} timeout={500}>
+            <div>
+              <BoardView board={space} handleDragEnd={handleDragEnd} />
+            </div>
+          </Grow>
         )}
-      {tab === 0 && (
-        <Grow in={tab === 0} timeout={500}>
-          <div>
-            <BoardView board={space} handleDragEnd={handleDragEnd} />
-          </div>
-        </Grow>
-      )}
-      {tab === 1 && (
-        <Grow in={tab === 1} timeout={500}>
-          <div>
-            <ListView board={space} handleDragEnd={handleDragEnd} />
-          </div>
-        </Grow>
-      )}
-      {tab === 2 && (
-        <Grow in={tab === 2} timeout={500}>
-          <div>
-            <ForumView />
-          </div>
-        </Grow>
-      )}
-    </ProjectContext.Provider>
+        {tab === 1 && (
+          <Grow in={tab === 1} timeout={500}>
+            <div>
+              <ListView board={space} handleDragEnd={handleDragEnd} />
+            </div>
+          </Grow>
+        )}
+        {tab === 2 && (
+          <Grow in={tab === 2} timeout={500}>
+            <div>
+              <ForumView />
+            </div>
+          </Grow>
+        )}
+      </ProjectContext.Provider>
+    </>
   );
 }
 
