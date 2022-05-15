@@ -34,6 +34,7 @@ function CommonAutocomplete({
       value={currOption}
       getOptionLabel={optionLabels}
       sx={sx}
+      size="small"
       onChange={(event, newValue) => {
         setCurrOption(newValue as string);
         if (closeOnSelect && setOpen) {

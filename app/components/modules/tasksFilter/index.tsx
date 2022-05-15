@@ -1,214 +1,159 @@
-import {
-  Autocomplete,
-  Popover,
-  TextField,
-  Box,
-  Typography,
-  Avatar,
-} from '@mui/material';
-import LabelIcon from '@mui/icons-material/Label';
-import { useRouter } from 'next/router';
-import React, { useEffect, useState, Dispatch, SetStateAction } from 'react';
-import { CardButton, PrimaryButton } from '../../elements/styledComponents';
+import { IconButton, Popover, TextField, Tooltip } from '@mui/material';
+import { FilterAlt } from '@mui/icons-material';
+import React, { useState, useEffect } from 'react';
+import { PrimaryButton } from '../../elements/styledComponents';
 import { PopoverContainer } from '../cardModal/styles';
-import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { labelsMapping } from '../../../constants';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import CommonAutocomplete from '../../elements/autoComplete';
+import { Task } from '../../../types';
 
-interface FilterProps {
-  setBReviewerFilter: Dispatch<SetStateAction<any[]>>;
-  setBAssigneeFilter: Dispatch<SetStateAction<any[]>>;
-  setBLabelsFilter: Dispatch<SetStateAction<any[]>>;
-  setBTitleFilter: Dispatch<SetStateAction<string>>;
-}
-
-function TasksFilter({
-  setBReviewerFilter,
-  setBAssigneeFilter,
-  setBLabelsFilter,
-  setBTitleFilter,
-}: FilterProps) {
-  // const [space, setSpace] = useState([]);
-  const [open, setOpen] = useState(false);
-  const [memberIds, setMemberIds] = useState([]);
-  const [memberDetails, setMemberDetails] = useState<any[]>([]);
+function TasksFilter() {
+  const { space, setSpace } = useSpace();
+  const [allTasks, setAllTasks] = useState<{ [key: string]: Task }>({} as any);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [reviewerFilter, setReviewerFilter] = useState<any[]>([]);
   const [assigneeFilter, setAssigneeFilter] = useState<any[]>([]);
   const [labelsFilter, setLabelsFilter] = useState<any[]>([]);
   const [titleFilter, setTitleFilter] = useState<string>('');
-  const { runMoralisFunction } = useMoralisFunction();
-
-  const router = useRouter();
-  const { bid } = router.query;
-
-  useEffect(() => {
-    runMoralisFunction('getSpace', { boardId: bid }).then(
-      (res: {
-        members: React.SetStateAction<never[]>;
-        memberDetails: React.SetStateAction<any[]>;
-      }) => {
-        // console.log("TaskFilter: Tasks: ", res.tasks);
-        // console.log("TaskFilter: Members: ", res.members);
-        setMemberIds(res.members);
-        setMemberDetails(res.memberDetails);
-        // console.log("TaskFilter: Member Details: ", res.memberDetails, memberIds);
-        // setSpace(res);
-      }
-    );
-  }, []);
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTitleFilter(event.target.value);
   };
 
-  const handleClick = () => (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
-    setOpen(true);
-    setFeedbackOpen(true);
+    // setOpen(true);
+    setFilterOpen(true);
   };
-  const handleFeedbackClose = () => setFeedbackOpen(false);
+  const handleFilterClose = () => setFilterOpen(false);
 
   const handleFilter = () => {
-    console.log(reviewerFilter, assigneeFilter, labelsFilter);
-    handleFeedbackClose();
-    setBReviewerFilter(reviewerFilter);
-    setBAssigneeFilter(assigneeFilter);
-    setBLabelsFilter(labelsFilter);
-    setBTitleFilter(titleFilter);
+    handleFilterClose();
+    const filteredTasks = Object.values(allTasks)?.filter((task) => {
+      if (task === undefined) return false;
+      let reviewerFiltSat = false;
+      let assigneeFiltSat = false;
+      let labelsFiltSat = false;
+      let titleFiltSat = false;
+
+      const { reviewer, assignee, tags, title } = task;
+
+      if (reviewerFilter.length > 0) {
+        for (let i = 0; i < reviewer.length; i += 1) {
+          const filterRTruth = reviewerFilter.includes(reviewer[i]);
+          if (filterRTruth) {
+            reviewerFiltSat = true;
+            break;
+          }
+        }
+      } else {
+        reviewerFiltSat = true;
+      }
+
+      if (assigneeFilter.length > 0) {
+        for (let i = 0; i < assignee.length; i += 1) {
+          const filterATruth = assigneeFilter.includes(assignee[i]);
+          if (filterATruth) {
+            assigneeFiltSat = true;
+            break;
+          }
+        }
+        // console.log("\n");
+      } else {
+        assigneeFiltSat = true;
+      }
+
+      if (labelsFilter.length > 0) {
+        for (let i = 0; i < tags.length; i += 1) {
+          const filterLTruth = labelsFilter.includes(tags[i]);
+          if (filterLTruth) {
+            labelsFiltSat = true;
+            break;
+          }
+        }
+      } else {
+        labelsFiltSat = true;
+      }
+
+      if (titleFilter.length > 0) {
+        const searchString = titleFilter.toLowerCase();
+        const titleToSearch = title.toLowerCase();
+        const titleSearch = titleToSearch.includes(searchString);
+        if (titleSearch === true) {
+          titleFiltSat = true;
+        }
+      } else {
+        titleFiltSat = true;
+      }
+
+      if (reviewerFiltSat && assigneeFiltSat && labelsFiltSat && titleFiltSat) {
+        return task;
+      }
+      return false;
+    });
+    const spaceTasks = filteredTasks.reduce(
+      (acc, task) => ({ ...acc, [task.taskId]: task }),
+      {}
+    );
+    setSpace({ ...space, tasks: spaceTasks });
   };
+
+  useEffect(() => {
+    setAllTasks(space.tasks);
+  }, []);
 
   return (
     <>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          mt: 2,
-          mx: 1,
-        }}
-      >
-        <Typography
-          sx={{ fontSize: 12, color: 'text.secondary', width: '100%' }}
-        >
-          Filter Tasks
-        </Typography>
-        <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-          <CardButton
-            variant="outlined"
-            onClick={handleClick()}
-            color="secondary"
-            sx={{
-              padding: '6px',
-              minWidth: '3rem',
-            }}
-          >
-            <>
-              <Avatar
-                variant="rounded"
-                sx={{
-                  p: 0,
-                  mr: 2,
-                  width: 20,
-                  height: 20,
-                  backgroundColor: 'transparent',
-                }}
-              >
-                <LabelIcon
-                  sx={{
-                    color: 'text.primary',
-                  }}
-                />
-              </Avatar>
-              <Typography
-                sx={{
-                  fontSize: 14,
-                  maxWidth: '6rem',
-                  minWidth: '3rem',
-                  minHeight: '1.3rem',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  fontWeight: '100',
-                }}
-              >
-                Filter Options
-              </Typography>
-            </>
-          </CardButton>
-        </Box>
-      </Box>
+      <IconButton sx={{ mt: 0.5 }} onClick={handleClick}>
+        <Tooltip title="Filter tasks">
+          <FilterAlt sx={{ fontSize: 22, px: 1 }} />
+        </Tooltip>
+      </IconButton>
       <Popover
-        open={feedbackOpen}
+        open={filterOpen}
         anchorEl={anchorEl}
-        onClose={() => handleFeedbackClose()}
+        onClose={() => handleFilterClose()}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left',
         }}
       >
         <PopoverContainer>
-          <Autocomplete
-            options={memberIds}
+          <CommonAutocomplete
+            options={space.members}
+            optionLabels={(option) => space.memberDetails[option].username}
+            currOption={reviewerFilter}
+            setCurrOption={setReviewerFilter}
+            setOpen={setFilterOpen}
+            closeOnSelect={false}
+            sx={{ mt: 2 }}
             multiple
-            getOptionLabel={(option) => memberDetails[option].username}
-            value={reviewerFilter}
-            onChange={(event, newValue) => {
-              setReviewerFilter(newValue as any[]);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                placeholder="Reviewer"
-              />
-            )}
+            placeholder="Reviewer"
           />
-
-          <Autocomplete
-            options={memberIds}
+          <CommonAutocomplete
+            options={space.members}
+            optionLabels={(option) => space.memberDetails[option].username}
+            currOption={assigneeFilter}
+            setCurrOption={setAssigneeFilter}
+            setOpen={setFilterOpen}
+            closeOnSelect={false}
+            sx={{ mt: 2 }}
             multiple
-            getOptionLabel={(option) => memberDetails[option].username}
-            value={assigneeFilter}
-            onChange={(event, newValue) => {
-              setAssigneeFilter(newValue as any[]);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                placeholder="Assignee"
-              />
-            )}
+            placeholder="Assignee"
           />
-
-          <Autocomplete
-            options={[
-              'Design',
-              'Coding',
-              'Testing',
-              'Deployment',
-              'Documentation',
-              'POC',
-            ]}
+          <CommonAutocomplete
+            options={Object.keys(labelsMapping)}
+            optionLabels={(option) => option}
+            currOption={labelsFilter}
+            setCurrOption={setLabelsFilter}
+            setOpen={setFilterOpen}
+            closeOnSelect={false}
+            sx={{ mt: 2 }}
             multiple
-            value={labelsFilter}
-            onChange={(event, newValue) => {
-              setLabelsFilter(newValue as any[]);
-            }}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                id="filled-hidden-label-normal"
-                size="small"
-                fullWidth
-                placeholder="Labels"
-              />
-            )}
+            placeholder="Labels"
           />
-
           <TextField
             id="filled-hidden-label-normal"
             size="small"
@@ -216,6 +161,8 @@ function TasksFilter({
             placeholder="Title"
             value={titleFilter}
             onChange={handleTitleChange}
+            sx={{ mt: 2 }}
+            color="secondary"
           />
 
           <PrimaryButton

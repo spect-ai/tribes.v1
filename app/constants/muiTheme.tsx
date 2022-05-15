@@ -7,7 +7,7 @@ const classicDark = {
       light: '#99ccff',
     },
     secondary: {
-      main: 'rgb(234, 234, 234, 0.7)',
+      main: 'rgb(234, 234, 234, 0.8)',
     },
     background: {
       default: '#000f29',
