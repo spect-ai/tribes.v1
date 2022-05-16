@@ -25,7 +25,7 @@ async function getBoardObjByObjectId(objectId, callerId) {
   ];
 
   var board = await boardQuery.aggregate(pipeline, { useMasterKey: true });
-  if (board.length === 0) throw 'Board doesnt exist';
+  if (board.length === 0) throw 'Space not found';
   // if (callerId) board[0].access = getSpaceAccess(callerId, board[0]);
   return board;
 }
@@ -110,7 +110,7 @@ async function getSpace(boardId, callerId) {
     );
 
     const canReadSpace = canRead(boardObjDetailed[0], callerId);
-    if (!canReadSpace) throw 'You dont have access to view this space';
+    if (!canReadSpace) throw "You don't have access to view this space";
 
     const epochs = await getEpochsBySpaceId(
       boardObjDetailed[0].objectId,
@@ -859,9 +859,9 @@ Moralis.Cloud.define('joinSpaceFromInvite', async (request) => {
     if (!invite) {
       throw 'Invite code not found';
     }
-    const board = await getBoardByObjectId(request.params.boardId);
+    const board = await getBoardByObjectId(invite.get('boardId'));
     if (board.get('members').includes(request.user.id)) {
-      throw 'User already a member of this board';
+      throw 'User already a member of this space';
     }
     const tribe = await getTribeByTeamId(board.get('teamId'));
     const userInfo = await getUserByUserId(request.user.id);
@@ -885,11 +885,13 @@ Moralis.Cloud.define('joinSpaceFromInvite', async (request) => {
         useMasterKey: true,
       });
     }
-    return await getSpace(request.params.boardId, request.user.id);
+    return {
+      redirect: `/tribe/${board.get('teamId')}/space/${invite.get('boardId')}`,
+    };
   } catch (err) {
     log(
       request.user?.id,
-      `Failure in joinSpaceFromInvite for space id ${request.params.boardId}: ${err}`,
+      `Failure in joinSpaceFromInvite for invite code ${request.params.inviteCode}: ${err}`,
       'error'
     );
     throw `${err}`;

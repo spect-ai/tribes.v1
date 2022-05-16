@@ -83,6 +83,7 @@ export default function SpacePage() {
   } = useGlobal();
   const { setSpace, setIsLoading, setFilteredTasks } = context;
   const [notFound, setNotFound] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
 
   const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
 
@@ -101,7 +102,14 @@ export default function SpacePage() {
         })
         .catch((err) => {
           console.log(err);
+          if (err.message === 'Space not found') {
+            setNotFound(true);
+          }
+          if (err.message === "You don't have access to view this space") {
+            setIsPrivate(true);
+          }
           notify(err.message, 'error');
+          setIsLoading(false);
         });
     }
   }, [loading, bid]);
@@ -115,12 +123,15 @@ export default function SpacePage() {
       <SpaceContext.Provider value={context}>
         <ThemeProvider theme={theme}>
           <PageContainer theme={createTheme(getTheme(0))}>
-            {!notFound && <SpaceNavbar />}
+            <SpaceNavbar />
 
             <Box sx={{ display: 'flex', flexDirection: 'row' }}>
               <ExploreSidebar />
-              {!notFound && <BoardsTemplate />}
+              {!notFound && !isPrivate && <BoardsTemplate />}
               {notFound && <NotFound text="Space not found" />}
+              {isPrivate && (
+                <NotFound text="You don't have access to view this space" />
+              )}
             </Box>
           </PageContainer>
         </ThemeProvider>

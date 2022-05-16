@@ -16,7 +16,7 @@ function NotFound({ text }: Props) {
         width: '100%',
       }}
     >
-      <Typography variant="h4" color="text.primary">
+      <Typography variant="h4" color="text.primary" sx={{ mb: 48 }}>
         {text}
       </Typography>
     </Box>
