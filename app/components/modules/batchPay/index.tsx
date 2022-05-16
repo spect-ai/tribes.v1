@@ -23,6 +23,7 @@ import Approve from './approve';
 import BatchPay from './batchPay';
 import CardList from './cardList';
 import { PaymentInfo } from '../../../types';
+import { useWalletContext } from '../../../context/WalletContext';
 
 const modalSteps = [
   'Pick Cards',
@@ -67,7 +68,7 @@ function PaymentModal() {
   const [paymentInfo, setPaymentInfo] = useState({} as PaymentInfo);
   const { setSpace } = useSpace();
   const { runMoralisFunction } = useMoralisFunction();
-
+  const { networkVersion } = useWalletContext();
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -155,7 +156,7 @@ function PaymentModal() {
                   Currently showing cards with rewards on
                 </Typography>
                 <Avatar
-                  src={registry[window.ethereum.networkVersion]?.pictureUrl}
+                  src={registry[networkVersion]?.pictureUrl}
                   sx={{
                     width: '1.5rem',
                     height: '1.5rem',
@@ -169,9 +170,7 @@ function PaymentModal() {
                   marginBottom="10px"
                   marginLeft="10px"
                 >
-                  {capitalizeFirstLetter(
-                    registry[window.ethereum.networkVersion]?.name
-                  )}{' '}
+                  {capitalizeFirstLetter(registry[networkVersion]?.name)}{' '}
                   Network
                 </Typography>
               </Box>
@@ -195,7 +194,6 @@ function PaymentModal() {
               setPaymentInfo={setPaymentInfo}
               handleClose={handleClose}
               handleNextStep={handleNextStep}
-              chainId={window.ethereum.networkVersion}
             />
           )}
           {activeStep === 1 && isOpen && !isLoading && (
@@ -204,14 +202,12 @@ function PaymentModal() {
               handleNextStep={handleNextStep}
               setActiveStep={setActiveStep}
               approvalInfo={paymentInfo.approval}
-              chainId={window.ethereum.networkVersion}
             />
           )}
           {activeStep === 2 && isOpen && !isLoading && (
             <BatchPay
               handleClose={handleClose}
               handleNextStep={handleNextStep}
-              chainId={window.ethereum.networkVersion}
               distributionInfo={paymentInfo.tokens}
               handleStatusUpdate={handleStatusUpdate}
             />
@@ -220,7 +216,6 @@ function PaymentModal() {
             <BatchPay
               handleClose={handleClose}
               handleNextStep={handleNextStep}
-              chainId={window.ethereum.networkVersion}
               distributionInfo={paymentInfo.currency}
               handleStatusUpdate={handleStatusUpdate}
             />

@@ -672,77 +672,141 @@ Moralis.Cloud.define('archiveTask', async (request) => {
   return await getSpace(task.get('boardId'), request.user.id);
 });
 
+function initPaymentInfo() {
+  return {
+    approval: {
+      required: false,
+      uniqueTokenAddresses: [],
+      aggregatedTokenValues: [],
+    },
+    tokens: {
+      type: 'tokens',
+      contributors: [],
+      tokenAddresses: [],
+      tokenValues: [],
+      cardIds: [],
+    },
+    currency: {
+      type: 'currency',
+      contributors: [],
+      tokenAddresses: null,
+      tokenValues: [],
+      cardIds: [],
+    },
+  };
+}
+
+function filterTasksWithoutAssigneeOrReward(tasks) {
+  let resTasks = [];
+  for (var task of tasks) {
+    var assignee = task.get('assignee');
+    var rewardValue = task.get('value');
+    if (assignee?.length > 0 && rewardValue && rewardValue > 0) {
+      resTasks.push(task);
+    }
+  }
+  return resTasks;
+}
+
+function enrichPaymentInfoWithCardIdsSeperatedbyCategory(cards, paymentInfo) {
+  currencyCards = [];
+  tokenCards = [];
+  for (var card of cards) {
+    var token = card.get('token');
+    if ('address' in token && token?.address !== '0x0') {
+      paymentInfo.tokens.cardIds.push(card.get('taskId'));
+      tokenCards.push(card);
+    } else if ('address' in token && token?.address === '0x0') {
+      paymentInfo.currency.cardIds.push(card.get('taskId'));
+      currencyCards.push(card);
+    }
+  }
+  return [tokenCards, currencyCards, paymentInfo];
+}
+
+function aggregateAndGroupRewardsByContributor(currencyCards) {
+  var contributorToCurrencyValue = {};
+  for (var card of currencyCards) {
+    var value = card.get('value');
+    var contributors = card.get('assignee');
+    var valueSplitEqually = value / contributors.length;
+    for (var contributor of contributors) {
+      if (contributor in contributorToCurrencyValue)
+        contributorToCurrencyValue[contributor] += valueSplitEqually;
+      else contributorToCurrencyValue[contributor] = valueSplitEqually;
+    }
+  }
+  return contributorToCurrencyValue;
+}
+
+function aggregateAndGroupRewardsByTokenAddressAndContributor(tokenCards) {
+  var tokenAddressToContributorToValue = {};
+  for (var card of tokenCards) {
+    var value = card.get('value');
+    var token = card.get('token');
+    if (!(token.address in tokenAddressToContributorToValue)) {
+      tokenAddressToContributorToValue[token.address] = {};
+    }
+
+    var contributors = card.get('assignee');
+    var valueSplitEqually = value / contributors.length;
+    for (var contributor of contributors) {
+      if (!(contributor in tokenAddressToContributorToValue[token.address])) {
+        tokenAddressToContributorToValue[token.address][contributor] =
+          valueSplitEqually;
+      } else {
+        tokenAddressToContributorToValue[token.address][contributor] +=
+          valueSplitEqually;
+      }
+    }
+  }
+  return tokenAddressToContributorToValue;
+}
+
+function aggregateAllowanceRequriedForTokens(tokenCards) {
+  var tokenAddressToMinAllowanceRequired = {};
+
+  for (var card of tokenCards) {
+    var value = card.get('value');
+    var token = card.get('token');
+    if (token.address in tokenAddressToMinAllowanceRequired)
+      tokenAddressToMinAllowanceRequired[token.address] += value;
+    else tokenAddressToMinAllowanceRequired[token.address] = value;
+  }
+  return tokenAddressToMinAllowanceRequired;
+}
+
+function mapContributorToCardIds(cards) {
+  let contributorToCardIds = {};
+  for (var card of cards) {
+    var contributors = card.get('assignee');
+    for (var contributor of contributors) {
+      if (!(contributor in contributorToCardIds)) {
+        contributorToCardIds[contributor] = [card.get('taskId')];
+      } else {
+        contributorToCardIds[contributor].push(card.get('taskId'));
+      }
+    }
+  }
+  return contributorToCardIds;
+}
+
 Moralis.Cloud.define('getBatchPayInfo', async (request) => {
   try {
     // Result data structure
-    var paymentInfo = {
-      approval: {
-        required: false,
-        uniqueTokenAddresses: [],
-        aggregatedTokenValues: [],
-      },
-      tokens: {
-        type: 'tokens',
-        contributors: [],
-        tokenAddresses: [],
-        tokenValues: [],
-        cardIds: [],
-      },
-      currency: {
-        type: 'currency',
-        contributors: [],
-        tokenAddresses: null,
-        tokenValues: [],
-        cardIds: [],
-      },
-    };
+    var paymentInfo = initPaymentInfo();
     var tasks = await getTasksByTaskIds(request.params.taskIds);
-    logger.info(`tasks ${JSON.stringify(tasks)}`);
-    var tokenAddressToMinAllowanceRequired = {};
-    var tokenAddressToContributorToValue = {};
-    var contributorToCurrencyValue = {};
+    tasks = filterTasksWithoutAssigneeOrReward(tasks);
+    [tokenCards, currencyCards, paymentInfo] =
+      enrichPaymentInfoWithCardIdsSeperatedbyCategory(tasks, paymentInfo);
 
-    // Aggregate values
-    for (var task of tasks) {
-      var assignee = task.get('assignee');
-
-      if (assignee?.length > 0 && task.get('value') && task.get('value') > 0) {
-        var contributor = task.get('assignee')[0];
-        var value = task.get('value');
-        var token = task.get('token');
-        if ('address' in token && token?.address !== '0x0') {
-          paymentInfo.tokens.cardIds.push(task.get('taskId'));
-          if (!(token.address in tokenAddressToContributorToValue)) {
-            tokenAddressToContributorToValue[token.address] = {};
-          }
-          if (
-            !(contributor in tokenAddressToContributorToValue[token.address])
-          ) {
-            tokenAddressToContributorToValue[token.address][contributor] =
-              value;
-          } else {
-            tokenAddressToContributorToValue[token.address][contributor] +=
-              value;
-          }
-
-          logger.info(
-            `tokenAddressToContributorToValue ${JSON.stringify(
-              tokenAddressToContributorToValue
-            )}`
-          );
-          if (token.address in tokenAddressToMinAllowanceRequired)
-            tokenAddressToMinAllowanceRequired[token.address] += value;
-          else tokenAddressToMinAllowanceRequired[token.address] = value;
-        } else {
-          paymentInfo.currency.cardIds.push(task.get('taskId'));
-          if (contributor in contributorToCurrencyValue)
-            contributorToCurrencyValue[contributor] += value;
-          else contributorToCurrencyValue[contributor] = value;
-        }
-      }
-    }
-
-    logger.info(`distributor ${request.params.distributor}`);
+    // Aggregate reward and required allowance values
+    var tokenAddressToContributorToValue =
+      aggregateAndGroupRewardsByTokenAddressAndContributor(tokenCards);
+    var tokenAddressToMinAllowanceRequired =
+      aggregateAllowanceRequriedForTokens(tokenCards);
+    var contributorToCurrencyValue =
+      aggregateAndGroupRewardsByContributor(currencyCards);
 
     // Get if approval required
     tokenAddressToMinAllowanceRequired = await getApprovalInfo(
@@ -778,6 +842,11 @@ Moralis.Cloud.define('getBatchPayInfo', async (request) => {
         paymentInfo.tokens.tokenValues.push(value);
       }
     }
+
+    paymentInfo.tokens.contributorToCardIds =
+      mapContributorToCardIds(tokenCards);
+    paymentInfo.currency.contributorToCardIds =
+      mapContributorToCardIds(currencyCards);
 
     return paymentInfo;
   } catch (err) {

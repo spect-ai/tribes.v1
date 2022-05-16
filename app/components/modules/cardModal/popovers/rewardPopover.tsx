@@ -1,199 +1,98 @@
 import PaidIcon from '@mui/icons-material/Paid';
-import {
-  Autocomplete,
-  Avatar,
-  Box,
-  Popover,
-  TextField,
-  Typography,
-} from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCardContext } from '..';
 import { useGlobal } from '../../../../context/globalContext';
-import useCardUpdate from '../../../../hooks/useCardUpdate';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
-import { Chain, Registry, Token } from '../../../../types';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
+import { Registry } from '../../../../types';
 import {
   getFlattenedCurrencies,
   getFlattenedNetworks,
 } from '../../../../utils/utils';
-import { CardButton, PrimaryButton } from '../../../elements/styledComponents';
-import { PopoverContainer } from '../styles';
+import CardInfoDisplay from '../../../elements/cardInfoDisplay';
+import CommonPopover from '../../../elements/popover';
 
 function RewardPopover() {
   const {
     state: { registry },
   } = useGlobal();
-  const [open, setOpen] = useState(false);
-  const {
-    task,
-    chain,
-    setChain,
-    token,
-    setToken,
-    value,
-    setValue,
-    loading,
-    openPopover,
-    closePopover,
-    anchorEl,
-  } = useCardContext();
+  const { chain, setChain, token, setToken, value, setValue } =
+    useCardContext();
+  const [prevChain, setPrevChain] = useState(chain);
   const { updateReward } = useCardUpdate();
   const { getReason, isCardStewardAndUnpaidCardStatus } = useCardDynamism();
 
+  useEffect(() => {
+    const { tokenAddresses } = registry[chain.chainId];
+    const { tokens } = registry[chain.chainId];
+    if (prevChain.chainId === chain.chainId) return;
+    if (tokenAddresses?.length > 0) {
+      setPrevChain(chain);
+      setToken(tokens[tokenAddresses[0]]);
+    }
+  }, [chain]);
+
   return (
-    <>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          mt: 2,
-          mx: 1,
-        }}
-      >
-        <Typography
-          sx={{ fontSize: 12, color: 'text.secondary', width: '100%' }}
-        >
-          Reward
-        </Typography>
-        <CardButton
-          data-testid="bRewardButton"
-          variant="outlined"
-          onClick={openPopover(setOpen)}
-          color="secondary"
-          sx={{
-            padding: '6px',
-            minWidth: '3rem',
-          }}
-        >
-          <Avatar
-            sx={{
-              p: 0,
-              mr: 2,
-              width: 20,
-              height: 20,
-              backgroundColor: 'transparent',
-            }}
-          >
-            <PaidIcon sx={{ color: 'text.primary' }} />
-          </Avatar>
-          {task.value && task.value > 0 ? (
-            <Typography
-              sx={{
-                fontSize: 14,
-              }}
-            >
-              {`${task.value} ${task.token?.symbol}`}
-            </Typography>
-          ) : (
-            <Typography
-              sx={{
-                fontSize: 14,
-              }}
-            >
-              No reward{' '}
-            </Typography>
-          )}
-        </CardButton>
-      </Box>
-      <Popover
-        open={open}
-        anchorEl={anchorEl}
-        onClose={() => closePopover(setOpen)}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-      >
-        {!isCardStewardAndUnpaidCardStatus() && (
-          <PopoverContainer>
-            <Typography variant="body2">{getReason('reward')}</Typography>
-          </PopoverContainer>
-        )}
-        {isCardStewardAndUnpaidCardStatus() && (
-          <PopoverContainer>
-            <Autocomplete
-              data-testid="aRewardChain"
-              options={getFlattenedNetworks(registry as Registry)}
-              getOptionLabel={(option) => option.name}
-              disableClearable
-              value={chain}
-              onChange={(event, newValue) => {
-                setChain(newValue as Chain);
-                const tokens = getFlattenedCurrencies(
+    <CommonPopover
+      label="Reward"
+      buttonText={
+        <CardInfoDisplay
+          avatarDefault={<PaidIcon sx={{ color: 'text.primary' }} />}
+          info={
+            parseFloat(value) > 0
+              ? `${value} ${token?.symbol}`
+              : 'No reward' || 'select'
+          }
+        />
+      }
+      buttonsx={{
+        padding: '6px',
+        minWidth: '3rem',
+        minHeight: '2.6rem',
+      }}
+      avatarDefault={<PaidIcon sx={{ color: 'text.primary' }} />}
+      popoverContent={
+        isCardStewardAndUnpaidCardStatus()
+          ? [
+              {
+                fieldType: 'autocomplete',
+                options: getFlattenedNetworks(registry as Registry),
+                currOption: chain,
+                setCurrOption: setChain,
+                sx: { mb: 3 },
+                optionLabels: (option: any) => option.name,
+                closeOnSelect: false,
+              },
+              {
+                fieldType: 'autocomplete',
+                options: getFlattenedCurrencies(
                   registry as Registry,
-                  newValue?.chainId as string
-                );
-                if (tokens.length > 0) setToken(tokens[0]);
-                else setToken({} as Token);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  id="filled-hidden-label-normal"
-                  size="small"
-                  fullWidth
-                  sx={{ mb: 4 }}
-                  placeholder="Network Chain"
-                  color="secondary"
-                />
-              )}
-            />
-            <Autocomplete
-              data-testid="aRewardToken"
-              options={getFlattenedCurrencies(
-                registry as Registry,
-                chain?.chainId
-              )}
-              disableClearable
-              getOptionLabel={(option) => option.symbol}
-              value={token}
-              onChange={(event, newValue) => {
-                setToken(newValue as Token);
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  id="filled-hidden-label-normal"
-                  size="small"
-                  fullWidth
-                  sx={{ mb: 4 }}
-                  placeholder="Network Chain"
-                  color="secondary"
-                />
-              )}
-            />
-            <TextField
-              data-testid="iRewardValue"
-              id="filled-hidden-label-normal"
-              value={value}
-              onChange={(event) => {
-                setValue(event.target.value);
-              }}
-              size="small"
-              fullWidth
-              sx={{ mb: 4 }}
-              type="number"
-              placeholder="Value"
-              inputProps={{ min: 0 }}
-              color="secondary"
-            />
-            <PrimaryButton
-              data-testid="bRewardSave"
-              variant="outlined"
-              color="secondary"
-              sx={{ borderRadius: 1 }}
-              loading={loading}
-              onClick={() => {
-                updateReward(setOpen);
-              }}
-            >
-              Save
-            </PrimaryButton>
-          </PopoverContainer>
-        )}
-      </Popover>
-    </>
+                  chain?.chainId
+                ),
+                currOption: token,
+                setCurrOption: setToken,
+                sx: { mb: 3 },
+                optionLabels: (option: any) => option.symbol,
+                closeOnSelect: false,
+              },
+              {
+                fieldType: 'textfield',
+                id: 'filled-hidden-label-normal',
+                placeholder: 'Value',
+                type: 'number',
+                value: parseFloat(value),
+                handleChange: setValue,
+              },
+            ]
+          : [
+              {
+                fieldType: 'typography',
+                value: getReason('reward'),
+              },
+            ]
+      }
+      beforeClose={() => updateReward()}
+    />
   );
 }
 

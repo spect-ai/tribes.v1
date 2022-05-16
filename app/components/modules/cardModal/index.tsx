@@ -77,13 +77,13 @@ function useProviderCard() {
   const [loading, setLoading] = useState(false);
   const [proposalEditMode, setProposalEditMode] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-
   const openPopover =
     (setOpen: Function) => (event: React.MouseEvent<HTMLButtonElement>) => {
       setAnchorEl(event.currentTarget);
       setOpen(true);
     };
   const closePopover = (setOpen: Function) => {
+    console.log('worprp');
     setOpen(false);
   };
 
