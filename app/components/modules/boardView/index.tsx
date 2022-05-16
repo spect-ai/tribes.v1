@@ -12,7 +12,6 @@ import ColumnComponent from '../column';
 import { notify } from '../settingsTab';
 
 type Props = {
-  board: BoardData;
   handleDragEnd: (result: DropResult) => void;
 };
 
@@ -26,8 +25,8 @@ const Container = styled.div`
   overflow-y: hidden;
 `;
 
-function BoardView({ board, handleDragEnd }: Props) {
-  const { setSpace } = useSpace();
+function BoardView({ handleDragEnd }: Props) {
+  const { setSpace, space, filteredTasks } = useSpace();
   const { user } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const router = useRouter();
@@ -37,9 +36,11 @@ function BoardView({ board, handleDragEnd }: Props) {
       <Droppable droppableId="all-columns" direction="horizontal" type="column">
         {(provided, snapshot) => (
           <Container {...provided.droppableProps} ref={provided.innerRef}>
-            {board.columnOrder.map((columnId, index) => {
-              const column = board.columns[columnId];
-              let tasks = column.taskIds?.map((taskId) => board.tasks[taskId]);
+            {space.columnOrder.map((columnId, index) => {
+              const column = space.columns[columnId];
+              let tasks = column.taskIds?.map(
+                (taskId) => filteredTasks[taskId]
+              );
               tasks = tasks.filter((element) => {
                 return element !== undefined;
               });
@@ -64,14 +65,14 @@ function BoardView({ board, handleDragEnd }: Props) {
                 borderRadius: 1,
                 margin: '0.3rem 2rem 1rem 0rem',
               }}
-              disabled={board.roles[user?.id as string] !== 3}
+              disabled={space.roles[user?.id as string] !== 3}
               onClick={() => {
-                const newColumnId = Object.keys(board.columns).length;
-                const tempData = { ...board };
+                const newColumnId = Object.keys(space.columns).length;
+                const tempData = { ...space };
                 setSpace({
-                  ...board,
+                  ...space,
                   columns: {
-                    ...board.columns,
+                    ...space.columns,
                     [`column-${newColumnId}`]: {
                       id: `column-${newColumnId}`,
                       title: '',
@@ -81,7 +82,7 @@ function BoardView({ board, handleDragEnd }: Props) {
                       moveCard: { 0: false, 1: true, 2: true, 3: true },
                     },
                   },
-                  columnOrder: [...board.columnOrder, `column-${newColumnId}`],
+                  columnOrder: [...space.columnOrder, `column-${newColumnId}`],
                 });
                 runMoralisFunction('addColumn', {
                   boardId: bid,

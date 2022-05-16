@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 import React from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { BoardData } from '../../../types';
 import ColumnListSection from './columnListSection';
 
 type Props = {
-  board: BoardData;
   handleDragEnd: (result: DropResult) => void;
 };
 
@@ -15,13 +15,14 @@ const Container = styled.div`
   padding: 0.5rem;
 `;
 
-function ListView({ board, handleDragEnd }: Props) {
+function ListView({ handleDragEnd }: Props) {
+  const { space, filteredTasks } = useSpace();
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
       <Container data-testid="listViewContainer">
-        {board.columnOrder.map((columnId) => {
-          const column = board.columns[columnId];
-          let tasks = column.taskIds?.map((taskId) => board.tasks[taskId]);
+        {space.columnOrder.map((columnId) => {
+          const column = space.columns[columnId];
+          let tasks = column.taskIds?.map((taskId) => filteredTasks[taskId]);
           tasks = tasks.filter((element) => {
             return element !== undefined;
           });

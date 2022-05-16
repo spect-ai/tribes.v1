@@ -177,7 +177,7 @@ function ForumCard({ task }: ForumProps) {
 }
 
 function ForumView(props: Props) {
-  const { space } = useSpace();
+  const { space, filteredTasks } = useSpace();
   const [forumTasks, setForumTasks] = useState<Task[]>([]);
   const [col, setCol] = useState(Object.keys(space.columns)[0]);
   const { user } = useMoralis();
@@ -197,7 +197,7 @@ function ForumView(props: Props) {
 
   useEffect(() => {
     let tasks = space.columns[col].taskIds?.map(
-      (taskId) => space.tasks[taskId]
+      (taskId) => filteredTasks[taskId]
     );
     tasks = tasks.filter((element) => {
       return element !== undefined;

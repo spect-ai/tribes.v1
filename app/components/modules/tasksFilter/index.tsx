@@ -1,21 +1,98 @@
-import { IconButton, Popover, TextField, Tooltip } from '@mui/material';
+import { Badge, IconButton, Popover, TextField, Tooltip } from '@mui/material';
 import { FilterAlt } from '@mui/icons-material';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { PrimaryButton } from '../../elements/styledComponents';
 import { PopoverContainer } from '../cardModal/styles';
 import { labelsMapping } from '../../../constants';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import CommonAutocomplete from '../../elements/autoComplete';
-import { Task } from '../../../types';
+import { BoardData } from '../../../types';
+
+export interface CurrentFilter {
+  reviewerFilter: string[];
+  assigneeFilter: string[];
+  labelsFilter: string[];
+  titleFilter: string;
+}
+
+export const filterTasks = (space: BoardData, currentFilter: CurrentFilter) => {
+  if (!currentFilter || !currentFilter.reviewerFilter) return space.tasks;
+  const filteredTasks = Object.values(space.tasks)?.filter((task) => {
+    if (task === undefined) return false;
+    let reviewerFiltSat = false;
+    let assigneeFiltSat = false;
+    let labelsFiltSat = false;
+    let titleFiltSat = false;
+
+    const { reviewer, assignee, tags, title } = task;
+
+    if (currentFilter.reviewerFilter.length > 0) {
+      for (let i = 0; i < reviewer.length; i += 1) {
+        const filterRTruth = currentFilter.reviewerFilter.includes(reviewer[i]);
+        if (filterRTruth) {
+          reviewerFiltSat = true;
+          break;
+        }
+      }
+    } else {
+      reviewerFiltSat = true;
+    }
+
+    if (currentFilter.assigneeFilter.length > 0) {
+      for (let i = 0; i < assignee.length; i += 1) {
+        const filterATruth = currentFilter.assigneeFilter.includes(assignee[i]);
+        if (filterATruth) {
+          assigneeFiltSat = true;
+          break;
+        }
+      }
+      // console.log("\n");
+    } else {
+      assigneeFiltSat = true;
+    }
+
+    if (currentFilter.labelsFilter.length > 0) {
+      for (let i = 0; i < tags.length; i += 1) {
+        const filterLTruth = currentFilter.labelsFilter.includes(tags[i]);
+        if (filterLTruth) {
+          labelsFiltSat = true;
+          break;
+        }
+      }
+    } else {
+      labelsFiltSat = true;
+    }
+
+    if (currentFilter.titleFilter.length > 0) {
+      const searchString = currentFilter.titleFilter.toLowerCase();
+      const titleToSearch = title.toLowerCase();
+      const titleSearch = titleToSearch.includes(searchString);
+      if (titleSearch === true) {
+        titleFiltSat = true;
+      }
+    } else {
+      titleFiltSat = true;
+    }
+
+    if (reviewerFiltSat && assigneeFiltSat && labelsFiltSat && titleFiltSat) {
+      return task;
+    }
+    return false;
+  });
+  const spaceTasks = filteredTasks.reduce(
+    (acc, task) => ({ ...acc, [task.taskId]: task }),
+    {}
+  );
+  return spaceTasks;
+};
 
 function TasksFilter() {
-  const { space, setSpace } = useSpace();
-  const [allTasks, setAllTasks] = useState<{ [key: string]: Task }>({} as any);
+  const { space, setFilteredTasks, setCurrentFilter } = useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
-  const [reviewerFilter, setReviewerFilter] = useState<any[]>([]);
-  const [assigneeFilter, setAssigneeFilter] = useState<any[]>([]);
-  const [labelsFilter, setLabelsFilter] = useState<any[]>([]);
+  const [reviewerFilter, setReviewerFilter] = useState<string[]>([]);
+  const [assigneeFilter, setAssigneeFilter] = useState<string[]>([]);
+  const [labelsFilter, setLabelsFilter] = useState<string[]>([]);
   const [titleFilter, setTitleFilter] = useState<string>('');
 
   const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,84 +108,50 @@ function TasksFilter() {
 
   const handleFilter = () => {
     handleFilterClose();
-    const filteredTasks = Object.values(allTasks)?.filter((task) => {
-      if (task === undefined) return false;
-      let reviewerFiltSat = false;
-      let assigneeFiltSat = false;
-      let labelsFiltSat = false;
-      let titleFiltSat = false;
-
-      const { reviewer, assignee, tags, title } = task;
-
-      if (reviewerFilter.length > 0) {
-        for (let i = 0; i < reviewer.length; i += 1) {
-          const filterRTruth = reviewerFilter.includes(reviewer[i]);
-          if (filterRTruth) {
-            reviewerFiltSat = true;
-            break;
-          }
-        }
-      } else {
-        reviewerFiltSat = true;
-      }
-
-      if (assigneeFilter.length > 0) {
-        for (let i = 0; i < assignee.length; i += 1) {
-          const filterATruth = assigneeFilter.includes(assignee[i]);
-          if (filterATruth) {
-            assigneeFiltSat = true;
-            break;
-          }
-        }
-        // console.log("\n");
-      } else {
-        assigneeFiltSat = true;
-      }
-
-      if (labelsFilter.length > 0) {
-        for (let i = 0; i < tags.length; i += 1) {
-          const filterLTruth = labelsFilter.includes(tags[i]);
-          if (filterLTruth) {
-            labelsFiltSat = true;
-            break;
-          }
-        }
-      } else {
-        labelsFiltSat = true;
-      }
-
-      if (titleFilter.length > 0) {
-        const searchString = titleFilter.toLowerCase();
-        const titleToSearch = title.toLowerCase();
-        const titleSearch = titleToSearch.includes(searchString);
-        if (titleSearch === true) {
-          titleFiltSat = true;
-        }
-      } else {
-        titleFiltSat = true;
-      }
-
-      if (reviewerFiltSat && assigneeFiltSat && labelsFiltSat && titleFiltSat) {
-        return task;
-      }
-      return false;
+    setCurrentFilter({
+      reviewerFilter,
+      assigneeFilter,
+      labelsFilter,
+      titleFilter,
     });
-    const spaceTasks = filteredTasks.reduce(
-      (acc, task) => ({ ...acc, [task.taskId]: task }),
-      {}
+    setFilteredTasks(
+      filterTasks(space, {
+        reviewerFilter,
+        assigneeFilter,
+        labelsFilter,
+        titleFilter,
+      })
     );
-    setSpace({ ...space, tasks: spaceTasks });
   };
 
-  useEffect(() => {
-    setAllTasks(space.tasks);
-  }, []);
+  const getFilterBadge = () => {
+    let badge = 0;
+    if (reviewerFilter.length > 0) {
+      badge += 1;
+    }
+    if (assigneeFilter.length > 0) {
+      badge += 1;
+    }
+    if (labelsFilter.length > 0) {
+      badge += 1;
+    }
+    if (titleFilter.length > 0) {
+      badge += 1;
+    }
+    return badge;
+  };
 
   return (
     <>
       <IconButton sx={{ mt: 0.5 }} onClick={handleClick}>
         <Tooltip title="Filter tasks">
-          <FilterAlt sx={{ fontSize: 22, px: 1 }} color="secondary" />
+          <Badge
+            badgeContent={getFilterBadge()}
+            color="primary"
+            invisible={getFilterBadge() === 0}
+          >
+            <FilterAlt sx={{ fontSize: 22, px: 1 }} color="secondary" />
+          </Badge>
         </Tooltip>
       </IconButton>
       <Popover
