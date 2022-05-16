@@ -3,20 +3,20 @@ const classicDark = {
   palette: {
     mode: 'dark' as any,
     primary: {
-      main: '#00194A',
-      light: '#99ccff',
+      main: 'rgb(0, 25, 74, 0.9)',
+      light: 'rgb(153, 204, 255, 0.8)',
     },
     secondary: {
       main: 'rgb(234, 234, 234, 0.8)',
     },
     background: {
-      default: '#000f29',
+      default: 'rgb(0, 15, 41)',
     },
     text: {
-      primary: 'rgb(234, 234, 234, 0.85)',
-      secondary: '#99ccff',
+      primary: 'rgb(234, 234, 234, 0.8)',
+      secondary: 'rgb(153, 204, 255, 0.7)',
     },
-    divider: '#5a6972',
+    divider: 'rgb(90, 105, 114,0.7)',
   },
 };
 

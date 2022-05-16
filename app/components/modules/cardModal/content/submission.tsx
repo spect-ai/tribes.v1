@@ -16,7 +16,6 @@ import { uid } from '../../../../utils/utils';
 import {
   ModalHeading,
   PrimaryButton,
-  StyledAccordian,
 } from '../../../elements/styledComponents';
 import Editor from '../../editor';
 import useCardUpdate from '../../../../hooks/useCardUpdate';
@@ -25,6 +24,7 @@ import useCardStatus from '../../../../hooks/useCardStatus';
 import { useCardContext } from '..';
 import { Block } from '../../../../types';
 import { notify } from '../../settingsTab';
+import GithubPRPopover from '../../../elements/githubPRPopover';
 
 // @ts-ignore
 const ModalContainer = MUIStyled(Box)(({ theme }) => ({
@@ -90,30 +90,33 @@ function Submission() {
       {((isCardSteward() &&
         (isInReview() || isInRevision() || isClosed() || isPaid())) ||
         isCardAssignee()) && (
-        <Editor
-          syncBlocksToMoralis={handleSubmissionSave}
-          initialBlock={
-            task.submissions?.length > 0
-              ? task.submissions[0]?.content
-              : [
-                  {
-                    id: uid(),
-                    html: '',
-                    tag: 'p',
-                    type: '',
-                    imageUrl: '',
-                    embedUrl: '',
-                  },
-                ]
-          }
-          placeholderText={`Add submission, press "/" for commands`}
-          readonly={
-            (!isCardAssignee() as boolean) ||
-            (isClosed() as boolean) ||
-            (isPaid() as boolean)
-          }
-          id="task-submission"
-        />
+        <>
+          <GithubPRPopover />
+          <Editor
+            syncBlocksToMoralis={handleSubmissionSave}
+            initialBlock={
+              task.submissions?.length > 0
+                ? task.submissions[0]?.content
+                : [
+                    {
+                      id: uid(),
+                      html: '',
+                      tag: 'p',
+                      type: '',
+                      imageUrl: '',
+                      embedUrl: '',
+                    },
+                  ]
+            }
+            placeholderText={`Add submission, press "/" for commands`}
+            readonly={
+              (!isCardAssignee() as boolean) ||
+              (isClosed() as boolean) ||
+              (isPaid() as boolean)
+            }
+            id="task-submission"
+          />
+        </>
       )}
       <Box
         sx={{
@@ -316,11 +319,7 @@ function Submission() {
         !isInRevision() &&
         !isPaid() &&
         !isClosed() && (
-          <Box sx={{ display: 'flex', flexDirection: 'row', mt: 4 }}>
-            <Typography variant="body1" sx={{ mr: 4 }}>
-              No submissions yet
-            </Typography>
-          </Box>
+          <Typography sx={{ mr: 4 }}>No submissions yet</Typography>
         )}
       <Modal
         open={openRevisionModal}

@@ -108,7 +108,7 @@ function TasksFilter() {
     <>
       <IconButton sx={{ mt: 0.5 }} onClick={handleClick}>
         <Tooltip title="Filter tasks">
-          <FilterAlt sx={{ fontSize: 22, px: 1 }} />
+          <FilterAlt sx={{ fontSize: 22, px: 1 }} color="secondary" />
         </Tooltip>
       </IconButton>
       <Popover
