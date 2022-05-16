@@ -1,27 +1,52 @@
 import { useState } from 'react';
+import { useMoralis } from 'react-moralis';
 import useDistributor from './useDistributor';
 import { notify } from '../components/modules/settingsTab';
 import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import { Member, DistributionInfo } from '../types';
 import { useGlobal } from '../context/globalContext';
+import useERC20 from './useERC20';
 
 export default function usePaymentGateway(
   handleStatusUpdate?: Function,
   handleNextStep?: Function
 ) {
+  const { user } = useMoralis();
   const { distributeEther, distributeTokens } = useDistributor();
+  const { hasBalances } = useERC20();
   const [isLoading, setIsLoading] = useState(false);
   const {
     state: { registry },
   } = useGlobal();
-  function handlePaymentError(err: any, expectedNetwork: string) {
+  async function handlePaymentError(
+    err: any,
+    expectedNetwork: string,
+    tokenAddresses: Array<string>,
+    tokenValues: Array<number>
+  ) {
     if (window.ethereum.networkVersion !== expectedNetwork)
       notify(
         `Please switch to ${registry[expectedNetwork]?.name} network`,
         'error'
       );
     else {
-      notify(err.message, 'error');
+      const [sufficientBalance, insufficientBalanceTokenAddress] =
+        await hasBalances(tokenAddresses, tokenValues, user?.get('ethAddress'));
+      console.log(sufficientBalance);
+      console.log(insufficientBalanceTokenAddress);
+
+      if (!sufficientBalance) {
+        notify(
+          `Insufficient balance of ${
+            registry[expectedNetwork].tokens[
+              insufficientBalanceTokenAddress as string
+            ].name
+          }`,
+          'error'
+        );
+      } else {
+        notify(`${err.message}`, 'error');
+      }
     }
   }
 
@@ -74,9 +99,9 @@ export default function usePaymentGateway(
       }
       setIsLoading(false);
     } catch (err: any) {
-      handlePaymentError(err, chainId);
+      handlePaymentError(err, chainId, tokenAddresses, tokenValues);
       setIsLoading(false);
-      console.log(err.message);
+      console.log(err);
     }
   }
 

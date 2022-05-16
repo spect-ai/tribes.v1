@@ -1,5 +1,5 @@
 import PaidIcon from '@mui/icons-material/Paid';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCardContext } from '..';
 import { useGlobal } from '../../../../context/globalContext';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
@@ -16,11 +16,21 @@ function RewardPopover() {
   const {
     state: { registry },
   } = useGlobal();
-  const [open, setOpen] = useState(false);
   const { chain, setChain, token, setToken, value, setValue } =
     useCardContext();
+  const [prevChain, setPrevChain] = useState(chain);
   const { updateReward } = useCardUpdate();
   const { getReason, isCardStewardAndUnpaidCardStatus } = useCardDynamism();
+
+  useEffect(() => {
+    const { tokenAddresses } = registry[chain.chainId];
+    const { tokens } = registry[chain.chainId];
+    if (prevChain.chainId === chain.chainId) return;
+    if (tokenAddresses?.length > 0) {
+      setPrevChain(chain);
+      setToken(tokens[tokenAddresses[0]]);
+    }
+  }, [chain]);
 
   return (
     <CommonPopover
