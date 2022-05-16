@@ -14,6 +14,7 @@ function ColumnPopover() {
   return (
     <CommonPopover
       buttonText={space.columns[col].title}
+      buttonId="bColumnButton"
       popoverContent={
         isStakeholderAndStatusUnpaid()
           ? [
@@ -24,6 +25,7 @@ function ColumnPopover() {
                 setCurrOption: setCol,
                 optionLabels: (option: any) => space.columns[option].title,
                 beforeClose: updateColumn,
+                testId: 'aColumnPicker',
               },
             ]
           : [

@@ -54,6 +54,7 @@ function ConfirmModal({
                 Cancel
               </PrimaryButton>
               <PrimaryButton
+                data-testid="bConfirmAction"
                 variant="outlined"
                 sx={{ width: '50%', mt: 2 }}
                 color="error"

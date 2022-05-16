@@ -14,6 +14,7 @@ type PopProps = {
   popoverContent: Array<any>;
   label?: string;
   beforeClose?: () => void;
+  buttonId?: string;
 };
 
 function CommonPopover({
@@ -24,6 +25,7 @@ function CommonPopover({
   popoverContent,
   label,
   beforeClose,
+  buttonId,
 }: PopProps) {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -55,6 +57,7 @@ function CommonPopover({
           </Typography>
         )}
         <CardButton
+          data-testid={buttonId}
           variant="outlined"
           onClick={openPopover()}
           color="secondary"
@@ -83,6 +86,7 @@ function CommonPopover({
             if (item.fieldType === 'autocomplete') {
               return (
                 <CommonAutocomplete
+                  testId={item.testId}
                   options={item.options}
                   optionLabels={item.optionLabels}
                   currOption={item.currOption}
@@ -98,6 +102,7 @@ function CommonPopover({
             if (item.fieldType === 'textfield') {
               return (
                 <CommonTextField
+                  testId={item.testId}
                   id={item.id}
                   label={item.label}
                   type={item.type}

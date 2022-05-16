@@ -35,6 +35,7 @@ function RewardPopover() {
   return (
     <CommonPopover
       label="Reward"
+      buttonId="bRewardButton"
       buttonText={
         <CardInfoDisplay
           avatarDefault={<PaidIcon sx={{ color: 'text.primary' }} />}
@@ -62,6 +63,7 @@ function RewardPopover() {
                 sx: { mb: 3 },
                 optionLabels: (option: any) => option.name,
                 closeOnSelect: false,
+                testId: 'aRewardChain',
               },
               {
                 fieldType: 'autocomplete',
@@ -74,6 +76,7 @@ function RewardPopover() {
                 sx: { mb: 3 },
                 optionLabels: (option: any) => option.symbol,
                 closeOnSelect: false,
+                testId: 'aRewardToken',
               },
               {
                 fieldType: 'textfield',
@@ -82,6 +85,7 @@ function RewardPopover() {
                 type: 'number',
                 value: parseFloat(value),
                 handleChange: setValue,
+                testId: 'iRewardValue',
               },
             ]
           : [
