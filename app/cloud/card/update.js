@@ -71,62 +71,6 @@ const updatePropertyActivityMap = {
   columnChange: 400,
 };
 
-Moralis.Cloud.define('githubUpdateCard', async (request) => {
-  log(
-    request.params.user,
-    `Calling updateCard for taskId: ${request.params.taskId}`,
-    'info'
-  );
-  try {
-    var task = await getTaskByTaskId(request.params.taskId);
-    let comment;
-    
-    if(task){
-      var space = await getBoardByObjectId(task.get("boardId"));
-      var link = String(request.params.link);
-      var status = Number(request.params.updates?.status);
-
-      if (status == 200){
-          task.add("submissions", 
-          {
-            "id": crypto.randomUUID(),
-            "userId": "Bot",
-            "content": [
-              {
-                "id": crypto.randomUUID(),
-                "html": "/e",
-                "tag": "embed",
-                "type": "pr",
-                "imageUrl": "",
-                "embedUrl": link
-              }
-            ],
-            "createdAt": new Date(),
-            "updatedAt": new Date(),
-            "edited": true
-          }
-        );
-      }
-
-      [space, task] = await handleAutomation(task, request.params.updates, space);
-      task.set("status", status);
-      task = handleActivityUpdates(task, request.params.updates, "Bot");
-      const res = await Moralis.Object.saveAll([space, task], {
-        useMasterKey: true,
-      });
-      logger.info(`res: ${JSON.stringify(res)}`);
-
-      comment = "Your submission was successful." ;
-    }else{
-      comment = "looks like you have given the incorrect Task ID.";
-    } 
-    return comment;
-  } catch (error) {
-      log(`Failure in updateCard for card id ${request.params.taskId}: ${err}`,'error');
-      throw(error);
-  }  
-});
-
 Moralis.Cloud.define('updateCard', async (request) => {
   log(
     request.user?.id,

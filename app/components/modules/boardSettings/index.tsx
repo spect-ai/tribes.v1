@@ -1,3 +1,4 @@
+import { GitHub } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -7,7 +8,6 @@ import {
   Box,
   Grow,
   IconButton,
-  Modal,
   styled as MUIStyled,
   TextField,
   Tooltip,
@@ -165,6 +165,30 @@ function BoardSettings(props: Props) {
                     token={defaultToken}
                     setToken={setDefaultToken}
                   />
+                </AccordionDetails>
+              </StyledAccordian>
+              <StyledAccordian disableGutters>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography>Integrations</Typography>
+                </AccordionSummary>
+
+                <AccordionDetails>
+                  <a
+                    href="https://github.com/apps/spect-github-bot/installations/new"
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <PrimaryButton
+                      startIcon={<GitHub />}
+                      variant="outlined"
+                      color="secondary"
+                    >
+                      <Typography>Connect Github</Typography>
+                    </PrimaryButton>
+                  </a>
                 </AccordionDetails>
               </StyledAccordian>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
