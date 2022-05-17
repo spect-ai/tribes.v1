@@ -2,7 +2,7 @@ import { Box, styled } from '@mui/material';
 
 // @ts-ignore
 const PopoverContainer = styled(Box)(({ theme }) => ({
-  width: '20rem',
+  width: '28rem',
   backgroundColor: theme.palette.primary.main,
   boxShadow: 24,
   overflow: 'auto',

@@ -2,6 +2,7 @@ import { ContentCopy, GitHub } from '@mui/icons-material';
 import { Box, IconButton, Popover, Typography } from '@mui/material';
 import React, { useState } from 'react';
 import { useCardContext } from '../../modules/cardModal';
+import { notify } from '../../modules/settingsTab';
 import { PrimaryButton } from '../styledComponents';
 import PopoverContainer from './styles';
 
@@ -42,14 +43,30 @@ function GithubPRPopover(props: Props) {
         <PopoverContainer>
           <Typography fontSize={14}>
             You can link your github PR to this task by adding taskID(s) to your
-            PR title using this format:
+            PR title using this format(add mutliple Ids in the brackets):
           </Typography>
-          <Typography
-            fontSize={14}
-            sx={{ background: '#000f29', fontStyle: 'italic', p: 1, my: 2 }}
-          >
-            Spect [taskId1, taskId2, ....] PR Title
-          </Typography>
+          <Box sx={{ display: 'flex' }}>
+            <Typography
+              fontSize={14}
+              sx={{ background: '#000f29', fontStyle: 'italic', p: 1, my: 2 }}
+            >
+              {`Spect [${task.taskId}] PR Title`}
+            </Typography>
+            <IconButton
+              color="secondary"
+              size="small"
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  `Spect [${task.taskId}] PR Title`
+                );
+                notify('Copied');
+              }}
+              sx={{ ml: 2 }}
+            >
+              <ContentCopy sx={{ fontSize: 20 }} />
+            </IconButton>
+          </Box>
+
           <Box sx={{ display: 'flex' }}>
             <Typography fontSize={14} sx={{ p: 1 }}>
               {task.taskId}
@@ -59,6 +76,7 @@ function GithubPRPopover(props: Props) {
               size="small"
               onClick={() => {
                 navigator.clipboard.writeText(task.taskId);
+                notify('Copied');
               }}
               sx={{ ml: 2 }}
             >
