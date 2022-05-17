@@ -64,6 +64,7 @@ function RewardPopover() {
                 optionLabels: (option: any) => option.name,
                 closeOnSelect: false,
                 testId: 'aRewardChain',
+                disableClearable: true,
               },
               {
                 fieldType: 'autocomplete',
@@ -77,6 +78,7 @@ function RewardPopover() {
                 optionLabels: (option: any) => option.symbol,
                 closeOnSelect: false,
                 testId: 'aRewardToken',
+                disableClearable: true,
               },
               {
                 fieldType: 'textfield',
