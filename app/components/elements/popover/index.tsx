@@ -95,6 +95,7 @@ function CommonPopover({
                   closeOnSelect={item.closeOnSelect}
                   sx={item.sx}
                   multiple={item.multiple}
+                  disableClearable={item.disableClearable}
                   beforeClose={item.beforeClose}
                 />
               );

@@ -49,6 +49,7 @@ export default function useERC20() {
     values: Array<number>
   ) {
     const addressToValue: any = {};
+    if (!erc20Addresses || !values) return addressToValue;
     // eslint-disable-next-line no-plusplus
     for (let i = 0; i < erc20Addresses.length; i++) {
       if (!(erc20Addresses[i] in addressToValue)) {
@@ -67,12 +68,13 @@ export default function useERC20() {
     ethAddress: string
   ) {
     if (isCurrency(erc20Address)) {
-      window.ethereum
-        .request({ method: 'eth_getBalance' })
-        .then((balance: any) => {
-          console.log(balance);
-          return parseFloat(ethers.utils.formatEther(balance)) >= value;
-        });
+      const balance = await window.ethereum.request({
+        method: 'eth_getBalance',
+        params: [ethAddress],
+      });
+
+      return parseFloat(ethers.utils.formatEther(balance)) >= value;
+      // eslint-disable-next-line no-else-return
     } else {
       const contract = getERC20Contract(erc20Address);
 
@@ -96,7 +98,6 @@ export default function useERC20() {
         value as number,
         ethAddress
       );
-
       if (!sufficientBalance) return [false, erc20Address];
     }
     return [true, null];

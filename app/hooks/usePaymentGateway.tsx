@@ -24,6 +24,13 @@ export default function usePaymentGateway(
     tokenAddresses: Array<string>,
     tokenValues: Array<number>
   ) {
+    const accounts = await window.ethereum.request({
+      method: 'eth_accounts',
+    });
+    if (accounts.length === 0) {
+      notify(`Cannot fetch account, wallet is most likely locked`, 'error');
+      return;
+    }
     if (window.ethereum.networkVersion !== expectedNetwork)
       notify(
         `Please switch to ${registry[expectedNetwork]?.name} network`,
@@ -32,8 +39,6 @@ export default function usePaymentGateway(
     else {
       const [sufficientBalance, insufficientBalanceTokenAddress] =
         await hasBalances(tokenAddresses, tokenValues, user?.get('ethAddress'));
-      console.log(sufficientBalance);
-      console.log(insufficientBalanceTokenAddress);
 
       if (!sufficientBalance) {
         notify(
