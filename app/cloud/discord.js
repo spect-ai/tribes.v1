@@ -165,6 +165,61 @@ Moralis.Cloud.define('getGuildChannels', async (request) => {
   }
 });
 
+Moralis.Cloud.define('discussTask', async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  try {
+    const task = await getTaskByTaskId(request.params.taskId);
+    if (task.get('discussionThread')) {
+      const res = await Moralis.Cloud.httpRequest({
+        method: 'POST',
+        url: 'http://6db9-49-207-205-68.ngrok.io/api/addMemberToDiscussionThread',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+        params: {
+          guildId: request.params.guildId,
+        },
+        body: {
+          threadId: task.get('discussionThread'),
+          channelId: request.params.channelId,
+          userId: request.user.get('discordId'),
+        },
+      });
+      if (res.data.result) {
+        return res.data;
+      } else {
+        throw 'Something went wrong while joining discussion channel';
+      }
+    } else {
+      const res = await Moralis.Cloud.httpRequest({
+        method: 'POST',
+        url: 'http://6db9-49-207-205-68.ngrok.io/api/createDiscussionThread',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+        params: {
+          guildId: request.params.guildId,
+        },
+        body: {
+          taskTitle: task.get('title'),
+          channelId: request.params.channelId,
+          userId: request.user.get('discordId'),
+        },
+      });
+      if (res.data.result) {
+        task.set('discussionThread', res.data.result);
+        await Moralis.Object.saveAll([task], { useMasterKey: true });
+        return res.data;
+      } else {
+        throw 'Something went wrong while creating discussion channel';
+      }
+    }
+  } catch (err) {
+    logger.error(`Error: ${err}`);
+    throw err;
+  }
+});
+
 async function NotifyOnDiscord(board, guildId, taskId, channels) {
   const task = await getTaskObjByTaskId(taskId);
   task.url = `https://tribes.spect.network/tribe/${board.get('teamId')}/space/${

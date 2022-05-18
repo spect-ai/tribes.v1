@@ -19,7 +19,8 @@ import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
-import { BoardData, Chain, Token } from '../../../types';
+import { BoardData, Chain, Channel, Token } from '../../../types';
+import CommonAutocomplete from '../../elements/autoComplete';
 import ConfirmModal from '../../elements/confirmModal';
 import DefaultPaymentForm from '../../elements/defaultPaymentForm';
 import {
@@ -65,6 +66,10 @@ function BoardSettings(props: Props) {
   };
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [discussionChannel, setDiscussionChannel] = useState<Channel>(
+    {} as Channel
+  );
+  const [serverChannels, setServerChannels] = useState<Channel[]>([]);
   const handleConfirmClose = () => {
     setIsConfirmOpen(false);
   };
@@ -90,6 +95,19 @@ function BoardSettings(props: Props) {
     setDefaultChain(space.defaultPayment?.chain);
     setDefaultToken(space.defaultPayment?.token);
   }, [space]);
+
+  useEffect(() => {
+    if (isOpen && space.team[0].guildId) {
+      runMoralisFunction('getGuildChannels', {
+        guildId: space.team[0].guildId,
+      }).then((res) => {
+        if (res.guildChannels) {
+          setServerChannels(res.guildChannels);
+        }
+      });
+      setDiscussionChannel(space.discussionChannel);
+    }
+  }, [isOpen]);
 
   return (
     <>
@@ -189,6 +207,19 @@ function BoardSettings(props: Props) {
                       <Typography>Connect Github</Typography>
                     </PrimaryButton>
                   </a>
+                  <Typography fontSize={14} sx={{ mt: 4 }}>
+                    Assign a channel in your discord server where tasks can be
+                    discussed
+                  </Typography>
+                  <CommonAutocomplete
+                    options={serverChannels}
+                    optionLabels={(option) => `#${option.name}`}
+                    currOption={discussionChannel}
+                    setCurrOption={setDiscussionChannel}
+                    closeOnSelect={false}
+                    sx={{ mt: 2 }}
+                    placeholder="Search for channels"
+                  />
                 </AccordionDetails>
               </StyledAccordian>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -213,7 +244,9 @@ function BoardSettings(props: Props) {
                         chain: defaultChain,
                         token: defaultToken,
                       },
+                      discussionChannel,
                     }).then((res: any) => {
+                      console.log(res);
                       setSpace(res as BoardData);
                       setIsLoading(false);
                       setRefreshEpochs(true);
