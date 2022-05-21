@@ -44,6 +44,16 @@ export interface User {
   _created_at: any;
 }
 
+export interface SoulboundInfo {
+  title: string;
+  claimee: string;
+  contentUri: string;
+  deadline: string;
+  description: string;
+  issuer: string;
+  id: number;
+}
+
 export type Member = {
   ethAddress: string;
   objectId: string;
@@ -261,6 +271,23 @@ export interface Team {
   boards: BoardData[];
   theme: number;
   guildId: string;
+}
+/* TODO: Compress CurrentUser and Profile into a single type after checking impact */
+export interface Profile {
+  profilePicture: any;
+  avatar: string;
+  createdAt: string;
+  is_discord_linked: boolean;
+  objectId: string;
+  tribes: string[];
+  updatedAt: string;
+  userId: string;
+  username: string;
+  userId: string;
+  email: string;
+  discordId: string;
+  cards: Task[];
+  epochs: Epoch[];
 }
 
 export type TokenInfo = {

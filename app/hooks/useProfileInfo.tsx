@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
-import { Member } from '../types';
+import { Member, Profile } from '../types';
 
 export default function useProfileInfo() {
   const { user, isAuthenticated } = useMoralis();
@@ -22,7 +22,7 @@ export default function useProfileInfo() {
     user?.attributes.avatar,
   ]);
 
-  const getAvatar = (userObj: Member) => {
+  const getAvatar = (userObj: Member | Profile) => {
     if (!userObj) {
       return null;
     }

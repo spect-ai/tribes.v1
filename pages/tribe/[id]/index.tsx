@@ -14,12 +14,6 @@ import { PageContainer } from './space/[bid]';
 
 interface Props {}
 
-type Issue = {
-  id: number;
-  title?: string;
-  issueLink: string;
-};
-
 interface TribeContextType {
   tab: number;
   handleTabChange: (event: React.SyntheticEvent, newValue: number) => void;

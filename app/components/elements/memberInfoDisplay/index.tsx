@@ -1,10 +1,10 @@
 import { Box, Typography, styled } from '@mui/material';
 import React from 'react';
-import { Member } from '../../../types';
+import { Member, Profile } from '../../../types';
 import MemberAvatar from '../memberAvatar';
 
 type Props = {
-  member?: Member;
+  member?: Member | Profile;
   placeholder?: string;
   textsx?: object;
   textVariant?: string;

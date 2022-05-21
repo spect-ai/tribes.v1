@@ -22,6 +22,12 @@ async function getUserByUserId(userId) {
   return await userInfoQuery.first({ useMasterKey: true });
 }
 
+async function getUserByUsername(username) {
+  const userInfoQuery = new Moralis.Query('UserInfo');
+  userInfoQuery.equalTo('username', username);
+  return await userInfoQuery.first({ useMasterKey: true });
+}
+
 async function getUserByObjId(objectId) {
   const userInfoQuery = new Moralis.Query('UserInfo');
   userInfoQuery.equalTo('objectId', objectId);
@@ -74,6 +80,12 @@ async function getUsernameProfilePicByUserId(userId) {
 
 async function getUserCount() {
   const userQuery = new Moralis.Query('User');
+  return await userQuery.count({ useMasterKey: true });
+}
+
+async function getUserCountWithUsername(username) {
+  const userQuery = new Moralis.Query('User');
+  userQuery.equalTo('username', username);
   return await userQuery.count({ useMasterKey: true });
 }
 
@@ -132,4 +144,40 @@ Moralis.Cloud.define('getOrCreateUser', async (request) => {
     logger.error(`Error while gettig user ${err}`);
     return false;
   }
+});
+
+async function getUserDetailsWithUsername(username) {
+  const userQuery = new Moralis.Query('User');
+  const pipeline = [
+    { match: { username: username } },
+    {
+      project: {
+        objectId: 1,
+        username: 1,
+        profilePicture: 1,
+        ethAddress: 1,
+      },
+    },
+  ];
+  const user = await userQuery.aggregate(pipeline, { useMasterKey: true });
+  if (user) return user[0];
+  else return null;
+}
+
+async function getRelevantCards(userId) {
+  const cardQuery = new Moralis.Query('Task');
+  const cards = await cardQuery.aggregate([], { useMasterKey: true });
+  let res = [];
+  for (var card of cards) {
+    if (card.assignee?.includes(userId)) {
+      res.push(card);
+    }
+  }
+  return res;
+}
+
+Moralis.Cloud.define('getUserDetailsWithUsername', async (request) => {
+  const user = await getUserDetailsWithUsername(request.params.username);
+  user.cards = await getRelevantCards(user.objectId);
+  return user;
 });

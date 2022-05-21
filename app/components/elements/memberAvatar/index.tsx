@@ -2,10 +2,10 @@ import PersonIcon from '@mui/icons-material/Person';
 import { Avatar } from '@mui/material';
 import React from 'react';
 import useProfileInfo from '../../../hooks/useProfileInfo';
-import { Member } from '../../../types';
+import { Member, Profile } from '../../../types';
 
 type Props = {
-  member?: Member;
+  member?: Member | Profile;
   avatarsx?: object;
 };
 

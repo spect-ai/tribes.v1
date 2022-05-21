@@ -1,4 +1,5 @@
 import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
 import { Popover, useTheme } from '@mui/material';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -47,6 +48,16 @@ function ProfilePopover({ open, anchorEl, handleClose }: Props) {
             <ButtonText>Link Discord</ButtonText>
           </OptionsButton>
         )}
+        <OptionsButton
+          data-testid="bGoToProfile"
+          color="inherit"
+          onClick={() => {
+            router.push(`/profile/${user?.get('username')}`);
+          }}
+        >
+          <PersonIcon />
+          <ButtonText>Go to Profile</ButtonText>
+        </OptionsButton>
         <ProfileSettings />
         <OptionsButton
           data-testid="bLogoutButton"
