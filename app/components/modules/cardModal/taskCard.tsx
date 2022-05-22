@@ -22,6 +22,7 @@ import TabularDetails from './tabularDetails';
 import useCardUpdate from '../../../hooks/useCardUpdate';
 import { useCardContext } from '.';
 import Attest from './buttons/attest';
+import Claim from './buttons/claim';
 
 type Props = {
   handleClose: () => void;
@@ -73,6 +74,7 @@ function TaskCard({ handleClose }: Props) {
         <AssignToMe />
         <CloseButton />
         <Attest />
+        <Claim />
         <PayButton handleClose={handleClose} />
         {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
         <IconButton

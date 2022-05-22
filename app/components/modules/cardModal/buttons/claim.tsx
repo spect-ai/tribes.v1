@@ -13,10 +13,10 @@ import { CardButton } from '../../../elements/styledComponents';
 
 function Attest() {
   const { task, setTask, setProposalEditMode } = useCardContext();
-  const { isGiveSoulboundButtonViewable } = useCardDynamism();
+  const { isClaimButtonViewable } = useCardDynamism();
   const { tribe } = useTribe();
   const { space } = useSpace();
-  const { createBounty } = useSouls();
+  const { claim } = useSouls();
   const { user, Moralis } = useMoralis();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -37,45 +37,23 @@ function Attest() {
 
   const handleConfirm = () => {
     setIsLoading(true);
-    setLoadingFeedack('Uploading to IPFS...');
-    const attestation = {
-      application: 'spect',
-      type: task.type,
-      assignees: task.assignee,
-      reviewer: task.reviewer,
-      description: task.description,
-      title: task.title,
-      reward: {
-        value: task.value,
-        token: task.token,
-        network: task.chain,
-      },
-      deadline: task.deadline,
-      tribe: space.team[0].name,
-      space: space.name,
-    };
-    const file = new Moralis.File('file.json', {
-      base64: btoa(JSON.stringify(attestation)),
-    });
-    file.saveIPFS().then((res: any) => {
-      console.log(res);
-      const ethAddresses = getAddresses(task.assignee.concat(task.reviewer));
-      createBounty(ethAddresses, res._ipfs)
-        // eslint-disable-next-line no-shadow
-        .then((res: any) => {
-          console.log(res);
-          setIsLoading(false);
-          setLoadingFeedack('Bounty created');
-          setIsOpen(false);
-        })
-        .catch((err: any) => {
-          console.log(err);
-          setIsLoading(false);
-        });
-    });
+    setLoadingFeedack('Claiming Attestation...');
+
+    claim(3)
+      // eslint-disable-next-line no-shadow
+      .then((res: any) => {
+        console.log(res);
+        setIsLoading(false);
+        setLoadingFeedack('Attestation claimed');
+        setIsOpen(false);
+      })
+      .catch((err: any) => {
+        console.log(err);
+        setIsLoading(false);
+      });
   };
 
-  if (isGiveSoulboundButtonViewable()) {
+  if (isClaimButtonViewable()) {
     return (
       <Box
         sx={{
@@ -104,19 +82,18 @@ function Attest() {
               mr: 0.5,
             }}
           >
-            Attest
+            Claim
           </Typography>
         </CardButton>
         <ConfirmModal
           isOpen={isOpen}
           handleClose={handleClose}
-          buttonText="Yes, send attestation"
+          buttonText="Yes, claim attestation"
           runOnConfirm={handleConfirm}
           confirmButtonColor="success"
           modalContent={
             <Typography variant="subtitle1" sx={{ mb: 2 }} color="text.primary">
-              You are about to send an attestation of this card to assignees and
-              reviewers!
+              You are about to claim an attestation of this card!
             </Typography>
           }
         />

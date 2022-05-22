@@ -1,22 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { ethers } from 'ethers';
-import fs from 'fs';
 import { Member, Profile } from '../types';
 import CredsHub from '../contracts/local/CredsHub.json';
 import ClaimModule from '../contracts/local/ClaimModule.json';
+import addrs from '../contracts/local/addresses.json';
 
-export default function useProfileInfo() {
-  const [addrs, setAddrs] = useState({} as any);
+export default function useSouls() {
+  //   const [addrs, setAddrs] = useState({} as any);
 
-  function getAddrs(): any {
-    const json = fs.readFileSync('../contracts/local/addreses.json', 'utf8');
-    return JSON.parse(json);
-  }
+  //   function getAddrs(): any {
+  //     return JSON.parse(Addresses);
+  //   }
 
-  useEffect(() => {
-    setAddrs(getAddrs());
-  }, []);
+  //   useEffect(() => {
+  //     setAddrs(getAddrs());
+  //   }, []);
 
   function getCredsHub() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -36,11 +35,33 @@ export default function useProfileInfo() {
     );
   }
 
-  function createBounty() {}
+  async function createBounty(whitelistAddresses: string[], ipfsLink: string) {
+    const credsHub = getCredsHub();
+    const inputStruct = {
+      claimModule: addrs.claimModule,
+      claimModuleInitData: ethers.utils.defaultAbiCoder.encode(
+        ['address[]'],
+        [whitelistAddresses]
+      ),
+      contentUri: ipfsLink,
+    };
 
-  function getBounty() {}
+    const tx = await credsHub.createBounty(inputStruct);
+    console.log(tx);
+    return tx.wait();
+  }
 
-  function claim() {}
+  async function getBounty(bountyid: number) {
+    const credsHub = getCredsHub();
+    const tx = await credsHub.getBounty(bountyid);
+    return tx.wait();
+  }
+
+  async function claim(bountyid: number) {
+    const credsHub = getCredsHub();
+    const tx = await credsHub.claimBounty(bountyid);
+    return tx.wait();
+  }
 
   return {
     createBounty,

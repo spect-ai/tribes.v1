@@ -143,7 +143,14 @@ export default function useCardDynamism() {
   };
 
   const isGiveSoulboundButtonViewable = () => {
-    if (isCardSteward() && (isPaid() || isClosed())) {
+    if (isSpaceSteward() && (isPaid() || isClosed())) {
+      return true;
+    }
+    return false;
+  };
+
+  const isClaimButtonViewable = () => {
+    if (isCardStakeholder() && (isPaid() || isClosed())) {
       return true;
     }
     return false;
@@ -177,5 +184,6 @@ export default function useCardDynamism() {
     payButtonView,
     closeButtonView,
     isGiveSoulboundButtonViewable,
+    isClaimButtonViewable,
   };
 }
