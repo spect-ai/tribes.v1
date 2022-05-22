@@ -10,6 +10,7 @@ import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useSouls from '../../../../hooks/useSouls';
 import ConfirmModal from '../../../elements/confirmModal';
 import { CardButton } from '../../../elements/styledComponents';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
 
 function Attest() {
   const { task, setTask, setProposalEditMode } = useCardContext();
@@ -21,6 +22,8 @@ function Attest() {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingFeedback, setLoadingFeedack] = useState('');
+  const { updateNftAddress } = useCardUpdate();
+
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -39,10 +42,11 @@ function Attest() {
     setIsLoading(true);
     setLoadingFeedack('Claiming Attestation...');
 
-    claim(3)
+    claim(task.onChainBountyId as number)
       // eslint-disable-next-line no-shadow
       .then((res: any) => {
         console.log(res);
+        updateNftAddress(res.bountyNFT);
         setIsLoading(false);
         setLoadingFeedack('Attestation claimed');
         setIsOpen(false);

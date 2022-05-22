@@ -10,14 +10,16 @@ import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useSouls from '../../../../hooks/useSouls';
 import ConfirmModal from '../../../elements/confirmModal';
 import { CardButton } from '../../../elements/styledComponents';
+import useCardUpdate from '../../../../hooks/useCardUpdate';
 
 function Attest() {
   const { task, setTask, setProposalEditMode } = useCardContext();
   const { isGiveSoulboundButtonViewable } = useCardDynamism();
   const { tribe } = useTribe();
   const { space } = useSpace();
-  const { createBounty } = useSouls();
+  const { createBounty, getBounty } = useSouls();
   const { user, Moralis } = useMoralis();
+  const { updateAttestationInfo } = useCardUpdate();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingFeedback, setLoadingFeedack] = useState('');
@@ -58,15 +60,20 @@ function Attest() {
       base64: btoa(JSON.stringify(attestation)),
     });
     file.saveIPFS().then((res: any) => {
-      console.log(res);
       const ethAddresses = getAddresses(task.assignee.concat(task.reviewer));
       createBounty(ethAddresses, res._ipfs)
         // eslint-disable-next-line no-shadow
         .then((res: any) => {
           console.log(res);
-          setIsLoading(false);
-          setLoadingFeedack('Bounty created');
-          setIsOpen(false);
+          getBounty(res).then((bounty: any) => {
+            // eslint-disable-next-line no-console
+            console.log(parseInt(res._hex, 16));
+            // eslint-disable-next-line no-shadow
+            updateAttestationInfo(bounty.bountyNFT, parseInt(res._hex, 16));
+            setIsLoading(false);
+            setLoadingFeedack('Bounty created');
+            setIsOpen(false);
+          });
         })
         .catch((err: any) => {
           console.log(err);

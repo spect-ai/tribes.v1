@@ -179,6 +179,10 @@ export interface Task {
   columnId: string;
   comments: Array<Comment>;
   votes: string[];
+  onChainBountyId?: number;
+  nftAddress?: string;
+  attested?: boolean;
+  ipfsUrl?: string;
 }
 
 export interface Epoch {

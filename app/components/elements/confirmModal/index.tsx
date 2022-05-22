@@ -9,7 +9,14 @@ type Props = {
   modalContent: any;
   runOnConfirm: any;
   confirmButtonSx?: any;
-  confirmButtonColor?: string;
+  confirmButtonColor?:
+    | 'inherit'
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'error'
+    | 'info'
+    | 'warning';
 };
 
 // @ts-ignore

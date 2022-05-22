@@ -47,7 +47,7 @@ function FullWidthCards() {
     {
       claimee: 'efgh',
       contentUri: 'contentUri',
-      title: 'test2',
+      title: 'Create an awesome landing page',
       deadline: '2020-01-03',
       description: 'test',
       issuer: 'qwewr',
@@ -68,28 +68,33 @@ function FullWidthCards() {
                   xlinkHref="/SpectNFTCard.svg"
                 />
                 <text
-                  x="100"
-                  y="40"
-                  textAnchor="start"
-                  fill="white"
+                  x="50%"
+                  y="8%"
+                  dominant-baseline="middle"
+                  text-anchor="middle"
+                  fill="grey"
                   fontSize="16"
                   fontFamily="Poppins"
                 >
                   {soulbound.deadline}
                 </text>
+                <g requiredFeatures="http://www.w3.org/Graphics/SVG/feature/1.2/#TextFlow">
+                  <text
+                    x="50%"
+                    y="20%"
+                    dominant-baseline="middle"
+                    text-anchor="middle"
+                    fill="white"
+                    fontFamily="Poppins"
+                  >
+                    {soulbound.title}
+                  </text>
+                </g>
                 <text
-                  x="60"
-                  y="80"
-                  textAnchor="start"
-                  fill="white"
-                  fontFamily="Poppins"
-                >
-                  {soulbound.title}
-                </text>
-                <text
-                  x="110"
-                  y="180"
-                  textAnchor="start"
+                  x="50%"
+                  y="45%"
+                  dominant-baseline="middle"
+                  text-anchor="middle"
                   fill="white"
                   fontSize="16"
                   fontFamily="Poppins"
@@ -97,25 +102,30 @@ function FullWidthCards() {
                   Issued By
                 </text>
                 <image
-                  x="70"
-                  y="210"
-                  height="40px"
-                  xlinkHref="/logo2.svg" 
+                  x="40%"
+                  y="52%"
+                  dominant-baseline="middle"
+                  text-anchor="middle"
+                  height="15%"
+                  xlinkHref="/logo2.svg"
                 />
                 <text
-                  x="130"
-                  y="235"
-                  textAnchor="start"
+                  x="50%"
+                  y="80%"
+                  dominant-baseline="middle"
+                  text-anchor="middle"
                   fill="white"
-                  fontSize="18"
+                  fontSize="16"
                   fontFamily="Poppins"
                 >
-                  {soulbound.issuer}
+                  On
                 </text>
                 <image
-                  x="90"
-                  y="340"
-                  height="40px"
+                  x="33%"
+                  y="85%"
+                  dominant-baseline="middle"
+                  text-anchor="middle"
+                  height="10%"
                   xlinkHref="/logoSBT.svg"
                 />
               </svg>

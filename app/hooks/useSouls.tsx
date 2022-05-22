@@ -48,19 +48,23 @@ export default function useSouls() {
 
     const tx = await credsHub.createBounty(inputStruct);
     console.log(tx);
-    return tx.wait();
+    tx.wait();
+    // eslint-disable-next-line no-return-await
+    return await credsHub.getNumBounties();
   }
 
   async function getBounty(bountyid: number) {
     const credsHub = getCredsHub();
-    const tx = await credsHub.getBounty(bountyid);
-    return tx.wait();
+    // eslint-disable-next-line no-return-await
+    return await credsHub.getBounty(bountyid);
   }
 
   async function claim(bountyid: number) {
     const credsHub = getCredsHub();
     const tx = await credsHub.claimBounty(bountyid);
-    return tx.wait();
+    tx.wait();
+    // eslint-disable-next-line no-return-await
+    return await credsHub.getBounty(bountyid);
   }
 
   return {
