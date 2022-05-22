@@ -136,6 +136,7 @@ function ProfileTemplate(props: Props) {
         </StyledTabs>
       </Box>
       {tab === 1 && <FullWidthCards cards={profile.cards} />}
+      {tab === 0 && <Soulbounds />}
     </Box>
   );
 }
