@@ -418,7 +418,9 @@ export default function useCardUpdate() {
 
   const updateAttestationInfo = (
     nftAddress: string,
-    onChainBountyId: number
+    onChainBountyId: number,
+    ipfsUrl: string,
+    issuer: string
   ) => {
     executeCardUpdates(
       {
@@ -427,6 +429,8 @@ export default function useCardUpdate() {
           onChainBountyId,
           attested: true,
           taskId: task.taskId,
+          ipfsUrl,
+          issuer,
         },
       },
       'attest',

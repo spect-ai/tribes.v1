@@ -21,7 +21,9 @@ export const ProfileNav = styled('nav')(({ theme }) => ({
 function ProfileNavbar(props: Props) {
   return (
     <ProfileNav>
-      <Image src={Logo} alt="Landscape picture" width={100} height={40} />
+      <Box sx={{ ml: 3 }}>
+        <Image src={Logo} alt="Landscape picture" width={100} height={35} />
+      </Box>
 
       <SidebarProfile />
     </ProfileNav>

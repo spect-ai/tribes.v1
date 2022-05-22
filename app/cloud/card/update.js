@@ -13,6 +13,8 @@ const easyUpdates = [
   'nftAddress',
   'onChainBountyId',
   'attested',
+  'ipfsUrl',
+  'issuer',
 ];
 
 const arrayUpates = ['votes', 'claimedBy'];

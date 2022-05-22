@@ -59,9 +59,9 @@ function Attest() {
     const file = new Moralis.File('file.json', {
       base64: btoa(JSON.stringify(attestation)),
     });
-    file.saveIPFS().then((res: any) => {
+    file.saveIPFS().then((ipfsRes: any) => {
       const ethAddresses = getAddresses(task.assignee.concat(task.reviewer));
-      createBounty(ethAddresses, res._ipfs)
+      createBounty(ethAddresses, ipfsRes._ipfs)
         // eslint-disable-next-line no-shadow
         .then((res: any) => {
           console.log(res);
@@ -69,7 +69,12 @@ function Attest() {
             // eslint-disable-next-line no-console
             console.log(parseInt(res._hex, 16));
             // eslint-disable-next-line no-shadow
-            updateAttestationInfo(bounty.bountyNFT, parseInt(res._hex, 16));
+            updateAttestationInfo(
+              bounty.bountyNFT,
+              parseInt(res._hex, 16),
+              ipfsRes._ipfs,
+              space.team[0].name
+            );
             setIsLoading(false);
             setLoadingFeedack('Bounty created');
             setIsOpen(false);

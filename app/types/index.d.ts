@@ -134,6 +134,7 @@ export type Column = {
   discordChannels?: Channel[];
 };
 export interface Task {
+  issuer: string;
   taskId: string;
   title: string;
   description: any;
@@ -183,6 +184,8 @@ export interface Task {
   nftAddress?: string;
   attested?: boolean;
   ipfsUrl?: string;
+  claimedBy?: string[];
+  issuer?: string;
 }
 
 export interface Epoch {
@@ -292,6 +295,7 @@ export interface Profile {
   discordId: string;
   cards: Task[];
   epochs: Epoch[];
+  ethAddress: string;
 }
 
 export type TokenInfo = {

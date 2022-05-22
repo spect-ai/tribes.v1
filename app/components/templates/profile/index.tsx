@@ -1,11 +1,16 @@
 import { Box, styled, Tab } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { utcToZonedTime } from 'date-fns-tz';
+import { format } from 'date-fns';
 import { useProfile } from '../../../../pages/profile/[username]';
 import MemberAvatar from '../../elements/memberAvatar';
 import MemberInfoDisplay from '../../elements/memberInfoDisplay';
 import { StyledTabs, StyledTab } from '../../elements/styledComponents';
 import FullWidthCards from '../../modules/fullWidthCards';
 import Soulbounds from '../../modules/soulbounds';
+import { useCardContext } from '../../modules/cardModal';
+import { SoulboundInfo } from '../../../types';
+import Banner from '../../../images/spect_banner.jpg';
 
 type Props = {};
 interface StyledTabProps {
@@ -43,6 +48,40 @@ const StyledAnchor = styled('a')(({ theme }) => ({
 
 function ProfileTemplate(props: Props) {
   const { profile, tab, handleTabChange } = useProfile();
+  const { task } = useCardContext();
+
+  const [soulbounds, setSoulbounds] = useState([] as SoulboundInfo[]);
+
+  useEffect(() => {
+    const soulboundsClaimed = [] as SoulboundInfo[];
+    // eslint-disable-next-line no-restricted-syntax
+    console.log(profile.cards);
+    if (profile.cards) {
+      // eslint-disable-next-line no-restricted-syntax
+      for (const card of profile.cards) {
+        if (card.claimedBy?.includes(profile.ethAddress)) {
+          soulboundsClaimed.push({
+            claimee: profile.username,
+            contentUri: 'contentUri',
+            title: card.title,
+            // deadline: format(
+            //   utcToZonedTime(
+            //     new Date(card.deadline),
+            //     Intl.DateTimeFormat().resolvedOptions().timeZone
+            //   ),
+            //   'MMM do, hh:mm a'
+            // ),
+            deadline: '2022-05-22',
+            description: card.description,
+            issuer: card.issuer || card.creator,
+            id: card.onChainBountyId as number,
+          });
+        }
+      }
+      console.log(soulboundsClaimed);
+      setSoulbounds(soulboundsClaimed);
+    }
+  }, [profile]);
 
   return (
     <Box
@@ -61,13 +100,13 @@ function ProfileTemplate(props: Props) {
           height: '18rem',
           width: '100%',
           backgroundSize: 'cover',
+          objectFit: 'cover',
         }}
         alt="The house from the offer."
-        src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&w=350&dpr=2"
+        src="http://ipfs.io/ipfs/QmemsVgFSdwjvEPAgEY3698HwrR7P6oTjCyu6ptDiB1zqb"
       />
       <Box
         sx={{
-          marginX: 32,
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'start',
@@ -85,7 +124,7 @@ function ProfileTemplate(props: Props) {
             avatarsx={{
               width: '8rem',
               height: '8rem',
-              fontSize: 15,
+              fontSize: 25,
               marginTop: '-4rem',
             }}
             textsx={{
@@ -125,18 +164,20 @@ function ProfileTemplate(props: Props) {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'start',
+          alignItems: 'center',
+          justifyContent: 'center',
           width: '80%',
+          mt: 4,
         }}
       >
         <StyledTabs value={tab} onChange={handleTabChange} centered>
           <ProfileTab label="Soulbounds" data-testid="tSoulboundsTab" />
           <ProfileTab label="Cards" data-testid="tCardsTab" />
-          <ProfileTab label="Gifts" data-testid="tGiftsTab" />
+          <ProfileTab label="Epochs" data-testid="tEpochsTab" />
         </StyledTabs>
       </Box>
       {tab === 1 && <FullWidthCards cards={profile.cards} />}
-      {tab === 0 && <Soulbounds />}
+      {tab === 0 && <Soulbounds soulbounds={soulbounds} />}
     </Box>
   );
 }

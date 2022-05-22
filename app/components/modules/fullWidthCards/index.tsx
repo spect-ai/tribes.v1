@@ -33,7 +33,17 @@ const CardContent = styled.div`
 function FullWidthCards({ cards }: Props) {
   const { palette } = useTheme();
   return (
-    <Box sx={{ mx: 4, mt: 2, width: '80%' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignContent: 'center',
+        justifyContent: 'center',
+        mt: 2,
+        ml: 16,
+        width: '50rem',
+      }}
+    >
       {cards.map((card: any) => (
         <Card palette={palette}>
           <CardContent />
