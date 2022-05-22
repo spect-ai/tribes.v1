@@ -142,6 +142,13 @@ export default function useCardDynamism() {
     return false;
   };
 
+  const isGiveSoulboundButtonViewable = () => {
+    if (isCardSteward() && (isPaid() || isClosed())) {
+      return true;
+    }
+    return false;
+  };
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabIdx(newValue);
   };
@@ -169,5 +176,6 @@ export default function useCardDynamism() {
     isAssigneeViewable,
     payButtonView,
     closeButtonView,
+    isGiveSoulboundButtonViewable,
   };
 }

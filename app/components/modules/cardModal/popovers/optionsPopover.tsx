@@ -9,6 +9,7 @@ import {
   ListItemButton,
   ListItemText,
   Popover,
+  Typography,
 } from '@mui/material';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import React, { useState } from 'react';
@@ -128,7 +129,11 @@ function OptionsPopover() {
         handleClose={handleConfirmClose}
         buttonText="Yes, archive task"
         runOnConfirm={handleConfirm}
-        modalContent="Are you sure you want to archive this task?"
+        modalContent={
+          <Typography variant="h6" sx={{ mb: 2 }} color="text.primary">
+            Are you sure you want to archive this task?
+          </Typography>
+        }
       />
     </>
   );

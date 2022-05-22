@@ -426,7 +426,11 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
         handleClose={confirmClose}
         buttonText="Yes, close card"
         runOnConfirm={handleClose}
-        modalContent="You have unsaved changes. Are you sure you want to close card?"
+        modalContent={
+          <Typography variant="h6" sx={{ mb: 2 }} color="text.primary">
+            You have unsaved changes. Are you sure you want to close card?
+          </Typography>
+        }
       />
     </>
   );

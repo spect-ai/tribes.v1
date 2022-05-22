@@ -250,7 +250,11 @@ function BoardSettings(props: Props) {
         handleClose={handleConfirmClose}
         buttonText="Yes, delete space"
         runOnConfirm={handleConfirm}
-        modalContent="Are you sure you want to delete space? This cannot be undone"
+        modalContent={
+          <Typography variant="h6" sx={{ mb: 2 }} color="text.primary">
+            Are you sure you want to delete space? This cannot be undone
+          </Typography>
+        }
       />
     </>
   );

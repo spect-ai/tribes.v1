@@ -21,6 +21,7 @@ import RewardPopover from './popovers/rewardPopover';
 import TabularDetails from './tabularDetails';
 import useCardUpdate from '../../../hooks/useCardUpdate';
 import { useCardContext } from '.';
+import Attest from './buttons/attest';
 
 type Props = {
   handleClose: () => void;
@@ -71,6 +72,7 @@ function TaskCard({ handleClose }: Props) {
         <Box sx={{ flex: '1 1 auto' }} />
         <AssignToMe />
         <CloseButton />
+        <Attest />
         <PayButton handleClose={handleClose} />
         {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
         <IconButton
