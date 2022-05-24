@@ -42,7 +42,7 @@ Moralis.Cloud.define('linkDiscordUser', async (request) => {
     }
     logger.info(`linkDiscordUser ${JSON.stringify(request.params)}`);
     const res = await Moralis.Cloud.httpRequest({
-      url: 'https://spect-discord-bot.herokuapp.com/api/connectDiscord',
+      url: 'http://c473-49-207-193-47.ngrok.io/api/connectDiscord',
       params: {
         code: request.params.code,
       },
@@ -78,53 +78,53 @@ Moralis.Cloud.define('linkDiscordUser', async (request) => {
   }
 });
 
-Moralis.Cloud.define('refreshDiscordUser', async (request) => {
-  const logger = Moralis.Cloud.getLogger();
-  try {
-    if (!request.user) {
-      throw 'User not Authenticated';
-    }
-    var userInfo = await getUserByUserId(request.user.id);
-    if (!userInfo) {
-      throw 'User not found in userinfo table';
-    }
-    if (!userInfo.get('is_discord_linked')) {
-      throw 'User has not linked his discord account';
-    }
-    logger.info(`refreshDiscordUser ${JSON.stringify(request.params)}`);
-    const res = await Moralis.Cloud.httpRequest({
-      url: 'https://spect-discord-bot.herokuapp.com/api/refreshDiscordUser',
-      params: {
-        refresh_token: userInfo.get('discord_refresh_token'),
-      },
-    });
-    if (!res.data.userData.id) {
-      throw 'Something went wrong while refreshing user data from discord';
-    }
-    var userInfo = await getUserByUserId(request.user.id);
-    if (!userInfo) {
-      throw 'User not found in userinfo table';
-    }
-    userInfo = await getCreatedDiscordUser(
-      userInfo,
-      res.data.userData.id,
-      res.data.userData.username,
-      res.data.userData.avatar,
-      res.data.userData.email,
-      res.data.oauthData.access_token,
-      res.data.oauthData.refresh_token
-    );
+// Moralis.Cloud.define('refreshDiscordUser', async (request) => {
+//   const logger = Moralis.Cloud.getLogger();
+//   try {
+//     if (!request.user) {
+//       throw 'User not Authenticated';
+//     }
+//     var userInfo = await getUserByUserId(request.user.id);
+//     if (!userInfo) {
+//       throw 'User not found in userinfo table';
+//     }
+//     if (!userInfo.get('is_discord_linked')) {
+//       throw 'User has not linked his discord account';
+//     }
+//     logger.info(`refreshDiscordUser ${JSON.stringify(request.params)}`);
+//     const res = await Moralis.Cloud.httpRequest({
+//       url: 'https://spect-discord-bot.herokuapp.com/api/refreshDiscordUser',
+//       params: {
+//         refresh_token: userInfo.get('discord_refresh_token'),
+//       },
+//     });
+//     if (!res.data.userData.id) {
+//       throw 'Something went wrong while refreshing user data from discord';
+//     }
+//     var userInfo = await getUserByUserId(request.user.id);
+//     if (!userInfo) {
+//       throw 'User not found in userinfo table';
+//     }
+//     userInfo = await getCreatedDiscordUser(
+//       userInfo,
+//       res.data.userData.id,
+//       res.data.userData.username,
+//       res.data.userData.avatar,
+//       res.data.userData.email,
+//       res.data.oauthData.access_token,
+//       res.data.oauthData.refresh_token
+//     );
 
-    await Moralis.Object.saveAll([userInfo, request.user], {
-      useMasterKey: true,
-    });
-    const userobj = await getUserObj(request.user.id);
-    return userobj[0];
-  } catch (err) {
-    logger.error(`Error while creating user ${err}`);
-    return err;
-  }
-});
+//     await Moralis.Object.saveAll([userInfo, request.user], {
+//       useMasterKey: true,
+//     });
+//     const userobj = await getUserObj(request.user.id);
+//     return userobj[0];
+//   } catch (err) {
+//     logger.error(`Error while creating user ${err}`);
+//     return err;
+//   }
+// });
 
 Moralis.Cloud.define('linkDiscordToTribe', async (request) => {
   const logger = Moralis.Cloud.getLogger();
@@ -172,7 +172,7 @@ Moralis.Cloud.define('discussTask', async (request) => {
     if (task.get('discussionThread')) {
       const res = await Moralis.Cloud.httpRequest({
         method: 'POST',
-        url: 'http://6db9-49-207-205-68.ngrok.io/api/addMemberToDiscussionThread',
+        url: 'http://c473-49-207-193-47.ngrok.io/api/addMemberToDiscussionThread',
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
         },
@@ -180,12 +180,15 @@ Moralis.Cloud.define('discussTask', async (request) => {
           guildId: request.params.guildId,
         },
         body: {
+          taskTitle: task.get('title'),
           threadId: task.get('discussionThread'),
           channelId: request.params.channelId,
           userId: request.user.get('discordId'),
         },
       });
       if (res.data.result) {
+        task.set('discussionThread', res.data.result);
+        await Moralis.Object.saveAll([task], { useMasterKey: true });
         return res.data;
       } else {
         throw 'Something went wrong while joining discussion channel';
@@ -193,7 +196,7 @@ Moralis.Cloud.define('discussTask', async (request) => {
     } else {
       const res = await Moralis.Cloud.httpRequest({
         method: 'POST',
-        url: 'http://6db9-49-207-205-68.ngrok.io/api/createDiscussionThread',
+        url: 'http://c473-49-207-193-47.ngrok.io/api/createDiscussionThread',
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
         },

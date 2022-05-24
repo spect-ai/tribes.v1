@@ -73,7 +73,7 @@ function TaskCard({ handleClose }: Props) {
         <AssignToMe />
         <CloseButton />
         <PayButton handleClose={handleClose} />
-        {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
+        <OptionsPopover />
         <IconButton
           data-testid="bCloseButton"
           sx={{

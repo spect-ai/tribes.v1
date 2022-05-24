@@ -22,6 +22,7 @@ import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { BoardData, Chain, Channel, Token } from '../../../types';
 import CommonAutocomplete from '../../elements/autoComplete';
 import ConfirmModal from '../../elements/confirmModal';
+import ConnectDiscord from '../../elements/connectDiscord';
 import DefaultPaymentForm from '../../elements/defaultPaymentForm';
 import {
   ModalHeading,
@@ -107,7 +108,7 @@ function BoardSettings(props: Props) {
       });
       setDiscussionChannel(space.discussionChannel);
     }
-  }, [isOpen]);
+  }, [isOpen, space]);
 
   return (
     <>
@@ -191,35 +192,47 @@ function BoardSettings(props: Props) {
                 </AccordionSummary>
 
                 <AccordionDetails>
-                  <a
-                    href="https://github.com/apps/spect-github-bot/installations/new"
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      textDecoration: 'none',
-                    }}
-                  >
-                    <PrimaryButton
-                      startIcon={<GitHub />}
-                      variant="outlined"
-                      color="secondary"
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <a
+                      href="https://github.com/apps/spect-github-bot/installations/new"
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        textDecoration: 'none',
+                      }}
                     >
-                      <Typography>Connect Github</Typography>
-                    </PrimaryButton>
-                  </a>
-                  <Typography fontSize={14} sx={{ mt: 4 }}>
-                    Assign a channel in your discord server where tasks can be
-                    discussed
-                  </Typography>
-                  <CommonAutocomplete
-                    options={serverChannels}
-                    optionLabels={(option) => `#${option.name}`}
-                    currOption={discussionChannel}
-                    setCurrOption={setDiscussionChannel}
-                    closeOnSelect={false}
-                    sx={{ mt: 2 }}
-                    placeholder="Search for channels"
-                  />
+                      <PrimaryButton
+                        startIcon={<GitHub />}
+                        variant="outlined"
+                        color="secondary"
+                        size="small"
+                      >
+                        <Typography>Connect Github</Typography>
+                      </PrimaryButton>
+                    </a>
+                    {space.team && !space.team[0].guildId ? (
+                      <Box sx={{ mt: 2 }}>
+                        <ConnectDiscord entity="space" />
+                      </Box>
+                    ) : (
+                      <>
+                        <Typography fontSize={14} sx={{ mt: 4 }}>
+                          Assign a channel in your discord server where tasks
+                          can be discussed
+                        </Typography>
+
+                        <CommonAutocomplete
+                          options={serverChannels}
+                          optionLabels={(option) => `#${option.name}`}
+                          currOption={discussionChannel}
+                          setCurrOption={setDiscussionChannel}
+                          closeOnSelect={false}
+                          sx={{ mt: 2 }}
+                          placeholder="Search for channels"
+                        />
+                      </>
+                    )}
+                  </Box>
                 </AccordionDetails>
               </StyledAccordian>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -246,7 +259,6 @@ function BoardSettings(props: Props) {
                       },
                       discussionChannel,
                     }).then((res: any) => {
-                      console.log(res);
                       setSpace(res as BoardData);
                       setIsLoading(false);
                       setRefreshEpochs(true);
