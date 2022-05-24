@@ -241,6 +241,7 @@ export interface BoardData {
   private: boolean;
   creatingEpoch: boolean;
   guildId: string;
+  discussionChannel: Channel;
 }
 export interface Team {
   teamId: string;

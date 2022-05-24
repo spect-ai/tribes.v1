@@ -19,8 +19,10 @@ import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
-import { BoardData, Chain, Token } from '../../../types';
+import { BoardData, Chain, Channel, Token } from '../../../types';
+import CommonAutocomplete from '../../elements/autoComplete';
 import ConfirmModal from '../../elements/confirmModal';
+import ConnectDiscord from '../../elements/connectDiscord';
 import DefaultPaymentForm from '../../elements/defaultPaymentForm';
 import {
   ModalHeading,
@@ -65,6 +67,10 @@ function BoardSettings(props: Props) {
   };
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [discussionChannel, setDiscussionChannel] = useState<Channel>(
+    {} as Channel
+  );
+  const [serverChannels, setServerChannels] = useState<Channel[]>([]);
   const handleConfirmClose = () => {
     setIsConfirmOpen(false);
   };
@@ -90,6 +96,19 @@ function BoardSettings(props: Props) {
     setDefaultChain(space.defaultPayment?.chain);
     setDefaultToken(space.defaultPayment?.token);
   }, [space]);
+
+  useEffect(() => {
+    if (isOpen && space.team[0].guildId) {
+      runMoralisFunction('getGuildChannels', {
+        guildId: space.team[0].guildId,
+      }).then((res) => {
+        if (res.guildChannels) {
+          setServerChannels(res.guildChannels);
+        }
+      });
+      setDiscussionChannel(space.discussionChannel);
+    }
+  }, [isOpen, space]);
 
   return (
     <>
@@ -173,22 +192,47 @@ function BoardSettings(props: Props) {
                 </AccordionSummary>
 
                 <AccordionDetails>
-                  <a
-                    href="https://github.com/apps/spect-github-bot/installations/new"
-                    target="_blank"
-                    rel="noreferrer"
-                    style={{
-                      textDecoration: 'none',
-                    }}
-                  >
-                    <PrimaryButton
-                      startIcon={<GitHub />}
-                      variant="outlined"
-                      color="secondary"
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <a
+                      href="https://github.com/apps/spect-github-bot/installations/new"
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        textDecoration: 'none',
+                      }}
                     >
-                      <Typography>Connect Github</Typography>
-                    </PrimaryButton>
-                  </a>
+                      <PrimaryButton
+                        startIcon={<GitHub />}
+                        variant="outlined"
+                        color="secondary"
+                        size="small"
+                      >
+                        <Typography>Connect Github</Typography>
+                      </PrimaryButton>
+                    </a>
+                    {space.team && !space.team[0].guildId ? (
+                      <Box sx={{ mt: 2 }}>
+                        <ConnectDiscord entity="space" />
+                      </Box>
+                    ) : (
+                      <>
+                        <Typography fontSize={14} sx={{ mt: 4 }}>
+                          Assign a channel in your discord server where tasks
+                          can be discussed
+                        </Typography>
+
+                        <CommonAutocomplete
+                          options={serverChannels}
+                          optionLabels={(option) => `#${option.name}`}
+                          currOption={discussionChannel}
+                          setCurrOption={setDiscussionChannel}
+                          closeOnSelect={false}
+                          sx={{ mt: 2 }}
+                          placeholder="Search for channels"
+                        />
+                      </>
+                    )}
+                  </Box>
                 </AccordionDetails>
               </StyledAccordian>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -213,6 +257,7 @@ function BoardSettings(props: Props) {
                         chain: defaultChain,
                         token: defaultToken,
                       },
+                      discussionChannel,
                     }).then((res: any) => {
                       setSpace(res as BoardData);
                       setIsLoading(false);
