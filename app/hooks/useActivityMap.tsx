@@ -19,6 +19,12 @@ import { format } from 'date-fns';
 import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import { Task } from '../types';
 import { useGlobal } from '../context/globalContext';
+import { findDiffBetweenArrays } from '../utils/utils';
+
+export type ChangeLog = {
+  prev: any;
+  next: any;
+};
 
 export default function useActivityMap(task: Task) {
   const { space } = useSpace();
@@ -50,6 +56,56 @@ export default function useActivityMap(task: Task) {
     return <ListItemText>{generateActivityLine(update)}</ListItemText>;
   };
 
+  const getCommaSeparatedMemberUsername = (members: Array<any>) => {
+    return members.map((a: any, index: number) => {
+      return (
+        <>
+          <Typography
+            sx={{ color: 'text.secondary', ml: 1, mr: 1 }}
+          >{`${space.memberDetails[a]?.username}`}</Typography>
+          {index !== members.length - 1 && ', '}
+        </>
+      );
+    });
+  };
+
+  const getCommaSeparatedValue = (values: Array<any>) => {
+    return values.map((a: any, index: number) => {
+      return (
+        <>
+          <Typography
+            sx={{ color: 'text.secondary', ml: 1, mr: 1 }}
+          >{`${a}`}</Typography>
+          {index !== values.length - 1 && ', '}
+        </>
+      );
+    });
+  };
+
+  // eslint-disable-next-line consistent-return
+  const resolveArrayTypeActivityContent = (update: any, fieldName: string) => {
+    const [added, removed] = findDiffBetweenArrays(
+      update?.changeLog?.prev,
+      update?.changeLog?.next
+    );
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+        {`${space.memberDetails[update.actor]?.username} `}
+        {added.length === 1 && `added ${fieldName} `}
+        {added.length > 1 && `added ${fieldName}s `}
+        {['assignee', 'reviewer'].includes(fieldName) &&
+          getCommaSeparatedMemberUsername(added)}
+        {['label'].includes(fieldName) && getCommaSeparatedValue(added)}
+        {added.length > 0 && removed.length > 0 && ' and removed '}
+        {added.length === 0 && removed.length === 1 && `removed ${fieldName}`}
+        {added.length === 0 && removed.length > 1 && `removed ${fieldName}s`}
+        {['assignee', 'reviewer'].includes(fieldName) &&
+          getCommaSeparatedMemberUsername(removed)}
+        {['label'].includes(fieldName) && getCommaSeparatedValue(removed)}
+      </Box>
+    );
+  };
+
   const generateActivityLine = (update: any) => {
     switch (update.action) {
       case 99:
@@ -73,9 +129,12 @@ export default function useActivityMap(task: Task) {
           'MMM do, hh:mm a'
         )}`;
       case 102:
-        return `${
-          space.memberDetails[update.actor]?.username
-        } updated tags to "${update.changeLog?.next?.join(', ')}"`;
+        // eslint-disable-next-line no-case-declarations
+        const tagChangeContent = resolveArrayTypeActivityContent(
+          update,
+          'label'
+        );
+        return tagChangeContent;
       case 104:
         return `${
           space.memberDetails[update.actor]?.username
@@ -83,31 +142,19 @@ export default function useActivityMap(task: Task) {
           update.reward?.token?.symbol
         } on ${update.reward?.chain?.name}`;
       case 105:
-        if (
-          update?.changeLog?.prev &&
-          update?.changeLog?.prev?.length > 0 &&
-          update?.changeLog?.next &&
-          update?.changeLog?.next?.length > 0
-        )
-          return `${
-            space.memberDetails[update.actor]?.username
-          } changed assignee from ${
-            space.memberDetails[update?.changeLog?.prev[0]]?.username
-          }
-      to ${space.memberDetails[update?.changeLog?.next[0]]?.username}`;
-        if (!update?.changeLog?.next || update?.changeLog?.next?.length === 0)
-          return `${
-            space.memberDetails[update.actor]?.username
-          } removed assignee`;
-        return `${
-          space.memberDetails[update.actor]?.username
-        } assigned card to ${
-          space.memberDetails[update?.changeLog?.next[0]]?.username
-        }`;
+        // eslint-disable-next-line no-case-declarations
+        const assigneeChangeContent = resolveArrayTypeActivityContent(
+          update,
+          'assignee'
+        );
+        return assigneeChangeContent;
       case 106:
-        return `${
-          space.memberDetails[update.actor]?.username
-        } updated reviewer `;
+        // eslint-disable-next-line no-case-declarations
+        const reviewerChangeContent = resolveArrayTypeActivityContent(
+          update,
+          'reviewer'
+        );
+        return reviewerChangeContent;
       case 150:
         return `${space.memberDetails[update.actor]?.username} applied to ${
           update.taskType
@@ -167,20 +214,3 @@ export default function useActivityMap(task: Task) {
     activityIcons,
   };
 }
-
-// const getComponent = (update: any) => {
-//   switch (update.action) {
-//     case 99:
-//       return (
-//         <div>
-//           {`${
-//             space.memberDetails[update.actor]?.username
-//           } changed the card type from "${update.changeLog?.prev}" to "${
-//             update.changeLog?.next
-//           }"`}
-//         </div>
-//       );
-//     default:
-//       break;
-//   }
-// };

@@ -177,14 +177,14 @@ function ForumCard({ task }: ForumProps) {
 }
 
 function ForumView(props: Props) {
+  const { space, filteredTasks } = useSpace();
   const [forumTasks, setForumTasks] = useState<Task[]>([]);
-  const [col, setCol] = useState('column-0');
+  const [col, setCol] = useState(Object.keys(space.columns)[0]);
   const { user } = useMoralis();
   const [showCreateTask, setShowCreateTask] = useState(false);
   const handleCreateCardClose = () => {
     setShowCreateTask(false);
   };
-  const { space } = useSpace();
   function compare(taskA: Task, taskB: Task) {
     if ((taskA.votes?.length || 0) > (taskB.votes?.length || 0)) {
       return -1;
@@ -197,7 +197,7 @@ function ForumView(props: Props) {
 
   useEffect(() => {
     let tasks = space.columns[col].taskIds?.map(
-      (taskId) => space.tasks[taskId]
+      (taskId) => filteredTasks[taskId]
     );
     tasks = tasks.filter((element) => {
       return element !== undefined;
@@ -212,7 +212,7 @@ function ForumView(props: Props) {
           data-testid="aColumnPicker"
           options={space.columnOrder}
           value={col}
-          getOptionLabel={(option) => space.columns[option].title}
+          getOptionLabel={(option) => space.columns[option]?.title}
           onChange={(event, newValue) => {
             setCol(newValue as any);
           }}
@@ -262,11 +262,13 @@ function ForumView(props: Props) {
           There are no cards in this column
         </Typography>
       )}
-      <CreateCard
-        isOpen={showCreateTask}
-        handleClose={handleCreateCardClose}
-        column={space.columns[col]}
-      />
+      {space.columns[col] && (
+        <CreateCard
+          isOpen={showCreateTask}
+          handleClose={handleCreateCardClose}
+          column={space.columns[col]}
+        />
+      )}
     </Container>
   );
 }

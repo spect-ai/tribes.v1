@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Modal,
@@ -24,6 +24,7 @@ import { notify } from '../settingsTab';
 import { PrimaryButton } from '../../elements/styledComponents';
 import { isApprovalRequired } from '../../../adapters/contract';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { useWalletContext } from '../../../context/WalletContext';
 
 interface Props {
   epoch: Epoch;
@@ -54,6 +55,7 @@ export const Heading = styled('div')(({ theme }) => ({
 }));
 
 function PayoutContributors({ epoch }: Props) {
+  const { networkVersion } = useWalletContext();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [steps, setSteps] = useState([] as string[]);
@@ -107,6 +109,44 @@ function PayoutContributors({ epoch }: Props) {
       });
   };
 
+  const handleRefresh = () => {
+    setIsLoading(true);
+    if (epoch.chain.chainId !== networkVersion) {
+      setActiveStep(-1);
+      setIsLoading(false);
+    } else if (epoch.token.address === '0x0') {
+      setActiveStep(2);
+      setIsLoading(false);
+    } else {
+      isApprovalRequired(
+        user?.get('ethAddress'),
+        epoch.token.address,
+        epoch.budget,
+        networkVersion
+      ).then((reqd: boolean) => {
+        if (reqd) {
+          const temp = { ...approvalInfo };
+          temp.required = true;
+          setApprovalInfo(temp);
+          setActiveStep(0);
+          setSteps(['Approve Tokens', 'Batch Pay Tokens']);
+          setShowStepper(true);
+        } else {
+          setActiveStep(1);
+        }
+        setIsLoading(false);
+      });
+    }
+  };
+
+  const handleOpen = () => {
+    setIsOpen(true);
+  };
+
+  useEffect(() => {
+    handleRefresh();
+  }, [networkVersion, isOpen]);
+
   return (
     <>
       {!epoch.paid && (
@@ -122,36 +162,7 @@ function PayoutContributors({ epoch }: Props) {
           size="small"
           color="secondary"
           onClick={() => {
-            setIsLoading(true);
-            if (epoch.chain.chainId !== window.ethereum.networkVersion) {
-              setActiveStep(-1);
-              setIsLoading(false);
-              setIsOpen(true);
-            } else if (epoch.token.address === '0x0') {
-              setActiveStep(2);
-              setIsLoading(false);
-              setIsOpen(true);
-            } else {
-              isApprovalRequired(
-                user?.get('ethAddress'),
-                epoch.token.address,
-                epoch.budget,
-                window.ethereum.networkVersion
-              ).then((reqd: boolean) => {
-                if (reqd) {
-                  const temp = { ...approvalInfo };
-                  temp.required = true;
-                  setApprovalInfo(temp);
-                  setActiveStep(0);
-                  setSteps(['Approve Tokens', 'Batch Pay Tokens']);
-                  setShowStepper(true);
-                } else {
-                  setActiveStep(1);
-                }
-                setIsLoading(false);
-                setIsOpen(true);
-              });
-            }
+            handleOpen();
           }}
         >
           Payout countributors
@@ -178,7 +189,7 @@ function PayoutContributors({ epoch }: Props) {
                   Currently on
                 </Typography>
                 <Avatar
-                  src={registry[window.ethereum.networkVersion]?.pictureUrl}
+                  src={registry[networkVersion]?.pictureUrl}
                   sx={{
                     width: '1.5rem',
                     height: '1.5rem',
@@ -192,9 +203,7 @@ function PayoutContributors({ epoch }: Props) {
                   marginBottom="10px"
                   marginLeft="10px"
                 >
-                  {capitalizeFirstLetter(
-                    registry[window.ethereum.networkVersion]?.name
-                  )}{' '}
+                  {capitalizeFirstLetter(registry[networkVersion]?.name)}{' '}
                   Network
                 </Typography>
               </Box>
@@ -241,14 +250,12 @@ function PayoutContributors({ epoch }: Props) {
               handleNextStep={handleNextStep}
               setActiveStep={setActiveStep}
               approvalInfo={approvalInfo}
-              chainId={window.ethereum.networkVersion}
             />
           )}
           {activeStep === 1 && isOpen && !isLoading && (
             <BatchPay
               handleClose={handleClose}
               handleNextStep={handleNextStep}
-              chainId={window.ethereum.networkVersion}
               distributionInfo={distributionInfo}
               handleStatusUpdate={handleStatusUpdate}
             />
@@ -257,7 +264,6 @@ function PayoutContributors({ epoch }: Props) {
             <BatchPay
               handleClose={handleClose}
               handleNextStep={handleNextStep}
-              chainId={window.ethereum.networkVersion}
               distributionInfo={distributionInfo}
               handleStatusUpdate={handleStatusUpdate}
             />

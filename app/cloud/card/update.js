@@ -9,6 +9,7 @@ const easyUpdates = [
   'chain',
   'token',
   'transactionHash',
+  'feedback',
 ];
 
 const arrayUpates = ['votes'];
@@ -23,10 +24,12 @@ const integerUpdates = ['status'];
 const floatUpdates = ['value'];
 
 // Array updates that require appends. One person can only create and edit one element (their own). Must be in the format: [{content: "",}]
-const contentArrayUpdates = ['submissions', 'proposals'];
+const contentArrayUpdates = ['proposals'];
 
 // Array updates that require appends and updates. One person can create multile elements and edit their own elements. Must be in the format: [{content: "",}]
 const contentArrayMultiElementUpdates = ['comments'];
+
+const contentUpdates = ['submissions'];
 
 const datatypes = {
   title: 'string',
@@ -117,12 +120,6 @@ Moralis.Cloud.define('updateCard', async (request) => {
 });
 
 Moralis.Cloud.define('updateMultipleCards', async (request) => {
-  log(
-    request.user?.id,
-    `Calling updateMultipleCards for updates: ${request.params.updates}`,
-    JSON.stringify(request.params),
-    'info'
-  );
   try {
     var tasks = await getTasksByTaskIds(Object.keys(request.params.updates));
     if (tasks.length === 0) throw 'No tasks found';
@@ -175,7 +172,10 @@ function authorized(updates, task, callerId, space) {
     updates.hasOwnProperty('reviewer') ||
     updates.hasOwnProperty('tags') ||
     updates.hasOwnProperty('reward') ||
-    updates.hasOwnProperty('type')
+    updates.hasOwnProperty('type') ||
+    updates.hasOwnProperty('feedback') ||
+    (updates.hasOwnProperty('submissions') &&
+      updates.submissions.hasOwnProperty('revisionInstruction'))
   ) {
     if (
       !(
@@ -188,8 +188,9 @@ function authorized(updates, task, callerId, space) {
       throw 'Only card creator, reviewer and space steward can update card info';
   }
   if (updates.hasOwnProperty('submissions')) {
-    if (!isTaskAssignee(task, callerId))
-      throw 'Only assignee can add submission';
+    if (updates.submissions.hasOwnProperty('content'))
+      if (!isTaskAssignee(task, callerId))
+        throw 'Only assignee can add submission';
   }
   if (updates.hasOwnProperty('comments')) {
     if (
@@ -295,6 +296,7 @@ async function handleUpdates(updates, task, space, callerId) {
   task = handleDateUpdates(task, updates, dateUpdates);
   task = handleIntegerUpdates(task, updates, integerUpdates);
   task = handleFloatUpdates(task, updates, floatUpdates);
+  task = handleContentArray(task, updates, callerId, contentUpdates);
   task = handleContentArrayUpdate(task, updates, callerId, contentArrayUpdates);
   task = handleContentArrayMultiElementUpdate(
     task,
@@ -345,45 +347,137 @@ function findColumnContainingTask(columns, taskId) {
 
 async function handleColumnUpdate(space, task, updates) {
   if (updates.hasOwnProperty('columnChange')) {
-    var columns = space.get('columns');
+    var columnOrder = space.get('columnOrder');
+    if (columnOrder.includes(updates.columnChange.destinationId)) {
+      var columns = space.get('columns');
 
-    let sourceId;
-    if (task.get('columnId')) {
-      sourceId = task.get('columnId');
-    } else {
-      sourceId = findColumnContainingTask(columns, task.get('taskId'));
+      let sourceId;
+      if (task.get('columnId')) {
+        sourceId = task.get('columnId');
+      } else {
+        sourceId = findColumnContainingTask(columns, task.get('taskId'));
+      }
+
+      if (!sourceId) {
+        throw 'Task does not belong to any column';
+      }
+
+      const destinationId = updates.columnChange.destinationId;
+      logger.info(
+        `Handling column update for task ${space.id} ${task.get(
+          'taskId'
+        )} ${sourceId} ${destinationId}`
+      );
+      const newSource = removeTaskFromColumn(
+        columns[sourceId],
+        task.get('taskId')
+      );
+      logger.info(`newSource: ${JSON.stringify(newSource)}`);
+
+      const destination = addTaskToColumn(
+        columns[destinationId],
+        task.get('taskId')
+      );
+
+      columns = {
+        ...columns,
+        [sourceId]: newSource,
+        [destinationId]: destination,
+      };
+      space.set('columns', columns);
+      task.set('columnId', destinationId);
     }
-
-    if (!sourceId) {
-      throw 'Task does not belong to any column';
-    }
-
-    const destinationId = updates.columnChange.destinationId;
-    logger.info(
-      `Handling column update for task ${space.id} ${task.get(
-        'taskId'
-      )} ${sourceId} ${destinationId}`
-    );
-    const newSource = removeTaskFromColumn(
-      columns[sourceId],
-      task.get('taskId')
-    );
-    logger.info(`newSource: ${JSON.stringify(newSource)}`);
-
-    const destination = addTaskToColumn(
-      columns[destinationId],
-      task.get('taskId')
-    );
-
-    columns = {
-      ...columns,
-      [sourceId]: newSource,
-      [destinationId]: destination,
-    };
-    space.set('columns', columns);
-    task.set('columnId', destinationId);
   }
   return [space, task];
+}
+
+function getNewContentObject(id, callerId, value, prevContentObject) {
+  var contentObject = {};
+  contentObject.updatedAt = new Date();
+  if (value.content) {
+    contentObject.content = value.content;
+    contentObject.userId = callerId;
+  } else contentObject.content = prevContentObject?.content;
+
+  if (value.revisionInstruction) {
+    contentObject.userId = prevContentObject.userId;
+    contentObject.revisionInstruction = value.revisionInstruction;
+  } else
+    contentObject.revisionInstruction = prevContentObject?.revisionInstruction;
+  logger.info(`id inside ${id}`);
+  logger.info(`prevContentObject ${JSON.stringify(prevContentObject)}`);
+  if (id) {
+    contentObject.id = id;
+    contentObject.edited = true;
+    contentObject.createdAt = prevContentObject.createdAt;
+  } else {
+    contentObject.id = crypto.randomUUID();
+    contentObject.edited = false;
+    contentObject.createdAt = new Date();
+  }
+  return contentObject;
+}
+
+function isContentUpdateAuthorized(task, prevContentObject, value, callerId) {
+  var isAuthorized = false;
+  logger.info(`prevContentObject ${JSON.stringify(prevContentObject)}`);
+  logger.info(`callerId ${callerId}`);
+
+  if (value.content) {
+    isAuthorized = prevContentObject?.userId === callerId;
+  }
+  if (value.revisionInstruction) {
+    isAuthorized = task.get('reviewer')?.includes(callerId);
+  }
+  return isAuthorized;
+}
+
+function handleContentArray(task, updates, callerId, fields) {
+  for (const [key, value] of Object.entries(updates)) {
+    if (fields.includes(key)) {
+      var field = task.get(key); // Type: Array
+      if (!field) {
+        var newContentObject = getNewContentObject(null, callerId, value, null);
+        logger.info(`newContentObject1 ${JSON.stringify(newContentObject)}`);
+
+        task.set(key, [newContentObject]);
+      } else {
+        // Get content by using content id and make sure it is the caller's content
+        var existingIndex = field.findIndex((obj) => obj.id === value.id);
+        logger.info(`existingIndex ${existingIndex}`);
+        if (existingIndex !== -1) {
+          var prevContentObject = field[existingIndex];
+          if (
+            !isContentUpdateAuthorized(task, prevContentObject, value, callerId)
+          )
+            throw 'Not authorized to update content';
+          task.get(key).splice(existingIndex, 1);
+          if (value.action === 'delete') return task;
+          var newContentObject = getNewContentObject(
+            value.id,
+            callerId,
+            value,
+            prevContentObject
+          );
+          logger.info(`newContentObject2 ${JSON.stringify(newContentObject)}`);
+
+          task.set(key, [...task.get(key), newContentObject]);
+        } else {
+          var newContentObject = getNewContentObject(
+            null,
+            callerId,
+            value,
+            null
+          );
+          logger.info(`newContentObject3 ${JSON.stringify(newContentObject)}`);
+
+          task.set(key, [...task.get(key), newContentObject]);
+        }
+      }
+    }
+  }
+
+  return task;
 }
 
 function handleContentArrayUpdate(task, updates, callerId, fields) {
@@ -643,6 +737,36 @@ async function handleAutomation(task, updates, space) {
     }
   }
   return [space, task];
+}
+
+function handleReverseAutomation(
+  card,
+  space,
+  sourceId,
+  destinationId,
+  callerId
+) {
+  let sourceColumnName = space.get('columns')[sourceId]?.title;
+  let destinationColumnName = space.get('columns')[destinationId]?.title;
+  // if (destinationColumnName === 'Done') card.set('status', 205);
+  // else if (destinationColumnName === 'In Review') card.set('status', 200);
+  // else if (
+  //   sourceColumnName === 'In Review' &&
+  //   destinationColumnName === 'In Progress' &&
+  //   card.get('submissions')
+  // )
+  //   card.set('status', 201);
+  // else
+  if (
+    destinationColumnName === 'In Progress' &&
+    (!card.get('assignee') || card.get('assignee').length === 0) &&
+    card.get('type') === 'Task' &&
+    (hasAccess(callerId, space, 3) || hasAccess(callerId, space, 2))
+  ) {
+    card.set('assignee', [callerId]);
+    card.set('status', 105);
+  }
+  return card;
 }
 
 function isDifferentEasyField(task, updates, key) {

@@ -7,21 +7,25 @@ import { CardButton } from '../styledComponents';
 import { PopoverContainer } from '../../modules/cardModal/styles';
 
 type PopProps = {
-  buttonText?: string;
+  buttonText?: any;
   buttonsx?: any;
-  avatarSrc?: string;
+  avatarSrcCallback?: string;
   avatarDefault?: any;
   popoverContent: Array<any>;
   label?: string;
+  beforeClose?: () => void;
+  buttonId?: string;
 };
 
 function CommonPopover({
   buttonText,
   buttonsx,
-  avatarSrc,
+  avatarSrcCallback,
   avatarDefault,
   popoverContent,
   label,
+  beforeClose,
+  buttonId,
 }: PopProps) {
   const [open, setOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -31,8 +35,10 @@ function CommonPopover({
     setOpen(true);
   };
   const closePopover = () => {
+    if (beforeClose) beforeClose();
     setOpen(false);
   };
+
   return (
     <>
       <Box
@@ -51,6 +57,7 @@ function CommonPopover({
           </Typography>
         )}
         <CardButton
+          data-testid={buttonId}
           variant="outlined"
           onClick={openPopover()}
           color="secondary"
@@ -62,27 +69,7 @@ function CommonPopover({
             }
           }
         >
-          {(avatarSrc || avatarDefault) && (
-            <Avatar
-              sx={{
-                p: 0,
-                mr: 2,
-                width: 20,
-                height: 20,
-                backgroundColor: 'transparent',
-              }}
-              src={avatarSrc}
-            >
-              {avatarDefault}
-            </Avatar>
-          )}
-          <Typography
-            sx={{
-              fontSize: 14,
-            }}
-          >
-            {buttonText || 'select'}
-          </Typography>
+          {buttonText}
         </CardButton>
       </Box>
       <Popover
@@ -99,6 +86,7 @@ function CommonPopover({
             if (item.fieldType === 'autocomplete') {
               return (
                 <CommonAutocomplete
+                  testId={item.testId}
                   options={item.options}
                   optionLabels={item.optionLabels}
                   currOption={item.currOption}
@@ -107,12 +95,15 @@ function CommonPopover({
                   closeOnSelect={item.closeOnSelect}
                   sx={item.sx}
                   multiple={item.multiple}
+                  disableClearable={item.disableClearable}
+                  beforeClose={item.beforeClose}
                 />
               );
             }
             if (item.fieldType === 'textfield') {
               return (
                 <CommonTextField
+                  testId={item.testId}
                   id={item.id}
                   label={item.label}
                   type={item.type}
@@ -134,6 +125,9 @@ function CommonPopover({
                   sx={item.sx}
                 />
               );
+            }
+            if (item.fieldType === 'typography') {
+              return <Typography variant="body2">{item.value}</Typography>;
             }
             return null;
           })}

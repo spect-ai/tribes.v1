@@ -1,6 +1,6 @@
 import { Grow } from '@mui/material';
 import { useRouter } from 'next/router';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { DropResult } from 'react-beautiful-dnd';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
@@ -13,6 +13,7 @@ import ForumView from '../forumView';
 import TrelloImport from '../importTrello';
 import ListView from '../listView';
 import { notify } from '../settingsTab';
+import TasksFilter, { filterTasks } from '../tasksFilter';
 import ViewsNavbar from '../viewsNavbar';
 
 interface ProjectContextType {
@@ -43,17 +44,21 @@ function useProviderProject() {
 }
 
 function Project() {
-  const { space, setSpace } = useSpace();
+  const { space, setSpace, setFilteredTasks, currentFilter } = useSpace();
   const router = useRouter();
   const { bid } = router.query;
   const { user } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const [isOpen, setIsOpen] = useState(false);
-  const handleClose = () => {
-    setIsOpen(false);
-  };
+
+  const handleClose = () => setIsOpen(false);
   const context = useProviderProject();
   const { tab } = context;
+
+  useEffect(() => {
+    console.log('space changed');
+    setFilteredTasks(filterTasks(space, currentFilter));
+  }, [space]);
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId, type } = result;
@@ -67,7 +72,7 @@ function Project() {
         task.access.assignee ||
         task.access.creator ||
         task.access.reviewer ||
-        space.roles[user?.id as string] === 3
+        [2, 3].includes(space.roles[user?.id as string])
       )
     ) {
       notify("Looks like you don't have access to move this task", 'error');
@@ -200,14 +205,14 @@ function Project() {
       {tab === 0 && (
         <Grow in={tab === 0} timeout={500}>
           <div>
-            <BoardView board={space} handleDragEnd={handleDragEnd} />
+            <BoardView handleDragEnd={handleDragEnd} />
           </div>
         </Grow>
       )}
       {tab === 1 && (
         <Grow in={tab === 1} timeout={500}>
           <div>
-            <ListView board={space} handleDragEnd={handleDragEnd} />
+            <ListView handleDragEnd={handleDragEnd} />
           </div>
         </Grow>
       )}

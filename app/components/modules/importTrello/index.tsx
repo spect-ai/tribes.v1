@@ -12,7 +12,9 @@ import React, { useState } from 'react';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { Column } from '../../../types';
+import { uid } from '../../../utils/utils';
 import { ModalHeading, PrimaryButton } from '../../elements/styledComponents';
+import { notify } from '../settingsTab';
 
 type Props = {
   isOpen: boolean;
@@ -84,55 +86,76 @@ function TrelloImport({ isOpen, handleClose }: Props) {
                 sx={{ borderRadius: 1, mx: 4, width: '50%' }}
                 onClick={async () => {
                   setIsFetching(true);
-                  const board = await fetch(
-                    `https://api.trello.com/1/boards/${trelloBoardId}`
-                  );
-                  const boardJson = await board.json();
-                  const columns = await fetch(
-                    `https://api.trello.com/1/boards/${trelloBoardId}/lists`
-                  );
+                  try {
+                    const board = await fetch(
+                      `https://api.trello.com/1/boards/${trelloBoardId}`
+                    );
+                    const boardJson = await board.json();
+                    const columns = await fetch(
+                      `https://api.trello.com/1/boards/${trelloBoardId}/lists`
+                    );
 
-                  const columnsJson = await columns.json();
-                  const cards = await fetch(
-                    `https://api.trello.com/1/boards/${trelloBoardId}/cards`
-                  );
+                    const columnsJson = await columns.json();
+                    const cards = await fetch(
+                      `https://api.trello.com/1/boards/${trelloBoardId}/cards`
+                    );
 
-                  const cardsJson = await cards.json();
-                  const aColumnOrder = columnsJson.map(
-                    (column: any) => column.id
-                  );
-                  const aColumnMap: {
-                    [key: string]: Column;
-                  } = {};
-                  columnsJson.map((column: any) => {
-                    aColumnMap[column.id] = {
-                      id: column.id,
-                      title: column.name,
-                      taskIds: [],
-                      cardType: 1,
-                      createCard: { 0: false, 1: false, 2: true, 3: true },
-                      moveCard: { 0: false, 1: false, 2: true, 3: true },
-                    };
-                    return null;
-                  });
-                  cardsJson.map((card: any) => {
-                    aColumnMap[card.idList as string].taskIds.push(card.id);
-                    return null;
-                  });
-                  const tasks = cardsJson.map((task: any) => {
-                    return {
-                      id: task.id,
-                      title: task.name,
-                      description: task.desc,
-                      value: 0,
-                    };
-                  });
-                  console.log(boardJson);
-                  setColumnOrder(aColumnOrder);
-                  setColumnMap(aColumnMap);
-                  setTrelloBoard(boardJson);
-                  setTrelloTasks(tasks);
-                  setIsFetching(false);
+                    const cardsJson = await cards.json();
+                    const aColumnOrder = columnsJson.map(
+                      (column: any) => column.id
+                    );
+                    const aColumnMap: {
+                      [key: string]: Column;
+                    } = {};
+                    columnsJson.map((column: any) => {
+                      aColumnMap[column.id] = {
+                        id: column.id,
+                        title: column.name,
+                        taskIds: [],
+                        cardType: 1,
+                        createCard: { 0: false, 1: false, 2: true, 3: true },
+                        moveCard: { 0: false, 1: false, 2: true, 3: true },
+                      };
+                      return null;
+                    });
+                    cardsJson.map((card: any) => {
+                      aColumnMap[card.idList as string].taskIds.push(
+                        space.objectId + card.id
+                      );
+                      return null;
+                    });
+                    const tasks = cardsJson.map((task: any) => {
+                      return {
+                        id: space.objectId + task.id,
+                        title: task.name,
+                        description: [
+                          {
+                            id: uid(),
+                            html: task.desc,
+                            tag: 'p',
+                            type: '',
+                            imageUrl: '',
+                            embedUrl: '',
+                          },
+                        ],
+                        columnId: task.idList,
+                        value: 0,
+                        tags: task.labels.map((label: any) => label.name),
+                        deadline: task.due,
+                      };
+                    });
+                    console.log({ tasks });
+                    notify('Board Fetched you can now import');
+                    setColumnOrder(aColumnOrder);
+                    setColumnMap(aColumnMap);
+                    setTrelloBoard(boardJson);
+                    setTrelloTasks(tasks);
+                    setIsFetching(false);
+                  } catch (e) {
+                    console.log(e);
+                    setIsFetching(false);
+                    notify('Error fetching trello board', 'error');
+                  }
                 }}
               >
                 Fetch
@@ -147,7 +170,6 @@ function TrelloImport({ isOpen, handleClose }: Props) {
               fullWidth
               color="secondary"
               onClick={() => {
-                console.log(trelloTasks);
                 runMoralisFunction('importTasksFromTrello', {
                   boardId: space.objectId,
                   columnMap,

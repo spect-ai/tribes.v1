@@ -1,21 +1,21 @@
 import {
-  Add,
   DashboardOutlined,
   FormatListBulleted,
   PollOutlined,
 } from '@mui/icons-material';
-import React from 'react';
-import {
-  PrimaryButton,
-  StyledTab,
-  StyledTabs,
-} from '../../elements/styledComponents';
+import React, { useState } from 'react';
+import { StyledTab, StyledTabs } from '../../elements/styledComponents';
 import { useProject } from '../project';
+import TasksFilter from '../tasksFilter';
 
 type Props = {};
 
 function ViewsNavbar(props: Props) {
   const { tab, handleTabChange } = useProject();
+  const [reviewerFilter, setReviewerFilter] = useState<any[]>([]);
+  const [assigneeFilter, setAssigneeFilter] = useState<any[]>([]);
+  const [labelsFilter, setLabelsFilter] = useState<any[]>([]);
+  const [titleFilter, setTitleFilter] = useState<string>('');
   return (
     <StyledTabs value={tab} onChange={handleTabChange}>
       <StyledTab
@@ -39,6 +39,7 @@ function ViewsNavbar(props: Props) {
       {/* <PrimaryButton color="secondary" startIcon={<Add />}>
         Create View
       </PrimaryButton> */}
+      <TasksFilter />
     </StyledTabs>
   );
 }

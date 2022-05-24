@@ -95,38 +95,55 @@ function PayButton({ handleClose }: Props) {
         registry[task.chain.chainId].distributorAddress as string,
         task.value,
         user?.get('ethAddress') as string
-      ).then((isApprovedToken: boolean) => {
-        console.log(`isApprovedToken: ${isApprovedToken}`);
-        if (isApprovedToken) {
-          setActiveStep(1);
-        } else {
-          setActiveStep(0);
-          setSteps(['Approve', 'Pay']);
-        }
-        info = {
-          approval: {
-            required: !isApprovedToken,
-            uniqueTokenAddresses: [task.token.address],
-            aggregatedTokenValues: [task.value],
-          } as ApprovalInfo,
-          tokens: {
-            cardIds: [task.taskId],
-            type: 'tokens',
-            contributors: task.assignee,
-            tokenAddresses: [task.token.address],
-            tokenValues: [task.value],
-          } as DistributionInfo,
-          currency: {
-            cardIds: [] as string[],
-            type: 'currency',
-            contributors: [] as string[],
-            tokenAddresses: [] as string[],
-            tokenValues: [] as number[],
-          } as DistributionInfo,
-        };
-        setPaymentInfo(info);
-        setIsOpen(true);
-      });
+      )
+        .then((isApprovedToken: boolean) => {
+          console.log(`isApprovedToken: ${isApprovedToken}`);
+          if (isApprovedToken) {
+            setActiveStep(1);
+          } else {
+            setActiveStep(0);
+            setSteps(['Approve', 'Pay']);
+          }
+          info = {
+            approval: {
+              required: !isApprovedToken,
+              uniqueTokenAddresses: [task.token.address],
+              aggregatedTokenValues: [task.value],
+            } as ApprovalInfo,
+            tokens: {
+              cardIds: [task.taskId],
+              type: 'tokens',
+              contributors: task.assignee,
+              tokenAddresses: [task.token.address],
+              tokenValues: [task.value],
+            } as DistributionInfo,
+            currency: {
+              cardIds: [] as string[],
+              type: 'currency',
+              contributors: [] as string[],
+              tokenAddresses: [] as string[],
+              tokenValues: [] as number[],
+            } as DistributionInfo,
+          };
+          setPaymentInfo(info);
+          setIsOpen(true);
+        })
+        .catch((err: any) => {
+          window.ethereum
+            .request({
+              method: 'eth_accounts',
+            })
+            .then((accounts: any) => {
+              if (accounts.length === 0) {
+                notify(
+                  'Cannot fetch account, wallet is most likely locked',
+                  'error'
+                );
+              } else {
+                notify(err.message, 'error');
+              }
+            });
+        });
     }
   };
 
@@ -146,7 +163,7 @@ function PayButton({ handleClose }: Props) {
             display: 'flex',
             flexDirection: 'column',
             mx: 1,
-            minWidth: '9rem',
+            minWidth: '7rem',
           }}
         >
           <CardButton
@@ -234,14 +251,12 @@ function PayButton({ handleClose }: Props) {
                 handleNextStep={handleNextStep}
                 setActiveStep={setActiveStep}
                 approvalInfo={paymentInfo.approval}
-                chainId={window.ethereum.networkVersion}
               />
             )}
             {activeStep === 1 && isOpen && !isLoading && (
               <BatchPay
                 handleClose={handleModalClose}
                 handleNextStep={handleNextStep}
-                chainId={window.ethereum.networkVersion}
                 distributionInfo={paymentInfo.tokens}
                 handleStatusUpdate={
                   updateStatusAndTransactionHashInMultipleCards
@@ -252,7 +267,6 @@ function PayButton({ handleClose }: Props) {
               <BatchPay
                 handleClose={handleModalClose}
                 handleNextStep={handleNextStep}
-                chainId={window.ethereum.networkVersion}
                 distributionInfo={paymentInfo.currency}
                 handleStatusUpdate={
                   updateStatusAndTransactionHashInMultipleCards
