@@ -51,7 +51,7 @@ function Overview() {
   return (
     <Wrapper data-testid="overviewContainer">
       <Grid container>
-        <Grid item xs={9}>
+        <Grid item lg={9} xs={8}>
           <MainContainer>
             <Box
               sx={{
@@ -71,7 +71,7 @@ function Overview() {
             <Board />
           </MainContainer>
         </Grid>
-        <Grid item xs={3}>
+        <Grid item lg={3} xs={4}>
           <SideContainer>
             <DescriptionContainer>
               <Box
@@ -94,6 +94,7 @@ function Overview() {
                       height: '2.5rem',
                       fontSize: 15,
                     },
+                    flexWrap: 'wrap',
                   }}
                 />
               </Box>

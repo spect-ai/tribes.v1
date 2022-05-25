@@ -73,7 +73,7 @@ function Board(props: Props) {
       )} */}
       <Grid container spacing={2}>
         {tribe?.boards?.map((board: BoardData) => (
-          <Grid item xs={3} key={board._id}>
+          <Grid item lg={3} md={4} sm={5} xs={6} key={board._id}>
             <BoardButton
               data-testid={`space-${board._id}`}
               variant="contained"
@@ -89,7 +89,7 @@ function Board(props: Props) {
           </Grid>
         ))}
 
-        <Grid item xs={3}>
+        <Grid item lg={3} md={4} sm={5} xs={6}>
           {user && tribe.roles[user.id] === 3 && (
             <CreateBoardButton
               id="bCreateBoardButton"

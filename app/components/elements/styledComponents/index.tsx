@@ -171,6 +171,9 @@ export const StyledNav = styled('nav')(({ theme }) => ({
   width: '100%',
   paddingTop: '0.4rem',
   borderBottom: `1px solid ${theme.palette.divider}`,
+  position: 'fixed',
+  zIndex: 1,
+  backgroundColor: theme.palette.background.default,
 }));
 
 export const StyledModal = styled(Modal)(({ theme }) => ({

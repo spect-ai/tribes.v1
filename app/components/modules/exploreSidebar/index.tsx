@@ -53,7 +53,20 @@ const SidebarContainer = styled.div<{ palette: Palette }>`
   flex-direction: column;
   height: calc(100vh - 56px);
   overflow-y: auto;
-  width: 4rem;
+  position: fixed;
+  z-index: 1;
+  top: 56px;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  @media only screen and (min-width: 0px) {
+    width: 3rem;
+  }
+  @media only screen and (min-width: 768px) {
+    width: 4rem;
+  }
 `;
 
 export const ButtonText = styled.div`
