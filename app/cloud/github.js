@@ -82,3 +82,32 @@ Moralis.Cloud.define('githubUpdateCard', async (request) => {
     throw error;
   }
 });
+
+Moralis.Cloud.define('connectGithubRepo', async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  logger.info(
+    `Calling connectGithubRepo for spaceId: ${request.params.spaceId}`
+  );
+  try {
+    const repoArray = [request.params.repo];
+    const spaceId = request.params.spaceId;
+    var space = await getBoardByObjectId(spaceId);
+
+    if (repoArray.length){
+      space.set('github',repoArray);
+      const res = await Moralis.Object.saveAll(space, {
+        useMasterKey: true,
+      });
+      logger.info(`res: ${JSON.stringify(res)}`);
+    }
+    var tribe = space.get('teamId');
+    return tribe;
+
+  } catch (error) {
+    logger.error(
+      `Failure in connectGithubRepo for spaceId: ${request.params.spaceId} : ${err}`,
+      'error'
+    );
+    throw error;
+  }
+});
