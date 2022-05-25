@@ -39,6 +39,11 @@ const TaskList = styled.div`
   overflow-x: hidden;
   height: fit-content;
   max-height: calc(100vh - 10rem);
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 
 const TaskListContainer = styled.div<{ palette: Palette }>`
