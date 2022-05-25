@@ -242,6 +242,7 @@ export interface BoardData {
   creatingEpoch: boolean;
   guildId: string;
   discussionChannel: Channel;
+  githubRepos: string[];
 }
 export interface Team {
   teamId: string;

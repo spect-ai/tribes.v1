@@ -194,7 +194,7 @@ function BoardSettings(props: Props) {
                 <AccordionDetails>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     <a
-                      href="https://github.com/apps/spect-github-bot/installations/new"
+                      href={`https://github.com/apps/spect-github-bot/installations/new?state=${space.objectId}`}
                       target="_blank"
                       rel="noreferrer"
                       style={{
@@ -207,7 +207,11 @@ function BoardSettings(props: Props) {
                         color="secondary"
                         size="small"
                       >
-                        <Typography>Connect Github</Typography>
+                        <Typography>
+                          {space.githubRepos?.length > 0
+                            ? 'Github Connected'
+                            : 'Connect Github'}
+                        </Typography>
                       </PrimaryButton>
                     </a>
                     {space.team && !space.team[0].guildId ? (
