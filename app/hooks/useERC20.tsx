@@ -113,21 +113,21 @@ export default function useERC20() {
   }
 
   async function symbol(erc20Address: string) {
-    if (isCurrency(erc20Address)) {
-      return 18;
-    }
     const contract = getERC20Contract(erc20Address);
     // eslint-disable-next-line no-return-await
     return await contract.symbol();
   }
 
   async function name(erc20Address: string) {
-    if (isCurrency(erc20Address)) {
-      return 18;
-    }
     const contract = getERC20Contract(erc20Address);
     // eslint-disable-next-line no-return-await
     return await contract.name();
+  }
+
+  async function balanceOf(erc20Address: string, ethAddress: string) {
+    const contract = getERC20Contract(erc20Address);
+    // eslint-disable-next-line no-return-await
+    return await contract.balanceOf(ethAddress);
   }
 
   return {
@@ -139,5 +139,6 @@ export default function useERC20() {
     decimals,
     symbol,
     name,
+    balanceOf,
   };
 }

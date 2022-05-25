@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { useMoralis } from 'react-moralis';
 import distributorABI from '../contracts/mumbai/distributor.json';
 import { useGlobal } from '../context/globalContext';
 import useERC20 from './useERC20';
@@ -7,7 +8,8 @@ export default function useDistributor() {
   const {
     state: { registry },
   } = useGlobal();
-  const { isCurrency } = useERC20();
+  const { isCurrency, decimals, balanceOf } = useERC20();
+  const { user } = useMoralis();
 
   function getDistributorContract(chainId: string) {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -85,6 +87,16 @@ export default function useDistributor() {
     return { filteredTokenAddresses, filteredRecipients, filteredValues };
   }
 
+  async function getDecimals(tokenAddresses: string[]) {
+    const numDecimals = [];
+    // eslint-disable-next-line no-restricted-syntax
+    for (const tokenAddress of tokenAddresses) {
+      // eslint-disable-next-line no-await-in-loop
+      numDecimals.push(await decimals(tokenAddress));
+    }
+    return numDecimals;
+  }
+
   async function distributeTokens(
     tokenAddresses: string[],
     recipients: string[],
@@ -94,8 +106,9 @@ export default function useDistributor() {
   ) {
     const { filteredTokenAddresses, filteredRecipients, filteredValues } =
       filterInvalidValues(tokenAddresses, recipients, values);
-    const valuesInWei = filteredValues.map((v) =>
-      ethers.utils.parseEther(v.toFixed(5).toString())
+    const numDecimals = await getDecimals(filteredTokenAddresses);
+    const valuesInWei = filteredValues.map((v, index) =>
+      ethers.BigNumber.from((v * 10 ** numDecimals[index]).toString())
     );
     const contract = getDistributorContract(chainId);
     const tx = await contract.distributeTokens(
