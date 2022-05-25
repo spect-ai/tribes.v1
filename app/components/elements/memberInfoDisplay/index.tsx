@@ -1,5 +1,14 @@
-import { Box, Typography, styled } from '@mui/material';
+import {
+  Box,
+  Typography,
+  styled,
+  SxProps,
+  Theme,
+  Link,
+  IconButton,
+} from '@mui/material';
 import React from 'react';
+import { useRouter } from 'next/router';
 import { Member, Profile } from '../../../types';
 import MemberAvatar from '../memberAvatar';
 
@@ -9,7 +18,7 @@ type Props = {
   textsx?: object;
   textVariant?: string;
   avatarsx?: object;
-  boxsx?: object;
+  boxsx?: SxProps<Theme> | undefined;
 };
 
 export default function MemberInfoDisplay({

@@ -296,6 +296,9 @@ export interface Profile {
   cards: Task[];
   epochs: Epoch[];
   ethAddress: string;
+  spaceDetails: object;
+  tribeDetails: object;
+  memberDetails: MemberDetails;
 }
 
 export type TokenInfo = {

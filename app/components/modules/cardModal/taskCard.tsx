@@ -73,8 +73,8 @@ function TaskCard({ handleClose }: Props) {
         <Box sx={{ flex: '1 1 auto' }} />
         <AssignToMe />
         <CloseButton />
-        <Attest />
-        <Claim />
+        {/* <Attest />
+        <Claim /> */}
         <PayButton handleClose={handleClose} />
         {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
         <IconButton

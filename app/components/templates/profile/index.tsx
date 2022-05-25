@@ -1,16 +1,12 @@
-import { Box, styled, Tab } from '@mui/material';
+import { Box, styled, Tab, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { utcToZonedTime } from 'date-fns-tz';
-import { format } from 'date-fns';
 import { useProfile } from '../../../../pages/profile/[username]';
-import MemberAvatar from '../../elements/memberAvatar';
+import { SoulboundInfo, Epoch, Task } from '../../../types';
 import MemberInfoDisplay from '../../elements/memberInfoDisplay';
-import { StyledTabs, StyledTab } from '../../elements/styledComponents';
-import FullWidthCards from '../../modules/fullWidthCards';
-import Soulbounds from '../../modules/soulbounds';
+import { PrimaryButton, StyledTabs } from '../../elements/styledComponents';
 import { useCardContext } from '../../modules/cardModal';
-import { SoulboundInfo } from '../../../types';
-import Banner from '../../../images/spect_banner.jpg';
+import FullWidthCards from '../../modules/fullWidthCards';
+import FullWidthEpochs from '../../modules/fullWidthEpochs';
 
 type Props = {};
 interface StyledTabProps {
@@ -47,41 +43,18 @@ const StyledAnchor = styled('a')(({ theme }) => ({
 }));
 
 function ProfileTemplate(props: Props) {
-  const { profile, tab, handleTabChange } = useProfile();
-  const { task } = useCardContext();
-
-  const [soulbounds, setSoulbounds] = useState([] as SoulboundInfo[]);
+  const { profile, tab, handleTabChange, loading } = useProfile();
+  const [reversedEpochs, setReversedEpochs] = useState(
+    profile.epochs?.reverse() as Epoch[]
+  );
+  const [reversedCards, setReversedCards] = useState(
+    profile.cards?.reverse() as Task[]
+  );
 
   useEffect(() => {
-    const soulboundsClaimed = [] as SoulboundInfo[];
-    // eslint-disable-next-line no-restricted-syntax
-    console.log(profile.cards);
-    if (profile.cards) {
-      // eslint-disable-next-line no-restricted-syntax
-      for (const card of profile.cards) {
-        if (card.claimedBy?.includes(profile.ethAddress)) {
-          soulboundsClaimed.push({
-            claimee: profile.username,
-            contentUri: 'contentUri',
-            title: card.title,
-            // deadline: format(
-            //   utcToZonedTime(
-            //     new Date(card.deadline),
-            //     Intl.DateTimeFormat().resolvedOptions().timeZone
-            //   ),
-            //   'MMM do, hh:mm a'
-            // ),
-            deadline: '2022-05-22',
-            description: card.description,
-            issuer: card.issuer || card.creator,
-            id: card.onChainBountyId as number,
-          });
-        }
-      }
-      console.log(soulboundsClaimed);
-      setSoulbounds(soulboundsClaimed);
-    }
-  }, [profile]);
+    setReversedEpochs(profile.epochs?.reverse());
+    setReversedCards(profile.cards?.reverse());
+  }, [loading]);
 
   return (
     <Box
@@ -89,7 +62,8 @@ function ProfileTemplate(props: Props) {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
+        justifyContent: 'start',
+        alignItems: 'start',
         width: '100%',
         mb: 8,
       }}
@@ -111,12 +85,15 @@ function ProfileTemplate(props: Props) {
           flexDirection: 'row',
           justifyContent: 'start',
           alignItems: 'start',
+          mx: 32,
+          width: '80%',
         }}
       >
         <Box
           sx={{
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: 'row',
+            width: '80%',
           }}
         >
           <MemberInfoDisplay
@@ -131,21 +108,33 @@ function ProfileTemplate(props: Props) {
               color: 'text.primary',
               fontSize: 24,
               mt: 1,
+              ml: 2,
             }}
             boxsx={{
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection: 'row',
               justifyContent: 'center',
-              alignItems: 'center',
+              alignItems: 'start',
             }}
           />
+          <PrimaryButton
+            data-testid="bConfirmAction"
+            variant="outlined"
+            sx={{ width: '6rem', height: '2rem', mx: 4, mt: 2 }}
+            color="secondary"
+            size="small"
+            onClick={() => {}}
+          >
+            Edit Profile
+          </PrimaryButton>
+          <Box sx={{ flex: '1 1 auto' }} />
           <Box
             sx={{
-              mt: 2,
+              mt: 3,
               display: 'flex',
               flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
+              alignItems: 'start',
+              justifyContent: 'end',
             }}
           >
             <StyledAnchor>
@@ -163,21 +152,79 @@ function ProfileTemplate(props: Props) {
       <Box
         sx={{
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '80%',
+          flexDirection: 'row',
+          justifyContent: 'start',
+          alignItems: 'start',
+          mx: 32,
           mt: 4,
+          width: '100%',
         }}
       >
-        <StyledTabs value={tab} onChange={handleTabChange} centered>
-          <ProfileTab label="Soulbounds" data-testid="tSoulboundsTab" />
-          <ProfileTab label="Cards" data-testid="tCardsTab" />
-          <ProfileTab label="Epochs" data-testid="tEpochsTab" />
-        </StyledTabs>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'start',
+            alignItems: 'start',
+            width: '100%',
+          }}
+        >
+          <StyledTabs value={tab} onChange={handleTabChange} centered>
+            {/* <ProfileTab label="Soulbounds" data-testid="tSoulboundsTab" /> */}
+            <ProfileTab label="Cards" data-testid="tCardsTab" />
+            <ProfileTab label="Epochs" data-testid="tEpochsTab" />
+          </StyledTabs>
+          {!loading && (
+            <>
+              {profile.cards && profile.cards?.length > 0 ? (
+                // eslint-disable-next-line react/jsx-no-useless-fragment
+                <>
+                  {tab === 0 && (
+                    <FullWidthCards
+                      cards={reversedCards}
+                      spaceDetails={profile.spaceDetails}
+                      tribeDetails={profile.tribeDetails}
+                      memberDetails={profile.memberDetails}
+                    />
+                  )}
+                </>
+              ) : (
+                <Typography
+                  sx={{ mt: 4 }}
+                  variant="subtitle1"
+                  color="text.primary"
+                >
+                  {' '}
+                  No cards to display{' '}
+                </Typography>
+              )}
+              {profile.epochs && profile.epochs?.length > 0 ? (
+                // eslint-disable-next-line react/jsx-no-useless-fragment
+                <>
+                  {tab === 1 && (
+                    <FullWidthEpochs
+                      epochs={reversedEpochs}
+                      spaceDetails={profile.spaceDetails}
+                      tribeDetails={profile.tribeDetails}
+                      memberDetails={profile.memberDetails}
+                    />
+                  )}
+                </>
+              ) : (
+                <Typography
+                  sx={{ mt: 4 }}
+                  variant="subtitle1"
+                  color="text.primary"
+                >
+                  {' '}
+                  No epochs to display{' '}
+                </Typography>
+              )}
+            </>
+          )}
+        </Box>
       </Box>
-      {tab === 1 && <FullWidthCards cards={profile.cards} />}
-      {tab === 0 && <Soulbounds soulbounds={soulbounds} />}
+      {/* {tab === 0 && <Soulbounds soulbounds={soulbounds} />} */}
     </Box>
   );
 }

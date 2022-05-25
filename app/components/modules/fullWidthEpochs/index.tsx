@@ -2,19 +2,20 @@ import styled from '@emotion/styled';
 import { Palette, useTheme, Typography, Box, Avatar } from '@mui/material';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import React from 'react';
-import { Task } from '../../../types';
+import { Epoch } from '../../../types';
 import { formatTimeCreated } from '../../../utils/utils';
 import MemberGroupDisplay from '../../elements/memberGroupDisplay';
+import { Card, CardContent } from '../fullWidthCards';
 
 type Props = {
-  cards: Task[];
+  epochs: Epoch[];
   spaceDetails: any;
   tribeDetails: any;
   memberDetails: any;
 };
 
-export const Card = styled.div<{ palette: Palette }>`
-  width: 70%;
+const ECard = styled.div<{ palette: Palette }>`
+  width: 100%;
   border: 1px solid ${(props) => props.palette.divider};
   border-radius: 4px;
   margin-bottom: 1rem;
@@ -26,7 +27,7 @@ export const Card = styled.div<{ palette: Palette }>`
   transition: all 0.5s ease;
 `;
 
-export const CardContent = styled.div`
+const ECardContent = styled.div`
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -34,8 +35,8 @@ export const CardContent = styled.div`
   padding-left: 1.5rem;
 `;
 
-function FullWidthCards({
-  cards,
+function FullWidthEpochs({
+  epochs,
   spaceDetails,
   tribeDetails,
   memberDetails,
@@ -52,7 +53,7 @@ function FullWidthCards({
         width: '80%',
       }}
     >
-      {cards?.map((card: any) => (
+      {epochs?.map((epoch: any) => (
         <Card palette={palette}>
           <CardContent>
             <Box
@@ -68,25 +69,25 @@ function FullWidthCards({
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'start',
-                  width: { sm: '75%', xl: '85%' },
+                  width: { sm: '60%', xl: '80%' },
                   mb: '0.5rem',
                 }}
               >
                 <Typography variant="body2" color="text.secondary">
-                  {card.action}
+                  Participated In
                 </Typography>
                 <Typography
                   variant="h6"
                   color="secondary"
                   sx={{ width: '100%', overflow: 'auto' }}
-                >{`${card.title}`}</Typography>
+                >{`${epoch.name}`}</Typography>
                 <Typography
                   variant="subtitle2"
                   color="secondary"
                   sx={{ mt: '0.5rem', whiteSpace: 'normal' }}
                 >
                   {' '}
-                  {`${spaceDetails[card.spaceId].name}`}
+                  {`${spaceDetails[epoch.spaceId].name}`}
                 </Typography>
                 <Box
                   sx={{
@@ -100,9 +101,9 @@ function FullWidthCards({
                   <Avatar
                     variant="rounded"
                     sx={{ p: 0, m: 0, width: 18, height: 18 }}
-                    src={tribeDetails[spaceDetails[card.spaceId].teamId].logo}
+                    src={tribeDetails[spaceDetails[epoch.spaceId].teamId].logo}
                   >
-                    {tribeDetails[spaceDetails[card.spaceId].teamId].name[0]}
+                    {tribeDetails[spaceDetails[epoch.spaceId].teamId].name[0]}
                   </Avatar>
                   <Typography
                     variant="subtitle2"
@@ -110,7 +111,7 @@ function FullWidthCards({
                     sx={{ ml: 1 }}
                   >
                     {' '}
-                    {`${tribeDetails[spaceDetails[card.spaceId].teamId].name}`}
+                    {`${tribeDetails[spaceDetails[epoch.spaceId].teamId].name}`}
                   </Typography>
                 </Box>
               </Box>
@@ -119,7 +120,7 @@ function FullWidthCards({
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'end',
-                  width: { sm: '20%', xl: '10%' },
+                  width: { sm: '35%', xl: '15%' },
                   mr: '1.5rem',
                   ml: '1.5rem',
                 }}
@@ -137,29 +138,36 @@ function FullWidthCards({
                     color="text.secondary"
                     sx={{ mb: 1 }}
                   >
-                    {card.action === 'Worked on'
-                      ? 'Reviewed by'
-                      : 'Assigned to'}{' '}
+                    Other participants
                   </Typography>
                   <MemberGroupDisplay
-                    members={
-                      card.action === 'Worked on'
-                        ? card.assignee
-                        : card.reviewer
-                    }
+                    members={epoch.members}
                     memberDetails={memberDetails}
-                    placeholder={`No ${
-                      card.action === 'Worked on' ? 'assignee' : 'reviewer'
-                    }`}
                     multiMemberBoxsx={{
                       display: 'flex',
                       flexDirection: 'row',
                       alignItems: 'start',
                       justifyContent: 'start',
                     }}
+                    placeholder="No participants"
                     textsx={{ fontSize: 14, ml: 1, color: 'text.primary' }}
                   />
                   )
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'end',
+                    justifyContent: 'end',
+                  }}
+                >
+                  <Typography variant="body2" color="text.secondary">
+                    Received
+                  </Typography>
+                  <Typography variant="body2" color="secondary" sx={{}}>
+                    {(epoch.share * 100).toFixed(0)}% votes
+                  </Typography>
                 </Box>
                 <Box
                   sx={{
@@ -174,7 +182,7 @@ function FullWidthCards({
                     {`Last updated `}{' '}
                   </Typography>
                   <Typography variant="body2" color="secondary" sx={{}}>
-                    {`${formatTimeCreated(card.updatedAt)} ago`}
+                    {`${formatTimeCreated(epoch.updatedAt)} ago`}
                   </Typography>
                 </Box>
               </Box>
@@ -186,4 +194,4 @@ function FullWidthCards({
   );
 }
 
-export default FullWidthCards;
+export default FullWidthEpochs;

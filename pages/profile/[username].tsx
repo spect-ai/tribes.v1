@@ -11,6 +11,7 @@ import { useGlobal } from '../../app/context/globalContext';
 import { Profile } from '../../app/types';
 import ProfileNavbar from '../../app/components/modules/profileNavbar';
 import ProfileTemplate from '../../app/components/templates/profile';
+import useMoralisFunction from '../../app/hooks/useMoralisFunction';
 
 export const ProfileContainer = styled.div<{ theme: Theme }>`
   display: flex;
@@ -26,7 +27,6 @@ interface ProfileContextType {
   handleTabChange: (event: React.SyntheticEvent, newValue: number) => void;
   profile: Profile;
   setProfile: (tribe: Profile) => void;
-  getUser: Function;
   loading: boolean;
   setLoading: (loading: boolean) => void;
 }
@@ -42,20 +42,11 @@ function useProviderProfile() {
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
-  const { fetch: getUser } = useMoralisCloudFunction(
-    'getUserDetailsWithUsername',
-    {
-      limit: 1,
-    },
-    { autoFetch: false }
-  );
-
   return {
     tab,
     handleTabChange,
     profile,
     setProfile,
-    getUser,
     loading,
     setLoading,
   };
@@ -65,35 +56,39 @@ console.log('starting profile page', new Date());
 export default function ProfilePage(props: Props) {
   const router = useRouter();
   const { username } = router.query;
+  const {
+    state: { loading },
+  } = useGlobal();
   const context = useProviderProfile();
   const { state } = useGlobal();
-  const { setLoading, getUser, setProfile } = context;
+  const { setLoading, setProfile } = context;
   const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
   const { isAuthenticated, isInitialized } = useMoralis();
   const [notFound, setNotFound] = useState(false);
+  const { runMoralisFunction } = useMoralisFunction();
 
   useEffect(() => {
-    if (isInitialized && username) {
+    if (!loading && isInitialized && username) {
       setTheme(createTheme(getTheme(0)));
       setLoading(true);
-      getUser({
-        onSuccess: (res: any) => {
-          console.log(res);
+      const params = {
+        username,
+      };
+      console.log('sending request');
+      runMoralisFunction('getUserDetailsWithUsername', params)
+        .then((res: any) => {
+          console.log('received response');
           setProfile(res as Profile);
           setTheme(createTheme(getTheme(res.theme)));
           setLoading(false);
-        },
-        onError: (err: any) => {
+        })
+        .catch((err: any) => {
           console.log(err);
           setNotFound(true);
           setLoading(false);
-        },
-        params: {
-          username,
-        },
-      });
+        });
     }
-  }, [username, isInitialized]);
+  }, [username]);
   return (
     <>
       <Head>
