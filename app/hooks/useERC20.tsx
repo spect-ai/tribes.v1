@@ -29,21 +29,6 @@ export default function useERC20() {
     return tx.wait();
   }
 
-  async function isApproved(
-    erc20Address: string,
-    spenderAddress: string,
-    value: number,
-    ethAddress: string
-  ) {
-    if (isCurrency(erc20Address)) {
-      return true;
-    }
-    const contract = getERC20Contract(erc20Address);
-
-    const allowance = await contract.allowance(ethAddress, spenderAddress);
-    return parseFloat(ethers.utils.formatEther(allowance)) >= value;
-  }
-
   function aggregateBalances(
     erc20Addresses: Array<string>,
     values: Array<number>
@@ -61,6 +46,50 @@ export default function useERC20() {
     return addressToValue;
   }
 
+  async function isApproved(
+    erc20Address: string,
+    spenderAddress: string,
+    value: number,
+    ethAddress: string
+  ) {
+    if (isCurrency(erc20Address)) {
+      return true;
+    }
+    const contract = getERC20Contract(erc20Address);
+    const numDecimals = await contract.decimals();
+
+    const allowance = await contract.allowance(ethAddress, spenderAddress);
+    return (
+      allowance >= ethers.BigNumber.from((value * 10 ** numDecimals).toString())
+    );
+  }
+
+  async function areApproved(
+    erc20Addresses: string[],
+    spenderAddress: string,
+    values: number[],
+    ethAddress: string
+  ) {
+    const aggregateValues = aggregateBalances(erc20Addresses, values);
+    const uniqueTokenAddresses = [];
+    const aggregatedTokenValues = [];
+
+    for (let i = 0; i < Object.keys(aggregateValues).length; i += 1) {
+      // eslint-disable-next-line no-await-in-loop
+      const tokenIsApproved = await isApproved(
+        erc20Addresses[i],
+        spenderAddress,
+        aggregateValues[erc20Addresses[i]],
+        ethAddress
+      );
+      if (!tokenIsApproved) {
+        uniqueTokenAddresses.push(erc20Addresses[i]);
+        aggregatedTokenValues.push(aggregateValues[erc20Addresses[i]]);
+      }
+    }
+    return [uniqueTokenAddresses, aggregatedTokenValues];
+  }
+
   // eslint-disable-next-line consistent-return
   async function hasBalance(
     erc20Address: string,
@@ -72,14 +101,18 @@ export default function useERC20() {
         method: 'eth_getBalance',
         params: [ethAddress],
       });
-
       return parseFloat(ethers.utils.formatEther(balance)) >= value;
       // eslint-disable-next-line no-else-return
     } else {
       const contract = getERC20Contract(erc20Address);
 
+      const numDecimals = await contract.decimals();
+
       const balance = await contract.balanceOf(ethAddress);
-      return parseFloat(ethers.utils.formatEther(balance)) >= value;
+
+      return (
+        balance >= ethers.BigNumber.from((value * 10 ** numDecimals).toString())
+      );
     }
   }
 
@@ -133,6 +166,7 @@ export default function useERC20() {
   return {
     approve,
     isApproved,
+    areApproved,
     isCurrency,
     hasBalance,
     hasBalances,
