@@ -1,4 +1,4 @@
-import { Avatar, Breadcrumbs, Link, Tooltip } from '@mui/material';
+import { Avatar, Box, Breadcrumbs, Link, Tooltip } from '@mui/material';
 import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
@@ -120,7 +120,25 @@ function SpaceNavbar(props: Props) {
         <StyledTab label="Consensus" data-testid="tEpochTab" />
         <StyledTab label="Members" data-testid="tMembersTab" />
       </StyledTabs>
+      <Box sx={{ flex: '1 1 auto' }} />
       <SidebarProfile />
+      <HamburgerMenu
+        items={[
+          {
+            label: 'Project',
+            id: 0,
+          },
+          {
+            label: 'Consensus',
+            id: 1,
+          },
+          {
+            label: 'Members',
+            id: 2,
+          },
+        ]}
+        type="space"
+      />
     </StyledNav>
   );
 }

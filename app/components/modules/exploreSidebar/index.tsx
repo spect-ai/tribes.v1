@@ -63,7 +63,7 @@ const SidebarContainer = styled.div<{ palette: Palette }>`
   -ms-overflow-style: none;
   scrollbar-width: none;
   @media only screen and (min-width: 0px) {
-    width: 2.2rem;
+    width: 2.4rem;
   }
   @media only screen and (min-width: 768px) {
     width: 4rem;

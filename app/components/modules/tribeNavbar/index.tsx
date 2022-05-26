@@ -81,6 +81,7 @@ function TribeNavbar(props: Props) {
           disabled={tribe.roles[user?.id as string] !== 3}
         />
       </StyledTabs>
+      <Box sx={{ flex: '1 1 auto' }} />
       <SidebarProfile />
       <HamburgerMenu
         items={[

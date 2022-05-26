@@ -28,15 +28,24 @@ type Props = {
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
   position: 'absolute' as 'absolute',
-  top: '10%',
-  left: '25%',
   transform: 'translate(-50%, -50%)',
-  width: '35rem',
   border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: 'auto',
   maxHeight: 'calc(100% - 128px)',
+  [theme.breakpoints.down('md')]: {
+    top: '10%',
+    left: '2%',
+    padding: '1rem 2rem',
+    width: '18rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    top: '10%',
+    left: '35%',
+    width: '30rem',
+    padding: '1.5rem 3rem',
+  },
 }));
 
 const ModalContent = styled('div')(({ theme }) => ({
@@ -74,7 +83,7 @@ function CreateBoard({ isOpen, handleClose }: Props) {
               color="secondary"
             />
             <Grid container alignItems="center" marginTop={2}>
-              <Grid item xs={3}>
+              <Grid item xs={6}>
                 <PrimaryButton
                   data-testid="bCreateSpaceModalButton"
                   loading={isLoading}
@@ -111,7 +120,7 @@ function CreateBoard({ isOpen, handleClose }: Props) {
                   Create Space
                 </PrimaryButton>
               </Grid>
-              <Grid item xs={1}>
+              <Grid item xs={6}>
                 <Checkbox
                   inputProps={{
                     'aria-label': 'select all desserts',

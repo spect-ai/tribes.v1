@@ -39,8 +39,8 @@ const TaskItem = styled.div<{
     border: 0.1px solid rgb(234, 234, 234, 0.3);
   }
   @media only screen and (min-width: 0px) {
-    margin: 0.2rem 0rem;
-    padding: 0.1rem 0.5rem;
+    margin: 0.5rem 0rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 5px;
     width: 90%;
   }

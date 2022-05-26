@@ -98,7 +98,7 @@ function NumericVoting({
                     size="small"
                     color="secondary"
                     error={votesRemaining < 0}
-                    sx={{ width: '30%' }}
+                    sx={{ width: { xs: '100%', md: '30%' } }}
                     onChange={(event) => {
                       handleVotesRemaining(
                         epochId,
