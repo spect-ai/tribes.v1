@@ -108,7 +108,9 @@ export default function useDistributor() {
       filterInvalidValues(tokenAddresses, recipients, values);
     const numDecimals = await getDecimals(filteredTokenAddresses);
     const valuesInWei = filteredValues.map((v, index) =>
-      ethers.BigNumber.from((v * 10 ** numDecimals[index]).toString())
+      ethers.BigNumber.from(
+        (v * 10 ** numDecimals[index]).toFixed(0).toString()
+      )
     );
     const contract = getDistributorContract(chainId);
     const tx = await contract.distributeTokens(

@@ -808,24 +808,6 @@ Moralis.Cloud.define('getBatchPayInfo', async (request) => {
     var contributorToCurrencyValue =
       aggregateAndGroupRewardsByContributor(currencyCards);
 
-    // // Get if approval required
-    // tokenAddressToMinAllowanceRequired = await getApprovalInfo(
-    //   tokenAddressToMinAllowanceRequired,
-    //   request.user.get('ethAddress'),
-    //   request.params.distributor,
-    //   request.params.chainIdHex
-    // );
-
-    // // Flatten approval data
-    // paymentInfo.approval.uniqueTokenAddresses = Object.keys(
-    //   tokenAddressToMinAllowanceRequired
-    // );
-    // paymentInfo.approval.aggregatedTokenValues = Object.values(
-    //   tokenAddressToMinAllowanceRequired
-    // );
-    // if (paymentInfo.approval.uniqueTokenAddresses.length > 0)
-    //   paymentInfo.approval.required = true;
-
     // Flatten currency data
     paymentInfo.currency.contributors = Object.keys(contributorToCurrencyValue);
     paymentInfo.currency.tokenValues = Object.values(
