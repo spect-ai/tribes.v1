@@ -53,7 +53,12 @@ const SettingContainer = styled.div`
 
 const FormItem = styled.div`
   margin-bottom: 1rem;
-  width: 50%;
+  @media only screen and (min-width: 0px) {
+    width: 95%;
+  }
+  @media only screen and (min-width: 768px) {
+    width: 50%;
+  }
 `;
 
 const ButtonWrapper = styled.div`

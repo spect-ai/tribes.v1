@@ -6,6 +6,7 @@ import { useMoralis } from 'react-moralis';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import useProfileInfo from '../../../hooks/useProfileInfo';
 import ProfilePopover from '../../modules/profilePopover';
+import { notify } from '../../modules/settingsTab';
 import { SidebarButton } from '../styledComponents';
 
 const Profile = styled.div`
@@ -28,24 +29,58 @@ function SidebarProfile() {
   return (
     <Profile>
       {!isAuthenticated && (
-        <SidebarButton
-          data-testid="bConnectButton"
-          sx={{ mt: 2 }}
-          color="inherit"
-          loading={isAuthenticating}
-          onClick={() => {
-            authenticate()
-              .then(async () => {
-                await runMoralisFunction('getOrCreateUser', {});
-              })
-              .catch((err) => console.log(err));
-          }}
-        >
-          <LoginIcon />
-          <Typography sx={{ textTransform: 'none', fontSize: 14, ml: 2 }}>
-            Connect
-          </Typography>
-        </SidebarButton>
+        <>
+          <SidebarButton
+            data-testid="bConnectButton"
+            sx={{
+              display: {
+                xs: 'none',
+                md: 'flex',
+              },
+            }}
+            color="inherit"
+            loading={isAuthenticating}
+            onClick={() => {
+              authenticate()
+                .then(async () => {
+                  await runMoralisFunction('getOrCreateUser', {});
+                })
+                .catch((err) => console.log(err));
+            }}
+          >
+            <LoginIcon />
+            <Typography sx={{ textTransform: 'none', fontSize: 14, ml: 2 }}>
+              Connect
+            </Typography>
+          </SidebarButton>
+          <SidebarButton
+            data-testid="bConnectButton"
+            sx={{
+              display: {
+                xs: 'flex',
+                md: 'none',
+              },
+            }}
+            color="inherit"
+            loading={isAuthenticating}
+            onClick={() => {
+              try {
+                authenticate({ provider: 'walletconnect' })
+                  .then(async () => {
+                    await runMoralisFunction('getOrCreateUser', {});
+                  })
+                  .catch((err) => console.log(err));
+              } catch (err) {
+                notify('Error occured, try again', 'error');
+              }
+            }}
+          >
+            <LoginIcon />
+            <Typography sx={{ textTransform: 'none', fontSize: 14, ml: 2 }}>
+              Connect
+            </Typography>
+          </SidebarButton>
+        </>
       )}
       {isAuthenticated && (
         <SidebarButton

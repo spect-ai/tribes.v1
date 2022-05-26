@@ -48,28 +48,47 @@ const ForumContainer = styled.div<{
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 0.5rem 0rem;
-  padding: 1rem 2rem;
-  border-radius: 5px;
+
   background-color: ${(props) => props.palette.primary.main};
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   cursor: pointer;
-  width: 60%;
   border: 0.1px solid transparent;
   transition: border 0.5s ease-in-out;
   &:hover {
     border: 0.1px solid rgb(234, 234, 234, 0.3);
   }
+  @media only screen and (min-width: 0px) {
+    margin: 0.3rem 0rem;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    width: 90%;
+  }
+  @media only screen and (min-width: 768px) {
+    margin: 0.5rem 0rem;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    width: 60%;
+  }
 `;
 
 const VoteContainer = styled.div`
-  width: 10%;
+  @media only screen and (min-width: 0px) {
+    width: 100%;
+  }
+  @media only screen and (min-width: 768px) {
+    width: 10%;
+  }
 `;
 
 const ForumInfoContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 90%;
+  @media only screen and (min-width: 0px) {
+    width: 80%;
+  }
+  @media only screen and (min-width: 768px) {
+    width: 90%;
+  }
 `;
 const TaskLabelsContainer = styled.div`
   display: flex;
@@ -82,7 +101,12 @@ const AvatarContainer = styled.div`
 `;
 
 const ForumSettingsContainer = styled.div`
-  width: 60%;
+  @media only screen and (min-width: 0px) {
+    width: 100%;
+  }
+  @media only screen and (min-width: 768px) {
+    width: 60%;
+  }
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -105,10 +129,17 @@ function ForumCard({ task }: ForumProps) {
         taskId={task.taskId}
       />
       <ForumContainer palette={palette} onClick={() => setIsOpen(true)}>
-        <Box sx={{ display: 'flex', width: '100%' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            width: '100%',
+            flexDirection: { xs: 'column', md: 'row' },
+          }}
+        >
           <VoteContainer>
             <PrimaryButton
               data-testid="bVoteButton"
+              size="small"
               sx={{ display: 'flex', flexDirection: 'column' }}
               color={
                 task.votes?.includes(user?.id as string) ? 'info' : 'primary'
@@ -120,9 +151,13 @@ function ForumCard({ task }: ForumProps) {
                   updateVotes(user.id, task.taskId);
                 }
               }}
+              fullWidth
             >
               <ArrowDropUp />
-              <Typography sx={{ fontSize: 12 }} data-testid="tVoteNumber">
+              <Typography
+                sx={{ fontSize: { xs: 8, md: 12 } }}
+                data-testid="tVoteNumber"
+              >
                 {task.votes?.length || 0}
               </Typography>
             </PrimaryButton>

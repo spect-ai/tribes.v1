@@ -80,7 +80,13 @@ function Overview() {
                   mt: 4,
                 }}
               >
-                <Typography variant="h6" color="text.secondary">
+                <Typography
+                  color="text.secondary"
+                  fontSize={{
+                    xs: '0.8rem',
+                    md: '1.2rem',
+                  }}
+                >
                   Contributors
                 </Typography>
                 <MemberAvatarGroup
@@ -89,11 +95,6 @@ function Overview() {
                   maxAvatars={6}
                   testid="avatarGroup"
                   avatarGroupsx={{
-                    '& .MuiAvatar-root': {
-                      width: '2.5rem',
-                      height: '2.5rem',
-                      fontSize: 15,
-                    },
                     flexWrap: 'wrap',
                   }}
                 />

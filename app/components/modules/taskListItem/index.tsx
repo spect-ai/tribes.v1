@@ -27,13 +27,9 @@ const TaskItem = styled.div<{
   display: flex;
   flex-direction: row;
   align-items: center;
-  margin: 0.5rem 0rem;
-  padding: 0.5rem 2rem;
-  border-radius: 5px;
   background-color: ${(props) => props.palette.primary.main};
   box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   cursor: pointer;
-  width: 95%;
   border: ${(props) =>
     props.isDragging
       ? `0.1px solid ${props.palette.text.secondary}`
@@ -41,6 +37,18 @@ const TaskItem = styled.div<{
   transition: border 0.5s ease-in-out;
   &:hover {
     border: 0.1px solid rgb(234, 234, 234, 0.3);
+  }
+  @media only screen and (min-width: 0px) {
+    margin: 0.2rem 0rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 5px;
+    width: 90%;
+  }
+  @media only screen and (min-width: 768px) {
+    margin: 0.5rem 0rem;
+    padding: 0.5rem 2rem;
+    border-radius: 5px;
+    width: 95%;
   }
 `;
 
@@ -53,7 +61,12 @@ const TaskLabelsContainer = styled.div`
 `;
 
 const AvatarContainer = styled.div`
-  width: 5%;
+  @media only screen and (min-width: 0px) {
+    width: 10%;
+  }
+  @media only screen and (min-width: 768px) {
+    width: 5%;
+  }
   display: flex;
   justify-content: center;
 `;
@@ -82,7 +95,17 @@ function TaskListItem({ task, index }: Props) {
             ref={provided.innerRef}
             isDragging={snapshot.isDragging}
           >
-            <Typography sx={{ width: '50%' }}>{task.title}</Typography>
+            <Typography
+              sx={{
+                width: { xs: '40%', md: '50%' },
+              }}
+              fontSize={{
+                xs: '0.8rem',
+                md: '1rem',
+              }}
+            >
+              {task.title}
+            </Typography>
             <TaskLabelsContainer>
               {task.type === 'Bounty' && (
                 <OutlinedChip color="rgb(153, 204, 255, 0.9)">
