@@ -1,6 +1,6 @@
-import { Box, Grow, Modal, styled, Typography } from '@mui/material';
+import { Box, Grow, styled, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { PrimaryButton } from '../styledComponents';
+import { PrimaryButton, StyledModal } from '../styledComponents';
 
 type Props = {
   isOpen: boolean;
@@ -10,18 +10,16 @@ type Props = {
   runOnConfirm: any;
 };
 
-const modalStyle = {
-  position: 'absolute' as 'absolute',
-  top: '35%',
-  left: '35%',
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
   transform: 'translate(-50%, -50%)',
-  width: '25rem',
-  bgcolor: 'background.paper',
+  width: '30rem',
   border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: 'auto',
   maxHeight: 'calc(100% - 128px)',
-};
+}));
 
 const ModalContent = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -38,9 +36,9 @@ function ConfirmModal({
 }: Props) {
   const [loading, setLoading] = useState(false);
   return (
-    <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
+    <StyledModal open={isOpen} onClose={handleClose} closeAfterTransition>
       <Grow in={isOpen} timeout={500}>
-        <Box sx={modalStyle}>
+        <ModalContainer>
           <ModalContent>
             <Typography variant="h6" sx={{ mb: 2 }} color="text.primary">
               {modalContent}
@@ -48,15 +46,19 @@ function ConfirmModal({
             <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
               <PrimaryButton
                 variant="outlined"
-                sx={{ width: '50%', mt: 2, mr: 1 }}
+                color="secondary"
+                size="small"
+                sx={{ width: '50%', mt: 2, mr: 2 }}
                 onClick={handleClose}
               >
                 Cancel
               </PrimaryButton>
               <PrimaryButton
+                data-testid="bConfirmAction"
                 variant="outlined"
                 sx={{ width: '50%', mt: 2 }}
                 color="error"
+                size="small"
                 loading={loading}
                 onClick={() => {
                   handleClose();
@@ -67,9 +69,9 @@ function ConfirmModal({
               </PrimaryButton>
             </Box>
           </ModalContent>
-        </Box>
+        </ModalContainer>
       </Grow>
-    </Modal>
+    </StyledModal>
   );
 }
 

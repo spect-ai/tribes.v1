@@ -51,8 +51,9 @@ const SidebarContainer = styled.div<{ palette: Palette }>`
   transition: 0.5s;
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 56px);
-  width: 3rem;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  width: 4rem;
 `;
 
 export const ButtonText = styled.div`

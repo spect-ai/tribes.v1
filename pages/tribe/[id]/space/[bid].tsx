@@ -10,7 +10,9 @@ import BoardsTemplate from '../../../../app/components/templates/space';
 import getTheme from '../../../../app/constants/muiTheme';
 import { useGlobal } from '../../../../app/context/globalContext';
 import useMoralisFunction from '../../../../app/hooks/useMoralisFunction';
-import { BoardData } from '../../../../app/types';
+import { BoardData, Task } from '../../../../app/types';
+import { notify } from '../../../../app/components/modules/settingsTab';
+import { CurrentFilter } from '../../../../app/components/modules/tasksFilter';
 
 interface Props {}
 interface SpaceContextType {
@@ -24,6 +26,10 @@ interface SpaceContextType {
   setThemeChanged: (themeChanged: boolean) => void;
   refreshEpochs: boolean;
   setRefreshEpochs: (refreshEpochs: boolean) => void;
+  filteredTasks: { [key: string]: Task };
+  setFilteredTasks: (filteredTasks: { [key: string]: Task }) => void;
+  currentFilter: CurrentFilter;
+  setCurrentFilter: (currentFilter: CurrentFilter) => void;
 }
 
 const SpaceContext = createContext<SpaceContextType>({} as SpaceContextType);
@@ -34,6 +40,12 @@ function useProviderSpace() {
   const [isLoading, setIsLoading] = useState(true);
   const [themeChanged, setThemeChanged] = useState(false);
   const [refreshEpochs, setRefreshEpochs] = useState(false);
+  const [filteredTasks, setFilteredTasks] = useState<{ [key: string]: Task }>(
+    {} as { [key: string]: Task }
+  );
+  const [currentFilter, setCurrentFilter] = useState<CurrentFilter>(
+    {} as CurrentFilter
+  );
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTab(newValue);
   };
@@ -49,6 +61,10 @@ function useProviderSpace() {
     setThemeChanged,
     refreshEpochs,
     setRefreshEpochs,
+    filteredTasks,
+    setFilteredTasks,
+    currentFilter,
+    setCurrentFilter,
   };
 }
 
@@ -65,8 +81,9 @@ export default function SpacePage() {
   const {
     state: { loading },
   } = useGlobal();
-  const { setSpace, setIsLoading } = context;
+  const { setSpace, setIsLoading, setFilteredTasks } = context;
   const [notFound, setNotFound] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false);
 
   const [theme, setTheme] = useState<Theme>(createTheme(getTheme(0)));
 
@@ -77,10 +94,23 @@ export default function SpacePage() {
     setTheme(createTheme(getTheme(0)));
     setIsLoading(true);
     if (!loading && bid) {
-      runMoralisFunction('getSpace', { boardId: bid }).then((res) => {
-        setSpace(res);
-        setIsLoading(false);
-      });
+      runMoralisFunction('getSpace', { boardId: bid })
+        .then((res) => {
+          setSpace(res);
+          setFilteredTasks(res.tasks);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          if (err.message === 'Space not found') {
+            setNotFound(true);
+          }
+          if (err.message === "You don't have access to view this space") {
+            setIsPrivate(true);
+          }
+          notify(err.message, 'error');
+          setIsLoading(false);
+        });
     }
   }, [loading, bid]);
   return (
@@ -93,12 +123,15 @@ export default function SpacePage() {
       <SpaceContext.Provider value={context}>
         <ThemeProvider theme={theme}>
           <PageContainer theme={createTheme(getTheme(0))}>
-            {!notFound && <SpaceNavbar />}
+            <SpaceNavbar />
 
             <Box sx={{ display: 'flex', flexDirection: 'row' }}>
               <ExploreSidebar />
-              {!notFound && <BoardsTemplate />}
+              {!notFound && !isPrivate && <BoardsTemplate />}
               {notFound && <NotFound text="Space not found" />}
+              {isPrivate && (
+                <NotFound text="You don't have access to view this space" />
+              )}
             </Box>
           </PageContainer>
         </ThemeProvider>

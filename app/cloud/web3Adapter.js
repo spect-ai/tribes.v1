@@ -4,6 +4,11 @@ async function getAllowance(
   callerAddress,
   spenderAddress
 ) {
+  logger.info(`chainId ${chainId}`);
+  logger.info(`tokenAddress ${tokenAddress}`);
+  logger.info(`callerAddress ${callerAddress}`);
+  logger.info(`spenderAddress ${spenderAddress}`);
+
   const web3 = Moralis.web3ByChain(chainId);
   const abi = Moralis.Web3.abis.erc20;
   var contract = new web3.eth.Contract(abi, tokenAddress);

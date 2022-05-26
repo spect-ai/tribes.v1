@@ -1,7 +1,8 @@
 /* eslint-disable no-unsafe-optional-chaining */
 /* eslint-disable no-restricted-syntax */
+import { ethers } from 'ethers';
 import { monthMap } from '../constants';
-import { Registry, Chain, Token } from '../types';
+import { Registry, Chain, Token, MemberDetails } from '../types';
 
 export const smartTrim = (string: string, maxLength: number) => {
   if (!string) {
@@ -308,4 +309,58 @@ export function getDateDisplay(date: string) {
   return `${dateObj?.getDate()} ${
     monthMap[dateObj?.getMonth() as keyof typeof monthMap]
   } ${formatTime(dateObj)}`;
+}
+
+export function isEqualArrayWithStrictLocationsAndEqualCount(
+  a: Array<string | number>,
+  b: Array<string | number>
+) {
+  if (!a && !b) return true;
+  if ((!a && b) || (a && !b)) return false;
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+export function isEqualArrayIgnoringLocations(
+  a: Array<string | number>,
+  b: Array<string | number>
+) {
+  if (!a && !b) return true;
+  if ((!a && b) || (a && !b)) return false;
+  return (
+    a.length === b.length &&
+    a.every((value, index) => b.find((element) => element === value))
+  );
+}
+
+export function findDiffBetweenArrays(
+  a: Array<string | number>,
+  b: Array<string | number>
+) {
+  let removed: any = [];
+  let added: any = [];
+  if (a && b) {
+    removed = a.filter((x) => !b.includes(x));
+    added = b.filter((x) => !a.includes(x));
+  }
+  if (a && !b) removed = a;
+  if (!a && b) added = b;
+  return [added, removed];
+}
+
+export function isEthAddress(addr: string) {
+  return ethers.utils.isAddress(addr);
+}
+
+export function getEthAddresses(
+  contributors: string[],
+  memberDetails: MemberDetails
+) {
+  return contributors.map((a: string) => memberDetails[a].ethAddress);
+}
+
+// eslint-disable-next-line consistent-return
+export function dateDiffInMinutes(d1: Date | null, d2: Date | null) {
+  if (!d1 && !d2) return 0;
+  if (d1 && !d2) return Math.floor(d1.getTime() / (60 * 1000));
+  if (d2 && !d1) return Math.floor(d2.getTime() / (60 * 1000));
+  if (d2 && d1) return Math.floor((d1.getTime() - d2.getTime()) / (60 * 1000));
 }

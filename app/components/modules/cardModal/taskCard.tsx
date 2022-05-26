@@ -21,6 +21,7 @@ import RewardPopover from './popovers/rewardPopover';
 import TabularDetails from './tabularDetails';
 import useCardUpdate from '../../../hooks/useCardUpdate';
 import { useCardContext } from '.';
+import DiscordThread from './popovers/discordThread';
 
 type Props = {
   handleClose: () => void;
@@ -72,7 +73,7 @@ function TaskCard({ handleClose }: Props) {
         <AssignToMe />
         <CloseButton />
         <PayButton handleClose={handleClose} />
-        {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
+        <OptionsPopover />
         <IconButton
           data-testid="bCloseButton"
           sx={{
@@ -92,6 +93,7 @@ function TaskCard({ handleClose }: Props) {
       <Box sx={{ width: 'fit-content', display: 'flex', flexWrap: 'wrap' }}>
         <CardTypePopover />
         <ColumnPopover />
+        <DiscordThread />
       </Box>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', marginBottom: '16px' }}>
@@ -125,6 +127,7 @@ function TaskCard({ handleClose }: Props) {
               : `No details provided yet`
           }
           readonly={readOnlyDescription}
+          id="task-description"
         />
 
         <Box sx={{ marginBottom: '16px' }}>

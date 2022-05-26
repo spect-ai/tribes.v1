@@ -1,3 +1,4 @@
+import { GitHub } from '@mui/icons-material';
 import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -7,35 +8,36 @@ import {
   Box,
   Grow,
   IconButton,
-  Modal,
   styled as MUIStyled,
   TextField,
   Tooltip,
   Typography,
   useTheme,
 } from '@mui/material';
+import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
-import { BoardData, Chain, Token } from '../../../types';
+import { BoardData, Chain, Channel, Token } from '../../../types';
+import CommonAutocomplete from '../../elements/autoComplete';
+import ConfirmModal from '../../elements/confirmModal';
+import ConnectDiscord from '../../elements/connectDiscord';
 import DefaultPaymentForm from '../../elements/defaultPaymentForm';
 import {
   ModalHeading,
   PrimaryButton,
   StyledAccordian,
+  StyledModal,
 } from '../../elements/styledComponents';
 import { SidebarButton } from '../exploreSidebar';
 import { notify } from '../settingsTab';
-import ConfirmModal from './confirmModal';
 
 type Props = {};
 
 // @ts-ignore
 const ModalContainer = MUIStyled(Box)(({ theme }) => ({
-  position: 'absolute' as 'absolute',
-  top: '10%',
-  left: '25%',
+  marginTop: '-10%',
   transform: 'translate(-50%, -50%)',
   width: '50rem',
   border: '2px solid #000',
@@ -52,34 +54,62 @@ const ModalContent = MUIStyled('div')(({ theme }) => ({
 }));
 
 function BoardSettings(props: Props) {
+  const router = useRouter();
+  const id = router.query.id as string;
   const { space, setSpace, setRefreshEpochs } = useSpace();
-  const { Moralis, user } = useMoralis();
+  const { user } = useMoralis();
   const [name, setName] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [defaultToken, setDefaultToken] = useState<Token>({} as Token);
   const [defaultChain, setDefaultChain] = useState<Chain>({} as Chain);
-  const [tokenGatechain, setTokenGateChain] = useState<Chain>({} as Chain);
-  const [tokenGateToken, setTokenGateToken] = useState<Token>({} as Token);
-  const [tokenGateLimit, setTokenGateLimit] = useState<string>('');
   const handleClose = () => {
     setIsOpen(false);
   };
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [discussionChannel, setDiscussionChannel] = useState<Channel>(
+    {} as Channel
+  );
+  const [serverChannels, setServerChannels] = useState<Channel[]>([]);
   const handleConfirmClose = () => {
     setIsConfirmOpen(false);
   };
 
   const { palette } = useTheme();
   const { runMoralisFunction } = useMoralisFunction();
+
+  const handleConfirm = async () => {
+    setIsLoading(true);
+    runMoralisFunction('deleteBoard', { boardId: space.objectId })
+      .then((res: any) => {
+        handleClose();
+        router.push(`/tribe/${id}`);
+        setIsLoading(false);
+      })
+      .catch((err: any) => {
+        notify(`${err.message}`, 'error');
+        setIsLoading(false);
+      });
+  };
   useEffect(() => {
     setName(space.name);
-    // setTokenGateChain(space.tokenGating?.chain);
-    // setTokenGateToken(space.tokenGating?.token);
-    // setTokenGateLimit(space.tokenGating?.tokenLimit);
     setDefaultChain(space.defaultPayment?.chain);
     setDefaultToken(space.defaultPayment?.token);
   }, [space]);
+
+  useEffect(() => {
+    if (isOpen && space.team[0].guildId) {
+      runMoralisFunction('getGuildChannels', {
+        guildId: space.team[0].guildId,
+      }).then((res) => {
+        if (res.guildChannels) {
+          setServerChannels(res.guildChannels);
+        }
+      });
+      setDiscussionChannel(space.discussionChannel);
+    }
+  }, [isOpen, space]);
+
   return (
     <>
       <SidebarButton
@@ -110,10 +140,7 @@ function BoardSettings(props: Props) {
           />
         </Tooltip>
       </SidebarButton>
-      {isConfirmOpen && (
-        <ConfirmModal isOpen={isConfirmOpen} handleClose={handleConfirmClose} />
-      )}
-      <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
+      <StyledModal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
           <ModalContainer>
             <ModalHeading>
@@ -159,90 +186,59 @@ function BoardSettings(props: Props) {
                   />
                 </AccordionDetails>
               </StyledAccordian>
-              {/* <StyledAccordian disableGutters>
+              <StyledAccordian disableGutters>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                  Token Gating
+                  <Typography>Integrations</Typography>
                 </AccordionSummary>
+
                 <AccordionDetails>
-                  <Typography>
-                    Enable token gating to allow addresses with the token limit
-                    to automatically join space without any prior permissions
-                  </Typography>
-                  <TokenGateForm
-                    chain={tokenGatechain || space?.tokenGating?.chain}
-                    setChain={setTokenGateChain}
-                    token={tokenGateToken || space?.tokenGating?.token}
-                    setToken={setTokenGateToken}
-                    tokenLimit={tokenGateLimit}
-                    setTokenLimit={setTokenGateLimit}
-                  />
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <a
+                      href={`https://github.com/apps/spect-github-bot/installations/new?state=${space.objectId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      style={{
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <PrimaryButton
+                        startIcon={<GitHub />}
+                        variant="outlined"
+                        color="secondary"
+                        size="small"
+                      >
+                        <Typography>
+                          {space.githubRepos?.length > 0
+                            ? 'Github Connected'
+                            : 'Connect Github'}
+                        </Typography>
+                      </PrimaryButton>
+                    </a>
+                    {space.team && !space.team[0].guildId ? (
+                      <Box sx={{ mt: 2 }}>
+                        <ConnectDiscord entity="space" />
+                      </Box>
+                    ) : (
+                      <>
+                        <Typography fontSize={14} sx={{ mt: 4 }}>
+                          Assign a channel in your discord server where tasks
+                          can be discussed
+                        </Typography>
+
+                        <CommonAutocomplete
+                          options={serverChannels}
+                          optionLabels={(option) => `#${option.name}`}
+                          currOption={discussionChannel}
+                          setCurrOption={setDiscussionChannel}
+                          closeOnSelect={false}
+                          sx={{ mt: 2 }}
+                          placeholder="Search for channels"
+                        />
+                      </>
+                    )}
+                  </Box>
                 </AccordionDetails>
-              </StyledAccordian> */}
-              {/* <StyledAccordian disableGutters>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel1a-content"
-                  id="panel1a-header"
-                >
-                  <Typography>Theme</Typography>
-                </AccordionSummary>
-                <OptionsButton color="inherit">
-                  <ThemeColor color="#000f29" />
-                  <Typography
-                    fontSize={14}
-                    sx={{ width: "70%" }}
-                    onClick={() => {
-                      updateThemeFromSpace(Moralis, bid, id, 0).then(
-                        (res: BoardData) => {
-                          setSpace(res);
-                          localStorage.setItem("theme", "0");
-                          setThemeChanged(!themeChanged);
-                        }
-                      );
-                    }}
-                  >
-                    Classic Dark
-                  </Typography>
-                </OptionsButton>
-                <OptionsButton color="inherit">
-                  <ThemeColor color="#38006b" />
-                  <Typography
-                    fontSize={14}
-                    sx={{ width: "70%" }}
-                    onClick={() => {
-                      updateThemeFromSpace(Moralis, bid, id, 1).then(
-                        (res: BoardData) => {
-                          setSpace(res);
-                          localStorage.setItem("theme", "1");
-                          setThemeChanged(!themeChanged);
-                        }
-                      );
-                    }}
-                  >
-                    Warm Purple
-                  </Typography>
-                </OptionsButton>
-                <OptionsButton color="inherit">
-                  <ThemeColor color="#0288d1" />
-                  <Typography
-                    fontSize={14}
-                    sx={{ width: "70%" }}
-                    onClick={() => {
-                      updateThemeFromSpace(Moralis, bid, id, 2).then(
-                        (res: BoardData) => {
-                          setSpace(res);
-                          console.log(res);
-                          localStorage.setItem("theme", "2");
-                          setThemeChanged(!themeChanged);
-                        }
-                      );
-                    }}
-                  >
-                    Ocean Blue
-                  </Typography>
-                </OptionsButton>
-                <AccordionDetails></AccordionDetails>
-              </StyledAccordian> */}
+              </StyledAccordian>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <PrimaryButton
                   variant="outlined"
@@ -265,11 +261,7 @@ function BoardSettings(props: Props) {
                         chain: defaultChain,
                         token: defaultToken,
                       },
-                      tokenGating: {
-                        chain: tokenGatechain,
-                        token: tokenGateToken,
-                        tokenLimit: tokenGateLimit,
-                      },
+                      discussionChannel,
                     }).then((res: any) => {
                       setSpace(res as BoardData);
                       setIsLoading(false);
@@ -301,7 +293,14 @@ function BoardSettings(props: Props) {
             </ModalContent>
           </ModalContainer>
         </Grow>
-      </Modal>
+      </StyledModal>
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        handleClose={handleConfirmClose}
+        buttonText="Yes, delete space"
+        runOnConfirm={handleConfirm}
+        modalContent="Are you sure you want to delete space? This cannot be undone"
+      />
     </>
   );
 }

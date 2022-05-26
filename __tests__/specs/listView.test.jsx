@@ -24,6 +24,7 @@ jest.mock('react-moralis', () => ({
 jest.mock('../../pages/tribe/[id]/space/[bid]', () => ({
   useSpace: () => ({
     space: SpaceData,
+    filteredTasks: SpaceData.tasks,
   }),
 }));
 
