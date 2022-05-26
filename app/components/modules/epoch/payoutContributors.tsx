@@ -22,7 +22,6 @@ import { Epoch, ApprovalInfo, DistributionInfo } from '../../../types';
 import { capitalizeFirstLetter } from '../../../utils/utils';
 import { notify } from '../settingsTab';
 import { PrimaryButton } from '../../elements/styledComponents';
-import { isApprovalRequired } from '../../../adapters/contract';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { useWalletContext } from '../../../context/WalletContext';
 import useERC20 from '../../../hooks/useERC20';
@@ -138,24 +137,6 @@ function PayoutContributors({ epoch }: Props) {
         }
         setIsLoading(false);
       });
-      // isApprovalRequired(
-      //   user?.get('ethAddress'),
-      //   epoch.token.address,
-      //   epoch.budget,
-      //   networkVersion
-      // ).then((reqd: boolean) => {
-      //   if (reqd) {
-      //     const temp = { ...approvalInfo };
-      //     temp.required = true;
-      //     setApprovalInfo(temp);
-      //     setActiveStep(0);
-      //     setSteps(['Approve Tokens', 'Batch Pay Tokens']);
-      //     setShowStepper(true);
-      //   } else {
-      //     setActiveStep(1);
-      //   }
-      //   setIsLoading(false);
-      // });
     }
   };
 

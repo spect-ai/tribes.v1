@@ -19,6 +19,14 @@ export default function useERC20() {
     return new ethers.Contract(address, ERC20.abi, provider.getSigner());
   }
 
+  function getERC20ContractWithCustomProvider(
+    address: string,
+    web3providerUrl: string
+  ) {
+    const provider = new ethers.providers.JsonRpcProvider(web3providerUrl);
+    return new ethers.Contract(address, ERC20.abi, provider);
+  }
+
   async function approve(chainId: string, erc20Address: string) {
     const contract = getERC20Contract(erc20Address);
 
@@ -74,17 +82,18 @@ export default function useERC20() {
     const uniqueTokenAddresses = [];
     const aggregatedTokenValues = [];
 
-    for (let i = 0; i < Object.keys(aggregateValues).length; i += 1) {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const [erc20Address, value] of Object.entries(aggregateValues)) {
       // eslint-disable-next-line no-await-in-loop
       const tokenIsApproved = await isApproved(
-        erc20Addresses[i],
+        erc20Address,
         spenderAddress,
-        aggregateValues[erc20Addresses[i]],
+        value as number,
         ethAddress
       );
       if (!tokenIsApproved) {
-        uniqueTokenAddresses.push(erc20Addresses[i]);
-        aggregatedTokenValues.push(aggregateValues[erc20Addresses[i]]);
+        uniqueTokenAddresses.push(erc20Address);
+        aggregatedTokenValues.push(value);
       }
     }
     return [uniqueTokenAddresses, aggregatedTokenValues];
@@ -146,14 +155,20 @@ export default function useERC20() {
     return await contract.decimals();
   }
 
-  async function symbol(erc20Address: string) {
-    const contract = getERC20Contract(erc20Address);
+  async function symbol(erc20Address: string, networkVersion: string) {
+    const contract = getERC20ContractWithCustomProvider(
+      erc20Address,
+      registry[networkVersion].provider
+    );
     // eslint-disable-next-line no-return-await
     return await contract.symbol();
   }
 
-  async function name(erc20Address: string) {
-    const contract = getERC20Contract(erc20Address);
+  async function name(erc20Address: string, networkVersion: string) {
+    const contract = getERC20ContractWithCustomProvider(
+      erc20Address,
+      registry[networkVersion].provider
+    );
     // eslint-disable-next-line no-return-await
     return await contract.name();
   }

@@ -222,7 +222,6 @@ function CardList({ handleClose, setPaymentInfo, handleNextStep }: Props) {
               chainIdHex,
             })
               .then((paymentInfo: PaymentInfo) => {
-                console.log(paymentInfo);
                 if (user) {
                   areApproved(
                     paymentInfo.tokens.tokenAddresses,
@@ -235,12 +234,10 @@ function CardList({ handleClose, setPaymentInfo, handleNextStep }: Props) {
                         // eslint-disable-next-line no-param-reassign
                         paymentInfo.approval = {
                           required: true,
-                          uniqueTokenAddresses: res[0],
-                          aggregatedTokenValues: res[1],
+                          uniqueTokenAddresses: res[0] as string[],
+                          aggregatedTokenValues: res[1] as number[],
                         };
                       }
-                      console.log(paymentInfo);
-
                       setPaymentInfo(paymentInfo);
                       setIsLoading(false);
                       handleNextStep(paymentInfo);

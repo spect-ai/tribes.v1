@@ -7,7 +7,7 @@ import {
   TextField,
 } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useGlobal } from '../../../context/globalContext';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
@@ -31,6 +31,12 @@ function CustomTokenDialog({ open, handleClose, setToken, chain }: Props) {
   const { dispatch } = useGlobal();
   const { symbol, name } = useERC20();
 
+  useEffect(() => {
+    setAddress('');
+    setTokenName('');
+    setTokenSymbol('');
+  }, []);
+
   return (
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle>Add a new Token</DialogTitle>
@@ -44,14 +50,13 @@ function CustomTokenDialog({ open, handleClose, setToken, chain }: Props) {
           id="name"
           value={address}
           onChange={async (event) => {
-            const options = {
-              chain: chain.name,
-              addresses: event.target.value,
-            };
             setAddress(event.target.value);
             if (event.target.value.length === 42) {
-              const symbolOfToken = await symbol(event.target.value);
-              const nameOfToken = await name(event.target.value);
+              const symbolOfToken = await symbol(
+                event.target.value,
+                chain.chainId
+              );
+              const nameOfToken = await name(event.target.value, chain.chainId);
 
               setTokenSymbol(symbolOfToken || 'Token Not Found');
               setTokenName(nameOfToken || 'Token Not Found');

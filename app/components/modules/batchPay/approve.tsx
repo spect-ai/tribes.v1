@@ -1,11 +1,11 @@
 import { Avatar, Box, Button, Grid, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { approve } from '../../../adapters/contract';
 import { useGlobal } from '../../../context/globalContext';
 import { PrimaryButton } from '../../elements/styledComponents';
 import { notify } from '../settingsTab';
 import { ApprovalInfo } from '../../../types';
 import { useWalletContext } from '../../../context/WalletContext';
+import useERC20 from '../../../hooks/useERC20';
 
 interface Props {
   handleNextStep: Function;
@@ -46,6 +46,7 @@ function Approve({
   };
 
   const { state } = useGlobal();
+  const { approve } = useERC20();
   const { registry } = state;
   return (
     <Box

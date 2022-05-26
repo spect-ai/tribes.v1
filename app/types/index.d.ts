@@ -281,6 +281,7 @@ export type NetworkInfo = {
   nativeCurrency: string;
   pictureUrl: string;
   blockExplorer?: string;
+  provider: string;
   tokens: { [tokenAddress: string]: TokenInfo };
 };
 
