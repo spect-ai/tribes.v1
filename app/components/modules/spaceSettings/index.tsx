@@ -108,6 +108,9 @@ function SpaceSettings(props: Props) {
   const { Moralis, user } = useMoralis();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [github, setGithub] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [discord, setDiscord] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [defaultToken, setDefaultToken] = useState<Token>({} as Token);
   const [defaultChain, setDefaultChain] = useState<Chain>({} as Chain);
@@ -128,6 +131,9 @@ function SpaceSettings(props: Props) {
   useEffect(() => {
     setName(space.name);
     setDescription(space.description);
+    setGithub(space.github);
+    setTwitter(space.twitter);
+    setDiscord(space.discord);
     // setTokenGateChain(space.tokenGating?.chain);
     // setTokenGateToken(space.tokenGating?.token);
     // setTokenGateLimit(space.tokenGating?.tokenLimit);
@@ -236,8 +242,8 @@ function SpaceSettings(props: Props) {
                           <TextField
                             label="Github"
                             placeholder="https://github.com/repo"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={github}
+                            onChange={(e) => setGithub(e.target.value)}
                             fullWidth
                             color="secondary"
                           />
@@ -247,16 +253,16 @@ function SpaceSettings(props: Props) {
                             sx={{ width: '50%' }}
                             label="Twitter"
                             placeholder="https://twitter.com/username"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={twitter}
+                            onChange={(e) => setTwitter(e.target.value)}
                             color="secondary"
                           />
                           <TextField
                             sx={{ width: '50%' }}
                             label="Discord"
                             placeholder="https://discord.com/invitecode"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            value={discord}
+                            onChange={(e) => setDiscord(e.target.value)}
                             color="secondary"
                           />
                         </Box>
@@ -265,7 +271,7 @@ function SpaceSettings(props: Props) {
                         <SpaceMembers />
                       </TabPanel>
                       <TabPanel value={value} index={2}>
-                        Item Three
+                        Space Access
                       </TabPanel>
                       <TabPanel value={value} index={3}>
                         <Typography>
@@ -402,6 +408,9 @@ function SpaceSettings(props: Props) {
                       boardId: space.objectId,
                       name,
                       description,
+                      github,
+                      twitter,
+                      discord,
                       defaultPayment: {
                         chain: defaultChain,
                         token: defaultToken,

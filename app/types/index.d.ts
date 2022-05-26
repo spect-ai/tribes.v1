@@ -205,7 +205,6 @@ export type Column = {
 };
 
 export interface BoardData {
-  description: any;
   objectId: string;
   name: string;
   tasks: {
@@ -238,6 +237,10 @@ export interface BoardData {
   team: Team[];
   defaultPayment: DefaultPayment;
   tokenGating: TokenGate;
+  description: string;
+  github: string;
+  twitter: string;
+  discord: string;
   private: boolean;
   creatingEpoch: boolean;
   guildId: string;
