@@ -39,7 +39,7 @@ export default function usePaymentGateway(
     else {
       const [sufficientBalance, insufficientBalanceTokenAddress] =
         await hasBalances(tokenAddresses, tokenValues, user?.get('ethAddress'));
-
+      console.log(sufficientBalance, insufficientBalanceTokenAddress);
       if (!sufficientBalance) {
         notify(
           `Insufficient balance of ${
