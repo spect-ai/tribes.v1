@@ -18,6 +18,7 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { StyledAvatar } from '../../elements/styledComponents';
 import PaymentModal from '../batchPay';
 import BoardSettings from '../boardSettings';
 import CreateTribeModal from '../createTribeModal';
@@ -62,7 +63,7 @@ const SidebarContainer = styled.div<{ palette: Palette }>`
   -ms-overflow-style: none;
   scrollbar-width: none;
   @media only screen and (min-width: 0px) {
-    width: 3rem;
+    width: 2.2rem;
   }
   @media only screen and (min-width: 768px) {
     width: 4rem;
@@ -184,13 +185,13 @@ function ExploreSidebar(props: Props) {
             palette={palette}
             selected={tribe.get('teamId') === id}
           >
-            <Avatar
+            <StyledAvatar
               variant="rounded"
               sx={{ p: 0, m: 0, width: 28, height: 28 }}
               src={tribe.get('logo')}
             >
               {tribe.get('name')[0]}
-            </Avatar>
+            </StyledAvatar>
           </SidebarButton>
         </Link>
       ))}

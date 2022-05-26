@@ -65,7 +65,7 @@ function SidebarProfile() {
             loading={isAuthenticating}
             onClick={() => {
               try {
-                authenticate({ provider: 'walletconnect' })
+                authenticate()
                   .then(async () => {
                     await runMoralisFunction('getOrCreateUser', {});
                   })
