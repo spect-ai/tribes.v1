@@ -25,10 +25,9 @@ const OuterDiv = styled.div`
 function BoardsTemplate(props: Props) {
   const router = useRouter();
   const { user } = useMoralis();
-  const { inviteCode, taskId, id, bid } = router.query;
-  const { isAuthenticated, authenticate } = useMoralis();
-  const { space, setSpace, isLoading, tab } = useSpace();
-  const { runMoralisFunction } = useMoralisFunction();
+  const { taskId, id, bid } = router.query;
+
+  const { space, isLoading, tab } = useSpace();
   const [isOpen, setIsOpen] = useState(false);
   const [isDiscordModalOpen, setIsDiscordModalOpen] = useState(false);
   const handleClose = () => {
@@ -38,28 +37,6 @@ function BoardsTemplate(props: Props) {
   const handleDiscordModalClose = () => {
     setIsDiscordModalOpen(false);
   };
-  useEffect(() => {
-    if (inviteCode && !isLoading) {
-      if (!isAuthenticated) {
-        authenticate();
-        return;
-      }
-      runMoralisFunction('joinSpaceFromInvite', {
-        inviteCode,
-        boardId: router.query.bid as string,
-      })
-        .then((res) => {
-          setSpace(res);
-          notify('You have joined the space successfully');
-          router.push(`/tribe/${router.query.id}/space/${router.query.bid}`);
-        })
-        .catch((err) => {
-          console.error(err);
-          router.push(`/tribe/${router.query.id}/space/${router.query.bid}`);
-          notify(err.message, 'error');
-        });
-    }
-  }, [inviteCode, isAuthenticated, isLoading]);
 
   useEffect(() => {
     if (taskId && !isLoading) {

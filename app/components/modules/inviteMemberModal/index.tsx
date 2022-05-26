@@ -142,8 +142,7 @@ function InviteMemberModal(props: Props) {
                     expiry: expiry.expiry,
                   })
                     .then((res) => {
-                      console.log(res);
-                      const link = `${window.location.href}?inviteCode=${res[0].id}`;
+                      const link = `${window.location.origin}?inviteCode=${res[0].id}`;
                       navigator.clipboard.writeText(link);
                       notify('Link copied');
                       handleClose();

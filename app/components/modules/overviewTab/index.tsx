@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { useTribe } from '../../../../pages/tribe/[id]';
+import MemberAvatarGroup from '../../elements/memberAvatarGroup';
 import Board from '../boardsTab';
 
 const Wrapper = styled.div`
@@ -82,26 +83,19 @@ function Overview() {
                 <Typography variant="h6" color="text.secondary">
                   Contributors
                 </Typography>
-                <AvatarGroup
-                  max={6}
-                  sx={{ width: 'fit-content' }}
-                  data-testid="avatarGroup"
-                >
-                  {tribe?.members?.map((memberId) => (
-                    <Tooltip
-                      title={tribe.memberDetails[memberId].username}
-                      key={memberId}
-                    >
-                      <Avatar
-                        alt=""
-                        src={
-                          tribe.memberDetails[memberId].profilePicture?._url ||
-                          `https://cdn.discordapp.com/avatars/${tribe.memberDetails[memberId].discordId}/${tribe.memberDetails[memberId].avatar}.png`
-                        }
-                      />
-                    </Tooltip>
-                  ))}
-                </AvatarGroup>
+                <MemberAvatarGroup
+                  memberIds={tribe?.members}
+                  memberDetails={tribe.memberDetails}
+                  maxAvatars={6}
+                  testid="avatarGroup"
+                  avatarGroupsx={{
+                    '& .MuiAvatar-root': {
+                      width: '2.5rem',
+                      height: '2.5rem',
+                      fontSize: 15,
+                    },
+                  }}
+                />
               </Box>
             </DescriptionContainer>
           </SideContainer>

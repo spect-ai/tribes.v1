@@ -6,6 +6,10 @@ import { Task, Block } from '../types';
 import { notify } from '../components/modules/settingsTab';
 import useCardStatus from './useCardStatus';
 import { useCardContext } from '../components/modules/cardModal';
+import {
+  isEqualArrayIgnoringLocations,
+  dateDiffInMinutes,
+} from '../utils/utils';
 
 export default function useCardUpdate() {
   const { user } = useMoralis();
@@ -147,17 +151,52 @@ export default function useCardUpdate() {
     );
   };
 
-  const updateSubmission = (submission: Block[]) => {
+  const updateSubmission = (submission: Block[], id: string | null) => {
     executeCardUpdates(
       {
         updates: {
           submissions: {
+            id,
             content: submission,
           },
           taskId: task.taskId,
         },
       },
       'submissionEdit',
+      false
+    );
+  };
+
+  const updateRevisionInstruction = (
+    id: string,
+    revisionInstruction: string
+  ) => {
+    executeCardUpdates(
+      {
+        updates: {
+          status: statusToCode.inRevision,
+          submissions: {
+            id,
+            revisionInstruction,
+          },
+          taskId: task.taskId,
+        },
+      },
+      codeToStatus[statusToCode.inRevision],
+      false
+    );
+  };
+
+  const updateToDone = (feedback: string) => {
+    executeCardUpdates(
+      {
+        updates: {
+          status: statusToCode.closed,
+          feedback,
+          taskId: task.taskId,
+        },
+      },
+      codeToStatus[statusToCode.closed],
       false
     );
   };
@@ -224,20 +263,23 @@ export default function useCardUpdate() {
 
   const updateMember = (
     memberType: string,
-    member: string,
+    members: string[],
     setOpen: Function
   ) => {
     let updates = {};
     if (memberType === 'reviewer') {
+      if (isEqualArrayIgnoringLocations(members, task.reviewer)) return;
+
       updates = {
-        reviewer: member ? [member] : [],
+        reviewer: members || [],
         taskId: task.taskId,
       };
     } else {
+      if (isEqualArrayIgnoringLocations(members, task.assignee)) return;
       updates = {
-        assignee: member ? [member] : [],
+        assignee: members || [],
         taskId: task.taskId,
-        status: member ? statusToCode.assigned : statusToCode.created,
+        status: members ? statusToCode.assigned : statusToCode.created,
       };
     }
     closePopover(setOpen);
@@ -250,12 +292,13 @@ export default function useCardUpdate() {
     );
   };
 
-  const updateType = (setOpen: Function) => {
-    closePopover(setOpen);
+  const updateType = (newType: string) => {
+    if (newType === task.type) return;
+
     executeCardUpdates(
       {
         updates: {
-          type,
+          type: newType,
           taskId: task.taskId,
         },
       },
@@ -264,8 +307,12 @@ export default function useCardUpdate() {
     );
   };
 
-  const updateDate = (setOpen: Function) => {
-    closePopover(setOpen);
+  const updateDate = () => {
+    const dateDIff = dateDiffInMinutes(
+      new Date(date),
+      new Date(task.deadline as Date)
+    );
+    if (!dateDIff) return;
     executeCardUpdates(
       {
         updates: {
@@ -292,8 +339,8 @@ export default function useCardUpdate() {
     );
   };
 
-  const updateLabels = (setOpen: Function) => {
-    closePopover(setOpen);
+  const updateLabels = () => {
+    if (isEqualArrayIgnoringLocations(labels, task.tags)) return;
     executeCardUpdates(
       {
         updates: {
@@ -306,8 +353,14 @@ export default function useCardUpdate() {
     );
   };
 
-  const updateReward = (setOpen: Function) => {
-    closePopover(setOpen);
+  const updateReward = () => {
+    if (
+      chain.chainId === task.chain?.chainId &&
+      token.address === task.token?.address &&
+      parseFloat(value) === task.value
+    ) {
+      return;
+    }
     executeCardUpdates(
       {
         updates: {
@@ -322,14 +375,14 @@ export default function useCardUpdate() {
     );
   };
 
-  const updateColumn = (setOpen: Function) => {
-    closePopover(setOpen);
+  const updateColumn = (newCol: string) => {
+    if (newCol === task.columnId) return;
     executeCardUpdates(
       {
         updates: {
           columnChange: {
             sourceId: task.columnId,
-            destinationId: col,
+            destinationId: newCol,
           },
           taskId: task.taskId,
         },
@@ -385,5 +438,7 @@ export default function useCardUpdate() {
     updateColumn,
     updateStatusAndTransactionHashInMultipleCards,
     updateVotes,
+    updateRevisionInstruction,
+    updateToDone,
   };
 }

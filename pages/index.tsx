@@ -1,9 +1,11 @@
 import { Box, createTheme, ThemeProvider } from '@mui/material';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import ExploreSidebar from '../app/components/modules/exploreSidebar';
 import Navbar from '../app/components/modules/navbar';
+import { notify } from '../app/components/modules/settingsTab';
 import ExploreTemplate from '../app/components/templates/explore';
 import getTheme from '../app/constants/muiTheme';
 import useMoralisFunction from '../app/hooks/useMoralisFunction';
@@ -45,7 +47,9 @@ function useProviderExplore() {
 
 console.log('starting index page', new Date());
 export default function Home() {
-  const { isInitialized, isAuthenticated } = useMoralis();
+  const router = useRouter();
+  const { inviteCode } = router.query;
+  const { isAuthenticated, isInitialized, authenticate } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const context = useProviderExplore();
   const { setMyTribes, setLoading, setPublicTribes } = context;
@@ -83,6 +87,26 @@ export default function Home() {
       }
     }
   }, [isInitialized, isAuthenticated]);
+
+  useEffect(() => {
+    if (inviteCode) {
+      if (!isAuthenticated) {
+        authenticate();
+        return;
+      }
+      runMoralisFunction('joinSpaceFromInvite', {
+        inviteCode,
+      })
+        .then((res) => {
+          router.push(res.redirect);
+          notify("You've joined the space!");
+        })
+        .catch((err) => {
+          console.error(err);
+          notify(err.message, 'error');
+        });
+    }
+  }, [inviteCode, isAuthenticated]);
   return (
     <>
       <Head>

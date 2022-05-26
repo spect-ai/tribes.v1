@@ -188,7 +188,7 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                         setShowCreateTask(true);
                       }}
                     >
-                      <AddIcon fontSize="small" />
+                      <AddIcon fontSize="small" color="secondary" />
                     </IconButton>
                     <IconButton
                       sx={{ mb: 0.5, p: 1 }}
@@ -196,7 +196,7 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                       onClick={() => setIsOpen(true)}
                       disabled={space.roles[user?.id as string] !== 3}
                     >
-                      <SettingsIcon fontSize="small" />
+                      <SettingsIcon fontSize="small" color="secondary" />
                     </IconButton>
                   </TaskTitleContainer>
                   <Box sx={{ display: 'flex', flexDirection: 'row' }} />

@@ -15,7 +15,6 @@ const Container = styled.div``;
 function SpaceMembers(props: Props) {
   const { space } = useSpace();
   const { user } = useMoralis();
-  const [isChecked, setIsChecked] = useState([] as boolean[]);
   const [roles, setRoles] = useState({} as { [key: string]: number });
 
   useEffect(() => {

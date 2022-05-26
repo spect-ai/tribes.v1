@@ -11,6 +11,7 @@ type TextFieldProps = {
   sx?: any;
   placeholder?: string;
   handleChange: Function;
+  testId?: string;
 };
 
 function CommonTextField({
@@ -23,9 +24,11 @@ function CommonTextField({
   sx,
   placeholder,
   handleChange,
+  testId,
 }: TextFieldProps) {
   return (
     <TextField
+      data-testid={testId}
       id={id}
       label={label}
       type={type}
@@ -40,6 +43,7 @@ function CommonTextField({
       }}
       sx={sx}
       fullWidth
+      color="secondary"
     />
   );
 }

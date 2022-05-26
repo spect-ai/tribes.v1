@@ -25,7 +25,7 @@ async function getBoardObjByObjectId(objectId, callerId) {
   ];
 
   var board = await boardQuery.aggregate(pipeline, { useMasterKey: true });
-  if (board.length === 0) throw 'Board doesnt exist';
+  if (board.length === 0) throw 'Space not found';
   // if (callerId) board[0].access = getSpaceAccess(callerId, board[0]);
   return board;
 }
@@ -110,7 +110,7 @@ async function getSpace(boardId, callerId) {
     );
 
     const canReadSpace = canRead(boardObjDetailed[0], callerId);
-    if (!canReadSpace) throw 'You dont have access to view this space';
+    if (!canReadSpace) throw "You don't have access to view this space";
 
     const epochs = await getEpochsBySpaceId(
       boardObjDetailed[0].objectId,
@@ -314,21 +314,25 @@ Moralis.Cloud.define('importTasksFromTrello', async (request) => {
       );
       await Moralis.Object.saveAll([board], { useMasterKey: true });
 
-      logger.info(`importing trello ${JSON.stringify(board)}`);
       // board = await board.save({ useMasterKey: true });
-
       for (let i = 0; i < request.params.tasks.length; i++) {
         var task = new Moralis.Object('Task');
         logger.info(request.params.tasks[i].title);
         task = handleCreateTask(
           task,
-          request.params.tasks[i].id, // need to fix this, duplicate tasks are being created with trello id
+          request.params.tasks[i].id,
           board.get('defaultPayment'),
           request.params.boardId,
           request.params.tasks[i].title,
           request.params.tasks[i].value,
           request.user.id,
-          request.params.tasks[i].description
+          request.user.id,
+          'Task',
+          request.params.tasks[i].columnId,
+          request.params.tasks[i].tags,
+          request.params.tasks[i].description,
+          '',
+          request.params.tasks[i].deadline
         );
         await Moralis.Object.saveAll([task], { useMasterKey: true });
       }
@@ -387,6 +391,7 @@ Moralis.Cloud.define('updateColumnTasks', async (request) => {
     var task = await getTaskByTaskId(request.params.taskId);
     if (
       hasAccess(request.user.id, board, 3) ||
+      hasAccess(request.user.id, board, 2) ||
       task.get('reviewer')?.includes(request.user.id) ||
       task.get('assignee')?.includes(request.user.id) ||
       task.get('creator') === request.user.id
@@ -419,6 +424,13 @@ Moralis.Cloud.define('updateColumnTasks', async (request) => {
           [destination.id]: destination,
         };
         task.set('columnId', newCardLoc.columnId);
+        task = handleReverseAutomation(
+          task,
+          board,
+          cardLoc.columnId,
+          newCardLoc.columnId,
+          request.user.id
+        );
       } else if (cardLoc.cardIndex !== newCardLoc.cardIndex) {
         columns[cardLoc.columnId]['taskIds'].splice(cardLoc.cardIndex, 1);
         columns[cardLoc.columnId]['taskIds'].splice(
@@ -434,6 +446,13 @@ Moralis.Cloud.define('updateColumnTasks', async (request) => {
           request.params.taskId
         );
         task.set('columnId', newCardLoc.columnId);
+        task = handleReverseAutomation(
+          task,
+          board,
+          cardLoc.columnId,
+          newCardLoc.columnId,
+          request.user.id
+        );
       }
 
       board.set('columns', columns);
@@ -573,7 +592,7 @@ Moralis.Cloud.define('updateBoard', async (request) => {
     if (hasAccess(request.user.id, board, 3)) {
       board.set('name', request.params.name);
       board.set('defaultPayment', request.params.defaultPayment);
-      board.set('tokenGating', request.params.tokenGating);
+      board.set('discussionChannel', request.params.discussionChannel);
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return await getSpace(request.params.boardId, request.user.id);
     } else {
@@ -841,9 +860,9 @@ Moralis.Cloud.define('joinSpaceFromInvite', async (request) => {
     if (!invite) {
       throw 'Invite code not found';
     }
-    const board = await getBoardByObjectId(request.params.boardId);
+    const board = await getBoardByObjectId(invite.get('boardId'));
     if (board.get('members').includes(request.user.id)) {
-      throw 'User already a member of this board';
+      throw 'User already a member of this space';
     }
     const tribe = await getTribeByTeamId(board.get('teamId'));
     const userInfo = await getUserByUserId(request.user.id);
@@ -867,11 +886,13 @@ Moralis.Cloud.define('joinSpaceFromInvite', async (request) => {
         useMasterKey: true,
       });
     }
-    return await getSpace(request.params.boardId, request.user.id);
+    return {
+      redirect: `/tribe/${board.get('teamId')}/space/${invite.get('boardId')}`,
+    };
   } catch (err) {
     log(
       request.user?.id,
-      `Failure in joinSpaceFromInvite for space id ${request.params.boardId}: ${err}`,
+      `Failure in joinSpaceFromInvite for invite code ${request.params.inviteCode}: ${err}`,
       'error'
     );
     throw `${err}`;
