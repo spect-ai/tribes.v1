@@ -1,4 +1,5 @@
 import CloseIcon from '@mui/icons-material/Close';
+import { GitHub } from '@mui/icons-material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SettingsIcon from '@mui/icons-material/Settings';
 import {
@@ -21,7 +22,7 @@ import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
-import { BoardData, Chain, Token } from '../../../types';
+import { BoardData, Chain, Channel, Token } from '../../../types';
 import DefaultPaymentForm from '../../elements/defaultPaymentForm';
 import {
   ModalHeading,
@@ -32,6 +33,8 @@ import { SidebarButton } from '../exploreSidebar';
 import { notify } from '../settingsTab';
 import ConfirmModal from './confirmModal';
 import SpaceMembers from '../spaceMembers';
+import ConnectDiscord from '../../elements/connectDiscord';
+import CommonAutocomplete from '../../elements/autoComplete';
 
 type Props = {};
 
@@ -117,6 +120,11 @@ function SpaceSettings(props: Props) {
   const [tokenGatechain, setTokenGateChain] = useState<Chain>({} as Chain);
   const [tokenGateToken, setTokenGateToken] = useState<Token>({} as Token);
   const [tokenGateLimit, setTokenGateLimit] = useState<string>('');
+  const [discussionChannel, setDiscussionChannel] = useState<Channel>(
+    {} as Channel
+  );
+  const [serverChannels, setServerChannels] = useState<Channel[]>([]);
+
   const handleClose = () => {
     setIsOpen(false);
   };
@@ -140,6 +148,20 @@ function SpaceSettings(props: Props) {
     setDefaultChain(space.defaultPayment?.chain);
     setDefaultToken(space.defaultPayment?.token);
   }, [space]);
+
+  useEffect(() => {
+    if (isOpen && space.team[0].guildId) {
+      runMoralisFunction('getGuildChannels', {
+        guildId: space.team[0].guildId,
+      }).then((res) => {
+        if (res.guildChannels) {
+          setServerChannels(res.guildChannels);
+        }
+      });
+      setDiscussionChannel(space.discussionChannel);
+    }
+  }, [isOpen, space]);
+
   return (
     <>
       <SidebarButton
@@ -272,6 +294,51 @@ function SpaceSettings(props: Props) {
                       </TabPanel>
                       <TabPanel value={value} index={2}>
                         Space Access
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <a
+                            href={`https://github.com/apps/spect-github-bot/installations/new?state=${space.objectId}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            style={{
+                              textDecoration: 'none',
+                            }}
+                          >
+                            <PrimaryButton
+                              startIcon={<GitHub />}
+                              variant="outlined"
+                              color="secondary"
+                              size="small"
+                            >
+                              <Typography>
+                                {space.githubRepos?.length > 0
+                                  ? 'Github Connected'
+                                  : 'Connect Github'}
+                              </Typography>
+                            </PrimaryButton>
+                          </a>
+                          {space.team && !space.team[0].guildId ? (
+                            <Box sx={{ mt: 2 }}>
+                              <ConnectDiscord entity="space" />
+                            </Box>
+                          ) : (
+                            <>
+                              <Typography fontSize={14} sx={{ mt: 4 }}>
+                                Assign a channel in your discord server where
+                                tasks can be discussed
+                              </Typography>
+
+                              <CommonAutocomplete
+                                options={serverChannels}
+                                optionLabels={(option) => `#${option.name}`}
+                                currOption={discussionChannel}
+                                setCurrOption={setDiscussionChannel}
+                                closeOnSelect={false}
+                                sx={{ mt: 2 }}
+                                placeholder="Search for channels"
+                              />
+                            </>
+                          )}
+                        </Box>
                       </TabPanel>
                       <TabPanel value={value} index={3}>
                         <Typography>
