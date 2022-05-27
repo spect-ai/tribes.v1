@@ -2,6 +2,7 @@
 import { LoadingButton } from '@mui/lab';
 import {
   Accordion,
+  Avatar,
   ButtonProps,
   Modal,
   styled,
@@ -130,6 +131,15 @@ export const StyledTabs = styled((props: StyledTabsProps) => (
     width: '100%',
     backgroundColor: theme.palette.primary.light,
   },
+  [theme.breakpoints.down('md')]: {
+    display: 'none',
+  },
+}));
+
+export const ScrollableTabs = styled(Tabs)(({ theme }) => ({
+  [theme.breakpoints.down('md')]: {
+    display: 'flex',
+  },
 }));
 
 export const StyledTab = styled((props: StyledTabProps) => (
@@ -172,6 +182,9 @@ export const StyledNav = styled('nav')(({ theme }) => ({
   width: '100%',
   paddingTop: '0.4rem',
   borderBottom: `1px solid ${theme.palette.divider}`,
+  position: 'fixed',
+  zIndex: 1,
+  backgroundColor: theme.palette.background.default,
 }));
 
 export const StyledModal = styled(Modal)(({ theme }) => ({
@@ -179,4 +192,15 @@ export const StyledModal = styled(Modal)(({ theme }) => ({
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
+}));
+
+export const StyledAvatar = styled(Avatar)(({ theme }) => ({
+  [theme.breakpoints.down('md')]: {
+    width: '1.5rem',
+    height: '1.5rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    width: '2.5rem',
+    height: '2.5rem',
+  },
 }));

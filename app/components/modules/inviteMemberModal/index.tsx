@@ -20,15 +20,22 @@ type Props = {};
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
   position: 'absolute' as 'absolute',
-  top: '40%',
-  left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '30rem',
   border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: 'auto',
   maxHeight: 'calc(100% - 128px)',
+  [theme.breakpoints.down('md')]: {
+    top: '40%',
+    left: '50%',
+    width: '22rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    top: '40%',
+    left: '50%',
+    width: '30rem',
+  },
 }));
 
 const ModalContent = styled('div')(({ theme }) => ({
@@ -54,7 +61,7 @@ function InviteMemberModal(props: Props) {
         variant="outlined"
         color="secondary"
         startIcon={<SendIcon />}
-        sx={{ my: 4, ml: 4 }}
+        sx={{ my: 4, ml: { xs: 0, md: 4 } }}
         onClick={() => {
           setIsOpen(true);
         }}

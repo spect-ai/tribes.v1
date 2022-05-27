@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import useProfileInfo from '../../../hooks/useProfileInfo';
+import ConnectPopover from '../../modules/connectPopover';
 import ProfilePopover from '../../modules/profilePopover';
 import { SidebarButton } from '../styledComponents';
 
@@ -12,7 +13,12 @@ const Profile = styled.div`
   display: flex;
   flex-direction: column;
   margin-bottom: 0.7rem;
-  margin-right: 1rem;
+  @media only screen and (min-width: 0px) {
+    margin-right: 0.2rem;
+  }
+  @media only screen and (min-width: 768px) {
+    margin-right: 1rem;
+  }
 `;
 
 function SidebarProfile() {
@@ -25,20 +31,22 @@ function SidebarProfile() {
   const handleClosePopover = () => {
     setOpen(false);
   };
+
+  const [isConnectOpen, setIsConnectOpen] = useState(false);
+  const handleConnectClose = () => {
+    setIsConnectOpen(false);
+  };
+
   return (
     <Profile>
       {!isAuthenticated && (
         <SidebarButton
           data-testid="bConnectButton"
-          sx={{ mt: 2 }}
           color="inherit"
           loading={isAuthenticating}
-          onClick={() => {
-            authenticate()
-              .then(async () => {
-                await runMoralisFunction('getOrCreateUser', {});
-              })
-              .catch((err) => console.log(err));
+          onClick={(event) => {
+            setAnchorEl(event.currentTarget);
+            setIsConnectOpen(true);
           }}
         >
           <LoginIcon />
@@ -47,6 +55,7 @@ function SidebarProfile() {
           </Typography>
         </SidebarButton>
       )}
+
       {isAuthenticated && (
         <SidebarButton
           data-testid="bProfileButton"
@@ -64,6 +73,11 @@ function SidebarProfile() {
         open={open}
         anchorEl={anchorEl}
         handleClose={handleClosePopover}
+      />
+      <ConnectPopover
+        open={isConnectOpen}
+        anchorEl={anchorEl}
+        handleClose={handleConnectClose}
       />
     </Profile>
   );

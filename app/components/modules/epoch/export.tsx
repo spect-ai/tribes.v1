@@ -65,11 +65,13 @@ function CsvExport({ epoch }: Props) {
       variant="outlined"
       color="secondary"
       sx={{
-        borderRadius: 1,
+        mx: { xs: 0, md: 4 },
+        my: { xs: 2, md: 0 },
       }}
       onClick={() => {
         handleExport(epoch);
       }}
+      size="small"
     >
       Export to csv
     </PrimaryButton>

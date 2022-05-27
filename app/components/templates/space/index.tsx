@@ -15,8 +15,8 @@ import SpaceSettings from '../../modules/spaceSettings';
 type Props = {};
 
 const OuterDiv = styled.div`
-  margin-left: 1.5rem;
-  margin-right: 1.5rem;
+  margin-left: 60px;
+  margin-top: 60px;
   width: 100%;
 `;
 

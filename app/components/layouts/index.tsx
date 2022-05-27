@@ -23,19 +23,14 @@ const OuterDiv = styled.div`
   line-height: 1.5;
   font-size: 1.5rem;
   overflow-x: hidden;
+  overflow-y: hidden;
   display: flex;
-  @media (max-width: 720px) {
-    display: none;
-  }
 `;
 
 const MobileDiv = styled.div`
   width: 100%;
   align-items: center;
   justify-content: center;
-  @media (min-width: 720px) {
-    display: none;
-  }
 `;
 
 const Main = styled.main`
@@ -58,10 +53,8 @@ function Layout({ children }: Props) {
 
   useEffect(() => {
     if (router.query.code) {
-      console.log('linking user');
       runMoralisFunction('linkDiscordUser', { code: router.query.code }).then(
         (res) => {
-          console.log(res);
           // updateUser(dispatch, res);
           user?.fetch().then((res2) => {
             console.log(res2);
@@ -78,13 +71,13 @@ function Layout({ children }: Props) {
         <Main>{children}</Main>
         {/* <Footer /> */}
       </OuterDiv>
-      <MobileDiv>
+      {/* <MobileDiv>
         <PageContainer theme={createTheme(getTheme(0))}>
           <Typography sx={{ color: '#eaeaea', margin: 'auto' }}>
             Mobile Not Supported yet!
           </Typography>
         </PageContainer>
-      </MobileDiv>
+      </MobileDiv> */}
     </>
   );
 }

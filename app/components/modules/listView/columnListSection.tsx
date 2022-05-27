@@ -35,11 +35,13 @@ function ColumnListSection({ column, tasks }: Props) {
         aria-controls="panel1a-content"
         id="panel1a-header"
         sx={{
-          height: '2.5rem !important',
-          minHeight: '2.5rem !important',
+          height: '2.2rem !important',
+          minHeight: '2.2rem !important',
         }}
       >
-        <Typography sx={{ width: '10%' }}>{column.title}</Typography>
+        <Typography sx={{ width: { xs: '40%', md: '10%' } }}>
+          {column.title}
+        </Typography>
         <Chip color="rgb(153, 204, 255, 0.2)">{tasks?.length}</Chip>
         <IconButton
           data-testid={`addTask-${column.id}`}

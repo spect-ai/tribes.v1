@@ -29,6 +29,7 @@ describe('Metamask', () => {
       });
       cy.visit('http://localhost:3000/');
       cy.get('[data-testid=bConnectButton]').click();
+      cy.get('[data-testid=bConnectMetamask]').click();
       cy.acceptMetamaskAccess(true).then((connected) => {
         expect(connected).to.be.true;
       });
@@ -38,6 +39,8 @@ describe('Metamask', () => {
       });
     });
     it(`create a task on the space with reward`, () => {
+      cy.get('body').click(0, 0);
+      cy.wait(100);
       cy.contains('e2e_tribe_1').click();
       cy.contains('e2e_space_1', { timeout: 10000 }).click();
       cy.get('[data-testid=addTask-column-0]').click();
@@ -68,10 +71,13 @@ describe('Metamask', () => {
       });
       // cy.wait(1000);
       cy.get('[data-testid=bConnectButton]').click();
+      cy.get('[data-testid=bConnectMetamask]').click();
       // cy.wait(50);
       cy.confirmMetamaskSignatureRequest().then((confirmed) => {
         expect(confirmed).to.be.true;
       });
+      cy.get('body').click(0, 0);
+      cy.wait(100);
       cy.contains('e2e_tribe_1').click();
       cy.contains('e2e_space_1', { timeout: 10000 }).click();
       cy.get('[data-testid=tForumViewTab]').click();
@@ -99,10 +105,14 @@ describe('Metamask', () => {
       });
       // cy.wait(1000);
       cy.get('[data-testid=bConnectButton]').click();
+      cy.get('[data-testid=bConnectMetamask]').click();
       // cy.wait(50);
       cy.confirmMetamaskSignatureRequest().then((confirmed) => {
         expect(confirmed).to.be.true;
       });
+      cy.get('body').click(0, 0);
+
+      cy.wait(100);
       cy.contains('e2e_tribe_1').click();
       cy.contains('e2e_space_1', { timeout: 10000 }).click();
       // eslint-disable-next-line cypress/no-unnecessary-waiting
