@@ -107,7 +107,7 @@ function SpaceNavbar(props: Props) {
         <StyledTab
           label="Settings"
           data-testid="tSettingsTab"
-          disabled={space.roles[user?.id as string] !== 3}
+          disabled={space.roles && space?.roles[user?.id as string] !== 3}
         />
       </StyledTabs>
       <SidebarProfile />

@@ -28,6 +28,7 @@ function CommonDateTimePicker({
   handleChange,
 }: DateTimeProps) {
   return (
+    // @ts-ignore
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DateTimePicker
         label={label}
@@ -37,7 +38,6 @@ function CommonDateTimePicker({
         renderInput={(params) => (
           <TextField {...params} required={false} size={size} />
         )}
-        clearable
       />
     </LocalizationProvider>
   );
