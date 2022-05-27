@@ -50,6 +50,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: 1rem;
+  margin-left: 1rem;
 `;
 
 const DetailContainer = styled.div`
@@ -191,7 +192,7 @@ function EpochList() {
   return (
     <Container>
       <Toaster />
-      <Box sx={{ width: { xs: '100%', md: '20%' } }}>
+      <Box sx={{ width: { xs: '90%', md: '20%' } }}>
         {space.epochs?.length !== 0 && <CreateEpoch />}
       </Box>
       <Accordion hidden>
@@ -211,7 +212,7 @@ function EpochList() {
                 key={epoch.objectId}
                 sx={{
                   border: '2px solid #00194A',
-                  width: { xs: '90%', md: '100%' },
+                  width: { xs: '90%', md: '98%' },
                 }}
               >
                 <AccordionSummary

@@ -40,51 +40,20 @@ function SidebarProfile() {
   return (
     <Profile>
       {!isAuthenticated && (
-        <>
-          <SidebarButton
-            data-testid="bConnectButton"
-            sx={{
-              display: {
-                xs: 'none',
-                md: 'flex',
-              },
-            }}
-            color="inherit"
-            loading={isAuthenticating}
-            onClick={() => {
-              authenticate()
-                .then(async () => {
-                  await runMoralisFunction('getOrCreateUser', {});
-                })
-                .catch((err) => console.log(err));
-            }}
-          >
-            <LoginIcon />
-            <Typography sx={{ textTransform: 'none', fontSize: 14, ml: 2 }}>
-              Connect
-            </Typography>
-          </SidebarButton>
-          <SidebarButton
-            data-testid="bConnectButton"
-            sx={{
-              display: {
-                xs: 'flex',
-                md: 'none',
-              },
-            }}
-            color="inherit"
-            loading={isAuthenticating}
-            onClick={(event) => {
-              setAnchorEl(event.currentTarget);
-              setIsConnectOpen(true);
-            }}
-          >
-            <LoginIcon />
-            <Typography sx={{ textTransform: 'none', fontSize: 14, ml: 2 }}>
-              Connect
-            </Typography>
-          </SidebarButton>
-        </>
+        <SidebarButton
+          data-testid="bConnectButton"
+          color="inherit"
+          loading={isAuthenticating}
+          onClick={(event) => {
+            setAnchorEl(event.currentTarget);
+            setIsConnectOpen(true);
+          }}
+        >
+          <LoginIcon />
+          <Typography sx={{ textTransform: 'none', fontSize: 14, ml: 2 }}>
+            Connect
+          </Typography>
+        </SidebarButton>
       )}
 
       {isAuthenticated && (

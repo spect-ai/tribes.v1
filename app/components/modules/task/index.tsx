@@ -87,7 +87,7 @@ const TaskCard = styled.div<{
     width: 15rem;
   }
   @media only screen and (min-width: 768px) {
-    width: 20rem;
+    width: 19rem;
   }
   margin: 5px;
   border: ${(props) =>

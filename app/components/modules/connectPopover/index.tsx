@@ -29,6 +29,7 @@ function ConnectPopover({ open, anchorEl, handleClose }: Props) {
       <SidebarPopoverContainer palette={palette}>
         {!user?.get('discordId') && (
           <OptionsButton
+            data-testid="bConnectMetamask"
             color="inherit"
             onClick={() => {
               try {
