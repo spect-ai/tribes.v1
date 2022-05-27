@@ -157,7 +157,7 @@ function ExploreSidebar(props: Props) {
           </Tooltip>
         </SidebarButton>
       )}
-      {bid && isAuthenticated && <SpaceSettings />}
+      {/* {bid && isAuthenticated && <SpaceSettings />} */}
       {bid && isAuthenticated && <PaymentModal />}
       <Divider sx={{ my: 5, mx: 3 }} />
       <CreateTribeModal />

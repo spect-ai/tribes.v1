@@ -105,6 +105,7 @@ interface StyledTabsProps {
   value: number;
   onChange: (event: React.SyntheticEvent, newValue: number) => void;
   centered?: boolean;
+  orientation?: 'horizontal' | 'vertical';
 }
 
 export const StyledTabs = styled((props: StyledTabsProps) => (

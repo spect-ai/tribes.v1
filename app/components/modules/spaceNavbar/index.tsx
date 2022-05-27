@@ -103,7 +103,12 @@ function SpaceNavbar(props: Props) {
       <StyledTabs value={tab} onChange={handleTabChange} centered>
         <StyledTab label="Project" data-testid="tBoardTab" />
         <StyledTab label="Consensus" data-testid="tEpochTab" />
-        <StyledTab label="Members" data-testid="tMembersTab" />
+        {/* <StyledTab label="FAQ" data-testid="tFAQTab" /> */}
+        <StyledTab
+          label="Settings"
+          data-testid="tSettingsTab"
+          disabled={space.roles[user?.id as string] !== 3}
+        />
       </StyledTabs>
       <SidebarProfile />
     </StyledNav>
