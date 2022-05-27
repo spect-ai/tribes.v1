@@ -58,7 +58,7 @@ function ProfilePopover({ open, anchorEl, handleClose }: Props) {
           <PersonIcon />
           <ButtonText>Go to Profile</ButtonText>
         </OptionsButton>
-        <ProfileSettings />
+        {/* <ProfileSettings /> */}
         <OptionsButton
           data-testid="bLogoutButton"
           color="inherit"

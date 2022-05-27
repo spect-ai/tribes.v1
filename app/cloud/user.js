@@ -121,6 +121,40 @@ Moralis.Cloud.define('getUserCount', async (request) => {
   return await getUserCount();
 });
 
+async function isUniqueUsername(username, userId) {
+  const userQuery = new Moralis.Query('User');
+  userQuery.equalTo('username', username);
+  userQuery.notEqualTo('objectId', userId);
+  return (await userQuery.count({ useMasterKey: true })) === 0;
+}
+
+Moralis.Cloud.define('updateProfile', async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  if (request.user) {
+    logger.info(`updateProfile ${JSON.stringify(request.user)}`);
+    logger.info(`username ${JSON.stringify(request.params.username)}`);
+    const unique = await isUniqueUsername(
+      request.params.username,
+      request.user.id
+    );
+    if (unique) {
+      request.user.set('username', request.params.username);
+      request.user.set('website', request.params.website);
+      request.user.set('github', request.params.github);
+      request.user.set('twitter', request.params.twitter);
+      await Moralis.Object.saveAll([request.user], {
+        useMasterKey: true,
+      });
+      return request.user;
+    } else {
+      throw new Error('Username already taken');
+    }
+  } else {
+    logger.error(`Request user is null`);
+    throw 'User is not authenticated';
+  }
+});
+
 Moralis.Cloud.define('getOrCreateUser', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
@@ -156,6 +190,9 @@ async function getUserDetailsWithUsername(username) {
         username: 1,
         profilePicture: 1,
         ethAddress: 1,
+        website: 1,
+        github: 1,
+        twitter: 1,
       },
     },
   ];

@@ -301,6 +301,9 @@ export interface Profile {
   spaceDetails: object;
   tribeDetails: object;
   memberDetails: MemberDetails;
+  github: string;
+  twitter: string;
+  website: string;
 }
 
 export type TokenInfo = {

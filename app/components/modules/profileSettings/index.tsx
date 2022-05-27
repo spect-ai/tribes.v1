@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { Controller, useForm } from 'react-hook-form';
 import {
   Avatar,
   Grow,
@@ -10,16 +11,28 @@ import {
   Backdrop,
   CircularProgress,
   Box,
+  InputAdornment,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import { useMoralis } from 'react-moralis';
 import SettingsIcon from '@mui/icons-material/Settings';
+// import validator from 'validator';
+import { useRouter } from 'next/router';
 import { PrimaryButton } from '../../elements/styledComponents';
 import { OptionsButton } from '../themePopover';
 import { ButtonText } from '../exploreSidebar';
 import { useGlobal } from '../../../context/globalContext';
 import useProfileInfo from '../../../hooks/useProfileInfo';
+import { useProfile } from '../../../../pages/profile/[username]';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { notify } from '../settingsTab';
+
+interface EditProfile {
+  website: string;
+  twitter: string;
+  github: string;
+}
 
 type Props = {};
 
@@ -63,8 +76,14 @@ const FieldContainer = styled.div`
 function ProfileSettings(props: Props) {
   const { Moralis, user } = useMoralis();
   const { avatar } = useProfileInfo();
-
-  const [username, setUsername] = useState(user?.get('username'));
+  const { profile, setProfile, setLoading } = useProfile();
+  const { control } = useForm<EditProfile>();
+  const router = useRouter();
+  const [username, setUsername] = useState(profile.username);
+  const [website, setWebsite] = useState('');
+  const [github, setGithub] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [twitterError, setTwitterError] = useState('');
   const [picture, setPicture] = useState('');
   // const [userEmail, setuserEmail] = useState(user?.get("email"));
   const [isLoading, setIsLoading] = useState(false);
@@ -73,17 +92,36 @@ function ProfileSettings(props: Props) {
     state: { currentUser },
   } = useGlobal();
   const handleClose = () => setIsOpen(false);
+  const { runMoralisFunction } = useMoralisFunction();
 
   useEffect(() => {
     setPicture(avatar);
   }, [avatar]);
 
+  useEffect(() => {
+    console.log(profile);
+    setUsername(profile.username);
+    setWebsite(profile.website);
+    setGithub(profile.github);
+    setTwitter(profile.twitter);
+  }, [profile]);
+
   return (
     <>
-      <OptionsButton color="inherit" onClick={() => setIsOpen(true)}>
-        <SettingsIcon />
-        <ButtonText>Profile Settings</ButtonText>
-      </OptionsButton>
+      {/* {user?.get('username') === profile.username && ( */}
+      <PrimaryButton
+        data-testid="bConfirmAction"
+        variant="outlined"
+        sx={{ width: '6rem', height: '2rem', mx: 4, mt: 2 }}
+        color="secondary"
+        size="small"
+        onClick={() => {
+          setIsOpen(true);
+        }}
+      >
+        Edit Profile
+      </PrimaryButton>
+      {/* )} */}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
           <ModalContainer>
@@ -152,12 +190,128 @@ function ProfileSettings(props: Props) {
                   placeholder="Username"
                   size="small"
                   color="secondary"
-                  onBlur={() => {
-                    user?.set('username', username);
-                    user?.save();
-                  }}
                 />
               </FieldContainer>
+              <FieldContainer>
+                <Controller
+                  name="website"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      value={website}
+                      onChange={(e) => setWebsite(e.target.value)}
+                      fullWidth
+                      placeholder="https://my-website.com"
+                      size="small"
+                      color="secondary"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <i className="fas fa-link" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </FieldContainer>
+              <FieldContainer>
+                <Controller
+                  name="github"
+                  control={control}
+                  rules={{
+                    validate: (value) =>
+                      value.startsWith('https://github.com/') || 'Invalid URL',
+                  }}
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      value={github}
+                      onChange={(e) => setGithub(e.target.value)}
+                      fullWidth
+                      placeholder="https://github.com/my-github-username"
+                      size="small"
+                      color="secondary"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <i className="fa-brands fa-github" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </FieldContainer>
+              <FieldContainer>
+                <Controller
+                  name="twitter"
+                  control={control}
+                  rules={{
+                    validate: (value) =>
+                      value.startsWith('https://twitter.com/') || 'Invalid URL',
+                  }}
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      value={twitter}
+                      onChange={(e) => setTwitter(e.target.value)}
+                      fullWidth
+                      placeholder="https://twitter.com/my-twitter-username"
+                      size="small"
+                      color="secondary"
+                      id="standard-error-helper-text"
+                      onBlur={() => {
+                        if (!twitter.startsWith('https://twitter.com/'))
+                          setTwitterError('Invalid URL');
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <i className="fa-brands fa-twitter" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </FieldContainer>
+              <PrimaryButton
+                data-testid="bUpdateProfile"
+                variant="outlined"
+                sx={{
+                  width: '6rem',
+                  height: '2rem',
+                  mx: 4,
+                  mt: 2,
+                  display: 'flex',
+                  flexDirection: 'row',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+                color="secondary"
+                size="small"
+                onClick={() => {
+                  setLoading(true);
+                  runMoralisFunction('updateProfile', {
+                    username,
+                    website,
+                    github,
+                    twitter,
+                  })
+                    .then((res: any) => {
+                      setIsOpen(false);
+                      notify('Profile updated!', 'success');
+                      router.push(`/profile/${username}`);
+                      // setProfile(Object.assign(profile, res));
+                      setLoading(false);
+                    })
+                    .catch((err: any) => {
+                      notify(err.message, 'error');
+                      setLoading(false);
+                    });
+                }}
+              >
+                Save
+              </PrimaryButton>
             </ModalContent>
           </ModalContainer>
         </Grow>

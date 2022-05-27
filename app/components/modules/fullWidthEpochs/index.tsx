@@ -2,10 +2,12 @@ import styled from '@emotion/styled';
 import { Palette, useTheme, Typography, Box, Avatar } from '@mui/material';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import React from 'react';
+import { useMoralis } from 'react-moralis';
 import { Epoch } from '../../../types';
 import { formatTimeCreated } from '../../../utils/utils';
 import MemberGroupDisplay from '../../elements/memberGroupDisplay';
 import { Card, CardContent } from '../fullWidthCards';
+import { useProfile } from '../../../../pages/profile/[username]';
 
 type Props = {
   epochs: Epoch[];
@@ -42,6 +44,9 @@ function FullWidthEpochs({
   memberDetails,
 }: Props) {
   const { palette } = useTheme();
+  const { profile } = useProfile();
+  const { Moralis, user } = useMoralis();
+
   return (
     <Box
       sx={{
@@ -154,21 +159,23 @@ function FullWidthEpochs({
                   />
                   )
                 </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'end',
-                    justifyContent: 'end',
-                  }}
-                >
-                  <Typography variant="body2" color="text.secondary">
-                    Received
-                  </Typography>
-                  <Typography variant="body2" color="secondary" sx={{}}>
-                    {(epoch.share * 100).toFixed(0)}% votes
-                  </Typography>
-                </Box>
+                {user && profile.username === user?.get('username') && (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'end',
+                      justifyContent: 'end',
+                    }}
+                  >
+                    <Typography variant="body2" color="text.secondary">
+                      Received
+                    </Typography>
+                    <Typography variant="body2" color="secondary" sx={{}}>
+                      {(epoch.share * 100).toFixed(0)}% votes
+                    </Typography>
+                  </Box>
+                )}
                 <Box
                   sx={{
                     display: 'flex',
