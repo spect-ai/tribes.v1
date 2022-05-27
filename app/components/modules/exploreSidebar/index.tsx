@@ -19,7 +19,7 @@ import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import PaymentModal from '../batchPay';
-import BoardSettings from '../boardSettings';
+import SpaceSettings from '../spaceSettings';
 import CreateTribeModal from '../createTribeModal';
 import { notify } from '../settingsTab';
 
@@ -157,7 +157,7 @@ function ExploreSidebar(props: Props) {
           </Tooltip>
         </SidebarButton>
       )}
-      {bid && isAuthenticated && <BoardSettings />}
+      {/* {bid && isAuthenticated && <SpaceSettings />} */}
       {bid && isAuthenticated && <PaymentModal />}
       <Divider sx={{ my: 5, mx: 3 }} />
       <CreateTribeModal />
