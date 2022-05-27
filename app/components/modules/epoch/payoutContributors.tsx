@@ -30,17 +30,28 @@ interface Props {
   epoch: Epoch;
 }
 
-export const modalStyle = {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
   position: 'absolute' as 'absolute',
-  top: '40%',
-  left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '40rem',
-  bgcolor: 'background.paper',
   border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
   boxShadow: 24,
-  p: 4,
-};
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
+  [theme.breakpoints.down('md')]: {
+    top: '50%',
+    left: '50%',
+    padding: '1rem 2rem',
+    width: '18rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    top: '30%',
+    left: '55%',
+    width: '40rem',
+    padding: '1.5rem 3rem',
+  },
+}));
 
 export const Heading = styled('div')(({ theme }) => ({
   fontWeight: 500,
@@ -157,8 +168,8 @@ function PayoutContributors({ epoch }: Props) {
           variant="outlined"
           loading={isLoading}
           sx={{
-            mx: 4,
-            borderRadius: 1,
+            mx: { xs: 0, md: 4 },
+            my: { xs: 2, md: 0 },
           }}
           size="small"
           color="secondary"
@@ -170,7 +181,7 @@ function PayoutContributors({ epoch }: Props) {
         </PrimaryButton>
       )}
       <Modal open={isOpen} onClose={handleClose}>
-        <Box sx={modalStyle}>
+        <ModalContainer>
           <Grid
             container
             spacing={0}
@@ -269,7 +280,7 @@ function PayoutContributors({ epoch }: Props) {
               handleStatusUpdate={handleStatusUpdate}
             />
           )}
-        </Box>
+        </ModalContainer>
       </Modal>{' '}
     </>
   );

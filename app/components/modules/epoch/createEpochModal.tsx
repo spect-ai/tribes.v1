@@ -45,15 +45,24 @@ type Props = {};
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
   position: 'absolute' as 'absolute',
-  top: '10%',
-  left: '35%',
   transform: 'translate(-50%, -50%)',
-  width: '40rem',
   border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: 'auto',
   maxHeight: 'calc(100% - 128px)',
+  [theme.breakpoints.down('md')]: {
+    top: '10%',
+    left: '2%',
+    padding: '1rem 2rem',
+    width: '18rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    top: '10%',
+    left: '35%',
+    width: '40rem',
+    padding: '1.5rem 3rem',
+  },
 }));
 
 const ModalContent = styled('div')(({ theme }) => ({
@@ -121,10 +130,10 @@ function CreateEpoch(props: Props) {
   const getMembers = () => {
     const members = [];
     for (let i = 0; i < space.members.length; i += 1) {
-      if (isChecked.at(i)) {
+      if (isChecked[i]) {
         const member = {
           objectId: space.members[i],
-          votesAllocated: allocations.at(i),
+          votesAllocated: allocations[i],
         };
         members.push(member);
       }
@@ -135,7 +144,7 @@ function CreateEpoch(props: Props) {
   const getMemberChoices = () => {
     const choices = [] as string[];
     for (let i = 0; i < space.members.length; i += 1) {
-      if (isChecked.at(i)) {
+      if (isChecked[i]) {
         choices.push(space.members[i]);
       }
     }
@@ -145,7 +154,7 @@ function CreateEpoch(props: Props) {
   const getCardChoices = () => {
     const choices = [] as string[];
     for (let i = 0; i < cards.length; i += 1) {
-      if (isCardChecked.at(i)) {
+      if (isCardChecked[i]) {
         choices.push(cards[i]);
       }
     }
@@ -525,7 +534,7 @@ function CreateEpoch(props: Props) {
                                 inputProps={{
                                   'aria-label': 'select all desserts',
                                 }}
-                                checked={isChecked.at(index)}
+                                checked={isChecked[index]}
                                 onClick={() => {
                                   toggleCheckboxValue(index);
                                 }}

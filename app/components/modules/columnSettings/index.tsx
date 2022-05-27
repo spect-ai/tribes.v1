@@ -38,12 +38,19 @@ type Props = {
 const ModalContainer = MUIStyled(Box)(({ theme }) => ({
   marginTop: '-10%',
   transform: 'translate(-50%, -50%)',
-  width: '50rem',
   border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: 'auto',
   maxHeight: 'calc(100% - 128px)',
+  [theme.breakpoints.down('md')]: {
+    padding: '1rem 2rem',
+    width: '18rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    width: '55rem',
+    padding: '1.5rem 3rem',
+  },
 }));
 
 const Heading = MUIStyled('div')(({ theme }) => ({
@@ -59,7 +66,12 @@ const Heading = MUIStyled('div')(({ theme }) => ({
 }));
 
 const Content = styled.div`
-  padding: 2rem;
+  @media only screen and (min-width: 0px) {
+    padding: 0rem;
+  }
+  @media only screen and (min-width: 768px) {
+    padding: 2rem;
+  }
 `;
 
 function ColumnSettings({ isOpen, handleClose, column }: Props) {

@@ -15,9 +15,9 @@ const TabContainer = styled.div`
 `;
 
 const OuterDiv = styled.div`
-  margin-left: 1rem;
-  margin-right: 1rem;
   width: 100%;
+  margin-left: 60px;
+  margin-top: 60px;
 `;
 function TribeTemplate(props: Props) {
   const { tab, loading } = useTribe();
