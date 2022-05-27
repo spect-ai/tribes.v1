@@ -23,6 +23,7 @@ import useCardUpdate from '../../../hooks/useCardUpdate';
 import { useCardContext } from '.';
 import Attest from './buttons/attest';
 import Claim from './buttons/claim';
+import DiscordThread from './popovers/discordThread';
 
 type Props = {
   handleClose: () => void;
@@ -76,7 +77,7 @@ function TaskCard({ handleClose }: Props) {
         {/* <Attest />
         <Claim /> */}
         <PayButton handleClose={handleClose} />
-        {(isSpaceSteward() || isCardStakeholder()) && <OptionsPopover />}
+        <OptionsPopover />
         <IconButton
           data-testid="bCloseButton"
           sx={{
@@ -96,6 +97,7 @@ function TaskCard({ handleClose }: Props) {
       <Box sx={{ width: 'fit-content', display: 'flex', flexWrap: 'wrap' }}>
         <CardTypePopover />
         <ColumnPopover />
+        <DiscordThread />
       </Box>
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', marginBottom: '16px' }}>

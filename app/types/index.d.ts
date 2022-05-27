@@ -258,6 +258,8 @@ export interface BoardData {
   private: boolean;
   creatingEpoch: boolean;
   guildId: string;
+  discussionChannel: Channel;
+  githubRepos: string[];
 }
 export interface Team {
   teamId: string;
@@ -317,6 +319,7 @@ export type NetworkInfo = {
   nativeCurrency: string;
   pictureUrl: string;
   blockExplorer?: string;
+  provider: string;
   tokens: { [tokenAddress: string]: TokenInfo };
 };
 

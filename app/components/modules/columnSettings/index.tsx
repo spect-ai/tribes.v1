@@ -250,7 +250,6 @@ function ColumnSettings({ isOpen, handleClose, column }: Props) {
                   sx={{ width: '50%', mt: 2, mr: 4, borderRadius: 1 }}
                   loading={isLoading}
                   onClick={() => {
-                    console.log(columnChannels);
                     setIsLoading(true);
                     runMoralisFunction('updateColumnSettings', {
                       boardId: space.objectId,

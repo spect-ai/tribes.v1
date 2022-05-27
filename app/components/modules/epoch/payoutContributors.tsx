@@ -22,9 +22,9 @@ import { Epoch, ApprovalInfo, DistributionInfo } from '../../../types';
 import { capitalizeFirstLetter } from '../../../utils/utils';
 import { notify } from '../settingsTab';
 import { PrimaryButton } from '../../elements/styledComponents';
-import { isApprovalRequired } from '../../../adapters/contract';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { useWalletContext } from '../../../context/WalletContext';
+import useERC20 from '../../../hooks/useERC20';
 
 interface Props {
   epoch: Epoch;
@@ -67,6 +67,7 @@ function PayoutContributors({ epoch }: Props) {
   const { user } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const { setRefreshEpochs } = useSpace();
+  const { isApproved } = useERC20();
   const [distributionInfo, setDistributionInfo] = useState({
     contributors: Object.keys(epoch.values),
     tokenValues: Object.values(epoch.values),
@@ -118,21 +119,21 @@ function PayoutContributors({ epoch }: Props) {
       setActiveStep(2);
       setIsLoading(false);
     } else {
-      isApprovalRequired(
-        user?.get('ethAddress'),
+      isApproved(
         epoch.token.address,
+        registry[networkVersion].distributorAddress as string,
         epoch.budget,
-        networkVersion
-      ).then((reqd: boolean) => {
-        if (reqd) {
+        user?.get('ethAddress')
+      ).then((approved: boolean) => {
+        if (approved) {
+          setActiveStep(1);
+        } else {
           const temp = { ...approvalInfo };
           temp.required = true;
           setApprovalInfo(temp);
           setActiveStep(0);
           setSteps(['Approve Tokens', 'Batch Pay Tokens']);
           setShowStepper(true);
-        } else {
-          setActiveStep(1);
         }
         setIsLoading(false);
       });

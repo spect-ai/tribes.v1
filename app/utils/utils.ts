@@ -315,12 +315,16 @@ export function isEqualArrayWithStrictLocationsAndEqualCount(
   a: Array<string | number>,
   b: Array<string | number>
 ) {
+  if (!a && !b) return true;
+  if ((!a && b) || (a && !b)) return false;
   return a.length === b.length && a.every((value, index) => value === b[index]);
 }
 export function isEqualArrayIgnoringLocations(
   a: Array<string | number>,
   b: Array<string | number>
 ) {
+  if (!a && !b) return true;
+  if ((!a && b) || (a && !b)) return false;
   return (
     a.length === b.length &&
     a.every((value, index) => b.find((element) => element === value))
@@ -331,8 +335,14 @@ export function findDiffBetweenArrays(
   a: Array<string | number>,
   b: Array<string | number>
 ) {
-  const removed = a.filter((x) => !b.includes(x));
-  const added = b.filter((x) => !a.includes(x));
+  let removed: any = [];
+  let added: any = [];
+  if (a && b) {
+    removed = a.filter((x) => !b.includes(x));
+    added = b.filter((x) => !a.includes(x));
+  }
+  if (a && !b) removed = a;
+  if (!a && b) added = b;
   return [added, removed];
 }
 
