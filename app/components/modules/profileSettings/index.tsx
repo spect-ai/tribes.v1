@@ -136,7 +136,13 @@ function ProfileSettings(props: Props) {
       <PrimaryButton
         data-testid="bConfirmAction"
         variant="outlined"
-        sx={{ width: '6rem', height: '2rem', mx: 4, mt: 2 }}
+        sx={{
+          width: { xs: '3rem', lg: '6rem' },
+          height: { xs: '1.5rem', lg: '2rem' },
+          mx: { xs: 2, lg: 4 },
+          mt: 2,
+          fontSize: { xs: '0.5rem', lg: '0.8rem' },
+        }}
         color="secondary"
         size="small"
         onClick={() => {
@@ -380,6 +386,11 @@ function ProfileSettings(props: Props) {
                       twitter,
                     })
                       .then((res: any) => {
+                        user?.set('username', username);
+                        user?.set('website', website);
+                        user?.set('github', github);
+                        user?.set('twitter', twitter);
+
                         setIsOpen(false);
                         setLoading(false);
                         notify('Profile updated!', 'success');

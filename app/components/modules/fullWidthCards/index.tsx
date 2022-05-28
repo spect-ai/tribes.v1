@@ -49,7 +49,7 @@ function FullWidthCards({
         alignContent: 'center',
         justifyContent: 'center',
         mt: 2,
-        width: '80%',
+        width: { xs: '45%', sm: '75%', md: '80%' },
       }}
     >
       {cards?.map((card: any) => (
@@ -68,11 +68,15 @@ function FullWidthCards({
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'start',
-                  width: { sm: '75%', xl: '85%' },
+                  width: { xs: '65%', sm: '75%', xl: '85%' },
                   mb: '0.5rem',
                 }}
               >
-                <Typography variant="body2" color="text.secondary">
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ fontSize: { xs: '0.8rem', lg: '1.0rem' } }}
+                >
                   {card.action}
                 </Typography>
                 <Typography
@@ -83,7 +87,11 @@ function FullWidthCards({
                 <Typography
                   variant="subtitle2"
                   color="secondary"
-                  sx={{ mt: '0.5rem', whiteSpace: 'normal' }}
+                  sx={{
+                    mt: '0.5rem',
+                    whiteSpace: 'normal',
+                    fontSize: { xs: '0.9rem', lg: '1.0rem' },
+                  }}
                 >
                   {' '}
                   {`${spaceDetails[card.spaceId].name}`}
@@ -135,7 +143,7 @@ function FullWidthCards({
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mb: 1 }}
+                    sx={{ mb: 1, fontSize: { xs: '0.8rem', lg: '1.0rem' } }}
                   >
                     {card.action === 'Worked on'
                       ? 'Reviewed by'
@@ -170,7 +178,11 @@ function FullWidthCards({
                     mb: '1.5rem',
                   }}
                 >
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1, fontSize: { xs: '0.8rem', lg: '1.0rem' } }}
+                  >
                     {`Last updated `}{' '}
                   </Typography>
                   <Typography variant="body2" color="secondary" sx={{}}>

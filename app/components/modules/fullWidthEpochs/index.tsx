@@ -46,7 +46,6 @@ function FullWidthEpochs({
   const { palette } = useTheme();
   const { profile } = useProfile();
   const { Moralis, user } = useMoralis();
-
   return (
     <Box
       sx={{
@@ -55,7 +54,7 @@ function FullWidthEpochs({
         alignContent: 'center',
         justifyContent: 'center',
         mt: 2,
-        width: '80%',
+        width: { xs: '100%', md: '80%' },
       }}
     >
       {epochs?.map((epoch: any) => (
@@ -141,7 +140,7 @@ function FullWidthEpochs({
                   <Typography
                     variant="body2"
                     color="text.secondary"
-                    sx={{ mb: 1 }}
+                    sx={{ mb: 1, fontSize: { xs: '0.8rem', lg: '1.0rem' } }}
                   >
                     Other participants
                   </Typography>
@@ -168,7 +167,14 @@ function FullWidthEpochs({
                       justifyContent: 'end',
                     }}
                   >
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        fontSize: { xs: '0.8rem', lg: '1.0rem' },
+                        mt: { xs: 2, md: 0 },
+                      }}
+                    >
                       Received
                     </Typography>
                     <Typography variant="body2" color="secondary" sx={{}}>
@@ -185,7 +191,14 @@ function FullWidthEpochs({
                     mb: '1.5rem',
                   }}
                 >
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      fontSize: { xs: '0.8rem', lg: '1.0rem' },
+                      mt: { xs: 2, md: 0 },
+                    }}
+                  >
                     {`Last updated `}{' '}
                   </Typography>
                   <Typography variant="body2" color="secondary" sx={{}}>

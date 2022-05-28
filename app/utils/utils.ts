@@ -379,3 +379,8 @@ export function isValidLinkedinUrl(url: string) {
   const regex = /\/(?:http:\/\/)?(?:www.)?linkedin.com\//;
   return regex.test(url);
 }
+
+export function sortByDate(arr: any[]) {
+  arr.sort((a, b) => Date.parse(a) - Date.parse(b));
+  return arr;
+}

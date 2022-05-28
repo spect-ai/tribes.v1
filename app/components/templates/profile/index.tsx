@@ -2,14 +2,20 @@ import { Box, styled as muiStyled, Tab, Typography, Link } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import { useProfile } from '../../../../pages/profile/[username]';
-import { SoulboundInfo, Epoch, Task } from '../../../types';
+import { Epoch, Task } from '../../../types';
 import SkeletonLoader from './skeletonLoader';
 import MemberInfoDisplay from '../../elements/memberInfoDisplay';
-import { PrimaryButton, StyledTabs } from '../../elements/styledComponents';
+import {
+  PrimaryButton,
+  StyledTab,
+  ScrollableTabs,
+  StyledTabs,
+} from '../../elements/styledComponents';
 import { useCardContext } from '../../modules/cardModal';
 import FullWidthCards from '../../modules/fullWidthCards';
 import FullWidthEpochs from '../../modules/fullWidthEpochs';
 import ProfileSettings from '../../modules/profileSettings';
+import { sortByDate } from '../../../utils/utils';
 
 type Props = {};
 interface StyledTabProps {
@@ -23,45 +29,42 @@ const OuterDiv = styled.div`
   width: 100%;
 `;
 
-export const ProfileTab = muiStyled((props: StyledTabProps) => (
-  <Tab disableRipple {...props} />
-))(({ theme }) => ({
-  minHeight: '2.8rem !important',
-  height: '2.8rem !important',
-  textTransform: 'none',
-  fontWeight: theme.typography.fontWeightRegular,
-  fontSize: theme.typography.pxToRem(16),
-  margin: '0rem !important',
-  padding: '0rem !important',
-  color: 'rgba(255, 255, 255, 0.6)',
-  '&.Mui-selected': {
-    color: theme.palette.text.primary,
-  },
-  '&.Mui-focusVisible': {
-    backgroundColor: 'rgba(100, 95, 228, 0.32)',
-  },
-}));
-
 const StyledAnchor = muiStyled('a')(({ theme }) => ({
   color: '#5a6972',
-  paddingLeft: '0.5rem',
-  paddingRight: '0.5rem',
+  [theme.breakpoints.down('sm')]: {
+    paddingLeft: '0.1rem',
+    paddingRight: '0.1rem',
+  },
+  [theme.breakpoints.up('sm')]: {
+    paddingLeft: '0.5rem',
+    paddingRight: '0.5rem',
+  },
   fontSize: '1rem',
 }));
 
 function ProfileTemplate(props: Props) {
   const { profile, tab, handleTabChange, loading } = useProfile();
-  const [reversedEpochs, setReversedEpochs] = useState(
-    profile.epochs?.reverse() as Epoch[]
-  );
-  const [reversedCards, setReversedCards] = useState(
-    profile.cards?.reverse() as Task[]
-  );
+
+  const [sortedCards, setSortedCards] = useState([] as Task[]);
+  const [sortedEpochs, setSortedEpochs] = useState([] as Epoch[]);
+  const [website, setWebsite] = useState('');
+
   console.log(profile);
   useEffect(() => {
-    setReversedEpochs(profile.epochs?.reverse());
-    setReversedCards(profile.cards?.reverse());
+    if (profile.epochs) {
+      setSortedEpochs(sortByDate(profile.epochs as Epoch[]));
+    }
+    if (profile.cards) {
+      setSortedCards(sortByDate(profile.cards as Task[]));
+    }
   }, [loading]);
+
+  useEffect(() => {
+    if (profile.website) {
+      setWebsite(profile.website);
+    }
+  }, [profile.website]);
+
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <OuterDiv>
@@ -80,23 +83,35 @@ function ProfileTemplate(props: Props) {
           }}
         >
           <Box
-            component="img"
+            data-testid="profile-template-container"
             sx={{
-              height: '18rem',
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'start',
+              alignItems: 'start',
               width: '100%',
-              backgroundSize: 'cover',
-              objectFit: 'cover',
+              height: { xs: '12rem', lg: '18rem' },
             }}
-            alt="The house from the offer."
-            src="http://ipfs.io/ipfs/QmemsVgFSdwjvEPAgEY3698HwrR7P6oTjCyu6ptDiB1zqb"
-          />
+          >
+            <Box
+              component="img"
+              sx={{
+                height: '100%',
+                width: '100%',
+                backgroundSize: 'cover',
+                objectFit: 'cover',
+              }}
+              alt="The house from the offer."
+              src="https://f6xaf3mz0jcx.usemoralis.com:2053/server/files/UX5s7GHMQGHbHTZ6zNPXE3AkXFsaKbLMMHGH1KVh/1c83418457e86d8ada76088f0e41e744_cover2.jpg"
+            />
+          </Box>
           <Box
             sx={{
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'start',
               alignItems: 'start',
-              mx: 32,
+              mx: { xs: 12, sm: 24, lg: 32 },
               width: '80%',
             }}
           >
@@ -110,16 +125,16 @@ function ProfileTemplate(props: Props) {
               <MemberInfoDisplay
                 member={profile}
                 avatarsx={{
-                  width: '8rem',
-                  height: '8rem',
-                  fontSize: 25,
-                  marginTop: '-4rem',
+                  width: { xs: '6rem', lg: '8rem' },
+                  height: { xs: '6rem', lg: '8rem' },
+                  fontSize: { xs: 15, lg: 25 },
+                  marginTop: { xs: '-3rem', lg: '-4rem' },
                 }}
                 textsx={{
                   color: 'text.primary',
-                  fontSize: 24,
+                  fontSize: { xs: 20, lg: 25 },
                   mt: 1,
-                  ml: 2,
+                  ml: { xs: 1, lg: 2 },
                 }}
                 boxsx={{
                   display: 'flex',
@@ -129,25 +144,26 @@ function ProfileTemplate(props: Props) {
                 }}
               />
               <ProfileSettings />
-              <Box sx={{ flex: '1 1 auto' }} />
+              <Box sx={{ flex: { lg: '1 1 auto' } }} />
               <Box
                 sx={{
-                  mt: 3,
+                  mt: { xs: 1, md: 3 },
                   display: 'flex',
                   flexDirection: 'row',
                   alignItems: 'start',
-                  justifyContent: 'end',
+                  justifyContent: 'start',
                 }}
               >
-                {profile.website && (
+                {website.length > 0 && (
                   <StyledAnchor>
                     <Link
                       target="_blank"
-                      href={profile.website}
+                      href={website}
                       rel="noopener noreferrer"
                       sx={{
                         color: 'text.secondary',
                         textAlign: 'right',
+                        fontSize: { xs: 12, lg: 20 },
                       }}
                     >
                       <i className="fas fa-link" />
@@ -163,13 +179,14 @@ function ProfileTemplate(props: Props) {
                       sx={{
                         color: 'text.secondary',
                         textAlign: 'right',
+                        fontSize: { xs: 12, lg: 20 },
                       }}
                     >
                       <i className="fab fa-github" />
                     </Link>
                   </StyledAnchor>
                 )}
-                {profile.twitter && (
+                {profile.twitter && !loading && (
                   <StyledAnchor>
                     <Link
                       target="_blank"
@@ -178,6 +195,7 @@ function ProfileTemplate(props: Props) {
                       sx={{
                         color: 'text.secondary',
                         textAlign: 'right',
+                        fontSize: { xs: 12, lg: 20 },
                       }}
                     >
                       <i className="fab fa-twitter" />
@@ -193,7 +211,7 @@ function ProfileTemplate(props: Props) {
               flexDirection: 'row',
               justifyContent: 'start',
               alignItems: 'start',
-              mx: 32,
+              mx: { xs: 12, sm: 24, lg: 32 },
               mt: 4,
               width: '100%',
             }}
@@ -207,11 +225,10 @@ function ProfileTemplate(props: Props) {
                 width: '100%',
               }}
             >
-              <StyledTabs value={tab} onChange={handleTabChange} centered>
-                {/* <ProfileTab label="Soulbounds" data-testid="tSoulboundsTab" /> */}
-                <ProfileTab label="Cards" data-testid="tCardsTab" />
-                <ProfileTab label="Epochs" data-testid="tEpochsTab" />
-              </StyledTabs>
+              <ScrollableTabs value={tab} onChange={handleTabChange} centered>
+                <StyledTab label="Cards" data-testid="tCardsTab" />
+                <StyledTab label="Epochs" data-testid="tEpochsTab" />
+              </ScrollableTabs>
               {!loading && (
                 <>
                   {profile.cards && profile.cards?.length > 0 ? (
@@ -219,7 +236,7 @@ function ProfileTemplate(props: Props) {
                     <>
                       {tab === 0 && (
                         <FullWidthCards
-                          cards={reversedCards}
+                          cards={sortedCards}
                           spaceDetails={profile.spaceDetails}
                           tribeDetails={profile.tribeDetails}
                           memberDetails={profile.memberDetails}
@@ -241,7 +258,7 @@ function ProfileTemplate(props: Props) {
                     <>
                       {tab === 1 && (
                         <FullWidthEpochs
-                          epochs={reversedEpochs}
+                          epochs={sortedEpochs}
                           spaceDetails={profile.spaceDetails}
                           tribeDetails={profile.tribeDetails}
                           memberDetails={profile.memberDetails}
