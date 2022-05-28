@@ -65,7 +65,7 @@ const Container = styled.div<{ isDragging: boolean; palette: Palette }>`
     width: 16rem;
   }
   @media only screen and (min-width: 768px) {
-    width: 20rem;
+    width: 21rem;
   }
 `;
 

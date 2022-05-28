@@ -594,9 +594,6 @@ Moralis.Cloud.define('updateBoard', async (request) => {
       board.set('defaultPayment', request.params.defaultPayment);
       board.set('tokenGating', request.params.tokenGating);
       board.set('description', request.params.description);
-      board.set('github', request.params.github);
-      board.set('twitter', request.params.twitter);
-      board.set('discord', request.params.discord);
       board.set('discussionChannel', request.params.discussionChannel);
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return await getSpace(request.params.boardId, request.user.id);

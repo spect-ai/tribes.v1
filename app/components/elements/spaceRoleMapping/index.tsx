@@ -30,15 +30,22 @@ type Role = {
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
   position: 'absolute' as 'absolute',
-  top: '10%',
-  left: '25%',
   transform: 'translate(-50%, -50%)',
-  width: '35rem',
   border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: 'auto',
   maxHeight: 'calc(100% - 128px)',
+  [theme.breakpoints.down('md')]: {
+    top: '20%',
+    left: '50%',
+    width: '22rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    top: '22%',
+    left: '32%',
+    width: '30rem',
+  },
 }));
 
 const ModalContent = styled('div')(({ theme }) => ({
@@ -71,7 +78,7 @@ function SpaceRoleMapping({ handleModalClose }: Props) {
     setIsFetching(true);
     const res = await fetch(
       `${
-        process.env.DEV_ENV === 'local'
+        process.env.DEV_ENV !== 'local'
           ? 'http://localhost:3001/'
           : 'https://spect-discord-bot.herokuapp.com/'
       }api/guildRoles?guildId=${space.team[0].guildId}`,

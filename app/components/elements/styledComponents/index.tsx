@@ -115,8 +115,6 @@ export const StyledTabs = styled((props: StyledTabsProps) => (
     TabIndicatorProps={{ children: <span className="MuiTabs-indicatorSpan" /> }}
   />
 ))(({ theme }) => ({
-  minHeight: '2.8rem !important',
-  height: '2.8rem !importantt',
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
@@ -137,8 +135,10 @@ export const StyledTabs = styled((props: StyledTabsProps) => (
 }));
 
 export const ScrollableTabs = styled(Tabs)(({ theme }) => ({
-  [theme.breakpoints.down('md')]: {
+  '& .MuiTabs-indicator': {
     display: 'flex',
+    justifyContent: 'center',
+    backgroundColor: theme.palette.text.secondary,
   },
 }));
 
@@ -200,7 +200,7 @@ export const StyledAvatar = styled(Avatar)(({ theme }) => ({
     height: '1.5rem',
   },
   [theme.breakpoints.up('md')]: {
-    width: '2.5rem',
-    height: '2.5rem',
+    width: '2rem',
+    height: '2rem',
   },
 }));

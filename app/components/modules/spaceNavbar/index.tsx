@@ -115,6 +115,7 @@ function SpaceNavbar(props: Props) {
             </Tooltip>
           )}
       </NavbarContainer>
+      <Box sx={{ flex: '1 1 auto' }} />
       <StyledTabs value={tab} onChange={handleTabChange} centered>
         <StyledTab label="Project" data-testid="tBoardTab" />
         <StyledTab label="Consensus" data-testid="tEpochTab" />
@@ -138,7 +139,7 @@ function SpaceNavbar(props: Props) {
             id: 1,
           },
           {
-            label: 'Members',
+            label: 'Settings',
             id: 2,
           },
         ]}
