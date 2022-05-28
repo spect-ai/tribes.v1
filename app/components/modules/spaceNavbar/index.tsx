@@ -139,7 +139,7 @@ function SpaceNavbar(props: Props) {
             id: 1,
           },
           {
-            label: 'Members',
+            label: 'Settings',
             id: 2,
           },
         ]}
