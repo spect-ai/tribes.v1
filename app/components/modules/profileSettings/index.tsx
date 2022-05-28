@@ -386,25 +386,24 @@ function ProfileSettings(props: Props) {
                       twitter,
                     })
                       .then((res: any) => {
-                        user?.set('username', username);
-                        user?.set('website', website);
-                        user?.set('github', github);
-                        user?.set('twitter', twitter);
-
                         setIsOpen(false);
-                        setLoading(false);
                         notify('Profile updated!', 'success');
-                        if (profile.username === username)
+                        if (profile.username === username) {
                           setProfile(
                             Object.assign(profile, {
-                              username,
                               website,
                               github,
                               twitter,
                             })
                           );
-                        else {
+                          user?.set('website', website);
+                          user?.set('github', github);
+                          user?.set('twitter', twitter);
+                          setLoading(false);
+                        } else {
+                          user?.set('username', username);
                           router.push(`/profile/${username}`);
+                          setLoading(false);
                         }
                       })
                       .catch((err: any) => {

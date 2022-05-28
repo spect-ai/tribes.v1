@@ -47,9 +47,7 @@ function ProfileTemplate(props: Props) {
 
   const [sortedCards, setSortedCards] = useState([] as Task[]);
   const [sortedEpochs, setSortedEpochs] = useState([] as Epoch[]);
-  const [website, setWebsite] = useState('');
 
-  console.log(profile);
   useEffect(() => {
     if (profile.epochs) {
       setSortedEpochs(sortByDate(profile.epochs as Epoch[]));
@@ -58,12 +56,6 @@ function ProfileTemplate(props: Props) {
       setSortedCards(sortByDate(profile.cards as Task[]));
     }
   }, [loading]);
-
-  useEffect(() => {
-    if (profile.website) {
-      setWebsite(profile.website);
-    }
-  }, [profile.website]);
 
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -154,11 +146,11 @@ function ProfileTemplate(props: Props) {
                   justifyContent: 'start',
                 }}
               >
-                {website.length > 0 && (
+                {profile.website && (
                   <StyledAnchor>
                     <Link
                       target="_blank"
-                      href={website}
+                      href={profile.website}
                       rel="noopener noreferrer"
                       sx={{
                         color: 'text.secondary',

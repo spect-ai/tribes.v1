@@ -74,11 +74,8 @@ export default function ProfilePage(props: Props) {
       const params = {
         username,
       };
-      console.log('sending request');
       runMoralisFunction('getUserDetailsWithUsername', params)
         .then((res: any) => {
-          console.log('received response');
-          console.log(res);
           setProfile(res as Profile);
           setTheme(createTheme(getTheme(res.theme)));
           setLoading(false);
