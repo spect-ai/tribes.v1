@@ -178,7 +178,7 @@ export const StyledNav = styled('nav')(({ theme }) => ({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  height: '3rem',
+  height: '3.05rem',
   width: '100%',
   paddingTop: '0.4rem',
   borderBottom: `1px solid ${theme.palette.divider}`,

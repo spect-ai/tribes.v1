@@ -1,31 +1,28 @@
 import styled from '@emotion/styled';
-import { Controller, useForm } from 'react-hook-form';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Avatar,
+  Backdrop,
+  Box,
+  CircularProgress,
   Grow,
   IconButton,
+  InputAdornment,
   Modal,
+  styled as MUIStyled,
   TextField,
   Typography,
-  styled as MUIStyled,
-  Backdrop,
-  CircularProgress,
-  Box,
-  InputAdornment,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import CloseIcon from '@mui/icons-material/Close';
-import { useMoralis } from 'react-moralis';
-import SettingsIcon from '@mui/icons-material/Settings';
 // import validator from 'validator';
 import { useRouter } from 'next/router';
-import { PrimaryButton } from '../../elements/styledComponents';
-import { OptionsButton } from '../themePopover';
-import { ButtonText } from '../exploreSidebar';
-import { useGlobal } from '../../../context/globalContext';
-import useProfileInfo from '../../../hooks/useProfileInfo';
+import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useMoralis } from 'react-moralis';
 import { useProfile } from '../../../../pages/profile/[username]';
+import { useGlobal } from '../../../context/globalContext';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import useProfileInfo from '../../../hooks/useProfileInfo';
+import { PrimaryButton } from '../../elements/styledComponents';
 import { notify } from '../settingsTab';
 
 interface EditProfile {
@@ -88,11 +85,18 @@ function ProfileSettings(props: Props) {
   const { profile, setProfile, setLoading } = useProfile();
   const { control } = useForm<EditProfile>();
   const router = useRouter();
-  const [username, setUsername] = useState(profile.username);
+  const [username, setUsername] = useState('');
   const [website, setWebsite] = useState('');
   const [github, setGithub] = useState('');
   const [twitter, setTwitter] = useState('');
-  const [twitterError, setTwitterError] = useState('');
+  const [twitterErrorMessage, setTwitterErrorMessage] = useState('');
+  const [twitterError, setTwitterError] = useState(false);
+  const [websiteErrorMessage, setWebsiteErrorMessage] = useState('');
+  const [websiteError, setWebsiteError] = useState(false);
+  const [githubErrorMessage, setGithubErrorMessage] = useState('');
+  const [githubError, setGithubError] = useState(false);
+  // const socialLinks = new SocialLinks();
+
   const [picture, setPicture] = useState('');
   // const [userEmail, setuserEmail] = useState(user?.get("email"));
   const [isLoading, setIsLoading] = useState(false);
@@ -103,17 +107,28 @@ function ProfileSettings(props: Props) {
   const handleClose = () => setIsOpen(false);
   const { runMoralisFunction } = useMoralisFunction();
 
+  const isValidUrl = (url: string) => {
+    try {
+      // eslint-disable-next-line no-new
+      new URL(url);
+    } catch (e) {
+      return false;
+    }
+    return /https?/.test(url);
+  };
+
   useEffect(() => {
     setPicture(avatar);
   }, [avatar]);
 
   useEffect(() => {
-    console.log(profile);
-    setUsername(profile.username);
-    setWebsite(profile.website);
-    setGithub(profile.github);
-    setTwitter(profile.twitter);
-  }, [profile]);
+    if (isOpen) {
+      setUsername(profile.username);
+      setWebsite(profile.website);
+      setGithub(profile.github);
+      setTwitter(profile.twitter);
+    }
+  }, [isOpen]);
 
   return (
     <>
@@ -213,6 +228,19 @@ function ProfileSettings(props: Props) {
                       placeholder="https://my-website.com"
                       size="small"
                       color="secondary"
+                      error={websiteError}
+                      onBlur={() => {
+                        if (!isValidUrl(website) && website.length !== 0) {
+                          setWebsiteErrorMessage('Invalid URL');
+                          setWebsiteError(true);
+                        } else {
+                          // eslint-disable-next-line no-lone-blocks
+                          {
+                            setWebsiteErrorMessage('');
+                            setWebsiteError(false);
+                          }
+                        }
+                      }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -224,6 +252,9 @@ function ProfileSettings(props: Props) {
                   )}
                 />
               </FieldContainer>
+              <Typography variant="body2" sx={{ color: '#f44336' }}>
+                {websiteErrorMessage}
+              </Typography>
               <FieldContainer>
                 <Controller
                   name="github"
@@ -240,6 +271,22 @@ function ProfileSettings(props: Props) {
                       placeholder="https://github.com/my-github-username"
                       size="small"
                       color="secondary"
+                      error={githubError}
+                      onBlur={() => {
+                        if (
+                          !github.startsWith('https://github.com/') &&
+                          github.length !== 0
+                        ) {
+                          setGithubErrorMessage('Invalid URL');
+                          setGithubError(true);
+                        } else {
+                          // eslint-disable-next-line no-lone-blocks
+                          {
+                            setGithubErrorMessage('');
+                            setGithubError(false);
+                          }
+                        }
+                      }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -251,6 +298,9 @@ function ProfileSettings(props: Props) {
                   )}
                 />
               </FieldContainer>
+              <Typography variant="body2" sx={{ color: '#f44336' }}>
+                {githubErrorMessage}
+              </Typography>
               <FieldContainer>
                 <Controller
                   name="twitter"
@@ -269,9 +319,21 @@ function ProfileSettings(props: Props) {
                       color="secondary"
                       id="standard-error-helper-text"
                       onBlur={() => {
-                        if (!twitter.startsWith('https://twitter.com/'))
-                          setTwitterError('Invalid URL');
+                        if (
+                          !twitter.startsWith('https://twitter.com/') &&
+                          twitter.length !== 0
+                        ) {
+                          setTwitterErrorMessage('Invalid URL');
+                          setTwitterError(true);
+                        } else {
+                          // eslint-disable-next-line no-lone-blocks
+                          {
+                            setTwitterErrorMessage('');
+                            setTwitterError(false);
+                          }
+                        }
                       }}
+                      error={twitterError}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
@@ -283,44 +345,66 @@ function ProfileSettings(props: Props) {
                   )}
                 />
               </FieldContainer>
-              <PrimaryButton
-                data-testid="bUpdateProfile"
-                variant="outlined"
+              <Typography variant="body2" sx={{ color: '#f44336' }}>
+                {twitterErrorMessage}
+              </Typography>
+              <Box
                 sx={{
-                  width: '6rem',
-                  height: '2rem',
-                  mx: 4,
-                  mt: 2,
                   display: 'flex',
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                color="secondary"
-                size="small"
-                onClick={() => {
-                  setLoading(true);
-                  runMoralisFunction('updateProfile', {
-                    username,
-                    website,
-                    github,
-                    twitter,
-                  })
-                    .then((res: any) => {
-                      setIsOpen(false);
-                      notify('Profile updated!', 'success');
-                      router.push(`/profile/${username}`);
-                      // setProfile(Object.assign(profile, res));
-                      setLoading(false);
-                    })
-                    .catch((err: any) => {
-                      notify(err.message, 'error');
-                      setLoading(false);
-                    });
+                  flexDisplay: 'row',
+                  width: '100%',
+                  alignItems: 'end',
+                  justifyContent: 'end',
                 }}
               >
-                Save
-              </PrimaryButton>
+                <PrimaryButton
+                  data-testid="bUpdateProfile"
+                  variant="outlined"
+                  sx={{
+                    width: '6rem',
+                    height: '2rem',
+                    mt: 2,
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                  color="secondary"
+                  size="small"
+                  onClick={() => {
+                    setLoading(true);
+                    runMoralisFunction('updateProfile', {
+                      username,
+                      website,
+                      github,
+                      twitter,
+                    })
+                      .then((res: any) => {
+                        setIsOpen(false);
+                        setLoading(false);
+                        notify('Profile updated!', 'success');
+                        if (profile.username === username)
+                          setProfile(
+                            Object.assign(profile, {
+                              username,
+                              website,
+                              github,
+                              twitter,
+                            })
+                          );
+                        else {
+                          router.push(`/profile/${username}`);
+                        }
+                      })
+                      .catch((err: any) => {
+                        notify(err.message, 'error');
+                        setLoading(false);
+                      });
+                  }}
+                >
+                  Save
+                </PrimaryButton>
+              </Box>
             </ModalContent>
           </ModalContainer>
         </Grow>

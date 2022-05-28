@@ -364,3 +364,18 @@ export function dateDiffInMinutes(d1: Date | null, d2: Date | null) {
   if (d2 && !d1) return Math.floor(d2.getTime() / (60 * 1000));
   if (d2 && d1) return Math.floor((d1.getTime() - d2.getTime()) / (60 * 1000));
 }
+
+export function isValidTwitterUrl(url: string) {
+  const regex = /\/(?:http:\/\/)?(?:www.)?twitter.com\//;
+  return regex.test(url);
+}
+
+export function isValidGithubUrl(url: string) {
+  const regex = /\/(?:http:\/\/)?(?:www.)?github.com\//;
+  return regex.test(url);
+}
+
+export function isValidLinkedinUrl(url: string) {
+  const regex = /\/(?:http:\/\/)?(?:www.)?linkedin.com\//;
+  return regex.test(url);
+}

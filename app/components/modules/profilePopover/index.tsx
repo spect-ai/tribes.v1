@@ -52,7 +52,7 @@ function ProfilePopover({ open, anchorEl, handleClose }: Props) {
           data-testid="bGoToProfile"
           color="inherit"
           onClick={() => {
-            router.push(`/profile/${user?.get('username')}`);
+            if (user) router.push(`/profile/${user.get('username')}`);
           }}
         >
           <PersonIcon />
