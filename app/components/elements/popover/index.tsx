@@ -1,4 +1,4 @@
-import { Box, Popover, Typography, Avatar } from '@mui/material';
+import { Box, Popover, Typography, SxProps, Theme } from '@mui/material';
 import React, { useState } from 'react';
 import CommonAutocomplete from '../autoComplete';
 import CommonTextField from '../textField';
@@ -8,7 +8,7 @@ import { PopoverContainer } from '../../modules/cardModal/styles';
 
 type PopProps = {
   buttonText?: any;
-  buttonsx?: any;
+  buttonsx?: SxProps<Theme> | undefined;
   avatarSrcCallback?: string;
   avatarDefault?: any;
   popoverContent: Array<any>;

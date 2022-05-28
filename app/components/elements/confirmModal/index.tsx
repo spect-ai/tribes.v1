@@ -1,4 +1,4 @@
-import { Box, Grow, styled, Typography } from '@mui/material';
+import { Box, Grow, styled, Typography, SxProps, Theme } from '@mui/material';
 import React, { useState } from 'react';
 import { PrimaryButton, StyledModal } from '../styledComponents';
 
@@ -8,7 +8,7 @@ type Props = {
   buttonText: string;
   modalContent: any;
   runOnConfirm: any;
-  confirmButtonSx?: any;
+  confirmButtonSx?: SxProps<Theme> | undefined;
   confirmButtonColor?:
     | 'inherit'
     | 'primary'

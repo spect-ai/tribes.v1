@@ -17,11 +17,11 @@ type Props = {
   members: string[];
   memberDetails: any;
   placeholder: string;
-  textsx?: object;
+  textsx?: SxProps<Theme> | undefined;
   textVariant?: string;
-  avatarsx?: object;
+  avatarsx?: SxProps<Theme> | undefined;
   boxsx?: SxProps<Theme> | undefined;
-  multiMemberBoxsx?: object;
+  multiMemberBoxsx?: SxProps<Theme> | undefined;
 };
 
 export default function MemberGroupDisplay({
