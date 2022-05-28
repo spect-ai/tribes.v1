@@ -73,6 +73,7 @@ function TribeNavbar(props: Props) {
           </Box>
         )}
       </NavbarContainer>
+      <Box sx={{ flex: '1 1 auto' }} />
       <StyledTabs value={tab} onChange={handleTabChange} centered>
         <StyledTab label="Overview" />
         <StyledTab label="Members" />

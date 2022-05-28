@@ -36,6 +36,7 @@ function ConnectPopover({ open, anchorEl, handleClose }: Props) {
                 authenticate()
                   .then(async () => {
                     await runMoralisFunction('getOrCreateUser', {});
+                    handleClose();
                   })
                   .catch((err) => console.log(err));
               } catch (err) {

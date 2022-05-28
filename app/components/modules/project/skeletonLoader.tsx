@@ -6,7 +6,7 @@ type Props = {};
 
 function ProjectSkeletonLoader(props: Props) {
   return (
-    <Grid container spacing={2} columns={12} sx={{ padding: 8, mt: 4 }}>
+    <Grid container spacing={2} columns={12} sx={{ padding: 8, mt: 4, ml: 16 }}>
       <Grid item xs={3}>
         {Array(5)
           .fill('')
