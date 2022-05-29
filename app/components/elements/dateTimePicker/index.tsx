@@ -37,7 +37,8 @@ function CommonDateTimePicker({
         renderInput={(params) => (
           <TextField {...params} required={false} size={size} />
         )}
-        clearable
+        // # TODO: Fix build error
+        // clearable
       />
     </LocalizationProvider>
   );

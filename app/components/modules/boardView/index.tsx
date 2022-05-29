@@ -26,7 +26,7 @@ const Container = styled.div`
 `;
 
 function BoardView({ handleDragEnd }: Props) {
-  const { setSpace, space, filteredTasks } = useSpace();
+  const { setSpace, space, filteredTasks, filteredColumns } = useSpace();
   const { user } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const router = useRouter();
@@ -44,15 +44,23 @@ function BoardView({ handleDragEnd }: Props) {
               tasks = tasks.filter((element) => {
                 return element !== undefined;
               });
-              return (
-                <ColumnComponent
-                  key={columnId}
-                  column={column}
-                  tasks={tasks}
-                  id={columnId}
-                  index={index}
-                />
-              );
+
+              if (
+                filteredColumns[columnId] !== undefined ||
+                Object.keys(filteredColumns).length === 0
+              ) {
+                return (
+                  <ColumnComponent
+                    key={columnId}
+                    column={column}
+                    tasks={tasks}
+                    id={columnId}
+                    index={index}
+                  />
+                );
+              }
+
+              return false;
             })}
             {provided.placeholder}
             <Button
