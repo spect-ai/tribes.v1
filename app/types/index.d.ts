@@ -305,6 +305,9 @@ export interface Profile {
   github: string;
   twitter: string;
   website: string;
+  bio: string;
+  linkedin: string;
+  skills: string[];
 }
 
 export type TokenInfo = {

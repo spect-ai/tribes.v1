@@ -91,7 +91,7 @@ function FullWidthEpochs({
                   sx={{ mt: '0.5rem', whiteSpace: 'normal' }}
                 >
                   {' '}
-                  {`${spaceDetails[epoch.spaceId].name}`}
+                  {`${spaceDetails[epoch.spaceId]?.name}`}
                 </Typography>
                 <Box
                   sx={{
@@ -105,9 +105,9 @@ function FullWidthEpochs({
                   <Avatar
                     variant="rounded"
                     sx={{ p: 0, m: 0, width: 18, height: 18 }}
-                    src={tribeDetails[spaceDetails[epoch.spaceId].teamId].logo}
+                    src={tribeDetails[spaceDetails[epoch.spaceId]?.teamId].logo}
                   >
-                    {tribeDetails[spaceDetails[epoch.spaceId].teamId].name[0]}
+                    {tribeDetails[spaceDetails[epoch.spaceId]?.teamId].name[0]}
                   </Avatar>
                   <Typography
                     variant="subtitle2"
@@ -115,7 +115,9 @@ function FullWidthEpochs({
                     sx={{ ml: 1 }}
                   >
                     {' '}
-                    {`${tribeDetails[spaceDetails[epoch.spaceId].teamId].name}`}
+                    {`${
+                      tribeDetails[spaceDetails[epoch.spaceId]?.teamId]?.name
+                    }`}
                   </Typography>
                 </Box>
               </Box>

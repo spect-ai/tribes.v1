@@ -178,6 +178,22 @@ function ProfileTemplate(props: Props) {
                     </Link>
                   </StyledAnchor>
                 )}
+                {profile.linkedin && !loading && (
+                  <StyledAnchor>
+                    <Link
+                      target="_blank"
+                      href={profile.linkedin}
+                      rel="noopener noreferrer"
+                      sx={{
+                        color: 'text.secondary',
+                        textAlign: 'right',
+                        fontSize: { xs: 12, lg: 20 },
+                      }}
+                    >
+                      <i className="fab fa-linkedin" />
+                    </Link>
+                  </StyledAnchor>
+                )}
                 {profile.twitter && !loading && (
                   <StyledAnchor>
                     <Link

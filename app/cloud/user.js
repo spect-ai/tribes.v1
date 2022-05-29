@@ -142,6 +142,10 @@ Moralis.Cloud.define('updateProfile', async (request) => {
       request.user.set('website', request.params.website);
       request.user.set('github', request.params.github);
       request.user.set('twitter', request.params.twitter);
+      request.user.set('bio', request.params.bio);
+      request.user.set('skills', request.params.skills);
+      logger.info(`saving ${JSON.stringify(request.user)}`);
+
       await Moralis.Object.saveAll([request.user], {
         useMasterKey: true,
       });
@@ -193,6 +197,8 @@ async function getUserDetailsWithUsername(username) {
         website: 1,
         github: 1,
         twitter: 1,
+        bio: 1,
+        skills: 1,
       },
     },
   ];

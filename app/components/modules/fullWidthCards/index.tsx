@@ -94,7 +94,7 @@ function FullWidthCards({
                   }}
                 >
                   {' '}
-                  {`${spaceDetails[card.spaceId].name}`}
+                  {`${spaceDetails[card.spaceId]?.name}`}
                 </Typography>
                 <Box
                   sx={{
@@ -108,9 +108,13 @@ function FullWidthCards({
                   <Avatar
                     variant="rounded"
                     sx={{ p: 0, m: 0, width: 18, height: 18 }}
-                    src={tribeDetails[spaceDetails[card.spaceId].teamId].logo}
+                    src={
+                      card.spaceId &&
+                      tribeDetails[spaceDetails[card.spaceId]?.teamId]?.logo
+                    }
                   >
-                    {tribeDetails[spaceDetails[card.spaceId].teamId].name[0]}
+                    {card.spaceId &&
+                      tribeDetails[spaceDetails[card.spaceId]?.teamId]?.name[0]}
                   </Avatar>
                   <Typography
                     variant="subtitle2"
@@ -118,7 +122,9 @@ function FullWidthCards({
                     sx={{ ml: 1 }}
                   >
                     {' '}
-                    {`${tribeDetails[spaceDetails[card.spaceId].teamId].name}`}
+                    {`${
+                      tribeDetails[spaceDetails[card.spaceId]?.teamId]?.name
+                    }`}
                   </Typography>
                 </Box>
               </Box>
