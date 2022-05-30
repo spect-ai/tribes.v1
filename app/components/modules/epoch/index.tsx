@@ -31,6 +31,7 @@ import CreateEpoch from './createEpochModal';
 import PayoutContributors from './payoutContributors';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { useGlobal } from '../../../context/globalContext';
+import CreatePeriod from '../createPeriod';
 
 type Props = {};
 
@@ -193,7 +194,7 @@ function EpochList() {
     <Container>
       <Toaster />
       <Box sx={{ width: { xs: '90%', md: '20%' } }}>
-        {space.epochs?.length !== 0 && <CreateEpoch />}
+        {space.epochs?.length !== 0 && <CreatePeriod />}
       </Box>
       <Accordion hidden>
         <AccordionSummary />

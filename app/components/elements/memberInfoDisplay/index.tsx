@@ -15,7 +15,7 @@ import MemberAvatar from '../memberAvatar';
 type Props = {
   member?: Member | Profile;
   placeholder?: string;
-  textsx?: SxProps<Theme> | undefined;
+  textsx?: object;
   textVariant?: string;
   avatarsx?: SxProps<Theme> | undefined;
   boxsx?: SxProps<Theme> | undefined;

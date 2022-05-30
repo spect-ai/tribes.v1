@@ -142,6 +142,7 @@ Moralis.Cloud.define('updateProfile', async (request) => {
       request.user.set('website', request.params.website);
       request.user.set('github', request.params.github);
       request.user.set('twitter', request.params.twitter);
+      request.user.set('linkedin', request.params.linkedin);
       request.user.set('bio', request.params.bio);
       request.user.set('skills', request.params.skills);
       logger.info(`saving ${JSON.stringify(request.user)}`);

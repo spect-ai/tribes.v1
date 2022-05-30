@@ -50,7 +50,7 @@ function TaskCard({ handleClose }: Props) {
   const { updateTitle, updateDescription } = useCardUpdate();
   const [readOnlyDescription, setReadOnlyDescription] = useState(false);
   const { title, setTitle, task } = useCardContext();
-  const { isSpaceSteward, isCardStakeholder } = useAccess(task);
+  const { isSpaceSteward } = useAccess();
   useEffect(() => {
     setReadOnlyDescription(!isCardStewardAndUnpaidCardStatus());
   }, [isCardStewardAndUnpaidCardStatus()]);

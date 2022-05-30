@@ -37,7 +37,7 @@ function OptionsPopover() {
   const { createCard } = useCardCreate();
   const { statusToCode } = useCardStatus();
 
-  const { isSpaceSteward } = useAccess(task);
+  const { isSpaceSteward } = useAccess();
   const duplicateCard = () => {
     handleClose();
     createCard(

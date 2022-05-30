@@ -14,7 +14,7 @@ export default function useCardDynamism() {
     isCardStakeholder,
     isSpaceMember,
     isCardAssignee,
-  } = useAccess(task);
+  } = useAccess();
   const {
     isPaid,
     isClosed,
@@ -32,13 +32,13 @@ export default function useCardDynamism() {
   const [closeButtonView, setCloseButtonView] = useState('hide');
 
   function getPayButtonView() {
-    if (!isCardSteward() || isPaid() || isUnassigned() || hasNoReward())
+    if (!isCardSteward(task) || isPaid() || isUnassigned() || hasNoReward())
       return 'hide';
     return 'show';
   }
 
   function getCloseButtonView() {
-    if (isPaid() || isClosed() || !isCardSteward()) return 'hide';
+    if (isPaid() || isClosed() || !isCardSteward(task)) return 'hide';
     return 'show';
   }
 
@@ -65,17 +65,17 @@ export default function useCardDynamism() {
   };
 
   const isStakeholderAndStatusUnpaid = () => {
-    return (isCardStakeholder() && !isPaid()) as boolean;
+    return (isCardStakeholder(task) && !isPaid()) as boolean;
   };
 
   const isCardStewardAndUnpaidCardStatus = () => {
-    return (isCardSteward() && !isPaid()) as boolean;
+    return (isCardSteward(task) && !isPaid()) as boolean;
   };
 
   const isAssigneeEditable = () => {
     if (isPaid()) return false;
     if (hasAssignee()) {
-      return isCardStakeholder();
+      return isCardStakeholder(task);
     }
     return true;
   };
@@ -84,7 +84,7 @@ export default function useCardDynamism() {
     if (hasAssignee()) {
       return true;
     }
-    return isCardSteward() as boolean;
+    return isCardSteward(task) as boolean;
   };
 
   const isAssignToMeViewable = () => {
@@ -101,7 +101,7 @@ export default function useCardDynamism() {
     if (isBounty()) {
       // No assignee yet
       if (!hasAssignee()) {
-        if (isCardSteward()) {
+        if (isCardSteward(task)) {
           return ['Applicants', 'Activity'];
         }
         if (task.proposals?.length > 0 || proposalEditMode) {
@@ -110,10 +110,10 @@ export default function useCardDynamism() {
         return ['Activity']; // Only return application tab if there are any
       }
       // Card has been assigned
-      if (isCardSteward()) {
+      if (isCardSteward(task)) {
         return ['Submissions', 'Activity', 'Applicants'];
       }
-      if (isCardAssignee()) {
+      if (isCardAssignee(task)) {
         return ['Submissions', 'Activity', 'Application'];
       }
       return ['Activity'];
@@ -134,7 +134,7 @@ export default function useCardDynamism() {
 
   const isApplyButtonViewable = () => {
     if (isBounty()) {
-      if (isCardSteward()) {
+      if (isCardSteward(task)) {
         return false;
       }
       return !hasAssignee() && !hasProposals() && !isPaid() && !isClosed();
@@ -150,7 +150,7 @@ export default function useCardDynamism() {
   };
 
   const isClaimButtonViewable = () => {
-    if (isCardStakeholder() && (isPaid() || isClosed())) {
+    if (isCardStakeholder(task) && (isPaid() || isClosed())) {
       return true;
     }
     return false;

@@ -2,19 +2,19 @@ import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import { Task } from '../types';
 
-export default function useAccess(task: Task) {
+export default function useAccess() {
   const { space } = useSpace();
   const { user } = useMoralis();
 
-  const isCardReviewer = () => {
+  const isCardReviewer = (task: Task) => {
     return task.access?.reviewer;
   };
 
-  const isCardCreator = () => {
+  const isCardCreator = (task: Task) => {
     return task?.access?.creator;
   };
 
-  const isCardAssignee = () => {
+  const isCardAssignee = (task: Task) => {
     return task?.access?.assignee;
   };
 
@@ -27,12 +27,12 @@ export default function useAccess(task: Task) {
   const isSpaceMember = () => {
     return (user?.id && space.roles[user?.id] === 1) || isSpaceContributor();
   };
-  const isCardSteward = () => {
-    return isCardReviewer() || isSpaceSteward();
+  const isCardSteward = (task: Task) => {
+    return isCardReviewer(task) || isSpaceSteward();
   };
 
-  const isCardStakeholder = () => {
-    return isCardSteward() || isCardAssignee() || isCardCreator();
+  const isCardStakeholder = (task: Task) => {
+    return isCardSteward(task) || isCardAssignee(task) || isCardCreator(task);
   };
 
   return {
