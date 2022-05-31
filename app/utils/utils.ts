@@ -359,8 +359,11 @@ export function getEthAddresses(
 
 // eslint-disable-next-line consistent-return
 export function dateDiffInMinutes(d1: Date | null, d2: Date | null) {
-  if (!d1 && !d2) return 0;
-  if (d1 && !d2) return Math.floor(d1.getTime() / (60 * 1000));
-  if (d2 && !d1) return Math.floor(d2.getTime() / (60 * 1000));
-  if (d2 && d1) return Math.floor((d1.getTime() - d2.getTime()) / (60 * 1000));
+  if (!d1?.getTime() && !d2?.getTime()) return 0;
+  if (d1?.getTime() && !d2?.getTime())
+    return Math.floor(d1.getTime() / (60 * 1000));
+  if (d2?.getTime() && !d1?.getTime())
+    return Math.floor(d2.getTime() / (60 * 1000));
+  if (d2?.getTime() && d1?.getTime())
+    return Math.floor((d1.getTime() - d2.getTime()) / (60 * 1000));
 }
