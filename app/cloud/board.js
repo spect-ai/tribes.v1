@@ -846,6 +846,7 @@ Moralis.Cloud.define('generateInviteLink', async (request) => {
 });
 
 Moralis.Cloud.define('joinSpaceFromInvite', async (request) => {
+  const logger = Moralis.Cloud.getLogger();
   log(
     request.user?.id,
     `Calling joinSpaceFromInvite on space ${request.params.boardId}`,
@@ -868,15 +869,21 @@ Moralis.Cloud.define('joinSpaceFromInvite', async (request) => {
     }
     const tribe = await getTribeByTeamId(board.get('teamId'));
     const userInfo = await getUserByUserId(request.user.id);
+    logger.info('usser info is ' + JSON.stringify(userInfo));
     if (checkIfUserInviteValid(invite)) {
+      logger.info(`inside checkIfUserInviteValid`);
       invite.set('uses', invite.get('uses') - 1);
       let boardRoles = board.get('roles');
       let tribeRoles = tribe.get('roles');
+      logger.info(`inside checkIfUserInviteValid2`);
+
       boardRoles[request.user.id] = invite.get('role');
       board.set('members', board.get('members').concat(request.user.id));
       board.set('roles', boardRoles);
       if (!tribe.get('members').includes(request.user.id)) {
         tribe.set('members', tribe.get('members').concat(request.user.id));
+        logger.info(`inside checkIfUserInviteValid3`);
+
         tribeRoles[request.user.id] = 1;
         tribe.set('roles', tribeRoles);
         userInfo.set(

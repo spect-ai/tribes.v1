@@ -150,37 +150,41 @@ function SpaceSettings(props: Props) {
             </Box>
           </Item>
         </Grid>
-        <Grid item xs={8} md={9} lg={9}>
-          <Item>
+        <Grid item xs={12} md={9} lg={9}>
+          <Item sx={{ height: '30rem', overflowY: 'auto' }}>
             <TabPanel value={value} index={0}>
-              Space Profile
-              <Box m={2} pt={3}>
-                <TextField
-                  label="Space Name"
-                  placeholder="Space Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  fullWidth
-                  color="secondary"
-                />
-              </Box>
-              <Box m={2} pt={3}>
-                <TextField
-                  label="About"
-                  placeholder="Space Description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  fullWidth
-                  color="secondary"
-                />
+              <Box sx={{ width: '50%' }}>
+                Space Profile
+                <Box m={2} pt={3}>
+                  <TextField
+                    label="Space Name"
+                    placeholder="Space Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    fullWidth
+                    color="secondary"
+                  />
+                </Box>
+                <Box m={2} pt={3}>
+                  <TextField
+                    label="About"
+                    placeholder="Space Description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    fullWidth
+                    color="secondary"
+                  />
+                </Box>
               </Box>
             </TabPanel>
             <TabPanel value={value} index={1}>
-              <SpaceMembers />
+              <Box sx={{ width: '50%' }}>
+                <SpaceMembers />
+              </Box>
             </TabPanel>
             <TabPanel value={value} index={2}>
-              Integrations
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              <Box sx={{ width: '50%' }}>
+                <Typography>Integrations</Typography>
                 <a
                   href={`https://github.com/apps/spect-github-bot/installations/new?state=${space.objectId}`}
                   target="_blank"
@@ -193,17 +197,16 @@ function SpaceSettings(props: Props) {
                     startIcon={<GitHub />}
                     variant="outlined"
                     color="secondary"
-                    size="small"
+                    fullWidth
+                    sx={{ my: 2 }}
                   >
-                    <Typography>
-                      {space.githubRepos?.length > 0
-                        ? 'Github Connected'
-                        : 'Connect Github'}
-                    </Typography>
+                    {space.githubRepos?.length > 0
+                      ? 'Github Connected'
+                      : 'Connect Github'}
                   </PrimaryButton>
                 </a>
                 {space.team && !space.team[0].guildId ? (
-                  <Box sx={{ mt: 2 }}>
+                  <Box sx={{ mt: 4 }}>
                     <ConnectDiscord entity="space" />
                   </Box>
                 ) : (
@@ -227,15 +230,17 @@ function SpaceSettings(props: Props) {
               </Box>
             </TabPanel>
             <TabPanel value={value} index={3}>
-              <Typography>
-                Default payment for all the new tasks created
-              </Typography>
-              <DefaultPaymentForm
-                chain={defaultChain}
-                setChain={setDefaultChain}
-                token={defaultToken}
-                setToken={setDefaultToken}
-              />
+              <Box sx={{ width: '50%' }}>
+                <Typography>
+                  Default payment for all the new tasks created
+                </Typography>
+                <DefaultPaymentForm
+                  chain={defaultChain}
+                  setChain={setDefaultChain}
+                  token={defaultToken}
+                  setToken={setDefaultToken}
+                />
+              </Box>
             </TabPanel>
           </Item>
           <Box
