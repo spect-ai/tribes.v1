@@ -1,7 +1,6 @@
 import { Avatar, AvatarGroup, Tooltip, Box } from '@mui/material';
 import React from 'react';
 import useProfileInfo from '../../../hooks/useProfileInfo';
-import { Member } from '../../../types';
 import MemberInfoDisplay from '../memberInfoDisplay';
 
 type Props = {

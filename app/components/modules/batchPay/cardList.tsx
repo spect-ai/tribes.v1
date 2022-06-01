@@ -19,10 +19,12 @@ import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { useGlobal } from '../../../context/globalContext';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import useERC20 from '../../../hooks/useERC20';
 import { PrimaryButton } from '../../elements/styledComponents';
 import { notify } from '../settingsTab';
 import { useWalletContext } from '../../../context/WalletContext';
 import { capitalizeFirstLetter } from '../../../utils/utils';
+import { PaymentInfo } from '../../../types';
 
 type Props = {
   handleClose: Function;
@@ -37,8 +39,9 @@ function CardList({ handleClose, setPaymentInfo, handleNextStep }: Props) {
   const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const { runMoralisFunction } = useMoralisFunction();
+  const { user } = useMoralis();
+  const { areApproved } = useERC20();
   const { networkVersion, chainIdHex } = useWalletContext();
-  console.log(chainIdHex);
   const getValidCardIds = (columnId: string) => {
     const cardIds = space.columns[columnId].taskIds.filter((taskId) => {
       return space.tasks[taskId];
@@ -218,10 +221,39 @@ function CardList({ handleClose, setPaymentInfo, handleNextStep }: Props) {
                 .distributorAddress as string,
               chainIdHex,
             })
-              .then((res: any) => {
-                setPaymentInfo(res);
-                setIsLoading(false);
-                handleNextStep(res);
+              .then((paymentInfo: PaymentInfo) => {
+                if (user) {
+                  areApproved(
+                    paymentInfo.tokens.tokenAddresses,
+                    registry[networkVersion].distributorAddress as string,
+                    paymentInfo.tokens.tokenValues,
+                    user?.get('ethAddress')
+                  )
+                    .then((res) => {
+                      if (res[0].length > 0) {
+                        // eslint-disable-next-line no-param-reassign
+                        paymentInfo.approval = {
+                          required: true,
+                          uniqueTokenAddresses: res[0] as string[],
+                          aggregatedTokenValues: res[1] as number[],
+                        };
+                      }
+                      setPaymentInfo(paymentInfo);
+                      setIsLoading(false);
+                      handleNextStep(paymentInfo);
+                    })
+                    .catch((err) => {
+                      console.log(err);
+                      notify(
+                        'There was some error while getting token approval info',
+                        'error'
+                      );
+                      setIsLoading(false);
+                    });
+                } else {
+                  notify('You must be logged in to use this feature', 'error');
+                  setIsLoading(false);
+                }
               })
               .catch((err: any) => notify(err.message, 'error'));
           }}

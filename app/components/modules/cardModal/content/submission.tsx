@@ -25,6 +25,7 @@ import { useCardContext } from '..';
 import { Block } from '../../../../types';
 import { notify } from '../../settingsTab';
 import GithubPRPopover from '../../../elements/githubPRPopover';
+import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 
 // @ts-ignore
 const ModalContainer = MUIStyled(Box)(({ theme }) => ({
@@ -48,7 +49,7 @@ const ModalContent = MUIStyled('div')(({ theme }) => ({
 
 function Submission() {
   const { task, loading } = useCardContext();
-
+  const { space } = useSpace();
   const { isCardSteward, isCardAssignee } = useAccess(task);
   const {
     isAssigned,
@@ -91,7 +92,7 @@ function Submission() {
         (isInReview() || isInRevision() || isClosed() || isPaid())) ||
         isCardAssignee()) && (
         <>
-          <GithubPRPopover />
+          {space.githubRepos?.length > 0 && <GithubPRPopover />}
           <Editor
             syncBlocksToMoralis={handleSubmissionSave}
             initialBlock={
