@@ -47,6 +47,23 @@ function ProfilePopover({ open, anchorEl, handleClose }: Props) {
             <ButtonText>Link Discord</ButtonText>
           </OptionsButton>
         )}
+        {!user?.get('github') && (
+          <OptionsButton
+            color="inherit"
+            onClick={() => {
+              router.push(
+                `https://github.com/login/oauth/authorize?client_id=2838cb949f5485e3edb4&redirect_uri=${
+                  process.env.DEV_ENV === 'local'
+                    ? 'http%3A%2F%2Flocalhost%3A3000%2F'
+                    : 'https%3A%2F%2Ftribes.spect.network%2F'
+                }&state=${user?.id}`
+              );
+            }}
+          >
+            <i className="fa-brands fa-github" />
+            <ButtonText>Link GitHub</ButtonText>
+          </OptionsButton>
+        )}
         <ProfileSettings />
         <OptionsButton
           data-testid="bLogoutButton"
