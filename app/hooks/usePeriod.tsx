@@ -3,9 +3,13 @@ import { useSpace } from '../../pages/tribe/[id]/space/[bid]';
 import { Chain, Task, Token } from '../types';
 import useMoralisFunction from './useMoralisFunction';
 import { notify } from '../components/modules/settingsTab';
+import { useRetro } from '../components/modules/retro';
 
 export default function usePeriod() {
-  const { space, setSpace, setRefreshEpochs, handleTabChange } = useSpace();
+  const { space, setSpace, handleTabChange } = useSpace();
+  const { setIsLoading, periods, setPeriods, setIsCreateModalOpen } =
+    useRetro();
+
   const { runMoralisFunction } = useMoralisFunction();
 
   const createPeriod = (
@@ -21,6 +25,7 @@ export default function usePeriod() {
     isRecurring: boolean,
     recurringPeriod: number
   ) => {
+    setIsLoading(true);
     runMoralisFunction('createPeriod', {
       teamId: space.teamId,
       spaceId: space.objectId,
@@ -38,15 +43,24 @@ export default function usePeriod() {
       recurringPeriod,
     })
       .then((res: any) => {
-        setRefreshEpochs(true);
         handleTabChange({} as any, 1);
+        setIsCreateModalOpen(false);
+        console.log(res);
+        setPeriods(res);
         notify('Created retro period!', 'success');
+        setIsLoading(false);
       })
       .catch((err: any) => {
         console.log(err);
         notify(err.message, 'error');
+        setIsLoading(false);
       });
   };
 
-  return { createPeriod };
+  async function loadPeriods(spaceId: string) {
+    const retroPeriods = await runMoralisFunction('getPeriods', { spaceId });
+    return retroPeriods;
+  }
+
+  return { createPeriod, loadPeriods };
 }

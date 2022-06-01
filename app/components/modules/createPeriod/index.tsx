@@ -19,6 +19,7 @@ import AdvancedFields from './advancedFields';
 import BasicFields from './basicFields';
 import MemberBudgetFields from './members';
 import { Chain, Registry, Token } from '../../../types';
+import { useRetro } from '../retro';
 
 type Props = {};
 
@@ -53,8 +54,10 @@ function CreatePeriod(props: Props) {
   const { space } = useSpace();
   const { state } = useGlobal();
   const { createPeriod } = usePeriod();
+
   const { registry } = state;
-  const [isOpen, setIsOpen] = useState(false);
+  const { isCreateModalOpen, setIsCreateModalOpen } = useRetro();
+  // const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isNextDisabled, setIsNextDisabled] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
@@ -83,7 +86,7 @@ function CreatePeriod(props: Props) {
   );
 
   const handleClose = () => {
-    setIsOpen(false);
+    setIsCreateModalOpen(false);
   };
 
   const handleNextStep = () => {
@@ -142,14 +145,14 @@ function CreatePeriod(props: Props) {
           color="secondary"
           endIcon={<RedeemIcon />}
           onClick={() => {
-            setIsOpen(true);
+            setIsCreateModalOpen(true);
           }}
           sx={{ borderRadius: 1, my: 2 }}
         >
           Start a retro period
         </PrimaryButton>
       )}
-      <Modal open={isOpen} onClose={handleClose}>
+      <Modal open={isCreateModalOpen} onClose={handleClose}>
         <ModalContainer>
           <Stepper activeStep={activeStep} sx={{ mb: 6 }}>
             {steps.map((label: any, index: number) => {
@@ -164,7 +167,7 @@ function CreatePeriod(props: Props) {
               );
             })}
           </Stepper>
-          {activeStep === 0 && isOpen && !isLoading && (
+          {activeStep === 0 && isCreateModalOpen && !isLoading && (
             <BasicFields
               handleClose={handleClose}
               handleNextStep={handleNextStep}
@@ -175,7 +178,7 @@ function CreatePeriod(props: Props) {
               setDescription={setDescription}
             />
           )}
-          {activeStep === 1 && isOpen && !isLoading && (
+          {activeStep === 1 && isCreateModalOpen && !isLoading && (
             <MemberBudgetFields
               chain={chain}
               setChain={setChain}
@@ -191,7 +194,7 @@ function CreatePeriod(props: Props) {
               setIsNextDisabled={setIsNextDisabled}
             />
           )}
-          {activeStep === 2 && isOpen && (
+          {activeStep === 2 && isCreateModalOpen && (
             <AdvancedFields
               strategy={strategy}
               setStrategy={setStrategy}

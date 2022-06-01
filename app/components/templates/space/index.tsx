@@ -11,6 +11,7 @@ import EpochList from '../../modules/epoch';
 import NoAccess from '../../modules/epoch/noAccess';
 import ProjectSkeletonLoader from '../../modules/project/skeletonLoader';
 import SpaceSettings from '../../modules/spaceSettings';
+import Retro from '../../modules/retro';
 
 type Props = {};
 
@@ -70,7 +71,7 @@ function BoardsTemplate(props: Props) {
           {tab === 1 && (
             <Grow in={tab === 1} timeout={500}>
               <div>
-                {user && user?.id in space.roles ? <EpochList /> : <NoAccess />}
+                {user && user?.id in space.roles ? <Retro /> : <NoAccess />}
               </div>
             </Grow>
           )}

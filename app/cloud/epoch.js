@@ -10,20 +10,6 @@ async function getEpochParseObjByObjectId(objectId) {
   return await epochQuery.first({ useMasterKey: true });
 }
 
-async function getEpochsBySpaceId(spaceId, callerId) {
-  const epochQuery = new Moralis.Query('Epoch');
-  const pipeline = [{ match: { spaceId: spaceId, archived: { $ne: true } } }];
-  var epochs = await epochQuery.aggregate(pipeline, { useMasterKey: true });
-  for (var epoch of epochs) {
-    if (callerId in epoch.memberStats) {
-      epoch.votesGivenByCaller = epoch.memberStats[callerId].votesGiven;
-      epoch.votesAllocated = epoch.memberStats[callerId].votesAllocated;
-      epoch.votesRemaining = epoch.memberStats[callerId].votesRemaining;
-    }
-  }
-  return epochs.reverse();
-}
-
 async function getEpochByObjectId(objectId, callerId) {
   const epochQuery = new Moralis.Query('Epoch');
   const pipeline = [{ match: { objectId: objectId } }];
@@ -190,53 +176,6 @@ Moralis.Cloud.define('endEpoch', async (request) => {
       'error'
     );
     throw `Error while ending epoch ${request.params.epochId}: ${err}`;
-  }
-});
-
-async function getEpochs(spaceId, userId) {
-  try {
-    const epochs = await getEpochsBySpaceId(spaceId, userId);
-
-    var taskIds = [];
-    for (var epoch of epochs) {
-      if (epoch.type === 'Card') {
-        logger.info(`choices ${JSON.stringify(epoch.choices)}`);
-
-        taskIds = taskIds.concat(epoch.choices);
-      }
-    }
-    logger.info(`taskIds ${JSON.stringify(taskIds)}`);
-
-    const taskDetails = await getTaskObjsByTaskIds(taskIds);
-    logger.info(`taskDetails ${JSON.stringify(taskDetails)}`);
-
-    var mappedTaskDetails = {};
-    for (var task of taskDetails) {
-      mappedTaskDetails[task.taskId] = task;
-    }
-    logger.info(`mappedTaskDetails ${JSON.stringify(mappedTaskDetails)}`);
-    return { epochs: epochs, taskDetails: mappedTaskDetails };
-  } catch (err) {
-    logger.error(`Error while getting epochs for space ${spaceId}: ${err}`);
-    throw `Error while getting epochs ${err}`;
-  }
-}
-
-Moralis.Cloud.define('getEpochs', async (request) => {
-  log(
-    request.user?.id,
-    `Calling getEpochs on epoch ${request.params.epochId}`,
-    'info'
-  );
-  try {
-    return await getEpochs(request.params.spaceId, request.user.id);
-  } catch (err) {
-    log(
-      request.user?.id,
-      `Failure in getEpochs for epoch id ${request.params.epochId}: ${err}`,
-      'error'
-    );
-    throw err;
   }
 });
 

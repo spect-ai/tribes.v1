@@ -174,6 +174,7 @@ function EpochList() {
       setRefreshEpochs(false);
     }
   }, [refreshEpochs]);
+
   useEffect(() => {
     setIsLoading(true);
     loadEpochs();
