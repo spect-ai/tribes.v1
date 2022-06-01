@@ -164,7 +164,9 @@ Moralis.Cloud.define('getOrCreateUser', async (request) => {
   const logger = Moralis.Cloud.getLogger();
   try {
     var userInfo = await getUserByUserId(request.user.id);
+    logger.info('UserInfo found for userId: ' + request.user.id);
     if (!userInfo) {
+      logger.info('UserInfo not found for userId: ');
       var userCount = await getUserCount();
       userInfo = new Moralis.Object('UserInfo');
       userInfo = await getCreatedUser(
