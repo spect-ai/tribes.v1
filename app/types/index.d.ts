@@ -58,6 +58,7 @@ export type Member = {
   value: number;
   discordId: string;
   avatar: string;
+  githubId: string;
 };
 
 export type MemberStats = {
@@ -310,6 +311,7 @@ export type CurrentUser = {
   avatar: string;
   createdAt: string;
   is_discord_linked: boolean;
+  is_github_linked: boolean;
   objectId: string;
   tribes: string[];
   updatedAt: string;
@@ -318,6 +320,7 @@ export type CurrentUser = {
   userId: string;
   email: string;
   discordId: string;
+  githubId: string;
 };
 
 export type ApprovalInfo = {

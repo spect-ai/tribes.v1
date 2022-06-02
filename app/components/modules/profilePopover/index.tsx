@@ -47,7 +47,7 @@ function ProfilePopover({ open, anchorEl, handleClose }: Props) {
             <ButtonText>Link Discord</ButtonText>
           </OptionsButton>
         )}
-        {!user?.get('github') && (
+        {!user?.get('githubId') && (
           <OptionsButton
             color="inherit"
             onClick={() => {

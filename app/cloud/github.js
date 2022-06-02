@@ -33,8 +33,9 @@ Moralis.Cloud.define('linkGithubUser', async (request) => {
     if (!userInfo) {
       throw 'User not found in userinfo table';
     }
-    userInfo.set('github', res.data.github);
-    request.user.set('github', res.data.github);
+    userInfo.set('githubId', res.data.github);
+    userInfo.set('is_github_linked', true);
+    request.user.set('githubId', res.data.github);
 
     await Moralis.Object.saveAll([userInfo, request.user], {
       useMasterKey: true,
