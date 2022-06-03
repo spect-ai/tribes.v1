@@ -33,7 +33,7 @@ export default function usePeriod() {
       description,
       duration: duration * 86400000, // convert days to milliseconds
       strategy,
-      budget: value,
+      value,
       startTime: Date.now(),
       token,
       chain,
@@ -62,5 +62,20 @@ export default function usePeriod() {
     return retroPeriods;
   }
 
-  return { createPeriod, loadPeriods };
+  async function archiveEpoch(epochId: string, spaceId: string) {
+    runMoralisFunction('archiveEpoch', {
+      epochId,
+      spaceId,
+    })
+      .then((res: any) => {
+        setPeriods(res);
+        setIsLoading(false);
+      })
+      .catch((err: any) => {
+        notify(`There was an error while archiving the epoch.`, 'error');
+        setIsLoading(false);
+      });
+  }
+
+  return { createPeriod, loadPeriods, archiveEpoch };
 }

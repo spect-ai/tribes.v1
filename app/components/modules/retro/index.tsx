@@ -19,6 +19,7 @@ import { notify } from '../settingsTab';
 import { Chip } from '../task';
 import MemberAvatarGroup from '../../elements/memberAvatarGroup';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import RetroModal from './retroModal';
 
 interface RetroContextType {
   periods: Epoch[];
@@ -100,26 +101,19 @@ const RetroItem = styled.div<{
   }
 `;
 
-const AvatarContainer = styled.div`
-  @media only screen and (min-width: 0px) {
-    width: 10%;
-  }
-  @media only screen and (min-width: 768px) {
-    width: 5%;
-  }
-  display: flex;
-  justify-content: center;
-`;
-
 function ViewRetro() {
-  const context = useProviderRetro();
-  const router = useRouter();
-  const { loadPeriods } = usePeriod();
-  const { isLoading, setIsLoading, periods, setPeriods } = context;
-  const spaceId = router.query.bid as string;
-  const [isOpen, setIsOpen] = useState(false);
   const { palette } = useTheme();
   const { space } = useSpace();
+  const { loadPeriods } = usePeriod();
+  const context = useProviderRetro();
+  const { isLoading, setIsLoading, periods, setPeriods } = context;
+  const router = useRouter();
+  const spaceId = router.query.bid as string;
+  const [isOpen, setIsOpen] = useState(false);
+  const [openPeriod, setOpenPeriod] = useState<Epoch>();
+  const handleModalClose = () => {
+    setIsOpen(false);
+  };
 
   useEffect(() => {
     setIsLoading(true);
@@ -156,7 +150,10 @@ function ViewRetro() {
         {periods.map((period) => (
           <RetroItem
             palette={palette}
-            onClick={() => setIsOpen(true)}
+            onClick={() => {
+              setOpenPeriod(period);
+              setIsOpen(true);
+            }}
             isDragging={false}
           >
             <Typography
@@ -229,6 +226,14 @@ function ViewRetro() {
           </RetroItem>
         ))}
       </Container>
+      {isOpen && (
+        <RetroModal
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          handleClose={handleModalClose}
+          period={openPeriod as Epoch}
+        />
+      )}
     </RetroContext.Provider>
   );
 }

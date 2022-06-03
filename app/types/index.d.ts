@@ -204,6 +204,7 @@ export interface Epoch {
   epochNumber: number;
   active: boolean;
   name: string;
+  description: string;
   votesGivenByCaller: Object<string, number>;
   votesRemaining: number;
   votesAllocated: number;

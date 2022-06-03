@@ -204,3 +204,47 @@ export const StyledAvatar = styled(Avatar)(({ theme }) => ({
     height: '2rem',
   },
 }));
+
+export const StylishTab = styled((props: StyledTabProps) => (
+  <Tab disableRipple {...props} />
+))(({ theme }) => ({
+  minHeight: '2.8rem !important',
+  height: '2.8rem !important',
+  textTransform: 'none',
+  fontWeight: theme.typography.fontWeightRegular,
+  fontSize: theme.typography.pxToRem(14),
+  margin: '0rem !important',
+  padding: '0rem !important',
+  color: 'rgba(255, 255, 255, 0.6)',
+  '&.Mui-selected': {
+    color: theme.palette.text.primary,
+  },
+  '&.Mui-focusVisible': {
+    backgroundColor: 'rgba(100, 95, 228, 0.32)',
+  },
+}));
+
+export const StylishTabs = styled((props: StyledTabsProps) => (
+  <Tabs
+    {...props}
+    TabIndicatorProps={{ children: <span className="MuiTabs-indicatorSpan" /> }}
+  />
+))(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  '& .MuiTabs-indicator': {
+    display: 'flex',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  '& .MuiTabs-indicatorSpan': {
+    maxWidth: 70,
+    width: '100%',
+    backgroundColor: theme.palette.primary.light,
+  },
+  [theme.breakpoints.down('md')]: {
+    display: 'none',
+  },
+}));
