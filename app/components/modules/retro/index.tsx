@@ -217,7 +217,7 @@ function ViewRetro() {
                 </Tooltip>
               )}
               <MemberAvatarGroup
-                memberIds={Object.keys(period.memberStats)}
+                memberIds={period.choices}
                 memberDetails={space.memberDetails}
                 maxAvatars={6}
                 avatarGroupsx={{ ml: '1rem' }}

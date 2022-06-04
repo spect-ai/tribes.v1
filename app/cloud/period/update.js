@@ -16,7 +16,7 @@ function getTotalVotesGiven(votesGiven, strategy) {
 Moralis.Cloud.define('saveVotesAndFeedback', async (request) => {
   log(
     request.user?.id,
-    `Calling saveVotes on epoch ${request.params.epochId}`,
+    `Calling saveVotesAndFeedback on epoch ${request.params.epochId}`,
     'info'
   );
   try {
@@ -68,4 +68,36 @@ Moralis.Cloud.define('saveVotesAndFeedback', async (request) => {
     );
     throw `Error while saving votes ${err}`;
   }
+});
+
+Moralis.Cloud.define('saveTitle', async (request) => {
+  log(
+    request.user?.id,
+    `Calling saveTitle on epoch ${request.params.epochId}`,
+    'info'
+  );
+});
+
+Moralis.Cloud.define('saveDescription', async (request) => {
+  log(
+    request.user?.id,
+    `Calling saveDescription on epoch ${request.params.epochId}`,
+    'info'
+  );
+});
+
+Moralis.Cloud.define('saveReward', async (request) => {
+  log(
+    request.user?.id,
+    `Calling saveVotes on epoch ${request.params.epochId}`,
+    'info'
+  );
+});
+
+Moralis.Cloud.define('saveDeadline', async (request) => {
+  log(
+    request.user?.id,
+    `Calling saveVotes on epoch ${request.params.epochId}`,
+    'info'
+  );
 });
