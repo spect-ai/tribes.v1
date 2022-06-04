@@ -147,7 +147,7 @@ function ViewRetro() {
         <Box sx={{ width: { xs: '90%', md: '20%' } }}>
           {periods?.length !== 0 && <CreatePeriod />}
         </Box>
-        {periods.map((period) => (
+        {periods?.map((period) => (
           <RetroItem
             palette={palette}
             onClick={() => {
@@ -229,9 +229,8 @@ function ViewRetro() {
       {isOpen && (
         <RetroModal
           isOpen={isOpen}
-          setIsOpen={setIsOpen}
           handleClose={handleModalClose}
-          period={openPeriod as Epoch}
+          openPeriod={openPeriod as Epoch}
         />
       )}
     </RetroContext.Provider>

@@ -27,11 +27,7 @@ function OptionsPopover({ period, handleModalClose }: Props) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const openPopover = () => (event: React.MouseEvent<HTMLButtonElement>) => {
-    console.log('sdsd');
-
     setAnchorEl(event.currentTarget);
-    console.log('sdsd');
-
     setIsPopoverOpen(true);
   };
   const handleClose = () => {

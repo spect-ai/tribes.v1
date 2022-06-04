@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, createContext, useEffect, useContext } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
-import RateReviewIcon from '@mui/icons-material/RateReview';
 import {
   Modal,
   styled,
@@ -22,12 +21,113 @@ import {
 } from '@mui/material';
 import SkeletonLoader from './skeletonLoader';
 import { useRetro } from '.';
-import { Epoch } from '../../../types';
+import { Epoch, MemberStats } from '../../../types';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { useTribe } from '../../../../pages/tribe/[id]';
 import { useGlobal } from '../../../context/globalContext';
-import { StyledTab, StyledTabs } from '../../elements/styledComponents';
+import {
+  PrimaryButton,
+  StyledTab,
+  StyledTabs,
+} from '../../elements/styledComponents';
 import OptionsPopover from './optionsPopover';
+import Choices from './choices';
+
+interface SingleRetroContextType {
+  period: Epoch;
+  setPeriod: (periods: Epoch) => void;
+  isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
+  name: string;
+  setName: (name: string) => void;
+  description: string;
+  setDescription: (description: string) => void;
+  votesGiven: any;
+  setVotesGiven: (votesGiven: any) => void;
+  votesRemaining: any;
+  setVotesRemaining: (votesRemaining: any) => void;
+  feedbackReceived: any;
+  setFeedbackReceived: (feedbackReceived: any) => void;
+  feedbackGiven: any;
+  choices: string[];
+  setFeedbackGiven: (feedbackGiven: any) => void;
+  handleFeedbackUpdate: Function;
+  handleVotesUpdate: Function;
+}
+
+const SingleRetroContext = createContext<SingleRetroContextType>(
+  {} as SingleRetroContextType
+);
+
+function useProviderSingleRetro() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [period, setPeriod] = useState<Epoch>({} as Epoch);
+  const [name, setName] = useState(period?.name || '');
+  const [description, setDescription] = useState(period?.description || '');
+  const [votesGiven, setVotesGiven] = useState({} as any);
+  const [votesRemaining, setVotesRemaining] = useState(0);
+  const [feedbackReceived, setFeedbackReceived] = useState({} as any);
+  const [feedbackGiven, setFeedbackGiven] = useState({} as any);
+  const [choices, setChoices] = useState(period?.choices || []);
+  const handleFeedbackUpdate = (memberId: string, feedback: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const temp = { ...feedbackGiven }; // Shallow copy
+    temp[memberId] = feedback;
+    setFeedbackGiven(temp);
+  };
+
+  const handleVotesUpdate = (choiceId: string, vote: number) => {
+    const val = vote || 0;
+    const votesObj = {} as any;
+    votesObj[choiceId] = val;
+    if (period.strategy?.toUpperCase() === 'QUADRATIC VOTING') {
+      setVotesRemaining(votesRemaining - val ** 2 + votesGiven[choiceId] ** 2);
+    } else if (period.strategy?.toUpperCase() === 'NORMAL VOTING') {
+      setVotesRemaining(votesRemaining - val + votesGiven[choiceId]);
+    }
+    const temp = { ...votesGiven }; // Shallow copy
+    temp[choiceId] = val;
+    setVotesGiven(temp);
+  };
+
+  useEffect(() => {
+    if (period && Object.keys(period)?.length !== 0) {
+      setIsLoading(true);
+      setName(period.name);
+      setDescription(period.description);
+      setVotesGiven(period.votesGivenByCaller);
+      setVotesRemaining(period.votesRemaining);
+      setFeedbackReceived(period.feedbackReceived);
+      setFeedbackGiven(period.feedbackGiven);
+      setChoices(period.choices);
+      setIsLoading(false);
+    }
+  }, [period]);
+
+  return {
+    isLoading,
+    setIsLoading,
+    period,
+    setPeriod,
+    name,
+    setName,
+    description,
+    setDescription,
+    votesGiven,
+    setVotesGiven,
+    votesRemaining,
+    setVotesRemaining,
+    feedbackReceived,
+    setFeedbackReceived,
+    feedbackGiven,
+    setFeedbackGiven,
+    handleFeedbackUpdate,
+    handleVotesUpdate,
+    choices,
+  };
+}
+
+export const useSingleRetro = () => useContext(SingleRetroContext);
 
 export const ModalContainer = styled(Box)(({ theme }) => ({
   position: 'absolute' as 'absolute',
@@ -60,17 +160,25 @@ export const ModalContainer = styled(Box)(({ theme }) => ({
 
 type Props = {
   isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
   handleClose: () => void;
-  period: Epoch;
+  openPeriod: Epoch;
 };
 
-function RetroModal({ handleClose, isOpen, setIsOpen, period }: Props) {
+function RetroModal({ handleClose, isOpen, openPeriod }: Props) {
   const { space } = useSpace();
   const { tribe } = useTribe();
-  const [name, setName] = useState('Jojo');
-  const [description, setDescription] = useState('Jojxxxxxo');
-  const [isLoading, setIsLoading] = useState(false);
+  const context = useProviderSingleRetro();
+  const {
+    isLoading,
+    setIsLoading,
+    period,
+    setPeriod,
+    name,
+    setName,
+    description,
+    setDescription,
+  } = context;
+
   const {
     state: { registry },
   } = useGlobal();
@@ -78,163 +186,99 @@ function RetroModal({ handleClose, isOpen, setIsOpen, period }: Props) {
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTab(newValue);
   };
+
+  useEffect(() => {
+    if (isOpen && openPeriod) {
+      setIsLoading(true);
+      console.log(openPeriod);
+      setPeriod(openPeriod);
+      setIsLoading(false);
+    }
+  }, [isOpen]);
+
   return (
-    <Modal open={isOpen} onClose={handleClose}>
-      <ModalContainer id="cardModal">
-        {isLoading ? (
-          <SkeletonLoader />
-        ) : (
-          <Fade in={!isLoading}>
-            <Box sx={{ height: '100%' }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  width: '100%',
-                  height: '2rem',
-                  color: '#808080',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  mb: '1rem',
-                }}
-              >
-                <Breadcrumbs aria-label="breadcrumb">
-                  <Link
-                    underline="hover"
-                    color="inherit"
-                    href={`/tribe/${space.team[0].teamId}`}
-                  >
-                    {space.team[0].name}
-                  </Link>
-                  <Link
-                    underline="hover"
-                    color="inherit"
-                    href={`/tribe/${space.team[0].teamId}/space/${space.objectId}`}
-                  >
-                    {space.name}
-                  </Link>
-                  <Link
-                    underline="hover"
-                    color="text.primary"
-                    href={`/tribe/${space.team[0].teamId}/space/${space.objectId}`}
-                    aria-current="page"
-                  >
-                    {`Retro period #${period.epochNumber}`}
-                  </Link>
-                </Breadcrumbs>
-                <Box sx={{ flex: '1 1 auto' }} />
-                <IconButton
-                  data-testid="bCloseButton"
+    <SingleRetroContext.Provider value={context}>
+      <Modal open={isOpen} onClose={handleClose}>
+        <ModalContainer id="cardModal">
+          {isLoading ? (
+            <SkeletonLoader />
+          ) : (
+            <Fade in={!isLoading}>
+              <Box sx={{ height: '100%' }}>
+                <Box
                   sx={{
-                    height: '2.5rem',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    width: '100%',
+                    height: '2rem',
+                    color: '#808080',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    mb: '1rem',
                   }}
-                  onClick={handleClose}
                 >
-                  <CloseIcon />
-                </IconButton>
-              </Box>
-              <Grid container spacing={2} sx={{ height: '100%' }}>
-                <Grid item xs={8} sx={{ height: '100%' }}>
-                  <Box
+                  <Breadcrumbs aria-label="breadcrumb">
+                    <Link
+                      underline="hover"
+                      color="inherit"
+                      href={`/tribe/${space.team[0].teamId}`}
+                    >
+                      {space.team[0].name}
+                    </Link>
+                    <Link
+                      underline="hover"
+                      color="inherit"
+                      href={`/tribe/${space.team[0].teamId}/space/${space.objectId}`}
+                    >
+                      {space.name}
+                    </Link>
+                    <Link
+                      underline="hover"
+                      color="text.primary"
+                      href={`/tribe/${space.team[0].teamId}/space/${space.objectId}`}
+                      aria-current="page"
+                    >
+                      {`Retro period #${period.epochNumber}`}
+                    </Link>
+                  </Breadcrumbs>
+                  <Box sx={{ flex: '1 1 auto' }} />
+                  <IconButton
+                    data-testid="bCloseButton"
                     sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      width: '100%',
+                      height: '2.5rem',
+                    }}
+                    onClick={handleClose}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </Box>
+                <Grid container spacing={2} sx={{ height: '100%' }}>
+                  <Grid
+                    item
+                    xs={8}
+                    sx={{
                       height: '90%',
                       borderRight: 1,
                       borderColor: 'text.secondary',
-                      pr: 2,
                     }}
                   >
                     <Box
                       sx={{
                         display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        width: '100%',
+                        flexDirection: 'column',
+                        width: '90%',
+                        height: '40%',
+                        pr: 2,
                       }}
                     >
-                      <InputBase
-                        placeholder="Add Title..."
+                      <Box
                         sx={{
-                          fontSize: '30px',
-                          width: '85%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'start',
+                          width: '100%',
                         }}
-                        value={period.name}
-                        onChange={(e) => setName(e.target.value)}
-                        // onBlur={() => updateTitle()}
-                        // readOnly={
-                        //   !(task?.access?.creator || task?.access?.reviewer)
-                        // }
-                        multiline
-                        maxRows={3}
-                      />
-                      {period.budget && (
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                          }}
-                        >
-                          <Avatar
-                            src={registry[period.chain.chainId]?.pictureUrl}
-                            sx={{
-                              width: '2rem',
-                              height: '2rem',
-                              objectFit: 'cover',
-                              my: 1,
-                            }}
-                          />
-                          <Typography
-                            variant="caption"
-                            color="text.primary"
-                            sx={{ ml: 2, fontSize: 16 }}
-                          >
-                            {`${period.budget}`}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            color="text.primary"
-                            sx={{ ml: 2, fontSize: 16 }}
-                          >
-                            {`${period.token.symbol}`}
-                          </Typography>
-                        </Box>
-                      )}
-                      <OptionsPopover
-                        period={period}
-                        handleModalClose={handleClose}
-                      />
-                    </Box>
-                    <TextField
-                      sx={{ border: 0, mt: 6 }}
-                      placeholder="Lets retro..."
-                      multiline
-                      fullWidth
-                      rows={8}
-                      onChange={(event) => {
-                        setDescription(event.target.value);
-                      }}
-                      defaultValue={period.description}
-                      InputProps={{
-                        disableUnderline: true, // <== added this
-                      }}
-                    />
-                  </Box>
-                </Grid>
-                <Grid item xs={4}>
-                  <StyledTabs
-                    value={tab}
-                    onChange={handleTabChange}
-                    sx={{ ml: '1rem', borderRadius: '0.5rem' }}
-                  >
-                    <StyledTab label="Member" />
-                  </StyledTabs>
-                  <List sx={{ ml: '1rem', mt: '1rem' }}>
-                    {period.choices.map((choice, index) => (
-                      // eslint-disable-next-line react/no-array-index-key
-                      <ListItem key={index}>
+                      >
                         <Box
                           sx={{
                             display: 'flex',
@@ -243,73 +287,151 @@ function RetroModal({ handleClose, isOpen, setIsOpen, period }: Props) {
                             width: '100%',
                           }}
                         >
+                          <InputBase
+                            placeholder="Add Title..."
+                            sx={{
+                              fontSize: '30px',
+                              width: '85%',
+                            }}
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            // onBlur={() => updateTitle()}
+                            // readOnly={
+                            //   !(task?.access?.creator || task?.access?.reviewer)
+                            // }
+                            multiline
+                            maxRows={3}
+                          />
+                          <Box sx={{ flex: '1 1 auto' }} />
+                          <OptionsPopover
+                            period={period}
+                            handleModalClose={handleClose}
+                          />
+                        </Box>
+                        {period.budget && (
                           <Box
                             sx={{
                               display: 'flex',
                               flexDirection: 'row',
-                              alignItems: 'center',
-                              width: '70%',
+                              alignItems: 'start',
+                              justifyContent: 'start',
                             }}
                           >
                             <Avatar
+                              src={registry[period.chain.chainId]?.pictureUrl}
                               sx={{
-                                p: 0,
-                                mr: 2,
-                                width: 30,
-                                height: 30,
+                                width: '1rem',
+                                height: '1rem',
+                                objectFit: 'cover',
+                                my: 1,
                               }}
-                              src={
-                                space.memberDetails[choice]?.profilePicture
-                                  ?._url
-                              }
-                              alt={space.memberDetails[choice]?.username}
                             />
-                            <Typography color="text.primary">
-                              {space.memberDetails[choice].username}
+                            <Typography
+                              variant="caption"
+                              color="text.primary"
+                              sx={{ ml: 2, fontSize: 14 }}
+                            >
+                              {`${period.budget}`}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              color="text.primary"
+                              sx={{ ml: 2, fontSize: 14 }}
+                            >
+                              {`${period.token.symbol}`}
                             </Typography>
                           </Box>
-                          <Tooltip title="Give feedback">
-                            <IconButton
-                              data-testid="bCloseButton"
-                              sx={{
-                                height: '2.5rem',
-                                mr: '1rem',
-                              }}
-                              onClick={handleClose}
-                            >
-                              <RateReviewIcon
-                                sx={{
-                                  display: 'flex',
-                                  flexDirection: 'row',
-                                  color: 'text.secondary',
-                                }}
-                              />{' '}
-                            </IconButton>
-                          </Tooltip>
-                          <TextField
-                            id="filled-hidden-label-normal"
-                            value={0}
-                            onChange={() => {}}
-                            size="small"
-                            type="number"
-                            sx={{
-                              display: 'flex',
-                              flexDirection: 'row',
-                              width: '6rem',
-                              justifyContent: 'end',
-                            }}
-                          />
-                        </Box>
-                      </ListItem>
-                    ))}
-                  </List>
+                        )}
+                      </Box>
+                      <TextField
+                        sx={{ border: 0, mt: 6 }}
+                        placeholder="Lets retro..."
+                        multiline
+                        fullWidth
+                        rows={8}
+                        onChange={(event) => {
+                          setDescription(event.target.value);
+                        }}
+                        defaultValue={description}
+                        InputProps={{
+                          disableUnderline: true,
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ width: '80%', mt: 8 }}>
+                      <StyledTabs
+                        value={tab}
+                        onChange={handleTabChange}
+                        sx={{ ml: '1rem', borderRadius: '0.5rem' }}
+                      >
+                        <StyledTab label="Members" />
+                      </StyledTabs>
+                      <Choices />
+                    </Box>
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'start',
+                        justifyContent: 'start',
+                        width: '100%',
+                      }}
+                    >
+                      <PrimaryButton
+                        data-testid="bBatchPayModalButton"
+                        loading={isLoading}
+                        sx={{ borderRadius: '3px', mx: '2rem', width: '12rem' }}
+                        onClick={() => {}}
+                        variant="outlined"
+                        id="bApprove"
+                        color="secondary"
+                        fullWidth
+                      >
+                        End Retro Period
+                      </PrimaryButton>
+                      <PrimaryButton
+                        data-testid="bBatchPayModalButton"
+                        loading={isLoading}
+                        sx={{
+                          borderRadius: '3px',
+                          mx: '2rem',
+                          mt: 2,
+                          width: '12rem',
+                        }}
+                        onClick={() => {}}
+                        variant="outlined"
+                        id="bApprove"
+                        color="secondary"
+                      >
+                        Payout Contributors
+                      </PrimaryButton>
+                      <PrimaryButton
+                        data-testid="bBatchPayModalButton"
+                        loading={isLoading}
+                        sx={{
+                          borderRadius: '3px',
+                          mx: '2rem',
+                          mt: 2,
+                          width: '12rem',
+                        }}
+                        onClick={() => {}}
+                        variant="outlined"
+                        id="bApprove"
+                        color="secondary"
+                      >
+                        Export CSV
+                      </PrimaryButton>
+                    </Box>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </Box>
-          </Fade>
-        )}
-      </ModalContainer>
-    </Modal>
+              </Box>
+            </Fade>
+          )}
+        </ModalContainer>
+      </Modal>
+    </SingleRetroContext.Provider>
   );
 }
 

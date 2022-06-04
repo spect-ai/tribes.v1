@@ -1,13 +1,21 @@
+async function enrichEpoch(epoch, callerId) {
+  if (callerId in epoch.memberStats) {
+    epoch.votesGivenByCaller = epoch.memberStats[callerId].votesGiven;
+    epoch.votesAllocated = epoch.memberStats[callerId].votesAllocated;
+    epoch.votesRemaining = epoch.memberStats[callerId].votesRemaining;
+  }
+  if (epoch.feedback && callerId in epoch.feedback) {
+    epoch.feedbackGiven = epoch.feedback[callerId];
+  }
+  return epoch;
+}
+
 async function getEpochsBySpaceId(spaceId, callerId) {
   const epochQuery = new Moralis.Query('Epoch');
   const pipeline = [{ match: { spaceId: spaceId, archived: { $ne: true } } }];
   var epochs = await epochQuery.aggregate(pipeline, { useMasterKey: true });
   for (var epoch of epochs) {
-    if (callerId in epoch.memberStats) {
-      epoch.votesGivenByCaller = epoch.memberStats[callerId].votesGiven;
-      epoch.votesAllocated = epoch.memberStats[callerId].votesAllocated;
-      epoch.votesRemaining = epoch.memberStats[callerId].votesRemaining;
-    }
+    epoch = enrichEpoch(epoch, callerId);
   }
   return epochs;
 }

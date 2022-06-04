@@ -63,7 +63,7 @@ function CreatePeriod(props: Props) {
   const [activeStep, setActiveStep] = useState(0);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [strategy, setStrategy] = useState('Normal Voting');
+  const [strategy, setStrategy] = useState('Normal voting');
   const [duration, setDuration] = useState(1);
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringPeriod, setRecurringPeriod] = useState(0);

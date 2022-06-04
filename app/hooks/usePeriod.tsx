@@ -4,11 +4,13 @@ import { Chain, Task, Token } from '../types';
 import useMoralisFunction from './useMoralisFunction';
 import { notify } from '../components/modules/settingsTab';
 import { useRetro } from '../components/modules/retro';
+import { useSingleRetro } from '../components/modules/retro/retroModal';
 
 export default function usePeriod() {
   const { space, setSpace, handleTabChange } = useSpace();
   const { setIsLoading, periods, setPeriods, setIsCreateModalOpen } =
     useRetro();
+  const { setPeriod } = useSingleRetro();
 
   const { runMoralisFunction } = useMoralisFunction();
 
@@ -62,6 +64,28 @@ export default function usePeriod() {
     return retroPeriods;
   }
 
+  async function saveVotesAndFeedback(
+    votes: object | null,
+    feedback: object | null,
+    epochId: string
+  ) {
+    runMoralisFunction('saveVotesAndFeedback', {
+      votes,
+      feedback,
+      epochId,
+    })
+      .then((res: any) => {
+        setPeriod(res.currPeriod);
+        setPeriods(res.periods);
+        setIsLoading(false);
+        notify(`Saved!`);
+      })
+      .catch((err: any) => {
+        notify(`There was an error while archiving the epoch.`, 'error');
+        setIsLoading(false);
+      });
+  }
+
   async function archiveEpoch(epochId: string, spaceId: string) {
     runMoralisFunction('archiveEpoch', {
       epochId,
@@ -77,5 +101,5 @@ export default function usePeriod() {
       });
   }
 
-  return { createPeriod, loadPeriods, archiveEpoch };
+  return { createPeriod, loadPeriods, saveVotesAndFeedback, archiveEpoch };
 }

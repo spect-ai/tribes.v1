@@ -80,6 +80,12 @@ export type MemberDetails = {
   [key: string]: Member;
 };
 
+export interface Feedback {
+  givenBy: string;
+  receivedBy: string;
+  content: string;
+}
+
 export interface Submission {
   userId: string;
   submissionId: string;
@@ -218,6 +224,8 @@ export interface Epoch {
   votesFor: Object<string, number>;
   votesAgainst: Object<string, number>;
   transactionHash: string;
+  feedbackReceived: Object<string, string>;
+  feedbackGiven: Object<string, string>;
   _createdAt: object;
   _id: string;
   _updatedAt: object;

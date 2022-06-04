@@ -179,64 +179,6 @@ Moralis.Cloud.define('endEpoch', async (request) => {
   }
 });
 
-function getTotalVotesGiven(votesGiven, strategy) {
-  var totalVotes = 0;
-  if (strategy === 'Quadratic voting') {
-    for (var objectId of Object.keys(votesGiven)) {
-      totalVotes += votesGiven[objectId] ** 2;
-    }
-  } else if (strategy === 'Pass/No Pass') {
-    for (var objectId of Object.keys(votesGiven)) {
-      totalVotes += votesGiven[objectId];
-    }
-  }
-
-  return totalVotes;
-}
-
-Moralis.Cloud.define('saveVotes', async (request) => {
-  log(
-    request.user?.id,
-    `Calling saveVotes on epoch ${request.params.epochId}`,
-    'info'
-  );
-  try {
-    const logger = Moralis.Cloud.getLogger();
-    var epoch = await getEpochParseObjByObjectId(request.params.epochId);
-    var totalVotesGiven = getTotalVotesGiven(
-      request.params.votesGiven,
-      epoch.get('strategy')
-    );
-    logger.info(`totalVotesGivens ${JSON.stringify(totalVotesGiven)}`);
-    var memberStats = epoch.get('memberStats');
-    if (
-      request.user.id in memberStats &&
-      totalVotesGiven <= memberStats[request.user.id].votesAllocated
-    ) {
-      logger.info(`memberStats ${JSON.stringify(memberStats)}`);
-
-      memberStats[request.user.id].votesGiven = request.params.votesGiven;
-      logger.info(`memberStats ${JSON.stringify(memberStats)}`);
-
-      memberStats[request.user.id].votesRemaining =
-        memberStats[request.user.id].votesAllocated - totalVotesGiven;
-    } else throw 'Votes given overshoots votes allocated';
-
-    epoch.set('memberStats', memberStats);
-    logger.info(`Saving votes ${JSON.stringify(epoch)}`);
-
-    await Moralis.Object.saveAll([epoch], { useMasterKey: true });
-    return epoch;
-  } catch (err) {
-    log(
-      request.user?.id,
-      `Failure in saveVotes for epoch id ${request.params.epochId}: ${err}`,
-      'error'
-    );
-    throw `Error while saving votes ${err}`;
-  }
-});
-
 Moralis.Cloud.define('completeEpochPayment', async (request) => {
   log(
     request.user?.id,

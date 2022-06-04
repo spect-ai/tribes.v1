@@ -29,7 +29,7 @@ function AdvancedFields({
       </Typography>{' '}
       <Autocomplete
         data-testid="aEpochStrategy"
-        options={['Normal Voting', 'Quadratic Voting']}
+        options={['Normal voting', 'Quadratic voting']}
         value={strategy}
         onChange={(event, newValue) => {
           setStrategy(newValue);

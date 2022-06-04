@@ -177,7 +177,7 @@ function PayoutContributors({ epoch }: Props) {
             handleOpen();
           }}
         >
-          Payout countributors
+          Payout Contributors
         </PrimaryButton>
       )}
       <Modal open={isOpen} onClose={handleClose}>
