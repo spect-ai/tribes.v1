@@ -52,7 +52,7 @@ function Layout({ children }: Props) {
   }, [isInitialized]);
 
   useEffect(() => {
-    if (router.query.code) {
+    if (router.query.code && router.query.state === undefined) {
       runMoralisFunction('linkDiscordUser', { code: router.query.code }).then(
         (res) => {
           // updateUser(dispatch, res);
@@ -64,6 +64,20 @@ function Layout({ children }: Props) {
       );
     }
   }, [router.query.code]);
+
+  useEffect(() => {
+    if (router.query.code && router.query.state) {
+      runMoralisFunction('linkGithubUser', {
+        code: router.query.code,
+        state: router.query.state,
+      }).then((res) => {
+        user?.fetch().then((res2) => {
+          console.log(res2);
+        });
+        router.push('/');
+      });
+    }
+  }, [router.query.code, router.query.state]);
 
   return (
     <>
