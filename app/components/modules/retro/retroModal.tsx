@@ -31,6 +31,7 @@ import ConfirmModal from '../../elements/confirmModal';
 import CsvExport from './export';
 import PayoutContributors from './payoutContributors';
 import Feedback from './feedback';
+import useAccess from '../../../hooks/useAccess';
 
 interface SingleRetroContextType {
   period: Epoch;
@@ -52,6 +53,7 @@ interface SingleRetroContextType {
   setFeedbackGiven: (feedbackGiven: any) => void;
   handleFeedbackUpdate: Function;
   handleVotesUpdate: Function;
+  handlePeriodUpdate: Function;
 }
 
 const SingleRetroContext = createContext<SingleRetroContextType>(
@@ -68,6 +70,11 @@ function useProviderSingleRetro() {
   const [feedbackReceived, setFeedbackReceived] = useState({} as any);
   const [feedbackGiven, setFeedbackGiven] = useState({} as any);
   const [choices, setChoices] = useState(period?.choices || []);
+
+  const handlePeriodUpdate = (newPeriod: Epoch) => {
+    setPeriod(newPeriod);
+  };
+
   const handleFeedbackUpdate = (memberId: string, feedback: string) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const temp = { ...feedbackGiven }; // Shallow copy
@@ -91,6 +98,7 @@ function useProviderSingleRetro() {
 
   useEffect(() => {
     if (period && Object.keys(period)?.length !== 0) {
+      console.log(period);
       setIsLoading(true);
       setName(period.name);
       setDescription(period.description);
@@ -123,6 +131,7 @@ function useProviderSingleRetro() {
     handleFeedbackUpdate,
     handleVotesUpdate,
     choices,
+    handlePeriodUpdate,
   };
 }
 
@@ -179,6 +188,7 @@ function RetroModal({ handleClose, isOpen, openPeriod }: Props) {
   } = context;
   const { endRetroPeriod } = usePeriod();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const { isSpaceSteward } = useAccess();
 
   const {
     state: { registry },
@@ -190,6 +200,7 @@ function RetroModal({ handleClose, isOpen, openPeriod }: Props) {
 
   const handleConfirmEnd = () => {
     endRetroPeriod(period.objectId);
+    handleClose();
   };
 
   useEffect(() => {
@@ -388,7 +399,7 @@ function RetroModal({ handleClose, isOpen, openPeriod }: Props) {
                         width: '100%',
                       }}
                     >
-                      {period.active && (
+                      {period.active && isSpaceSteward() && (
                         <PrimaryButton
                           data-testid="bEndRetroButton"
                           loading={isLoading}
@@ -408,8 +419,10 @@ function RetroModal({ handleClose, isOpen, openPeriod }: Props) {
                           End Retro Period
                         </PrimaryButton>
                       )}
-                      {!period.active && <PayoutContributors period={period} />}
-                      {!period.active && <CsvExport period={period} />}
+                      {!period.active && isSpaceSteward() && period.values && (
+                        <PayoutContributors />
+                      )}
+                      {!period.active && isSpaceSteward() && <CsvExport />}
                     </Box>
                   </Grid>
                 </Grid>

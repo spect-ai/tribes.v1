@@ -25,10 +25,9 @@ import { PrimaryButton } from '../../elements/styledComponents';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { useWalletContext } from '../../../context/WalletContext';
 import useERC20 from '../../../hooks/useERC20';
+import { useSingleRetro } from './retroModal';
 
-interface Props {
-  period: Epoch;
-}
+interface Props {}
 
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
@@ -65,8 +64,9 @@ export const Heading = styled('div')(({ theme }) => ({
   paddingLeft: 32,
 }));
 
-function PayoutContributors({ period }: Props) {
+function PayoutContributors() {
   const { networkVersion } = useWalletContext();
+  const { period } = useSingleRetro();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [steps, setSteps] = useState([] as string[]);
@@ -77,7 +77,6 @@ function PayoutContributors({ period }: Props) {
   } = useGlobal();
   const { user } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
-  const { setRefreshEpochs } = useSpace();
   const { isApproved } = useERC20();
   const [distributionInfo, setDistributionInfo] = useState({
     contributors: Object.keys(period.values),
@@ -110,9 +109,7 @@ function PayoutContributors({ period }: Props) {
 
   const handleStatusUpdate = (epochId: string, transactionHash: string) => {
     runMoralisFunction('completeEpochPayment', { epochId, transactionHash })
-      .then((res: any) => {
-        setRefreshEpochs(true);
-      })
+      .then((res: any) => {})
       .catch((err: any) => {
         notify(
           `Sorry! There was an error while updating the task status to 'Paid'. However, your payment went through.`,
@@ -159,6 +156,8 @@ function PayoutContributors({ period }: Props) {
     handleRefresh();
   }, [networkVersion, isOpen]);
 
+  useEffect(() => {}, [isOpen, distributionInfo]);
+
   return (
     <>
       {!period.paid && (
@@ -166,7 +165,6 @@ function PayoutContributors({ period }: Props) {
           data-testid="bEpochPay"
           startIcon={<PaidIcon />}
           variant="outlined"
-          loading={isLoading}
           sx={{
             borderRadius: '3px',
             mx: '2rem',

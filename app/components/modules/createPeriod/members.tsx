@@ -132,6 +132,7 @@ function MemberBudgetFields({
             setValue(parseInt(event.target.value, 10));
           }}
           sx={{ width: '33%', mx: 2 }}
+          InputProps={{ inputProps: { min: 0 } }}
         />
       </Box>
       <Typography variant="body2" sx={{ color: 'text.primary', ml: 2, mt: 4 }}>

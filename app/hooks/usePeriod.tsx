@@ -10,7 +10,7 @@ export default function usePeriod() {
   const { space, setSpace, handleTabChange } = useSpace();
   const { setIsLoading, periods, setPeriods, setIsCreateModalOpen } =
     useRetro();
-  const { setPeriod } = useSingleRetro();
+  const { setPeriod, handlePeriodUpdate } = useSingleRetro();
 
   const { runMoralisFunction } = useMoralisFunction();
 
@@ -102,18 +102,20 @@ export default function usePeriod() {
   }
 
   async function endRetroPeriod(epochId: string) {
+    setIsLoading(true);
+
     runMoralisFunction('endRetroPeriod', {
       epochId,
     })
       .then((res: any) => {
         console.log(res);
         setPeriods(res.periods);
-        setPeriod(res.currPeriod);
         setIsLoading(false);
         notify(`Ended the retro period!`);
       })
       .catch((err: any) => {
         notify(`There was an error while ending the retro period.`, 'error');
+        console.log(err);
         setIsLoading(false);
       });
   }

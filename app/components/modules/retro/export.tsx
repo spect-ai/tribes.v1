@@ -4,16 +4,14 @@ import { PrimaryButton } from '../../elements/styledComponents';
 import { Epoch } from '../../../types';
 import { downloadCSV } from '../../../utils/utils';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import { useSingleRetro } from './retroModal';
 
-type Props = {
-  period: Epoch;
-};
+type Props = {};
 
-function CsvExport({ period }: Props) {
+function CsvExport() {
   const { space } = useSpace();
-
+  const { period } = useSingleRetro();
   const handleExport = (ep: Epoch) => {
-    console.log(ep);
     const rows = [
       ['username', 'address', 'allocation', 'given', 'received', 'reward'],
     ];

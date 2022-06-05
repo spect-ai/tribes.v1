@@ -64,12 +64,14 @@ function Feedback({}: Props) {
                 mt: 2,
               }}
             >
-              {memberId in feedbackReceived ? (
+              {feedbackReceived && memberId in feedbackReceived ? (
                 <Typography color="text.primary">
                   {feedbackReceived[memberId]}
                 </Typography>
               ) : (
-                <Typography color="text.primary">No feedback given</Typography>
+                <Typography color="text.primary">
+                  No feedback received
+                </Typography>
               )}
             </Box>
           </Box>

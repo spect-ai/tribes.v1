@@ -13,6 +13,22 @@ function getTotalVotesGiven(votesGiven, strategy) {
   return totalVotes;
 }
 
+function allVotedCanReceive(votes, choices) {
+  for (var memberId of Object.keys(votes)) {
+    if (!choices.includes(memberId)) return votes[memberId] === 0;
+  }
+
+  return true;
+}
+
+function noVotedIsCaller(votes, caller) {
+  for (var memberId of Object.keys(votes)) {
+    if (memberId === caller) return votes[memberId] === 0;
+  }
+
+  return true;
+}
+
 Moralis.Cloud.define('saveVotesAndFeedback', async (request) => {
   log(
     request.user?.id,
@@ -29,15 +45,16 @@ Moralis.Cloud.define('saveVotesAndFeedback', async (request) => {
       );
       if (
         request.user.id in memberStats &&
-        totalVotesGiven <= memberStats[request.user.id].votesAllocated
+        totalVotesGiven <= memberStats[request.user.id].votesAllocated &&
+        allVotedCanReceive(request.params.votes, epoch.get('choices')) &&
+        noVotedIsCaller(request.params.votes, request.user.id)
       ) {
         memberStats[request.user.id].votesGiven = request.params.votes;
 
         memberStats[request.user.id].votesRemaining =
           memberStats[request.user.id].votesAllocated - totalVotesGiven;
-      } else throw 'Votes given overshoots votes allocated';
-
-      epoch.set('memberStats', memberStats);
+        epoch.set('memberStats', memberStats);
+      } else throw 'Votes given is invalid';
     }
     if (request.params.feedback) {
       let feedback = epoch.get('feedback');

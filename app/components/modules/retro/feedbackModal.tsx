@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Avatar,
   Modal,
@@ -56,9 +56,20 @@ function FeedbackModal({ feedbackModalOpen, memberId, handleClose }: Props) {
     feedbackGiven,
     handleVotesUpdate,
     votesGiven,
+    votesRemaining,
     period,
   } = useSingleRetro();
   const { saveVotesAndFeedback } = usePeriod();
+
+  const [isInError, setIsInError] = useState(false);
+
+  useEffect(() => {
+    if (votesRemaining < 0) {
+      setIsInError(true);
+    } else {
+      setIsInError(false);
+    }
+  }, [votesRemaining]);
 
   return (
     <Modal open={feedbackModalOpen} onClose={handleClose}>
@@ -90,28 +101,55 @@ function FeedbackModal({ feedbackModalOpen, memberId, handleClose }: Props) {
         <Box
           sx={{
             display: 'flex',
-            flexDirection: 'column',
+            flexDirection: 'row',
             justifyContent: 'start',
           }}
         >
-          <Typography color="text.primary" sx={{ fontSize: 14, mb: 2 }}>
-            Votes given
-          </Typography>
-          <TextField
-            id="filled-hidden-label-normal"
-            value={votesGiven[memberId]}
-            onChange={(event) => {
-              handleVotesUpdate(memberId, parseInt(event.target.value, 10));
-            }}
-            size="small"
-            type="number"
+          <Box
             sx={{
               display: 'flex',
-              flexDirection: 'row',
-              width: '6rem',
-              justifyContent: 'end',
+              flexDirection: 'column',
+              justifyContent: 'start',
             }}
-          />
+          >
+            <Typography color="text.primary" sx={{ fontSize: 14, mb: 2 }}>
+              Votes given
+            </Typography>
+            <TextField
+              id="filled-hidden-label-normal"
+              value={votesGiven[memberId]}
+              onChange={(event) => {
+                handleVotesUpdate(memberId, parseInt(event.target.value, 10));
+              }}
+              size="small"
+              type="number"
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                width: '6rem',
+                justifyContent: 'end',
+              }}
+              error={isInError}
+            />
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'start',
+            }}
+          >
+            <Typography
+              sx={{
+                color: 'text.secondary',
+                textAlign: 'right',
+                fontSize: 16,
+                ml: 12,
+              }}
+            >
+              {`${votesRemaining} votes remaining`}
+            </Typography>
+          </Box>
         </Box>
         <Box
           sx={{
@@ -166,6 +204,7 @@ function FeedbackModal({ feedbackModalOpen, memberId, handleClose }: Props) {
             variant="outlined"
             id="bApprove"
             color="secondary"
+            disabled={isInError}
           >
             Save
           </PrimaryButton>

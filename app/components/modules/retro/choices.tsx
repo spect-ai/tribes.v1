@@ -9,7 +9,8 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useMoralis } from 'react-moralis';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { Epoch } from '../../../types';
 import FeedbackModal from './feedbackModal';
@@ -22,6 +23,7 @@ type Props = {};
 // eslint-disable-next-line no-empty-pattern
 function Choices({}: Props) {
   const { space } = useSpace();
+  const { user } = useMoralis();
   const { saveVotesAndFeedback } = usePeriod();
   const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const [feedbackMember, setFeedbackMember] = useState('');
@@ -36,6 +38,15 @@ function Choices({}: Props) {
   const handleClose = () => {
     setFeedbackModalOpen(false);
   };
+  const [isInError, setIsInError] = useState(false);
+
+  useEffect(() => {
+    if (votesRemaining < 0) {
+      setIsInError(true);
+    } else {
+      setIsInError(false);
+    }
+  }, [votesRemaining]);
   return (
     <>
       <Box
@@ -55,7 +66,7 @@ function Choices({}: Props) {
           }}
         >
           {`${votesRemaining} votes remaining`}
-        </Typography>{' '}
+        </Typography>
       </Box>
       <List sx={{ ml: '1rem', mt: '1rem' }}>
         <>
@@ -81,14 +92,7 @@ function Choices({}: Props) {
           {choices?.map((choice: any, index: number) => (
             // eslint-disable-next-line react/no-array-index-key
             <ListItem key={index}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  width: '100%',
-                }}
-              >
+              {user?.id !== choice && (
                 <Box
                   sx={{
                     display: 'flex',
@@ -101,70 +105,80 @@ function Choices({}: Props) {
                     sx={{
                       display: 'flex',
                       flexDirection: 'row',
-                      justifyContent: 'start',
+                      alignItems: 'center',
+                      width: '100%',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'start',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Avatar
+                        sx={{
+                          p: 0,
+                          mr: 2,
+                          width: 30,
+                          height: 30,
+                        }}
+                        src={space.memberDetails[choice]?.profilePicture?._url}
+                        alt={space.memberDetails[choice]?.username}
+                      />
+                      <Typography color="text.primary">
+                        {space.memberDetails[choice]?.username}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      justifyContent: 'end',
                       alignItems: 'center',
                     }}
                   >
-                    <Avatar
-                      sx={{
-                        p: 0,
-                        mr: 2,
-                        width: 30,
-                        height: 30,
+                    <Tooltip title="Give feedback">
+                      <IconButton
+                        data-testid="bCloseButton"
+                        sx={{
+                          height: '2.5rem',
+                          mr: '1rem',
+                        }}
+                        onClick={() => {
+                          setFeedbackMember(choice);
+                          setFeedbackModalOpen(true);
+                        }}
+                      >
+                        <RateReviewIcon
+                          sx={{
+                            color: 'text.secondary',
+                          }}
+                        />
+                      </IconButton>
+                    </Tooltip>
+                    <TextField
+                      id="filled-hidden-label-normal"
+                      value={votesGiven[choice]}
+                      onChange={(event) => {
+                        handleVotesUpdate(
+                          choice,
+                          parseInt(event.target.value, 10)
+                        );
                       }}
-                      src={space.memberDetails[choice]?.profilePicture?._url}
-                      alt={space.memberDetails[choice]?.username}
+                      size="small"
+                      type="number"
+                      sx={{
+                        width: '6rem',
+                      }}
+                      error={isInError}
+                      InputProps={{ inputProps: { min: 0 } }}
                     />
-                    <Typography color="text.primary">
-                      {space.memberDetails[choice]?.username}
-                    </Typography>
                   </Box>
                 </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    justifyContent: 'end',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Tooltip title="Give feedback">
-                    <IconButton
-                      data-testid="bCloseButton"
-                      sx={{
-                        height: '2.5rem',
-                        mr: '1rem',
-                      }}
-                      onClick={() => {
-                        setFeedbackMember(choice);
-                        setFeedbackModalOpen(true);
-                      }}
-                    >
-                      <RateReviewIcon
-                        sx={{
-                          color: 'text.secondary',
-                        }}
-                      />
-                    </IconButton>
-                  </Tooltip>
-                  <TextField
-                    id="filled-hidden-label-normal"
-                    value={votesGiven[choice]}
-                    onChange={(event) => {
-                      handleVotesUpdate(
-                        choice,
-                        parseInt(event.target.value, 10)
-                      );
-                    }}
-                    size="small"
-                    type="number"
-                    sx={{
-                      width: '6rem',
-                    }}
-                    error={votesRemaining < 0}
-                  />
-                </Box>
-              </Box>
+              )}
             </ListItem>
           ))}
         </>
@@ -187,6 +201,7 @@ function Choices({}: Props) {
           variant="outlined"
           id="bApprove"
           color="secondary"
+          disabled={isInError}
         >
           Save
         </PrimaryButton>
