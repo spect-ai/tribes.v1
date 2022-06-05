@@ -1,37 +1,35 @@
-import React, { useState, createContext, useEffect, useContext } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import {
+  Avatar,
+  Box,
+  Breadcrumbs,
+  Fade,
+  Grid,
+  IconButton,
+  InputBase,
+  Link,
   Modal,
   styled,
-  Fade,
-  Box,
-  Typography,
-  Grid,
-  Breadcrumbs,
-  Link,
-  Tab,
-  Tabs,
-  InputBase,
   TextField,
-  IconButton,
-  List,
-  ListItem,
-  Avatar,
-  Tooltip,
+  Typography,
 } from '@mui/material';
-import SkeletonLoader from './skeletonLoader';
-import { useRetro } from '.';
-import { Epoch, MemberStats } from '../../../types';
-import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useTribe } from '../../../../pages/tribe/[id]';
+import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { useGlobal } from '../../../context/globalContext';
+import usePeriod from '../../../hooks/usePeriod';
+import { Epoch } from '../../../types';
 import {
   PrimaryButton,
   StyledTab,
   StyledTabs,
 } from '../../elements/styledComponents';
-import OptionsPopover from './optionsPopover';
 import Choices from './choices';
+import OptionsPopover from './optionsPopover';
+import SkeletonLoader from './skeletonLoader';
+import ConfirmModal from '../../elements/confirmModal';
+import CsvExport from './export';
+import PayoutContributors from './payoutContributors';
 
 interface SingleRetroContextType {
   period: Epoch;
@@ -178,13 +176,19 @@ function RetroModal({ handleClose, isOpen, openPeriod }: Props) {
     description,
     setDescription,
   } = context;
+  const { endRetroPeriod } = usePeriod();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const {
     state: { registry },
   } = useGlobal();
   const [tab, setTab] = useState(0);
-  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
-    setTab(newValue);
+  const handleConfirmClose = () => {
+    setIsConfirmOpen(false);
+  };
+
+  const handleConfirmEnd = () => {
+    endRetroPeriod(period.objectId);
   };
 
   useEffect(() => {
@@ -361,7 +365,7 @@ function RetroModal({ handleClose, isOpen, openPeriod }: Props) {
                     <Box sx={{ width: '80%', mt: 8 }}>
                       <StyledTabs
                         value={tab}
-                        onChange={handleTabChange}
+                        onChange={() => {}}
                         sx={{ ml: '1rem', borderRadius: '0.5rem' }}
                       >
                         <StyledTab label="Members" />
@@ -379,50 +383,28 @@ function RetroModal({ handleClose, isOpen, openPeriod }: Props) {
                         width: '100%',
                       }}
                     >
-                      <PrimaryButton
-                        data-testid="bBatchPayModalButton"
-                        loading={isLoading}
-                        sx={{ borderRadius: '3px', mx: '2rem', width: '12rem' }}
-                        onClick={() => {}}
-                        variant="outlined"
-                        id="bApprove"
-                        color="secondary"
-                        fullWidth
-                      >
-                        End Retro Period
-                      </PrimaryButton>
-                      <PrimaryButton
-                        data-testid="bBatchPayModalButton"
-                        loading={isLoading}
-                        sx={{
-                          borderRadius: '3px',
-                          mx: '2rem',
-                          mt: 2,
-                          width: '12rem',
-                        }}
-                        onClick={() => {}}
-                        variant="outlined"
-                        id="bApprove"
-                        color="secondary"
-                      >
-                        Payout Contributors
-                      </PrimaryButton>
-                      <PrimaryButton
-                        data-testid="bBatchPayModalButton"
-                        loading={isLoading}
-                        sx={{
-                          borderRadius: '3px',
-                          mx: '2rem',
-                          mt: 2,
-                          width: '12rem',
-                        }}
-                        onClick={() => {}}
-                        variant="outlined"
-                        id="bApprove"
-                        color="secondary"
-                      >
-                        Export CSV
-                      </PrimaryButton>
+                      {period.active && (
+                        <PrimaryButton
+                          data-testid="bEndRetroButton"
+                          loading={isLoading}
+                          sx={{
+                            borderRadius: '3px',
+                            mx: '2rem',
+                            width: '12rem',
+                          }}
+                          onClick={() => {
+                            setIsConfirmOpen(true);
+                          }}
+                          variant="outlined"
+                          id="bApprove"
+                          color="secondary"
+                          fullWidth
+                        >
+                          End Retro Period
+                        </PrimaryButton>
+                      )}
+                      {!period.active && <PayoutContributors period={period} />}
+                      {!period.active && <CsvExport period={period} />}
                     </Box>
                   </Grid>
                 </Grid>
@@ -431,6 +413,17 @@ function RetroModal({ handleClose, isOpen, openPeriod }: Props) {
           )}
         </ModalContainer>
       </Modal>
+      <ConfirmModal
+        isOpen={isConfirmOpen}
+        handleClose={handleConfirmClose}
+        buttonText="Yes, end retro period"
+        runOnConfirm={handleConfirmEnd}
+        modalContent={
+          <Typography variant="h6" sx={{ mb: 2 }} color="text.primary">
+            Are you sure you want to end this retro period?
+          </Typography>
+        }
+      />
     </SingleRetroContext.Provider>
   );
 }

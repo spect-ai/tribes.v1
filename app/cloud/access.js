@@ -6,7 +6,7 @@ function hasAccess(userId, entity, requiredAccess) {
 
 function hasAccessEntityObj(userId, entity, requiredAccess) {
   const roles = entity.roles;
-  if (!roles[userId]) return false;
+  if (!(userId in roles)) return false;
   return roles[userId] === requiredAccess;
 }
 

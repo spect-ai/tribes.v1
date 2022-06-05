@@ -75,13 +75,13 @@ export default function usePeriod() {
       epochId,
     })
       .then((res: any) => {
-        setPeriod(res.currPeriod);
         setPeriods(res.periods);
+        setPeriod(res.currPeriod);
         setIsLoading(false);
         notify(`Saved!`);
       })
       .catch((err: any) => {
-        notify(`There was an error while archiving the epoch.`, 'error');
+        notify(`There was an error while saving`, 'error');
         setIsLoading(false);
       });
   }
@@ -101,5 +101,28 @@ export default function usePeriod() {
       });
   }
 
-  return { createPeriod, loadPeriods, saveVotesAndFeedback, archiveEpoch };
+  async function endRetroPeriod(epochId: string) {
+    runMoralisFunction('endRetroPeriod', {
+      epochId,
+    })
+      .then((res: any) => {
+        console.log(res);
+        setPeriods(res.periods);
+        setPeriod(res.currPeriod);
+        setIsLoading(false);
+        notify(`Ended the retro period!`);
+      })
+      .catch((err: any) => {
+        notify(`There was an error while ending the retro period.`, 'error');
+        setIsLoading(false);
+      });
+  }
+
+  return {
+    createPeriod,
+    loadPeriods,
+    saveVotesAndFeedback,
+    archiveEpoch,
+    endRetroPeriod,
+  };
 }

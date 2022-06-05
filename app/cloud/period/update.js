@@ -51,13 +51,21 @@ Moralis.Cloud.define('saveVotesAndFeedback', async (request) => {
       }
       epoch.set('feedback', feedback);
     }
-    await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+    if (request.params.votes || request.params.feedback)
+      await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+    else throw 'No votes or feedback given';
     const epochObj = mapParseObjectToObject(epoch);
+
+    let space = await getBoardObjByObjectId(epochObj.spaceId, request.user.id);
     return {
       periods: await getEpochs(epoch.get('spaceId'), request.user.id),
       currPeriod: Object.assign(
         epochObj,
-        enrichEpoch(epochObj, request.user.id)
+        filterEpochFields(
+          enrichEpoch(epochObj, request.user.id),
+          space[0],
+          request.user.id
+        )
       ),
     };
   } catch (err) {
@@ -66,7 +74,7 @@ Moralis.Cloud.define('saveVotesAndFeedback', async (request) => {
       `Failure in saveVotesAndFeedback for epoch id ${request.params.epochId}: ${err}`,
       'error'
     );
-    throw `Error while saving votes ${err}`;
+    throw `${err}`;
   }
 });
 
@@ -76,6 +84,35 @@ Moralis.Cloud.define('saveTitle', async (request) => {
     `Calling saveTitle on epoch ${request.params.epochId}`,
     'info'
   );
+  try {
+    var epoch = await getEpochParseObjByObjectId(request.params.epochId);
+    let space = await getBoardObjByObjectId(epoch.spaceId)[0];
+    if (hasAccessEntityObj(request.user.id, space, 3)) {
+      if (request.params.title) {
+        epoch.set('title', request.params.title);
+        await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+      } else throw 'Title cannot be empty';
+      const epochObj = mapParseObjectToObject(epoch);
+      return {
+        periods: await getEpochs(epoch.get('spaceId'), request.user.id),
+        currPeriod: Object.assign(
+          epochObj,
+          filterEpochFields(
+            enrichEpoch(epochObj, request.user.id),
+            space,
+            request.user.id
+          )
+        ),
+      };
+    } else throw 'You do not have access to update title';
+  } catch (err) {
+    log(
+      request.user?.id,
+      `Failure in saveTitle for epoch id ${request.params.epochId}: ${err}`,
+      'error'
+    );
+    throw `${err}`;
+  }
 });
 
 Moralis.Cloud.define('saveDescription', async (request) => {
@@ -84,20 +121,196 @@ Moralis.Cloud.define('saveDescription', async (request) => {
     `Calling saveDescription on epoch ${request.params.epochId}`,
     'info'
   );
+  try {
+    var epoch = await getEpochParseObjByObjectId(request.params.epochId);
+    let space = await getBoardObjByObjectId(epoch.spaceId)[0];
+    if (hasAccessEntityObj(request.user.id, space, 3)) {
+      if (request.params.description) {
+        epoch.set('description', request.params.description);
+        await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+      }
+      const epochObj = mapParseObjectToObject(epoch);
+      return {
+        periods: await getEpochs(epoch.get('spaceId'), request.user.id),
+        currPeriod: Object.assign(
+          epochObj,
+          filterEpochFields(
+            enrichEpoch(epochObj, request.user.id),
+            space,
+            request.user.id
+          )
+        ),
+      };
+    } else throw 'You do not have access to update description';
+  } catch (err) {
+    log(
+      request.user?.id,
+      `Failure in saveDescription for epoch id ${request.params.epochId}: ${err}`,
+      'error'
+    );
+    throw `${err}`;
+  }
 });
 
 Moralis.Cloud.define('saveReward', async (request) => {
   log(
     request.user?.id,
-    `Calling saveVotes on epoch ${request.params.epochId}`,
+    `Calling saveReward on epoch ${request.params.epochId}`,
     'info'
   );
+  try {
+    var epoch = await getEpochParseObjByObjectId(request.params.epochId);
+    let space = await getBoardObjByObjectId(epoch.spaceId)[0];
+    if (hasAccessEntityObj(request.user.id, space, 3)) {
+      epoch.set('budget', request.params.budget);
+      epoch.set('token', request.params.token);
+      epoch.set('chain', request.params.chain);
+      await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+      const epochObj = mapParseObjectToObject(epoch);
+      return {
+        periods: await getEpochs(epoch.get('spaceId'), request.user.id),
+        currPeriod: Object.assign(
+          epochObj,
+          filterEpochFields(
+            enrichEpoch(epochObj, request.user.id),
+            space,
+            request.user.id
+          )
+        ),
+      };
+    } else throw 'You do not have access to this update the retro period';
+  } catch (err) {
+    log(
+      request.user?.id,
+      `Failure in saveReward for epoch id ${request.params.epochId}: ${err}`,
+      'error'
+    );
+    throw `${err}`;
+  }
 });
 
 Moralis.Cloud.define('saveDeadline', async (request) => {
   log(
     request.user?.id,
-    `Calling saveVotes on epoch ${request.params.epochId}`,
+    `Calling saveDeadline on epoch ${request.params.epochId}`,
     'info'
   );
+  try {
+    var epoch = await getEpochParseObjByObjectId(request.params.epochId);
+    let space = await getBoardObjByObjectId(epoch.spaceId)[0];
+    if (hasAccessEntityObj(request.user.id, space, 3)) {
+      epoch.set('endtime', request.params.endtime);
+      await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+      const epochObj = mapParseObjectToObject(epoch);
+      return {
+        periods: await getEpochs(epoch.get('spaceId'), request.user.id),
+        currPeriod: Object.assign(
+          epochObj,
+          filterEpochFields(
+            enrichEpoch(epochObj, request.user.id),
+            space,
+            request.user.id
+          )
+        ),
+      };
+    } else throw 'You do not have access to this update the retro period';
+  } catch (err) {
+    log(
+      request.user?.id,
+      `Failure in saveDeadline for epoch id ${request.params.epochId}: ${err}`,
+      'error'
+    );
+    throw `${err}`;
+  }
+});
+
+function calculateNumericVotes(memberStats, choices) {
+  var totalVotes = 0;
+  var votes = {};
+
+  for (var memberId of Object.keys(memberStats)) {
+    for (var choice of Object.keys(memberStats[memberId].votesGiven)) {
+      if (choices.includes(choice)) {
+        if (!(choice in votes)) {
+          votes[choice] = 0;
+        }
+        votes[choice] += memberStats[memberId].votesGiven[choice];
+        totalVotes += memberStats[memberId].votesGiven[choice];
+      }
+    }
+  }
+
+  return [totalVotes, votes];
+}
+
+Moralis.Cloud.define('endRetroPeriod', async (request) => {
+  log(
+    request.user?.id,
+    `Calling endEpoch on epoch ${request.params.epochId}`,
+    'info'
+  );
+  try {
+    var epoch = await getEpochParseObjByObjectId(request.params.epochId);
+    let space = await getBoardObjByObjectId(epoch.get('spaceId'));
+    if (hasAccessEntityObj(request.user.id, space[0], 3)) {
+      epoch.set('active', false);
+      var votes = {};
+      var values = {};
+      var [totalVotes, votes] = calculateNumericVotes(
+        epoch.get('memberStats'),
+        epoch.get('choices')
+      );
+      epoch.set('votes', votes);
+      if (epoch.get('budget') && epoch.get('budget') > 0) {
+        for (var choice of epoch.get('choices')) {
+          values[choice] = (votes[choice] * epoch.get('budget')) / totalVotes;
+        }
+        epoch.set('values', values);
+      }
+      logger.info(`epoch ${JSON.stringify(epoch)}`);
+
+      await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+      const epochObj = mapParseObjectToObject(epoch);
+      return {
+        periods: await getEpochs(epoch.get('spaceId'), request.user.id),
+        currPeriod: Object.assign(
+          epochObj,
+          filterEpochFields(
+            enrichEpoch(epochObj, request.user.id),
+            space[0],
+            request.user.id
+          )
+        ),
+      };
+    } else throw 'You do not have access to end the retro period';
+  } catch (err) {
+    log(
+      request.user?.id,
+      `Failure in endEpoch for epoch id ${request.params.epochId}: ${err}`,
+      'error'
+    );
+    throw `Error while ending epoch ${request.params.epochId}: ${err}`;
+  }
+});
+
+Moralis.Cloud.define('completeRetroPayment', async (request) => {
+  log(
+    request.user?.id,
+    `Calling completeEpochPayment on epoch ${request.params.epochId}`,
+    'info'
+  );
+  try {
+    const epoch = await getEpochParseObjByObjectId(request.params.epochId);
+    epoch.set('paid', true);
+    epoch.set('transactionHash', request.params.transactionHash);
+    await Moralis.Object.saveAll([epoch], { useMasterKey: true });
+    return await getEpochs(request.params.spaceId, request.user.id);
+  } catch (err) {
+    log(
+      request.user?.id,
+      `Failure in completeEpochPayment for epoch id ${request.params.epochId}: ${err}`,
+      'error'
+    );
+    throw `Error while completing epoch payment ${err}`;
+  }
 });
