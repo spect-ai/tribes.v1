@@ -30,6 +30,7 @@ import SkeletonLoader from './skeletonLoader';
 import ConfirmModal from '../../elements/confirmModal';
 import CsvExport from './export';
 import PayoutContributors from './payoutContributors';
+import Feedback from './feedback';
 
 interface SingleRetroContextType {
   period: Epoch;
@@ -368,9 +369,13 @@ function RetroModal({ handleClose, isOpen, openPeriod }: Props) {
                         onChange={() => {}}
                         sx={{ ml: '1rem', borderRadius: '0.5rem' }}
                       >
-                        <StyledTab label="Members" />
+                        {period.active ? (
+                          <StyledTab label="Members" />
+                        ) : (
+                          <StyledTab label="Feedback" />
+                        )}
                       </StyledTabs>
-                      <Choices />
+                      {period.active ? <Choices /> : <Feedback />}
                     </Box>
                   </Grid>
                   <Grid item xs={4}>
@@ -396,7 +401,7 @@ function RetroModal({ handleClose, isOpen, openPeriod }: Props) {
                             setIsConfirmOpen(true);
                           }}
                           variant="outlined"
-                          id="bApprove"
+                          id="bEndRetro"
                           color="secondary"
                           fullWidth
                         >

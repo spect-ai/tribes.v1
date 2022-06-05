@@ -293,7 +293,7 @@ Moralis.Cloud.define('endRetroPeriod', async (request) => {
   }
 });
 
-Moralis.Cloud.define('completeRetroPayment', async (request) => {
+Moralis.Cloud.define('completeEpochPayment', async (request) => {
   log(
     request.user?.id,
     `Calling completeEpochPayment on epoch ${request.params.epochId}`,

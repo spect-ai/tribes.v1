@@ -226,6 +226,7 @@ export interface Epoch {
   transactionHash: string;
   feedbackReceived: Object<string, string>;
   feedbackGiven: Object<string, string>;
+  members: string[];
   _createdAt: object;
   _id: string;
   _updatedAt: object;

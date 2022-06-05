@@ -1,4 +1,5 @@
 function enrichEpoch(epoch, callerId) {
+  epoch.members = Object.keys(epoch.memberStats);
   if (callerId in epoch.memberStats) {
     epoch.votesGivenByCaller = epoch.memberStats[callerId].votesGiven;
     epoch.votesAllocated = epoch.memberStats[callerId].votesAllocated;
