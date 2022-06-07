@@ -65,10 +65,10 @@ export default function useERC20() {
     const contract = getERC20Contract(erc20Address);
     const numDecimals = await contract.decimals();
     const allowance = await contract.allowance(ethAddress, spenderAddress);
-    return (
-      allowance >=
-      ethers.BigNumber.from((value * 10 ** numDecimals).toFixed(0).toString())
-    );
+
+    return ethers.BigNumber.from(
+      `0x${(value * 10 ** numDecimals).toString(16)}`
+    ).lte(allowance);
   }
 
   async function areApproved(
@@ -118,10 +118,9 @@ export default function useERC20() {
 
       const balance = await contract.balanceOf(ethAddress);
 
-      return (
-        balance >=
-        ethers.BigNumber.from((value * 10 ** numDecimals).toFixed(0).toString())
-      );
+      return ethers.BigNumber.from(
+        `0x${(value * 10 ** numDecimals).toString(16)}`
+      ).lte(balance);
     }
   }
 
