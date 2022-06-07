@@ -44,6 +44,16 @@ export interface User {
   _created_at: any;
 }
 
+export interface SoulboundInfo {
+  title: string;
+  claimee: string;
+  contentUri: string;
+  deadline: string;
+  description: string;
+  issuer: string;
+  id: number;
+}
+
 export type Member = {
   ethAddress: string;
   objectId: string;
@@ -70,6 +80,12 @@ export type MemberStats = {
 export type MemberDetails = {
   [key: string]: Member;
 };
+
+export interface Feedback {
+  givenBy: string;
+  receivedBy: string;
+  content: string;
+}
 
 export interface Submission {
   userId: string;
@@ -125,6 +141,7 @@ export type Column = {
   discordChannels?: Channel[];
 };
 export interface Task {
+  issuer: string;
   taskId: string;
   title: string;
   description: any;
@@ -170,6 +187,12 @@ export interface Task {
   columnId: string;
   comments: Array<Comment>;
   votes: string[];
+  onChainBountyId?: number;
+  nftAddress?: string;
+  attested?: boolean;
+  ipfsUrl?: string;
+  claimedBy?: string[];
+  issuer?: string;
 }
 
 export interface Epoch {
@@ -188,6 +211,7 @@ export interface Epoch {
   epochNumber: number;
   active: boolean;
   name: string;
+  description: string;
   votesGivenByCaller: Object<string, number>;
   votesRemaining: number;
   votesAllocated: number;
@@ -201,6 +225,9 @@ export interface Epoch {
   votesFor: Object<string, number>;
   votesAgainst: Object<string, number>;
   transactionHash: string;
+  feedbackReceived: Object<string, string>;
+  feedbackGiven: Object<string, string>;
+  members: string[];
   _createdAt: object;
   _id: string;
   _updatedAt: object;
@@ -265,6 +292,33 @@ export interface Team {
   boards: BoardData[];
   theme: number;
   guildId: string;
+}
+/* TODO: Compress CurrentUser and Profile into a single type after checking impact */
+export interface Profile {
+  profilePicture: any;
+  avatar: string;
+  createdAt: string;
+  is_discord_linked: boolean;
+  objectId: string;
+  tribes: string[];
+  updatedAt: string;
+  userId: string;
+  username: string;
+  userId: string;
+  email: string;
+  discordId: string;
+  cards: Task[];
+  epochs: Epoch[];
+  ethAddress: string;
+  spaceDetails: object;
+  tribeDetails: object;
+  memberDetails: MemberDetails;
+  github: string;
+  twitter: string;
+  website: string;
+  bio: string;
+  linkedin: string;
+  skills: string[];
 }
 
 export type TokenInfo = {

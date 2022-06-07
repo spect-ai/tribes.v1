@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 import { useMoralis } from 'react-moralis';
-import fs from 'fs';
 import ERC20 from '../contracts/mumbai/erc20.json';
 import { useGlobal } from '../context/globalContext';
 

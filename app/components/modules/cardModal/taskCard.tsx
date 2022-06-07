@@ -21,6 +21,8 @@ import RewardPopover from './popovers/rewardPopover';
 import TabularDetails from './tabularDetails';
 import useCardUpdate from '../../../hooks/useCardUpdate';
 import { useCardContext } from '.';
+import Attest from './buttons/attest';
+import Claim from './buttons/claim';
 import DiscordThread from './popovers/discordThread';
 
 type Props = {
@@ -48,7 +50,7 @@ function TaskCard({ handleClose }: Props) {
   const { updateTitle, updateDescription } = useCardUpdate();
   const [readOnlyDescription, setReadOnlyDescription] = useState(false);
   const { title, setTitle, task } = useCardContext();
-  const { isSpaceSteward, isCardStakeholder } = useAccess(task);
+  const { isSpaceSteward } = useAccess();
   useEffect(() => {
     setReadOnlyDescription(!isCardStewardAndUnpaidCardStatus());
   }, [isCardStewardAndUnpaidCardStatus()]);
@@ -72,6 +74,8 @@ function TaskCard({ handleClose }: Props) {
         <Box sx={{ flex: '1 1 auto' }} />
         <AssignToMe />
         <CloseButton />
+        {/* <Attest />
+        <Claim /> */}
         <PayButton handleClose={handleClose} />
         <OptionsPopover />
         <IconButton

@@ -1,4 +1,4 @@
-import { Autocomplete, TextField } from '@mui/material';
+import { Autocomplete, TextField, Theme, SxProps } from '@mui/material';
 import React from 'react';
 
 type AutoProps = {
@@ -8,7 +8,7 @@ type AutoProps = {
   currOption: any;
   setCurrOption: (option: any) => void;
   setOpen?: (open: boolean) => void;
-  sx: any;
+  sx: SxProps<Theme> | undefined;
   closeOnSelect?: boolean;
   multiple?: boolean;
   placeholder?: string;

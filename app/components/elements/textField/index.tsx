@@ -1,4 +1,4 @@
-import { TextField } from '@mui/material';
+import { TextField, SxProps, Theme } from '@mui/material';
 import React from 'react';
 
 type TextFieldProps = {
@@ -8,7 +8,7 @@ type TextFieldProps = {
   type?: string;
   value: any;
   size?: any;
-  sx?: any;
+  sx?: SxProps<Theme> | undefined;
   placeholder?: string;
   handleChange: Function;
   testId?: string;

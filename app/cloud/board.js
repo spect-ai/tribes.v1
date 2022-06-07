@@ -112,7 +112,7 @@ async function getSpace(boardId, callerId) {
     const canReadSpace = canRead(boardObjDetailed[0], callerId);
     if (!canReadSpace) throw "You don't have access to view this space";
 
-    const epochs = await getEpochsBySpaceId(
+    const epochs = await getEpochsBySpace(
       boardObjDetailed[0].objectId,
       callerId
     );

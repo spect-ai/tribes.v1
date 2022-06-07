@@ -1,25 +1,40 @@
 import styled from '@emotion/styled';
+import CloseIcon from '@mui/icons-material/Close';
 import {
   Avatar,
+  Backdrop,
+  Box,
+  CircularProgress,
   Grow,
   IconButton,
+  InputAdornment,
   Modal,
+  styled as MUIStyled,
   TextField,
   Typography,
-  styled as MUIStyled,
-  Backdrop,
-  CircularProgress,
-  Box,
+  Autocomplete,
 } from '@mui/material';
+// import validator from 'validator';
+import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
-import CloseIcon from '@mui/icons-material/Close';
+import { Controller, useForm } from 'react-hook-form';
 import { useMoralis } from 'react-moralis';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { PrimaryButton } from '../../elements/styledComponents';
-import { OptionsButton } from '../themePopover';
-import { ButtonText } from '../exploreSidebar';
+import { useProfile } from '../../../../pages/profile/[username]';
 import { useGlobal } from '../../../context/globalContext';
+import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import useProfileInfo from '../../../hooks/useProfileInfo';
+import { PrimaryButton } from '../../elements/styledComponents';
+import { notify } from '../settingsTab';
+import { skillOptions } from '../../../constants';
+
+interface EditProfile {
+  bio: string;
+  website: string;
+  twitter: string;
+  github: string;
+  linkedin: string;
+  skills: string[];
+}
 
 type Props = {};
 
@@ -63,7 +78,7 @@ const ModalContent = styled.div`
 `;
 
 const FieldContainer = styled.div`
-  padding: 8px 0;
+  padding: 4px 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -72,27 +87,83 @@ const FieldContainer = styled.div`
 function ProfileSettings(props: Props) {
   const { Moralis, user } = useMoralis();
   const { avatar } = useProfileInfo();
+  const { profile, setProfile, setLoading } = useProfile();
+  const { control } = useForm<EditProfile>();
+  const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [bio, setBio] = useState('');
+  const [website, setWebsite] = useState('');
+  const [github, setGithub] = useState('');
+  const [twitter, setTwitter] = useState('');
+  const [linkedin, setLinkedin] = useState('');
+  const [skills, setSkills] = useState([] as string[]);
 
-  const [username, setUsername] = useState(user?.get('username'));
+  const [twitterErrorMessage, setTwitterErrorMessage] = useState('');
+  const [twitterError, setTwitterError] = useState(false);
+  const [websiteErrorMessage, setWebsiteErrorMessage] = useState('');
+  const [websiteError, setWebsiteError] = useState(false);
+  const [githubErrorMessage, setGithubErrorMessage] = useState('');
+  const [githubError, setGithubError] = useState(false);
+  const [linkedinErrorMessage, setLinkedinErrorMessage] = useState('');
+  const [linkedinError, setLinkedinError] = useState(false);
+
   const [picture, setPicture] = useState('');
-  // const [userEmail, setuserEmail] = useState(user?.get("email"));
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const {
     state: { currentUser },
   } = useGlobal();
   const handleClose = () => setIsOpen(false);
+  const { runMoralisFunction } = useMoralisFunction();
+
+  const isValidUrl = (url: string) => {
+    try {
+      // eslint-disable-next-line no-new
+      new URL(url);
+    } catch (e) {
+      return false;
+    }
+    return /https?/.test(url);
+  };
 
   useEffect(() => {
     setPicture(avatar);
   }, [avatar]);
 
+  useEffect(() => {
+    if (isOpen) {
+      setUsername(profile.username);
+      setBio(profile.bio);
+      setWebsite(profile.website);
+      setGithub(profile.github);
+      setTwitter(profile.twitter);
+      setLinkedin(profile.linkedin);
+      setSkills(profile.skills);
+    }
+  }, [isOpen]);
+
   return (
     <>
-      <OptionsButton color="inherit" onClick={() => setIsOpen(true)}>
-        <SettingsIcon />
-        <ButtonText>Profile Settings</ButtonText>
-      </OptionsButton>
+      {user && profile.username === user?.get('username') && (
+        <PrimaryButton
+          data-testid="bConfirmAction"
+          variant="outlined"
+          sx={{
+            width: { xs: '3rem', lg: '6rem' },
+            height: { xs: '1.5rem', lg: '2rem' },
+            mx: { xs: 2, lg: 4 },
+            mt: 2,
+            fontSize: { xs: '0.5rem', lg: '0.8rem' },
+          }}
+          color="secondary"
+          size="small"
+          onClick={() => {
+            setIsOpen(true);
+          }}
+        >
+          Edit Profile
+        </PrimaryButton>
+      )}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
           <ModalContainer>
@@ -121,52 +192,373 @@ function ProfileSettings(props: Props) {
                 >
                   <CircularProgress color="inherit" />
                   <Typography sx={{ mt: 2, mb: 1, color: '#eaeaea' }}>
-                    Updating profile...
+                    Adding profile picture...
                   </Typography>
                 </Box>
               </Backdrop>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDisplay: 'row',
+                  justifyContent: 'start',
+                  alignItems: 'center',
+                }}
+              >
+                <FieldContainer>
+                  <Avatar src={picture} sx={{ height: 60, width: 60 }} />
+                  <input
+                    accept="image/*"
+                    hidden
+                    id="contained-button-file"
+                    multiple
+                    type="file"
+                    onChange={(e) => {
+                      const file = e.target.files && e.target.files[0];
+                      if (file) {
+                        setIsLoading(true);
+                        const moralisFile = new Moralis.File(file.name, file);
+                        user?.set('profilePicture', moralisFile);
+                        user?.save().then((res: any) => {
+                          setIsLoading(false);
+                          setPicture(res.get('profilePicture')._url);
+                        });
+                      }
+                    }}
+                  />
+                  <label htmlFor="contained-button-file">
+                    {/* @ts-ignore */}
+                    <PrimaryButton sx={{ borderRadius: 1 }} component="span">
+                      Edit
+                    </PrimaryButton>
+                  </label>
+                </FieldContainer>
+                <FieldContainer>
+                  <TextField
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    fullWidth
+                    placeholder="Username"
+                    size="small"
+                    color="secondary"
+                    sx={{ ml: 8 }}
+                  />
+                </FieldContainer>
+              </Box>
+              <Typography
+                variant="body2"
+                sx={{ color: 'text.secondary', mb: 0.5, ml: 2 }}
+              >
+                Add your skills
+              </Typography>
+              <Controller
+                name="skills"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <Autocomplete
+                    data-testid="tags"
+                    options={Object.keys(skillOptions)}
+                    value={skills}
+                    size="small"
+                    onChange={(event, newValue) => {
+                      setSkills(newValue as string[]);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        id="filled-hidden-label-normal"
+                        size="small"
+                        fullWidth
+                        placeholder=""
+                        color="secondary"
+                      />
+                    )}
+                    multiple
+                  />
+                )}
+              />
+              <Typography
+                variant="body2"
+                sx={{ color: 'text.secondary', mb: 0.5, ml: 2, mt: 2 }}
+              >
+                Tell us about yourself
+              </Typography>
+              <Controller
+                name="bio"
+                control={control}
+                render={({ field, fieldState }) => (
+                  <TextField
+                    {...field}
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    type="text"
+                    size="small"
+                    minRows="3"
+                    fullWidth
+                    placeholder="I'm passionate about..."
+                    multiline
+                    color="secondary"
+                    maxRows={5}
+                  />
+                )}
+              />
+
+              <Typography
+                variant="body2"
+                sx={{ color: 'text.secondary', ml: 2, mt: 2, mb: -0.5 }}
+              >
+                Add your socials
+              </Typography>
               <FieldContainer>
-                <Avatar src={picture} sx={{ height: 60, width: 60 }} />
-                <input
-                  accept="image/*"
-                  hidden
-                  id="contained-button-file"
-                  multiple
-                  type="file"
-                  onChange={(e) => {
-                    const file = e.target.files && e.target.files[0];
-                    if (file) {
-                      setIsLoading(true);
-                      const moralisFile = new Moralis.File(file.name, file);
-                      user?.set('profilePicture', moralisFile);
-                      user?.save().then((res: any) => {
-                        setIsLoading(false);
-                        setPicture(res.get('profilePicture')._url);
-                      });
-                    }
-                  }}
+                <Controller
+                  name="website"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      value={website}
+                      onChange={(e) => setWebsite(e.target.value)}
+                      fullWidth
+                      placeholder="https://my-website.com"
+                      size="small"
+                      color="secondary"
+                      error={websiteError}
+                      onBlur={() => {
+                        if (!isValidUrl(website) && website.length !== 0) {
+                          setWebsiteErrorMessage('Invalid URL');
+                          setWebsiteError(true);
+                        } else {
+                          // eslint-disable-next-line no-lone-blocks
+                          {
+                            setWebsiteErrorMessage('');
+                            setWebsiteError(false);
+                          }
+                        }
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <i className="fas fa-link" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
                 />
-                <label htmlFor="contained-button-file">
-                  {/* @ts-ignore */}
-                  <PrimaryButton sx={{ borderRadius: 1 }} component="span">
-                    Edit
-                  </PrimaryButton>
-                </label>
               </FieldContainer>
+              <Typography variant="body2" sx={{ color: '#f44336' }}>
+                {websiteErrorMessage}
+              </Typography>
               <FieldContainer>
-                <TextField
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  fullWidth
-                  placeholder="Username"
-                  size="small"
+                <Controller
+                  name="github"
+                  control={control}
+                  rules={{
+                    validate: (value) =>
+                      value.startsWith('https://github.com/') || 'Invalid URL',
+                  }}
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      value={github}
+                      onChange={(e) => setGithub(e.target.value)}
+                      fullWidth
+                      placeholder="https://github.com/my-github-username"
+                      size="small"
+                      color="secondary"
+                      error={githubError}
+                      onBlur={() => {
+                        if (
+                          !github.startsWith('https://github.com/') &&
+                          !github.startsWith('https://www.github.com/') &&
+                          github.length !== 0
+                        ) {
+                          setGithubErrorMessage('Invalid URL');
+                          setGithubError(true);
+                        } else {
+                          // eslint-disable-next-line no-lone-blocks
+                          {
+                            setGithubErrorMessage('');
+                            setGithubError(false);
+                          }
+                        }
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <i className="fa-brands fa-github" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </FieldContainer>
+              <Typography variant="body2" sx={{ color: '#f44336' }}>
+                {githubErrorMessage}
+              </Typography>
+              <FieldContainer>
+                <Controller
+                  name="linkedin"
+                  control={control}
+                  rules={{
+                    validate: (value) =>
+                      value.startsWith('https://linkedin.com/') ||
+                      'Invalid URL',
+                  }}
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      value={linkedin}
+                      onChange={(e) => setLinkedin(e.target.value)}
+                      fullWidth
+                      placeholder="https://linkedin.com/my-linkedin-username"
+                      size="small"
+                      color="secondary"
+                      error={linkedinError}
+                      onBlur={() => {
+                        if (
+                          linkedin.length !== 0 &&
+                          !linkedin.startsWith('https://www.linkedin.com') &&
+                          !linkedin.startsWith('https://linkedin.com/')
+                        ) {
+                          setLinkedinErrorMessage('Invalid URL');
+                          setLinkedinError(true);
+                        } else {
+                          // eslint-disable-next-line no-lone-blocks
+                          {
+                            setLinkedinErrorMessage('');
+                            setLinkedinError(false);
+                          }
+                        }
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <i className="fa-brands fa-linkedin" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </FieldContainer>
+              <Typography variant="body2" sx={{ color: '#f44336' }}>
+                {linkedinErrorMessage}
+              </Typography>
+              <FieldContainer>
+                <Controller
+                  name="twitter"
+                  control={control}
+                  rules={{
+                    validate: (value) =>
+                      value.startsWith('https://twitter.com/') || 'Invalid URL',
+                  }}
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      value={twitter}
+                      onChange={(e) => setTwitter(e.target.value)}
+                      fullWidth
+                      placeholder="https://twitter.com/my-twitter-username"
+                      size="small"
+                      color="secondary"
+                      id="standard-error-helper-text"
+                      onBlur={() => {
+                        if (
+                          !twitter.startsWith('https://twitter.com/') &&
+                          !github.startsWith('https://www.twitter.com/') &&
+                          twitter.length !== 0
+                        ) {
+                          setTwitterErrorMessage('Invalid URL');
+                          setTwitterError(true);
+                        } else {
+                          // eslint-disable-next-line no-lone-blocks
+                          {
+                            setTwitterErrorMessage('');
+                            setTwitterError(false);
+                          }
+                        }
+                      }}
+                      error={twitterError}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <i className="fa-brands fa-twitter" />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </FieldContainer>
+              <Typography variant="body2" sx={{ color: '#f44336' }}>
+                {twitterErrorMessage}
+              </Typography>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDisplay: 'row',
+                  width: '100%',
+                  alignItems: 'end',
+                  justifyContent: 'end',
+                }}
+              >
+                <PrimaryButton
+                  data-testid="bUpdateProfile"
+                  variant="outlined"
+                  sx={{
+                    width: '6rem',
+                    height: '2rem',
+                    mt: 2,
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
                   color="secondary"
-                  onBlur={() => {
-                    user?.set('username', username);
-                    user?.save();
+                  size="small"
+                  onClick={() => {
+                    setLoading(true);
+                    runMoralisFunction('updateProfile', {
+                      username,
+                      website,
+                      github,
+                      twitter,
+                      bio,
+                      skills,
+                    })
+                      .then((res: any) => {
+                        setIsOpen(false);
+                        notify('Profile updated!', 'success');
+                        if (profile.username === username) {
+                          setProfile(
+                            Object.assign(profile, {
+                              website,
+                              github,
+                              twitter,
+                              linkedin,
+                              bio,
+                              skills,
+                            })
+                          );
+                          user?.set('website', website);
+                          user?.set('github', github);
+                          user?.set('twitter', twitter);
+                          user?.set('linkedin', linkedin);
+                          user?.set('bio', bio);
+                          user?.set('skills', skills);
+                          setLoading(false);
+                        } else {
+                          user?.set('username', username);
+                          router.push(`/profile/${username}`);
+                          setLoading(false);
+                        }
+                      })
+                      .catch((err: any) => {
+                        notify(err.message, 'error');
+                        setLoading(false);
+                      });
                   }}
-                />
-              </FieldContainer>
+                >
+                  Save
+                </PrimaryButton>
+              </Box>
             </ModalContent>
           </ModalContainer>
         </Grow>

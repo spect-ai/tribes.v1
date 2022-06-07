@@ -1,4 +1,11 @@
-import { Avatar, AvatarGroup, Tooltip, Box } from '@mui/material';
+import {
+  Avatar,
+  AvatarGroup,
+  Tooltip,
+  Box,
+  SxProps,
+  Theme,
+} from '@mui/material';
 import React from 'react';
 import useProfileInfo from '../../../hooks/useProfileInfo';
 import MemberInfoDisplay from '../memberInfoDisplay';
@@ -7,7 +14,7 @@ import { StyledAvatar } from '../styledComponents';
 type Props = {
   memberIds: string[];
   memberDetails: any;
-  avatarGroupsx?: object;
+  avatarGroupsx?: SxProps<Theme> | undefined;
   maxAvatars?: number;
   testid?: string;
 };

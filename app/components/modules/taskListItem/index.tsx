@@ -3,11 +3,12 @@ import {
   AttachMoneyOutlined,
   CreditScore,
   DateRange,
-  MonetizationOn,
 } from '@mui/icons-material';
-import { Avatar, Palette, Typography, useTheme } from '@mui/material';
+import { Avatar, Palette, Typography, useTheme, Tooltip } from '@mui/material';
 import React, { useState } from 'react';
 import { Draggable } from 'react-beautiful-dnd';
+import { utcToZonedTime } from 'date-fns-tz';
+import { format } from 'date-fns';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import { labelsMapping, monthMap } from '../../../constants';
 import useProfileInfo from '../../../hooks/useProfileInfo';
@@ -115,19 +116,32 @@ function TaskListItem({ task, index }: Props) {
               )}
               {task.value ? (
                 <Chip color="rgb(153, 204, 255, 0.2)">
-                  <MonetizationOn sx={{ fontSize: 12 }} />
                   {task.value} {task.token.symbol}
                 </Chip>
               ) : null}
               {task.deadline && (
-                <Chip color="rgb(153, 204, 255, 0.2)">
-                  <DateRange sx={{ fontSize: 12 }} />
-                  {task.deadline.getDate && task.deadline.getDate()}{' '}
-                  {task.deadline.getMonth &&
-                    monthMap[
-                      task.deadline?.getMonth() as keyof typeof monthMap
-                    ]}
-                </Chip>
+                <Tooltip
+                  title={`Card deadline is ${format(
+                    utcToZonedTime(
+                      new Date(task.deadline),
+                      Intl.DateTimeFormat().resolvedOptions().timeZone
+                    ),
+                    'MMM do, hh:mm a'
+                  )}`}
+                >
+                  <Chip color="rgb(153, 204, 255, 0.2)">
+                    <DateRange sx={{ fontSize: 12, mr: 1 }} />
+                    <Typography sx={{ fontSize: 12 }}>
+                      {format(
+                        utcToZonedTime(
+                          new Date(task.deadline),
+                          Intl.DateTimeFormat().resolvedOptions().timeZone
+                        ),
+                        'MMM do'
+                      )}
+                    </Typography>
+                  </Chip>
+                </Tooltip>
               )}
               {task.status === 300 && (
                 <Chip color="rgb(153, 204, 255, 0.2)">

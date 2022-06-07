@@ -67,3 +67,21 @@ function dateGreaterThan(date1, date2) {
   const d2 = new Date(date2.iso);
   return d1.getTime() > d2.getTime();
 }
+
+function getArrayFromArrayOfObjects(arr, key) {
+  const logger = Moralis.Cloud.getLogger();
+  const array = [];
+  for (const element of arr) {
+    array.push(element[key]);
+  }
+  return array;
+}
+
+function getArrayFromObjectOfObject(obj, key) {
+  const logger = Moralis.Cloud.getLogger();
+  const array = [];
+  for (const id of Object.keys(obj)) {
+    array.push(obj[id][key]);
+  }
+  return array;
+}

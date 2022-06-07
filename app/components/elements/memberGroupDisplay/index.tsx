@@ -1,5 +1,12 @@
 import PersonIcon from '@mui/icons-material/Person';
-import { Box, ButtonProps, styled, Tooltip } from '@mui/material';
+import {
+  Box,
+  ButtonProps,
+  styled,
+  SxProps,
+  Theme,
+  Tooltip,
+} from '@mui/material';
 import React from 'react';
 import { Member } from '../../../types';
 import MemberInfoDisplay from '../memberInfoDisplay';
@@ -10,12 +17,22 @@ type Props = {
   members: string[];
   memberDetails: any;
   placeholder: string;
+  textsx?: SxProps<Theme> | undefined;
+  textVariant?: string;
+  avatarsx?: SxProps<Theme> | undefined;
+  boxsx?: SxProps<Theme> | undefined;
+  multiMemberBoxsx?: SxProps<Theme> | undefined;
 };
 
 export default function MemberGroupDisplay({
   members,
   memberDetails,
   placeholder,
+  textsx,
+  textVariant,
+  avatarsx,
+  boxsx,
+  multiMemberBoxsx,
 }: Props) {
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -33,17 +50,23 @@ export default function MemberGroupDisplay({
               <MemberInfoDisplay
                 member={members.length === 1 ? memberDetails[members[0]] : null}
                 placeholder={placeholder}
+                textsx={textsx}
+                textVariant={textVariant}
+                avatarsx={avatarsx}
+                boxsx={boxsx}
               />
             </Box>
           </Box>
         ) : (
           <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            sx={
+              multiMemberBoxsx || {
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }
+            }
           >
             <MemberAvatarGroup
               memberIds={members}

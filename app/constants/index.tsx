@@ -96,6 +96,17 @@ export const labelsMapping = {
   Testing: 'rgb(254, 254, 254,0.4)',
 };
 
+export const skillOptions = {
+  Design: 'rgb(46, 93, 170, 0.4)',
+  Development: 'rgb(240, 98, 146, 0.4)',
+  Content: 'rgb(102, 187, 106, 0.4)',
+  Marketing: 'rgb(116, 166, 214,0.4)',
+  Product: 'rgb(192, 31, 98,0.4)',
+  Operations: 'rgb(254, 254, 254,0.4)',
+  Legal: 'rgb(254, 254, 254,0.4)',
+  Research: 'rgb(254, 254, 254,0.4)',
+};
+
 export const taskStatusBorderMapping: {
   [key: number]: string;
 } = {

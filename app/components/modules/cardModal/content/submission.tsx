@@ -50,7 +50,7 @@ const ModalContent = MUIStyled('div')(({ theme }) => ({
 function Submission() {
   const { task, loading } = useCardContext();
   const { space } = useSpace();
-  const { isCardSteward, isCardAssignee } = useAccess(task);
+  const { isCardSteward, isCardAssignee } = useAccess();
   const {
     isAssigned,
     isInReview,
@@ -88,9 +88,9 @@ function Submission() {
 
   return (
     <Box sx={{ color: '#eaeaea', height: 'auto', mr: 3, width: '100%' }}>
-      {((isCardSteward() &&
+      {((isCardSteward(task) &&
         (isInReview() || isInRevision() || isClosed() || isPaid())) ||
-        isCardAssignee()) && (
+        isCardAssignee(task)) && (
         <>
           {space.githubRepos?.length > 0 && <GithubPRPopover />}
           <Editor
@@ -111,7 +111,7 @@ function Submission() {
             }
             placeholderText={`Add submission, press "/" for commands`}
             readonly={
-              (!isCardAssignee() as boolean) ||
+              (!isCardAssignee(task) as boolean) ||
               (isClosed() as boolean) ||
               (isPaid() as boolean)
             }
@@ -154,7 +154,7 @@ function Submission() {
             </Typography>
           </Box>
         )}
-        {isCardSteward() && isInRevision() && (
+        {isCardSteward(task) && isInRevision() && (
           <PrimaryButton
             variant="outlined"
             sx={{
@@ -178,7 +178,7 @@ function Submission() {
         )}
         {
           // Assignee view
-          isCardAssignee() && isInRevision() && (
+          isCardAssignee(task) && isInRevision() && (
             <Box
               sx={{
                 display: 'flex',
@@ -210,7 +210,7 @@ function Submission() {
         }
         {
           // Assignee view
-          isCardAssignee() && (isInRevision() || isAssigned()) && (
+          isCardAssignee(task) && (isInRevision() || isAssigned()) && (
             <Box
               sx={{
                 display: 'flex',
@@ -241,7 +241,7 @@ function Submission() {
           )
         }
 
-        {isCardAssignee() && isInReview() && (
+        {isCardAssignee(task) && isInReview() && (
           <Box
             sx={{
               display: 'flex',
@@ -261,7 +261,7 @@ function Submission() {
         )}
         {
           // Reviewer view
-          isCardSteward() && isInReview() && (
+          isCardSteward(task) && isInReview() && (
             <Box
               sx={{
                 display: 'flex',
@@ -314,8 +314,8 @@ function Submission() {
           )
         }
       </Box>
-      {isCardSteward() &&
-        !isCardAssignee() &&
+      {isCardSteward(task) &&
+        !isCardAssignee(task) &&
         !isInReview() &&
         !isInRevision() &&
         !isPaid() &&
@@ -359,9 +359,9 @@ function Submission() {
                 InputProps={{
                   disableUnderline: true, // <== added this
                 }}
-                disabled={!isCardSteward()}
+                disabled={!isCardSteward(task)}
               />
-              {isCardSteward() && (
+              {isCardSteward(task) && (
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <PrimaryButton
                     variant="outlined"

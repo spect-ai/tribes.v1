@@ -49,7 +49,7 @@ function Comments() {
   const handleClose = () => {
     setOpen(false);
   };
-  const { isCardStakeholder, isSpaceMember } = useAccess(task);
+  const { isCardStakeholder, isSpaceMember } = useAccess();
   const [loading, setLoading] = useState(false);
   const [commentOnEdit, setCommentOnEdit] = useState<Block[]>([
     {
@@ -336,54 +336,56 @@ function Comments() {
           </ListItemButton>
         </List>
       </Popover>
-      {mode !== 'edit' && !loading && (isSpaceMember() || isCardStakeholder()) && (
-        <>
-          <Box
-            sx={{
-              width: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              mt: 4,
-            }}
-          >
-            <Avatar sx={{ p: 0, m: 0, width: 32, height: 32 }} src={avatar} />
-            <Typography
-              variant="body1"
-              sx={{ display: 'flex', alignItems: 'center', ml: 2 }}
-            >
-              {user?.get('username')}
-            </Typography>{' '}
-          </Box>
-          <Editor
-            readonly={false}
-            syncBlocksToMoralis={setCommentOnEdit}
-            initialBlock={commentOnEdit}
-            placeholderText={`Add a comment, press "/" for commands`}
-            id="comment-editor"
-          />
-          <PrimaryButton
-            variant="outlined"
-            sx={{
-              mt: 2,
-              borderRadius: 1,
-              width: '8rem',
-              height: '2rem',
-            }}
-            color="secondary"
-            size="small"
-            loading={loading}
-            onClick={() => {
-              syncBlocksToMoralis(commentOnEdit);
-            }}
-            disabled={isInitComment(commentOnEdit)}
-          >
-            Add comment
-          </PrimaryButton>
-        </>
-      )}
       {mode !== 'edit' &&
         !loading &&
-        !(isSpaceMember() || isCardStakeholder()) &&
+        (isSpaceMember() || isCardStakeholder(task)) && (
+          <>
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                mt: 4,
+              }}
+            >
+              <Avatar sx={{ p: 0, m: 0, width: 32, height: 32 }} src={avatar} />
+              <Typography
+                variant="body1"
+                sx={{ display: 'flex', alignItems: 'center', ml: 2 }}
+              >
+                {user?.get('username')}
+              </Typography>{' '}
+            </Box>
+            <Editor
+              readonly={false}
+              syncBlocksToMoralis={setCommentOnEdit}
+              initialBlock={commentOnEdit}
+              placeholderText={`Add a comment, press "/" for commands`}
+              id="comment-editor"
+            />
+            <PrimaryButton
+              variant="outlined"
+              sx={{
+                mt: 2,
+                borderRadius: 1,
+                width: '8rem',
+                height: '2rem',
+              }}
+              color="secondary"
+              size="small"
+              loading={loading}
+              onClick={() => {
+                syncBlocksToMoralis(commentOnEdit);
+              }}
+              disabled={isInitComment(commentOnEdit)}
+            >
+              Add comment
+            </PrimaryButton>
+          </>
+        )}
+      {mode !== 'edit' &&
+        !loading &&
+        !(isSpaceMember() || isCardStakeholder(task)) &&
         hasNoComments() && (
           <Typography
             variant="body1"

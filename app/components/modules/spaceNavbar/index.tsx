@@ -118,7 +118,7 @@ function SpaceNavbar(props: Props) {
       <Box sx={{ flex: '1 1 auto' }} />
       <StyledTabs value={tab} onChange={handleTabChange} centered>
         <StyledTab label="Project" data-testid="tBoardTab" />
-        <StyledTab label="Consensus" data-testid="tEpochTab" />
+        <StyledTab label="Retro" data-testid="tEpochTab" />
         {/* <StyledTab label="FAQ" data-testid="tFAQTab" /> */}
         <StyledTab
           label="Settings"
@@ -135,7 +135,7 @@ function SpaceNavbar(props: Props) {
             id: 0,
           },
           {
-            label: 'Consensus',
+            label: 'Retro',
             id: 1,
           },
           {

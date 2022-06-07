@@ -1,7 +1,7 @@
 import CheckIcon from '@mui/icons-material/Check';
 import ClearIcon from '@mui/icons-material/Clear';
 import MoodIcon from '@mui/icons-material/Mood';
-import { Box, TextField, Typography } from '@mui/material';
+import { Box, TextField, Typography, SxProps, Theme } from '@mui/material';
 import React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import useProfileInfo from '../../../hooks/useProfileInfo';
@@ -12,9 +12,9 @@ type Props = {
   index?: number;
   ethAddress: string;
   handleAddressUpdate: Function;
-  boxsx?: object;
-  textFieldSx?: object;
-  typographySx?: object;
+  boxsx?: SxProps<Theme> | undefined;
+  textFieldSx?: SxProps<Theme> | undefined;
+  typographySx?: SxProps<Theme> | undefined;
 };
 
 interface Address {

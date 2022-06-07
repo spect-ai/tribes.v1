@@ -10,9 +10,14 @@ const easyUpdates = [
   'token',
   'transactionHash',
   'feedback',
+  'nftAddress',
+  'onChainBountyId',
+  'attested',
+  'ipfsUrl',
+  'issuer',
 ];
 
-const arrayUpates = ['votes'];
+const arrayUpates = ['votes', 'claimedBy'];
 
 // These are fields that need to converted to the date type
 const dateUpdates = ['deadline'];

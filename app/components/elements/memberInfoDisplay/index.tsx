@@ -1,15 +1,24 @@
-import { Box, Typography, styled } from '@mui/material';
+import {
+  Box,
+  Typography,
+  styled,
+  SxProps,
+  Theme,
+  Link,
+  IconButton,
+} from '@mui/material';
 import React from 'react';
-import { Member } from '../../../types';
+import { useRouter } from 'next/router';
+import { Member, Profile } from '../../../types';
 import MemberAvatar from '../memberAvatar';
 
 type Props = {
-  member?: Member;
+  member?: Member | Profile;
   placeholder?: string;
-  textsx?: object;
+  textsx?: SxProps<Theme> | undefined;
   textVariant?: string;
-  avatarsx?: object;
-  boxsx?: object;
+  avatarsx?: SxProps<Theme> | undefined;
+  boxsx?: SxProps<Theme> | undefined;
 };
 
 export default function MemberInfoDisplay({

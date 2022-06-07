@@ -1,4 +1,5 @@
 import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
 import { Popover, useTheme } from '@mui/material';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -47,24 +48,17 @@ function ProfilePopover({ open, anchorEl, handleClose }: Props) {
             <ButtonText>Link Discord</ButtonText>
           </OptionsButton>
         )}
-        {!user?.get('githubId') && (
-          <OptionsButton
-            color="inherit"
-            onClick={() => {
-              router.push(
-                `https://github.com/login/oauth/authorize?client_id=2838cb949f5485e3edb4&redirect_uri=${
-                  process.env.DEV_ENV === 'local'
-                    ? 'http%3A%2F%2Flocalhost%3A3000%2F'
-                    : 'https%3A%2F%2Ftribes.spect.network%2F'
-                }&state=${user?.id}`
-              );
-            }}
-          >
-            <i className="fa-brands fa-github" />
-            <ButtonText>Link GitHub</ButtonText>
-          </OptionsButton>
-        )}
-        <ProfileSettings />
+        <OptionsButton
+          data-testid="bGoToProfile"
+          color="inherit"
+          onClick={() => {
+            if (user) router.push(`/profile/${user.get('username')}`);
+          }}
+        >
+          <PersonIcon />
+          <ButtonText>Go to Profile</ButtonText>
+        </OptionsButton>
+        {/* <ProfileSettings /> */}
         <OptionsButton
           data-testid="bLogoutButton"
           color="inherit"
