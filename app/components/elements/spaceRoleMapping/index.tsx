@@ -78,7 +78,7 @@ function SpaceRoleMapping({ handleModalClose }: Props) {
     setIsFetching(true);
     const res = await fetch(
       `${
-        process.env.DEV_ENV !== 'local'
+        process.env.DEV_ENV === 'local'
           ? 'http://localhost:3001/'
           : 'https://spect-discord-bot.herokuapp.com/'
       }api/guildRoles?guildId=${space.team[0].guildId}`,
