@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { Task } from '../../../types';
-import { StyledTab, StyledTabs } from '../../elements/styledComponents';
+import { ScrollableTabs, StyledTab } from '../../elements/styledComponents';
 import ProposalsStewardView from './content/proposalsStewardView';
 import ProposalApplicantdView from './content/proposalApplicantView';
 import Apply from './buttons/apply';
@@ -32,11 +31,11 @@ function TabularDetails() {
           width: '100%',
         }}
       >
-        <StyledTabs value={tabIdx} onChange={handleTabChange} sx={{}}>
+        <ScrollableTabs value={tabIdx} onChange={handleTabChange} sx={{}}>
           {tabs.map((tab) => {
             return <StyledTab key={tab.toString()} label={tab} />;
           })}
-        </StyledTabs>
+        </ScrollableTabs>
         {tabs[tabIdx] === 'Applicants' && <ProposalsStewardView />}
         {tabs[tabIdx] === 'Application' && <ProposalApplicantdView />}
         {tabs[tabIdx] === 'Submissions' && <Submission />}

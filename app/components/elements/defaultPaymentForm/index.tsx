@@ -28,7 +28,7 @@ function DefaultPaymentForm({ chain, setChain, token, setToken }: Props) {
   const filter = createFilterOptions<Token>();
 
   return (
-    <Box sx={{ display: 'flex', my: 1 }}>
+    <Box sx={{ my: 1 }}>
       <CustomTokenDialog
         open={isDialogOpen}
         handleClose={() => setIsDialogOpen(false)}
@@ -54,7 +54,7 @@ function DefaultPaymentForm({ chain, setChain, token, setToken }: Props) {
         renderInput={(params) => (
           <TextField {...params} size="small" color="secondary" />
         )}
-        sx={{ mr: 2 }}
+        sx={{ mr: 2, my: 2 }}
       />
       <Autocomplete
         options={getFlattenedCurrencies(registry as Registry, chain.chainId)}

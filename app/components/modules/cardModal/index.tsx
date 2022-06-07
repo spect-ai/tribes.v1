@@ -15,19 +15,28 @@ type Props = {
 };
 
 // @ts-ignore
-const ModalContainer = styled(Box)(({ theme }) => ({
+export const ModalContainer = styled(Box)(({ theme }) => ({
   position: 'absolute' as 'absolute',
-  top: '50%',
-  left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '55rem',
   border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflowY: 'auto',
   overflowX: 'hidden',
-  height: '35rem',
-  padding: '1.5rem 3rem',
+  [theme.breakpoints.down('md')]: {
+    top: '50%',
+    left: '50%',
+    padding: '1rem 2rem',
+    width: '18rem',
+    height: '30rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    width: '55rem',
+    top: '50%',
+    left: '50%',
+    padding: '1.5rem 3rem',
+    height: '35rem',
+  },
 }));
 
 interface CardContextType {

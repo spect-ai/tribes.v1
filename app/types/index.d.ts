@@ -238,6 +238,7 @@ export interface BoardData {
   team: Team[];
   defaultPayment: DefaultPayment;
   tokenGating: TokenGate;
+  description: string;
   private: boolean;
   creatingEpoch: boolean;
   guildId: string;

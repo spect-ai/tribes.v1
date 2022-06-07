@@ -88,12 +88,10 @@ export default function Home() {
     }
   }, [isInitialized, isAuthenticated]);
 
-  useEffect(() => {
-    if (inviteCode) {
-      if (!isAuthenticated) {
-        authenticate();
-        return;
-      }
+  const joinSpaceFromInvite = async () => {
+    if (!isAuthenticated) {
+      await authenticate();
+      await runMoralisFunction('getOrCreateUser', {});
       runMoralisFunction('joinSpaceFromInvite', {
         inviteCode,
       })
@@ -105,6 +103,12 @@ export default function Home() {
           console.error(err);
           notify(err.message, 'error');
         });
+    }
+  };
+
+  useEffect(() => {
+    if (inviteCode) {
+      joinSpaceFromInvite();
     }
   }, [inviteCode, isAuthenticated]);
   return (

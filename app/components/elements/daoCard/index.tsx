@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import {
   Avatar,
+  Box,
   Button,
   Palette,
   styled as MUIStyled,
@@ -56,18 +57,28 @@ function DAOCard({ image, title, members, teamId }: Props) {
             variant="h6"
             component="div"
             color={palette.text.primary}
-            sx={{ textAlign: 'center', maxHeight: '4rem', overflow: 'hidden' }}
+            sx={{
+              textAlign: 'center',
+              height: '4rem',
+              overflow: 'hidden',
+              mt: 2,
+            }}
           >
             {normalTrim(title, 17)}
           </Typography>
           <Typography
             gutterBottom
             component="div"
-            sx={{ textAlign: 'center', color: '#5a6972', fontSize: 13 }}
+            sx={{
+              textAlign: 'center',
+              color: '#5a6972',
+              fontSize: 13,
+              height: '100%',
+            }}
           >
             {members} members
           </Typography>
-          <Button
+          {/* <Button
             variant="outlined"
             color="secondary"
             disableElevation
@@ -79,7 +90,7 @@ function DAOCard({ image, title, members, teamId }: Props) {
             }}
           >
             View
-          </Button>
+          </Button> */}
         </CardContent>
       </Card>
     </Link>
