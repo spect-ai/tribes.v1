@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
-import { Fade, Grow } from '@mui/material';
+import { Fade, Grow, Box, Modal, Typography } from '@mui/material';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
 import CardModal from '../../modules/cardModal';
 import DiscordIntegrationModal from '../../modules/discordIntegrationModal';
@@ -11,6 +11,7 @@ import EpochList from '../../modules/epoch';
 import NoAccess from '../../modules/epoch/noAccess';
 import ProjectSkeletonLoader from '../../modules/project/skeletonLoader';
 import SpaceSettings from '../../modules/spaceSettings';
+import Search from '../../modules/search';
 
 type Props = {};
 
@@ -20,6 +21,18 @@ const OuterDiv = styled.div`
   width: 100%;
 `;
 
+const style = {
+  position: 'absolute' as 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  bgcolor: 'background.default',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};
+
 function BoardsTemplate(props: Props) {
   const router = useRouter();
   const { user } = useMoralis();
@@ -28,6 +41,10 @@ function BoardsTemplate(props: Props) {
   const { space, isLoading, tab } = useSpace();
   const [isOpen, setIsOpen] = useState(false);
   const [isDiscordModalOpen, setIsDiscordModalOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const handlesOpen = () => setOpen(true);
+  const handlesClose = () => setOpen(false);
+
   const handleClose = () => {
     setIsOpen(false);
     router.push(`/tribe/${id}/space/${bid}`);
@@ -40,6 +57,17 @@ function BoardsTemplate(props: Props) {
     if (taskId && !isLoading) {
       setIsOpen(true);
     }
+
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'k') {
+        handlesOpen();
+      }
+    };
+    window.addEventListener('keyup', handler);
+
+    return () => {
+      window.removeEventListener('keyup', handler);
+    };
   }, [taskId, isLoading]);
 
   if (isLoading) {
@@ -48,6 +76,24 @@ function BoardsTemplate(props: Props) {
 
   return (
     <OuterDiv>
+      <Modal
+        open={open}
+        onClose={handlesClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography
+            id="modal-modal-title"
+            variant="h6"
+            component="h2"
+            color="secondary"
+          >
+            {space.name}
+            <Search />
+          </Typography>
+        </Box>
+      </Modal>
       <CardModal
         isOpen={isOpen}
         handleClose={handleClose}
