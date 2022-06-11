@@ -9,11 +9,38 @@ import CommonAutocomplete from '../../elements/autoComplete';
 import { BoardData } from '../../../types';
 
 export interface CurrentFilter {
+  columnFilter: string[];
   reviewerFilter: string[];
   assigneeFilter: string[];
   labelsFilter: string[];
   titleFilter: string;
 }
+
+export const filterColumns = (
+  space: BoardData,
+  currentFilter: CurrentFilter
+) => {
+  if (!currentFilter || !currentFilter.columnFilter) return space.columns;
+  const filteredColumns = Object.values(space.columns)?.filter((column) => {
+    if (column === undefined) return false;
+
+    const { id } = column;
+
+    if (currentFilter.columnFilter.length > 0) {
+      const columnRTruth = currentFilter.columnFilter.includes(id);
+      if (columnRTruth) return column;
+      return false;
+    }
+    return false;
+  });
+
+  const spaceColumns = filteredColumns.reduce(
+    (acc, column) => ({ ...acc, [column.id]: column }),
+    {}
+  );
+  console.log('Global spaceColumns', spaceColumns);
+  return spaceColumns;
+};
 
 export const filterTasks = (space: BoardData, currentFilter: CurrentFilter) => {
   if (!currentFilter || !currentFilter.reviewerFilter) return space.tasks;
@@ -46,7 +73,6 @@ export const filterTasks = (space: BoardData, currentFilter: CurrentFilter) => {
           break;
         }
       }
-      // console.log("\n");
     } else {
       assigneeFiltSat = true;
     }
@@ -87,9 +113,11 @@ export const filterTasks = (space: BoardData, currentFilter: CurrentFilter) => {
 };
 
 function TasksFilter() {
-  const { space, setFilteredTasks, setCurrentFilter } = useSpace();
+  const { space, setFilteredColumns, setFilteredTasks, setCurrentFilter } =
+    useSpace();
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [columnFilter, setColumnFilter] = useState<string[]>([]);
   const [reviewerFilter, setReviewerFilter] = useState<string[]>([]);
   const [assigneeFilter, setAssigneeFilter] = useState<string[]>([]);
   const [labelsFilter, setLabelsFilter] = useState<string[]>([]);
@@ -109,6 +137,7 @@ function TasksFilter() {
   const handleFilter = () => {
     handleFilterClose();
     setCurrentFilter({
+      columnFilter,
       reviewerFilter,
       assigneeFilter,
       labelsFilter,
@@ -116,6 +145,16 @@ function TasksFilter() {
     });
     setFilteredTasks(
       filterTasks(space, {
+        columnFilter,
+        reviewerFilter,
+        assigneeFilter,
+        labelsFilter,
+        titleFilter,
+      })
+    );
+    setFilteredColumns(
+      filterColumns(space, {
+        columnFilter,
         reviewerFilter,
         assigneeFilter,
         labelsFilter,
@@ -164,6 +203,17 @@ function TasksFilter() {
         }}
       >
         <PopoverContainer>
+          <CommonAutocomplete
+            options={space.columnOrder}
+            optionLabels={(option) => space.columns[option].title}
+            currOption={columnFilter}
+            setCurrOption={setColumnFilter}
+            setOpen={setFilterOpen}
+            closeOnSelect={false}
+            sx={{ mt: 2 }}
+            multiple
+            placeholder="Column"
+          />
           <CommonAutocomplete
             options={space.members}
             optionLabels={(option) => space.memberDetails[option].username}

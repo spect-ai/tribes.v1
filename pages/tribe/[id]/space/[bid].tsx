@@ -10,7 +10,7 @@ import BoardsTemplate from '../../../../app/components/templates/space';
 import getTheme from '../../../../app/constants/muiTheme';
 import { useGlobal } from '../../../../app/context/globalContext';
 import useMoralisFunction from '../../../../app/hooks/useMoralisFunction';
-import { BoardData, Task } from '../../../../app/types';
+import { BoardData, Task, Column } from '../../../../app/types';
 import { notify } from '../../../../app/components/modules/settingsTab';
 import { CurrentFilter } from '../../../../app/components/modules/tasksFilter';
 
@@ -26,6 +26,8 @@ interface SpaceContextType {
   setThemeChanged: (themeChanged: boolean) => void;
   refreshEpochs: boolean;
   setRefreshEpochs: (refreshEpochs: boolean) => void;
+  filteredColumns: { [key: string]: Column };
+  setFilteredColumns: (filteredColumns: { [key: string]: Column }) => void;
   filteredTasks: { [key: string]: Task };
   setFilteredTasks: (filteredTasks: { [key: string]: Task }) => void;
   currentFilter: CurrentFilter;
@@ -40,6 +42,9 @@ function useProviderSpace() {
   const [isLoading, setIsLoading] = useState(true);
   const [themeChanged, setThemeChanged] = useState(false);
   const [refreshEpochs, setRefreshEpochs] = useState(false);
+  const [filteredColumns, setFilteredColumns] = useState<{
+    [key: string]: Column;
+  }>({} as { [key: string]: Column });
   const [filteredTasks, setFilteredTasks] = useState<{ [key: string]: Task }>(
     {} as { [key: string]: Task }
   );
@@ -61,6 +66,8 @@ function useProviderSpace() {
     setThemeChanged,
     refreshEpochs,
     setRefreshEpochs,
+    filteredColumns,
+    setFilteredColumns,
     filteredTasks,
     setFilteredTasks,
     currentFilter,
