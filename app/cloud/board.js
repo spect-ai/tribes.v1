@@ -112,7 +112,7 @@ async function getSpace(boardId, callerId) {
     const canReadSpace = canRead(boardObjDetailed[0], callerId);
     if (!canReadSpace) throw "You don't have access to view this space";
 
-    const epochs = await getEpochsBySpaceId(
+    const epochs = await getEpochsBySpace(
       boardObjDetailed[0].objectId,
       callerId
     );
@@ -592,6 +592,8 @@ Moralis.Cloud.define('updateBoard', async (request) => {
     if (hasAccess(request.user.id, board, 3)) {
       board.set('name', request.params.name);
       board.set('defaultPayment', request.params.defaultPayment);
+      board.set('tokenGating', request.params.tokenGating);
+      board.set('description', request.params.description);
       board.set('discussionChannel', request.params.discussionChannel);
       await Moralis.Object.saveAll([board], { useMasterKey: true });
       return await getSpace(request.params.boardId, request.user.id);
@@ -844,6 +846,7 @@ Moralis.Cloud.define('generateInviteLink', async (request) => {
 });
 
 Moralis.Cloud.define('joinSpaceFromInvite', async (request) => {
+  const logger = Moralis.Cloud.getLogger();
   log(
     request.user?.id,
     `Calling joinSpaceFromInvite on space ${request.params.boardId}`,
@@ -866,15 +869,21 @@ Moralis.Cloud.define('joinSpaceFromInvite', async (request) => {
     }
     const tribe = await getTribeByTeamId(board.get('teamId'));
     const userInfo = await getUserByUserId(request.user.id);
+    logger.info('usser info is ' + JSON.stringify(userInfo));
     if (checkIfUserInviteValid(invite)) {
+      logger.info(`inside checkIfUserInviteValid`);
       invite.set('uses', invite.get('uses') - 1);
       let boardRoles = board.get('roles');
       let tribeRoles = tribe.get('roles');
+      logger.info(`inside checkIfUserInviteValid2`);
+
       boardRoles[request.user.id] = invite.get('role');
       board.set('members', board.get('members').concat(request.user.id));
       board.set('roles', boardRoles);
       if (!tribe.get('members').includes(request.user.id)) {
         tribe.set('members', tribe.get('members').concat(request.user.id));
+        logger.info(`inside checkIfUserInviteValid3`);
+
         tribeRoles[request.user.id] = 1;
         tribe.set('roles', tribeRoles);
         userInfo.set(

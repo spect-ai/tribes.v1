@@ -22,25 +22,36 @@ import { Epoch, ApprovalInfo, DistributionInfo } from '../../../types';
 import { capitalizeFirstLetter } from '../../../utils/utils';
 import { notify } from '../settingsTab';
 import { PrimaryButton } from '../../elements/styledComponents';
-import { isApprovalRequired } from '../../../adapters/contract';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { useWalletContext } from '../../../context/WalletContext';
+import useERC20 from '../../../hooks/useERC20';
 
 interface Props {
   epoch: Epoch;
 }
 
-export const modalStyle = {
+// @ts-ignore
+const ModalContainer = styled(Box)(({ theme }) => ({
   position: 'absolute' as 'absolute',
-  top: '40%',
-  left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: '40rem',
-  bgcolor: 'background.paper',
   border: '2px solid #000',
+  backgroundColor: theme.palette.background.default,
   boxShadow: 24,
-  p: 4,
-};
+  overflow: 'auto',
+  maxHeight: 'calc(100% - 128px)',
+  [theme.breakpoints.down('md')]: {
+    top: '50%',
+    left: '50%',
+    padding: '1rem 2rem',
+    width: '18rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    top: '30%',
+    left: '55%',
+    width: '40rem',
+    padding: '1.5rem 3rem',
+  },
+}));
 
 export const Heading = styled('div')(({ theme }) => ({
   fontWeight: 500,
@@ -67,6 +78,7 @@ function PayoutContributors({ epoch }: Props) {
   const { user } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const { setRefreshEpochs } = useSpace();
+  const { isApproved } = useERC20();
   const [distributionInfo, setDistributionInfo] = useState({
     contributors: Object.keys(epoch.values),
     tokenValues: Object.values(epoch.values),
@@ -118,21 +130,21 @@ function PayoutContributors({ epoch }: Props) {
       setActiveStep(2);
       setIsLoading(false);
     } else {
-      isApprovalRequired(
-        user?.get('ethAddress'),
+      isApproved(
         epoch.token.address,
+        registry[networkVersion].distributorAddress as string,
         epoch.budget,
-        networkVersion
-      ).then((reqd: boolean) => {
-        if (reqd) {
+        user?.get('ethAddress')
+      ).then((approved: boolean) => {
+        if (approved) {
+          setActiveStep(1);
+        } else {
           const temp = { ...approvalInfo };
           temp.required = true;
           setApprovalInfo(temp);
           setActiveStep(0);
           setSteps(['Approve Tokens', 'Batch Pay Tokens']);
           setShowStepper(true);
-        } else {
-          setActiveStep(1);
         }
         setIsLoading(false);
       });
@@ -156,8 +168,8 @@ function PayoutContributors({ epoch }: Props) {
           variant="outlined"
           loading={isLoading}
           sx={{
-            mx: 4,
-            borderRadius: 1,
+            mx: { xs: 0, md: 4 },
+            my: { xs: 2, md: 0 },
           }}
           size="small"
           color="secondary"
@@ -165,11 +177,11 @@ function PayoutContributors({ epoch }: Props) {
             handleOpen();
           }}
         >
-          Payout countributors
+          Payout Contributors
         </PrimaryButton>
       )}
       <Modal open={isOpen} onClose={handleClose}>
-        <Box sx={modalStyle}>
+        <ModalContainer>
           <Grid
             container
             spacing={0}
@@ -268,7 +280,7 @@ function PayoutContributors({ epoch }: Props) {
               handleStatusUpdate={handleStatusUpdate}
             />
           )}
-        </Box>
+        </ModalContainer>
       </Modal>{' '}
     </>
   );

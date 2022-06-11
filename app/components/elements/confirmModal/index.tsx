@@ -1,4 +1,4 @@
-import { Box, Grow, styled, Typography } from '@mui/material';
+import { Box, Grow, styled, Typography, SxProps, Theme } from '@mui/material';
 import React, { useState } from 'react';
 import { PrimaryButton, StyledModal } from '../styledComponents';
 
@@ -6,8 +6,17 @@ type Props = {
   isOpen: boolean;
   handleClose: () => void;
   buttonText: string;
-  modalContent: string;
+  modalContent: any;
   runOnConfirm: any;
+  confirmButtonSx?: SxProps<Theme> | undefined;
+  confirmButtonColor?:
+    | 'inherit'
+    | 'primary'
+    | 'secondary'
+    | 'success'
+    | 'error'
+    | 'info'
+    | 'warning';
 };
 
 // @ts-ignore
@@ -33,6 +42,8 @@ function ConfirmModal({
   buttonText,
   modalContent,
   runOnConfirm,
+  confirmButtonSx,
+  confirmButtonColor,
 }: Props) {
   const [loading, setLoading] = useState(false);
   return (
@@ -40,15 +51,13 @@ function ConfirmModal({
       <Grow in={isOpen} timeout={500}>
         <ModalContainer>
           <ModalContent>
-            <Typography variant="h6" sx={{ mb: 2 }} color="text.primary">
-              {modalContent}
-            </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            {modalContent}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
               <PrimaryButton
                 variant="outlined"
                 color="secondary"
                 size="small"
-                sx={{ width: '50%', mt: 2, mr: 2 }}
+                sx={{ width: '50%', mr: 2 }}
                 onClick={handleClose}
               >
                 Cancel
@@ -56,8 +65,8 @@ function ConfirmModal({
               <PrimaryButton
                 data-testid="bConfirmAction"
                 variant="outlined"
-                sx={{ width: '50%', mt: 2 }}
-                color="error"
+                sx={confirmButtonSx || { width: '50%' }}
+                color={confirmButtonColor || 'error'}
                 size="small"
                 loading={loading}
                 onClick={() => {

@@ -2,6 +2,7 @@
 import { LoadingButton } from '@mui/lab';
 import {
   Accordion,
+  Avatar,
   ButtonProps,
   Modal,
   styled,
@@ -105,6 +106,7 @@ interface StyledTabsProps {
   value: number;
   onChange: (event: React.SyntheticEvent, newValue: number) => void;
   centered?: boolean;
+  orientation?: 'horizontal' | 'vertical';
 }
 
 export const StyledTabs = styled((props: StyledTabsProps) => (
@@ -113,8 +115,6 @@ export const StyledTabs = styled((props: StyledTabsProps) => (
     TabIndicatorProps={{ children: <span className="MuiTabs-indicatorSpan" /> }}
   />
 ))(({ theme }) => ({
-  minHeight: '2.8rem !important',
-  height: '2.8rem !importantt',
   display: 'flex',
   flexDirection: 'column',
   justifyContent: 'center',
@@ -128,6 +128,17 @@ export const StyledTabs = styled((props: StyledTabsProps) => (
     maxWidth: 70,
     width: '100%',
     backgroundColor: theme.palette.primary.light,
+  },
+  [theme.breakpoints.down('md')]: {
+    display: 'none',
+  },
+}));
+
+export const ScrollableTabs = styled(Tabs)(({ theme }) => ({
+  '& .MuiTabs-indicator': {
+    display: 'flex',
+    justifyContent: 'center',
+    backgroundColor: theme.palette.text.secondary,
   },
 }));
 
@@ -167,10 +178,13 @@ export const StyledNav = styled('nav')(({ theme }) => ({
   flexDirection: 'row',
   justifyContent: 'space-between',
   alignItems: 'center',
-  height: '3rem',
+  height: '3.05rem',
   width: '100%',
   paddingTop: '0.4rem',
   borderBottom: `1px solid ${theme.palette.divider}`,
+  position: 'fixed',
+  zIndex: 1,
+  backgroundColor: theme.palette.background.default,
 }));
 
 export const StyledModal = styled(Modal)(({ theme }) => ({
@@ -178,4 +192,59 @@ export const StyledModal = styled(Modal)(({ theme }) => ({
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
+}));
+
+export const StyledAvatar = styled(Avatar)(({ theme }) => ({
+  [theme.breakpoints.down('md')]: {
+    width: '1.5rem',
+    height: '1.5rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    width: '2rem',
+    height: '2rem',
+  },
+}));
+
+export const StylishTab = styled((props: StyledTabProps) => (
+  <Tab disableRipple {...props} />
+))(({ theme }) => ({
+  minHeight: '2.8rem !important',
+  height: '2.8rem !important',
+  textTransform: 'none',
+  fontWeight: theme.typography.fontWeightRegular,
+  fontSize: theme.typography.pxToRem(14),
+  margin: '0rem !important',
+  padding: '0rem !important',
+  color: 'rgba(255, 255, 255, 0.6)',
+  '&.Mui-selected': {
+    color: theme.palette.text.primary,
+  },
+  '&.Mui-focusVisible': {
+    backgroundColor: 'rgba(100, 95, 228, 0.32)',
+  },
+}));
+
+export const StylishTabs = styled((props: StyledTabsProps) => (
+  <Tabs
+    {...props}
+    TabIndicatorProps={{ children: <span className="MuiTabs-indicatorSpan" /> }}
+  />
+))(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  '& .MuiTabs-indicator': {
+    display: 'flex',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  '& .MuiTabs-indicatorSpan': {
+    maxWidth: 70,
+    width: '100%',
+    backgroundColor: theme.palette.primary.light,
+  },
+  [theme.breakpoints.down('md')]: {
+    display: 'none',
+  },
 }));

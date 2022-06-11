@@ -39,6 +39,11 @@ const TaskList = styled.div`
   overflow-x: hidden;
   height: fit-content;
   max-height: calc(100vh - 10rem);
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 `;
 
 const TaskListContainer = styled.div<{ palette: Palette }>`
@@ -55,8 +60,13 @@ const Container = styled.div<{ isDragging: boolean; palette: Palette }>`
     props.isDragging
       ? `0.5px solid ${props.palette.primary.light}`
       : '0.5px solid transparent'};
-  min-width: 20rem;
   transition: 0.5s ease-in-out;
+  @media only screen and (min-width: 0px) {
+    width: 16rem;
+  }
+  @media only screen and (min-width: 768px) {
+    width: 21rem;
+  }
 `;
 
 export default function ColumnComponent({ tasks, id, column, index }: Props) {
@@ -75,14 +85,8 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
   const [columnTitle, setColumnTitle] = useState(column.title);
   const [isOpen, setIsOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
   const handleModalClose = () => {
     setIsOpen(false);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
   };
   const open = Boolean(anchorEl);
   const { palette } = useTheme();
@@ -154,9 +158,12 @@ export default function ColumnComponent({ tasks, id, column, index }: Props) {
                     <InputBase
                       placeholder="Add Title"
                       sx={{
-                        fontSize: '15px',
                         marginLeft: '6px',
                         width: 'fit-content',
+                        fontSize: {
+                          xs: '0.8rem',
+                          md: '1rem',
+                        },
                       }}
                       value={columnTitle}
                       onChange={(e) => setColumnTitle(e.target.value)}

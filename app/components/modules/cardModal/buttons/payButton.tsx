@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import React, { useState } from 'react';
 import { useMoralis } from 'react-moralis';
-import { useCardContext } from '..';
+import { ModalContainer, useCardContext } from '..';
 import { useGlobal } from '../../../../context/globalContext';
 import useCardDynamism from '../../../../hooks/useCardDynamism';
 import useCardUpdate from '../../../../hooks/useCardUpdate';
@@ -25,19 +25,6 @@ import { notify } from '../../settingsTab';
 
 type Props = {
   handleClose: () => void;
-};
-
-// eslint-disable-next-line import/prefer-default-export
-export const modalStyle = {
-  position: 'absolute' as 'absolute',
-  top: '40%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '40rem',
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
 };
 
 function PayButton({ handleClose }: Props) {
@@ -190,7 +177,7 @@ function PayButton({ handleClose }: Props) {
           </CardButton>
         </Box>
         <Modal open={isOpen} onClose={handleModalClose}>
-          <Box sx={modalStyle}>
+          <ModalContainer>
             <Grid
               container
               spacing={0}
@@ -273,7 +260,7 @@ function PayButton({ handleClose }: Props) {
                 }
               />
             )}
-          </Box>
+          </ModalContainer>
         </Modal>{' '}
       </>
     );

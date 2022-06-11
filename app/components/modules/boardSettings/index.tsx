@@ -39,12 +39,19 @@ type Props = {};
 const ModalContainer = MUIStyled(Box)(({ theme }) => ({
   marginTop: '-10%',
   transform: 'translate(-50%, -50%)',
-  width: '50rem',
   border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: 'auto',
   maxHeight: 'calc(100% - 128px)',
+  [theme.breakpoints.down('md')]: {
+    padding: '1rem 2rem',
+    width: '18rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    width: '55rem',
+    padding: '1.5rem 3rem',
+  },
 }));
 
 const ModalContent = MUIStyled('div')(({ theme }) => ({
@@ -194,7 +201,7 @@ function BoardSettings(props: Props) {
                 <AccordionDetails>
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     <a
-                      href="https://github.com/apps/spect-github-bot/installations/new"
+                      href={`https://github.com/apps/spect-github-bot/installations/new?state=${space.objectId}`}
                       target="_blank"
                       rel="noreferrer"
                       style={{
@@ -207,7 +214,11 @@ function BoardSettings(props: Props) {
                         color="secondary"
                         size="small"
                       >
-                        <Typography>Connect Github</Typography>
+                        <Typography>
+                          {space.githubRepos?.length > 0
+                            ? 'Github Connected'
+                            : 'Connect Github'}
+                        </Typography>
                       </PrimaryButton>
                     </a>
                     {space.team && !space.team[0].guildId ? (
@@ -295,7 +306,11 @@ function BoardSettings(props: Props) {
         handleClose={handleConfirmClose}
         buttonText="Yes, delete space"
         runOnConfirm={handleConfirm}
-        modalContent="Are you sure you want to delete space? This cannot be undone"
+        modalContent={
+          <Typography variant="h6" sx={{ mb: 2 }} color="text.primary">
+            Are you sure you want to delete space? This cannot be undone
+          </Typography>
+        }
       />
     </>
   );

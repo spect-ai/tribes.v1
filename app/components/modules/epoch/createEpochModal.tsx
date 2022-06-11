@@ -1,3 +1,5 @@
+import RedeemIcon from '@mui/icons-material/Redeem';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import {
   Grow,
   IconButton,
@@ -29,9 +31,7 @@ import {
   getFlattenedCurrencies,
 } from '../../../utils/utils';
 import { notify } from '../settingsTab';
-import CreateEpochTaskList from './createEpochTaskList';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-
 import { useGlobal } from '../../../context/globalContext';
 import {
   ModalHeading,
@@ -45,15 +45,24 @@ type Props = {};
 // @ts-ignore
 const ModalContainer = styled(Box)(({ theme }) => ({
   position: 'absolute' as 'absolute',
-  top: '10%',
-  left: '35%',
   transform: 'translate(-50%, -50%)',
-  width: '40rem',
   border: '2px solid #000',
   backgroundColor: theme.palette.background.default,
   boxShadow: 24,
   overflow: 'auto',
   maxHeight: 'calc(100% - 128px)',
+  [theme.breakpoints.down('md')]: {
+    top: '10%',
+    left: '2%',
+    padding: '1rem 2rem',
+    width: '18rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    top: '10%',
+    left: '35%',
+    width: '40rem',
+    padding: '1.5rem 3rem',
+  },
 }));
 
 const ModalContent = styled('div')(({ theme }) => ({
@@ -70,10 +79,10 @@ interface EpochFormInput {
   passThreshold?: number;
   column?: string;
   members?: string[];
-  cards?: string[];
   budgetValue?: number;
   budgetToken: Token;
   budgetChain: Chain;
+  description: string;
 }
 
 function CreateEpoch(props: Props) {
@@ -83,16 +92,13 @@ function CreateEpoch(props: Props) {
   const { user } = useMoralis();
   const { runMoralisFunction } = useMoralisFunction();
   const [strategy, setStrategy] = useState('');
-  const [type, setType] = useState('');
-  const [passThreshold, setPassThreshold] = useState('');
-  const [cardColumn, setCardColumn] = useState(space.columnOrder[0]);
-  const [cards, setCards] = useState<string[]>([] as string[]);
-  const [isCardChecked, setIsCardChecked] = useState<boolean[]>(
-    [] as boolean[]
-  );
+  const [description, setDescription] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const { handleSubmit, control, setValue } = useForm<EpochFormInput>();
 
+  const handleClose = () => {
+    setIsOpen(false);
+  };
   const [chain, setChain] = useState({
     chainId: space?.defaultPayment?.chain?.chainId,
     name: space?.defaultPayment?.chain?.name,
@@ -121,10 +127,10 @@ function CreateEpoch(props: Props) {
   const getMembers = () => {
     const members = [];
     for (let i = 0; i < space.members.length; i += 1) {
-      if (isChecked.at(i)) {
+      if (isChecked[i]) {
         const member = {
           objectId: space.members[i],
-          votesAllocated: allocations.at(i),
+          votesAllocated: allocations[i],
         };
         members.push(member);
       }
@@ -135,43 +141,19 @@ function CreateEpoch(props: Props) {
   const getMemberChoices = () => {
     const choices = [] as string[];
     for (let i = 0; i < space.members.length; i += 1) {
-      if (isChecked.at(i)) {
+      if (isChecked[i]) {
         choices.push(space.members[i]);
       }
     }
     return choices;
   };
 
-  const getCardChoices = () => {
-    const choices = [] as string[];
-    for (let i = 0; i < cards.length; i += 1) {
-      if (isCardChecked.at(i)) {
-        choices.push(cards[i]);
-      }
-    }
-    return choices;
-  };
-  const handleClose = () => {
-    setIsOpen(false);
-  };
-
-  useEffect(() => {
-    const cardsFilter = space.columns[space.columnOrder[0]].taskIds.filter(
-      (taskId) => {
-        return space.tasks[taskId];
-      }
-    );
-    setCards(cardsFilter);
-    setIsCardChecked(Array(cardsFilter.length).fill(true));
-  }, [isOpen]);
-
   const onSubmit: SubmitHandler<EpochFormInput> = async (values) => {
     const temp = { ...space };
     temp.creatingEpoch = true;
     setSpace(temp);
     const members = getMembers();
-    const choices =
-      values.type === 'Member' ? getMemberChoices() : getCardChoices();
+    const choices = getMemberChoices();
     if (values.type === 'Member' && members.length <= 1) {
       notify('At least 2 members required', 'error');
       return;
@@ -183,7 +165,6 @@ function CreateEpoch(props: Props) {
       type: values.type,
       duration: values.duration * 86400000,
       strategy: values.strategy,
-      passThreshold: parseInt(passThreshold, 10),
       budget: values.budgetValue,
       startTime: Date.now(),
       token,
@@ -212,20 +193,22 @@ function CreateEpoch(props: Props) {
           variant="outlined"
           size="large"
           color="secondary"
-          endIcon={<PlayCircleFilledWhiteIcon />}
+          endIcon={<RedeemIcon />}
           onClick={() => {
             setIsOpen(true);
           }}
           sx={{ borderRadius: 1, my: 2 }}
         >
-          Start an epoch
+          Start a retro period
         </PrimaryButton>
       )}
       <Modal open={isOpen} onClose={handleClose} closeAfterTransition>
         <Grow in={isOpen} timeout={500}>
           <ModalContainer>
             <ModalHeading>
-              <Typography sx={{ color: '#99ccff' }}>Start Epoch</Typography>
+              <Typography sx={{ color: '#99ccff' }}>
+                Start a retro period
+              </Typography>
               <Box sx={{ flex: '1 1 auto' }} />
               <IconButton sx={{ m: 0, p: 0.5 }} onClick={handleClose}>
                 <CloseIcon />
@@ -233,141 +216,131 @@ function CreateEpoch(props: Props) {
             </ModalHeading>
             <ModalContent>
               <form onSubmit={handleSubmit(onSubmit, onError)}>
-                <Controller
-                  name="name"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field, fieldState }) => (
-                    <TextField
-                      {...field}
-                      data-testid="iEpochName"
-                      placeholder="Epoch Name"
-                      fullWidth
-                      sx={{ mb: 2 }}
-                      size="small"
-                      color="secondary"
-                      error={!!fieldState.error}
-                    />
-                  )}
-                />
-                <Controller
-                  name="type"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field, fieldState }) => (
-                    <Autocomplete
-                      {...field}
-                      data-testid="aEpochType"
-                      options={['Card', 'Member']}
-                      disableClearable
-                      // value={type}
-                      onChange={(event, newValue) => {
-                        field.onChange(newValue);
-                        setType(newValue);
-                        if (newValue === 'Member') {
-                          setValue('strategy', 'Quadratic voting');
-                          setStrategy('Quadratic voting');
-                        } else if (newValue === 'Card') {
-                          setValue('strategy', 'Pass/No Pass');
-                          setStrategy('Pass/No Pass');
-                        }
-                        // setType(newValue as string);
-                        // if (newValue === "Member")
-                        //   setStrategy("Quadratic voting");
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          fullWidth
-                          sx={{ mb: 2 }}
-                          placeholder="Epoch Type"
-                          size="small"
-                          color="secondary"
-                          error={!!fieldState.error}
-                        />
-                      )}
-                    />
-                  )}
-                />
-                <Controller
-                  name="duration"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field, fieldState }) => (
-                    <TextField
-                      {...field}
-                      data-testid="iEpochDuration"
-                      id="filled-hidden-label-normal"
-                      fullWidth
-                      sx={{ mb: 2 }}
-                      placeholder="Duration (in days)"
-                      InputProps={{
-                        inputProps: {
-                          min: 1,
-                        },
-                      }}
-                      type="number"
-                      size="small"
-                      color="secondary"
-                      error={!!fieldState.error}
-                    />
-                  )}
-                />
-                <Controller
-                  name="strategy"
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field, fieldState }) => (
-                    <Autocomplete
-                      {...field}
-                      data-testid="aEpochStrategy"
-                      options={
-                        type === 'Member'
-                          ? ['Quadratic voting']
-                          : ['Pass/No Pass']
-                      }
-                      onChange={(event, newValue) => {
-                        field.onChange(newValue);
-                      }}
-                      disableClearable
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          id="filled-hidden-label-normal"
-                          fullWidth
-                          sx={{ mb: 2 }}
-                          placeholder="Strategy"
-                          size="small"
-                          color="secondary"
-                          error={!!fieldState.error}
-                        />
-                      )}
-                    />
-                  )}
-                />
-                {strategy === 'Pass/No Pass' && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'left',
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{ color: 'text.secondary', mb: 0.5, ml: 2 }}
+                  >
+                    What do you want to call this period?
+                  </Typography>{' '}
                   <Controller
-                    name="passThreshold"
+                    name="name"
                     control={control}
+                    rules={{ required: true }}
                     render={({ field, fieldState }) => (
                       <TextField
-                        data-testid="iEpochThreshold"
-                        id="filled-hidden-label-normal"
-                        value={passThreshold}
-                        onChange={(event) => {
-                          setPassThreshold(event.target.value);
-                        }}
-                        sx={{ mb: 2 }}
-                        placeholder="Pass Threshold (%)"
-                        type="number"
+                        {...field}
+                        data-testid="iEpochName"
+                        placeholder="Gifting for the month of..."
+                        fullWidth
+                        sx={{}}
                         size="small"
                         color="secondary"
+                        error={!!fieldState.error}
                       />
                     )}
                   />
-                )}
-                {strategy === 'Quadratic voting' && (
+                  <Typography
+                    variant="body2"
+                    sx={{ color: 'text.secondary', mb: 0.5, ml: 2, mt: 2 }}
+                  >
+                    Add a description for this period
+                  </Typography>
+                  <Controller
+                    name="description"
+                    control={control}
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        {...field}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        type="text"
+                        size="small"
+                        minRows="3"
+                        fullWidth
+                        placeholder="In this period, we will..."
+                        multiline
+                        color="secondary"
+                        maxRows={5}
+                      />
+                    )}
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{ color: 'text.secondary', mb: 0.5, ml: 2, mt: 2 }}
+                  >
+                    How long will the gifting period last?
+                  </Typography>
+                  <Controller
+                    name="duration"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field, fieldState }) => (
+                      <TextField
+                        {...field}
+                        data-testid="iEpochDuration"
+                        id="filled-hidden-label-normal"
+                        fullWidth
+                        sx={{}}
+                        placeholder="Duration (in days)"
+                        InputProps={{
+                          inputProps: {
+                            min: 1,
+                          },
+                        }}
+                        type="number"
+                        size="small"
+                        color="secondary"
+                        error={!!fieldState.error}
+                      />
+                    )}
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{ color: 'text.secondary', mb: 0.5, ml: 2, mt: 2 }}
+                  >
+                    What strategy will you use to allocate votes?
+                  </Typography>
+                  <Controller
+                    name="strategy"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field, fieldState }) => (
+                      <Autocomplete
+                        {...field}
+                        data-testid="aEpochStrategy"
+                        options={['Normal voting', 'Quadratic voting']}
+                        onChange={(event, newValue) => {
+                          field.onChange(newValue);
+                        }}
+                        disableClearable
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            id="filled-hidden-label-normal"
+                            fullWidth
+                            sx={{}}
+                            placeholder="Strategy"
+                            size="small"
+                            color="secondary"
+                            error={!!fieldState.error}
+                          />
+                        )}
+                      />
+                    )}
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{ color: 'text.secondary', mb: 0.5, ml: 2, mt: 2 }}
+                  >
+                    What is the budget for this period?
+                  </Typography>
                   <Box sx={{ flex: '1 1 auto' }}>
                     <Grid container spacing={1}>
                       <Grid item xs={4}>
@@ -381,7 +354,7 @@ function CreateEpoch(props: Props) {
                               data-testid="iEpochBudgetValue"
                               id="filled-hidden-label-normal"
                               sx={{ mb: 2 }}
-                              placeholder="Budget"
+                              placeholder="Budget amount"
                               type="number"
                               size="small"
                               color="secondary"
@@ -450,7 +423,7 @@ function CreateEpoch(props: Props) {
                                 <TextField
                                   {...params}
                                   id="filled-hidden-label-normal"
-                                  placeholder="Token"
+                                  placeholder="ETH"
                                   size="small"
                                   color="secondary"
                                 />
@@ -461,123 +434,145 @@ function CreateEpoch(props: Props) {
                       </Grid>
                     </Grid>
                   </Box>
-                )}
-
-                <StyledAccordian disableGutters>
-                  <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1a-content"
-                    id="panel1a-header"
-                  >
-                    Members
-                  </AccordionSummary>
-                  <AccordionDetails>
-                    <Table aria-label="simple table" size="small">
-                      <TableHead>
-                        <TableRow>
-                          <TableCell padding="checkbox">
-                            <Checkbox
-                              inputProps={{
-                                'aria-label': 'select all desserts',
-                              }}
-                              color="default"
-                              checked={isChecked.every((elem) => elem === true)}
-                              onChange={(e) => {
-                                setIsChecked(
-                                  Array(space.members.length).fill(
-                                    e.target.checked
-                                  )
-                                );
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell align="right" sx={{ color: '#99ccff' }}>
-                            Username
-                          </TableCell>
-                          {strategy === 'Quadratic voting' ? (
-                            <TableCell align="right" sx={{ color: '#99ccff' }}>
-                              Voting Allocation
-                            </TableCell>
-                          ) : (
-                            <TableCell align="right" sx={{ color: '#99ccff' }}>
-                              Voting Weight
-                            </TableCell>
-                          )}
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {space.members?.map((member, index) => (
-                          <TableRow
-                            key={member}
-                            sx={{
-                              '&:last-child td, &:last-child th': {
-                                border: 0,
-                              },
-                            }}
-                          >
-                            <TableCell
-                              component="th"
-                              scope="row"
-                              padding="checkbox"
-                            >
+                  <StyledAccordian disableGutters>
+                    <AccordionSummary
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel1a-content"
+                      id="panel1a-header"
+                    >
+                      Members
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <Table aria-label="simple table" size="small">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell padding="checkbox">
                               <Checkbox
-                                color="secondary"
                                 inputProps={{
                                   'aria-label': 'select all desserts',
                                 }}
-                                checked={isChecked.at(index)}
-                                onClick={() => {
-                                  toggleCheckboxValue(index);
-                                }}
-                              />
-                            </TableCell>
-                            {isOpen && (
-                              <TableCell align="right">
-                                {space.memberDetails[member].username}
-                              </TableCell>
-                            )}
-                            <TableCell align="right">
-                              <TextField
-                                id="filled-hidden-label-normal"
-                                value={allocations[index]}
-                                onChange={(event) => {
-                                  handleAllocation(
-                                    index,
-                                    parseInt(event.target.value, 10)
+                                color="default"
+                                checked={isChecked.every(
+                                  (elem) => elem === true
+                                )}
+                                onChange={(e) => {
+                                  setIsChecked(
+                                    Array(space.members.length).fill(
+                                      e.target.checked
+                                    )
                                   );
                                 }}
-                                size="small"
-                                type="number"
-                                sx={{ width: '50%' }}
                               />
                             </TableCell>
+                            <TableCell align="right" sx={{ color: '#99ccff' }}>
+                              Username
+                            </TableCell>
+                            {strategy === 'Quadratic voting' ? (
+                              <TableCell
+                                align="right"
+                                sx={{ color: '#99ccff' }}
+                              >
+                                Voting Allocation
+                              </TableCell>
+                            ) : (
+                              <TableCell
+                                align="right"
+                                sx={{ color: '#99ccff' }}
+                              >
+                                Voting Weight
+                              </TableCell>
+                            )}
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </AccordionDetails>
-                </StyledAccordian>
-
-                {type === 'Card' && (
-                  <CreateEpochTaskList
-                    setCards={setCards}
-                    setCardColumn={setCardColumn}
-                    cards={cards}
-                    cardColumn={cardColumn}
-                    isCardChecked={isCardChecked}
-                    setIsCardChecked={setIsCardChecked}
-                  />
-                )}
-
-                <PrimaryButton
-                  data-testid="bStartEpoch"
-                  variant="outlined"
-                  type="submit"
-                  color="secondary"
-                  sx={{ width: '50%', mt: 2, borderRadius: 1 }}
-                >
-                  Start Epoch
-                </PrimaryButton>
+                        </TableHead>
+                        <TableBody>
+                          {space.members?.map((member, index) => (
+                            <TableRow
+                              key={member}
+                              sx={{
+                                '&:last-child td, &:last-child th': {
+                                  border: 0,
+                                },
+                              }}
+                            >
+                              <TableCell
+                                component="th"
+                                scope="row"
+                                padding="checkbox"
+                              >
+                                <Checkbox
+                                  color="secondary"
+                                  inputProps={{
+                                    'aria-label': 'select all desserts',
+                                  }}
+                                  checked={isChecked[index]}
+                                  onClick={() => {
+                                    toggleCheckboxValue(index);
+                                  }}
+                                />
+                              </TableCell>
+                              {isOpen && (
+                                <TableCell align="right">
+                                  {space.memberDetails[member].username}
+                                </TableCell>
+                              )}
+                              <TableCell align="right">
+                                <TextField
+                                  id="filled-hidden-label-normal"
+                                  value={allocations[index]}
+                                  onChange={(event) => {
+                                    handleAllocation(
+                                      index,
+                                      parseInt(event.target.value, 10)
+                                    );
+                                  }}
+                                  size="small"
+                                  type="number"
+                                  sx={{ width: '50%' }}
+                                />
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </AccordionDetails>
+                  </StyledAccordian>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      mt: 2,
+                      borderRadius: 1,
+                    }}
+                  >
+                    <PrimaryButton
+                      data-testid="bStartEpoch"
+                      variant="outlined"
+                      type="submit"
+                      color="secondary"
+                      sx={{
+                        width: '40%',
+                      }}
+                    >
+                      Start
+                    </PrimaryButton>
+                    <Box sx={{ width: '25%' }} />
+                    <PrimaryButton
+                      data-testid="bAdvancedSettings"
+                      type="submit"
+                      color="secondary"
+                      endIcon={
+                        <NavigateNextIcon sx={{ color: 'text.primary' }} />
+                      }
+                      sx={{
+                        ml: 2,
+                        width: '35%',
+                        fontSize: '0.8rem',
+                      }}
+                    >
+                      Set advanced settings
+                    </PrimaryButton>
+                  </Box>
+                </Box>
               </form>
             </ModalContent>
           </ModalContainer>

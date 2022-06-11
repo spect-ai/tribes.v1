@@ -22,6 +22,7 @@ const getRegistry = async () => {
       nativeCurrency: network.nativeCurrency,
       pictureUrl: network.pictureUrl,
       blockExplorer: network.blockExplorer,
+      provider: network.provider,
       tokenAddresses: [],
       tokens: {},
     };

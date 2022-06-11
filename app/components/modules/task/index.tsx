@@ -46,10 +46,6 @@ const ChipContainer = styled.div`
 `;
 
 export const Chip = styled.div<{ color: string }>`
-  padding: 0px 12px;
-  height: 18px;
-  font-size: 11px;
-  border-radius: 5px;
   background-color: ${(props) => props.color};
   border: 0.1px solid ${(props) => props.color};
   color: #eaeaea;
@@ -57,8 +53,21 @@ export const Chip = styled.div<{ color: string }>`
   align-items: center;
   justify-content: center;
   width: fit-content;
-  margin: 4px 8px 8px 0px;
   transition: color 2s ease-in-out;
+  @media only screen and (min-width: 0px) {
+    padding: 0px 6px;
+    height: 10px;
+    font-size: 9px;
+    border-radius: 3px;
+    margin: 2px 4px 4px 0px;
+  }
+  @media only screen and (min-width: 768px) {
+    padding: 0px 12px;
+    height: 18px;
+    font-size: 11px;
+    border-radius: 5px;
+    margin: 4px 8px 8px 0px;
+  }
 `;
 
 export const OutlinedChip = styled(Chip)`
@@ -74,7 +83,12 @@ const TaskCard = styled.div<{
   display: flex;
   flex-direction: column;
   height: fit-content;
-  width: 20rem;
+  @media only screen and (min-width: 0px) {
+    width: 15rem;
+  }
+  @media only screen and (min-width: 768px) {
+    width: 20rem;
+  }
   margin: 5px;
   border: ${(props) =>
     props.isDragging
@@ -104,7 +118,12 @@ const TitleContainer = styled.div`
 `;
 
 const Title = styled.div<{ palette: Palette }>`
-  font-size: 14px;
+  @media only screen and (min-width: 0px) {
+    font-size: 12px;
+  }
+  @media only screen and (min-width: 768px) {
+    font-size: 14px;
+  }
   padding-left: 0.2rem;
   word-wrap: break-word;
   width: 100%;
@@ -115,7 +134,6 @@ function TaskContainer({ task, index, column }: Props) {
   const handleClose = () => setIsOpen(false);
   const { space } = useSpace();
   const { palette } = useTheme();
-  const { getAvatar } = useProfileInfo();
   return (
     <>
       <CardModal

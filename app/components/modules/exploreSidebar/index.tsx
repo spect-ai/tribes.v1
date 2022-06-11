@@ -18,8 +18,9 @@ import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
+import { StyledAvatar } from '../../elements/styledComponents';
 import PaymentModal from '../batchPay';
-import BoardSettings from '../boardSettings';
+import SpaceSettings from '../spaceSettings';
 import CreateTribeModal from '../createTribeModal';
 import { notify } from '../settingsTab';
 
@@ -53,7 +54,20 @@ const SidebarContainer = styled.div<{ palette: Palette }>`
   flex-direction: column;
   height: calc(100vh - 56px);
   overflow-y: auto;
-  width: 4rem;
+  position: fixed;
+  z-index: 1;
+  top: 56px;
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  @media only screen and (min-width: 0px) {
+    width: 2.4rem;
+  }
+  @media only screen and (min-width: 768px) {
+    width: 4rem;
+  }
 `;
 
 export const ButtonText = styled.div`
@@ -157,7 +171,7 @@ function ExploreSidebar(props: Props) {
           </Tooltip>
         </SidebarButton>
       )}
-      {bid && isAuthenticated && <BoardSettings />}
+      {/* {bid && isAuthenticated && <SpaceSettings />} */}
       {bid && isAuthenticated && <PaymentModal />}
       <Divider sx={{ my: 5, mx: 3 }} />
       <CreateTribeModal />
@@ -171,13 +185,13 @@ function ExploreSidebar(props: Props) {
             palette={palette}
             selected={tribe.get('teamId') === id}
           >
-            <Avatar
+            <StyledAvatar
               variant="rounded"
               sx={{ p: 0, m: 0, width: 28, height: 28 }}
               src={tribe.get('logo')}
             >
               {tribe.get('name')[0]}
-            </Avatar>
+            </StyledAvatar>
           </SidebarButton>
         </Link>
       ))}

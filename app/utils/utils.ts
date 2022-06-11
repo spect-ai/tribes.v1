@@ -315,12 +315,16 @@ export function isEqualArrayWithStrictLocationsAndEqualCount(
   a: Array<string | number>,
   b: Array<string | number>
 ) {
+  if (!a && !b) return true;
+  if ((!a && b) || (a && !b)) return false;
   return a.length === b.length && a.every((value, index) => value === b[index]);
 }
 export function isEqualArrayIgnoringLocations(
   a: Array<string | number>,
   b: Array<string | number>
 ) {
+  if (!a && !b) return true;
+  if ((!a && b) || (a && !b)) return false;
   return (
     a.length === b.length &&
     a.every((value, index) => b.find((element) => element === value))
@@ -331,8 +335,14 @@ export function findDiffBetweenArrays(
   a: Array<string | number>,
   b: Array<string | number>
 ) {
-  const removed = a.filter((x) => !b.includes(x));
-  const added = b.filter((x) => !a.includes(x));
+  let removed: any = [];
+  let added: any = [];
+  if (a && b) {
+    removed = a.filter((x) => !b.includes(x));
+    added = b.filter((x) => !a.includes(x));
+  }
+  if (a && !b) removed = a;
+  if (!a && b) added = b;
   return [added, removed];
 }
 
@@ -349,8 +359,31 @@ export function getEthAddresses(
 
 // eslint-disable-next-line consistent-return
 export function dateDiffInMinutes(d1: Date | null, d2: Date | null) {
-  if (!d1 && !d2) return 0;
-  if (d1 && !d2) return Math.floor(d1.getTime() / (60 * 1000));
-  if (d2 && !d1) return Math.floor(d2.getTime() / (60 * 1000));
-  if (d2 && d1) return Math.floor((d1.getTime() - d2.getTime()) / (60 * 1000));
+  if (!d1?.getTime() && !d2?.getTime()) return 0;
+  if (d1?.getTime() && !d2?.getTime())
+    return Math.floor(d1.getTime() / (60 * 1000));
+  if (d2?.getTime() && !d1?.getTime())
+    return Math.floor(d2.getTime() / (60 * 1000));
+  if (d2?.getTime() && d1?.getTime())
+    return Math.floor((d1.getTime() - d2.getTime()) / (60 * 1000));
+}
+
+export function isValidTwitterUrl(url: string) {
+  const regex = /\/(?:http:\/\/)?(?:www.)?twitter.com\//;
+  return regex.test(url);
+}
+
+export function isValidGithubUrl(url: string) {
+  const regex = /\/(?:http:\/\/)?(?:www.)?github.com\//;
+  return regex.test(url);
+}
+
+export function isValidLinkedinUrl(url: string) {
+  const regex = /\/(?:http:\/\/)?(?:www.)?linkedin.com\//;
+  return regex.test(url);
+}
+
+export function sortByDate(arr: any[]) {
+  arr.sort((a, b) => Date.parse(a) - Date.parse(b));
+  return arr;
 }

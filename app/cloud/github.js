@@ -1,20 +1,51 @@
-Moralis.Cloud.define('getGithubToken', async (request) => {
+Moralis.Cloud.define('linkGithubUser', async (request) => {
   const logger = Moralis.Cloud.getLogger();
-  return Moralis.Cloud.httpRequest({
-    method: 'POST',
-    url: 'https://github.com/login/oauth/access_token',
-    params: {
-      client_id: '4403e769e4d52b24eeab',
-      client_secret: 'f525458baff411277086d660ace07b0a4b40af3d',
-      code: request.params.code,
-      redirect_uri: 'http://localhost:3000/',
-    },
-  })
-    .then((httpResponse) => httpResponse.text)
-    .catch((error) => {
-      logger.info(error);
-      throw `Error while getting Github token ${error}`;
+  logger.info(
+    `Calling linkGithubUser for userId: ${request.user.id}`
+  );
+
+  try {
+    if (!request.user) {
+      throw 'User not Authenticated';
+    }
+    if (!request.params.code & !request.params.state) {
+      throw `Missing : code or state params`;
+    }
+    if (request.params.state != request.user.id) {
+      throw `Attention : Cross-site request`;
+    }
+
+    logger.info('Callback to get github Id');
+    
+    const res = await Moralis.Cloud.httpRequest({
+      url: 'https://github-auth-spect.herokuapp.com/callback',
+      params: {
+        code: request.params.code,
+      },
     });
+    
+    logger.info({res});
+
+    if (!res.data.github) {
+      throw 'Something went wrong while getting user data from github';
+    }
+    var userInfo = await getUserByUserId(request.user.id);
+    if (!userInfo) {
+      throw 'User not found in userinfo table';
+    }
+    userInfo.set('githubId', res.data.github);
+    userInfo.set('is_github_linked', true);
+    request.user.set('githubId', res.data.github);
+
+    await Moralis.Object.saveAll([userInfo, request.user], {
+      useMasterKey: true,
+    });
+    
+    return true;
+  }catch(error) {
+    logger.error(`Error while linking github user ${error}`);
+    return error;
+  }
 });
 
 Moralis.Cloud.define('githubUpdateCard', async (request) => {
@@ -82,3 +113,34 @@ Moralis.Cloud.define('githubUpdateCard', async (request) => {
     throw error;
   }
 });
+
+Moralis.Cloud.define('connectGithubRepo', async (request) => {
+  const logger = Moralis.Cloud.getLogger();
+  logger.info(
+    `Calling connectGithubRepo for spaceId: ${request.params.spaceId}`
+  );
+  try {
+    const repoArray = request.params.repo.split(',');
+    const spaceId = request.params.spaceId;
+    var space = await getBoardByObjectId(spaceId);
+
+    if (repoArray.length) {
+      space.set('githubRepos', repoArray);
+      const res = await Moralis.Object.saveAll(space, {
+        useMasterKey: true,
+      });
+      logger.info(`res: ${JSON.stringify(res)}`);
+    }
+    var tribe = space.get('teamId');
+    return tribe;
+  } catch (error) {
+    logger.error(
+      `Failure in connectGithubRepo for spaceId: ${request.params.spaceId} : ${err}`,
+      'error'
+    );
+    throw error;
+  }
+});
+
+
+

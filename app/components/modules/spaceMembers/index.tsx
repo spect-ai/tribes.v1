@@ -24,7 +24,14 @@ function SpaceMembers(props: Props) {
   return (
     <Container>
       <Toaster />
-      <Box sx={{ ml: 8, display: 'flex' }}>
+      <Box
+        sx={{
+          ml: { xs: 0, md: 8 },
+          mr: { xs: 4, md: 0 },
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+        }}
+      >
         {space.roles[user?.id as string] === 3 && <SpaceRoleMapping />}
         {space.roles[user?.id as string] === 3 && <InviteMemberModal />}
       </Box>

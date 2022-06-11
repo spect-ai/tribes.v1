@@ -68,9 +68,9 @@ function ConnectDiscord({ entity }: Props) {
       <PrimaryButton
         variant="outlined"
         color="secondary"
-        size="small"
         loading={isLoading}
         onClick={waitForDiscordLink}
+        fullWidth
         startIcon={
           <svg
             width="15"

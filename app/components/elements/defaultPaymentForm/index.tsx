@@ -26,8 +26,9 @@ function DefaultPaymentForm({ chain, setChain, token, setToken }: Props) {
   } = useGlobal();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const filter = createFilterOptions<Token>();
+
   return (
-    <Box sx={{ display: 'flex', my: 1 }}>
+    <Box sx={{ my: 1 }}>
       <CustomTokenDialog
         open={isDialogOpen}
         handleClose={() => setIsDialogOpen(false)}
@@ -40,13 +41,20 @@ function DefaultPaymentForm({ chain, setChain, token, setToken }: Props) {
         value={chain}
         disableClearable
         onChange={(event, newValue) => {
+          const tokens = getFlattenedCurrencies(
+            registry as Registry,
+            newValue.chainId
+          );
+          if (tokens.length > 0) {
+            setToken(tokens[0]);
+          }
           setChain(newValue as Chain);
         }}
         fullWidth
         renderInput={(params) => (
           <TextField {...params} size="small" color="secondary" />
         )}
-        sx={{ mr: 2 }}
+        sx={{ mr: 2, my: 2 }}
       />
       <Autocomplete
         options={getFlattenedCurrencies(registry as Registry, chain.chainId)}

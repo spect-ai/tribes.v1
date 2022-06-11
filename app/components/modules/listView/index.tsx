@@ -12,7 +12,12 @@ type Props = {
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0.5rem;
+  @media only screen and (min-width: 0px) {
+    padding: 0.1rem;
+  }
+  @media only screen and (min-width: 768px) {
+    padding: 0.5rem;
+  }
 `;
 
 function ListView({ handleDragEnd }: Props) {

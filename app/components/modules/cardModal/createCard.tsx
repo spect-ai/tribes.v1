@@ -11,7 +11,6 @@ import {
   Avatar,
   Tooltip,
 } from '@mui/material';
-import PersonIcon from '@mui/icons-material/Person';
 import PaidIcon from '@mui/icons-material/Paid';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 import LabelIcon from '@mui/icons-material/Label';
@@ -27,32 +26,15 @@ import {
 import Editor from '../editor';
 import CommonPopover from '../../elements/popover';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import useProfileInfo from '../../../hooks/useProfileInfo';
 import { useGlobal } from '../../../context/globalContext';
 import { labelsMapping } from '../../../constants';
 import { CardButton } from '../../elements/styledComponents';
 import useCardCreate from '../../../hooks/useCardCreate';
 import ConfirmModal from '../../elements/confirmModal';
 import MemberInfoDisplay from '../../elements/memberInfoDisplay';
-import MemberAvatar from '../../elements/memberAvatar';
 import MemberGroupDisplay from '../../elements/memberGroupDisplay';
 import CardInfoDisplay from '../../elements/cardInfoDisplay';
-
-// @ts-ignore
-const ModalContainer = muiStyled(Box)(({ theme }) => ({
-  position: 'absolute' as 'absolute',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '55rem',
-  border: '2px solid #000',
-  backgroundColor: theme.palette.background.default,
-  boxShadow: 24,
-  overflowY: 'auto',
-  overflowX: 'hidden',
-  height: '25rem',
-  padding: '1.5rem 3rem',
-}));
+import { ModalContainer } from '.';
 
 const TaskModalTitleContainer = styled.div`
   display: flex;
@@ -426,7 +408,11 @@ function CreateCard({ isOpen, handleClose, column }: Props) {
         handleClose={confirmClose}
         buttonText="Yes, close card"
         runOnConfirm={handleClose}
-        modalContent="You have unsaved changes. Are you sure you want to close card?"
+        modalContent={
+          <Typography variant="h6" sx={{ mb: 2 }} color="text.primary">
+            You have unsaved changes. Are you sure you want to close card?
+          </Typography>
+        }
       />
     </>
   );

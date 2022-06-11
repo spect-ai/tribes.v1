@@ -42,7 +42,7 @@ Moralis.Cloud.define('linkDiscordUser', async (request) => {
     }
     logger.info(`linkDiscordUser ${JSON.stringify(request.params)}`);
     const res = await Moralis.Cloud.httpRequest({
-      url: 'http://c473-49-207-193-47.ngrok.io/api/connectDiscord',
+      url: 'https://spect-discord-bot.herokuapp.com/api/connectDiscord',
       params: {
         code: request.params.code,
       },
@@ -172,7 +172,7 @@ Moralis.Cloud.define('discussTask', async (request) => {
     if (task.get('discussionThread')) {
       const res = await Moralis.Cloud.httpRequest({
         method: 'POST',
-        url: 'http://c473-49-207-193-47.ngrok.io/api/addMemberToDiscussionThread',
+        url: 'https://spect-discord-bot.herokuapp.com/api/addMemberToDiscussionThread',
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
         },
@@ -196,7 +196,7 @@ Moralis.Cloud.define('discussTask', async (request) => {
     } else {
       const res = await Moralis.Cloud.httpRequest({
         method: 'POST',
-        url: 'http://c473-49-207-193-47.ngrok.io/api/createDiscussionThread',
+        url: 'https://spect-discord-bot.herokuapp.com/api/createDiscussionThread',
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
         },

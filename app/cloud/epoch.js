@@ -10,20 +10,6 @@ async function getEpochParseObjByObjectId(objectId) {
   return await epochQuery.first({ useMasterKey: true });
 }
 
-async function getEpochsBySpaceId(spaceId, callerId) {
-  const epochQuery = new Moralis.Query('Epoch');
-  const pipeline = [{ match: { spaceId: spaceId, archived: { $ne: true } } }];
-  var epochs = await epochQuery.aggregate(pipeline, { useMasterKey: true });
-  for (var epoch of epochs) {
-    if (callerId in epoch.memberStats) {
-      epoch.votesGivenByCaller = epoch.memberStats[callerId].votesGiven;
-      epoch.votesAllocated = epoch.memberStats[callerId].votesAllocated;
-      epoch.votesRemaining = epoch.memberStats[callerId].votesRemaining;
-    }
-  }
-  return epochs.reverse();
-}
-
 async function getEpochByObjectId(objectId, callerId) {
   const epochQuery = new Moralis.Query('Epoch');
   const pipeline = [{ match: { objectId: objectId } }];
@@ -114,23 +100,6 @@ Moralis.Cloud.define('startEpoch', async (request) => {
   }
 });
 
-function calculateQuadraticVotes(memberStats) {
-  var totalVotes = 0;
-  var votes = {};
-
-  for (var memberId of Object.keys(memberStats)) {
-    for (var choice of Object.keys(memberStats[memberId].votesGiven)) {
-      if (!(choice in votes)) {
-        votes[choice] = 0;
-      }
-      votes[choice] += memberStats[memberId].votesGiven[choice];
-      totalVotes += memberStats[memberId].votesGiven[choice];
-    }
-  }
-
-  return [totalVotes, votes];
-}
-
 function calculatePassNoPassVotes(memberStats) {
   var votesFor = {};
   var votesAgainst = {};
@@ -193,133 +162,6 @@ Moralis.Cloud.define('endEpoch', async (request) => {
   }
 });
 
-async function getEpochs(spaceId, userId) {
-  try {
-    const epochs = await getEpochsBySpaceId(spaceId, userId);
-
-    var taskIds = [];
-    for (var epoch of epochs) {
-      if (epoch.type === 'Card') {
-        logger.info(`choices ${JSON.stringify(epoch.choices)}`);
-
-        taskIds = taskIds.concat(epoch.choices);
-      }
-    }
-    logger.info(`taskIds ${JSON.stringify(taskIds)}`);
-
-    const taskDetails = await getTaskObjsByTaskIds(taskIds);
-    logger.info(`taskDetails ${JSON.stringify(taskDetails)}`);
-
-    var mappedTaskDetails = {};
-    for (var task of taskDetails) {
-      mappedTaskDetails[task.taskId] = task;
-    }
-    logger.info(`mappedTaskDetails ${JSON.stringify(mappedTaskDetails)}`);
-    return { epochs: epochs, taskDetails: mappedTaskDetails };
-  } catch (err) {
-    logger.error(`Error while getting epochs for space ${spaceId}: ${err}`);
-    throw `Error while getting epochs ${err}`;
-  }
-}
-
-Moralis.Cloud.define('getEpochs', async (request) => {
-  log(
-    request.user?.id,
-    `Calling getEpochs on epoch ${request.params.epochId}`,
-    'info'
-  );
-  try {
-    return await getEpochs(request.params.spaceId, request.user.id);
-  } catch (err) {
-    log(
-      request.user?.id,
-      `Failure in getEpochs for epoch id ${request.params.epochId}: ${err}`,
-      'error'
-    );
-    throw err;
-  }
-});
-
-function getTotalVotesGiven(votesGiven, strategy) {
-  var totalVotes = 0;
-  if (strategy === 'Quadratic voting') {
-    for (var objectId of Object.keys(votesGiven)) {
-      totalVotes += votesGiven[objectId] ** 2;
-    }
-  } else if (strategy === 'Pass/No Pass') {
-    for (var objectId of Object.keys(votesGiven)) {
-      totalVotes += votesGiven[objectId];
-    }
-  }
-
-  return totalVotes;
-}
-
-Moralis.Cloud.define('saveVotes', async (request) => {
-  log(
-    request.user?.id,
-    `Calling saveVotes on epoch ${request.params.epochId}`,
-    'info'
-  );
-  try {
-    const logger = Moralis.Cloud.getLogger();
-    var epoch = await getEpochParseObjByObjectId(request.params.epochId);
-    var totalVotesGiven = getTotalVotesGiven(
-      request.params.votesGiven,
-      epoch.get('strategy')
-    );
-    logger.info(`totalVotesGivens ${JSON.stringify(totalVotesGiven)}`);
-    var memberStats = epoch.get('memberStats');
-    if (
-      request.user.id in memberStats &&
-      totalVotesGiven <= memberStats[request.user.id].votesAllocated
-    ) {
-      logger.info(`memberStats ${JSON.stringify(memberStats)}`);
-
-      memberStats[request.user.id].votesGiven = request.params.votesGiven;
-      logger.info(`memberStats ${JSON.stringify(memberStats)}`);
-
-      memberStats[request.user.id].votesRemaining =
-        memberStats[request.user.id].votesAllocated - totalVotesGiven;
-    } else throw 'Votes given overshoots votes allocated';
-
-    epoch.set('memberStats', memberStats);
-    logger.info(`Saving votes ${JSON.stringify(epoch)}`);
-
-    await Moralis.Object.saveAll([epoch], { useMasterKey: true });
-    return epoch;
-  } catch (err) {
-    log(
-      request.user?.id,
-      `Failure in saveVotes for epoch id ${request.params.epochId}: ${err}`,
-      'error'
-    );
-    throw `Error while saving votes ${err}`;
-  }
-});
-
-Moralis.Cloud.define('completeEpochPayment', async (request) => {
-  log(
-    request.user?.id,
-    `Calling completeEpochPayment on epoch ${request.params.epochId}`,
-    'info'
-  );
-  try {
-    const epoch = await getEpochParseObjByObjectId(request.params.epochId);
-    epoch.set('paid', true);
-    epoch.set('transactionHash', request.params.transactionHash);
-    await Moralis.Object.saveAll([epoch], { useMasterKey: true });
-    return await getEpochs(request.params.spaceId, request.user.id);
-  } catch (err) {
-    log(
-      request.user?.id,
-      `Failure in completeEpochPayment for epoch id ${request.params.epochId}: ${err}`,
-      'error'
-    );
-    throw `Error while completing epoch payment ${err}`;
-  }
-});
-
 Moralis.Cloud.define('moveCardsAfterEpoch', async (request) => {
   try {
     const epoch = await getEpochParseObjByObjectId(request.params.epochId);
@@ -356,20 +198,6 @@ Moralis.Cloud.define('moveCardsAfterEpoch', async (request) => {
       `Error while moving cards after epoch ${request.params.epochId}: ${err}`
     );
     throw `Error while moving cards after epoch ${err}`;
-  }
-});
-
-Moralis.Cloud.define('archiveEpoch', async (request) => {
-  try {
-    var epoch = await getEpochParseObjByObjectId(request.params.epochId);
-    epoch.set('archived', true);
-    await Moralis.Object.saveAll([epoch], { useMasterKey: true });
-    return await getEpochs(request.params.spaceId, request.user.id);
-  } catch (err) {
-    logger.error(
-      `Error while archiving epoch ${request.params.epochId}: ${err}`
-    );
-    throw `Error while archiving epoch ${err}`;
   }
 });
 

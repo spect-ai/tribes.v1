@@ -4,21 +4,20 @@ import React, { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { Fade, Grow } from '@mui/material';
 import { useSpace } from '../../../../pages/tribe/[id]/space/[bid]';
-import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import CardModal from '../../modules/cardModal';
-import { notify } from '../../modules/settingsTab';
 import DiscordIntegrationModal from '../../modules/discordIntegrationModal';
 import Project from '../../modules/project';
 import EpochList from '../../modules/epoch';
 import NoAccess from '../../modules/epoch/noAccess';
-import SpaceMembers from '../../modules/spaceMembers';
 import ProjectSkeletonLoader from '../../modules/project/skeletonLoader';
+import SpaceSettings from '../../modules/spaceSettings';
+import Retro from '../../modules/retro';
 
 type Props = {};
 
 const OuterDiv = styled.div`
-  margin-left: 1.5rem;
-  margin-right: 1.5rem;
+  margin-left: 60px;
+  margin-top: 60px;
   width: 100%;
 `;
 
@@ -72,14 +71,21 @@ function BoardsTemplate(props: Props) {
           {tab === 1 && (
             <Grow in={tab === 1} timeout={500}>
               <div>
-                {user && user?.id in space.roles ? <EpochList /> : <NoAccess />}
+                {user && user?.id in space.roles ? <Retro /> : <NoAccess />}
               </div>
             </Grow>
           )}
-          {tab === 2 && (
+          {/* {tab === 2 && (
             <Grow in={tab === 2} timeout={500}>
               <div>
                 <SpaceMembers />
+              </div>
+            </Grow>
+          )} */}
+          {tab === 2 && (
+            <Grow in={tab === 2} timeout={500}>
+              <div>
+                <SpaceSettings />
               </div>
             </Grow>
           )}

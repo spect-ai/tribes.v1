@@ -1,11 +1,18 @@
+import styled from '@emotion/styled';
 import { Box, Skeleton } from '@mui/material';
 import React from 'react';
 
 type Props = {};
 
+const OuterDiv = styled.div`
+  margin-left: 60px;
+  margin-top: 60px;
+  width: 100%;
+`;
+
 function SkeletonLoader(props: Props) {
   return (
-    <Box>
+    <OuterDiv>
       <Skeleton animation="wave" variant="text" width="30%" />
       <Skeleton animation="wave" variant="text" width="20%" />
       <Skeleton animation="wave" variant="text" width="70%" sx={{ mb: 8 }} />
@@ -25,7 +32,7 @@ function SkeletonLoader(props: Props) {
           sx={{ borderRadius: '10px' }}
         />
       </Box>
-    </Box>
+    </OuterDiv>
   );
 }
 

@@ -416,6 +416,42 @@ export default function useCardUpdate() {
       });
   };
 
+  const updateAttestationInfo = (
+    nftAddress: string,
+    onChainBountyId: number,
+    ipfsUrl: string,
+    issuer: string
+  ) => {
+    executeCardUpdates(
+      {
+        updates: {
+          nftAddress,
+          onChainBountyId,
+          attested: true,
+          taskId: task.taskId,
+          ipfsUrl,
+          issuer,
+        },
+      },
+      'attest',
+      false
+    );
+  };
+
+  const updateNftAddress = (nftAddress: string) => {
+    executeCardUpdates(
+      {
+        updates: {
+          nftAddress,
+          claimedBy: user?.get('ethAddress'),
+          taskId: task.taskId,
+        },
+      },
+      'attest',
+      false
+    );
+  };
+
   return {
     openPopover,
     closePopover,
@@ -440,5 +476,7 @@ export default function useCardUpdate() {
     updateVotes,
     updateRevisionInstruction,
     updateToDone,
+    updateAttestationInfo,
+    updateNftAddress,
   };
 }

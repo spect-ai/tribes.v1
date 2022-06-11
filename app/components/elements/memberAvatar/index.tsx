@@ -1,12 +1,12 @@
 import PersonIcon from '@mui/icons-material/Person';
-import { Avatar } from '@mui/material';
+import { Avatar, SxProps, Theme } from '@mui/material';
 import React from 'react';
 import useProfileInfo from '../../../hooks/useProfileInfo';
-import { Member } from '../../../types';
+import { Member, Profile } from '../../../types';
 
 type Props = {
-  member?: Member;
-  avatarsx?: object;
+  member?: Member | Profile;
+  avatarsx?: SxProps<Theme> | undefined;
 };
 
 export default function MemberAvatar({ member, avatarsx }: Props) {

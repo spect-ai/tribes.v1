@@ -31,6 +31,7 @@ import CreateEpoch from './createEpochModal';
 import PayoutContributors from './payoutContributors';
 import useMoralisFunction from '../../../hooks/useMoralisFunction';
 import { useGlobal } from '../../../context/globalContext';
+import CreatePeriod from '../createPeriod';
 
 type Props = {};
 
@@ -50,6 +51,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: 1rem;
+  margin-left: 1rem;
 `;
 
 const DetailContainer = styled.div`
@@ -66,8 +68,13 @@ const InfoContainer = styled.div`
 const ButtonContainer = styled.div`
   margin-top: 1rem;
   display: flex;
-  flex-direction: row;
   justify-content: flex-end;
+  @media only screen and (min-width: 0px) {
+    flex-direction: column;
+  }
+  @media only screen and (min-width: 768px) {
+    flex-direction: row;
+  }
 `;
 
 function EpochList() {
@@ -87,8 +94,9 @@ function EpochList() {
     choiceId: string,
     value: number
   ) => {
+    const val = value || 0;
     const temp = { ...votesGiven }; // Shallow copy
-    temp[epochid][choiceId] = value;
+    temp[epochid][choiceId] = val;
     setVotesGiven(temp);
   };
 
@@ -98,10 +106,9 @@ function EpochList() {
     newVoteVal: number
   ) => {
     const tempReceived = { ...votesRemaining }; // Shallow copy
+    const val = newVoteVal || 0;
     tempReceived[epochid] =
-      tempReceived[epochid] -
-      newVoteVal ** 2 +
-      votesGiven[epochid][memberId] ** 2;
+      tempReceived[epochid] - val ** 2 + votesGiven[epochid][memberId] ** 2;
     setVotesRemaining(tempReceived);
   };
 
@@ -167,6 +174,7 @@ function EpochList() {
       setRefreshEpochs(false);
     }
   }, [refreshEpochs]);
+
   useEffect(() => {
     setIsLoading(true);
     loadEpochs();
@@ -186,8 +194,8 @@ function EpochList() {
   return (
     <Container>
       <Toaster />
-      <Box sx={{ width: '20%' }}>
-        {space.epochs?.length !== 0 && <CreateEpoch />}
+      <Box sx={{ width: { xs: '90%', md: '20%' } }}>
+        {space.epochs?.length !== 0 && <CreatePeriod />}
       </Box>
       <Accordion hidden>
         <AccordionSummary />
@@ -204,7 +212,10 @@ function EpochList() {
                 data-testid="aFirstEpoch"
                 disableGutters
                 key={epoch.objectId}
-                sx={{ border: '2px solid #00194A' }}
+                sx={{
+                  border: '2px solid #00194A',
+                  width: { xs: '90%', md: '98%' },
+                }}
               >
                 <AccordionSummary
                   aria-controls="panel1d-content"
@@ -223,7 +234,13 @@ function EpochList() {
                     <Typography sx={{ width: '30%', flexShrink: 0 }}>
                       {epoch.name}
                     </Typography>
-                    <Typography sx={{ width: '30%', flexShrink: 0 }}>
+                    <Typography
+                      sx={{
+                        width: '30%',
+                        flexShrink: 0,
+                        display: { xs: 'none', md: 'flex' },
+                      }}
+                    >
                       Started on{' '}
                       {
                         monthMap[
@@ -241,7 +258,7 @@ function EpochList() {
                 </AccordionSummary>
                 <AccordionDetails sx={{ backgroundColor: '#000f29' }}>
                   <Grid container>
-                    <Grid item xs={8}>
+                    <Grid item xs={12} md={8}>
                       {!isLoading &&
                         epoch.strategy === 'Quadratic voting' &&
                         Object.keys(votesGiven).includes(epoch.objectId) && (
@@ -279,7 +296,7 @@ function EpochList() {
                           />
                         )}
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={12} md={4}>
                       <DetailContainer>
                         {epoch.active && epoch.type === 'Member' && (
                           <InfoContainer>
@@ -340,7 +357,11 @@ function EpochList() {
                                   loading={isLoading}
                                   variant="outlined"
                                   disabled={votesRemaining[epoch.objectId] < 0}
-                                  sx={{ mx: 4, borderRadius: 1 }}
+                                  sx={{
+                                    mx: { xs: 0, md: 4 },
+                                    my: { xs: 4, md: 0 },
+                                    borderRadius: 1,
+                                  }}
                                   size="small"
                                   color="secondary"
                                   onClick={() => {
@@ -411,7 +432,10 @@ function EpochList() {
                                 variant="outlined"
                                 size="small"
                                 color="secondary"
-                                sx={{ borderRadius: 1, ml: 4 }}
+                                sx={{
+                                  ml: { xs: 0, md: 4 },
+                                  my: { xs: 2, md: 0 },
+                                }}
                                 loading={isLoading}
                                 onClick={() => {
                                   setIsLoading(true);

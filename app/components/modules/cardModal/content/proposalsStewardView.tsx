@@ -4,8 +4,10 @@ import {
   Typography,
   Avatar,
   InputAdornment,
+  IconButton,
 } from '@mui/material';
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import { useSpace } from '../../../../../pages/tribe/[id]/space/[bid]';
 import { Task } from '../../../../types';
 import { PrimaryButton } from '../../../elements/styledComponents';
@@ -16,6 +18,7 @@ function ProposalsStewardView() {
   const { space, setSpace } = useSpace();
   const { task, loading } = useCardContext();
   const { updateStatusAndAssignee } = useCardUpdate();
+  const router = useRouter();
 
   return (
     <Box
@@ -42,20 +45,31 @@ function ProposalsStewardView() {
                 mt: 4,
               }}
             >
-              <Avatar
-                sx={{ p: 0, m: 0, width: 32, height: 32 }}
-                src={space.memberDetails[proposal.userId]?.profilePicture?._url}
-              />
-              <Typography
-                variant="body1"
-                sx={{
-                  ml: 2,
-                  display: 'flex',
-                  alignItems: 'center',
-                }}
+              <IconButton
+                onClick={() =>
+                  router.push(
+                    `/profile/${space.memberDetails[proposal.userId].username}`
+                  )
+                }
+                disableRipple
               >
-                {space.memberDetails[proposal.userId]?.username}
-              </Typography>{' '}
+                <Avatar
+                  sx={{ p: 0, m: 0, width: 32, height: 32 }}
+                  src={
+                    space.memberDetails[proposal.userId]?.profilePicture?._url
+                  }
+                />
+                <Typography
+                  variant="body1"
+                  sx={{
+                    ml: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  {space.memberDetails[proposal.userId]?.username}
+                </Typography>{' '}
+              </IconButton>
             </Box>
           )}
 

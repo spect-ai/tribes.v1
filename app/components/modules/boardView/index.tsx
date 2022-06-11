@@ -18,9 +18,15 @@ type Props = {
 const Container = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 0 0.5rem;
   height: calc(100vh - 6.5rem);
-  max-width: calc(100vw - 7.2rem);
+  @media only screen and (min-width: 0px) {
+    max-width: calc(100vw - 5rem);
+    padding: 0 0.1rem;
+  }
+  @media only screen and (min-width: 768px) {
+    max-width: calc(100vw - 7.2rem);
+    padding: 0 0.5rem;
+  }
   overflow-x: auto;
   overflow-y: hidden;
 `;
