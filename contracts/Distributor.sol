@@ -8,10 +8,9 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 contract Distributor {
   using SafeERC20 for IERC20;
 
-  event ethDistributed(address indexed sender, string indexed id);
-  event tokensDistributed(address indexed sender, string indexed id);
-  event tokenDistributed(address indexed sender, address indexed token,  string indexed id);
-  event tokensApproved(address indexed sender, address[] tokens);
+  event ethDistributed(address indexed sender, string id);
+  event tokensDistributed(address indexed sender, string id);
+  event tokenDistributed(address indexed sender, address indexed token,  string id);
 
   function distributeEther(
     address[] memory recipients,
@@ -82,17 +81,6 @@ contract Distributor {
     }
 
     emit tokensDistributed(msg.sender, id);
-  }
-
-  function approveTokens(
-    address[] memory tokens
-  ) external {
-    uint MAX_UINT = 2 ** 256 - 1;
-    for (uint256 i = 0; i < tokens.length; i++) {
-      IERC20(tokens[i]).approve(address(this), MAX_UINT);
-    }
-
-    emit tokensApproved(msg.sender, tokens);
   }
 
   function pendingApprovals(
